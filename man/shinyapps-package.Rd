@@ -25,15 +25,10 @@ JJ Allaire
 
 Maintainer: JJ Allaire <jj@rstudio.com>
 }
-\references{
-
-}
 
 \keyword{ package }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[shiny:shiny-package]{shiny}} ~~
-}
-\examples{
 
+\code{\link[shiny:shiny-package]{shiny}}
 }
+

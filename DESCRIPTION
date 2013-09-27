@@ -6,7 +6,8 @@ Date: 2013-09-27
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Interface for publishing applications to shinyapps.io
-Suggests: RCurl
+Imports:
+    RCurl
 License: GPL-2
 Collate:
     'publish.R'
