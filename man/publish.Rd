@@ -2,10 +2,10 @@
 \alias{publish}
 \title{Publish an application to shinyapps.io}
 \usage{
-  publish(appDir)
+  publish(appDir = ".")
 }
 \arguments{
-  \item{appDir}{directoryo of application to publish}
+  \item{appDir}{directory of application to publish}
 }
 \description{
   Publish an application to shinyapps.io
