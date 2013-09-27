@@ -65,12 +65,11 @@ readHttpResponse <- function(conn) {
 
 
 # internal sockets implementation of upload
-httpPostInternalCore <- function(host,
-                                 port,
-                                 path,
-                                 headers,
-                                 contentType,
-                                 postFile) {
+httpPostInternal <- function(host,
+                             path,
+                             headers,
+                             contentType,
+                             postFile) {
   
   # read file in binary mode
   fileLength <- file.info(postFile)$size
@@ -99,7 +98,7 @@ httpPostInternalCore <- function(host,
   
   # open socket connection
   conn <- socketConnection(host=host,
-                           port=port,
+                           port=80,
                            open="w+b",
                            blocking=TRUE)
   on.exit(close(conn))
@@ -112,27 +111,11 @@ httpPostInternalCore <- function(host,
   readHttpResponse(conn)      
 }
 
-httpPostInternal <- function(host,
-                             path,
-                             headers,
-                             contentType,
-                             postFile) {
-  httpPostInternalCore(host, 80, path, headers, contentType, postFile)
-}
-
-httpsPostInternal <- function(host,
-                              path,
-                              headers,
-                              contentType,
-                              postFile) {
-  httpPostInternalCore(host, 443, path, headers, contentType, postFile)
-}
-
-httpsPostCurl <- function(host,
-                          path,
-                          contentType,
-                          headers,
-                          postFile) {  
+httpPostCurl <- function(host,
+                         path,
+                         headers,
+                         contentType,
+                         postFile) {  
   
   fileLength <- file.info(postFile)$size
   
@@ -175,11 +158,11 @@ httpsPostCurl <- function(host,
 
 #' @importFrom RCurl fileUpload curlOptions basicHeaderGatherer 
 #'                   basicTextGatherer postForm
-httpsPostRCurl <- function(host,
-                           path,
-                           contentType,
-                           headers,
-                           postFile) {
+httpPostRCurl <- function(host,
+                          path,
+                          headers,
+                          contentType,
+                          postFile) {
   
   # url to post to
   url <- paste("https://", host, path, sep="")
