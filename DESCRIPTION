@@ -1,0 +1,11 @@
+Package: shinyapps
+Type: Package
+Title: Interface for publishing applications to shinyapps.io
+Version: 10.1
+Date: 2013-09-27
+Author: JJ Allaire
+Maintainer: JJ Allaire <jj@rstudio.com>
+Description: Interface for publishing applications to shinyapps.io
+License: GPL-2
+Collate:
+    'publish.R'
