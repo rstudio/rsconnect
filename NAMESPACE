@@ -1,4 +1,4 @@
-export(publish)
+export(deploy)
 importFrom(RCurl,basicHeaderGatherer)
 importFrom(RCurl,basicTextGatherer)
 importFrom(RCurl,curlOptions)

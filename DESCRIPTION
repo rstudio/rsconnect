@@ -10,5 +10,6 @@ Imports:
     RCurl
 License: GPL-2
 Collate:
-    'publish.R'
     'http.R'
+    'api.R'
+    'deploy.R'
