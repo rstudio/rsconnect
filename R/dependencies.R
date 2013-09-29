@@ -19,8 +19,7 @@ appDependencies <- function(appDir) {
   
   # flatten the list
   deps <- unlist(depsList, recursive=TRUE, use.names=FALSE)
-  pkgs <- unique(c(pkgs, deps))  
-  pkgs
+  unique(c(pkgs, deps))  
 }
 
 # detect all package dependencies for a source file (parses the file and then
