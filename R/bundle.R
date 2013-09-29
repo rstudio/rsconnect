@@ -34,9 +34,9 @@ createAppManifest <- function(name, appDir) {
   packages <- list()
   for (pkg in deps) {
     pkgDescription <- utils::packageDescription(pkg)
-    packages[[pkg]] <- pkgDescription
+    packages[[length(packages) + 1]] <- pkgDescription
   }
-  
+
   # create the manifest
   manifest <- list()
   manifest$name <- name
