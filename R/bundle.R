@@ -27,10 +27,26 @@ bundleApp <- function(name, appDir) {
 
 createAppManifest <- function(name, appDir) {
   
+  # get the package dependencies
+  deps <- appDependencies(appDir)
+  
+  # get the recursive dependencies
+  
+  
+  # for each package determine the version
+  packages <- list()
+  for (pkg in deps) {
+    pkgInfo <- list()
+    pkgDescription <- utils::packageDescription(pkg)
+    pkgInfo$version <- pkgDescription$Version
+    packages[[pkg]] <- I(pkgInfo)
+  }
+  
+  
   # create the manifest
   manifest <- list()
   manifest$name <- name
-  manifest$packages <- I(appDependencies(appDir))
+  manifest$packages <- I(packages)
   
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
