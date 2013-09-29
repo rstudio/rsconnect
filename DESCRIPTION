@@ -12,7 +12,8 @@ Imports:
 License: GPL-2
 Collate:
     'http.R'
-    'api.R'
     'deploy.R'
     'bundle.R'
     'dependencies.R'
+    'service.R'
+    'accounts.R'
