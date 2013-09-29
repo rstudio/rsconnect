@@ -49,13 +49,26 @@ createAppManifest <- function(name, appDir) {
 # detect all package dependencies for an application (recursively discovers
 # dependencies for all .R files in the app directory)
 appDependencies <- function(appDir) {
+  
+  # first get the packages referred to in source code
   pkgs <- character()
   sapply(list.files(appDir, pattern=glob2rx("*.R"), 
                     ignore.case=TRUE, recursive=TRUE),
          function(file) {
            pkgs <<- append(pkgs, fileDependencies(file.path(appDir, file)))
          })
-  unique(pkgs)
+  pkgs <- unique(pkgs)
+  
+  # then calculate recursive dependencies
+  depsList <- tools::package_dependencies(pkgs, 
+                                          which = "most",
+                                          available.packages(),
+                                          recursive=TRUE)
+  
+  # flatten the list
+  pkgs <- unlist(depsList, recursive=TRUE, use.names=FALSE)
+  pkgs <- unique(pkgs)  
+  pkgs
 }
 
 # detect all package dependencies for a source file (parses the file and then
