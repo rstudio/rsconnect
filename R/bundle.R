@@ -8,15 +8,13 @@ bundleApp <- function(name, appDir) {
   dir.create(bundleAppDir, recursive=TRUE)
   on.exit(unlink(bundleDir))
 
-  # copy the appDir into the bundleAppDir dir
+  # copy the appDir into the bundleAppDir
   appFiles <- list.files(appDir)
   file.copy(appFiles, bundleAppDir, recursive=TRUE)
-    
-  # detect package dependencies by parsing source code
-  deps <- appDependencies(appDir)
   
-  # write them into the bundle dir
-  writeLines(deps, file.path(bundleDir, "DEPENDENCIES"))
+  # generate the manifest and write it into the bundle dir
+  manifestJson <- createAppManifest(name, appDir)
+  writeLines(manifestJson, file.path(bundleDir, "manifest.json"))
   
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
@@ -25,6 +23,17 @@ bundleApp <- function(name, appDir) {
   bundlePath <- tempfile(bundleName, fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip")
   bundlePath
+}
+
+createAppManifest <- function(name, appDir) {
+  
+  # create the manifest
+  manifest <- list()
+  manifest$name <- name
+  manifest$packages <- I(appDependencies(appDir))
+  
+  # return it as json
+  RJSONIO::toJSON(manifest, pretty = TRUE)
 }
 
 # detect all package dependencies for an application (recursively discovers
