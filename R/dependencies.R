@@ -14,15 +14,13 @@ appDependencies <- function(appDir) {
   
   # then calculate recursive dependencies
   available <- availableCRANSourcePackages()
+  which <-  c("Depends", "Imports", "LinkingTo", "Suggests")
   depsList <- tools::package_dependencies(pkgs, available, recursive=TRUE)
   
   # flatten the list
   deps <- unlist(depsList, recursive=TRUE, use.names=FALSE)
   pkgs <- unique(c(pkgs, deps))  
   pkgs
-  
-  # TODO: calculate order of installation
-  
 }
 
 # detect all package dependencies for a source file (parses the file and then
