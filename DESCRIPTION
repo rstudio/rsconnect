@@ -13,3 +13,4 @@ Collate:
     'http.R'
     'api.R'
     'deploy.R'
+    'bundle.R'
