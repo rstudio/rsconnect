@@ -17,3 +17,4 @@ Collate:
     'dependencies.R'
     'service.R'
     'accounts.R'
+    'config.R'
