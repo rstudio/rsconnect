@@ -199,8 +199,6 @@ httpPostCurl <- function(host,
   httpCurl(host, "POST", path, headers, contentType, file)
 }
 
-
-#' @importFrom RCurl curlOptions basicHeaderGatherer basicTextGatherer getURL
 httpGetRCurl <- function(host,
                          path,
                          headers) {
@@ -236,8 +234,6 @@ httpGetRCurl <- function(host,
        content = textGatherer$value())
 }
 
-#' @importFrom RCurl fileUpload curlOptions basicHeaderGatherer 
-#'                   basicTextGatherer postForm
 httpPostRCurl <- function(host,
                           path,
                           headers,

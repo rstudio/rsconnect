@@ -1,7 +1,1 @@
 export(deploy)
-importFrom(RCurl,basicHeaderGatherer)
-importFrom(RCurl,basicTextGatherer)
-importFrom(RCurl,curlOptions)
-importFrom(RCurl,fileUpload)
-importFrom(RCurl,getURL)
-importFrom(RCurl,postForm)
