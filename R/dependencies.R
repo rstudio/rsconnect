@@ -87,6 +87,5 @@ expressionDependencies <- function(e) {
 
 # get source packages from CRAN
 availableCRANSourcePackages <- function() {
-  available.packages(contrib.url(getOption("repos")[["CRAN"]], "source"),
-                     type = "source")
+  available.packages("http://cran.rstudio.com/src/contrib", type = "source")
 }
