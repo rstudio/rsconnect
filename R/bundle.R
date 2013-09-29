@@ -28,19 +28,20 @@ bundleApp <- function(name, appDir) {
 createAppManifest <- function(name, appDir) {
   
   # get the package dependencies
-  deps <- appDependencies(appDir)
+  dependencies <- appDependencies(appDir)
   
   # read the package descriptions
-  packages <- list()
-  for (pkg in deps) {
-    pkgDescription <- utils::packageDescription(pkg)
-    packages[[length(packages) + 1]] <- pkgDescription
+  descriptions <- list()
+  for (pkg in dependencies) {
+    description <- utils::packageDescription(pkg)
+    descriptions[[pkg]] <- description
   }
 
   # create the manifest
   manifest <- list()
   manifest$name <- name
-  manifest$packages <- I(packages)
+  manifest$dependencies <- I(dependencies)
+  manifest$package_descriptions <- I(descriptions)
   
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
@@ -61,14 +62,18 @@ appDependencies <- function(appDir) {
   
   # then calculate recursive dependencies
   depsList <- tools::package_dependencies(pkgs, 
-                                          which = "most",
                                           available.packages(),
                                           recursive=TRUE)
   
   # flatten the list
-  pkgs <- unlist(depsList, recursive=TRUE, use.names=FALSE)
-  pkgs <- unique(pkgs)  
+  deps <- unlist(depsList, recursive=TRUE, use.names=FALSE)
+  pkgs <- unique(c(pkgs, deps))  
   pkgs
+  
+  # TODO: available.packages should look only on CRAN and should look
+  #       for type=source?
+  # TODO: calculate order of installation
+  
 }
 
 # detect all package dependencies for a source file (parses the file and then
