@@ -30,18 +30,12 @@ createAppManifest <- function(name, appDir) {
   # get the package dependencies
   deps <- appDependencies(appDir)
   
-  # get the recursive dependencies
-  
-  
-  # for each package determine the version
+  # read the package descriptions
   packages <- list()
   for (pkg in deps) {
-    pkgInfo <- list()
     pkgDescription <- utils::packageDescription(pkg)
-    pkgInfo$version <- pkgDescription$Version
-    packages[[pkg]] <- I(pkgInfo)
+    packages[[pkg]] <- pkgDescription
   }
-  
   
   # create the manifest
   manifest <- list()
