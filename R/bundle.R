@@ -1,12 +1,30 @@
 
 
-bundleApp <- function(appDir) {
-  
+bundleApp <- function(name, appDir) {
+
+  # create a directory to stage the application bundle in
+  bundleDir <- tempfile()
+  bundleAppDir <- file.path(bundleDir, "app")
+  dir.create(bundleAppDir, recursive=TRUE)
+  on.exit(unlink(bundleDir))
+
+  # copy the appDir into the bundleAppDir dir
+  appFiles <- list.files(appDir)
+  file.copy(appFiles, bundleAppDir, recursive=TRUE)
+    
   # detect package dependencies by parsing source code
-  deps < appDependencies(appDir)
+  deps <- appDependencies(appDir)
   
+  # write them into the bundle dir
+  writeLines(deps, file.path(bundleDir, "DEPENDENCIES"))
   
-  
+  # create the bundle and return it's path
+  prevDir <- setwd(bundleDir)
+  on.exit(setwd(prevDir))
+  bundleName <- paste("shinyapps-", name, "-", sep="")
+  bundlePath <- tempfile(bundleName, fileext = ".tar.gz")
+  utils::tar(bundlePath, files = ".", compression = "gzip")
+  bundlePath
 }
 
 # detect all package dependencies for an application (recursively discovers
