@@ -277,38 +277,39 @@ httpPostRCurl <- function(host,
        content = textGatherer$value())
 }
 
-httpFunction <- function(http, functions) {
+httpFunction <- function(httpType, functions) {
   
   httpFunction <- NULL
-  if (is.function(http)) {
-    httpFunction <- http
-  } else if (identical("rcurl", http)) {
+  if (identical("rcurl", httpType)) {
     httpFunction <- functions$rcurl
-  } else if (identical("curl",  http)) {
+  } else if (identical("curl",  httpType)) {
     httpFunction <- functions$curl
-  } else if (identical("insecure", http)) {
+  } else if (identical("insecure", httpType)) {
     httpFunction <- functions$insecure
   } else {
-    stop(paste("Invalid http connection type specified:",http,
+    stop(paste("Invalid http connection type specified:",httpType,
                ". Valid values are rcurl, curl, and insecure."))
   }
 }
 
-httpPost <- function(http, path, contentType, file, headers = list()) {
+httpPost <- function(httpType, path, contentType, file, headers = list()) {
   functions <- list()
   functions$curl <- httpPostCurl
   functions$rcurl <- httpPostRCurl
   functions$insecure <- httpPostInsecure
-  postFunction <- httpFunction(http, functions)
+  postFunction <- httpFunction(httpType, functions)
   postFunction("api.shinyapps.io", path, headers, contentType, file)
 }
 
-httpGet <- function(http, path, headers = list()) {
+httpGet <- function(httpType, path, headers = list()) {
   functions <- list()
   functions$curl <- httpGetCurl
   functions$rcurl <- httpGetRCurl
   functions$insecure <- httpGetInsecure
-  getFunction <- httpFunction(http, functions)
+  getFunction <- httpFunction(httpType, functions)
   getFunction("api.shinyapps.io", path, headers)
 }
+
+
+
 
