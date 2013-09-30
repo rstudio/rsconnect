@@ -30,7 +30,7 @@ deploy <- function(appDir = getwd(),
   # read any existing deployments and see if there is a single deployment
   # that we can use for defaulting
   deployments <- readDeployments(appDir)
-  defaultDeployment = ifelse(nrow(deployments) == 1), 
+  defaultDeployment = ifelse(nrow(deployments) == 1, 
                              as.list(deployments[1,]), NULL)
   
   
