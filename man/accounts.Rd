@@ -7,7 +7,7 @@
 \usage{
   accounts()
 
-  setAccountInfo(name, key, secret)
+  setAccountInfo(name, token, secret)
 
   accountInfo(name)
 
@@ -16,9 +16,9 @@
 \arguments{
   \item{name}{Account name}
 
-  \item{key}{Account key}
+  \item{token}{User token}
 
-  \item{secret}{Account secret}
+  \item{secret}{User token secret}
 }
 \description{
   Functions to add, enumerate, and remove ShinyApps
