@@ -19,14 +19,7 @@ accounts <- function() {
 #' @export
 setAccountInfo <- function(name, token, secret) {
   
-  # TODO: token looks up a single user (we store the userId) 
-  # Andy to add API for this
-  # (hardcode to 4 if necessary)
-  
-  # TODO: name used to lookup accountId (we store this)
-  #  GET /users/<id>/accounts/ with a filter
-  #  https://api.shinyapps.io/v1/users/4/accounts?filter=name:eq:jjallaire
-  # -- should be one that matches, error if not
+  # validate parameters
   
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
@@ -36,8 +29,32 @@ setAccountInfo <- function(name, token, secret) {
   
   if (!isStringParam(secret))
     stop(stringParamErrorMessage("secret"))
+
+  # create lucid client
+  authInfo <- list(token = token, secret = secret)
+  lucid <- lucidClient(authInfo)
   
-  write.dcf(list(name = name, token = token, secret = secret), 
+  # get user Id
+  userId <- lucid$userIdFromToken(token)
+  
+  # get account id
+  accountId <- NULL
+  accounts <- lucid$accountsForUser(userId)
+  for (account in accounts) {
+    if (identical(account$name, name)) {
+      accountId <- account$id
+      break
+    }
+  } 
+  if (is.null(accountId))
+    stop("Unable to determine account id for account named '", name, "'")
+ 
+  # write the user info
+  write.dcf(list(name = name,
+                 userId = userId,
+                 accountId = accountId,
+                 token = token, 
+                 secret = secret), 
             accountConfigFile(name))
 }
 

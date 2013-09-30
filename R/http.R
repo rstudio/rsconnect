@@ -337,6 +337,9 @@ signatureHeaders <- function(authInfo, method, path, file) {
   # headers to return
   headers <- list()
   
+  # remove query string from path if necessary
+  path <- strsplit(path, "?", fixed = TRUE)[[1]]
+  
   # generate date
   date <- strftime(Sys.time(), "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
   
