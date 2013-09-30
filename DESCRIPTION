@@ -16,7 +16,7 @@ Collate:
     'deploy.R'
     'bundle.R'
     'dependencies.R'
-    'service.R'
     'accounts.R'
     'config.R'
     'utils.R'
+    'lucid.R'
