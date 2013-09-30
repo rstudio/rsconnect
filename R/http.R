@@ -353,7 +353,7 @@ signatureHeaders <- function(accountInfo, method, path, file) {
   # sign request
   decodedSecret <- RCurl::base64Decode(accountInfo$secret)
   hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")                
-  signature <- RCurl::base64Encode(hmac)
+  signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
   
   # return headers
   headers$Date <- date
