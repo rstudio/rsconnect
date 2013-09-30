@@ -24,6 +24,15 @@ lucidClient <- function(authInfo) {
       }
     },
     
+    createApplication = function(name, accountId) {
+      path = "/v1/applications"
+      
+      # TODO: json to file that we post
+      
+      # TODO: 407 means the application already exists
+      
+    },
+    
     uploadBundle = function(file) {
       httpPost(authInfo, 
                "/bundle/upload", 
