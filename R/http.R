@@ -292,24 +292,75 @@ httpFunction <- function(httpType, functions) {
   }
 }
 
-httpPost <- function(httpType, path, contentType, file, headers = list()) {
+httpPost <- function(httpType, 
+                     accountInfo, 
+                     path, 
+                     contentType, 
+                     file, 
+                     headers = list()) {
+  # functions for httpType
   functions <- list()
   functions$curl <- httpPostCurl
   functions$rcurl <- httpPostRCurl
   functions$insecure <- httpPostInsecure
   postFunction <- httpFunction(httpType, functions)
+  
+  # get signature headers and append them
+  sigHeaders <- signatureHeaders(accountInfo, "POST", path, file)
+  headers <- append(headers, sigHeaders)
+  
+  # perform POST
   postFunction("api.shinyapps.io", path, headers, contentType, file)
 }
 
-httpGet <- function(httpType, path, headers = list()) {
+httpGet <- function(httpType,
+                    accountInfo,
+                    path, 
+                    headers = list()) {
+  
+  # functions for httpType
   functions <- list()
   functions$curl <- httpGetCurl
   functions$rcurl <- httpGetRCurl
   functions$insecure <- httpGetInsecure
   getFunction <- httpFunction(httpType, functions)
+  
+  # get signature headers and append them
+  sigHeaders <- signatureHeaders(accountInfo, "GET", path, NULL)
+  headers <- append(headers, sigHeaders)
+   
+  # perform GET
   getFunction("api.shinyapps.io", path, headers)
 }
 
-
+signatureHeaders <- function(accountInfo, method, path, file) {
+  
+  # headers to return
+  headers <- list()
+  
+  # generate date
+  date <- strftime(Sys.time(), "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
+  
+  # generate contents hash
+  if (!is.null(file))
+    md5 <- digest::digest(file, algo="md5", file=TRUE)
+  else
+    md5 <- digest::digest("", algo="md5", serialize=FALSE)
+  
+  # build cannonical request
+  cannonicalRequest <- paste(method, path, date, md5, sep="\n")
+  
+  # sign request
+  decodedSecret <- RCurl::base64Decode(accountInfo$secret)
+  hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")                
+  signature <- RCurl::base64Encode(hmac)
+  
+  # return headers
+  headers$Date <- date
+  headers$`X-Auth-Token` <- accountInfo$token
+  headers$`X-Auth-Signature` <- signature
+  headers$`X-Content-Checksum` <- md5
+  headers
+}
 
 

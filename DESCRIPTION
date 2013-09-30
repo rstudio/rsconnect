@@ -7,6 +7,7 @@ Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Interface for publishing applications to shinyapps.io
 Imports:
+    digest,
     RCurl,
     RJSONIO
 License: GPL-2

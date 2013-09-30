@@ -5,8 +5,8 @@
 #' Functions to add, enumerate, and remove ShinyApps accounts on the local
 #' system.
 #' @param name Account name
-#' @param key Account key
-#' @param secret Account secret
+#' @param token User token
+#' @param secret User token secret
 #' @rdname accounts
 #' @export
 accounts <- function() {
@@ -17,18 +17,18 @@ accounts <- function() {
 
 #' @rdname accounts
 #' @export
-setAccountInfo <- function(name, key, secret) {
+setAccountInfo <- function(name, token, secret) {
   
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
   
-  if (!isStringParam(key))
-    stop(stringParamErrorMessage("key"))
+  if (!isStringParam(token))
+    stop(stringParamErrorMessage("token"))
   
   if (!isStringParam(secret))
     stop(stringParamErrorMessage("secret"))
   
-  write.dcf(list(name = name, key = key, secret = secret), 
+  write.dcf(list(name = name, token = token, secret = secret), 
             accountConfigFile(name))
 }
 

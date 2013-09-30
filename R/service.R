@@ -1,8 +1,16 @@
 
-uploadBundle <- function(http, file) {
-  httpPost(http, "/bundle/upload", "application/x-compressed", file)
+uploadBundle <- function(httpType, accountInfo, file) {
+  httpPost(httpType, 
+           accountInfo, 
+           "/bundle/upload", 
+           "application/x-compressed", 
+           file)
 } 
 
-serviceStatus <- function(http) {
-  httpGet(http, "/internal/status")
+serviceStatus <- function(httpType, accountInfo) {
+  httpGet(httpType, accountInfo,  "/internal/status")
+}
+
+getUser <- function(httpType, accountInfo, userId) {
+  httpGet(httpType, accountInfo, paste("/v1/users", userId, sep="/"))
 }
