@@ -20,3 +20,4 @@ Collate:
     'config.R'
     'utils.R'
     'lucid.R'
+    'options.R'

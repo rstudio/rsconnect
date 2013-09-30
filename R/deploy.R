@@ -9,17 +9,8 @@
 #' @param account ShinyApps account to deploy application to. This parameter is
 #'   only required for the initial deployment of an application when there are
 #'   multiple accounts configured on the system.
-#' @param http Method to be used for uploading. \code{"rcurl"} uses the RCurl
-#'   package to create a secure https connection; \code{"curl"} uses the curl
-#'   system utility to create a secure https connection; \code{"insecure"} 
-#'   creates an insecure http socket connection; The global default behavior can
-#'   be configured by setting the \code{shinyapps.http} option (the default is 
-#'   \code{"rcurl"}).
 #' @export
-deploy <- function(appDir = getwd(), 
-                   appName = NULL,
-                   account = NULL,
-                   http = getOption("shinyapps.http", "rcurl")) {
+deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))

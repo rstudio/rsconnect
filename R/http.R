@@ -277,8 +277,9 @@ httpPostRCurl <- function(host,
        content = textGatherer$value())
 }
 
-httpFunction <- function(httpType, functions) {
+httpFunction <- function(functions) {
   
+  httpType <- getOption("shinyapps.http", "rcurl")
   httpFunction <- NULL
   if (identical("rcurl", httpType)) {
     httpFunction <- functions$rcurl
@@ -292,8 +293,7 @@ httpFunction <- function(httpType, functions) {
   }
 }
 
-httpPost <- function(httpType, 
-                     accountInfo, 
+httpPost <- function(accountInfo, 
                      path, 
                      contentType, 
                      file, 
@@ -303,7 +303,7 @@ httpPost <- function(httpType,
   functions$curl <- httpPostCurl
   functions$rcurl <- httpPostRCurl
   functions$insecure <- httpPostInsecure
-  postFunction <- httpFunction(httpType, functions)
+  postFunction <- httpFunction(functions)
   
   # get signature headers and append them
   sigHeaders <- signatureHeaders(accountInfo, "POST", path, file)
@@ -313,8 +313,7 @@ httpPost <- function(httpType,
   postFunction("api.shinyapps.io", path, headers, contentType, file)
 }
 
-httpGet <- function(httpType,
-                    accountInfo,
+httpGet <- function(accountInfo,
                     path, 
                     headers = list()) {
   
@@ -323,7 +322,7 @@ httpGet <- function(httpType,
   functions$curl <- httpGetCurl
   functions$rcurl <- httpGetRCurl
   functions$insecure <- httpGetInsecure
-  getFunction <- httpFunction(httpType, functions)
+  getFunction <- httpFunction(functions)
   
   # get signature headers and append them
   sigHeaders <- signatureHeaders(accountInfo, "GET", path, NULL)
