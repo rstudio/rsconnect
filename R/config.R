@@ -20,8 +20,9 @@ applicationConfigDir <- function(appName) {
   else
     configDir <- Sys.getenv("XDG_CONFIG_HOME", file.path(homeDir, ".config"))
   
-  # append the application name
+  # append the application name and normalize
   configDir <- file.path(configDir, "R", appName)
+  configDir <- normalizePath(configDir)
   
   # ensure that it exists
   if (!file.exists(configDir))
