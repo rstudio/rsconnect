@@ -26,7 +26,7 @@ applicationConfigDir <- function(appName, subDir = NULL) {
     configDir <- file.path(configDir, subDir)
   
   # normalize path
-  configDir <- normalizePath(configDir)
+  configDir <- normalizePath(configDir, mustWork=FALSE)
   
   # ensure that it exists
   if (!file.exists(configDir))
