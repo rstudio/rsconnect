@@ -1,10 +1,10 @@
 
 
-shinyappsConfigDir <- function() {
-  applicationConfigDir("shinyapps")
+shinyappsConfigDir <- function(subDir = NULL) {
+  applicationConfigDir("shinyapps", subDir)
 }
 
-applicationConfigDir <- function(appName) {
+applicationConfigDir <- function(appName, subDir = NULL) {
   
   # get the home directory from the operating system (in case
   # the user has redefined the meaning of ~) but fault back 
@@ -20,8 +20,12 @@ applicationConfigDir <- function(appName) {
   else
     configDir <- Sys.getenv("XDG_CONFIG_HOME", file.path(homeDir, ".config"))
   
-  # append the application name and normalize
+  # append the application name and optional subdir
   configDir <- file.path(configDir, "R", appName)
+  if (!is.null(subDir))
+    configDir <- file.path(configDir, subDir)
+  
+  # normalize path
   configDir <- normalizePath(configDir)
   
   # ensure that it exists
