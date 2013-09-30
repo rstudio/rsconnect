@@ -27,14 +27,49 @@ deploy <- function(appDir = getwd(),
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
   
-  if (is.null(appName)) {
-    appName <- basename(appDir)
-  }
+  # read any existing deployments and see if there is a single deployment
+  # that we can use for defaulting
+  deployments <- readDeployments(appDir)
+  defaultDeployment = ifelse(nrow(deployments) == 1), 
+                             as.list(deployments[1,]), NULL)
+  
   
   bundle <- bundleApp(appDir, appName)
 
-  system(paste("open", bundle))
+
 }
 
 
 
+saveDeployment <- function(appDir, name, account, bundleId, url) {
+  deployments <- rbind(readDeployments(appDir),
+                       deploymentRecord(name, account, bundleId, url))
+  write.dcf(deployments, deploymentsFile(appDir))
+  invisible(NULL)
+}
+
+readDeployments <- function(appDir) {
+  deployments <- deploymentsFile(appDir)
+  if (file.exists(deployments))
+    read.dcf(deployments)
+  else
+    deploymentRecord(name = character(),
+                     account = character(),
+                     bundleId = character(),
+                     url = character())
+}
+
+deploymentsFile <- function(appDir) {
+  shinyappsDir <- file.path(appDir, "shinyapps")
+  if (!file.exists(shinyappsDir))
+    dir.create(shinyappsDir)
+  file.path("shinyapps", "DEPLOYMENTS")
+}
+
+deploymentRecord <- function(name, account, bundleId, url) {
+  data.frame(name = name,
+             account = account,
+             bundleId = bundleId,
+             url = url,
+             stringsAsFactors = FALSE)
+}
