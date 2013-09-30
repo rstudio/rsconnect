@@ -19,6 +19,15 @@ accounts <- function() {
 #' @export
 setAccountInfo <- function(name, token, secret) {
   
+  # TODO: token looks up a single user (we store the userId) 
+  # Andy to add API for this
+  # (hardcode to 4 if necessary)
+  
+  # TODO: name used to lookup accountId (we store this)
+  #  GET /users/<id>/accounts/ with a filter
+  #  https://api.shinyapps.io/v1/users/4/accounts?filter=name:eq:jjallaire
+  # -- should be one that matches, error if not
+  
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
   

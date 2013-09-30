@@ -35,8 +35,11 @@ deploy <- function(appDir = getwd(),
   
   
   bundle <- bundleApp(appDir, appName)
-
-
+  
+  # now I attempt to create the application POST /applications/
+  # this provides an application ID which I can /upload, /deploy, etc.
+  
+  
 }
 
 
