@@ -24,6 +24,10 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   defaultDeployment = ifelse(nrow(deployments) == 1, 
                              as.list(deployments[1,]), NULL)
   
+  # determine the application name and account (either passed explicitly,
+  # based on a single previous deployment, or on a hybrid)
+  
+  
   
   bundle <- bundleApp(appDir, appName)
   
