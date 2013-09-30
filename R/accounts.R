@@ -4,6 +4,9 @@
 #' 
 #' Functions to add, enumerate, and remove ShinyApps accounts on the local
 #' system.
+#' @param name account name
+#' @param key account key
+#' @param secret account secret
 #' @rdname accounts
 #' @export
 accounts <- function() {
@@ -16,7 +19,14 @@ accounts <- function() {
 #' @export
 setAccountInfo <- function(name, key, secret) {
   
-  # TODO: validate inputs
+  if (!isStringParam(name))
+    stop(stringParamErrorMessage("name"))
+  
+  if (!isStringParam(key))
+    stop(stringParamErrorMessage("key"))
+  
+  if (!isStringParam(secret))
+    stop(stringParamErrorMessage("secret"))
   
   write.dcf(list(name = name, key = key, secret = secret), 
             accountConfigFile(name))
@@ -26,9 +36,12 @@ setAccountInfo <- function(name, key, secret) {
 #' @export
 accountInfo <- function(name) {
   
+  if (!isStringParam(name))
+    stop(stringParamErrorMessage("name"))
+  
   configFile <- accountConfigFile(name)
   if (!file.exists(configFile))
-    stop("Account named '", name, "' does not exist")
+    stop(missingAccountErrorMessage(name))
   
   accountDcf <- read.dcf(accountConfigFile(name), all=TRUE)
   as.list(accountDcf)
@@ -38,9 +51,13 @@ accountInfo <- function(name) {
 #' @rdname accounts
 #' @export
 removeAccount <- function(name) {
+  
+  if (!isStringParam(name))
+    stop(stringParamErrorMessage("name"))
+  
   configFile <- accountConfigFile(name)
   if (!file.exists(configFile))
-    stop("Account named '", name, "' does not exist")
+    stop(missingAccountErrorMessage(name))
   
   invisible(file.remove(configFile))
 }
@@ -54,3 +71,8 @@ accountConfigFile <- function(name) {
 accountsConfigDir <- function() {
   shinyappsConfigDir("accounts")
 }
+
+missingAccountErrorMessage <- function(name) {
+  paste("account named '", name, "' does not exist", sep="")
+}
+

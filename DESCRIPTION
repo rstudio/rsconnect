@@ -18,3 +18,4 @@ Collate:
     'service.R'
     'accounts.R'
     'config.R'
+    'utils.R'
