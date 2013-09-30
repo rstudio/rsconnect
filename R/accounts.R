@@ -4,9 +4,9 @@
 #' 
 #' Functions to add, enumerate, and remove ShinyApps accounts on the local
 #' system.
-#' @param name account name
-#' @param key account key
-#' @param secret account secret
+#' @param name Account name
+#' @param key Account key
+#' @param secret Account secret
 #' @rdname accounts
 #' @export
 accounts <- function() {

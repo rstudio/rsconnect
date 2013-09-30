@@ -1,6 +1,6 @@
 
 
-bundleApp <- function(name, appDir) {
+bundleApp <- function(appDir, appName) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -13,19 +13,19 @@ bundleApp <- function(name, appDir) {
   file.copy(appFiles, bundleAppDir, recursive=TRUE)
   
   # generate the manifest and write it into the bundle dir
-  manifestJson <- createAppManifest(name, appDir)
+  manifestJson <- createAppManifest(appDir, appName)
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"))
   
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir))
-  bundleName <- paste("shinyapps-", name, "-", sep="")
+  bundleName <- paste("shinyapps-", appName, "-", sep="")
   bundlePath <- tempfile(bundleName, fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip")
   bundlePath
 }
 
-createAppManifest <- function(name, appDir) {
+createAppManifest <- function(appDir, appName) {
   
   # provide package description info for all dependencies
   packages <- list()
@@ -34,7 +34,7 @@ createAppManifest <- function(name, appDir) {
 
   # create the manifest
   manifest <- list()
-  manifest$name <- name
+  manifest$name <- appName
   manifest$packages <- I(packages)
   
   # return it as json

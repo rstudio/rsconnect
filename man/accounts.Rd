@@ -14,11 +14,11 @@
   removeAccount(name)
 }
 \arguments{
-  \item{name}{account name}
+  \item{name}{Account name}
 
-  \item{key}{account key}
+  \item{key}{Account key}
 
-  \item{secret}{account secret}
+  \item{secret}{Account secret}
 }
 \description{
   Functions to add, enumerate, and remove ShinyApps
