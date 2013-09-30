@@ -148,7 +148,7 @@ httpCurl <- function(host,
   {
     extraHeaders <- paste(extraHeaders, "--header")
     extraHeaders <- paste(extraHeaders,  
-                          paste(header,":",headers[[header]], sep=""))
+                          paste('"', header,": ",headers[[header]], '"', sep=""))
   }
   
   outputFile <- tempfile()
