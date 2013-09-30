@@ -30,12 +30,6 @@ lucidClient <- function(authInfo) {
                "application/x-compressed", 
                file)
     }, 
-    
-   
-    
-    getUser = function(userId) {
-      httpGet(authInfo, paste("/v1/users", userId, sep="/"))
-    }
   )
 }
 
