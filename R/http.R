@@ -293,7 +293,7 @@ httpFunction <- function(functions) {
   }
 }
 
-httpPost <- function(accountInfo, 
+httpPost <- function(authInfo, 
                      path, 
                      contentType, 
                      file, 
@@ -306,14 +306,14 @@ httpPost <- function(accountInfo,
   postFunction <- httpFunction(functions)
   
   # get signature headers and append them
-  sigHeaders <- signatureHeaders(accountInfo, "POST", path, file)
+  sigHeaders <- signatureHeaders(authInfo, "POST", path, file)
   headers <- append(headers, sigHeaders)
   
   # perform POST
   postFunction("api.shinyapps.io", path, headers, contentType, file)
 }
 
-httpGet <- function(accountInfo,
+httpGet <- function(authInfo,
                     path, 
                     headers = list()) {
   
@@ -325,14 +325,14 @@ httpGet <- function(accountInfo,
   getFunction <- httpFunction(functions)
   
   # get signature headers and append them
-  sigHeaders <- signatureHeaders(accountInfo, "GET", path, NULL)
+  sigHeaders <- signatureHeaders(authInfo, "GET", path, NULL)
   headers <- append(headers, sigHeaders)
    
   # perform GET
   getFunction("api.shinyapps.io", path, headers)
 }
 
-signatureHeaders <- function(accountInfo, method, path, file) {
+signatureHeaders <- function(authInfo, method, path, file) {
   
   # headers to return
   headers <- list()
@@ -350,13 +350,13 @@ signatureHeaders <- function(accountInfo, method, path, file) {
   cannonicalRequest <- paste(method, path, date, md5, sep="\n")
   
   # sign request
-  decodedSecret <- RCurl::base64Decode(accountInfo$secret)
+  decodedSecret <- RCurl::base64Decode(authInfo$secret)
   hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")                
   signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
   
   # return headers
   headers$Date <- date
-  headers$`X-Auth-Token` <- accountInfo$token
+  headers$`X-Auth-Token` <- authInfo$token
   headers$`X-Auth-Signature` <- signature
   headers$`X-Content-Checksum` <- md5
   headers
