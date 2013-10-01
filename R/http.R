@@ -223,13 +223,8 @@ httpRCurl <- function(host,
   options$followlocation <- 1L
   options$maxredirs <- 10L
   options$encoding <- "gzip"
-  
-  # TODO: get cert validation working
-  # (does this need to be passed direclty to getURL?)
-  options$ssl.verifypeer <- FALSE
-  #options$cainfo <- system.file("CurlSSL/cacert.pem", 
-  #                              package = "RCurl")
-  
+  options$ssl.verifypeer <- TRUE
+  options$cainfo <- system.file("CurlSSL/cacert.pem", package = "RCurl")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
   textGatherer <- RCurl::basicTextGatherer()
@@ -246,11 +241,13 @@ httpRCurl <- function(host,
     RCurl::postForm(url,
                     .params = params,
                     .opts = options,
+                    cainfo = options$cainfo,
                     useragent = userAgent())
   } else {
     RCurl::getURL(url, 
                   .opts = options,
                   write = textGatherer,
+                  cainfo = options$cainfo,
                   useragent = userAgent())
   }
   
