@@ -28,7 +28,7 @@ parseHttpStatusCode <- function(statusLine) {
     return (as.integer(statusCode))
 }
 
-readHttpResponse <- function(conn) {
+readHttpResponse <- function(path, conn) {
   # read status code
   resp <- readLines(conn, 1)
   statusCode <- parseHttpStatusCode(resp[1])
@@ -57,7 +57,8 @@ readHttpResponse <- function(conn) {
   content <- rawToChar(readBin(conn, what = 'raw', n=contentLength))
   
   # return list
-  list(status = statusCode,
+  list(path = path,
+       status = statusCode,
        location = location,
        contentType = contentType,
        content = content)
@@ -115,7 +116,7 @@ httpInsecure <- function(host,
   }
   
   # read the response
-  readHttpResponse(conn)      
+  readHttpResponse(path, conn)      
 }
 
 httpGetInsecure <- function(host,
@@ -179,7 +180,7 @@ httpCurl <- function(host,
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
     on.exit(close(fileConn))
-    readHttpResponse(fileConn)
+    readHttpResponse(path, fileConn)
   } else {
     stop(paste("Curl request failed (curl error", result, "occurred)"))
   }
@@ -228,9 +229,10 @@ httpGetRCurl <- function(host,
     location <- headers[["Location"]]
   else
     location <- NULL
-  list(status = as.integer(headers[["status"]]),
+  list(path = path,
+       status = as.integer(headers[["status"]]),
        location = location,
-       contentType <- headers[["Content-Type"]],
+       contentType = headers[["Content-Type"]],
        content = textGatherer$value())
 }
 

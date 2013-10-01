@@ -18,9 +18,7 @@ accounts <- function() {
 #' @rdname accounts
 #' @export
 setAccountInfo <- function(name, token, secret) {
-  
-  # validate parameters
-  
+    
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
   
@@ -35,7 +33,7 @@ setAccountInfo <- function(name, token, secret) {
   lucid <- lucidClient(authInfo)
   
   # get user Id
-  userId <- lucid$userIdFromToken(token)
+  userId <- lucid$currentUser()$id
   
   # get account id
   accountId <- NULL

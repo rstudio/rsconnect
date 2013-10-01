@@ -5,23 +5,17 @@ lucidClient <- function(authInfo) {
   list(
     
     status = function() {
-      httpGet(authInfo,  "/internal/status")
+      handleResponse(httpGet(authInfo,  "/internal/status"))
     },
     
-    userIdFromToken = function(token) {
-      # TODO: use api once it's available
-      4
+    currentUser = function() {
+      handleResponse(httpGet(authInfo, "/v1/users/current"))
     },
     
     accountsForUser = function(userId) {
       path <- paste("/v1/users/", userId, "/accounts", sep="")
-      results <- httpGet(authInfo, path)
-      if (results$status == 200)
-        RJSONIO::fromJSON(results$content)$accounts
-      else {
-        # TODO: interpret error messages
-        stop("Unexpected HTTP error (status = ", results$status, ")")
-      }
+      handleResponse(httpGet(authInfo, path), 
+                     function(json) json$accounts)
     },
     
     createApplication = function(name, accountId) {
@@ -38,9 +32,26 @@ lucidClient <- function(authInfo) {
                "/bundle/upload", 
                "application/x-compressed", 
                file)
-    }, 
+    }
   )
 }
 
+handleResponse <- function(response, transform = function(json) json) {
+  
+  # json responses
+  if (grepl("application/json", response$contentType, fixed = TRUE)) {
+    
+    json <- RJSONIO::fromJSON(response$content, simplify = FALSE)
+    
+    if (response$status %in% 200:299)
+      return (transform(json))
+    else if (!is.null(json$error)) {
+      stop(paste(response$path, "-", json$error), call. = FALSE)
+    }
+  }
+  
+  # for html responses we can attempt to extract the body 
+  stop(paste(response$path, "-", response$content), call. = FALSE)
+}
 
 
