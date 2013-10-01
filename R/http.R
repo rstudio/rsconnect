@@ -223,7 +223,8 @@ httpRCurl <- function(host,
   options$followlocation <- 1L
   options$maxredirs <- 10L
   options$encoding <- "gzip"
-  options$ssl.verifypeer <- TRUE
+  # TODO: verify SSL peers on windows (debug)
+  options$ssl.verifypeer <- !identical(.Platform$OS.type, "windows")
   options$cainfo <- system.file("CurlSSL/cacert.pem", package = "RCurl")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
