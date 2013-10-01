@@ -17,17 +17,23 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
-    
+   
+  # initialize lucid client
+  lucid <- lucidClient(accountInfo)
+  
   # determine the deployment target
   target <- deploymentTarget(appDir, appName, account)
+  appName <- target$appName
+  account <- target$account
+  accountInfo <- accountInfo(account)
+    
+  # ensure that the application exists
+  app <- lucid$createApplication(appName, accountInfo$accountId, TRUE)
   
-  # create the bundle
+  # create the bundle and upload it 
   bundle <- bundleApp(appDir, appName)
   
-  # now I attempt to create the application POST /applications/
-  # this provides an application ID which I can /upload, /deploy, etc.
-  
-  
+ 
 }
 
 # calculate the deployment target based on the passed parameters and 

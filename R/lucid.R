@@ -15,17 +15,23 @@ lucidClient <- function(authInfo) {
     accountsForUser = function(userId) {
       path <- paste("/v1/users/", userId, "/accounts", sep="")
       handleResponse(GET(authInfo, path), 
-                     function(json) json$accounts)
+                     jsonFilter = function(json) json$accounts)
     },
     
-    createApplication = function(name, accountId) {
-      path = "/v1/applications"
+    createApplication = function(name, accountId, existingOK = FALSE) {
       
-      # appname regex:  ^[A-Za-z0-9_-]{4,63}$
-      # TODO: json to file that we post
+      if (existingOK)
+        statusFilter <-function(status) status == 409
+      else
+        statusFilter <- NULL
       
-      # TODO: 407 means the application already exists
-      
+      path = "/v1/applications/"
+      json <- list()
+      json$name <- name
+      json$template <- "shiny"
+      json$account <- as.numeric(accountId)
+      handleResponse(POST_JSON(authInfo, path, json),
+                     statusFilter = statusFilter)      
     },
     
     uploadBundle = function(file) {
@@ -37,7 +43,9 @@ lucidClient <- function(authInfo) {
   )
 }
 
-handleResponse <- function(response, transform = function(json) json) {
+handleResponse <- function(response, 
+                           statusFilter = NULL,
+                           jsonFilter = NULL) {
   
   # function to report errors
   reportError <- function(msg) {
@@ -49,8 +57,20 @@ handleResponse <- function(response, transform = function(json) json) {
     
     json <- RJSONIO::fromJSON(response$content, simplify = FALSE)
     
-    if (response$status %in% 200:299)
-      transform(json)
+    isSuccess <- function(status) {
+      if (response$status %in% 200:299)
+        TRUE
+      else if (!is.null(statusFilter) && statusFilter(status))
+        TRUE
+      else
+        FALSE
+    }
+    
+    if (isSuccess(response$status))
+      if (!is.null(jsonFilter))
+        jsonFilter(json)
+      else
+        json
     else if (!is.null(json$error)) {
       reportError(json$error)
     }

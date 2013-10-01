@@ -161,8 +161,8 @@ httpCurl <- function(host,
     command <- paste(command,
                      "--data-binary",
                      shQuote(paste("@", file, sep="")),
-                     "--header", paste("Content-Type:",contentType, sep=""),
-                     "--header", paste("Content-Length:", fileLength, sep=""))
+                     "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
+                     "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
     
   command <- paste(command,
@@ -258,7 +258,8 @@ httpRCurl <- function(host,
     location <- headers[["Location"]]
   else
     location <- NULL
-  list(status = as.integer(headers[["status"]]),
+  list(path = path,
+       status = as.integer(headers[["status"]]),
        location = location,
        contentType = headers[["Content-Type"]],
        content = textGatherer$value())
@@ -301,15 +302,33 @@ httpFunction <- function() {
   }
 }
 
+POST_JSON <- function(authInfo, path, json, headers = list()) {
+  POST(authInfo,
+       path,
+       "application/json",
+       content = RJSONIO::toJSON(json, pretty = TRUE),
+       headers = headers)
+}
+
 POST <- function(authInfo, 
                  path, 
                  contentType, 
-                 file, 
+                 file = NULL,
+                 content = NULL,
                  headers = list()) {
   
+  if ((is.null(file) && is.null(content)))
+    stop("You must specify either the file or content parameter.")  
+  if ((!is.null(file) && !is.null(content))) 
+    stop("You must specify either the file or content parameter but not both.")
+          
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "POST", path, file)
   headers <- append(headers, sigHeaders)
+  
+  # if we have content then write it to a temp file before posting
+  file <- tempfile()
+  writeChar(content, file,  eos = NULL, useBytes=TRUE)
   
   # perform POST
   http <- httpFunction()
