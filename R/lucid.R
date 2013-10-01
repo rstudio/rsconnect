@@ -1,24 +1,20 @@
 
-# TODO: method = "auto"
-# TODO: support all methods with POST GET PUT DELETE functions
-
-
 # return a list of functions that can be used to interact with lucid
 lucidClient <- function(authInfo) {
   
   list(
     
     status = function() {
-      handleResponse(httpGet(authInfo,  "/internal/status"))
+      handleResponse(GET(authInfo,  "/internal/status"))
     },
     
     currentUser = function() {
-      handleResponse(httpGet(authInfo, "/v1/users/current"))
+      handleResponse(GET(authInfo, "/v1/users/current"))
     },
     
     accountsForUser = function(userId) {
       path <- paste("/v1/users/", userId, "/accounts", sep="")
-      handleResponse(httpGet(authInfo, path), 
+      handleResponse(GET(authInfo, path), 
                      function(json) json$accounts)
     },
     
@@ -33,10 +29,10 @@ lucidClient <- function(authInfo) {
     },
     
     uploadBundle = function(file) {
-      httpPost(authInfo, 
-               "/bundle/upload", 
-               "application/x-compressed", 
-               file)
+      POST(authInfo, 
+           "/bundle/upload", 
+           "application/x-compressed", 
+           file)
     }
   )
 }

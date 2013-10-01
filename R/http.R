@@ -65,8 +65,11 @@ httpInsecure <- function(host,
                          contentType = NULL,
                          file = NULL) {
   
+  if (!is.null(file) && is.null(contentType))
+    stop("You must specify a contentType for the specified file")
+  
   # read file in binary mode
-  if (identical(method, "POST")) {
+  if (!is.null(file)) {
     fileLength <- file.info(file)$size
     fileContents <- readBin(file, what="raw", n=fileLength)
   }
@@ -77,7 +80,7 @@ httpInsecure <- function(host,
   request <- c(request, "User-Agent: ", userAgent(), "\r\n")
   request <- c(request, "Host: ", host, "\r\n", sep="")
   request <- c(request, "Accept: */*\r\n")
-  if (identical(method, "POST")) {
+  if (!is.null(file)) {
     request <- c(request, paste("Content-Type: ", 
                                 contentType, 
                                 "\r\n", 
@@ -103,7 +106,7 @@ httpInsecure <- function(host,
   
   # write the request header and file payload
   writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
-  if (identical(method, "POST")) {
+  if (!is.null(file)) {
     writeBin(fileContents, conn, size=1)
   }
   
@@ -133,7 +136,10 @@ httpCurl <- function(host,
                      contentType = NULL,
                      file = NULL) {  
   
-  if (identical(method, "POST")) 
+  if (!is.null(file) && is.null(contentType))
+    stop("You must specify a contentType for the specified file")
+  
+  if (!is.null(file)) 
     fileLength <- file.info(file)$size
   
   extraHeaders <- character()
@@ -151,7 +157,7 @@ httpCurl <- function(host,
                    "-X", 
                    method);
   
-  if (identical(method, "POST")) {
+  if (!is.null(file)) {
     command <- paste(command,
                      "--data-binary",
                      shQuote(paste("@", file, sep="")),
@@ -193,72 +199,50 @@ httpPostCurl <- function(host,
   httpCurl(host, "POST", path, headers, contentType, file)
 }
 
-httpGetRCurl <- function(host,
-                         path,
-                         headers) {
-  # url to post to
-  url <- paste("https://", host, path, sep="")
-   
-  # use custom header and text gatherers
-  options <- RCurl::curlOptions(url)
-  headerGatherer <- RCurl::basicHeaderGatherer()
-  options$headerfunction <- headerGatherer$update
-  textGatherer <- RCurl::basicTextGatherer()
+httpRCurl <- function(host,
+                      method,
+                      path,
+                      headers,
+                      contentType = NULL,
+                      file = NULL) {
   
-  # add extra headers
-  extraHeaders <- as.character(headers)
-  names(extraHeaders) <- names(headers)
-  options$httpheader <- extraHeaders
+  if (!is.null(file) && is.null(contentType))
+    stop("You must specify a contentType for the specified file")
   
-  # do the get
-  RCurl::getURL(url, 
-                .opts = options,
-                write = textGatherer,
-                useragent = userAgent())
-  
-  # return list
-  headers <- headerGatherer$value()
-  if ("Location" %in% names(headers))
-    location <- headers[["Location"]]
-  else
-    location <- NULL
-  list(path = path,
-       status = as.integer(headers[["status"]]),
-       location = location,
-       contentType = headers[["Content-Type"]],
-       content = textGatherer$value())
-}
-
-httpPostRCurl <- function(host,
-                          path,
-                          headers,
-                          contentType,
-                          file) {
-  
-  # url to post to
+  # build url
   url <- paste("https://", host, path, sep="")
   
-  # upload package file
-  params <- list(file = RCurl::fileUpload(filename = file,
-                                          contentType = contentType))
+  # create upload params if necessary
+  if (!is.null(file)) {
+    params <- list(file = RCurl::fileUpload(filename = file,
+                                            contentType = contentType))
+  }
   
   # use custom header and text gatherers
   options <- RCurl::curlOptions(url)
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
   textGatherer <- RCurl::basicTextGatherer()
-  options$writefunction <- textGatherer$update
+  if (!is.null(file))
+    options$writefunction <- textGatherer$update
   
   # add extra headers
   extraHeaders <- as.character(headers)
   names(extraHeaders) <- names(headers)
   options$httpheader <- extraHeaders
   
-  # post the form
-  RCurl::postForm(url,
-                  .params = params,
+  # make the request
+  if (!is.null(file)) {
+    RCurl::postForm(url,
+                    .params = params,
+                    .opts = options,
+                    useragent = userAgent())
+  } else {
+    RCurl::getURL(url, 
                   .opts = options,
+                  write = textGatherer,
                   useragent = userAgent())
+  }
   
   # return list
   headers <- headerGatherer$value()
@@ -268,63 +252,73 @@ httpPostRCurl <- function(host,
     location <- NULL
   list(status = as.integer(headers[["status"]]),
        location = location,
-       contentType <- headers[["Content-Type"]],
+       contentType = headers[["Content-Type"]],
        content = textGatherer$value())
 }
 
-httpFunction <- function(functions) {
+
+httpGetRCurl <- function(host,
+                         path,
+                         headers) {
+  httpRCurl(host, "GET", path, headers)
+}
+
+httpPostRCurl <- function(host,
+                          path,
+                          headers,
+                          contentType,
+                          file) {  
+  httpRCurl(host, "POST", path, headers, contentType, file)
+}
+
+
+httpFunction <- function() {
   
-  httpType <- getOption("shinyapps.http", "rcurl")
+  httpType <- getOption("shinyapps.http", "auto")
   httpFunction <- NULL
-  if (identical("rcurl", httpType)) {
-    httpFunction <- functions$rcurl
+  if (identical("auto", httpType)) {
+    if (nzchar(Sys.which("curl")))
+      httpFunction <- httpCurl
+    else
+      httpFunction <- httpRCurl
   } else if (identical("curl",  httpType)) {
-    httpFunction <- functions$curl
+    httpFunction <- httpCurl
+  } else if (identical("rcurl", httpType)) {
+    httpFunction <- httpRCurl
   } else if (identical("insecure", httpType)) {
-    httpFunction <- functions$insecure
+    httpFunction <- httpInsecure
   } else {
-    stop(paste("Invalid http connection type specified:",httpType,
-               ". Valid values are rcurl, curl, and insecure."))
+    stop(paste("Invalid http option specified:",httpType,
+               ". Valid values are auto, curl, rcurl, and insecure."))
   }
 }
 
-httpPost <- function(authInfo, 
-                     path, 
-                     contentType, 
-                     file, 
-                     headers = list()) {
-  # functions for httpType
-  functions <- list()
-  functions$curl <- httpPostCurl
-  functions$rcurl <- httpPostRCurl
-  functions$insecure <- httpPostInsecure
-  postFunction <- httpFunction(functions)
+POST <- function(authInfo, 
+                 path, 
+                 contentType, 
+                 file, 
+                 headers = list()) {
   
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "POST", path, file)
   headers <- append(headers, sigHeaders)
   
   # perform POST
-  postFunction("api.shinyapps.io", path, headers, contentType, file)
+  http <- httpFunction()
+  http("api.shinyapps.io", "POST", path, headers, contentType, file)
 }
 
-httpGet <- function(authInfo,
-                    path, 
-                    headers = list()) {
-  
-  # functions for httpType
-  functions <- list()
-  functions$curl <- httpGetCurl
-  functions$rcurl <- httpGetRCurl
-  functions$insecure <- httpGetInsecure
-  getFunction <- httpFunction(functions)
-  
+GET <- function(authInfo,
+                path, 
+                headers = list()) {
+    
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "GET", path, NULL)
   headers <- append(headers, sigHeaders)
    
   # perform GET
-  getFunction("api.shinyapps.io", path, headers)
+  http <- httpFunction()
+  http("api.shinyapps.io", "GET", path, headers)
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {
