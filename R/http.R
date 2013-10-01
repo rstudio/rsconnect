@@ -1,5 +1,9 @@
 
 
+userAgent <- function() {
+  paste("shinyapps", packageVersion("shinyapps"), sep="/")
+}
+
 regexExtract <- function(re, input) {
   match <- regexec(re, input)
   matchLoc <- match[1][[1]]
@@ -82,7 +86,7 @@ httpInsecure <- function(host,
   # build http request
   request <- NULL
   request <- c(request, paste(method, " ", path, " HTTP/1.1\r\n", sep=""))
-  request <- c(request, "User-Agent: shinyapps\r\n")
+  request <- c(request, "User-Agent: ", userAgent(), "\r\n")
   request <- c(request, "Host: ", host, "\r\n", sep="")
   request <- c(request, "Accept: */*\r\n")
   if (identical(method, "POST")) {
@@ -170,6 +174,7 @@ httpCurl <- function(host,
   command <- paste(command,
                    extraHeaders,
                    "--header", "Expect:",
+                   "--user-agent", userAgent(), 
                    "--silent",
                    "--show-error",
                    "-o", shQuote(outputFile),
@@ -221,7 +226,7 @@ httpGetRCurl <- function(host,
   RCurl::getURL(url, 
                 .opts = options,
                 write = textGatherer,
-                useragent = "shinyapps")
+                useragent = userAgent())
   
   # return list
   headers <- headerGatherer$value()
@@ -265,7 +270,7 @@ httpPostRCurl <- function(host,
   RCurl::postForm(url,
                   .params = params,
                   .opts = options,
-                  useragent = "shinyapps")
+                  useragent = userAgent())
   
   # return list
   headers <- headerGatherer$value()
