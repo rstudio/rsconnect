@@ -218,8 +218,18 @@ httpRCurl <- function(host,
                                             contentType = contentType))
   }
   
-  # use custom header and text gatherers
+  # establish options
   options <- RCurl::curlOptions(url)
+  options$followlocation <- 1L
+  options$maxredirs <- 10L
+  options$encoding <- "gzip"
+  
+  # TODO: get cert validation working
+  # (does this need to be passed direclty to getURL?)
+  options$ssl.verifypeer <- FALSE
+  #options$cainfo <- system.file("CurlSSL/cacert.pem", 
+  #                              package = "RCurl")
+  
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
   textGatherer <- RCurl::basicTextGatherer()
