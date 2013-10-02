@@ -40,16 +40,17 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   # deploy the bundle
   task <- lucid$deployApplication(application$id, bundle$id)
   
-  # poll for task status
-  
+  # wait for the deployment to complete (will raise an error if it can't)
+  lucid$waitForTaskCompletion(task$task_id)
     
-  # save a record of the deployment
+  # save the deployment info for easier updates
   saveDeployment(appDir, 
                  target$appName, 
                  target$account, 
                  bundle$id,
                  application$url)
-  
+    
+  # successful deployment!
   invisible(TRUE)
 }
 

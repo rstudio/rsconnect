@@ -42,6 +42,36 @@ lucidClient <- function(authInfo) {
       json <- list()
       json$bundle <- as.numeric(bundleId)
       handleResponse(POST_JSON(authInfo, path, json))
+    },
+    
+    waitForTaskCompletion = function(taskId, displayStatus = TRUE) {    
+      
+      path <- paste("/v1/tasks/", taskId, sep="")
+  
+      lastStatus <- NULL
+      while(TRUE) {
+        # check status
+        status <- handleResponse(GET(authInfo, path))
+        
+        # are we finished? (note: this codepath is the only way to exit 
+        # this function)
+        if (status$finished) {
+          if (identical(status$status, "complete"))
+            return (NULL)
+          else
+            stop(status$error, call. = FALSE)  
+        }
+        
+        # display status to the user if it changed
+        else if (!identical(lastStatus, status$status)) {
+          if (displayStatus)
+            cat(status$status, "\n")
+          lastStatus <- status$status
+        }
+        
+        # wait for 1 second before polling again
+        Sys.sleep(1)
+      }
     }
   )
 }
