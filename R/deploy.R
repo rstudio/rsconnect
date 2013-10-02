@@ -25,8 +25,10 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   target <- deploymentTarget(appDir, appName, account)
   accountInfo <- accountInfo(target$account)
     
-  # ensure that the application exists
-  app <- lucid$createApplication(target$appName, accountInfo$accountId, TRUE)
+  # create the application
+  app <- lucid$createApplication(target$appName, 
+                                 "shiny", 
+                                 accountInfo$accountId)
   
   # create the bundle and upload it 
   bundle <- bundleApp(appDir, target$appName)

@@ -15,41 +15,24 @@ lucidClient <- function(authInfo) {
     accountsForUser = function(userId) {
       path <- paste("/v1/users/", userId, "/accounts", sep="")
       handleResponse(GET(authInfo, path), 
-                     jsonFilter = function(json) json$accounts)
+                     function(json) json$accounts)
     },
     
     applications = function() {
       handleResponse(GET(authInfo, "/v1/applications/"))
     },
     
-    createApplication = function(name, accountId, existingOK = FALSE) {
-      
-      if (existingOK)
-        statusFilter <-function(status) status == 409
-      else
-        statusFilter <- NULL
-      
-      path = "/v1/applications/"
+    createApplication = function(name, template, accountId) {    
       json <- list()
       json$name <- name
-      json$template <- "shiny"
+      json$template <- template
       json$account <- as.numeric(accountId)
-      handleResponse(POST_JSON(authInfo, path, json),
-                     statusFilter = statusFilter)      
-    },
-    
-    uploadBundle = function(file) {
-      POST(authInfo, 
-           "/bundle/upload", 
-           "application/x-compressed", 
-           file)
+      handleResponse(POST_JSON(authInfo, "/v1/applications/", json))      
     }
   )
 }
 
-handleResponse <- function(response, 
-                           statusFilter = NULL,
-                           jsonFilter = NULL) {
+handleResponse <- function(response, jsonFilter = NULL) {
   
   # function to report errors
   reportError <- function(msg) {
@@ -60,17 +43,8 @@ handleResponse <- function(response,
   if (isContentType(response, "application/json")) {
     
     json <- RJSONIO::fromJSON(response$content, simplify = FALSE)
-    
-    isSuccess <- function(status) {
-      if (response$status %in% 200:299)
-        TRUE
-      else if (!is.null(statusFilter) && statusFilter(status))
-        TRUE
-      else
-        FALSE
-    }
-    
-    if (isSuccess(response$status))
+     
+    if (response$status %in% 200:299)
       if (!is.null(jsonFilter))
         jsonFilter(json)
       else
