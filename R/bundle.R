@@ -7,11 +7,9 @@ bundleApp <- function(appDir) {
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir))
   
-  # determine the files that will be in the bundle (exclude the 
-  # shinyapps directory and the packages/lib directory)
+  # determine the files that will be in the bundle (exclude shinyapps dir) 
   files <- list.files(appDir, recursive=TRUE)
   files <- files[!grepl(glob2rx("shinyapps/*"), files)]
-  files <- files[!grepl(glob2rx("packages/lib/*"), files)]
   
   # copy the files into the bundle dir
   for (file in files) {
@@ -34,26 +32,8 @@ bundleApp <- function(appDir) {
   bundlePath
 }
 
-sourcePackages <- function(appDir) {
-  
-  srcPackages <- list()
-  
-  srcPackagesDir <- file.path(appDir, "packages", "src")
-  if (file.exists(srcPackagesDir)) {
-    pkgs <- list.files(srcPackagesDir, glob2rx("*.tar.gz"), full.names=TRUE)
-    for (pkg in pkgs) {
-      
-    } 
-  }
-  
-  srcPackages
-}
-
 createAppManifest <- function(appDir, files) {
-  
-  # enumerate embedded source packages (name and version)
-  srcPackages <- sourcePackages(appDir)
-  
+   
   # provide package entries for all dependencies
   packages <- list()
   for (pkg in appDependencies(appDir)) {
