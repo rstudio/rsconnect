@@ -338,6 +338,34 @@ POST <- function(authInfo,
                  file = NULL,
                  content = NULL,
                  headers = list()) {
+  httpWithBody(authInfo, "POST", path, contentType, file, content, headers)
+}
+
+PUT_JSON <- function(authInfo, path, json, headers = list()) {
+  PUT(authInfo,
+      path,
+      "application/json",
+      content = RJSONIO::toJSON(json, pretty = TRUE),
+      headers = headers)
+}
+
+PUT <- function(authInfo,
+                path, 
+                contentType, 
+                file = NULL,
+                content = NULL,
+                headers = list()) {
+  httpWithBody(authInfo, "PUT", path, contentType, file, content, headers)
+}
+
+
+httpWithBody <- function(authInfo, 
+                         method,
+                         path, 
+                         contentType, 
+                         file = NULL,
+                         content = NULL,
+                         headers = list()) {
   
   if ((is.null(file) && is.null(content)))
     stop("You must specify either the file or content parameter.")  
@@ -354,7 +382,7 @@ POST <- function(authInfo,
   
   # perform POST
   http <- httpFunction()
-  http("api.shinyapps.io", "POST", path, headers, contentType, file)
+  http("api.shinyapps.io", method, path, headers, contentType, file)
 }
 
 GET <- function(authInfo,
