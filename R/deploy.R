@@ -36,7 +36,7 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
                                  accountInfo$accountId)
   
   # create the bundle and upload it 
-  bundle <- bundleApp(appDir, target$appName)
+  bundle <- bundleApp(appDir)
   
  
 }
