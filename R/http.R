@@ -102,20 +102,23 @@ httpInternal <- function(host,
     cat(request)
     
   # open socket connection
-  conn <- socketConnection(host=host,
-                           port=80,
-                           open="w+b",
-                           blocking=TRUE)
-  on.exit(close(conn))
-  
-  # write the request header and file payload
-  writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
-  if (!is.null(file)) {
-    writeBin(fileContents, conn, size=1)
-  }
-  
-  # read the response
-  response <- readHttpResponse(path, conn)
+  time <- system.time(gcFirst=FALSE, {
+    conn <- socketConnection(host=host,
+                             port=80,
+                             open="w+b",
+                             blocking=TRUE)
+    on.exit(close(conn))
+    
+    # write the request header and file payload
+    writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
+    if (!is.null(file)) {
+      writeBin(fileContents, conn, size=1)
+    }
+    
+    # read the response
+    response <- readHttpResponse(path, conn)
+  })
+  httpTrace(method, path, time)
   
   # print if in verbose mode
   if (httpVerbose())
@@ -188,7 +191,11 @@ httpCurl <- function(host,
                    "-o", shQuote(outputFile),
                    paste("https://", host, path, sep=""))
   
-  result <- system(command)
+  result <- NULL
+  time <- system.time(gcFirst = FALSE, {  
+    result <- system(command)
+  })
+  httpTrace(method, path, time)
   
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
@@ -255,18 +262,20 @@ httpRCurl <- function(host,
   options$httpheader <- extraHeaders
   
   # make the request
-  if (!is.null(file)) {
-    RCurl::curlPerform(url = url,
-                       .opts = options,
-                       customrequest = method,
-                       readfunction = fileContents,
-                       infilesize = fileLength,
-                       upload = TRUE)
-  } else {
-    RCurl::getURL(url, 
-                  .opts = options,
-                  write = textGatherer)
-  }
+  time <- system.time(gcFirst = FALSE, {
+    if (!is.null(file)) {
+      RCurl::curlPerform(url = url,
+                         .opts = options,
+                         customrequest = method,
+                         readfunction = fileContents,
+                         infilesize = fileLength,
+                         upload = TRUE)
+    } else {
+      RCurl::getURL(url, 
+                    .opts = options,
+                    write = textGatherer)
+  }})
+  httpTrace(method, path, time)
   
   # return list
   headers <- headerGatherer$value()
@@ -298,6 +307,13 @@ httpPostRCurl <- function(host,
 
 httpVerbose <- function() {
   getOption("shinyapps.http.verbose", FALSE)
+}
+
+httpTrace <- function(method, path, time) {
+  if (getOption("shinyapps.http.trace", FALSE)) {
+    cat(method, " ", path, " ", as.integer(time[['elapsed']]*1000), "ms\n", 
+        sep="")
+  }
 }
 
 httpFunction <- function() {
