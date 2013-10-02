@@ -24,7 +24,7 @@ bundleApp <- function(appDir) {
   
   # generate the manifest and write it into the bundle dir
   manifestJson <- createAppManifest(appDir, files)
-  writeLines(manifestJson, file.path(bundleDir, "shinyapps.manifest.json"))
+  writeLines(manifestJson, file.path(bundleDir, "manifest.json"))
   
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
@@ -34,12 +34,32 @@ bundleApp <- function(appDir) {
   bundlePath
 }
 
+sourcePackages <- function(appDir) {
+  
+  srcPackages <- list()
+  
+  srcPackagesDir <- file.path(appDir, "packages", "src")
+  if (file.exists(srcPackagesDir)) {
+    pkgs <- list.files(srcPackagesDir, glob2rx("*.tar.gz"), full.names=TRUE)
+    for (pkg in pkgs) {
+      
+    } 
+  }
+  
+  srcPackages
+}
+
 createAppManifest <- function(appDir, files) {
   
-  # provide package description info for all dependencies
+  # enumerate embedded source packages (name and version)
+  srcPackages <- sourcePackages(appDir)
+  
+  # provide package entries for all dependencies
   packages <- list()
-  for (pkg in appDependencies(appDir))
-    packages[[pkg]] <- utils::packageDescription(pkg)
+  for (pkg in appDependencies(appDir)) {
+    description <- list(description = utils::packageDescription(pkg))
+    packages[[pkg]] <- description
+  }
 
   # provide checksums for all files
   fileChecksums <- list()
