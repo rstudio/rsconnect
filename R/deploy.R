@@ -9,9 +9,14 @@
 #' @param account ShinyApps account to deploy application to. This parameter is
 #'   only required for the initial deployment of an application when there are
 #'   multiple accounts configured on the system.
+#' @param quiet Request that no status information be printed to the console
+#'   during the deployment.
 #' @export
-deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
-  
+deploy <- function(appDir = getwd(), 
+                   appName = NULL, 
+                   account = NULL,
+                   quiet = FALSE) {
+   
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
   
@@ -23,6 +28,18 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory")
     
+  # functions to show status (respects quiet param)
+  displayStatus <- function(status) {
+    if (!quiet)
+      cat(status)
+  }
+  
+  withStatus <- function(status, code) {
+    displayStatus(paste(status, "...", sep=""))
+    force(code)
+    displayStatus("DONE\n")
+  }
+  
   # initialize lucid client
   lucid <- lucidClient(accountInfo)
   
@@ -31,19 +48,22 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   accountInfo <- accountInfo(target$account)
     
   # get the application to deploy (creates a new app on demand)
-  application <- applicationForTarget(lucid, accountInfo, target)
+  withStatus("Preparing to deploy application", {
+    application <- applicationForTarget(lucid, accountInfo, target)
+  })
   
-  # create and upload the bundle
-  bundlePath <- bundleApp(appDir)
-  bundle <- lucid$uploadApplication(application$id, bundlePath)
-  
-  # deploy the bundle
-  task <- lucid$deployApplication(application$id, bundle$id)
+  # create, upload, and deploy the bundle
+  withStatus("Uploading application bundle", {
+    bundlePath <- bundleApp(appDir)
+    bundle <- lucid$uploadApplication(application$id, bundlePath)
+    task <- lucid$deployApplication(application$id, bundle$id)
+  })
   
   # wait for the deployment to complete (will raise an error if it can't)
-  lucid$waitForTaskCompletion(task$task_id)
+  displayStatus("Initializing application...\n")
+  lucid$waitForTaskCompletion(task$task_id, quiet)
     
-  # save the deployment info for easier updates
+  # save the deployment info for subsequent updates
   saveDeployment(appDir, 
                  target$appName, 
                  target$account, 

@@ -44,7 +44,7 @@ lucidClient <- function(authInfo) {
       handleResponse(POST_JSON(authInfo, path, json))
     },
     
-    waitForTaskCompletion = function(taskId, displayStatus = TRUE) {    
+    waitForTaskCompletion = function(taskId, quiet = FALSE) {    
       
       path <- paste("/v1/tasks/", taskId, sep="")
   
@@ -64,8 +64,8 @@ lucidClient <- function(authInfo) {
         
         # display status to the user if it changed
         else if (!identical(lastStatus, status$status)) {
-          if (displayStatus)
-            cat(status$status, "\n")
+          if (!quiet)
+            cat("  ", status$status, "\n", sep="")
           lastStatus <- status$status
         }
         
