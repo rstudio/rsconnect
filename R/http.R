@@ -212,10 +212,11 @@ httpRCurl <- function(host,
   # build url
   url <- paste("https://", host, path, sep="")
   
-  # create upload params if necessary
+  # read file in binary mode
   if (!is.null(file)) {
-    params <- list(file = RCurl::fileUpload(filename = file,
-                                            contentType = contentType))
+    fileLength <- file.info(file)$size
+    fileContents <- readBin(file, what="raw", n=fileLength)
+    headers$`Content-Type` <- contentType
   }
   
   # establish options
@@ -239,11 +240,14 @@ httpRCurl <- function(host,
   
   # make the request
   if (!is.null(file)) {
-    RCurl::postForm(url,
-                    .params = params,
-                    .opts = options,
-                    cainfo = options$cainfo,
-                    useragent = userAgent())
+    RCurl::curlPerform(url = url,
+                       .opts = options,
+                       customrequest = method,
+                       readfunction = fileContents,
+                       infilesize = fileLength,
+                       upload = TRUE,
+                       cainfo = options$cainfo,
+                       useragent = userAgent())
   } else {
     RCurl::getURL(url, 
                   .opts = options,
