@@ -2,19 +2,24 @@
 #' Deploy an application to ShinyApps
 #' 
 #' Deploy an application to ShinyApps
-#' @param appDir Directory containing application source code (defaults to
+#' @param appDir Directory containing application source code (defaults to 
 #'   current working directory)
 #' @param appName Name of application (names must be unique with ShinyApps 
-#'   accounts) 
-#' @param account ShinyApps account to deploy application to. This parameter is
-#'   only required for the initial deployment of an application when there are
+#'   accounts)
+#' @param account ShinyApps account to deploy application to. This parameter is 
+#'   only required for the initial deployment of an application when there are 
 #'   multiple accounts configured on the system.
-#' @param quiet Request that no status information be printed to the console
+#' @param launch.browser If true, the system's default web browser will be
+#'   launched automatically after the app is started. Defaults to true in
+#'   interactive sessions only.
+#' @param quiet Request that no status information be printed to the console 
 #'   during the deployment.
 #' @export
 deploy <- function(appDir = getwd(), 
                    appName = NULL, 
                    account = NULL,
+                   launch.browser = getOption("shinyapps.launch.browser",
+                                              interactive()),
                    quiet = FALSE) {
    
   if (!isStringParam(appDir))
@@ -70,6 +75,10 @@ deploy <- function(appDir = getwd(),
                  bundle$id,
                  application$url)
     
+  # launch the browser if requested
+  if (launch.browser)
+    utils::browseURL(application$url)
+  
   # successful deployment!
   invisible(TRUE)
 }

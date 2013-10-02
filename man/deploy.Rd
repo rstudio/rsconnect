@@ -3,6 +3,7 @@
 \title{Deploy an application to ShinyApps}
 \usage{
   deploy(appDir = getwd(), appName = NULL, account = NULL,
+    launch.browser = getOption("shinyapps.launch.browser", interactive()),
     quiet = FALSE)
 }
 \arguments{
@@ -16,6 +17,10 @@
   to. This parameter is only required for the initial
   deployment of an application when there are multiple
   accounts configured on the system.}
+
+  \item{launch.browser}{If true, the system's default web
+  browser will be launched automatically after the app is
+  started. Defaults to true in interactive sessions only.}
 
   \item{quiet}{Request that no status information be
   printed to the console during the deployment.}
