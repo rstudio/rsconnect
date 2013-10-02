@@ -31,43 +31,16 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   
   # determine the deployment target and target account info
   target <- deploymentTarget(appDir, appName, account)
-  appName <- target$appName
-  account <- target$account
   accountInfo <- accountInfo(target$account)
     
-  # list the existing applications for this account and see if we 
-  # need to create a new application
-  app <- NULL
-  existingApps <- lucid$applications(accountInfo$accountId)
-  for (existingApp in existingApps) {
-    if (identical(existingApp$name, target$appName)) {
-      app <- existingApp
-      break
-    }
-  }
-  
-  # if there is no record of deploying this application locally yet there
-  # is an application of that name already deployed then confirm
-  if (!target$isUpdate && !is.null(app) && interactive()) {
-    prompt <- paste("Update existing application at ", app$url,
-                    "? [Y/n] ", sep="")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
-      stop("Application deployment aborted")
-  }
-  
-  # create the application if we need to
-  if (is.null(app)) {
-    app <- lucid$createApplication(target$appName, 
-                                   "shiny", 
-                                    accountInfo$accountId)
-  }
+  # get the application to deploy (creates a new app on demand)
+  application <- applicationForTarget(lucid, accountInfo, target)
   
   # upload the bundle
-  bundle <- lucid$uploadApplication(app$id, bundlePath)
+  bundle <- lucid$uploadApplication(application$id, bundlePath)
   
   # deploy the bundle
-  task <- lucid$deployApplication(app$id, bundle$id)
+  task <- lucid$deployApplication(application$id, bundle$id)
   
   # poll for task status
   
@@ -77,7 +50,7 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
                  target$appName, 
                  target$account, 
                  bundle$id,
-                 app$url)
+                 application$url)
   
   invisible(TRUE)
 }
@@ -193,6 +166,43 @@ deploymentTarget <- function(appDir, appName, account) {
   
   }
 }
+
+# get the application associated with the passed deployment target
+# (creates a new application if necessary)
+applicationForTarget <- function(lucid, accountInfo, target) {
+  
+  # list the existing applications for this account and see if we 
+  # need to create a new application
+  app <- NULL
+  existingApps <- lucid$applications(accountInfo$accountId)
+  for (existingApp in existingApps) {
+    if (identical(existingApp$name, target$appName)) {
+      app <- existingApp
+      break
+    }
+  }
+  
+  # if there is no record of deploying this application locally however there
+  # is an application of that name already deployed then confirm
+  if (!target$isUpdate && !is.null(app) && interactive()) {
+    prompt <- paste("Update existing application at ", app$url,
+                    "? [Y/n] ", sep="")
+    input <- readline(prompt)
+    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+      stop("Application deployment cancelled", call. = FALSE)
+  }
+  
+  # create the application if we need to
+  if (is.null(app)) {
+    app <- lucid$createApplication(target$appName, 
+                                   "shiny", 
+                                   accountInfo$accountId)
+  }
+  
+  # return the application
+  app
+}
+
 
 saveDeployment <- function(appDir, name, account, bundleId, url) {
   
