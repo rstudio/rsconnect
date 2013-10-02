@@ -9,7 +9,7 @@
   for the \code{shinyapps.http} user option. \code{"curl"}
   uses the curl system utility to create a secure https
   connection; \code{"rcurl"} uses the RCurl package to
-  create a secure https connection; \code{"insecure"}
+  create a secure https connection; \code{"internal"}
   creates an insecure http socket connection; \code{"auto"}
   uses \code{"curl"} if available and otherwise uses
   \code{"rcurl"} The global default behavior can be

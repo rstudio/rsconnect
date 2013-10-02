@@ -58,7 +58,7 @@ readHttpResponse <- function(path, conn) {
 
 
 # internal sockets implementation of upload
-httpInsecure <- function(host,
+httpInternal <- function(host,
                          method,
                          path,
                          headers,
@@ -125,18 +125,18 @@ httpInsecure <- function(host,
   response
 }
 
-httpGetInsecure <- function(host,
+httpGetInternal <- function(host,
                             path,
                             headers) {
-  httpInsecure(host, "GET", path, headers)
+  httpInternal(host, "GET", path, headers)
 }
 
-httpPostInsecure <- function(host,
+httpPostInternal <- function(host,
                              path,
                              headers,
                              contentType,
                              file) {
-  httpInsecure(host, "POST", path, headers, contentType, file)
+  httpInternal(host, "POST", path, headers, contentType, file)
 }
 
 
@@ -316,11 +316,11 @@ httpFunction <- function() {
     httpFunction <- httpCurl
   } else if (identical("rcurl", httpType)) {
     httpFunction <- httpRCurl
-  } else if (identical("insecure", httpType)) {
-    httpFunction <- httpInsecure
+  } else if (identical("internal", httpType)) {
+    httpFunction <- httpInternal
   } else {
     stop(paste("Invalid http option specified:",httpType,
-               ". Valid values are auto, curl, rcurl, and insecure."))
+               ". Valid values are auto, curl, rcurl, and internal"))
   }
 }
 
