@@ -236,9 +236,9 @@ httpRCurl <- function(host,
   # establish options
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
-  # TODO: verify SSL peers (debug issues we are seeing)
-  options$ssl.verifypeer <- FALSE
-  options$cainfo <- system.file("CurlSSL/cacert.pem", package = "RCurl")
+  options$ssl.verifypeer <- TRUE
+  # Cert from: http://curl.haxx.se/docs/caextract.html
+  options$cainfo <- system.file("cert/cacert.pem", package = "shinyapps")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
   textGatherer <- RCurl::basicTextGatherer()
