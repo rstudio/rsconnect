@@ -18,8 +18,10 @@ lucidClient <- function(authInfo) {
                      function(json) json$accounts)
     },
     
-    applications = function() {
-      handleResponse(GET(authInfo, "/v1/applications/"))
+    applications = function(accountId) {
+      path <- paste("/v1/accounts/", accountId, "/applications", sep="")
+      handleResponse(GET(authInfo, path),
+                     function(json) json$applications)
     },
     
     createApplication = function(name, template, accountId) {    
@@ -28,6 +30,11 @@ lucidClient <- function(authInfo) {
       json$template <- template
       json$account <- as.numeric(accountId)
       handleResponse(POST_JSON(authInfo, "/v1/applications/", json))      
+    },
+    
+    uploadApplication = function(applicationId, bundlePath) {
+      path <- paste("/v1/applications/", applicationId, "/upload", sep="")
+      handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
     }
   )
 }

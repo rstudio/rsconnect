@@ -367,8 +367,10 @@ httpWithBody <- function(authInfo,
   headers <- append(headers, sigHeaders)
   
   # if we have content then write it to a temp file before posting
-  file <- tempfile()
-  writeChar(content, file,  eos = NULL, useBytes=TRUE)
+  if (!is.null(content)) {
+    file <- tempfile()
+    writeChar(content, file,  eos = NULL, useBytes=TRUE)
+  }
   
   # perform POST
   http <- httpFunction()

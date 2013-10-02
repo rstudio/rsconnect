@@ -23,22 +23,46 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory")
    
+  # create the bundle we are going to upload
+  bundlePath <- bundleApp(appDir)
+  
   # initialize lucid client
   lucid <- lucidClient(accountInfo)
   
-  # determine the deployment target and implied account info
+  # determine the deployment target and target account info
   target <- deploymentTarget(appDir, appName, account)
   accountInfo <- accountInfo(target$account)
     
-  # create the application
-  app <- lucid$createApplication(target$appName, 
-                                 "shiny", 
-                                 accountInfo$accountId)
+  # list the existing applications for this account and see if we 
+  # need to create a new application
+  appId <- NULL
+  existingApps <- lucid$applications(accountInfo$accountId)
+  for (app in existingApps) {
+    if (identical(app$name, target$appName)) {
+      appId <- app$id
+      break
+    }
+  }
   
-  # create the bundle and upload it 
-  bundle <- bundleApp(appDir)
+  # if there is no record of deploying this application locally yet there
+  # is an application of that name already deployed then confirm
+  if (!target$isUpdate && !is.null(appId) && interactive()) {
+    
+    # TODO
+  }
   
- 
+  # create the application if we need to
+  if (is.null(appId)) {
+    app <- lucid$createApplication(target$appName, 
+                                   "shiny", 
+                                    accountInfo$accountId)
+    appId <- app$id
+  }
+  
+  # upload the bundle
+  bundle <- lucid$uploadApplication(appId, bundlePath)
+  
+  bundle
 }
 
 # calculate the deployment target based on the passed parameters and 
