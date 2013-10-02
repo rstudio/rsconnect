@@ -22,10 +22,7 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   appDir <- normalizePath(appDir, mustWork = FALSE)
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory")
-   
-  # create the bundle we are going to upload
-  bundlePath <- bundleApp(appDir)
-  
+    
   # initialize lucid client
   lucid <- lucidClient(accountInfo)
   
@@ -36,7 +33,8 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   # get the application to deploy (creates a new app on demand)
   application <- applicationForTarget(lucid, accountInfo, target)
   
-  # upload the bundle
+  # create and upload the bundle
+  bundlePath <- bundleApp(appDir)
   bundle <- lucid$uploadApplication(application$id, bundlePath)
   
   # deploy the bundle
