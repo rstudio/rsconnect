@@ -97,6 +97,10 @@ httpInsecure <- function(host,
   }
   request <- c(request, "\r\n")
   
+  # output request if in verbose mode
+  if (httpVerbose())
+    cat(request)
+    
   # open socket connection
   conn <- socketConnection(host=host,
                            port=80,
@@ -111,7 +115,14 @@ httpInsecure <- function(host,
   }
   
   # read the response
-  readHttpResponse(path, conn)      
+  response <- readHttpResponse(path, conn)
+  
+  # print if in verbose mode
+  if (httpVerbose())
+    print(response)
+  
+  # return it
+  response
 }
 
 httpGetInsecure <- function(host,
@@ -156,6 +167,9 @@ httpCurl <- function(host,
                    "-i",
                    "-X", 
                    method);
+  
+  if (httpVerbose())
+    command <- paste(command, "-v")
   
   if (!is.null(file)) {
     command <- paste(command,
@@ -233,6 +247,10 @@ httpRCurl <- function(host,
   if (!is.null(file))
     options$writefunction <- textGatherer$update
   
+  # verbose if requested
+  if (httpVerbose())
+    options$verbose <- TRUE
+  
   # add extra headers
   extraHeaders <- as.character(headers)
   names(extraHeaders) <- names(headers)
@@ -284,6 +302,9 @@ httpPostRCurl <- function(host,
   httpRCurl(host, "POST", path, headers, contentType, file)
 }
 
+httpVerbose <- function() {
+  getOption("shinyapps.http.verbose", FALSE)
+}
 
 httpFunction <- function() {
   
