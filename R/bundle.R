@@ -9,7 +9,7 @@ bundleApp <- function(appDir, appName) {
   on.exit(unlink(bundleDir))
 
   # copy the appDir into the bundleAppDir
-  appFiles <- list.files(appDir)
+  appFiles <- file.path(appDir, list.files(appDir))
   file.copy(appFiles, bundleAppDir, recursive=TRUE)
   
   # generate the manifest and write it into the bundle dir

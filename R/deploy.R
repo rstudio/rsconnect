@@ -17,6 +17,11 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
+  
+  # normalize appDir path and ensure it exists
+  appDir <- normalizePath(appDir, mustWork = FALSE)
+  if (!file.exists(appDir) || !file.info(appDir)$isdir)
+    stop(appDir, " is not a valid directory")
    
   # initialize lucid client
   lucid <- lucidClient(accountInfo)
@@ -39,10 +44,7 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
 # calculate the deployment target based on the passed parameters and 
 # any saved deployments that we have
 deploymentTarget <- function(appDir, appName, account) {
-  
-  # expand path of appDir
-  appDir <- normalizePath(appDir)
-  
+    
   # read existing accounts 
   accounts <- accounts()
   if (length(accounts) == 0) {
