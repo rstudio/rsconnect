@@ -31,38 +31,55 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   
   # determine the deployment target and target account info
   target <- deploymentTarget(appDir, appName, account)
+  appName <- target$appName
+  account <- target$account
   accountInfo <- accountInfo(target$account)
     
   # list the existing applications for this account and see if we 
   # need to create a new application
-  appId <- NULL
+  app <- NULL
   existingApps <- lucid$applications(accountInfo$accountId)
-  for (app in existingApps) {
-    if (identical(app$name, target$appName)) {
-      appId <- app$id
+  for (existingApp in existingApps) {
+    if (identical(existingApp$name, target$appName)) {
+      app <- existingApp
       break
     }
   }
   
   # if there is no record of deploying this application locally yet there
   # is an application of that name already deployed then confirm
-  if (!target$isUpdate && !is.null(appId) && interactive()) {
-    
-    # TODO
+  if (!target$isUpdate && !is.null(app) && interactive()) {
+    prompt <- paste("Update existing application at ", app$url,
+                    "? [Y/n] ", sep="")
+    input <- readline(prompt)
+    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+      stop("Application deployment aborted")
   }
   
   # create the application if we need to
-  if (is.null(appId)) {
+  if (is.null(app)) {
     app <- lucid$createApplication(target$appName, 
                                    "shiny", 
                                     accountInfo$accountId)
-    appId <- app$id
   }
   
   # upload the bundle
-  bundle <- lucid$uploadApplication(appId, bundlePath)
+  bundle <- lucid$uploadApplication(app$id, bundlePath)
   
-  bundle
+  # deploy the bundle
+  task <- lucid$deployApplication(app$id, bundle$id)
+  
+  # poll for task status
+  
+    
+  # save a record of the deployment
+  saveDeployment(appDir, 
+                 target$appName, 
+                 target$account, 
+                 bundle$id,
+                 app$url)
+  
+  invisible(TRUE)
 }
 
 # calculate the deployment target based on the passed parameters and 
@@ -210,8 +227,8 @@ readDeployments <- function(appDir, nameFilter = NULL, accountFilter = NULL) {
                                   stringsAsFactors = FALSE)
       
       # apply optional name filter
-      if (!is.null(nameFilter) && !identical(nameFilter, 
-                                             basename(deploymentFile)))
+      name <- tools::file_path_sans_ext(basename(deploymentFile))
+      if (!is.null(nameFilter) && !identical(nameFilter, name)) 
         next
       
       deployments <- rbind(deployments, deployment)
@@ -224,7 +241,7 @@ readDeployments <- function(appDir, nameFilter = NULL, accountFilter = NULL) {
 deploymentFile <- function(appDir, name, account) {
   accountDir <- file.path(appDir, "shinyapps", account)
   if (!file.exists(accountDir))
-    dir.create(accountDir)
+    dir.create(accountDir, recursive=TRUE)
   file.path(accountDir, paste(name, ".dcf", sep=""))
 }
 

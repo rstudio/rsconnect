@@ -35,6 +35,13 @@ lucidClient <- function(authInfo) {
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/v1/applications/", applicationId, "/upload", sep="")
       handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
+    },
+    
+    deployApplication = function(applicationId, bundleId) {
+      path <- paste("/v1/applications/", applicationId, "/deploy", sep="")
+      json <- list()
+      json$bundle <- as.numeric(bundleId)
+      handleResponse(POST_JSON(authInfo, path, json))
     }
   )
 }
@@ -51,7 +58,7 @@ handleResponse <- function(response, jsonFilter = NULL) {
     
     json <- RJSONIO::fromJSON(response$content, simplify = FALSE)
      
-    if (response$status %in% 200:299)
+    if (response$status %in% 200:399)
       if (!is.null(jsonFilter))
         jsonFilter(json)
       else
