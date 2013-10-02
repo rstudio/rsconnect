@@ -235,6 +235,7 @@ httpRCurl <- function(host,
   
   # establish options
   options <- RCurl::curlOptions(url)
+  options$useragent <- userAgent()
   options$followlocation <- 1L
   options$maxredirs <- 10L
   options$encoding <- "gzip"
@@ -263,15 +264,11 @@ httpRCurl <- function(host,
                        customrequest = method,
                        readfunction = fileContents,
                        infilesize = fileLength,
-                       upload = TRUE,
-                       cainfo = options$cainfo,
-                       useragent = userAgent())
+                       upload = TRUE)
   } else {
     RCurl::getURL(url, 
                   .opts = options,
-                  write = textGatherer,
-                  cainfo = options$cainfo,
-                  useragent = userAgent())
+                  write = textGatherer)
   }
   
   # return list
