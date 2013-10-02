@@ -18,6 +18,10 @@ lucidClient <- function(authInfo) {
                      jsonFilter = function(json) json$accounts)
     },
     
+    applications = function() {
+      handleResponse(GET(authInfo, "/v1/applications/"))
+    },
+    
     createApplication = function(name, accountId, existingOK = FALSE) {
       
       if (existingOK)
