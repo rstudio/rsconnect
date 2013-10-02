@@ -49,7 +49,7 @@ handleResponse <- function(response,
   
   # function to report errors
   reportError <- function(msg) {
-    stop(paste(response$path, "-", msg), call. = FALSE)
+    stop(paste(response$path, response$status, "-", msg), call. = FALSE)
   }
   
   # json responses
