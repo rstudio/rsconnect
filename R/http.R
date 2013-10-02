@@ -236,9 +236,6 @@ httpRCurl <- function(host,
   # establish options
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
-  options$followlocation <- 1L
-  options$maxredirs <- 10L
-  options$encoding <- "gzip"
   # TODO: verify SSL peers (debug issues we are seeing)
   options$ssl.verifypeer <- FALSE
   options$cainfo <- system.file("CurlSSL/cacert.pem", package = "RCurl")
