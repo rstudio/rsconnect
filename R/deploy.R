@@ -21,17 +21,15 @@ deploy <- function(appDir = getwd(), appName = NULL, account = NULL) {
   # initialize lucid client
   lucid <- lucidClient(accountInfo)
   
-  # determine the deployment target
+  # determine the deployment target and implied account info
   target <- deploymentTarget(appDir, appName, account)
-  appName <- target$appName
-  account <- target$account
-  accountInfo <- accountInfo(account)
+  accountInfo <- accountInfo(target$account)
     
   # ensure that the application exists
-  app <- lucid$createApplication(appName, accountInfo$accountId, TRUE)
+  app <- lucid$createApplication(target$appName, accountInfo$accountId, TRUE)
   
   # create the bundle and upload it 
-  bundle <- bundleApp(appDir, appName)
+  bundle <- bundleApp(appDir, target$appName)
   
  
 }
