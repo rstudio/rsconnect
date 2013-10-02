@@ -302,23 +302,16 @@ httpVerbose <- function() {
 
 httpFunction <- function() {
   
-  httpType <- getOption("shinyapps.http", "auto")
-  httpFunction <- NULL
-  if (identical("auto", httpType)) {
-    if (nzchar(Sys.which("curl")))
-      httpFunction <- httpCurl
-    else
-      httpFunction <- httpRCurl
-  } else if (identical("curl",  httpType)) {
-    httpFunction <- httpCurl
-  } else if (identical("rcurl", httpType)) {
-    httpFunction <- httpRCurl
-  } else if (identical("internal", httpType)) {
-    httpFunction <- httpInternal
-  } else {
+  httpType <- getOption("shinyapps.http", "rcurl")
+  if (identical("rcurl", httpType))
+    httpRCurl
+  else if (identical("curl",  httpType))
+    httpCurl
+  else if (identical("internal", httpType))
+    httpInternal
+  else
     stop(paste("Invalid http option specified:",httpType,
-               ". Valid values are auto, curl, rcurl, and internal"))
-  }
+               ". Valid values are rcurl, curl, and internal"))
 }
 
 POST_JSON <- function(authInfo, path, json, headers = list()) {
