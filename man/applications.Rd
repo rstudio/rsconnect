@@ -15,7 +15,8 @@
   \code{url} \tab URL where application can be accessed\cr
   \code{status} \tab Current status of application. Valid
   values are \code{pending}, \code{deploying},
-  \code{running}, \code{terminating}, \code{terminated}. }
+  \code{running}, \code{terminating}, and
+  \code{terminated}. }
 }
 \description{
   List all applications currently deployed to ShinyApps for

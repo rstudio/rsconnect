@@ -9,8 +9,9 @@
 #' \tabular{ll}{
 #' \code{name} \tab Name of application \cr 
 #' \code{url} \tab URL where application can be accessed\cr
-#' \code{status} \tab Current status of application. Valid values are \code{pending},
-#' \code{deploying}, \code{running}, \code{terminating}, \code{terminated}.
+#' \code{status} \tab Current status of application. Valid values are 
+#' \code{pending}, \code{deploying}, \code{running}, \code{terminating}, and
+#' \code{terminated}.
 #' }
 #' @note To register an account you call the \link{setAccountInfo} function.
 #' @examples
