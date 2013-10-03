@@ -13,6 +13,8 @@
 #' # specify that an application use 3 instances
 #' scaleApp("myapp" instances = 3)
 #' }
+#' @seealso \code{\link{applications}}, \code{\link{deployApp}}, and
+#'   \code{\link{terminateApp}}
 #' @export
 scaleApp <- function(appName, instances, account = NULL, quiet = FALSE) {
   

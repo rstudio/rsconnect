@@ -1,19 +1,18 @@
-
 #' Deploy an Application
 #' 
 #' Deploy a \link[shiny:shiny-package]{shiny} application to the ShinyApps 
 #' service.
 #' @details Prior to deploying an application you should call the 
-#' \code{\link{setAccountInfo}} function to register your ShinyApps account on 
-#' the local system.
-#' 
-#' After the initial deployment of an application from a given \code{appDir}, 
-#' subsequent deployments will automatically use the \code{appName} and 
-#' \code{account} parameters of the initial deployment (unless overriden 
-#' explicitly).
-#' 
-#' For details on options that affect the behavior of \code{deployApp} see the
-#' article on \link[shinyapps:shinyapps-options]{package options}.
+#'   \code{\link{setAccountInfo}} function to register your ShinyApps account on
+#'   the local system.
+#'   
+#'   After the initial deployment of an application from a given \code{appDir}, 
+#'   subsequent deployments will automatically use the \code{appName} and 
+#'   \code{account} parameters of the initial deployment (unless overriden 
+#'   explicitly).
+#'   
+#'   For details on options that affect the behavior of \code{deployApp} see the
+#'   article on \link[shinyapps:shinyapps-options]{package options}.
 #' @param appDir Directory containing application source code. Defaults to 
 #'   current working directory.
 #' @param appName Name of application (names must be unique with ShinyApps 
@@ -47,6 +46,8 @@
 #' # deploy but don't launch a browser when completed 
 #' deployApp(launch.browser = FALSE)
 #' }
+#' @seealso \code{\link{applications}}, \code{\link{terminateApp}}, and
+#'   \code{\link{scaleApp}}
 #' @export
 deployApp <- function(appDir = getwd(), 
                       appName = NULL, 

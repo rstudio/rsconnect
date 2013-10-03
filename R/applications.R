@@ -25,6 +25,8 @@
 #' # view the list of applications in the data viewer
 #' View(applications())
 #' }
+#' @seealso \code{\link{deployApp}}, \code{\link{terminateApp}}, and
+#'   \code{\link{scaleApp}}
 #' @export
 applications <- function(account = NULL) {
   

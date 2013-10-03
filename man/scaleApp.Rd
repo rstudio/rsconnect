@@ -29,4 +29,8 @@
 scaleApp("myapp" instances = 3)
 }
 }
+\seealso{
+  \code{\link{applications}}, \code{\link{deployApp}}, and
+  \code{\link{terminateApp}}
+}
 

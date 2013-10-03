@@ -24,4 +24,8 @@
 terminateApp("myapp")
 }
 }
+\seealso{
+  \code{\link{applications}}, \code{\link{deployApp}}, and
+  \code{\link{scaleApp}}
+}
 

@@ -12,6 +12,8 @@
 #' # terminate an application
 #' terminateApp("myapp")
 #' }
+#' @seealso \code{\link{applications}}, \code{\link{deployApp}}, and
+#'   \code{\link{scaleApp}}
 #' @export
 terminateApp <- function(appName, account = NULL, quiet = FALSE) {
  
