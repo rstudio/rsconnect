@@ -28,7 +28,6 @@ Maintainer: JJ Allaire <jj@rstudio.com>
 
 \keyword{ package }
 \seealso{
-
-\code{\link[shiny:shiny-package]{shiny}}
+\link[shiny:shiny-package]{shiny}
 }
 
