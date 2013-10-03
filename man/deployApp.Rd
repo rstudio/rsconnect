@@ -1,6 +1,6 @@
 \name{deployApp}
 \alias{deployApp}
-\title{Deploy Applications to ShinyApps}
+\title{Deploy an Application}
 \usage{
   deployApp(appDir = getwd(), appName = NULL,
     account = NULL,

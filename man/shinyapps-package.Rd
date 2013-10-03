@@ -3,10 +3,10 @@
 \alias{shinyapps}
 \docType{package}
 \title{
-Publish Applications to ShinyApps
+Interface to ShinyApps
 }
 \description{
-Interface for publishing \pkg{shiny} applications to the ShinyApps service.
+Interface for deploying \pkg{shiny} applications to the ShinyApps service.
 }
 \details{
 \tabular{ll}{

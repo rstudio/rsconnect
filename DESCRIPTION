@@ -1,11 +1,11 @@
 Package: shinyapps
 Type: Package
-Title: Publish Applications to ShinyApps
+Title: Interface to ShinyApps
 Version: 0.2
 Date: 2013-10-03
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
-Description: Interface for publishing shiny applications to the ShinyApps
+Description: Interface for deploying shiny applications to the ShinyApps
     service
 Imports:
     digest,

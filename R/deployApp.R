@@ -1,5 +1,5 @@
 
-#' Deploy Applications to ShinyApps
+#' Deploy an Application
 #' 
 #' Deploy a \link[shiny:shiny-package]{shiny} application to the ShinyApps 
 #' service.

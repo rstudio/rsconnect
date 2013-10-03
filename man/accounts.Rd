@@ -20,6 +20,11 @@
 
   \item{secret}{User secret for the account}
 }
+\value{
+  \code{accounts} returns a character vector with the names
+  of all accounts registered on the system.
+  \code{accountInfo} returns a list with account details.
+}
 \description{
   Functions to add, enumerate, and remove ShinyApps
   accounts on the local system. Prior to deploying

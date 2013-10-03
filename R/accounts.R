@@ -12,6 +12,10 @@
 #' @param name Name of ShinyApps account to save or remove
 #' @param token User token for the account
 #' @param secret User secret for the account
+#' @return
+#' \code{accounts} returns a character vector with the names of all accounts
+#' registered on the system. \code{accountInfo} returns a list with account
+#' details.
 #' @rdname accounts
 #' @examples
 #' \dontrun{
@@ -97,7 +101,9 @@ removeAccount <- function(name) {
   if (!file.exists(configFile))
     stop(missingAccountErrorMessage(name))
   
-  invisible(file.remove(configFile))
+  file.remove(configFile)
+  
+  invisible(NULL)
 }
 
 
