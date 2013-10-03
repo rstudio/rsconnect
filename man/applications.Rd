@@ -1,0 +1,39 @@
+\name{applications}
+\alias{applications}
+\title{List Deployed Applications}
+\usage{
+  applications(account = NULL)
+}
+\arguments{
+  \item{account}{Account name. If a single account is
+  registered on the system then this parameter can be
+  omitted.}
+}
+\value{
+  Returns a data frame with the following columns:
+  \tabular{ll}{ \code{id} \tab Unique id for the
+  application\cr \code{name} \tab Name of application \cr
+  \code{url} \tab URL where application can be accessed\cr
+  \code{status} \tab Current status of application. Valid
+  values are \code{pending}, \code{deploying},
+  \code{running}, \code{terminating}, \code{terminated}. }
+}
+\description{
+  List all applications currently deployed to ShinyApps for
+  a given account.
+}
+\note{
+  To register an account you call the \link{setAccountInfo}
+  function.
+}
+\examples{
+\dontrun{
+
+# list all applications for the default account
+applications()
+
+# list all applications for a specific account
+applications("myaccount")
+}
+}
+

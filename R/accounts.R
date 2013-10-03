@@ -114,3 +114,40 @@ missingAccountErrorMessage <- function(name) {
   paste("account named '", name, "' does not exist", sep="")
 }
 
+resolveAccount <- function(account) {
+  
+  # get existing accounts
+  accounts <- accounts()
+  if (length(accounts) == 0)
+    stopWithNoAccount()
+  
+  # if no account was specified see if we can resolve the account to a default
+  if (is.null(account)) {
+    if (length(accounts) == 1) 
+      accounts[[1]]
+    else
+      stopWithSpecifyAccount()
+  }
+  # account explicitly specified, confirm it exists
+  else {
+      if (account %in% accounts)
+        account
+      else
+        stopWithMissingAccount(account)
+  }
+}
+
+stopWithNoAccount <- function() {
+  stop(paste("You must register an account using setAccountInfo prior to",
+             "proceeding."), call. = FALSE)
+}
+
+stopWithSpecifyAccount <- function() {
+  stop(paste("Please specify the account name (there are more than one",
+             "accounts registered on this system)", call. = FALSE))
+}
+
+stopWithMissingAccount <- function(account) {
+  stop(missingAccountErrorMessage(account), call. = FALSE)
+}
+

@@ -115,10 +115,8 @@ deploymentTarget <- function(appDir, appName, account) {
     
   # read existing accounts 
   accounts <- accounts()
-  if (length(accounts) == 0) {
-    stop(paste("You must register an account using setAccountInfo prior to",
-               "deploying an application."), call. = FALSE)
-  }
+  if (length(accounts) == 0) 
+    stopWithNoAccount()
   
   # validate account if provided
   if (!is.null(account)) {
@@ -164,8 +162,7 @@ deploymentTarget <- function(appDir, appName, account) {
       if (length(accounts) == 1)
         createDeploymentTarget(appName, accounts[[1]])
       else
-        stop(paste("Please specify the account which you want to deploy the",
-                   "application to."), call. = FALSE)
+        stopWithSpecifyAccount()
     }
     
     # single existing deployment

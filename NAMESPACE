@@ -1,5 +1,6 @@
 export(accountInfo)
 export(accounts)
+export(applications)
 export(deploy)
 export(removeAccount)
 export(setAccountInfo)

@@ -22,3 +22,4 @@ Collate:
     'utils.R'
     'lucid.R'
     'deployments.R'
+    'applications.R'
