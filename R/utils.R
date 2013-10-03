@@ -20,6 +20,7 @@ regexExtract <- function(re, input) {
 }
 
 displayStatus <- function(quiet) {
+  quiet <- quiet || httpDiagnosticsEnabled()
   function (status) {
     if (!quiet)
       cat(status)
@@ -27,6 +28,7 @@ displayStatus <- function(quiet) {
 }
 
 withStatus <- function(quiet) {
+  quiet <- quiet || httpDiagnosticsEnabled()
   function(status, code) {
     if (!quiet)
       cat(status, "...", sep="")
@@ -35,3 +37,10 @@ withStatus <- function(quiet) {
       cat("DONE\n")
   }
 }
+
+httpDiagnosticsEnabled <- function() {
+  return (getOption("shinyapps.http.trace", FALSE) ||
+          getOption("shinyapps.http.verbose", FALSE))
+}
+
+
