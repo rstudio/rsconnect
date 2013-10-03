@@ -14,14 +14,12 @@ lucidClient <- function(authInfo) {
     
     accountsForUser = function(userId) {
       path <- paste("/v1/users/", userId, "/accounts", sep="")
-      handleResponse(GET(authInfo, path), 
-                     function(json) json$accounts)
+      listRequest(authInfo, path, "accounts")
     },
     
     applications = function(accountId) {
       path <- paste("/v1/accounts/", accountId, "/applications", sep="")
-      handleResponse(GET(authInfo, path),
-                     function(json) json$applications)
+      listRequest(authInfo, path, "applications")
     },
     
     createApplication = function(name, template, accountId) {    
@@ -86,6 +84,34 @@ lucidClient <- function(authInfo) {
       }
     }
   )
+}
+
+listRequest <- function(authInfo, path, listName, pageSize = 100) {
+  
+  # accumulate multiple pages of results
+  offset <- 0
+  results <- list()
+  
+  while(TRUE) {
+    
+    # add query params
+    pathWithQuery <- paste(path, "?count=", pageSize, 
+                                 "&offset=", offset, 
+                           sep="")
+    
+    # make request and append the results
+    response <- handleResponse(GET(authInfo, pathWithQuery))        
+    results <- append(results, response[[listName]])
+    
+    # update the offset
+    offset <- offset + response$count
+    
+    # exit if we've got them all
+    if (length(results) >= response$total)
+      break
+  }
+  
+  results
 }
 
 handleResponse <- function(response, jsonFilter = NULL) {
