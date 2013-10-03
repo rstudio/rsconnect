@@ -1,13 +1,27 @@
-
-
 #' Account Management Functions
 #' 
-#' Functions to add, enumerate, and remove ShinyApps accounts on the local
-#' system.
-#' @param name Account name
-#' @param token User token
-#' @param secret User token secret
+#' Functions to add, enumerate, and remove ShinyApps accounts on the local 
+#' system. Prior to deploying applications you need to register
+#' your ShinyApps account on the local system.
+#' 
+#' You register an account using the \code{setAccountInfo} function. You can
+#' subsequently remove the account using the \code{removeAccount} function.
+#' 
+#' The \code{accounts} and \code{accountInfo} functions are provided for viewing
+#' previously registered accounts.
+#' @param name Name of ShinyApps account to save or remove
+#' @param token User token for the account
+#' @param secret User secret for the account
 #' @rdname accounts
+#' @examples
+#' \dontrun{
+#' 
+#' # register an account
+#' setAccountInfo("user", "token", "secret")
+#' 
+#' # remove the same account
+#' removeAccount("user")
+#' }
 #' @export
 accounts <- function() {
   tools::file_path_sans_ext(list.files(accountsConfigDir(), 

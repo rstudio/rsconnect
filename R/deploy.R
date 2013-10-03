@@ -11,6 +11,9 @@
 #' subsequent deployments will automatically use the \code{appName} and 
 #' \code{account} parameters of the initial deployment (unless overriden 
 #' explicitly).
+#' 
+#' For details on options that affect the behavior of \code{deploy} see the
+#' article on \link[shinyapps:shinyapps-options]{package options}.
 #' @param appDir Directory containing application source code. Defaults to 
 #'   current working directory.
 #' @param appName Name of application (names must be unique with ShinyApps 

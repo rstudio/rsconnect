@@ -41,6 +41,10 @@
   automatically use the \code{appName} and \code{account}
   parameters of the initial deployment (unless overriden
   explicitly).
+
+  For details on options that affect the behavior of
+  \code{deploy} see the article on
+  \link[shinyapps:shinyapps-options]{package options}.
 }
 \examples{
 \dontrun{

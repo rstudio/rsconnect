@@ -14,14 +14,34 @@
   removeAccount(name)
 }
 \arguments{
-  \item{name}{Account name}
+  \item{name}{Name of ShinyApps account to save or remove}
 
-  \item{token}{User token}
+  \item{token}{User token for the account}
 
-  \item{secret}{User token secret}
+  \item{secret}{User secret for the account}
 }
 \description{
   Functions to add, enumerate, and remove ShinyApps
-  accounts on the local system.
+  accounts on the local system. Prior to deploying
+  applications you need to register your ShinyApps account
+  on the local system.
+}
+\details{
+  You register an account using the \code{setAccountInfo}
+  function. You can subsequently remove the account using
+  the \code{removeAccount} function.
+
+  The \code{accounts} and \code{accountInfo} functions are
+  provided for viewing previously registered accounts.
+}
+\examples{
+\dontrun{
+
+# register an account
+setAccountInfo("user", "token", "secret")
+
+# remove the same account
+removeAccount("user")
+}
 }
 
