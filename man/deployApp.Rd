@@ -1,8 +1,9 @@
-\name{deploy}
-\alias{deploy}
+\name{deployApp}
+\alias{deployApp}
 \title{Deploy Applications to ShinyApps}
 \usage{
-  deploy(appDir = getwd(), appName = NULL, account = NULL,
+  deployApp(appDir = getwd(), appName = NULL,
+    account = NULL,
     launch.browser = getOption("shinyapps.launch.browser", interactive()),
     quiet = FALSE)
 }
@@ -43,29 +44,29 @@
   explicitly).
 
   For details on options that affect the behavior of
-  \code{deploy} see the article on
+  \code{deployApp} see the article on
   \link[shinyapps:shinyapps-options]{package options}.
 }
 \examples{
 \dontrun{
 
 # deploy the application in the current working dir
-deploy()
+deployApp()
 
 # deploy an application in another directory
-deploy("~/projects/shiny/app1")
+deployApp("~/projects/shiny/app1")
 
 # deploy using an alternative application name
-deploy("~/projects/shiny/app1", appName = "myapp")
+deployApp("~/projects/shiny/app1", appName = "myapp")
 
 # deploy specifying an explicit account name, then
 # redeploy with no arguments (will automatically use
 # the previously specified account)
-deploy(account = "jsmith")
-deploy()
+deployApp(account = "jsmith")
+deployApp()
 
 # deploy but don't launch a browser when completed
-deploy(launch.browser = FALSE)
+deployApp(launch.browser = FALSE)
 }
 }
 

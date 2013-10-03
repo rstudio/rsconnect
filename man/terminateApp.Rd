@@ -1,8 +1,8 @@
-\name{terminate}
-\alias{terminate}
+\name{terminateApp}
+\alias{terminateApp}
 \title{Terminate an Application}
 \usage{
-  terminate(appName, account = NULL, quiet = FALSE)
+  terminateApp(appName, account = NULL, quiet = FALSE)
 }
 \arguments{
   \item{appName}{Name of application to terminate}
@@ -21,7 +21,7 @@
 \dontrun{
 
 # terminate an application
-terminate("myapp")
+terminateApp("myapp")
 }
 }
 

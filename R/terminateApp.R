@@ -10,10 +10,10 @@
 #' \dontrun{
 #' 
 #' # terminate an application
-#' terminate("myapp")
+#' terminateApp("myapp")
 #' }
 #' @export
-terminate <- function(appName, account = NULL, quiet = FALSE) {
+terminateApp <- function(appName, account = NULL, quiet = FALSE) {
  
   # define terminate task
   taskDef <- list()

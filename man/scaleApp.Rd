@@ -1,8 +1,8 @@
-\name{setInstances}
-\alias{setInstances}
-\title{Set Application Instances}
+\name{scaleApp}
+\alias{scaleApp}
+\title{Scale Application Instances}
 \usage{
-  setInstances(appName, instances, account = NULL,
+  scaleApp(appName, instances, account = NULL,
     quiet = FALSE)
 }
 \arguments{
@@ -19,14 +19,14 @@
   printed to the console}
 }
 \description{
-  Set the number of parallel instances used for an
+  Scale the number of parallel instances used for an
   application deployed to ShinyApps.
 }
 \examples{
 \dontrun{
 
 # specify that an application use 3 instances
-setInstances("myapp" instances = 3)
+scaleApp("myapp" instances = 3)
 }
 }
 
