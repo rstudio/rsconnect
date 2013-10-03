@@ -21,3 +21,4 @@ Collate:
     'utils.R'
     'lucid.R'
     'options.R'
+    'deployments.R'
