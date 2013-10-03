@@ -11,8 +11,7 @@
 }
 \value{
   Returns a data frame with the following columns:
-  \tabular{ll}{ \code{id} \tab Unique id for the
-  application\cr \code{name} \tab Name of application \cr
+  \tabular{ll}{ \code{name} \tab Name of application \cr
   \code{url} \tab URL where application can be accessed\cr
   \code{status} \tab Current status of application. Valid
   values are \code{pending}, \code{deploying},
@@ -34,6 +33,9 @@ applications()
 
 # list all applications for a specific account
 applications("myaccount")
+
+# view the list of applications in the data viewer
+View(applications())
 }
 }
 

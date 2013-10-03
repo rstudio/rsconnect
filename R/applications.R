@@ -7,7 +7,6 @@
 #' @return 
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
-#' \code{id} \tab Unique id for the application\cr
 #' \code{name} \tab Name of application \cr 
 #' \code{url} \tab URL where application can be accessed\cr
 #' \code{status} \tab Current status of application. Valid values are \code{pending},
@@ -22,6 +21,9 @@
 #' 
 #' # list all applications for a specific account
 #' applications("myaccount")
+#' 
+#' # view the list of applications in the data viewer
+#' View(applications())
 #' }
 #' @export
 applications <- function(account = NULL) {
@@ -34,18 +36,15 @@ applications <- function(account = NULL) {
   apps <- lucid$applications(accountInfo$accountId)
   
   # convert the list into a data frame with a subset of fields
-  id <- numeric()
   name <- character()
   url <- character()
   status <- character()
   for (app in apps) {
-    id <- append(id, app$id)
     name <- append(name, app$name)
     url <- append(url, app$url)
     status <- append(status, app$status)
   }
-  data.frame(id = id,
-             name = I(name),
+  data.frame(name = I(name),
              url = I(url),
              status = status)
 }
