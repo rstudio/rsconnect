@@ -44,6 +44,11 @@ lucidClient <- function(authInfo) {
       handleResponse(POST_JSON(authInfo, path, json))
     },
     
+    terminateApplication = function(applicationId) {
+      path <- paste("/v1/applications/", applicationId, "/terminate", sep="")
+      handleResponse(POST_JSON(authInfo, path, list()))
+    },
+    
     waitForTaskCompletion = function(taskId, quiet = FALSE) {    
       
       path <- paste("/v1/tasks/", taskId, sep="")

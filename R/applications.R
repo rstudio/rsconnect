@@ -28,11 +28,11 @@
 #' @export
 applications <- function(account = NULL) {
   
-  # resolve account (use default if possible, confirm exists, etc.)
+  # resolve account and create lucid client
   accountInfo <- accountInfo(resolveAccount(account))
-  
-  # create lucid client and retreive applications
   lucid <- lucidClient(accountInfo)
+  
+  # retreive applications
   apps <- lucid$applications(accountInfo$accountId)
   
   # convert the list into a data frame with a subset of fields
@@ -48,3 +48,20 @@ applications <- function(account = NULL) {
              url = I(url),
              status = status)
 }
+
+resolveApplication <- function(accountInfo, appName) {
+  lucid <- lucidClient(accountInfo)
+  apps <- lucid$applications(accountInfo$accountId)
+  for (app in apps) {
+    if (identical(app$name, appName))
+      return (app)
+  }
+  
+  stopWithApplicationNotFound(appName)
+}
+
+stopWithApplicationNotFound <- function(appName) {
+  stop(paste("No application named '", appName, "' is currently deployed",
+             sep=""), call. = FALSE)
+}
+

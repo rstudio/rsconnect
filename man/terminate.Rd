@@ -1,0 +1,27 @@
+\name{terminate}
+\alias{terminate}
+\title{Terminate an Application}
+\usage{
+  terminate(appName, account = NULL, quiet = FALSE)
+}
+\arguments{
+  \item{appName}{Name of application to terminate}
+
+  \item{account}{Account name. If a single account is
+  registered on the system then this parameter can be
+  omitted.}
+
+  \item{quiet}{Request that no status information be
+  printed to the console during the termination.}
+}
+\description{
+  Terminate an application currently running on ShinyApps.
+}
+\examples{
+\dontrun{
+
+# terminate an application
+terminate("myapp")
+}
+}
+
