@@ -34,16 +34,8 @@ deploy <- function(appDir = getwd(),
     stop(appDir, " is not a valid directory")
     
   # functions to show status (respects quiet param)
-  displayStatus <- function(status) {
-    if (!quiet)
-      cat(status)
-  }
-  
-  withStatus <- function(status, code) {
-    displayStatus(paste(status, "...", sep=""))
-    force(code)
-    displayStatus("DONE\n")
-  }
+  displayStatus <- displayStatus(quiet)
+  withStatus <- withStatus(quiet)
   
   # initialize lucid client
   lucid <- lucidClient(accountInfo)

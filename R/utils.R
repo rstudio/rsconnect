@@ -18,3 +18,20 @@ regexExtract <- function(re, input) {
     return (NULL)
   }
 }
+
+displayStatus <- function(quiet) {
+  function (status) {
+    if (!quiet)
+      cat(status)
+  }
+}
+
+withStatus <- function(quiet) {
+  function(status, code) {
+    if (!quiet)
+      cat(status, "...", sep="")
+    force(code)
+    if (!quiet)
+      cat("DONE\n")
+  }
+}
