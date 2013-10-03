@@ -3,17 +3,17 @@
 \alias{shinyapps}
 \docType{package}
 \title{
-Interface for publishing applications to shinyapps.io
+Publish Applications to ShinyApps
 }
 \description{
-Interface for publishing applications to shinyapps.io
+Interface for publishing \pkg{shiny} applications to the ShinyApps service.
 }
 \details{
 \tabular{ll}{
 Package: \tab shinyapps\cr
 Type: \tab Package\cr
-Version: \tab 0.1\cr
-Date: \tab 2013-09-27\cr
+Version: \tab 0.2\cr
+Date: \tab 2013-10-03\cr
 License: \tab GPL-2\cr
 }
 

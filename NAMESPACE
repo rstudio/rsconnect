@@ -1,6 +1,5 @@
 export(accountInfo)
 export(accounts)
 export(deploy)
-export(httpOptions)
 export(removeAccount)
 export(setAccountInfo)

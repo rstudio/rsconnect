@@ -1,5 +1,5 @@
 
-#' Deploy an application to ShinyApps
+#' Application Deployment
 #' 
 #' Deploy an application to ShinyApps
 #' @param appDir Directory containing application source code (defaults to 

@@ -1,6 +1,6 @@
 \name{deploy}
 \alias{deploy}
-\title{Deploy an application to ShinyApps}
+\title{Application Deployment}
 \usage{
   deploy(appDir = getwd(), appName = NULL, account = NULL,
     launch.browser = getOption("shinyapps.launch.browser", interactive()),
