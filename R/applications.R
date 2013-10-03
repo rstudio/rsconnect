@@ -65,3 +65,22 @@ stopWithApplicationNotFound <- function(appName) {
              sep=""), call. = FALSE)
 }
 
+applicationTask <- function(taskDef, appName, account, quiet) {
+  
+  # get status function and display initial status
+  displayStatus <- displayStatus(quiet)
+  displayStatus(paste(taskDef$beginStatus, "...\n", sep=""))
+  
+  # resolve target account and application
+  accountInfo <- accountInfo(resolveAccount(account))
+  application <- resolveApplication(accountInfo, appName)
+  
+  # perform the action
+  lucid <- lucidClient(accountInfo)
+  task <- taskDef$action(lucid, application)
+  lucid$waitForTaskCompletion(task$task_id, quiet)
+  displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
+  
+  invisible(NULL)
+}
+

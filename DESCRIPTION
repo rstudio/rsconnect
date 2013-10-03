@@ -24,3 +24,4 @@ Collate:
     'deployments.R'
     'applications.R'
     'terminate.R'
+    'setInstances.R'

@@ -15,19 +15,15 @@
 #' @export
 terminate <- function(appName, account = NULL, quiet = FALSE) {
  
-  # get status function and display initial status
-  displayStatus <- displayStatus(quiet)
-  displayStatus("Terminating application...\n")
+  # define terminate task
+  taskDef <- list()
+  taskDef$beginStatus <- "Terminating application"
+  taskDef$endStatus <- "Application successfully terminated"
+  taskDef$action <- function(lucid, application) {
+    lucid$terminateApplication(application$id)
+  }
   
-  # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(account))
-  application <- resolveApplication(accountInfo, appName)
-  
-  # terminate the application
-  lucid <- lucidClient(accountInfo)
-  task <- lucid$terminateApplication(application$id)
-  lucid$waitForTaskCompletion(task$task_id, quiet)
-  displayStatus("Application successfully terminated.\n")
-  
-  invisible(NULL)
+  # perform it
+  applicationTask(taskDef, appName, account, quiet)
 }
+
