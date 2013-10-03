@@ -93,9 +93,10 @@ handleResponse <- function(response, jsonFilter = NULL) {
         jsonFilter(json)
       else
         json
-    else if (!is.null(json$error)) {
+    else if (!is.null(json$error))
       reportError(json$error)
-    }
+    else
+      reportError(paste("Unexpected json response:", response$content))
   }
   
   # for html responses we can attempt to extract the body
