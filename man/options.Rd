@@ -1,7 +1,7 @@
 \name{shinyappsOptions}
 \alias{shinyappsOptions}
 
-\title{Package Options - shinyapps}
+\title{Package Options}
 
 \description{
 The \pkg{shinyapps} package supports several options that control the method used for http communications, the printing of diagnostic information for http requests, and the launching of an external browser after deployment.
