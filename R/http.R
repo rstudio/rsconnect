@@ -4,6 +4,26 @@ userAgent <- function() {
   paste("shinyapps", packageVersion("shinyapps"), sep="/")
 }
 
+serviceUrl <- function() {
+  parseHttpUrl(getOption("shinyapps.service_url", 
+                         "https://api.shinyapps.io/v1"))
+}
+
+parseHttpUrl <- function(urlText) {
+  
+  matches <- regexec("(http|https)://([^:/#?]+)(?::(\\d+))?(.*)", urlText)
+  components <- regmatches(urlText, matches)[[1]]
+  if (length(components) == 0)
+    stop("Invalid url: ", urlText)
+  
+  url <- list()
+  url$protocol <- components[[2]]
+  url$host <- components[[3]]
+  url$port <- components[[4]]
+  url$path <- components[[5]]
+  url
+}
+
 parseHttpHeader <- function(header) {
   split <- strsplit(header, ": ")[[1]]
   if (length(split) == 2)
