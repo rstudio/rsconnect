@@ -45,7 +45,7 @@
 
   For details on options that affect the behavior of
   \code{deployApp} see the article on
-  \link[shinyapps:shinyapps-options]{package options}.
+  \link[shinyapps:shinyappsOptions]{package options}.
 }
 \examples{
 \dontrun{
