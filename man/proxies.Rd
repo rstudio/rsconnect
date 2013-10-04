@@ -58,10 +58,3 @@ There are two things to keep in mind when using \code{internal} connection types
 
 }
 
-\examples{
-\dontrun{
-
-
-}
-}
-
