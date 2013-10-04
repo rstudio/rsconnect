@@ -237,7 +237,7 @@ applicationForTarget <- function(lucid, accountInfo, target) {
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
   if (!target$isUpdate && !is.null(app) && interactive()) {
-    prompt <- paste("\nUpdate existing application at ", app$url,
+    prompt <- paste("\nUpdate application currently deployed at\n", app$url,
                     "? [Y/n] ", sep="")
     input <- readline(prompt)
     if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
