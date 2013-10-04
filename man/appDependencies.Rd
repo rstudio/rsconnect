@@ -9,10 +9,10 @@
   to current working directory.}
 }
 \value{
-  Returns a data frame with the following columns that
-  enumerates the dependencies detected for the application:
-  \tabular{ll}{ \code{package} \tab Name of package \cr
-  \code{version} \tab Version of package\cr }
+  Returns a data frame listing the package dependencies
+  detected for the application: \tabular{ll}{
+  \code{package} \tab Name of package \cr \code{version}
+  \tab Version of package\cr }
 }
 \description{
   Recursively detect all package dependencies for an

@@ -17,8 +17,6 @@ Date: \tab 2013-10-03\cr
 License: \tab GPL-2\cr
 }
 
-
-
 }
 \author{
 JJ Allaire
