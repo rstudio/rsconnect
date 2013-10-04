@@ -9,8 +9,10 @@
   to current working directory.}
 }
 \value{
-  Character vector with a list of recursive package
-  dependencies for the application.
+  Returns a data frame with the following columns that
+  enumerates the dependencies detected for the application:
+  \tabular{ll}{ \code{package} \tab Name of package \cr
+  \code{version} \tab Version of package\cr }
 }
 \description{
   Recursively detect all package dependencies for an

@@ -36,7 +36,7 @@ createAppManifest <- function(appDir, files) {
    
   # provide package entries for all dependencies
   packages <- list()
-  for (pkg in appDependencies(appDir)) {
+  for (pkg in dirDependencies(appDir)) {
     description <- list(description = utils::packageDescription(pkg))
     packages[[pkg]] <- description
   }

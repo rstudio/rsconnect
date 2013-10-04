@@ -6,8 +6,9 @@
 #' packages they depend on.
 #' @param appDir Directory containing application. Defaults to current working 
 #'   directory.
-#' @return Character vector with a list of recursive package dependencies for 
-#'   the application.
+#' @return Returns a data frame listing the package
+#'   dependencies detected for the application: \tabular{ll}{ \code{package}
+#'   \tab Name of package \cr \code{version} \tab Version of package\cr }
 #' @details Dependencies are determined by parsing application source code and 
 #'   looking for calls to \code{library}, \code{require}, \code{::}, and 
 #'   \code{:::}.
@@ -23,10 +24,10 @@
 #'   In this case, you can force a package to be included dependency by 
 #'   inserting call(s) to \code{require} within your source directory. This code
 #'   need not actually execute, for example you could create a standalone file 
-#'   named \code{dependencies.R} with the following code: \cr \cr
+#'   named \code{dependencies.R} with the following code: \cr \cr 
 #'   \code{require(xts)} \cr \code{require(colorspace)} \cr
 #'   
-#'   This will force the \code{xts} and \code{colorspace} packages to be
+#'   This will force the \code{xts} and \code{colorspace} packages to be 
 #'   installed along with the rest of your application when it is deployed.
 #' @examples
 #' \dontrun{
@@ -40,13 +41,25 @@
 #' @seealso \link[shinyapps:shinyappsPackages]{Using Packages with ShinyApps}
 #' @export
 appDependencies <- function(appDir = getwd()) {
+  deps <- dirDependencies(appDir)
+  versions <- sapply(deps, function(dep)  {
+    utils::packageDescription(dep, fields="Version")
+  })
+  data.frame(package = deps, 
+             version = versions, 
+             row.names = c(1:length(deps)),
+             stringsAsFactors=FALSE)
+}
+ 
+# detect all package dependencies for a directory of files
+dirDependencies <- function(dir) {
   
   # first get the packages referred to in source code
   pkgs <- character()
-  sapply(list.files(appDir, pattern=glob2rx("*.R"), 
+  sapply(list.files(dir, pattern=glob2rx("*.R"), 
                     ignore.case=TRUE, recursive=TRUE),
          function(file) {
-           pkgs <<- append(pkgs, fileDependencies(file.path(appDir, file)))
+           pkgs <<- append(pkgs, fileDependencies(file.path(dir, file)))
          })
   pkgs <- unique(pkgs)
   
