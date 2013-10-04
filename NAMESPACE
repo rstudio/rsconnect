@@ -1,5 +1,6 @@
 export(accountInfo)
 export(accounts)
+export(appDependencies)
 export(applications)
 export(deployApp)
 export(removeAccount)

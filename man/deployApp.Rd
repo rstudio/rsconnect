@@ -8,8 +8,8 @@
     quiet = FALSE)
 }
 \arguments{
-  \item{appDir}{Directory containing application source
-  code. Defaults to current working directory.}
+  \item{appDir}{Directory containing application. Defaults
+  to current working directory.}
 
   \item{appName}{Name of application (names must be unique
   with ShinyApps accounts). Defaults to the base name of

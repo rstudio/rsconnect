@@ -13,7 +13,7 @@
 #'   
 #'   For details on options that affect the behavior of \code{deployApp} see the
 #'   article on \link[shinyapps:shinyappsOptions]{package options}.
-#' @param appDir Directory containing application source code. Defaults to 
+#' @param appDir Directory containing application. Defaults to 
 #'   current working directory.
 #' @param appName Name of application (names must be unique with ShinyApps 
 #'   accounts). Defaults to the base name of the specified \code{appDir}.
