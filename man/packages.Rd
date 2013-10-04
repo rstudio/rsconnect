@@ -6,7 +6,9 @@
 \description{
 Applications deployed to ShinyApps can depend on any package available on \href{http://cran.rstudio.com/}{CRAN} as well as any package hosted in a public \href{https://www.github.com}{GitHub} repository.
 
-When an application is \link[shinyapps:deployApp]{deployed} it's source code is scanned for dependencies using the \code{\link{appDependencies}} function. The list of dependencies is sent to the ShinyApps service along with the application source code and these dependencies are then installed alongside the application.
+When an application is deployed it's source code is scanned for dependencies using the \code{\link{appDependencies}} function. The list of dependencies is sent to the ShinyApps service along with the application source code and these dependencies are then installed alongside the application.
+
+Note that the \code{Suggests} dependencies of packages are not automatically included in the list of dependent packages. See the \emph{Note} section of the documentation of the \link{appDependencies} function for details on how to force packages to be included in the dependency list.
 }
 
 \section{CRAN Packages}{
