@@ -9,16 +9,16 @@ lucidClient <- function(authInfo) {
     },
     
     currentUser = function() {
-      handleResponse(GET(authInfo, "/v1/users/current"))
+      handleResponse(GET(authInfo, "/users/current"))
     },
     
     accountsForUser = function(userId) {
-      path <- paste("/v1/users/", userId, "/accounts", sep="")
+      path <- paste("/users/", userId, "/accounts", sep="")
       listRequest(authInfo, path, "accounts")
     },
     
     applications = function(accountId) {
-      path <- paste("/v1/accounts/", accountId, "/applications", sep="")
+      path <- paste("/accounts/", accountId, "/applications", sep="")
       listRequest(authInfo, path, "applications")
     },
     
@@ -27,28 +27,28 @@ lucidClient <- function(authInfo) {
       json$name <- name
       json$template <- template
       json$account <- as.numeric(accountId)
-      handleResponse(POST_JSON(authInfo, "/v1/applications/", json))      
+      handleResponse(POST_JSON(authInfo, "/applications/", json))      
     },
     
     uploadApplication = function(applicationId, bundlePath) {
-      path <- paste("/v1/applications/", applicationId, "/upload", sep="")
+      path <- paste("/applications/", applicationId, "/upload", sep="")
       handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
     },
     
     deployApplication = function(applicationId, bundleId) {
-      path <- paste("/v1/applications/", applicationId, "/deploy", sep="")
+      path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
       json$bundle <- as.numeric(bundleId)
       handleResponse(POST_JSON(authInfo, path, json))
     },
     
     terminateApplication = function(applicationId) {
-      path <- paste("/v1/applications/", applicationId, "/terminate", sep="")
+      path <- paste("/applications/", applicationId, "/terminate", sep="")
       handleResponse(POST_JSON(authInfo, path, list()))
     },
     
     scaleApplication = function(applicationId, instances) {
-      path <- paste("/v1/applications/", applicationId, "/scale", sep="")
+      path <- paste("/applications/", applicationId, "/scale", sep="")
       json <- list()
       json$instance_count <- instances
       handleResponse(POST_JSON(authInfo, path, json))
@@ -56,7 +56,7 @@ lucidClient <- function(authInfo) {
     
     waitForTaskCompletion = function(taskId, quiet = FALSE) {    
       
-      path <- paste("/v1/tasks/", taskId, sep="")
+      path <- paste("/tasks/", taskId, sep="")
   
       lastStatus <- NULL
       while(TRUE) {

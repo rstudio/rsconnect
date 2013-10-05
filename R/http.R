@@ -78,7 +78,9 @@ readHttpResponse <- function(path, conn) {
 
 
 # internal sockets implementation of upload
-httpInternal <- function(host,
+httpInternal <- function(protocol,
+                         host,
+                         port,
                          method,
                          path,
                          headers,
@@ -87,6 +89,10 @@ httpInternal <- function(host,
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
+  
+  # default port to 80 if necessary
+  if (!nzchar(port))
+    port <- "80"
   
   # read file in binary mode
   if (!is.null(file)) {
@@ -124,7 +130,7 @@ httpInternal <- function(host,
   # open socket connection
   time <- system.time(gcFirst=FALSE, {
     conn <- socketConnection(host=host,
-                             port=80,
+                             port=as.integer(port),
                              open="w+b",
                              blocking=TRUE)
     on.exit(close(conn))
@@ -148,22 +154,9 @@ httpInternal <- function(host,
   response
 }
 
-httpGetInternal <- function(host,
-                            path,
-                            headers) {
-  httpInternal(host, "GET", path, headers)
-}
-
-httpPostInternal <- function(host,
-                             path,
-                             headers,
-                             contentType,
-                             file) {
-  httpInternal(host, "POST", path, headers, contentType, file)
-}
-
-
-httpCurl <- function(host,
+httpCurl <- function(protocol,
+                     host,
+                     port,
                      method,
                      path,
                      headers,
@@ -202,6 +195,10 @@ httpCurl <- function(host,
                      "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
     
+  # add prefix to port if necessary
+  if (nzchar(port))
+    port <- paste(":", port, sep="")
+  
   command <- paste(command,
                    extraHeaders,
                    "--header", "Expect:",
@@ -209,7 +206,7 @@ httpCurl <- function(host,
                    "--silent",
                    "--show-error",
                    "-o", shQuote(outputFile),
-                   paste("https://", host, path, sep=""))
+                   paste(protocol, "://", host, port, path, sep=""))
   
   result <- NULL
   time <- system.time(gcFirst = FALSE, {  
@@ -226,21 +223,9 @@ httpCurl <- function(host,
   }
 }
 
-httpGetCurl <- function(host,
-                        path,
-                        headers) {
-  httpCurl(host, "GET", path, headers)
-}
-
-httpPostCurl <- function(host,
-                         path,
-                         headers,
-                         contentType,
-                         file) {  
-  httpCurl(host, "POST", path, headers, contentType, file)
-}
-
-httpRCurl <- function(host,
+httpRCurl <- function(protocol,
+                      host,
+                      port,
                       method,
                       path,
                       headers,
@@ -250,8 +235,12 @@ httpRCurl <- function(host,
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
   
+  # add prefix to port if necessary
+  if (nzchar(port))
+    port <- paste(":", port, sep="")
+   
   # build url
-  url <- paste("https://", host, path, sep="")
+  url <- paste(protocol, "://", host, port, path, sep="")
   
   # read file in binary mode
   if (!is.null(file)) {
@@ -308,21 +297,6 @@ httpRCurl <- function(host,
        location = location,
        contentType = headers[["Content-Type"]],
        content = textGatherer$value())
-}
-
-
-httpGetRCurl <- function(host,
-                         path,
-                         headers) {
-  httpRCurl(host, "GET", path, headers)
-}
-
-httpPostRCurl <- function(host,
-                          path,
-                          headers,
-                          contentType,
-                          file) {  
-  httpRCurl(host, "POST", path, headers, contentType, file)
 }
 
 httpVerbose <- function() {
@@ -398,6 +372,12 @@ httpWithBody <- function(authInfo,
   if ((!is.null(file) && !is.null(content))) 
     stop("You must specify either the file or content parameter but not both.")
           
+  # get the service url
+  service <- serviceUrl()
+  
+  # prepend the service path
+  path <- paste(service$path, path, sep="")
+  
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "POST", path, file)
   headers <- append(headers, sigHeaders)
@@ -410,20 +390,38 @@ httpWithBody <- function(authInfo,
   
   # perform POST
   http <- httpFunction()
-  http("api.shinyapps.io", method, path, headers, contentType, file)
+  http(service$protocol,
+       service$host,
+       service$port,
+       method, 
+       path,
+       headers, 
+       contentType, 
+       file)
 }
 
 GET <- function(authInfo,
                 path, 
                 headers = list()) {
     
+  # get the service url
+  service <- serviceUrl()
+  
+  # prepend the service path
+  path <- paste(service$path, path, sep="")
+  
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "GET", path, NULL)
   headers <- append(headers, sigHeaders)
    
   # perform GET
   http <- httpFunction()
-  http("api.shinyapps.io", "GET", path, headers)
+  http(service$protocol,
+       service$host,
+       service$port,
+       "GET", 
+       path,
+       headers)
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {
