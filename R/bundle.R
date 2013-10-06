@@ -52,6 +52,7 @@ createAppManifest <- function(appDir, files) {
   # create the manifest
   manifest <- list()
   manifest$version <- 1
+  manifest$platform <- R.version.string
   manifest$packages <- I(packages)
   manifest$files <- I(fileChecksums)
   
