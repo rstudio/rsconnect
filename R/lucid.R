@@ -57,11 +57,22 @@ lucidClient <- function(authInfo) {
     waitForTaskCompletion = function(taskId, quiet = FALSE) {    
       
       path <- paste("/tasks/", taskId, sep="")
-  
+
+      if (!quiet) {
+        cat("Waiting for task: ", taskId, "\n", sep="")
+      }
+      
       lastStatus <- NULL
       while(TRUE) {
         # check status
         status <- handleResponse(GET(authInfo, path))
+        
+        # display status to the user if it changed
+        if (!identical(lastStatus, status$description)) {
+          if (!quiet)
+            cat("  ", status$status, ": ", status$description, "\n", sep="")
+          lastStatus <- status$description
+        }
         
         # are we finished? (note: this codepath is the only way to exit 
         # this function)
@@ -70,13 +81,6 @@ lucidClient <- function(authInfo) {
             return (NULL)
           else
             stop(status$error, call. = FALSE)  
-        }
-        
-        # display status to the user if it changed
-        else if (!identical(lastStatus, status$status)) {
-          if (!quiet)
-            cat("  ", status$status, "\n", sep="")
-          lastStatus <- status$status
         }
         
         # wait for 1 second before polling again
