@@ -58,7 +58,9 @@ lucidClient <- function(authInfo) {
       
       path <- paste("/tasks/", taskId, sep="")
 
-      cat("Waiting for task: ", taskId, "\n", sep="")
+      if (!quiet) {
+        cat("Waiting for task: ", taskId, "\n", sep="")
+      }
       
       lastStatus <- NULL
       while(TRUE) {
@@ -74,7 +76,7 @@ lucidClient <- function(authInfo) {
         
         # are we finished? (note: this codepath is the only way to exit 
         # this function)
-        else if (status$finished) {
+        if (status$finished) {
           if (identical(status$status, "complete"))
             return (NULL)
           else
