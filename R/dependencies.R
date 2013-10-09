@@ -64,10 +64,10 @@ dirDependencies <- function(dir) {
   pkgs <- unique(pkgs)
   
   # then calculate recursive dependencies
-  available <- availableCRANSourcePackages()
+  installed <- installed.packages()
   which <-  c("Depends", "Imports", "LinkingTo")
   depsList <- tools::package_dependencies(pkgs, 
-                                          available, 
+                                          installed, 
                                           which, 
                                           recursive=TRUE)
   
