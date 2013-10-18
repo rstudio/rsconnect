@@ -25,6 +25,9 @@
 #'   interactive sessions only.
 #' @param quiet Request that no status information be printed to the console 
 #'   during the deployment.
+#' @param redeploy Re-deploy the current application. If \code{TRUE}, the 
+#'   application is NOT uploaded, rather it is re-deployed using the
+#'   last version that was uploaded.
 #' @examples
 #' \dontrun{
 #' 
@@ -54,7 +57,8 @@ deployApp <- function(appDir = getwd(),
                       account = NULL,
                       launch.browser = getOption("shinyapps.launch.browser",
                                                  interactive()),
-                      quiet = FALSE) {
+                      quiet = FALSE,
+                      redeploy = FALSE) {
    
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -82,16 +86,21 @@ deployApp <- function(appDir = getwd(),
   withStatus("Preparing to deploy application", {
     application <- applicationForTarget(lucid, accountInfo, target)
   })
-  
-  # create, upload, and deploy the bundle
-  withStatus("Uploading application bundle", {
-    bundlePath <- bundleApp(appDir)
-    bundle <- lucid$uploadApplication(application$id, bundlePath)
-    task <- lucid$deployApplication(application$id, bundle$id)
-  })
-  
+
+  if (!redeploy) {
+    # create, and upload the bundle
+    withStatus("Uploading application bundle", {
+      bundlePath <- bundleApp(appDir)
+      bundle <- lucid$uploadApplication(application$id, bundlePath)
+    })
+  } else {
+    # redeploy current bundle
+    bundle <- application$bundle
+  }
+
   # wait for the deployment to complete (will raise an error if it can't)
   displayStatus("Deploying application...\n")
+  task <- lucid$deployApplication(application$id, bundle$id)
   lucid$waitForTaskCompletion(task$task_id, quiet)
   displayStatus(paste("Application successfully deployed to", application$url))
     
