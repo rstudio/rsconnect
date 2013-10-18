@@ -41,6 +41,7 @@ createAppManifest <- function(appDir, files) {
     packages[[pkg]] <- description
   }
 
+  
   # provide checksums for all files
   fileChecksums <- list()
   for (file in files) {
@@ -53,8 +54,19 @@ createAppManifest <- function(appDir, files) {
   manifest <- list()
   manifest$version <- 1
   manifest$platform <- R.version.string
-  manifest$packages <- I(packages)
-  manifest$files <- I(fileChecksums)
+  
+  # if there are no packages set manifes$packages to NA (json null)
+  if (length(packages) > 0) {
+    manifest$packages <- I(packages)
+  } else {
+    manifest$packages <- NA
+  }
+  # if there are no files, set manifest$files to NA (json null) 
+  if (length(files) > 0) {
+    manifest$files <- I(fileChecksums)
+  } else {
+    manifest$files <- NA
+  }
   
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
