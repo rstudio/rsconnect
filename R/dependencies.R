@@ -54,8 +54,12 @@ appDependencies <- function(appDir = getwd()) {
 # detect all package dependencies for a directory of files
 dirDependencies <- function(dir) {
   
-  # first get the packages referred to in source code
-  pkgs <- character()
+  # start with the shiny package (the dependency on shiny can be implicit
+  # as the shiny package is automatically loaded prior to sourcing ui.R
+  # and server.R)
+  pkgs <- c("shiny")
+  
+  # now get the packages referred to in the source code
   sapply(list.files(dir, pattern=glob2rx("*.R"), 
                     ignore.case=TRUE, recursive=TRUE),
          function(file) {
