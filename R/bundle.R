@@ -93,7 +93,7 @@ getRepository <- function(description) {
 }
 
 validateRepository <- function(pkg, repository) {
-  if (!identical(repository, "CRAN") && !identical(repository, "Github")) {
+  if (!identical(repository, "CRAN") && !identical(repository, "GitHub")) {
     msg <- paste("Unable to deploy package dependency '", pkg, "'\n\n", sep="")
     if (is.null(repository))
       msg <- paste(msg, "The package was installed locally from source.",
