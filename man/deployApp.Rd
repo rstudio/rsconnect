@@ -3,7 +3,7 @@
 \title{Deploy an Application}
 \usage{
   deployApp(appDir = getwd(), appName = NULL,
-    account = NULL,
+    account = NULL, upload = TRUE,
     launch.browser = getOption("shinyapps.launch.browser", interactive()),
     quiet = FALSE)
 }
@@ -19,6 +19,11 @@
   to. This parameter is only required for the initial
   deployment of an application when there are multiple
   accounts configured on the system (see \link{accounts}).}
+
+  \item{upload}{If \code{TRUE} (the default) then the
+  application is uploaded from the local system prior to
+  deployment. If \code{FALSE} then it is re-deployed using
+  the last version that was uploaded.}
 
   \item{launch.browser}{If true, the system's default web
   browser will be launched automatically after the app is

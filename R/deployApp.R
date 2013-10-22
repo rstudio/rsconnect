@@ -20,14 +20,14 @@
 #' @param account ShinyApps account to deploy application to. This parameter is 
 #'   only required for the initial deployment of an application when there are 
 #'   multiple accounts configured on the system (see \link{accounts}).
+#' @param upload If \code{TRUE} (the default) then the application is uploaded
+#'   from the local system prior to deployment. If \code{FALSE} then it is 
+#'   re-deployed using the last version that was uploaded.
 #' @param launch.browser If true, the system's default web browser will be 
 #'   launched automatically after the app is started. Defaults to \code{TRUE} in
 #'   interactive sessions only.
 #' @param quiet Request that no status information be printed to the console 
 #'   during the deployment.
-#' @param redeploy Re-deploy the current application. If \code{TRUE}, the 
-#'   application is NOT uploaded, rather it is re-deployed using the
-#'   last version that was uploaded.
 #' @examples
 #' \dontrun{
 #' 
@@ -55,10 +55,10 @@
 deployApp <- function(appDir = getwd(), 
                       appName = NULL, 
                       account = NULL,
+                      upload = TRUE,
                       launch.browser = getOption("shinyapps.launch.browser",
                                                  interactive()),
-                      quiet = FALSE,
-                      redeploy = FALSE) {
+                      quiet = FALSE) {
    
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -87,7 +87,7 @@ deployApp <- function(appDir = getwd(),
     application <- applicationForTarget(lucid, accountInfo, target)
   })
 
-  if (!redeploy) {
+  if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
       bundlePath <- bundleApp(appDir)
