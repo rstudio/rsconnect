@@ -37,7 +37,14 @@ createAppManifest <- function(appDir, files) {
   # provide package entries for all dependencies
   packages <- list()
   for (pkg in dirDependencies(appDir)) {
+    
+    # get the description
     description <- list(description = utils::packageDescription(pkg))
+    
+    # validate the repository (will throw an error if there is a problem)
+    validateRepository(pkg, getRepository(description[[1]]))
+    
+    # good to go
     packages[[pkg]] <- description
   }
 
@@ -70,5 +77,46 @@ createAppManifest <- function(appDir, files) {
   
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
+}
+
+getRepository <- function(description) {
+  priority <- description$Priority
+  repository <- description$Repository
+  githubRepo <- description$GithubRepo
+  if (is.null(repository)) {
+    if (identical(priority, "base") || identical(priority, "recommended"))
+      repository <- "CRAN"
+    else if (!is.null(githubRepo))
+      repository <- "GitHub"
+  }
+  repository
+}
+
+validateRepository <- function(pkg, repository) {
+  if (!identical(repository, "CRAN") && !identical(repository, "Github")) {
+    msg <- paste("Unable to deploy package dependency '", pkg, "'\n\n", sep="")
+    if (is.null(repository))
+      msg <- paste(msg, "The package was installed locally from source.",
+                   sep = "")
+    else 
+      msg <- paste(msg, " The package was installed from an unsupported ",
+                   "repository '", repository, "'.", sep="")
+    msg <- paste(msg, " Only packages installed from CRAN or GitHub are ",
+                 "supported.\n", sep="")
+    if (!hasRequiredDevtools()) {
+      msg <- paste(msg, "\nTo use packages from GitHub you need to install ",
+                        "them with the most recent version of devtools. ",
+                        "To ensure you have the latest version of devtools ",
+                        "use:\n\n",
+                        "install.packages('devtools'); ",
+                        "devtools::install_github('devtools')\n", sep="")
+    }
+    stop(msg, call. = FALSE)
+  }
+}
+
+hasRequiredDevtools <- function() {
+  "devtools" %in% .packages(all.available=TRUE) && 
+  packageVersion("devtools") > "1.3"
 }
 
