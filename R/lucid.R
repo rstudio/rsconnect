@@ -77,7 +77,7 @@ lucidClient <- function(authInfo) {
         # are we finished? (note: this codepath is the only way to exit 
         # this function)
         if (status$finished) {
-          if (identical(status$status, "complete"))
+          if (identical(status$status, "success"))
             return (NULL)
           else
             stop(status$error, call. = FALSE)  
