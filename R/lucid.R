@@ -162,7 +162,10 @@ handleResponse <- function(response, jsonFilter = NULL) {
   
   # otherwise just dump the whole thing
   else {
-    reportError(response$content)
+    if (response$status %in% 200:399)
+      response$content  
+    else
+      reportError(response$content)    
   }
 }
 
