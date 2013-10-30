@@ -379,7 +379,7 @@ httpWithBody <- function(authInfo,
   path <- paste(service$path, path, sep="")
   
   # get signature headers and append them
-  sigHeaders <- signatureHeaders(authInfo, "POST", path, file)
+  sigHeaders <- signatureHeaders(authInfo, method, path, file)
   headers <- append(headers, sigHeaders)
   
   # if we have content then write it to a temp file before posting
