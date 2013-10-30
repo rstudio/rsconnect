@@ -25,3 +25,4 @@ Collate:
     'deployApp.R'
     'scaleApp.R'
     'terminateApp.R'
+    'configureApp.R'

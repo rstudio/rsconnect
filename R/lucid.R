@@ -29,6 +29,13 @@ lucidClient <- function(authInfo) {
       json$account <- as.numeric(accountId)
       handleResponse(POST_JSON(authInfo, "/applications/", json))      
     },
+  
+    configureApplication = function(applicationId, propertyName, propertyValue) {
+      path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
+      v <- list()
+      v$value <- propertyValue
+      handleResponse(PUT_JSON(authInfo, path, v))
+    },
     
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep="")
@@ -145,7 +152,9 @@ handleResponse <- function(response, jsonFilter = NULL) {
   else if (isContentType(response, "text/html")) {
     
     body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
-    if (!is.null(body))
+    if (response$status %in% 200:399)
+      body
+    else if (!is.null(body))
       reportError(body)
     else
       reportError(response$content)  
