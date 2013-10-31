@@ -65,13 +65,20 @@ setAccountInfo <- function(name, token, secret) {
   if (is.null(accountId))
     stop("Unable to determine account id for account named '", name, "'")
  
+  # get the path to the config file
+  configFile <- accountConfigFile(name)
+  
   # write the user info
   write.dcf(list(name = name,
                  userId = userId,
                  accountId = accountId,
                  token = token, 
                  secret = secret), 
-            accountConfigFile(name))
+            configFile)
+  
+  # set restrictive permissions on it if possible
+  if (identical(.Platform$OS.type, "unix"))
+    Sys.chmod(configFile, mode="0600")
 }
 
 #' @rdname accounts
