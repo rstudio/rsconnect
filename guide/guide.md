@@ -193,7 +193,7 @@ package.
 
 Currently, the ShinyApps.io service only supports deploying packages that are from CRAN, and GitHub.
 
-BioConductor packages will be supported soon.
+BioConductor and R-Forge packages will be supported soon.
 
 ### Important Note on GitHub Packages
 
@@ -216,9 +216,10 @@ To deploy your application, use the `deployApp` command from the `shinyapps` pac
 
 Once the deploy finishes, your browser should automatically open up to your newly deployed application.
 
-Congratulations, you've deployed your first application.
+Congratulations! you've deployed your first application. :-)
 
-Feel free to make changes to your code, and run `deployApp` again.
+Feel free to make changes to your code, and run `deployApp` again, you will note the second time you
+deploy, it takes much as time, as the packages have already been built.
 
 ### Application Instances
 
@@ -226,23 +227,23 @@ When an application is deployed, it runs on a it's own virtualized server called
 instance runs an identical copy of the code and packages that were deployed (called the image).
 
 During an application deployment, a new image is created with the updated code and packages, and
-one or more instances are started using new image. The old instances are shutdown and destroyed.
-This has a few implications that should be taken into consideration when writing an deploying
-Shiny applications:
+one or more instances are started with the new image. The old instances are shutdown and destroyed.
+This has a few implications that should be taken into consideration when writing and deploying
+Shiny applications on the ShinyApps.io platform:
 
 1) __Data written by a Shiny application to the local filesystem of an instance, will not be persisted
 across application deployments.__ Additionally, the distributed nature of the ShinyApps.io platform
 means that instances may be shutdown and re-created at any time for maintenance or to recover from
 server failures.
 
-2) It possible to have more then one instance of an application. This means that multiple __instances
+2) It possible to have more then one instance of an application. This means that __multiple instances
 of an application do not share a local filesystem__. A file written to one instance will not be written
 to the other.
 
 In addition to providing an isolated environment for each application, instances are also limited in
 the amount of system resources they are allowed to consume. This means that instances are only
 allowed to use a given amount of memory depending on their type. The table below outlines the various
-instances types, and how much memory is allowed. __By default, all applications are deployed on
+instance types, and how much memory is allowed. __By default, all applications are deployed on
 'small' instances, and are allowed to use 256 MB of memory.__
 
 <table>
