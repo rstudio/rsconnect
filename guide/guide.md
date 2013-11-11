@@ -8,14 +8,14 @@ with ShinyApps.io allowing you to create your online account, and deploy your fi
 To get started with ShinyApps you will need:
 
 - An R development environment
-- The latest version of the `devtools` package 
-- The `shinyapps` package from GitHub
+- The latest version of the [`devtools` package](https://github.com/hadley/devtools)
+- The [`shinyapps` package](https://github.com/rstudio/shinyapps) from GitHub 
 - A working shiny application on your machine
 
 ### Create A Project
 
-You will probably want to create a new RStudio project for your application. For this guide, we will create a
-a project called "demo". For this example, we have placed two Shiny source files: ui.R and server.R that you 
+You will probably want to create a new RStudio project for your application. For this guide, we will create a project
+called "demo". In this example, we have placed two Shiny source files: ui.R and server.R that you 
 can cut and paste into your project.
 
 <!--- Does it have to be a separate project? will this work from an arbitrary directory? -->
@@ -103,10 +103,12 @@ You can test that your application works by running shiny.
     library(shiny)
     runApp()
 
-### Installing the `devtools` package
+### Updating or installing the `devtools` package
 
-ShinyApps makes uses of the latest improvements to the `devtools` package, you will need to update `devtools` to
-the latest version from GitHub using `devtools`.
+:warning: ShinyApps makes uses of the latest improvements to the `devtools` package, you **must** update `devtools` to
+the latest version from GitHub using `devtools`.  If you have `devtools` installed please skip ahead to the instructions
+on updating devtools.
+
 
 If you do not already have `devtools` installed, you can install it from CRAN using:
 
@@ -143,7 +145,8 @@ and password when deploying and managing applications.
 
 ### Sign In to ShinyApps.io
 
-Go to [my.shinyapps.io](http://my.shinyapps.io) and click "Sign In". You will be prompted to signin using your Google Account.
+Go to [my.shinyapps.io](https://my.shinyapps.io) and click "Sign In". You will be prompted to signin using 
+your Google Account.
 The first time you signin, you will be prompted to create an account. The account name will be used
 as the domain name for all your applications. Account names must be between 4 and 63 characters and
 can only contain letters, numbers and dashes (-). Additionally, account names may not begin with a
@@ -158,13 +161,12 @@ listed under the `Profile > Tokens` page.
 
 ![Tokens](images/tokens.png)
 
-You can configure the `shinyapps` package to use your account two ways:
+You can configure the `shinyapps` package to use your account in two ways:
 
 #### Method 1
 
-Click the copy button on the token page and paste the result into your R session. This will
-automatically paste the full syntax of `setAccountInfo` with the appropriate parameters for your
-account.
+Click the copy button on the token page and paste the result into your R session. This will paste the full 
+command to configure your account using the appropriate parameters for the `shinyapps::setAccountInfo` function.
 
 #### Method 2
 
@@ -178,8 +180,8 @@ Profile / Tokens page.
 ### Package Dependencies
 
 When you deploy your application, the `shinyapps` package will attempt to detect the packages that
-are used by your application. This list of packages and its dependencies are sent along with your
-code to the ShinyApps.io service so the packages can be built and installed into the R library for
+are used by your application. This list of packages and their dependencies are sent along with your
+code to the ShinyApps service so the packages can be built and installed into the R library for
 your application. The first time you deploy your application, it may take some time to build these
 packages depending on how many of them there are. However, you will not have to wait for these
 packages to build during subsequent deployments (unless you upgrade or downgraded a package).
@@ -197,9 +199,9 @@ BioConductor and R-Forge packages will be supported soon.
 
 ### Important Note on GitHub Packages
 
-Only packages that are installed from GitHub with the `devtools::install_github` using the
+:warning: Only packages that are installed from GitHub with the `devtools::install_github` using the
 **latest** version of `devtools` are supported. This means that packages that you have previously
-installed from GitHub using `devtools`, may need to be reinstalled before you can deploy your
+installed from GitHub using `devtools`, **must** be reinstalled before you can deploy your
 application.
 
 __If you are getting an error such as "PackageSourceError" when you attempt to deploy, this is
@@ -218,33 +220,36 @@ Once the deploy finishes, your browser should automatically open up to your newl
 
 Congratulations! you've deployed your first application. :-)
 
-Feel free to make changes to your code, and run `deployApp` again, you will note the second time you
-deploy, it takes much as time, as the packages have already been built.
+Feel free to make changes to your code, and run `deployApp` again. You will note the second time you
+deploy, it will take much less time, as the packages have already been built.
 
 ### Application Instances
 
-When an application is deployed, it runs on a it's own virtualized server called an instance. Each
+When an application is deployed, it runs on its own virtualized server called an instance. Each
 instance runs an identical copy of the code and packages that were deployed (called the image).
 
 During an application deployment, a new image is created with the updated code and packages, and
 one or more instances are started with the new image. The old instances are shutdown and destroyed.
 This has a few implications that should be taken into consideration when writing and deploying
-Shiny applications on the ShinyApps.io platform:
+Shiny applications on the ShinyApps platform:
 
-1) __Data written by a Shiny application to the local filesystem of an instance, will not be persisted
-across application deployments.__ Additionally, the distributed nature of the ShinyApps.io platform
+1) __Data written by a Shiny application to the local filesystem of an instance will not be persisted
+across application deployments.__ Additionally, the distributed nature of the ShinyApps platform
 means that instances may be shutdown and re-created at any time for maintenance or to recover from
 server failures.
 
-2) It possible to have more then one instance of an application. This means that __multiple instances
-of an application do not share a local filesystem__. A file written to one instance will not be written
+2) It is possible to have more then one instance of an application. This means that __multiple instances
+of an application do not share a local filesystem__. A file written to one instance will not be available
 to the other.
 
 In addition to providing an isolated environment for each application, instances are also limited in
 the amount of system resources they are allowed to consume. This means that instances are only
 allowed to use a given amount of memory depending on their type. The table below outlines the various
 instance types, and how much memory is allowed. __By default, all applications are deployed on
-'small' instances, and are allowed to use 256 MB of memory.__
+'small' instances, and are allowed to use 256 MB of memory.__ The instance type used by an application
+can be changed using the `configureApp` function from the `shinyapps` package. See the section below on 
+_Configuring Shiny Applications_.
+
 
 <table>
   <tr>
@@ -299,8 +304,6 @@ instance types, and how much memory is allowed. __By default, all applications a
 
 Note: Instance types and limits are not finalized, and may be changed in the future.
 
-The instance type used by an application can be changed using the `configureApp` function from the
-`shinyapps` package. See the section below on /Configuring Shiny Applications/.
 
 ### Configuring Shiny Applications
 
