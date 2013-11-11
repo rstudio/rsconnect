@@ -1,6 +1,6 @@
 # Getting Started Guide
 ShinyApps is a platform as a service (PaaS) for hosting Shiny applications.  This guide should help you get started 
-with ShinyApps.io allowing you to create your online account, and deploy your first Shiny application to the cloud.
+with ShinyApps allowing you to create your online account, and deploy your first Shiny application to the cloud.
 
 
 ## Requirements
@@ -12,13 +12,52 @@ To get started with ShinyApps you will need:
 - The [`shinyapps` package](https://github.com/rstudio/shinyapps) from GitHub 
 - A working shiny application on your machine
 
-### Create A Project
+### Updating the `devtools` package
+
+:warning: ShinyApps makes uses of the latest improvements to the `devtools` package, you **must** update `devtools` to
+the latest version from GitHub using `devtools`.
+
+**Step 1** - If you do not already have `devtools` installed, you can install it from CRAN (if you already have a version 
+`devtools` installed, you can skip this step):
+
+    install.packages('devtools')
+
+**Step 2** - To update devtools to the latest version from GitHub run: 
+
+    devtools::install_github('hadley/devtools')
+
+    (restart your R session)
+
+### Installing the `shinyapps` package
+
+The `shinyapps` package is used to deploy Shiny applications to the ShinyApps service. The package can only be installed 
+from GitHub at this time.
+
+Install the `shinyapps` package using `devtools`:
+
+    devtools::install_github('rstudio/shinyapps')
+
+After the `shinyapps` package has been installed, load it into your R session:
+
+    library(shinyapps)
+
+## Create A Project
 
 You will probably want to create a new RStudio project for your application. For this guide, we will create a project
-called "demo". In this example, we have placed two Shiny source files: ui.R and server.R that you 
-can cut and paste into your project.
+called "demo".
 
-<!--- Does it have to be a separate project? will this work from an arbitrary directory? -->
+### Install Application dependencies 
+
+The demo Shiny application we are going to deploy requires the `ggplot2` package as well as the `shiny`
+package itself. You should ensure that any package that is required by your application is installed 
+locally before you deploy your application:
+
+    install.packages(c('ggplot2', 'shiny'))
+
+### Shiny Demo Application
+
+In this example, we have placed two Shiny source files: ui.R and server.R that you 
+can cut and paste into your project:
 
 **server.R**
 ```S
@@ -89,57 +128,16 @@ shinyUI(pageWithSidebar(
 
 ![Project](images/project.png)
 
-
 ### Test your application
-
-This demo Shiny application requires the 'ggplot2' package. You should ensure that any package that is required 
-by your application is installed locally before you deploy your application.  In this example you can run the 
-following command should your runApp() fail:
-
-    install.packages(c('ggplot2', 'shiny'))
 
 You can test that your application works by running shiny.
 
     library(shiny)
     runApp()
 
-### Updating or installing the `devtools` package
-
-:warning: ShinyApps makes uses of the latest improvements to the `devtools` package, you **must** update `devtools` to
-the latest version from GitHub using `devtools`.  If you have `devtools` installed please skip ahead to the instructions
-on updating devtools.
-
-
-If you do not already have `devtools` installed, you can install it from CRAN using:
-
-    install.packages('devtools')
-
-To update devtools to the latest version from GitHub run: 
-
-    devtools::install_github(username='hadley', repo='devtools')
-
-    (restart your R session)
-
-
-<!--- (So meta...) I've always used the abbreviated syntax of `install_githunb("devtools", "hadley")` ... if you value brevity over explicitness. -->
-
-### Installing the `shinyapps` package
-
-The `shinyapps` package is used to deploy Shiny applications to ShinyApps.io. The package can only be installed 
-from GitHub at this time. Currently the repository is private, so you will need to provide your GitHub username
-and password.
-
-Install the `shinyapps` package using `devtools`:
-
-    devtools::install_github('rstudio/shinyapps')
-
-After the `shinyapps` package has been installed, load it into your R session:
-
-    library(shinyapps)
-
 ## Configuring ShinyApps
 
-To use the `shinyapps` package, you will need to signup for a ShinyApps.io account. When you create your account, a
+To use the `shinyapps` package, you will need to signup for a ShinyApps account. When you create your account, a
 token and secret will be generated automatically for you. This token and secret are used in place of your username
 and password when deploying and managing applications.
 
@@ -147,7 +145,7 @@ and password when deploying and managing applications.
 
 Go to [my.shinyapps.io](https://my.shinyapps.io) and click "Sign In". You will be prompted to signin using 
 your Google Account.
-The first time you signin, you will be prompted to create an account. The account name will be used
+The first time you signin, you will be prompted to setup your account. The account name will be used
 as the domain name for all your applications. Account names must be between 4 and 63 characters and
 can only contain letters, numbers and dashes (-). Additionally, account names may not begin with a
 number or a dash or end with a dash (see [RFC 952](http://tools.ietf.org/html/rfc952)). Some account names may
@@ -155,9 +153,9 @@ be reserved.
 
 ### Configuring your account
 
-Once your account is set up in ShinyApps.io, you will want to configure the `shinyapps` package to
-use your account. You will need to retrieve your token from the ShinyApps.io dashboard. Tokens are
-listed under the `Profile > Tokens` page.
+Once your account is set up in ShinyApps, you will want to configure the `shinyapps` package to
+use your account. You will need to retrieve your token from the ShinyApps dashboard. Tokens are
+listed under the `Tokens` page found in the menu on the top right of the ShinyApps dashboard.
 
 ![Tokens](images/tokens.png)
 
