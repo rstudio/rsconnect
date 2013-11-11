@@ -12,7 +12,7 @@ To get started with ShinyApps you will need:
 - The [`shinyapps` package](https://github.com/rstudio/shinyapps) from GitHub 
 - A working shiny application on your machine
 
-### Installing and updating the `devtools` package
+### Installing and updating the devtools package
 
 :warning: ShinyApps makes uses of the latest improvements to the `devtools` package, you **must** update `devtools` to
 the latest version from GitHub using `devtools`.
@@ -28,7 +28,7 @@ the latest version from GitHub using `devtools`.
 
     (restart your R session)
 
-### Installing the `shinyapps` package
+### Installing the shinyapps package
 
 The `shinyapps` package is used to deploy Shiny applications to the ShinyApps service. The package can only be installed 
 from GitHub at this time.
