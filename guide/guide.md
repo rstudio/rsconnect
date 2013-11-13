@@ -24,7 +24,7 @@ the latest version from GitHub using `devtools`.
 
 **Step 2** - To update devtools to the latest version from GitHub run: 
 
-    devtools::install_github('hadley', 'devtools')
+    devtools::install_github('devtools', 'hadley')
 
     (restart your R session)
 
