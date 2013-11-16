@@ -6,11 +6,11 @@
 #'   current working directory.  
 #' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
-#' @param quiet Request that no status information be printed to the console 
-#'   during the deployment. 
 #' @param redeploy Re-deploy application after its been configured.
 #' @param size Configure application instance size
 #' @param instances Configure number of application instances
+#' @param quiet Request that no status information be printed to the console 
+#'   during the deployment. 
 #' @examples
 #' \dontrun{
 #' 
@@ -19,7 +19,7 @@
 #' }
 #' @seealso \code{\link{applications}}, \code{\link{deployApp}}
 #' @export
-configureApp <- function(appName, appDir=getwd(), account = NULL, quiet = FALSE, redeploy = TRUE, size = NULL, instances = NULL) {
+configureApp <- function(appName, appDir=getwd(), account = NULL, redeploy = TRUE, size = NULL, instances = NULL, quiet = FALSE) {
   
   # resolve target account and application
   accountInfo <- accountInfo(resolveAccount(account))
