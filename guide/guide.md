@@ -11,6 +11,8 @@ To get started with ShinyApps you will need:
 - The latest version of the [`devtools` package](https://github.com/hadley/devtools)
 - The [`shinyapps` package](https://github.com/rstudio/shinyapps) from GitHub 
 - A working shiny application on your machine
+- Windows: RTools for building packages
+- Mac OSX: XCode Command Line Tools for building packages
 
 ### Installing and updating the devtools package
 
