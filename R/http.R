@@ -445,7 +445,7 @@ signatureHeaders <- function(authInfo, method, path, file) {
   cannonicalRequest <- paste(method, path, date, md5, sep="\n")
   
   # sign request
-  decodedSecret <- RCurl::base64Decode(authInfo$secret)
+  decodedSecret <- RCurl::base64Decode(authInfo$secret, mode="raw")
   hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")                
   signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
   
