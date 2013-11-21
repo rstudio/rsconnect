@@ -8,7 +8,7 @@ bundleApp <- function(appDir) {
   on.exit(unlink(bundleDir))
   
   # determine the files that will be in the bundle (exclude shinyapps dir) 
-  files <- list.files(appDir, recursive=TRUE)
+  files <- list.files(appDir, recursive=TRUE, all.files=TRUE)
   files <- files[!grepl(glob2rx("shinyapps/*"), files)]
   
   # copy the files into the bundle dir
