@@ -7,18 +7,10 @@ bundleApp <- function(appDir) {
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir))
   
-  # determine the files that will be in the bundle (exclude shinyapps dir)
-  files <- list.files(appDir, recursive=TRUE)
+  # determine the files that will be in the bundle (exclude shinyapps dir) 
+  files <- list.files(appDir, recursive=TRUE, all.files=TRUE)
   files <- files[!grepl(glob2rx("shinyapps/*"), files)]
   
-  # add special .R* files
-  rFiles <- list.files(appDir, 
-                       pattern = "^\\.(rdata|rprofile|renviron).*$",
-                       all.files = TRUE,
-                       recursive = TRUE,
-                       ignore.case = TRUE)
-  files <- c(files, rFiles)
-
   # copy the files into the bundle dir
   for (file in files) {
     from <- file.path(appDir, file)
