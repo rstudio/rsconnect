@@ -7,9 +7,13 @@ bundleApp <- function(appDir) {
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir))
   
-  # determine the files that will be in the bundle (exclude shinyapps dir) 
-  files <- list.files(appDir, recursive=TRUE)
+  # determine the files that will be in the bundle (exclude shinyapps dir
+  # as well as common hidden files)
+  files <- list.files(appDir, recursive=TRUE, all.files=TRUE)
   files <- files[!grepl(glob2rx("shinyapps/*"), files)]
+  files <- files[!grepl(glob2rx(".svn/*"), files)]
+  files <- files[!grepl(glob2rx(".git/*"), files)]
+  files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
   
   # copy the files into the bundle dir
   for (file in files) {
