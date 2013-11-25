@@ -14,19 +14,14 @@ To get started with ShinyApps you will need:
 - Windows: RTools for building packages
 - Mac OSX: XCode Command Line Tools for building packages
 
-### Installing and updating the devtools package
+### Installingmthe devtools package
 
-:warning: ShinyApps makes uses of the latest improvements to the `devtools` package, you **must** update `devtools` to
-the latest version from GitHub using `devtools`.
+:warning: ShinyApps makes uses of the latest improvements to the `devtools` package, you **must** update `devtools` to 
+version 1.4 or later.
 
-**Step 1** - If you do not already have `devtools` installed, you can install it from CRAN (if you already have a version 
-`devtools` installed, you can skip this step):
+Install `devtools` from CRAN:
 
     install.packages('devtools')
-
-**Step 2** - To update devtools to the latest version from GitHub run: 
-
-    devtools::install_github('devtools', 'hadley')
 
     (restart your R session)
 
