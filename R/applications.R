@@ -39,17 +39,10 @@ applications <- function(account = NULL) {
   apps <- lucid$applications(accountInfo$accountId)
   
   # convert the list into a data frame with a subset of fields
-  name <- character()
-  url <- character()
-  status <- character()
-  for (app in apps) {
-    name <- append(name, app$name)
-    url <- append(url, app$url)
-    status <- append(status, app$status)
-  }
-  data.frame(name = I(name),
-             url = I(url),
-             status = status)
+  res <- lapply(apps, `[`, c('name', 'url', 'status'))
+  res <- do.call(rbind, res)
+
+  as.data.frame(res, stringsAsFactors = FALSE)
 }
 
 resolveApplication <- function(accountInfo, appName) {
