@@ -1,10 +1,8 @@
 #' Add authorized user for application
 #' 
-#' @details 
 #' @param username 
 #' @param password 
 #' @param appDir Directory containing application. Defaults to current working directory.
-#' @param quiet Request that no status information be printed to the console.
 #' @examples
 #' \dontrun{
 #' 
@@ -17,7 +15,7 @@
 #' }
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
-addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), quiet = FALSE) {
+addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
   
   if (!require(scrypt)) {
     stop("scrypt package is not installed.")
@@ -31,8 +29,11 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), quiet
     password <- promptPassword()
   }
 
+  # validate password
   if (is.null(password) || nchar(password) < getOption('shinyapps.min.password.length', 4)) {
-    stop("Password must be at least ", getOption('shinyapps.min.password.length', 4), " characters.", call. = FALSE)
+    stop("Password must be at least ", 
+         getOption('shinyapps.min.password.length', 4), " characters.", 
+         call. = FALSE)
   }
   
   # hash password
@@ -51,7 +52,7 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), quiet
     # promp to reset password
     prompt <- paste("Reset password for user \"", username, "\"? [Y/n] ", sep="")
     input <- readline(prompt)
-    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y")) {
+    if (nzchar(input) && !identical(tolower(input), "y")) {
       stop("Password not updated", call. = FALSE)
     } else {
       # update pasword
@@ -64,15 +65,13 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), quiet
   }
 
   # write passwords
-  writePasswordFile(path, passwords)
+  invisible(writePasswordFile(path, passwords))
 }
 
 #' Remove authroized user from an application
 #' 
-#' @details
 #' @param username
 #' @param appDir Directory containing application. Defaults to current working directory.
-#' @param quiet Request that no status information be printed to the console.
 #' @examples
 #' \dontrun{
 #' 
@@ -82,7 +81,7 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), quiet
 #' }
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
-removeAuthorizedUser <- function(username, appDir = getwd(), quiet = FALSE ) {
+removeAuthorizedUser <- function(username, appDir = getwd()) {
   
   # read password file
   path <- passwordFilePath(appDir)
@@ -97,7 +96,7 @@ removeAuthorizedUser <- function(username, appDir = getwd(), quiet = FALSE ) {
   passwords <- passwords[passwords$user!=username, ]
 
   # write passwords
-  writePasswordFile(path, passwords)
+  invisible(writePasswordFile(path, passwords))
 }
 
 #' List authorized users for an application
@@ -108,7 +107,7 @@ authorizedUsers <- function(appDir = getwd()) {
   
   path <- passwordFilePath(appDir)
   passwords <- readPasswordFile(path)
-  return (passwords)
+  return(passwords)
 }
 
 promptPassword <- function() {
@@ -129,7 +128,7 @@ passwordFilePath <- function(appDir) {
   # normalize appDir path and ensure it exists
   appDir <- normalizePath(appDir, mustWork = FALSE)
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
-    stop(appDir, " is not a valid directory")
+    stop(appDir, " is not a valid directory", call. = FALSE)
   
   p <- paste(appDir, ".passwords.txt", sep="/")
   return(p)
@@ -137,8 +136,7 @@ passwordFilePath <- function(appDir) {
 
 readPasswordFile <- function(path) {
   # open and read file
-  f <- file(path, open = "r")
-  lines <- readLines(f)
+  lines <- readLines(path)
   
   # extract fields
   fields <- do.call(rbind, strsplit(lines, ":"))
@@ -148,23 +146,20 @@ readPasswordFile <- function(path) {
   # convert to data frame
   df <- data.frame(user=users, hash=hashes, stringsAsFactors=FALSE)
 
-  close(f)
-
   # return data frame
   return(df)
 }
 
-writePasswordFile <- function(path, passwords, quiet = FALSE) {
+writePasswordFile <- function(path, passwords) {
+  
   # open and file
   f = file(path, open="w")
+  on.exit(close(f), add = TRUE)
   
   # write passwords
   apply(passwords, 1, function(r) {
     l <- paste(r[1], ":", r[2], "\n", sep="")
     cat(l, file=f, sep="")
   })
-  close(f)
-  if (!quiet) {
-    cat("Password file updated.")
-  }
+  message("Password file updated. You must deploy your application for these changes to take effect.")
 }

@@ -1,10 +1,14 @@
 \name{authorizedUsers}
 \alias{authorizedUsers}
-\title{List Users}
+\title{List authorized users for an application}
 \usage{
 authorizedUsers(appDir = getwd())
 }
+\arguments{
+  \item{appDir}{Directory containing application. Defaults
+  to current working directory.}
+}
 \description{
-List Users
+List authorized users for an application
 }
 

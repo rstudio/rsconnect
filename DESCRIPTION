@@ -11,19 +11,6 @@ Imports:
     digest,
     RCurl,
     RJSONIO
+Suggests:
+    scrypt
 License: GPL-2
-Collate:
-    'http.R'
-    'bundle.R'
-    'dependencies.R'
-    'accounts.R'
-    'config.R'
-    'utils.R'
-    'lucid.R'
-    'deployments.R'
-    'applications.R'
-    'deployApp.R'
-    'scaleApp.R'
-    'terminateApp.R'
-    'configureApp.R'
-    'auth.R'
