@@ -1,7 +1,23 @@
-
-#' Add User
+#' Add authorized user for application
+#' 
+#' @details 
+#' @param username 
+#' @param password 
+#' @param appDir Directory containing application. Defaults to current working directory.
+#' @param quiet Request that no status information be printed to the console.
+#' @examples
+#' \dontrun{
+#' 
+#' # add a user (prompts for password)
+#' addAuthroizedUser("andy")
+#' 
+#' # add a user using supplied password
+#' addAuthorizedUser("tareef", "MrShiny45")
+#' 
+#' }
+#' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
-addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), appName = NULL, account = NULL, quiet = FALSE) {
+addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), quiet = FALSE) {
   
   if (!require(scrypt)) {
     stop("scrypt package is not installed.")
@@ -15,7 +31,7 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), appNa
     password <- promptPassword()
   }
 
-  if (is.null(password) || !nzchar(password) || nchar(password) < getOption('shinyapps.min.password.length', 4)) {
+  if (is.null(password) || nchar(password) < getOption('shinyapps.min.password.length', 4)) {
     stop("Password must be at least ", getOption('shinyapps.min.password.length', 4), " characters.", call. = FALSE)
   }
   
@@ -32,6 +48,7 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), appNa
   
   # check if username is already in password list
   if (username %in% passwords$user) {
+    # promp to reset password
     prompt <- paste("Reset password for user \"", username, "\"? [Y/n] ", sep="")
     input <- readline(prompt)
     if (nzchar(input) && !identical(input, "y") && !identical(input, "Y")) {
@@ -48,12 +65,24 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd(), appNa
 
   # write passwords
   writePasswordFile(path, passwords)
-  
 }
 
-#' Remove User
+#' Remove authroized user from an application
+#' 
+#' @details
+#' @param username
+#' @param appDir Directory containing application. Defaults to current working directory.
+#' @param quiet Request that no status information be printed to the console.
+#' @examples
+#' \dontrun{
+#' 
+#' # remove user 
+#' removeAuthroizedUser("andy")
+#' 
+#' }
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
-removeAuthorizedUser <- function(username, appDir = getwd(), appName = NULL, account = NULL, quiet = FALSE ) {
+removeAuthorizedUser <- function(username, appDir = getwd(), quiet = FALSE ) {
   
   # read password file
   path <- passwordFilePath(appDir)
@@ -71,7 +100,9 @@ removeAuthorizedUser <- function(username, appDir = getwd(), appName = NULL, acc
   writePasswordFile(path, passwords)
 }
 
-#' List Users
+#' List authorized users for an application
+#' 
+#' @param appDir Directory containing application. Defaults to current working directory.
 #' @export
 authorizedUsers <- function(appDir = getwd()) {
   
@@ -123,7 +154,7 @@ readPasswordFile <- function(path) {
   return(df)
 }
 
-writePasswordFile <- function(path, passwords) {
+writePasswordFile <- function(path, passwords, quiet = FALSE) {
   # open and file
   f = file(path, open="w")
   
@@ -133,5 +164,7 @@ writePasswordFile <- function(path, passwords) {
     cat(l, file=f, sep="")
   })
   close(f)
-  cat("Password file updated.")
+  if (!quiet) {
+    cat("Password file updated.")
+  }
 }
