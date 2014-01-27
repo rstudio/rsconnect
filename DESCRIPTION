@@ -26,3 +26,4 @@ Collate:
     'scaleApp.R'
     'terminateApp.R'
     'configureApp.R'
+    'auth.R'
