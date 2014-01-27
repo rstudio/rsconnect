@@ -11,6 +11,8 @@ Imports:
     digest,
     RCurl,
     RJSONIO
+Suggests:
+    scrypt
 License: GPL-2
 Collate:
     'http.R'

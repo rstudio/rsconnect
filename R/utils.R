@@ -43,4 +43,33 @@ httpDiagnosticsEnabled <- function() {
           getOption("shinyapps.http.verbose", FALSE))
 }
 
+readPassword <- function(prompt) {
+  # user super secret function if using RStudio
+  if (exists(".rs.askForPassword")) {
+    password <- .rs.askForPassword(prompt)
+  } else {
 
+    os <- Sys.info()[['sysname']]
+
+    echoOff <- function() {
+      if (identical(os, "Darwin") || identical(os, "Linux")) {
+        #system("stty cbreak -echo <&2")
+      } else {
+        # TODO: disable echo on Windows
+      }
+    }
+
+    echoOn <- function() {
+      if (identical(os, "Darwin") || identical(os, "Linux")) {
+        #system("stty echo")
+      } else {
+        # TODO: enable echo on Windows
+      }
+    }
+  
+    echoOff()
+    password <- readline(prompt)
+    echoOn()
+  }
+  return (password)
+}
