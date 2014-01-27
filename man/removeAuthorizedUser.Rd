@@ -1,11 +1,28 @@
 \name{removeAuthorizedUser}
 \alias{removeAuthorizedUser}
-\title{Remove User}
+\title{Remove authroized user from an application}
 \usage{
-removeAuthorizedUser(username, appDir = getwd(), appName = NULL,
-  account = NULL, quiet = FALSE)
+removeAuthorizedUser(username, appDir = getwd())
+}
+\arguments{
+  \item{username}{}
+
+  \item{appDir}{Directory containing application. Defaults
+  to current working directory.}
 }
 \description{
-Remove User
+Remove authroized user from an application
+}
+\examples{
+\dontrun{
+
+# remove user
+removeAuthroizedUser("andy")
+
+}
+}
+\seealso{
+\code{\link{addAuthorizedUser}} and
+\code{\link{authorizedUsers}}
 }
 
