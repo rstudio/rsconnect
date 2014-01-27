@@ -111,9 +111,9 @@ authorizedUsers <- function(appDir = getwd()) {
 }
 
 promptPassword <- function() {
-  prompt <- paste("Password: ")
+  prompt <- "Password: "
   password.one <- readPassword(prompt)
-  prompt <- paste("Retype Password: ")
+  prompt <- "Retype Password: "
   password.two <- readPassword(prompt)
   if (!identical(password.one, password.two)) {
     stop("Passwords do not match.", call. = FALSE)  
