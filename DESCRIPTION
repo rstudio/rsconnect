@@ -15,6 +15,7 @@ Suggests:
     scrypt
 License: GPL-2
 Collate:
+    'auth.R'
     'http.R'
     'bundle.R'
     'dependencies.R'
