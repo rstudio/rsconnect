@@ -38,8 +38,19 @@ applications <- function(account = NULL) {
   # retreive applications
   apps <- lucid$applications(accountInfo$accountId)
   
-  # convert the list into a data frame with a subset of fields
-  res <- lapply(apps, `[`, c('name', 'url', 'status'))
+  # extract the subset of fields we're interested in 
+  res <- lapply(apps, `[`, c('name', 'url', 'status', 'created_time', 
+                             'updated_time', 'properties'))
+  
+  # promote the size and instance data to first-level fields
+  res <- lapply(res, function(x) { 
+    x$size <- x$properties$containers.template
+    x$instances <- x$properties$containers.count
+    x$properties <- NULL
+    return(x)
+  })
+  
+  # convert to data frame
   res <- do.call(rbind, res)
 
   as.data.frame(res, stringsAsFactors = FALSE)
