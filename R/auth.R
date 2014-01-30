@@ -24,17 +24,16 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
   if (missing(username) || !isStringParam(username))
     stop(stringParamErrorMessage("username"))
   
+  # validate username
+  validateUsername(username)
+  
   # prompt for password if not given
   if (is.null(password)) {
     password <- promptPassword()
   }
 
   # validate password
-  if (is.null(password) || nchar(password) < getOption('shinyapps.min.password.length', 4)) {
-    stop("Password must be at least ", 
-         getOption('shinyapps.min.password.length', 4), " characters.", 
-         call. = FALSE)
-  }
+  validatePassword(password)
   
   # hash password
   hash <- paste("{scrypt}", hashPassword(password), sep="")
@@ -108,6 +107,40 @@ authorizedUsers <- function(appDir = getwd()) {
   path <- passwordFilePath(appDir)
   passwords <- readPasswordFile(path)
   return(passwords)
+}
+
+validateUsername <- function(username) {
+  
+  # validate username length
+  if (is.null(username) || nchar(username) < 1) {
+    stop("Username must be at least 1 characters.", call. = FALSE)
+  }
+  
+  # validate password has no invalid characeters 
+  invalid <- c(":", "$", "\n", "\r")
+  if (any(lapply(invalid, grepl, username, fixed = TRUE)==TRUE)) {
+    stop("Username may not contain: $, :, \\n, or \\r", call. = FALSE)
+  }
+     
+  invisible(TRUE)
+}
+
+validatePassword <- function(password) {
+  
+  min.length <- getOption('shinyapps.min.password.length', 4)
+  
+  # validate password length
+  if (is.null(password) || nchar(password) < min.length) {
+    stop("Password must be at least ", min.length, " characters.", call. = FALSE)
+  }
+  
+  # validate password has no invalid characeters 
+  invalid <- c(":", "$", "\n", "\r")
+  if (any(lapply(invalid, grepl, password, fixed = TRUE)==TRUE)) {
+    stop("Password may not contain: $, :, \\n, or \\r", call. = FALSE)
+  }
+  
+  invisible(TRUE) 
 }
 
 promptPassword <- function() {
