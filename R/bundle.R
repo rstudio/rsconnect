@@ -43,7 +43,14 @@ createAppManifest <- function(appDir, files) {
   for (pkg in dirDependencies(appDir)) {
     
     # get the description
-    description <- list(description = utils::packageDescription(pkg))
+    description <- list(description = suppressWarnings(utils::packageDescription(pkg)))
+  
+    # if description is NA, application dependency may not be installed 
+    if (is.na(description)) {
+      stop("Application depends on package \"", pkg, "\" but it is not",
+           " installed. Please resolve before continuing.",
+           call. = FALSE)
+    }
     
     # validate the repository (will throw an error if there is a problem)
     validateRepository(pkg, getRepository(description[[1]]))
@@ -52,7 +59,6 @@ createAppManifest <- function(appDir, files) {
     packages[[pkg]] <- description
   }
 
-  
   # provide checksums for all files
   fileChecksums <- list()
   for (file in files) {
