@@ -139,16 +139,16 @@ deploymentTarget <- function(appDir, appName, account) {
   }
   
   # read existing deployments 
-  deployments <- readDeployments(appDir)
+  appDeployments <- deployments(appDir)
   
   # function to create a deployment target list (checks whether the target 
   # is an update and adds that field)
   createDeploymentTarget <- function(appName, account) {
     
     # check to see whether this is an update
-    existingDeployment <- readDeployments(appDir, 
-                                          nameFilter = appName,
-                                          accountFilter = account)
+    existingDeployment <- deployments(appDir, 
+                                      nameFilter = appName,
+                                      accountFilter = account)
     isUpdate <- nrow(existingDeployment) == 1
     
     list(appName = appName, account = account, isUpdate = isUpdate)
@@ -166,11 +166,11 @@ deploymentTarget <- function(appDir, appName, account) {
   else if (!is.null(appName)) {
     
     # find any existing deployments of this application
-    deployments <- readDeployments(appDir, nameFilter = appName)
+    appDeployments <- deployments(appDir, nameFilter = appName)
     
     # if there are none then we can create it if there is a single account
     # registered that we can default to
-    if (nrow(deployments) == 0) {
+    if (nrow(appDeployments) == 0) {
       if (length(accounts) == 1)
         createDeploymentTarget(appName, accounts[[1]])
       else
@@ -178,12 +178,12 @@ deploymentTarget <- function(appDir, appName, account) {
     }
     
     # single existing deployment
-    else if (nrow(deployments) == 1) {
-      createDeploymentTarget(appName, deployments$account)
+    else if (nrow(appDeployments) == 1) {
+      createDeploymentTarget(appName, appDeployments$account)
     }
     
     # multiple existing deployments
-    else if (nrow(deployments) > 1) {
+    else if (nrow(appDeployments) > 1) {
       stop(paste("Please specify the account you want to deploy '", appName,
                  "' to (you have previously deployed this application to ", 
                  "more than one account).",sep = ""), call. = FALSE)
@@ -200,14 +200,14 @@ deploymentTarget <- function(appDir, appName, account) {
   }
 
   # neither specified but a single existing deployment
-  else if (nrow(deployments) == 1) {
+  else if (nrow(appDeployments) == 1) {
      
-    createDeploymentTarget(deployments$name, deployments$account)
+    createDeploymentTarget(appDeployments$name, appDeployments$account)
   
   }
   
   # neither specified and no existing deployments
-  else if (nrow(deployments) == 0) {
+  else if (nrow(appDeployments) == 0) {
     
     # single account we can default to
     if (length(accounts) == 1)
