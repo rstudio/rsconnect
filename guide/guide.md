@@ -357,7 +357,7 @@ First, ensure the `shinyapps` package is loaded:
 library(shinyapps)
 ```
 
-As with other `shinyapps` functions, you should first change your working directory to where your 
+As with other `shinyapps` functions, you should change your working directory to where your 
 application code is:
 
 ```S
@@ -366,7 +366,7 @@ setwd("/path/to/my/shiny/app")
 
 To add an authorized user, use the `shinyapps::addAuthorizedUser` function. You will
 be prompted to enter a password for the user. Please remember that for security, 
-passwords are stored using an scrypt hash. Once stored, can not be retrieved (but they 
+passwords are stored using an scrypt hash. Once stored, passwords can not be retrieved (but they 
 can always be reset).
 
 :exclamation: Passwords must be at least 4 characters in length, and may not contain: "\t", "\n", "$" or ":".
@@ -390,7 +390,7 @@ user's password.
 
 ### Removing Authorized Users
 
-To remove an authorized users, use the `shinyapps::removeAuthorizedUser` function.
+To remove an authorized user, use the `shinyapps::removeAuthorizedUser` function.
 
 ```S
 removeAuthorizedUser("andy")
