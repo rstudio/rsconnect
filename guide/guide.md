@@ -313,14 +313,13 @@ This will redeploy your application using the medium instance type.
 
 ## Application Authentication
 
-With ShinyApps it possible to configure authentication for your application. When a user first
-visits your application, he or she will be prompted to enter a username and password.
-Only user's who have logged in with a valid username and password will be able view or use your
+With ShinyApps it is possible to configure authentication for your application. Once authentication has
+been enabled, when a user visits your application, he or she will be prompted to enter a username 
+and password. Only user's who have logged in with a valid username and password will be able view or use your
 application. Authentication is automatically enabled when the first authorized user is added.
 
-The `shinyapps` package exposes a number of functions for managing authorized users for
-applications. To get started, you will need to be able to build packages. Ensure you have
-installed the following requirements for your system before continuing.
+To get started, you will first need prepare your system to be able to build packages. Ensure you have
+installed the following requirements for your system before continuing:
 
 - Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/) for building packages
 - Mac OSX: XCode Command Line Tools for building packages
@@ -351,7 +350,8 @@ package installed.
 
 ### Adding Authorized Users
 
-First, ensure the `shinyapps` package is loaded:
+The `shinyapps` package exposes a number of functions for managing an application's authorized users.
+To get started, ensure the `shinyapps` package is loaded:
 
 ```S
 library(shinyapps)
