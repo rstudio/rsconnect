@@ -99,7 +99,9 @@ deployApp <- function(appDir = getwd(),
   }
 
   # wait for the deployment to complete (will raise an error if it can't)
-  displayStatus("Deploying application...\n")
+  displayStatus(paste("Deploying application: ", 
+                      application$id, 
+                      "...\n", sep=""))
   task <- lucid$deployApplication(application$id, bundle$id)
   lucid$waitForTaskCompletion(task$task_id, quiet)
   displayStatus(paste("Application successfully deployed to ", 
