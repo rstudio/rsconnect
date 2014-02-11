@@ -318,11 +318,11 @@ been enabled, when a user visits your application, he or she will be prompted to
 and password. Only user's who have logged in with a valid username and password will be able view or use your
 application. Authentication is automatically enabled when the first authorized user is added.
 
-To get started, you will first need prepare your system to be able to build packages. Ensure you have
+To get started, you will first need prepare your system to be able to build native packages. Ensure you have
 installed the following requirements for your system before continuing:
 
-- Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/) for building packages
-- Mac OSX: XCode Command Line Tools for building packages
+- Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/) 
+- Mac OSX: XCode Command Line Tools 
 - Linux: GCC
 
 ### Install the latest version of shinyapps package
