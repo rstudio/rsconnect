@@ -24,8 +24,11 @@ bundleApp <- function(appDir) {
     file.copy(from, to)
   }
   
+  # get application users
+  users <- authorizedUsers(appDir)
+  
   # generate the manifest and write it into the bundle dir
-  manifestJson <- createAppManifest(appDir, files)
+  manifestJson <- createAppManifest(appDir, files, users)
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"))
   
   # create the bundle and return it's path
@@ -36,7 +39,7 @@ bundleApp <- function(appDir) {
   bundlePath
 }
 
-createAppManifest <- function(appDir, files) {
+createAppManifest <- function(appDir, files, users) {
    
   # provide package entries for all dependencies
   packages <- list()
@@ -60,11 +63,23 @@ createAppManifest <- function(appDir, files) {
   }
 
   # provide checksums for all files
-  fileChecksums <- list()
+  filelist <- list()
   for (file in files) {
     checksum <- list(checksum = digest::digest(file.path(appDir, file), 
                                                algo="md5", file=TRUE))
-    fileChecksums[[file]] <- I(checksum)
+    filelist[[file]] <- I(checksum)
+  }
+  
+  # create userlist
+  userlist <- list()
+  if (!is.null(users) && length(users) > 0) {
+    for (i in 1:nrow(users)) {
+      user <- users[i, "user"]
+      hash <- users[i, "hash"]
+      userinfo <- list()
+      userinfo$hash <- hash
+      userlist[[user]] <- userinfo
+    }
   }
   
   # create the manifest
@@ -80,9 +95,15 @@ createAppManifest <- function(appDir, files) {
   }
   # if there are no files, set manifest$files to NA (json null) 
   if (length(files) > 0) {
-    manifest$files <- I(fileChecksums)
+    manifest$files <- I(filelist)
   } else {
     manifest$files <- NA
+  }
+  # if there are no users set manifest$users to NA (json null)
+  if (length(users) > 0) {
+    manifest$users <- I(userlist)
+  } else {
+    manifest$users <- NA
   }
   
   # return it as json

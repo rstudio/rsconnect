@@ -39,7 +39,7 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
   hash <- paste("{scrypt}", hashPassword(password), sep="")
   
   # read password file
-  path <- passwordFilePath(appDir)
+  path <- getPasswordFile(appDir)
   if (file.exists(path)) {
     passwords <- readPasswordFile(path)
   } else {
@@ -83,8 +83,12 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
 removeAuthorizedUser <- function(username, appDir = getwd()) {
   
   # read password file
-  path <- passwordFilePath(appDir)
-  passwords <- readPasswordFile(path)
+  path <- getPasswordFile(appDir)
+  if (file.exists(path)) {
+    passwords <- readPasswordFile(path)
+  } else {
+    passwords <- NULL
+  }
 
   # check if username is already in password list
   if (!username %in% passwords$user) {
@@ -104,8 +108,14 @@ removeAuthorizedUser <- function(username, appDir = getwd()) {
 #' @export
 authorizedUsers <- function(appDir = getwd()) {
   
-  path <- passwordFilePath(appDir)
-  passwords <- readPasswordFile(path)
+  # read password file
+  path <- getPasswordFile(appDir)
+  if (file.exists(path)) {
+    passwords <- readPasswordFile(path)
+  } else {
+    passwords <- NULL
+  }
+  
   return(passwords)
 }
 
@@ -154,7 +164,7 @@ promptPassword <- function() {
   return(password.one)
 }
 
-passwordFilePath <- function(appDir) {
+getPasswordFile <- function(appDir) {
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
   
@@ -163,8 +173,12 @@ passwordFilePath <- function(appDir) {
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory", call. = FALSE)
   
-  p <- paste(appDir, ".passwords.txt", sep="/")
-  return(p)
+  dataDir <- file.path(appDir, "shinyapps")
+  if (!file.exists(dataDir))
+    dir.create(dataDir, recursive=TRUE)
+  
+  passwordFile <- file.path(dataDir, paste("passwords", ".txt", sep=""))
+  return(passwordFile)
 }
 
 readPasswordFile <- function(path) {
