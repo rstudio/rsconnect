@@ -310,3 +310,91 @@ To change the instance type of your application from the default of small to med
     shinyapps::configureApp(APPNAME, size="medium")
 
 This will redeploy your application using the medium instance type.
+
+## Application Authentication
+
+With ShinyApps it possible to configure authentication for your application. When a user first
+visits your application, he or she will be prompted to enter a username and password.
+Only user's who have logged in with a valid username and password will be able view or use your
+application. Authentication is automatically enabled when the first authorized user is added.
+
+The `shinyapps` package exposes a number of functions for managing authorized users for
+applications. To get started, you will need to be able to build packages. Ensure you have
+installed the following requirements for your system before continuing.
+
+- Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/) for building packages
+- Mac OSX: XCode Command Line Tools for building packages
+- Linux: GCC
+
+### Install the latest version of shinyapps package
+
+For authentication support, you will need `shinyapps` >= 0.3.
+
+Install the `shinyapps` package using `devtools`:
+
+```S
+devtools::install_github('rstudio/shinyapps')
+```
+
+### Install the latest version of scrypt package
+
+You will also need the scrypt package used for encrypting passwords.
+
+Install the `scrypt` package using `devtools`:
+
+```S
+devtools::install_github('rstudio/rscrypt')
+```
+
+You should restart your R session at this point, if you already had the `shinyapps`
+package installed.
+
+### Adding Authorized Users
+
+First, ensure the `shinyapps` package is loaded:
+
+```S
+library(shinyapps)
+```
+
+As with other `shinyapps` functions, you should first change your working directory to where your 
+application code is:
+
+```S
+setwd("/path/to/my/shiny/app")
+```
+
+To add an authorized user, use the `shinyapps::addAuthorizedUser` function. You will
+be prompted to enter a password for the user. Please remember that for security, 
+passwords are stored using an scrypt hash. Once stored, can not be retrieved (but they 
+can always be reset).
+
+:exclamation: Passwords must be at least 4 characters in length, and may not contain: "\t", "\n", "$" or ":".
+
+```S
+addAuthorizedUser("andy")
+```
+
+After adding or removing a user, you will need deploy your application using the
+`shinyapps::deployApp` function.
+
+```S
+deployApp()
+```
+
+That's it. You will now be prompted for a username and password, when your application is visited.
+
+Note: If a user forgets his or her password, you can reset it using the
+`shinyapps::addAuthorizedUser` function. You will be prompted to confirm you want to reset the
+user's password.
+
+### Removing Authorized Users
+
+To remove an authorized users, use the `shinyapps::removeAuthorizedUser` function.
+
+```S
+removeAuthorizedUser("andy")
+```
+
+After adding or removing a user, you will need deploy your application using the
+`shinyapps::deployApp` function.
