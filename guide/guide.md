@@ -313,7 +313,7 @@ This will redeploy your application using the medium instance type.
 
 ## Application Authentication
 
-With ShinyApps you can limit the access to your application by configuring authentication on a per application basis. With authentication enabled, a user accessing your application will be prompted to enter his/her username and password. Only users who have logged in with a valid username and password will be able view or use your application. Authentication is automatically enabled when the first authorized user is added.
+With ShinyApps you can limit the access to your application by configuring authentication. With authentication enabled, a user accessing your application will be prompted to enter his/her username and password. Only users who have logged in with a valid username and password will be able view or use your application. Authentication is automatically enabled when the first authorized user is added.
 
 To get started, you will need to prepare your system to build native packages. Please ensure you have
 installed the following tools for your system before continuing:
