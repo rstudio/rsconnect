@@ -39,7 +39,7 @@ applications <- function(account = NULL) {
   apps <- lucid$applications(accountInfo$accountId)
   
   # extract the subset of fields we're interested in 
-  res <- lapply(apps, `[`, c('name', 'url', 'status', 'created_time', 
+  res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time', 
                              'updated_time', 'properties'))
   
   # promote the size and instance data to first-level fields
