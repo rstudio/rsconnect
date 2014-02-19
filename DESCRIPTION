@@ -1,7 +1,7 @@
 Package: shinyapps
 Type: Package
 Title: Interface to ShinyApps
-Version: 0.3
+Version: 0.3.1
 Date: 2013-10-03
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
