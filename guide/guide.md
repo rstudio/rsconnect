@@ -313,17 +313,13 @@ This will redeploy your application using the medium instance type.
 
 ## Application Authentication
 
-With ShinyApps it possible to configure authentication for your application. When a user first
-visits your application, he or she will be prompted to enter a username and password.
-Only user's who have logged in with a valid username and password will be able view or use your
-application. Authentication is automatically enabled when the first authorized user is added.
+With ShinyApps you can limit the access to your application by configuring authentication. With authentication enabled, a user accessing your application will be prompted to enter his/her username and password. Only users who have logged in with a valid username and password will be able view or use your application. Authentication is automatically enabled when the first authorized user is added.
 
-The `shinyapps` package exposes a number of functions for managing authorized users for
-applications. To get started, you will need to be able to build packages. Ensure you have
-installed the following requirements for your system before continuing.
+To get started, you will need to prepare your system to build native packages. Please ensure you have
+installed the following tools for your system before continuing:
 
-- Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/) for building packages
-- Mac OSX: XCode Command Line Tools for building packages
+- Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/) 
+- Mac OSX: XCode Command Line Tools 
 - Linux: GCC
 
 ### Install the latest version of shinyapps package
@@ -351,14 +347,15 @@ package installed.
 
 ### Adding Authorized Users
 
-First, ensure the `shinyapps` package is loaded:
+The `shinyapps` package exposes a number of functions for managing an application's authorized users.
+To get started, ensure the `shinyapps` package is loaded:
 
 ```S
 library(shinyapps)
 ```
 
-As with other `shinyapps` functions, you should first change your working directory to where your 
-application code is:
+As with other `shinyapps` functions, you should change your working directory to where your 
+application code resides:
 
 ```S
 setwd("/path/to/my/shiny/app")
@@ -366,8 +363,7 @@ setwd("/path/to/my/shiny/app")
 
 To add an authorized user, use the `shinyapps::addAuthorizedUser` function. You will
 be prompted to enter a password for the user. Please remember that for security, 
-passwords are stored using an scrypt hash. Once stored, can not be retrieved (but they 
-can always be reset).
+passwords are stored using an [scrypt](http://en.wikipedia.org/wiki/Scrypt) hash. Once stored, passwords can not be retrieved (but they can always be reset).
 
 :exclamation: Passwords must be at least 4 characters in length, and may not contain: "\t", "\n", "$" or ":".
 
@@ -390,7 +386,7 @@ user's password.
 
 ### Removing Authorized Users
 
-To remove an authorized users, use the `shinyapps::removeAuthorizedUser` function.
+To remove an authorized user, use the `shinyapps::removeAuthorizedUser` function.
 
 ```S
 removeAuthorizedUser("andy")
