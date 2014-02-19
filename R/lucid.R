@@ -9,17 +9,19 @@ lucidClient <- function(authInfo) {
     },
     
     currentUser = function() {
-      handleResponse(GET(authInfo, "/users/current"))
+      handleResponse(GET(authInfo, "/users/current/"))
     },
     
     accountsForUser = function(userId) {
-      path <- paste("/users/", userId, "/accounts", sep="")
-      listRequest(authInfo, path, "accounts")
+      path <- "/accounts/"
+      query <- ""
+      listRequest(authInfo, path, query, "accounts")
     },
     
     applications = function(accountId) {
-      path <- paste("/accounts/", accountId, "/applications", sep="")
-      listRequest(authInfo, path, "applications")
+      path <- "/applications/"
+      query <- paste("filter:account_id=", accountId, sep="")
+      listRequest(authInfo, path, query, "applications")
     },
     
     createApplication = function(name, template, accountId) {    
@@ -97,7 +99,7 @@ lucidClient <- function(authInfo) {
   )
 }
 
-listRequest <- function(authInfo, path, listName, pageSize = 100) {
+listRequest <- function(authInfo, path, query, listName, pageSize = 100) {
   
   # accumulate multiple pages of results
   offset <- 0
@@ -106,7 +108,8 @@ listRequest <- function(authInfo, path, listName, pageSize = 100) {
   while(TRUE) {
     
     # add query params
-    pathWithQuery <- paste(path, "?count=", pageSize, 
+    pathWithQuery <- paste(path, "?", query,
+                                 "&count=", pageSize, 
                                  "&offset=", offset, 
                            sep="")
     
