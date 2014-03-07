@@ -307,7 +307,7 @@ Both the instance type, and the number of instances of an application are config
 
 To change the instance type of your application from the default of small to medium run:
 
-    shinyapps::configureApp(APPNAME, size="medium")
+    shinyapps::configureApp("APPNAME", size="medium")
 
 This will redeploy your application using the medium instance type.
 
