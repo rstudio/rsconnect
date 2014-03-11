@@ -36,7 +36,7 @@ applications <- function(account = NULL) {
   lucid <- lucidClient(accountInfo)
   
   # retreive applications
-  apps <- lucid$applications(accountInfo$accountId)
+  apps <- lucid$listApplications(accountInfo$accountId)
   
   # extract the subset of fields we're interested in 
   res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time', 

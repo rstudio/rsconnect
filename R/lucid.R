@@ -18,10 +18,18 @@ lucidClient <- function(authInfo) {
       listRequest(authInfo, path, query, "accounts")
     },
     
-    applications = function(accountId) {
+    listApplications = function(accountId, filters = NULL) {
+      if (is.null(filters)) {
+        filters <- vector()
+      }
       path <- "/applications/"
-      query <- paste("filter:account_id=", accountId, sep="")
+      filters <- c(filterQuery("account_id", accountId), filters)
+      query <- paste(filters, collapse="&")
       listRequest(authInfo, path, query, "applications")
+    },
+  
+    getApplicationInfo = function(appId) {
+      
     },
     
     createApplication = function(name, template, accountId) {    
@@ -63,16 +71,37 @@ lucidClient <- function(authInfo) {
       handleResponse(POST_JSON(authInfo, path, json))
     },
     
-    waitForTaskCompletion = function(taskId, quiet = FALSE) {    
-      
+    listTasks = function(accountId, filters = NULL) {
+      if (is.null(filters)) {
+        filters <- vector()
+      }
+      path <- "/tasks/"
+      filters <- c(filterQuery("account_id", accountId), filters)
+      query <- paste(filters, collapse="&")
+      listRequest(authInfo, path, query, "tasks", max=1000)
+    },
+    
+    getTaskInfo = function(taskId) {
       path <- paste("/tasks/", taskId, sep="")
-
+      handleResponse(GET(authInfo, path))
+    },
+  
+    getTaskLogs = function(taskId) {
+      path <- paste("/tasks/", taskId, "/logs/", sep="")
+      handleResponse(GET(authInfo, path))
+    },
+    
+    waitForTask = function(taskId, quiet = FALSE) {
+      
       if (!quiet) {
         cat("Waiting for task: ", taskId, "\n", sep="")
       }
       
+      path <- paste("/tasks/", taskId, sep="")
+      
       lastStatus <- NULL
       while(TRUE) {
+        
         # check status
         status <- handleResponse(GET(authInfo, path))
         
@@ -83,13 +112,17 @@ lucidClient <- function(authInfo) {
           lastStatus <- status$description
         }
         
-        # are we finished? (note: this codepath is the only way to exit 
-        # this function)
+        # are we finished? (note: this codepath is the only way to exit this function)
         if (status$finished) {
-          if (identical(status$status, "success"))
+          if (identical(status$status, "success")) {
             return (NULL)
-          else
+          } else {
+            # always show task log on error
+            hr("Begin Log")
+            taskLog(taskId, authInfo$name, output="stderr")
+            hr("End Log")
             stop(status$error, call. = FALSE)  
+          }
         }
         
         # wait for 1 second before polling again
@@ -99,7 +132,7 @@ lucidClient <- function(authInfo) {
   )
 }
 
-listRequest <- function(authInfo, path, query, listName, pageSize = 100) {
+listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
   
   # accumulate multiple pages of results
   offset <- 0
@@ -109,8 +142,8 @@ listRequest <- function(authInfo, path, query, listName, pageSize = 100) {
     
     # add query params
     pathWithQuery <- paste(path, "?", query,
-                                 "&count=", pageSize, 
-                                 "&offset=", offset, 
+                           "&count=", page, 
+                           "&offset=", offset, 
                            sep="")
     
     # make request and append the results
@@ -120,12 +153,17 @@ listRequest <- function(authInfo, path, query, listName, pageSize = 100) {
     # update the offset
     offset <- offset + response$count
     
+    # get all results if no max was specified
+    if (is.null(max)) {
+      max = response$total
+    }
+    
     # exit if we've got them all
-    if (length(results) >= response$total)
+    if (length(results) >= response$total || length(results) >= max) 
       break
   }
   
-  results
+  return(results)
 }
 
 handleResponse <- function(response, jsonFilter = NULL) {
@@ -170,6 +208,16 @@ handleResponse <- function(response, jsonFilter = NULL) {
     else
       reportError(response$content)    
   }
+}
+
+filterQuery <- function(param, value, operator = NULL) {
+  if (is.null(operator)) {
+    op <- ":"
+  } else {
+    op <- paste(":", operator, ":", sep="")
+  }
+  q <- paste("filter=", param, op, value, sep="")
+  return(q)
 }
 
 isContentType <- function(response, contentType) {
