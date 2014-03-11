@@ -103,7 +103,7 @@ deployApp <- function(appDir = getwd(),
                       application$id, 
                       "...\n", sep=""))
   task <- lucid$deployApplication(application$id, bundle$id)
-  lucid$waitForTaskCompletion(task$task_id, quiet)
+  lucid$waitForTask(task$task_id, quiet)
   displayStatus(paste("Application successfully deployed to ", 
                       application$url,
                       "\n", sep=""))
@@ -239,7 +239,7 @@ applicationForTarget <- function(lucid, accountInfo, target) {
   # list the existing applications for this account and see if we 
   # need to create a new application
   app <- NULL
-  existingApps <- lucid$applications(accountInfo$accountId)
+  existingApps <- lucid$listApplications(accountInfo$accountId)
   for (existingApp in existingApps) {
     if (identical(existingApp$name, target$appName)) {
       app <- existingApp
