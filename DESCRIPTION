@@ -29,3 +29,4 @@ Collate:
     'scaleApp.R'
     'terminateApp.R'
     'configureApp.R'
+    'tasks.R'

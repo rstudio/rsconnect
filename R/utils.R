@@ -73,3 +73,15 @@ readPassword <- function(prompt) {
   }
   return (password)
 }
+
+#' @export
+hr <- function(message = "", n = 80) {
+  if (nzchar(message)) {
+    r <- as.integer((n - nchar(message) - 2) / 2)
+    hr <- paste(rep_len("#", r), collapse = '')
+    cat(hr, message, hr, sep=" ", '\n')
+  } else {
+    hr <- paste(rep_len("#", n), collapse = '')
+    cat(hr, sep="", '\n')
+  }
+}
