@@ -20,7 +20,7 @@ lucidClient <- function(authInfo) {
     
     applications = function(accountId) {
       path <- "/applications/"
-      query <- paste("filter:account_id=", accountId, sep="")
+      query <- paste("filter=account_id:", accountId, sep="")
       listRequest(authInfo, path, query, "applications")
     },
     
