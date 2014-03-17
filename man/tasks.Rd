@@ -1,0 +1,33 @@
+\name{tasks}
+\alias{tasks}
+\title{List Tasks}
+\usage{
+tasks(account = NULL)
+}
+\arguments{
+  \item{account}{Account name. If a single account is
+  registered on the system then this parameter can be
+  omitted.}
+}
+\value{
+Returns a data frame with the following columns:
+\tabular{ll}{ \code{id} \tab Task id \cr \code{action} \tab
+Task action\cr \code{status} \tab Current task status\cr
+\code{created_time} \tab Task creation time\cr
+\code{finished_time} \tab Task finished time\cr }
+}
+\description{
+List Tasks
+}
+\examples{
+\dontrun{
+
+# list tasks for the default account
+tasks()
+
+}
+}
+\seealso{
+\code{\link{taskLog}}
+}
+

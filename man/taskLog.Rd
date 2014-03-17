@@ -1,0 +1,34 @@
+\name{taskLog}
+\alias{taskLog}
+\title{Show task log}
+\usage{
+taskLog(taskId, account = NULL, output = NULL)
+}
+\arguments{
+  \item{taskId}{Task Id}
+
+  \item{account}{Account name. If a single account is
+  registered on the system then this parameter can be
+  omitted.}
+
+  \item{output}{Where to write output. Valid values are
+  \code{NULL} or \code{stderr}}
+}
+\description{
+Writes the task log for the given task
+}
+\examples{
+\dontrun{
+
+# write task log to stdout
+taskLog(12345)
+
+# write task log to stderr
+taskLog(12345, output="stderr")
+
+}
+}
+\seealso{
+\code{\link{tasks}}
+}
+
