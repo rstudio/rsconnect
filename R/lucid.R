@@ -78,7 +78,7 @@ lucidClient <- function(authInfo) {
       path <- "/tasks/"
       filters <- c(filterQuery("account_id", accountId), filters)
       query <- paste(filters, collapse="&")
-      listRequest(authInfo, path, query, "tasks", max=1000)
+      listRequest(authInfo, path, query, "tasks", max=100)
     },
     
     getTaskInfo = function(taskId) {
