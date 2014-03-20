@@ -58,7 +58,7 @@ applications <- function(account = NULL) {
 
 resolveApplication <- function(accountInfo, appName) {
   lucid <- lucidClient(accountInfo)
-  apps <- lucid$applications(accountInfo$accountId)
+  apps <- lucid$listApplications(accountInfo$accountId)
   for (app in apps) {
     if (identical(app$name, appName))
       return (app)
