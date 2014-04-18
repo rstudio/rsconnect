@@ -378,15 +378,15 @@ httpWithBody <- function(authInfo,
   # prepend the service path
   path <- paste(service$path, path, sep="")
   
-  # get signature headers and append them
-  sigHeaders <- signatureHeaders(authInfo, method, path, file)
-  headers <- append(headers, sigHeaders)
-  
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
     file <- tempfile()
     writeChar(content, file,  eos = NULL, useBytes=TRUE)
   }
+
+  # get signature headers and append them
+  sigHeaders <- signatureHeaders(authInfo, method, path, file)
+  headers <- append(headers, sigHeaders)
   
   # perform POST
   http <- httpFunction()
