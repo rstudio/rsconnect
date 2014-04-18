@@ -85,7 +85,7 @@ applicationTask <- function(taskDef, appName, account, quiet) {
   # perform the action
   lucid <- lucidClient(accountInfo)
   task <- taskDef$action(lucid, application)
-  lucid$waitForTaskCompletion(task$task_id, quiet)
+  lucid$waitForTask(task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
   
   invisible(NULL)
