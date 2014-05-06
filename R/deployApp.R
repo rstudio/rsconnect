@@ -95,7 +95,7 @@ deployApp <- function(appDir = getwd(),
     })
   } else {
     # redeploy current bundle
-    bundle <- application$bundle
+    bundle <- application$deployment$bundle
   }
 
   # wait for the deployment to complete (will raise an error if it can't)
