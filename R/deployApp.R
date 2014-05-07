@@ -116,8 +116,10 @@ deployApp <- function(appDir = getwd(),
                  application$url)
     
   # launch the browser if requested
-  if (launch.browser)
+  if (isTRUE(launch.browser))
     utils::browseURL(application$url)
+  else if (is.function(launch.browser))
+    launch.browser(application$url)
   
   # successful deployment!
   invisible(TRUE)
