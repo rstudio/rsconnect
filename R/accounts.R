@@ -92,7 +92,7 @@ accountInfo <- function(name) {
   if (!file.exists(configFile))
     stop(missingAccountErrorMessage(name))
   
-  accountDcf <- read.dcf(accountConfigFile(name), all=TRUE)
+  accountDcf <- readDcf(accountConfigFile(name), all=TRUE)
   as.list(accountDcf)
 }
 

@@ -54,7 +54,7 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL) {
     deploymentFiles <- list.files(accountDir, glob2rx("*.dcf"))
     for (deploymentFile in file.path(accountDir, deploymentFiles)) {
       
-      deployment <- as.data.frame(read.dcf(deploymentFile), 
+      deployment <- as.data.frame(readDcf(deploymentFile), 
                                   stringsAsFactors = FALSE)
       
       # apply optional name filter

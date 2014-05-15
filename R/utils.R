@@ -74,6 +74,13 @@ readPassword <- function(prompt) {
   return (password)
 }
 
+# wrapper around read.dcf to workaround LC_CTYPE bug
+readDcf <- function(...) {
+  loc <- Sys.getlocale('LC_CTYPE')
+  on.exit(Sys.setlocale('LC_CTYPE', loc))
+  read.dcf(...)
+}
+
 #' @export
 hr <- function(message = "", n = 80) {
   if (nzchar(message)) {
