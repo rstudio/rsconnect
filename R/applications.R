@@ -40,13 +40,18 @@ applications <- function(account = NULL) {
   
   # extract the subset of fields we're interested in 
   res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time', 
-                             'updated_time', 'properties'))
+                             'updated_time', 'deployment'))
   
   # promote the size and instance data to first-level fields
-  res <- lapply(res, function(x) { 
-    x$size <- x$properties$containers.template
-    x$instances <- x$properties$containers.count
-    x$properties <- NULL
+  res <- lapply(res, function(x) {
+    if (! is.null(x$deployment)) {
+      x$size <- x$deployment$properties$application.instances.template
+      x$instances <- x$deployment$properties$application.instances.count
+    } else {
+      x$size <- NA 
+      x$instances <- NA 
+    }
+    x$deployment <- NULL
     return(x)
   })
   

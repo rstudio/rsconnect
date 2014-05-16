@@ -33,10 +33,10 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, redeploy = TRU
   # get a list of properties to set
   properties <- list()
   if (! is.null(size) ) {
-    properties[[ "containers.template" ]] = size
+    properties[[ "application.instances.template" ]] = size
   }
   if (! is.null(instances) ) {
-    properties[[ "containers.count" ]] = instances
+    properties[[ "application.instances.count" ]] = instances
   }
 
   # set application properties
