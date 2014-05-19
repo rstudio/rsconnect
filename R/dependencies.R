@@ -59,8 +59,9 @@ dirDependencies <- function(dir) {
   # and server.R)
   pkgs <- c("shiny")
   
-  # now get the packages referred to in the source code
-  sapply(list.files(dir, pattern=glob2rx("*.R"), 
+  # now get the packages referred to in the source code; look in both .R
+  # and .Rmd files
+  sapply(list.files(dir, pattern="^.*[.][Rr]([Mm][Dd])?$", 
                     ignore.case=TRUE, recursive=TRUE),
          function(file) {
            pkgs <<- append(pkgs, fileDependencies(file.path(dir, file)))
@@ -87,8 +88,34 @@ fileDependencies <- function(file) {
   # build a list of package dependencies to return
   pkgs <- character()
   
+  ext <- tolower(tools::file_ext(file))
+  if (identical(ext, "rmd")) {
+    # if this is an R Markdown file, we'll need to use knitr to extract its code
+    # chunks for parsing 
+    if (require(knitr)) {
+      purled <- ""
+      purled_con <- textConnection("purled", open = "w", local = TRUE)
+      knitr::purl(file, purled_con, quiet = TRUE, documentation = 0)
+      close(purled_con)
+      input <- textConnection(purled, open = "r") 
+    } else {
+      # no knitr, return an empty list
+      warning("Could not determine dependencies for ", file, 
+              " (requires knitr)")
+      return(character())
+    }    
+  } else if (identical(ext, "r")) {
+    # if this is an R script, we can parse its output directly
+    input <- file
+  } else {
+    # if it's not an extension we know, emit a warning
+    warning("Could not determine dependencies for ", file, 
+            " (extension .", ext, " unknown)")
+    return(character())
+  }
+  
   # parse file and examine expressions
-  exprs <- parse(file, n = -1L) 
+  exprs <- parse(input, n = -1L) 
   for (i in seq_along(exprs))
     pkgs <- append(pkgs, expressionDependencies(exprs[[i]]))
   
