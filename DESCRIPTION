@@ -12,7 +12,8 @@ Imports:
     RCurl,
     RJSONIO
 Suggests:
-    scrypt
+    scrypt,
+    knitr
 License: GPL-2
 Collate:
     'auth.R'
