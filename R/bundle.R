@@ -28,8 +28,8 @@ bundleApp <- function(appDir) {
   users <- authorizedUsers(appDir)
   
   # generate the manifest and write it into the bundle dir
-  manifestJson <- createAppManifest(appDir, files, users)
-  writeLines(manifestJson, file.path(bundleDir, "manifest.json"))
+  manifestJson <- enc2utf8(createAppManifest(appDir, files, users))
+  writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
   
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
