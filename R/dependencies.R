@@ -92,12 +92,14 @@ fileDependencies <- function(file) {
   if (identical(ext, "rmd")) {
     # if this is an R Markdown file, we'll need to use knitr to extract its code
     # chunks for parsing 
-    if (require(knitr)) {
+    if (require(knitr, quietly = TRUE)) {
       purled <- ""
       purled_con <- textConnection("purled", open = "w", local = TRUE)
       knitr::purl(file, purled_con, quiet = TRUE, documentation = 0)
       close(purled_con)
       input <- textConnection(purled, open = "r") 
+      # rmarkdown is an implicit dependency (it's not referenced in the Rmd source)
+      pkgs <- c(pkgs, "rmarkdown")
     } else {
       # no knitr, return an empty list
       warning("Could not determine dependencies for ", file, 
