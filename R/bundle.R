@@ -14,6 +14,7 @@ bundleApp <- function(appDir) {
   files <- files[!grepl(glob2rx(".svn/*"), files)]
   files <- files[!grepl(glob2rx(".git/*"), files)]
   files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
+  files <- files[!grepl(glob2rx("*.Rproj"), files)]
   
   # copy the files into the bundle dir
   for (file in files) {
