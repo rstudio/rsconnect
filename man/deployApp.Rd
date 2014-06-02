@@ -5,6 +5,7 @@
   deployApp(appDir = getwd(), appName = NULL,
     account = NULL, upload = TRUE,
     launch.browser = getOption("shinyapps.launch.browser", interactive()),
+    launch.rmd = "auto",
     quiet = FALSE)
 }
 \arguments{
@@ -28,7 +29,15 @@
   \item{launch.browser}{If true, the system's default web
   browser will be launched automatically after the app is
   started. Defaults to \code{TRUE} in interactive sessions
-  only.}
+  only. Can also be set to a custom function, which will 
+  be invoked with the URL.}
+
+  \item{launch.rmd}{When deploying R Markdown content, the
+  name of the R Markdown document to launch in the browser
+  when deployment is complete. The default, \code{auto},
+  shows the last edited document if \code{index.Rmd} is
+  absent. Use \code{NULL} to browse to the raw application
+  URL.}
 
   \item{quiet}{Request that no status information be
   printed to the console during the deployment.}
