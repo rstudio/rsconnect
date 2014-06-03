@@ -122,7 +122,7 @@ deployApp <- function(appDir = getwd(),
                  application$url)
   
   # append the file to be launched to the URL if necessary
-  amendedUrl <- url
+  amendedUrl <- application$url
   
   if (!is.null(launch.rmd)) {
     # ensure a trailing "/" if there's a chance we'll be adding a filename
