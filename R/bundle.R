@@ -44,6 +44,8 @@ createAppManifest <- function(appDir, files, users) {
    
   # provide package entries for all dependencies
   packages <- list()
+  # potential error messages
+  msg      <- NULL
   for (pkg in dirDependencies(appDir)) {
     
     # get the description
@@ -51,17 +53,18 @@ createAppManifest <- function(appDir, files, users) {
   
     # if description is NA, application dependency may not be installed 
     if (is.na(description)) {
-      stop("Application depends on package \"", pkg, "\" but it is not",
-           " installed. Please resolve before continuing.",
-           call. = FALSE)
+      msg <- c(msg, paste("Application depends on package \"", pkg, "\" but it is not",
+                          " installed. Please resolve before continuing.", sep = ""))
+      next
     }
     
-    # validate the repository (will throw an error if there is a problem)
-    validateRepository(pkg, getRepository(description[[1]]))
+    # validate the repository (returns an error message if there is a problem)
+    msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
     
     # good to go
     packages[[pkg]] <- description
   }
+  if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
 
   # provide checksums for all files
   filelist <- list()
@@ -143,7 +146,7 @@ validateRepository <- function(pkg, repository) {
                         "install.packages('devtools'); ",
                         "devtools::install_github('devtools')\n", sep="")
     }
-    stop(msg, call. = FALSE)
+    msg
   }
 }
 
