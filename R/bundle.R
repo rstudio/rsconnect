@@ -5,11 +5,7 @@ bundleApp <- function(appDir) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive=TRUE)
-  on.exit(unlink(bundleDir), add = TRUE)
-   
-  # if necessary write an index.htm for shinydoc deployments
-  index <- maybeWriteIndex(appDir)
-  on.exit(unlink(index), add = TRUE)
+  on.exit(unlink(bundleDir))
   
   # determine the files that will be in the bundle (exclude shinyapps dir
   # as well as common hidden files)
@@ -38,48 +34,11 @@ bundleApp <- function(appDir) {
   
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
-  on.exit(setwd(prevDir), add = TRUE)
+  on.exit(setwd(prevDir))
   bundlePath <- tempfile("shinyapps-bundle", fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip")
   bundlePath
 }
-
-maybeWriteIndex <- function(appDir) {
-  
-  # index file written (default to none)
-  indexFile <- NULL
-  
-  # no index required for Shiny, or for directories with an index.Rmd
-  if (!file.exists(file.path(appDir, "ui.R")) && 
-      !file.exists(file.path(appDir, "server.R")) &&
-      !file.exists(file.path(appDir, "index.htm")) &&
-      !file.exists(file.path(appDir, "index.Rmd")))
-  {
-    # otherwise enumerate the Rmd files as the basis for the index
-    appFiles <- list.files(path = appDir, pattern = glob2rx("*.Rmd"), 
-                           recursive = FALSE, ignore.case = TRUE)
-      
-    if (length(appFiles) == 1) {
-      index <- c(
-        '<!DOCTYPE HTML>',
-        '<html>',
-        '<head>',
-       '<meta charset="UTF-8">',
-        paste('<meta http-equiv="refresh" content="0;', 
-              enc2utf8(appFiles), '">', sep = ""),
-        '</head>',
-        '<body></body>',
-        '</html>')
-      indexFile <- file.path(appDir, "index.htm")
-      writeLines(index, indexFile, useBytes = TRUE)
-    }
-  }
-  
-  indexFile
-}
-
-
-  
 
 createAppManifest <- function(appDir, files, users) {
    
