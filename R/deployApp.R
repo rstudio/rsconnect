@@ -115,11 +115,23 @@ deployApp <- function(appDir = getwd(),
                  bundle$id,
                  application$url)
     
+  
+  # append the file to be launched to the URL if necessary
+  amendedUrl <- application$url
+  
+  # check for a launch file (i.e. an Rmd file)
+  launchFile <- guessLaunchFile(appDir)
+  if (nchar(launchFile) > 0) {
+    if (substr(amendedUrl, nchar(amendedUrl), nchar(amendedUrl)) != "/")
+      amendedUrl = paste(amendedUrl, "/", sep = "")
+    amendedUrl = paste(amendedUrl, launchFile, sep = "")
+  }
+      
   # launch the browser if requested
   if (isTRUE(launch.browser))
-    utils::browseURL(application$url)
+    utils::browseURL(amendedUrl)
   else if (is.function(launch.browser))
-    launch.browser(application$url)
+    launch.browser(amendedUrl)
   
   # successful deployment!
   invisible(TRUE)
@@ -270,3 +282,24 @@ applicationForTarget <- function(lucid, accountInfo, target) {
   app
 }
 
+# given a directory, return the name of the file from the directory to launch,
+# or an empty string if it's meaningful to launch the directory with no file. 
+guessLaunchFile <- function(appDir) {
+  # no file to launch for Shiny, or for folders with an index.Rmd
+  if (file.exists(file.path(appDir, "ui.R")) || 
+      file.exists(file.path(appDir, "server.R")) ||
+      file.exists(file.path(appDir, "index.Rmd")))
+    return("")
+  
+  # otherwise, guess an Rmd to launch
+  appFiles <- list.files(path = appDir, pattern = glob2rx("*.Rmd"), 
+                         recursive = FALSE, ignore.case = TRUE)
+  
+  if (length(appFiles) == 0)
+    return("")
+  
+  # launch whichever file was most recently saved in the folder (presumably the
+  # one the user has been working on)
+  appFileInfo <- file.info(file.path(appDir, appFiles))
+  appFiles[which.max(appFileInfo$mtime)]
+}

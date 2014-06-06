@@ -9,7 +9,7 @@ bundleApp <- function(appDir) {
    
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appDir)
-  on.exit(file.remove(indexFiles), add = TRUE)
+  on.exit(unlink(indexFiles), add = TRUE)
   
   # determine the files that will be in the bundle (exclude shinyapps dir
   # as well as common hidden files)
