@@ -25,12 +25,7 @@
 #'   re-deployed using the last version that was uploaded.
 #' @param launch.browser If true, the system's default web browser will be 
 #'   launched automatically after the app is started. Defaults to \code{TRUE} in
-#'   interactive sessions only. Can also be set to a custom function, which 
-#'   will be invoked with the URL.
-#' @param launch.rmd When deploying R Markdown content, the name of the R 
-#'   Markdown document to launch in the browser when deployment is complete. The
-#'   default, \code{auto}, shows the last edited document if \code{index.Rmd} is
-#'   absent. Use \code{NULL} to browse to the raw application URL.
+#'   interactive sessions only.
 #' @param quiet Request that no status information be printed to the console 
 #'   during the deployment.
 #' @examples
@@ -63,7 +58,6 @@ deployApp <- function(appDir = getwd(),
                       upload = TRUE,
                       launch.browser = getOption("shinyapps.launch.browser",
                                                  interactive()),
-                      launch.rmd = "auto", 
                       quiet = FALSE) {
    
   if (!isStringParam(appDir))
@@ -120,29 +114,19 @@ deployApp <- function(appDir = getwd(),
                  target$account, 
                  bundle$id,
                  application$url)
+    
   
   # append the file to be launched to the URL if necessary
   amendedUrl <- application$url
   
-  if (!is.null(launch.rmd)) {
-    # ensure a trailing "/" if there's a chance we'll be adding a filename
-    # to the URL
-    if (substr(amendedUrl, nchar(amendedUrl), nchar(amendedUrl)) != "/") {
+  # check for a launch file (i.e. an Rmd file)
+  launchFile <- guessLaunchFile(appDir)
+  if (nchar(launchFile) > 0) {
+    if (substr(amendedUrl, nchar(amendedUrl), nchar(amendedUrl)) != "/")
       amendedUrl = paste(amendedUrl, "/", sep = "")
-    }
+    amendedUrl = paste(amendedUrl, launchFile, sep = "")
   }
-  
-  if (identical(launch.rmd, "auto")) {
-    # automatically detected file
-    launchFile <- guessLaunchFile(appDir)
-    if (nchar(launchFile) > 0) {
-      amendedUrl = paste(amendedUrl, launchFile, sep = "")
-    }
-  } else if (!is.null(launch.rmd)) {
-    # user specified file 
-    amendedUrl = paste(amendedUrl, launch.rmd)
-  }
-    
+      
   # launch the browser if requested
   if (isTRUE(launch.browser))
     utils::browseURL(amendedUrl)
