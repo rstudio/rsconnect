@@ -5,7 +5,11 @@ bundleApp <- function(appDir) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive=TRUE)
-  on.exit(unlink(bundleDir))
+  on.exit(unlink(bundleDir), add = TRUE)
+   
+  # if necessary write an index.htm for shinydoc deployments
+  indexFiles <- writeRmdIndex(appDir)
+  on.exit(file.remove(indexFiles), add = TRUE)
   
   # determine the files that will be in the bundle (exclude shinyapps dir
   # as well as common hidden files)
@@ -34,7 +38,7 @@ bundleApp <- function(appDir) {
   
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
-  on.exit(setwd(prevDir))
+  on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("shinyapps-bundle", fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip")
   bundlePath
