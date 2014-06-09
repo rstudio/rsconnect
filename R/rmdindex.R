@@ -17,18 +17,9 @@ writeRmdIndex <- function(appDir) {
                            recursive = FALSE, ignore.case = TRUE)
     
     if (length(appFiles) == 1)
-    {
       indexPage <- redirectWebPage(appFiles[1])
-    }
     else
-    {
       indexPage <- listingWebPage(appDir, appFiles)
-      rmarkdownPng <- file.path(appDir, "rmarkdown.png")
-      file.copy(from = system.file("resources/rmarkdown.png", 
-                                   package = "shinyapps"),
-                to = rmarkdownPng)
-      files <- c(files, rmarkdownPng)
-    }
     
     indexFile <- file.path(appDir, "index.htm")
     files <- c(files, indexFile)
@@ -49,9 +40,7 @@ listingWebPage <- function(appDir, appFiles) {
   head <- c("<style type='text/css'>",
             "body { padding-left: 20px; }",
             ".rmd { margin-bottom: 20px; }",
-            ".rmdicon { vertical-align: middle; }",
-            ".rmdlink { font-size: 1.5em; margin-left: 10px; ",
-            "           vertical-align: middle; text-decoration: none; }",
+            ".rmdlink { font-size: 1.5em; text-decoration: none; }",
             ".rmdlink:hover { text-decoration: underline; }",
             "</style>")
   
@@ -60,7 +49,6 @@ listingWebPage <- function(appDir, appFiles) {
   
   body <- paste("<h1>", basename(appDir), "</h1>", sep = "")
   body <- c(body, paste("<div class = 'rmd'>",
-                        "<img src='rmarkdown.png' class = 'rmdicon'/>",
                         "<a href='", appFiles, "' class = 'rmdlink'>", 
                         appFiles, 
                         "</a></div>", sep = ""))
