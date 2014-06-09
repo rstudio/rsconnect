@@ -93,7 +93,7 @@ createAppManifest <- function(appDir, files, users) {
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$platform <- R.version.string
+  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".") 
   
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
