@@ -64,7 +64,9 @@ dirDependencies <- function(dir) {
   sapply(list.files(dir, pattern="^.*[.][Rr]([Mm][Dd])?$", 
                     ignore.case=TRUE, recursive=TRUE),
          function(file) {
-           pkgs <<- append(pkgs, fileDependencies(file.path(dir, file)))
+           # ignore files in the Packrat folder 
+           if (!identical(substr(file, 1, 8), "packrat/"))
+             pkgs <<- append(pkgs, fileDependencies(file.path(dir, file)))
          })
   pkgs <- unique(pkgs)
   
