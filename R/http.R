@@ -424,6 +424,23 @@ GET <- function(authInfo,
        headers)
 }
 
+rfc2616Date <- function(time = Sys.time()) {
+  
+  # capure current locale
+  loc <- Sys.getlocale('LC_TIME')
+  
+  # set locale to POSIX/C to ensure ASCII date
+  Sys.setlocale("LC_TIME", "C")
+  
+  # generate date
+  date <- strftime(Sys.time(), "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
+  
+  # restore locale
+  Sys.setlocale("LC_TIME", loc)
+  
+  return(date)
+}
+
 signatureHeaders <- function(authInfo, method, path, file) {
   
   # headers to return
@@ -431,10 +448,10 @@ signatureHeaders <- function(authInfo, method, path, file) {
   
   # remove query string from path if necessary
   path <- strsplit(path, "?", fixed = TRUE)[[1]][[1]]
-  
+
   # generate date
-  date <- strftime(Sys.time(), "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
-  
+  date <- rfc2616Date()
+
   # generate contents hash
   if (!is.null(file))
     md5 <- digest::digest(file, algo="md5", file=TRUE)
