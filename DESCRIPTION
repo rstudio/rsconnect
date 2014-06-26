@@ -32,3 +32,4 @@ Collate:
     'terminateApp.R'
     'configureApp.R'
     'tasks.R'
+    'restartApp.R'

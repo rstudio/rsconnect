@@ -75,7 +75,7 @@ deployApp(launch.browser = FALSE)
 }
 }
 \seealso{
-  \code{\link{applications}}, \code{\link{terminateApp}},
-  and \code{\link{scaleApp}}
+\code{\link{applications}}, \code{\link{terminateApp}}, and
+\code{\link{restartApp}
 }
 
