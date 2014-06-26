@@ -13,7 +13,7 @@
 #' terminateApp("myapp")
 #' }
 #' @seealso \code{\link{applications}}, \code{\link{deployApp}}, and
-#'   \code{\link{scaleApp}}
+#'   \code{\link{restartApp}}
 #' @export
 terminateApp <- function(appName, account = NULL, quiet = FALSE) {
  
