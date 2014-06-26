@@ -52,7 +52,7 @@ lucidClient <- function(authInfo) {
       handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
     },
     
-    deployApplication = function(applicationId, bundleId) {
+    deployApplication = function(applicationId, bundleId=NULL) {
       path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
       json$bundle <- as.numeric(bundleId)
