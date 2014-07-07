@@ -50,7 +50,7 @@
 #' deployApp(launch.browser = FALSE)
 #' }
 #' @seealso \code{\link{applications}}, \code{\link{terminateApp}}, and
-#'   \code{\link{restartApp}
+#'   \code{\link{restartApp}}
 #' @export
 deployApp <- function(appDir = getwd(), 
                       appName = NULL, 
