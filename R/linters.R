@@ -16,7 +16,8 @@ addLinter("absolute.paths", linter(
     
     message = function(content, lines) {
       msg <- c("The following lines contain absolute paths:",
-               paste(lines, ": ", content[lines], sep = ""))
+               paste(lines, ": ", content[lines], sep = ""),
+               "\n")
       return(msg)
     }
   

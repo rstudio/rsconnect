@@ -15,15 +15,27 @@ linter <- function(apply, takes, message) {
 }
 
 lint <- function(project) {
+  
+  # Read in project files
   projectFiles <- list.files(project, full.names = TRUE, recursive = TRUE, all.files = TRUE)
   names(projectFiles) <- projectFiles
-  projectContent <- suppressWarnings(lapply(projectFiles, readLines))
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
+  
+  # Identify all files that will be read in by one or more linters
+  projectFilesToLint <- Reduce(union, lapply(linters, function(x) {
+    x$takes(projectFiles)
+  }))
+  
+  # Read in the files
+  # TODO: perform this task more lazily?
+  projectContent <- suppressWarnings(lapply(projectFilesToLint, readLines))
   lintResults <- vector("list", length(linters))
   names(lintResults) <- names(linters)
+  
+  ## Apply each linter
   for (i in seq_along(linters)) {
     linter <- linters[[i]]
-    applicableFiles <- linter$takes(projectFiles)
+    applicableFiles <- linter$takes(projectFilesToLint)
     lintIndices <- lapply(projectContent[applicableFiles], linter$apply)
     lintMessages <- enumerate(lintIndices, function(x, i) {
       if (length(x)) {
@@ -36,7 +48,9 @@ lint <- function(project) {
       if (!length(x)) return(character())
       name <- names(lintMessages)[i]
       dashSep <- paste(rep("-", nchar(name)), collapse = "")
-      header <- paste(names(lintMessages)[i], "\n", dashSep, "\n\n", sep = "")
+      header <- paste(dashSep, "\n",
+                      names(lintMessages)[i], "\n",
+                      dashSep, "\n\n", sep = "")
       msg <- paste(header, paste(x, collapse = "\n"), sep = "")
       message(msg)
       return(msg)
@@ -60,5 +74,5 @@ lint <- function(project) {
     })
   })
   names(fileResults) <- lintedFiles
-  fileResults
+  invisible(fileResults)
 }
