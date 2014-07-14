@@ -13,23 +13,6 @@ Imports:
     RJSONIO
 Suggests:
     scrypt,
-    knitr
+    knitr,
+    testthat
 License: GPL-2
-Collate:
-    'auth.R'
-    'http.R'
-    'bundle.R'
-    'dependencies.R'
-    'accounts.R'
-    'config.R'
-    'utils.R'
-    'lucid.R'
-    'deployments.R'
-    'applications.R'
-    'deployApp.R'
-    'rmdindex.R'
-    'scaleApp.R'
-    'terminateApp.R'
-    'configureApp.R'
-    'tasks.R'
-    'restartApp.R'
