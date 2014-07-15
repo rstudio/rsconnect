@@ -6,11 +6,11 @@ bundleApp <- function(appDir) {
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
-   
+
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appDir)
   on.exit(unlink(indexFiles), add = TRUE)
-  
+
   # determine the files that will be in the bundle (exclude shinyapps dir
   # as well as common hidden files)
   files <- list.files(appDir, recursive=TRUE, all.files=TRUE)
@@ -19,7 +19,7 @@ bundleApp <- function(appDir) {
   files <- files[!grepl(glob2rx(".git/*"), files)]
   files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
   files <- files[!grepl(glob2rx("*.Rproj"), files)]
-  
+
   # copy the files into the bundle dir
   for (file in files) {
     from <- file.path(appDir, file)
@@ -28,14 +28,14 @@ bundleApp <- function(appDir) {
       dir.create(dirname(to), recursive=TRUE)
     file.copy(from, to)
   }
-  
+
   # get application users
   users <- authorizedUsers(appDir)
-  
+
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(appDir, files, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
-  
+
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
@@ -45,26 +45,26 @@ bundleApp <- function(appDir) {
 }
 
 createAppManifest <- function(appDir, files, users) {
-   
+
   # provide package entries for all dependencies
   packages <- list()
   # potential error messages
   msg      <- NULL
   for (pkg in dirDependencies(appDir)) {
-    
+
     # get the description
     description <- list(description = suppressWarnings(utils::packageDescription(pkg)))
-  
-    # if description is NA, application dependency may not be installed 
+
+    # if description is NA, application dependency may not be installed
     if (is.na(description)) {
       msg <- c(msg, paste("Application depends on package \"", pkg, "\" but it is not",
                           " installed. Please resolve before continuing.", sep = ""))
       next
     }
-    
+
     # validate the repository (returns an error message if there is a problem)
     msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
-    
+
     # good to go
     packages[[pkg]] <- description
   }
@@ -73,11 +73,11 @@ createAppManifest <- function(appDir, files, users) {
   # provide checksums for all files
   filelist <- list()
   for (file in files) {
-    checksum <- list(checksum = digest::digest(file.path(appDir, file), 
+    checksum <- list(checksum = digest::digest(file.path(appDir, file),
                                                algo="md5", file=TRUE))
     filelist[[file]] <- I(checksum)
   }
-  
+
   # create userlist
   userlist <- list()
   if (!is.null(users) && length(users) > 0) {
@@ -89,19 +89,19 @@ createAppManifest <- function(appDir, files, users) {
       userlist[[user]] <- userinfo
     }
   }
-  
+
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".") 
-  
+  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".")
+
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
     manifest$packages <- I(packages)
   } else {
     manifest$packages <- NA
   }
-  # if there are no files, set manifest$files to NA (json null) 
+  # if there are no files, set manifest$files to NA (json null)
   if (length(files) > 0) {
     manifest$files <- I(filelist)
   } else {
@@ -113,7 +113,7 @@ createAppManifest <- function(appDir, files, users) {
   } else {
     manifest$users <- NA
   }
-  
+
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
 }
@@ -137,7 +137,7 @@ validateRepository <- function(pkg, repository) {
     if (is.null(repository))
       msg <- paste(msg, "The package was installed locally from source.",
                    sep = "")
-    else 
+    else
       msg <- paste(msg, " The package was installed from an unsupported ",
                    "repository '", repository, "'.", sep="")
     msg <- paste(msg, " Only packages installed from CRAN or GitHub are ",
@@ -155,7 +155,7 @@ validateRepository <- function(pkg, repository) {
 }
 
 hasRequiredDevtools <- function() {
-  "devtools" %in% .packages(all.available=TRUE) && 
+  "devtools" %in% .packages(all.available=TRUE) &&
   packageVersion("devtools") > "1.3"
 }
 

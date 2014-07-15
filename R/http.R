@@ -5,17 +5,17 @@ userAgent <- function() {
 }
 
 serviceUrl <- function() {
-  parseHttpUrl(getOption("shinyapps.service_url", 
+  parseHttpUrl(getOption("shinyapps.service_url",
                          "https://api.shinyapps.io/v1"))
 }
 
 parseHttpUrl <- function(urlText) {
-  
+
   matches <- regexec("(http|https)://([^:/#?]+)(?::(\\d+))?(.*)", urlText)
   components <- regmatches(urlText, matches)[[1]]
   if (length(components) == 0)
     stop("Invalid url: ", urlText)
-  
+
   url <- list()
   url$protocol <- components[[2]]
   url$host <- components[[3]]
@@ -44,7 +44,7 @@ readHttpResponse <- function(path, conn) {
   # read status code
   resp <- readLines(conn, 1)
   statusCode <- parseHttpStatusCode(resp[1])
-  
+
   # read response headers
   contentLength <- NULL
   location <- NULL
@@ -52,7 +52,7 @@ readHttpResponse <- function(path, conn) {
     resp <- readLines(conn, 1)
     if (nzchar(resp) == 0)
       break()
-    
+
     header <- parseHttpHeader(resp)
     if (!is.null(header))
     {
@@ -64,10 +64,10 @@ readHttpResponse <- function(path, conn) {
         location <- header$value
     }
   }
-  
+
   # read the response content
   content <- rawToChar(readBin(conn, what = 'raw', n=contentLength))
-  
+
   # return list
   list(path = path,
        status = statusCode,
@@ -86,20 +86,20 @@ httpInternal <- function(protocol,
                          headers,
                          contentType = NULL,
                          file = NULL) {
-  
+
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
-  
+
   # default port to 80 if necessary
   if (!nzchar(port))
     port <- "80"
-  
+
   # read file in binary mode
   if (!is.null(file)) {
     fileLength <- file.info(file)$size
     fileContents <- readBin(file, what="raw", n=fileLength)
   }
- 
+
   # build http request
   request <- NULL
   request <- c(request, paste(method, " ", path, " HTTP/1.1\r\n", sep=""))
@@ -107,26 +107,26 @@ httpInternal <- function(protocol,
   request <- c(request, "Host: ", host, "\r\n", sep="")
   request <- c(request, "Accept: */*\r\n")
   if (!is.null(file)) {
-    request <- c(request, paste("Content-Type: ", 
-                                contentType, 
-                                "\r\n", 
+    request <- c(request, paste("Content-Type: ",
+                                contentType,
+                                "\r\n",
                                 sep=""))
-    request <- c(request, paste("Content-Length: ", 
-                                fileLength, 
-                                "\r\n", 
+    request <- c(request, paste("Content-Length: ",
+                                fileLength,
+                                "\r\n",
                                 sep=""))
   }
   for (name in names(headers))
   {
-    request <- c(request, 
+    request <- c(request,
                  paste(name, ": ", headers[[name]], "\r\n", sep=""))
   }
   request <- c(request, "\r\n")
-  
+
   # output request if in verbose mode
   if (httpVerbose())
     cat(request)
-    
+
   # open socket connection
   time <- system.time(gcFirst=FALSE, {
     conn <- socketConnection(host=host,
@@ -134,22 +134,22 @@ httpInternal <- function(protocol,
                              open="w+b",
                              blocking=TRUE)
     on.exit(close(conn))
-    
+
     # write the request header and file payload
     writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
     if (!is.null(file)) {
       writeBin(fileContents, conn, size=1)
     }
-    
+
     # read the response
     response <- readHttpResponse(path, conn)
   })
   httpTrace(method, path, time)
-  
+
   # print if in verbose mode
   if (httpVerbose())
     print(response)
-  
+
   # return it
   response
 }
@@ -161,32 +161,32 @@ httpCurl <- function(protocol,
                      path,
                      headers,
                      contentType = NULL,
-                     file = NULL) {  
-  
+                     file = NULL) {
+
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
-  
-  if (!is.null(file)) 
+
+  if (!is.null(file))
     fileLength <- file.info(file)$size
-  
+
   extraHeaders <- character()
   for (header in names(headers))
   {
     extraHeaders <- paste(extraHeaders, "--header")
-    extraHeaders <- paste(extraHeaders,  
+    extraHeaders <- paste(extraHeaders,
                           paste('"', header,": ",headers[[header]], '"', sep=""))
   }
-  
+
   outputFile <- tempfile()
-  
-  command <- paste("curl", 
+
+  command <- paste("curl",
                    "-i",
-                   "-X", 
+                   "-X",
                    method);
-  
+
   if (httpVerbose())
     command <- paste(command, "-v")
-  
+
   if (!is.null(file)) {
     command <- paste(command,
                      "--data-binary",
@@ -194,26 +194,26 @@ httpCurl <- function(protocol,
                      "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
                      "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
-    
+
   # add prefix to port if necessary
   if (nzchar(port))
     port <- paste(":", port, sep="")
-  
+
   command <- paste(command,
                    extraHeaders,
                    "--header", "Expect:",
-                   "--user-agent", userAgent(), 
+                   "--user-agent", userAgent(),
                    "--silent",
                    "--show-error",
                    "-o", shQuote(outputFile),
                    paste(protocol, "://", host, port, path, sep=""))
-  
+
   result <- NULL
-  time <- system.time(gcFirst = FALSE, {  
+  time <- system.time(gcFirst = FALSE, {
     result <- system(command)
   })
   httpTrace(method, path, time)
-  
+
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
     on.exit(close(fileConn))
@@ -231,24 +231,24 @@ httpRCurl <- function(protocol,
                       headers,
                       contentType = NULL,
                       file = NULL) {
-  
+
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
-  
+
   # add prefix to port if necessary
   if (nzchar(port))
     port <- paste(":", port, sep="")
-   
+
   # build url
   url <- paste(protocol, "://", host, port, path, sep="")
-  
+
   # read file in binary mode
   if (!is.null(file)) {
     fileLength <- file.info(file)$size
     fileContents <- readBin(file, what="raw", n=fileLength)
     headers$`Content-Type` <- contentType
   }
-  
+
   # establish options
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
@@ -260,16 +260,16 @@ httpRCurl <- function(protocol,
   textGatherer <- RCurl::basicTextGatherer()
   if (!is.null(file))
     options$writefunction <- textGatherer$update
-  
+
   # verbose if requested
   if (httpVerbose())
     options$verbose <- TRUE
-  
+
   # add extra headers
   extraHeaders <- as.character(headers)
   names(extraHeaders) <- names(headers)
   options$httpheader <- extraHeaders
-  
+
   # make the request
   time <- system.time(gcFirst = FALSE, {
     if (!is.null(file)) {
@@ -280,12 +280,12 @@ httpRCurl <- function(protocol,
                          infilesize = fileLength,
                          upload = TRUE)
     } else {
-      RCurl::getURL(url, 
+      RCurl::getURL(url,
                     .opts = options,
                     write = textGatherer)
   }})
   httpTrace(method, path, time)
-  
+
   # return list
   headers <- headerGatherer$value()
   if ("Location" %in% names(headers))
@@ -305,13 +305,13 @@ httpVerbose <- function() {
 
 httpTrace <- function(method, path, time) {
   if (getOption("shinyapps.http.trace", FALSE)) {
-    cat(method, " ", path, " ", as.integer(time[['elapsed']]*1000), "ms\n", 
+    cat(method, " ", path, " ", as.integer(time[['elapsed']]*1000), "ms\n",
         sep="")
   }
 }
 
 httpFunction <- function() {
-  
+
   httpType <- getOption("shinyapps.http", "rcurl")
   if (identical("rcurl", httpType))
     httpRCurl
@@ -332,9 +332,9 @@ POST_JSON <- function(authInfo, path, json, headers = list()) {
        headers = headers)
 }
 
-POST <- function(authInfo, 
-                 path, 
-                 contentType, 
+POST <- function(authInfo,
+                 path,
+                 contentType,
                  file = NULL,
                  content = NULL,
                  headers = list()) {
@@ -350,8 +350,8 @@ PUT_JSON <- function(authInfo, path, json, headers = list()) {
 }
 
 PUT <- function(authInfo,
-                path, 
-                contentType, 
+                path,
+                contentType,
                 file = NULL,
                 content = NULL,
                 headers = list()) {
@@ -359,25 +359,25 @@ PUT <- function(authInfo,
 }
 
 
-httpWithBody <- function(authInfo, 
+httpWithBody <- function(authInfo,
                          method,
-                         path, 
-                         contentType, 
+                         path,
+                         contentType,
                          file = NULL,
                          content = NULL,
                          headers = list()) {
-  
+
   if ((is.null(file) && is.null(content)))
-    stop("You must specify either the file or content parameter.")  
-  if ((!is.null(file) && !is.null(content))) 
+    stop("You must specify either the file or content parameter.")
+  if ((!is.null(file) && !is.null(content)))
     stop("You must specify either the file or content parameter but not both.")
-          
+
   # get the service url
   service <- serviceUrl()
-  
+
   # prepend the service path
   path <- paste(service$path, path, sep="")
-  
+
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
     file <- tempfile()
@@ -387,65 +387,65 @@ httpWithBody <- function(authInfo,
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, method, path, file)
   headers <- append(headers, sigHeaders)
-  
+
   # perform POST
   http <- httpFunction()
   http(service$protocol,
        service$host,
        service$port,
-       method, 
+       method,
        path,
-       headers, 
-       contentType, 
+       headers,
+       contentType,
        file)
 }
 
 GET <- function(authInfo,
-                path, 
+                path,
                 headers = list()) {
-    
+
   # get the service url
   service <- serviceUrl()
-  
+
   # prepend the service path
   path <- paste(service$path, path, sep="")
-  
+
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "GET", path, NULL)
   headers <- append(headers, sigHeaders)
-   
+
   # perform GET
   http <- httpFunction()
   http(service$protocol,
        service$host,
        service$port,
-       "GET", 
+       "GET",
        path,
        headers)
 }
 
 rfc2616Date <- function(time = Sys.time()) {
-  
+
   # capure current locale
   loc <- Sys.getlocale('LC_TIME')
-  
+
   # set locale to POSIX/C to ensure ASCII date
   Sys.setlocale("LC_TIME", "C")
-  
+
   # generate date
   date <- strftime(Sys.time(), "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
-  
+
   # restore locale
   Sys.setlocale("LC_TIME", loc)
-  
+
   return(date)
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {
-  
+
   # headers to return
   headers <- list()
-  
+
   # remove query string from path if necessary
   path <- strsplit(path, "?", fixed = TRUE)[[1]][[1]]
 
@@ -457,15 +457,15 @@ signatureHeaders <- function(authInfo, method, path, file) {
     md5 <- digest::digest(file, algo="md5", file=TRUE)
   else
     md5 <- digest::digest("", algo="md5", serialize=FALSE)
-  
+
   # build cannonical request
   cannonicalRequest <- paste(method, path, date, md5, sep="\n")
-  
+
   # sign request
   decodedSecret <- RCurl::base64Decode(authInfo$secret, mode="raw")
-  hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")                
+  hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")
   signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
-  
+
   # return headers
   headers$Date <- date
   headers$`X-Auth-Token` <- authInfo$token

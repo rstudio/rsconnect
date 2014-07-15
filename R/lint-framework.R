@@ -1,9 +1,9 @@
 .__LINTERS__. <- new.env(parent = emptyenv())
 
 ##' Add a Linter
-##' 
+##'
 ##' Add a linter, to be used in subsequent calls to \code{\link{lint}}.
-##' 
+##'
 ##' @param name The name of the linter, as a string.
 ##' @param linter A \code{\link{linter}}.
 ##' @export
@@ -14,16 +14,16 @@ addLinter <- function(name, linter) {
 
 
 ##' Create a Linter
-##' 
-##' Generate a linter, which can identify errors or problematic regions in a 
+##'
+##' Generate a linter, which can identify errors or problematic regions in a
 ##' project.
-##' 
+##'
 ##' @param apply Function that, given the content of a file, returns the indices
 ##'   at which problems were found.
-##' @param takes Function that, given a set of paths, returns the subset of 
+##' @param takes Function that, given a set of paths, returns the subset of
 ##'   paths that this linter uses.
-##' @param message Function that, given content and lines, returns an 
-##'   informative message for the user. Typically generated with 
+##' @param message Function that, given content and lines, returns an
+##'   informative message for the user. Typically generated with
 ##'   \code{\link{makeLinterMessage}}.
 ##' @export
 ##' @example examples/example-linter.R
@@ -56,44 +56,44 @@ applyLinter <- function(linter, ...) {
 }
 
 ##' Lint a Project
-##' 
+##'
 ##' Takes the set of active linters (see \code{\link{addLinter}}), and applies
 ##' them to all files within a project.
-##' 
+##'
 ##' @param project Path to a project directory.
 ##' @export
 lint <- function(project) {
-  
+
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
   on.exit(setwd(owd))
   setwd(project)
-  
+
   # Read in project files
   projectFiles <- list.files(full.names = TRUE, recursive = TRUE, all.files = TRUE)
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
-  
+
   # Identify all files that will be read in by one or more linters
   projectFilesToLint <- Reduce(union, lapply(linters, function(linter) {
     getLinterApplicableFiles(linter, projectFiles)
   }))
-  
+
   # Read in the files
   # TODO: perform this task more lazily?
   projectContent <- suppressWarnings(lapply(projectFilesToLint, readLines))
   names(projectContent) <- projectFilesToLint
   lintResults <- vector("list", length(linters))
   names(lintResults) <- names(linters)
-  
+
   ## Apply each linter
   for (i in seq_along(linters)) {
     linter <- linters[[i]]
     applicableFiles <- getLinterApplicableFiles(linter, projectFilesToLint)
     lintIndices <- vector("list", length(applicableFiles))
     names(lintIndices) <- applicableFiles
-    
+
     ## Apply linter to each file
     for (j in seq_along(applicableFiles)) {
       file <- applicableFiles[[j]]
@@ -102,7 +102,7 @@ lint <- function(project) {
                                       project = project,
                                       path = file)
     }
-    
+
     ## Get the messages associated with each lint
     lintMessages <- enumerate(lintIndices, function(x, i) {
       if (length(x)) {
@@ -116,16 +116,16 @@ lint <- function(project) {
         character()
       }
     })
-    
+
     ## Assign the result
     lintResults[[i]] <- list(
       files = applicableFiles,
       indices = lintIndices,
       message = lintMessages
     )
-    
+
   }
-  
+
   ## Get all of the linted files, and transform the results into a by-file format
   lintedFiles <- Reduce(union, lapply(lintResults, function(x) {
     names(x$indices)
