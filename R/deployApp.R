@@ -28,6 +28,8 @@
 #'   interactive sessions only.
 #' @param quiet Request that no status information be printed to the console 
 #'   during the deployment.
+#' @param lint Lint the project before initiating deployment, to identify
+#'   potentially problematic code?
 #' @examples
 #' \dontrun{
 #' 
@@ -58,10 +60,24 @@ deployApp <- function(appDir = getwd(),
                       upload = TRUE,
                       launch.browser = getOption("shinyapps.launch.browser",
                                                  interactive()),
-                      quiet = FALSE) {
+                      quiet = FALSE,
+                      lint = TRUE) {
    
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
+  
+  if (lint) {
+    lintResults <- lint(appDir)
+    if (interactive() && hasLint(lintResults)) {
+      message("The following potential problems were identified in the project files:\n")
+      print(lintResults)
+      response <- readline("Do you want to proceed with deployment? [Y/n]: ")
+      if (tolower(substring(response, 1, 1)) != "y") {
+        message("Cancelling deployment.")
+        return(invisible(lintResults))
+      }
+    }
+  }
   
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))

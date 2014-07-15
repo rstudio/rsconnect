@@ -40,3 +40,11 @@ makeLinterMessage <- function(header, content, lines) {
     "\n"
   )
 }
+
+hasLint <- function(x) {
+  any(unlist(lapply(x, function(x) {
+    lapply(x, function(x) {
+      length(x$indices) > 0
+    })
+  })))
+}
