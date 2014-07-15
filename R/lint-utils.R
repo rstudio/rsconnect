@@ -12,6 +12,10 @@ hasAbsolutePaths <- function(content) {
   })))
 }
 
+hasBadRelativePaths <- function(content) {
+  
+}
+
 enumerate <- function(X, FUN, ...) {
   FUN <- match.fun(FUN)
   result <- vector("list", length(X))
@@ -20,4 +24,10 @@ enumerate <- function(X, FUN, ...) {
   }
   names(result) <- names(X)
   result
+}
+
+makeLinterMessage <- function(header, content, lines) {
+  c(header,
+    paste(lines, ": ", content[lines], sep = ""),
+    "\n")
 }

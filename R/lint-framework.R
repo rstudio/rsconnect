@@ -16,8 +16,14 @@ linter <- function(apply, takes, message) {
 
 lint <- function(project) {
   
+  # Perform actions within the project directory (so relative paths are easily used)
+  owd <- getwd()
+  on.exit(setwd(owd))
+  setwd(project)
+  
   # Read in project files
-  projectFiles <- list.files(project, full.names = TRUE, recursive = TRUE, all.files = TRUE)
+  projectFiles <- list.files(full.names = TRUE, recursive = TRUE, all.files = TRUE)
+  projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
   
@@ -36,7 +42,16 @@ lint <- function(project) {
   for (i in seq_along(linters)) {
     linter <- linters[[i]]
     applicableFiles <- linter$takes(projectFilesToLint)
-    lintIndices <- lapply(projectContent[applicableFiles], linter$apply)
+    lintIndices <- vector("list", length(applicableFiles))
+    names(lintIndices) <- applicableFiles
+    for (j in seq_along(applicableFiles)) {
+      file <- applicableFiles[[j]]
+      lintIndices[[j]] <- linter$apply(
+        projectContent[[file]],
+        project = project,
+        path = file
+      )
+    }
     lintMessages <- enumerate(lintIndices, function(x, i) {
       if (length(x)) {
         linter$message(projectContent[[names(lintIndices)[i]]], x)
@@ -44,20 +59,10 @@ lint <- function(project) {
         character()
       }
     })
-    messages <- enumerate(lintMessages, function(x, i) {
-      if (!length(x)) return(character())
-      name <- names(lintMessages)[i]
-      dashSep <- paste(rep("-", nchar(name)), collapse = "")
-      header <- paste(dashSep, "\n",
-                      names(lintMessages)[i], "\n",
-                      dashSep, "\n\n", sep = "")
-      msg <- paste(header, paste(x, collapse = "\n"), sep = "")
-      message(msg)
-      return(msg)
-    })
     lintResults[[i]] <- list(
+      files = applicableFiles,
       indices = lintIndices,
-      messages = lintMessages
+      message = lintMessages
     )
   }
   lintedFiles <- Reduce(union, lapply(lintResults, function(x) {
@@ -65,14 +70,41 @@ lint <- function(project) {
   }))
   lintFields <- names(lintResults[[1]])
   fileResults <- lapply(lintedFiles, function(file) {
-    lapply(lintResults, function(result) {
+    result <- lapply(lintResults, function(result) {
       result <- lapply(lintFields, function(field) {
         result[[field]][[file]]
       })
       names(result) <- lintFields
+      names(result)[names(result) == "files"] <- "file"
+      class(result) <- "lint"
       result
     })
+    class(result) <- "lintList"
+    result
   })
   names(fileResults) <- lintedFiles
+  class(fileResults) <- "linterResults"
   invisible(fileResults)
+}
+
+print.linterResults <- function(x, ...) {
+  lapply(x, print, ...)
+  invisible(x)
+}
+
+print.lintList <- function(x, ...) {
+  lapply(x, print, ...)
+  invisible(x)
+}
+
+print.lint <- function(x, ...) {
+  if (!length(x$message))
+    return(invisible(NULL))
+  
+  dashSep <- paste(rep("-", nchar(x$file)), collapse = "")
+  header <- paste(dashSep, "\n",
+                  x$file, "\n",
+                  dashSep, "\n\n", sep = "")
+  message(paste(header, paste(x$message, collapse = "\n"), collapse = "\n"))
+  invisible(x)
 }

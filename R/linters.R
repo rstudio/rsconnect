@@ -5,7 +5,7 @@
 
 addLinter("absolute.paths", linter(
 
-    apply = function(content) {
+    apply = function(content, ...) {
       content <- stripComments(content)
       which(hasAbsolutePaths(content))
     },
@@ -15,10 +15,28 @@ addLinter("absolute.paths", linter(
     },
     
     message = function(content, lines) {
-      msg <- c("The following lines contain absolute paths:",
-               paste(lines, ": ", content[lines], sep = ""),
-               "\n")
-      return(msg)
+      makeLinterMessage("The following lines contain absolute paths:",
+                        content,
+                        lines)
     }
   
 ))
+
+# addLinter("invalid.relative.paths", linter(
+# 
+#   apply = function(content, ...) {
+#     content <- stripComments(content)
+#     which(badRelativePath(content))
+#   },
+#   
+#   takes = function(paths) {
+#     grep("[rR]$", paths, value = TRUE)
+#   },
+#   
+#   message = function(content, lines) {
+#     makeLinterMessage("The following lines contain invalid relative paths",
+#                       content,
+#                       lines)
+#   }
+#   
+# ))
