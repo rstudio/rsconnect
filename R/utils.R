@@ -66,7 +66,7 @@ readPassword <- function(prompt) {
         # TODO: enable echo on Windows
       }
     }
-
+  
     echoOff()
     password <- readline(prompt)
     echoOn()

@@ -1,12 +1,12 @@
 #' Account Management Functions
-#'
-#' Functions to add, enumerate, and remove ShinyApps accounts on the local
+#' 
+#' Functions to add, enumerate, and remove ShinyApps accounts on the local 
 #' system. Prior to deploying applications you need to register
 #' your ShinyApps account on the local system.
-#'
+#' 
 #' You register an account using the \code{setAccountInfo} function. You can
 #' subsequently remove the account using the \code{removeAccount} function.
-#'
+#' 
 #' The \code{accounts} and \code{accountInfo} functions are provided for viewing
 #' previously registered accounts.
 #' @param name Name of ShinyApps account to save or remove
@@ -19,16 +19,16 @@
 #' @rdname accounts
 #' @examples
 #' \dontrun{
-#'
+#' 
 #' # register an account
 #' setAccountInfo("user", "token", "secret")
-#'
+#' 
 #' # remove the same account
 #' removeAccount("user")
 #' }
 #' @export
 accounts <- function() {
-  tools::file_path_sans_ext(list.files(accountsConfigDir(),
+  tools::file_path_sans_ext(list.files(accountsConfigDir(), 
                                        pattern=glob2rx("*.dcf")))
 }
 
@@ -36,23 +36,23 @@ accounts <- function() {
 #' @rdname accounts
 #' @export
 setAccountInfo <- function(name, token, secret) {
-
+    
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
-
+  
   if (!isStringParam(token))
     stop(stringParamErrorMessage("token"))
-
+  
   if (!isStringParam(secret))
     stop(stringParamErrorMessage("secret"))
 
   # create lucid client
   authInfo <- list(token = token, secret = secret)
   lucid <- lucidClient(authInfo)
-
+  
   # get user Id
   userId <- lucid$currentUser()$id
-
+  
   # get account id
   accountId <- NULL
   accounts <- lucid$accountsForUser(userId)
@@ -61,21 +61,21 @@ setAccountInfo <- function(name, token, secret) {
       accountId <- account$id
       break
     }
-  }
+  } 
   if (is.null(accountId))
     stop("Unable to determine account id for account named '", name, "'")
-
+ 
   # get the path to the config file
   configFile <- accountConfigFile(name)
-
+  
   # write the user info
   write.dcf(list(name = name,
                  userId = userId,
                  accountId = accountId,
-                 token = token,
-                 secret = secret),
+                 token = token, 
+                 secret = secret), 
             configFile)
-
+  
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
     Sys.chmod(configFile, mode="0600")
@@ -84,14 +84,14 @@ setAccountInfo <- function(name, token, secret) {
 #' @rdname accounts
 #' @export
 accountInfo <- function(name) {
-
+  
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
-
+  
   configFile <- accountConfigFile(name)
   if (!file.exists(configFile))
     stop(missingAccountErrorMessage(name))
-
+  
   accountDcf <- readDcf(accountConfigFile(name), all=TRUE)
   as.list(accountDcf)
 }
@@ -100,16 +100,16 @@ accountInfo <- function(name) {
 #' @rdname accounts
 #' @export
 removeAccount <- function(name) {
-
+  
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
-
+  
   configFile <- accountConfigFile(name)
   if (!file.exists(configFile))
     stop(missingAccountErrorMessage(name))
-
+  
   file.remove(configFile)
-
+  
   invisible(NULL)
 }
 
@@ -128,15 +128,15 @@ missingAccountErrorMessage <- function(name) {
 }
 
 resolveAccount <- function(account) {
-
+  
   # get existing accounts
   accounts <- accounts()
   if (length(accounts) == 0)
     stopWithNoAccount()
-
+  
   # if no account was specified see if we can resolve the account to a default
   if (is.null(account)) {
-    if (length(accounts) == 1)
+    if (length(accounts) == 1) 
       accounts[[1]]
     else
       stopWithSpecifyAccount()
