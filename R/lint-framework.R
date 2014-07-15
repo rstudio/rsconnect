@@ -1,9 +1,32 @@
 .__LINTERS__. <- new.env(parent = emptyenv())
 
+##' Add a Linter
+##' 
+##' Add a linter, to be used in subsequent calls to \code{\link{lint}}.
+##' 
+##' @param name The name of the linter, as a string.
+##' @param linter A \code{\link{linter}}.
+##' @export
+##' @example examples/example-linter.R
 addLinter <- function(name, linter) {
   assign(name, linter, envir = .__LINTERS__.)
 }
 
+
+##' Create a Linter
+##' 
+##' Generate a linter, which can identify errors or problematic regions in a 
+##' project.
+##' 
+##' @param apply Function that, given the content of a file, returns the indices
+##'   at which problems were found.
+##' @param takes Function that, given a set of paths, returns the subset of 
+##'   paths that this linter uses.
+##' @param message Function that, given content and lines, returns an 
+##'   informative message for the user. Typically generated with 
+##'   \code{\link{makeLinterMessage}}.
+##' @export
+##' @example examples/example-linter.R
 linter <- function(apply, takes, message) {
   result <- list(
     apply = apply,
@@ -14,6 +37,31 @@ linter <- function(apply, takes, message) {
   result
 }
 
+getLinterApplicableFiles <- function(linter, files) {
+  result <- linter$takes(files)
+  if (is.numeric(result)) {
+    files[result]
+  } else {
+    result
+  }
+}
+
+applyLinter <- function(linter, ...) {
+  result <- linter$apply(...)
+  if (is.logical(result)) {
+    return(which(result))
+  } else {
+    return(as.numeric(result))
+  }
+}
+
+##' Lint a Project
+##' 
+##' Takes the set of active linters (see \code{\link{addLinter}}), and applies
+##' them to all files within a project.
+##' 
+##' @param project Path to a project directory.
+##' @export
 lint <- function(project) {
   
   # Perform actions within the project directory (so relative paths are easily used)
@@ -28,54 +76,68 @@ lint <- function(project) {
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
   
   # Identify all files that will be read in by one or more linters
-  projectFilesToLint <- Reduce(union, lapply(linters, function(x) {
-    x$takes(projectFiles)
+  projectFilesToLint <- Reduce(union, lapply(linters, function(linter) {
+    getLinterApplicableFiles(linter, projectFiles)
   }))
   
   # Read in the files
   # TODO: perform this task more lazily?
   projectContent <- suppressWarnings(lapply(projectFilesToLint, readLines))
+  names(projectContent) <- projectFilesToLint
   lintResults <- vector("list", length(linters))
   names(lintResults) <- names(linters)
   
   ## Apply each linter
   for (i in seq_along(linters)) {
     linter <- linters[[i]]
-    applicableFiles <- linter$takes(projectFilesToLint)
+    applicableFiles <- getLinterApplicableFiles(linter, projectFilesToLint)
     lintIndices <- vector("list", length(applicableFiles))
     names(lintIndices) <- applicableFiles
+    
+    ## Apply linter to each file
     for (j in seq_along(applicableFiles)) {
       file <- applicableFiles[[j]]
-      lintIndices[[j]] <- linter$apply(
-        projectContent[[file]],
-        project = project,
-        path = file
-      )
+      lintIndices[[j]] <- applyLinter(linter,
+                                      projectContent[[file]],
+                                      project = project,
+                                      path = file)
     }
+    
+    ## Get the messages associated with each lint
     lintMessages <- enumerate(lintIndices, function(x, i) {
       if (length(x)) {
-        linter$message(projectContent[[names(lintIndices)[i]]], x)
+        message <- linter$message
+        if (is.function(message)) {
+          linter$message(projectContent[[names(lintIndices)[i]]], x)
+        } else {
+          makeLinterMessage(message, projectContent[[names(lintIndices)[i]]], x)
+        }
       } else {
         character()
       }
     })
+    
+    ## Assign the result
     lintResults[[i]] <- list(
       files = applicableFiles,
       indices = lintIndices,
       message = lintMessages
     )
+    
   }
+  
+  ## Get all of the linted files, and transform the results into a by-file format
   lintedFiles <- Reduce(union, lapply(lintResults, function(x) {
     names(x$indices)
   }))
-  lintFields <- names(lintResults[[1]])
+  lintFields <- c("indices", "message")
   fileResults <- lapply(lintedFiles, function(file) {
     result <- lapply(lintResults, function(result) {
       result <- lapply(lintFields, function(field) {
         result[[field]][[file]]
       })
       names(result) <- lintFields
-      names(result)[names(result) == "files"] <- "file"
+      result$file <- file
       class(result) <- "lint"
       result
     })
@@ -87,24 +149,38 @@ lint <- function(project) {
   invisible(fileResults)
 }
 
+
+##' @export
 print.linterResults <- function(x, ...) {
   lapply(x, print, ...)
   invisible(x)
 }
 
+##' @export
 print.lintList <- function(x, ...) {
-  lapply(x, print, ...)
+  printLintHeader(x[[1]])
+  lapply(x, printLintBody, ...)
   invisible(x)
 }
 
+##' @export
 print.lint <- function(x, ...) {
-  if (!length(x$message))
-    return(invisible(NULL))
-  
+  printLintHeader(x)
+  printLintBody(x, ...)
+  invisible(x)
+}
+
+printLintHeader <- function(x) {
+  if (!length(x$message)) return(invisible(NULL))
   dashSep <- paste(rep("-", nchar(x$file)), collapse = "")
   header <- paste(dashSep, "\n",
                   x$file, "\n",
-                  dashSep, "\n\n", sep = "")
-  message(paste(header, paste(x$message, collapse = "\n"), collapse = "\n"))
+                  dashSep, "\n", sep = "")
+  message(paste(header, collapse = "\n"), appendLF = FALSE)
+  invisible(x)
+}
+
+printLintBody <- function(x, ...) {
+  message(paste(x$message, collapse = "\n"), appendLF = FALSE)
   invisible(x)
 }

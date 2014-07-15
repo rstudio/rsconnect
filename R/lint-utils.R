@@ -12,8 +12,15 @@ hasAbsolutePaths <- function(content) {
   })))
 }
 
-hasBadRelativePaths <- function(content) {
-  
+badRelativePaths <- function(content, project, path) {
+  nestLevel <- length(gregexpr("/", path)[[1]])
+  regexResult <- gregexpr("../", content, fixed = TRUE)
+  results <- unlist(lapply(regexResult, function(x) {
+    if (identical(attr(x, "match.length"), -1L))
+      return(FALSE)
+    return(length(x) > nestLevel)
+  }))
+  results
 }
 
 enumerate <- function(X, FUN, ...) {
@@ -27,7 +34,9 @@ enumerate <- function(X, FUN, ...) {
 }
 
 makeLinterMessage <- function(header, content, lines) {
-  c(header,
+  c(
+    paste0(header, ":"),
     paste(lines, ": ", content[lines], sep = ""),
-    "\n")
+    "\n"
+  )
 }
