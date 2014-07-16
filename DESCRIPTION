@@ -7,6 +7,8 @@ Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Interface for deploying shiny applications to the ShinyApps
     service
+Depends:
+    R (>= 2.15.0)
 Imports:
     digest,
     RCurl,
@@ -15,21 +17,3 @@ Suggests:
     scrypt,
     knitr
 License: GPL-2
-Collate:
-    'auth.R'
-    'http.R'
-    'bundle.R'
-    'dependencies.R'
-    'accounts.R'
-    'config.R'
-    'utils.R'
-    'lucid.R'
-    'deployments.R'
-    'applications.R'
-    'deployApp.R'
-    'rmdindex.R'
-    'scaleApp.R'
-    'terminateApp.R'
-    'configureApp.R'
-    'tasks.R'
-    'restartApp.R'

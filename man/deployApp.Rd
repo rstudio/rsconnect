@@ -5,7 +5,7 @@
 \usage{
 deployApp(appDir = getwd(), appName = NULL, account = NULL,
   upload = TRUE, launch.browser = getOption("shinyapps.launch.browser",
-  interactive()), quiet = FALSE)
+  interactive()), quiet = FALSE, lint = TRUE)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to
@@ -28,6 +28,9 @@ interactive sessions only.}
 
 \item{quiet}{Request that no status information be printed to the console
 during the deployment.}
+
+\item{lint}{Lint the project before initiating deployment, to identify
+potentially problematic code?}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application to the ShinyApps
