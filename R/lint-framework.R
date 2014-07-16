@@ -25,13 +25,15 @@ addLinter <- function(name, linter) {
 ##' @param message Function that, given content and lines, returns an 
 ##'   informative message for the user. Typically generated with 
 ##'   \code{\link{makeLinterMessage}}.
+##' @param suggestion String giving a prescribed fix for the linted problem.
 ##' @export
 ##' @example examples/example-linter.R
-linter <- function(apply, takes, message) {
+linter <- function(apply, takes, message, suggestion) {
   result <- list(
     apply = apply,
     takes = takes,
-    message = message
+    message = message,
+    suggestion = suggestion
   )
   class(result) <- "linter"
   result
@@ -121,7 +123,8 @@ lint <- function(project) {
     lintResults[[i]] <- list(
       files = applicableFiles,
       indices = lintIndices,
-      message = lintMessages
+      message = lintMessages,
+      suggestion = linter$suggestion
     )
     
   }
@@ -130,16 +133,18 @@ lint <- function(project) {
   lintedFiles <- Reduce(union, lapply(lintResults, function(x) {
     names(x$indices)
   }))
+  
   lintFields <- c("indices", "message")
   fileResults <- lapply(lintedFiles, function(file) {
     result <- lapply(lintResults, function(result) {
-      result <- lapply(lintFields, function(field) {
+      subResult <- lapply(lintFields, function(field) {
         result[[field]][[file]]
       })
-      names(result) <- lintFields
-      result$file <- file
-      class(result) <- "lint"
-      result
+      names(subResult) <- lintFields
+      subResult$suggestion <- result$suggestion
+      subResult$file <- file
+      class(subResult) <- "lint"
+      subResult
     })
     class(result) <- "lintList"
     result
@@ -147,27 +152,6 @@ lint <- function(project) {
   names(fileResults) <- lintedFiles
   class(fileResults) <- "linterResults"
   invisible(fileResults)
-}
-
-
-##' @export
-print.linterResults <- function(x, ...) {
-  lapply(x, print, ...)
-  invisible(x)
-}
-
-##' @export
-print.lintList <- function(x, ...) {
-  printLintHeader(x[[1]])
-  lapply(x, printLintBody, ...)
-  invisible(x)
-}
-
-##' @export
-print.lint <- function(x, ...) {
-  printLintHeader(x)
-  printLintBody(x, ...)
-  invisible(x)
 }
 
 printLintHeader <- function(x) {
@@ -183,4 +167,36 @@ printLintHeader <- function(x) {
 printLintBody <- function(x, ...) {
   message(paste(x$message, collapse = "\n"), appendLF = FALSE)
   invisible(x)
+}
+
+printLintFooter <- function(x, ...) {
+  message(paste(collectSuggestions(x), collapse = "\n"))
+  invisible(x)
+}
+
+printLinterResults <- function(x, ...) {
+  lapply(x, printLintList, ...)
+  printLintFooter(x)
+  invisible(x)
+}
+
+printLintList <- function(x, ...) {
+  printLintHeader(x[[1]])
+  lapply(x, printLintBody, ...)
+  invisible(x)
+}
+
+printLint <- function(x, ...) {
+  printLintHeader(x)
+  printLintBody(x, ...)
+  invisible(x)
+}
+
+collectSuggestions <- function(fileResults) {
+  suggestions <- lapply(fileResults, function(fileResult) {
+    unlist(lapply(fileResult, function(lintInfo) {
+      paste(as.character(lintInfo$suggestion), collapse = "\n")
+    }))
+  })
+  Reduce(intersect, suggestions)
 }

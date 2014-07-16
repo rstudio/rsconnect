@@ -70,7 +70,7 @@ deployApp <- function(appDir = getwd(),
     lintResults <- lint(appDir)
     if (interactive() && hasLint(lintResults)) {
       message("The following potential problems were identified in the project files:\n")
-      print(lintResults)
+      printLinterResults(lintResults)
       response <- readline("Do you want to proceed with deployment? [Y/n]: ")
       if (tolower(substring(response, 1, 1)) != "y") {
         message("Cancelling deployment.")

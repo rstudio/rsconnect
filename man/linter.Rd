@@ -3,7 +3,7 @@
 \alias{linter}
 \title{Create a Linter}
 \usage{
-linter(apply, takes, message)
+linter(apply, takes, message, suggestion)
 }
 \arguments{
 \item{apply}{Function that, given the content of a file, returns the indices
@@ -15,6 +15,8 @@ paths that this linter uses.}
 \item{message}{Function that, given content and lines, returns an
 informative message for the user. Typically generated with
 \code{\link{makeLinterMessage}}.}
+
+\item{suggestion}{String giving a prescribed fix for the linted problem.}
 }
 \description{
 Generate a linter, which can identify errors or problematic regions in a

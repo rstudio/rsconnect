@@ -3,7 +3,7 @@ context("lint")
 test_that("linter warns about absolute paths and relative paths", {
   serverPath <- list.files("shinyapp-with-absolute-paths", pattern = "server\\.R$")
   result <- lint("shinyapp-with-absolute-paths")
-  print(result)
+  printLinterResults(result)
   absPathLintedIndices <- result[[serverPath]]$absolute.paths$indices
   expect_identical(as.numeric(absPathLintedIndices), c(15, 16))
   relPathLintedIndices <- result[[serverPath]]$invalid.relative.paths$indices

@@ -13,7 +13,9 @@ addLinter("absolute.paths", linter(
       makeLinterMessage("The following lines contain absolute paths",
                         content,
                         lines)
-    }
+    },
+    
+    suggestion = "Paths should be to files within the project directory."
   
 ))
 
@@ -32,6 +34,8 @@ addLinter("invalid.relative.paths", linter(
     makeLinterMessage("The following lines contain invalid relative paths (resolved outside of project directory)",
                       content,
                       lines)
-  }
+  },
+  
+  suggestion = "Paths should be to files within the project directory."
   
 ))
