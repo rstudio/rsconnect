@@ -14,3 +14,17 @@ test_that("linter warns about absolute paths and relative paths", {
   expect_identical(as.numeric(relPathLintedIndices), 17)
   
 })
+
+test_that("badRelativePaths identifies bad paths correctly", {
+  
+  path <- "R/test.R"
+  ok <- "file.path('../inst/include')"
+  expect_false(badRelativePaths(ok, path = path))
+  
+  bad <- "file.path('../../elsewhere')"
+  expect_true(badRelativePaths(bad, path = path))
+  
+  ok <- "'../foo', '../bar', '../baz'"
+  expect_false(badRelativePaths(ok, path = path))
+    
+})
