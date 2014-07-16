@@ -41,7 +41,7 @@ linter <- function(apply, takes, message, suggestion) {
 
 getLinterApplicableFiles <- function(linter, files) {
   result <- linter$takes(files)
-  if (is.numeric(result)) {
+  if (is.numeric(result) || is.logical(result)) {
     files[result]
   } else {
     result
@@ -65,6 +65,12 @@ applyLinter <- function(linter, ...) {
 ##' @param project Path to a project directory.
 ##' @export
 lint <- function(project) {
+  
+  if (!file.exists(project))
+    stop("No directory at path '", project, "'")
+  
+  if (file.exists(project) && !isTRUE(file.info(project)$isdir))
+    stop("Path '", project, "' is not a directory")
   
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
@@ -195,7 +201,9 @@ printLint <- function(x, ...) {
 collectSuggestions <- function(fileResults) {
   suggestions <- lapply(fileResults, function(fileResult) {
     unlist(lapply(fileResult, function(lintInfo) {
-      paste(as.character(lintInfo$suggestion), collapse = "\n")
+      if (length(lintInfo$indices) > 0) {
+        paste(as.character(lintInfo$suggestion), collapse = "\n")
+      }
     }))
   })
   Reduce(intersect, suggestions)

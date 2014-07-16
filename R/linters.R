@@ -5,9 +5,7 @@ addLinter("absolute.paths", linter(
       which(hasAbsolutePaths(content))
     },
     
-    takes = function(paths) {
-      grep("[rR]$", paths)
-    },
+    takes = isRCodeFile,
     
     message = function(content, lines) {
       makeLinterMessage("The following lines contain absolute paths",
@@ -26,9 +24,7 @@ addLinter("invalid.relative.paths", linter(
     badRelativePaths(content, ...)
   },
   
-  takes = function(paths) {
-    grep("[rR]$", paths, value = TRUE)
-  },
+  takes = isRCodeFile,
   
   message = function(content, lines) {
     makeLinterMessage("The following lines contain invalid relative paths (resolved outside of project directory)",

@@ -15,6 +15,7 @@ shinyServer(function(input, output) {
     file <- read.table("C:/results.txt")
     otherFile <- read.table("/usr/local/files/files.txt")
     anotherFile <- readLines('../../foo.bar')
+    serverFile <- "\\server\path\to\file"
 
     # generate bins based on input$bins from ui.R
     x    <- faithful[, 2]
