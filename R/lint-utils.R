@@ -17,19 +17,23 @@ hasAbsolutePaths <- function(content) {
   })))
 }
 
+noMatch <- function(x) {
+  identical(attr(x, "match.length"), -1L)
+}
+
 badRelativePaths <- function(content, project, path) {
   
   ## Figure out how deeply the path of the file is nested
   ## (it is relative to the project root)
-  slashIndices <- gregexpr("/", path)[[1]]
-  nestLevel <- if (slashIndices == -1) 0 else length(slashIndices)
+  slashMatches <- gregexpr("/", path)
+  nestLevel <- if (noMatch(slashMatches)) 0 else length(slashMatches[[1]])
   
   ## Identify occurrences of "../"
   regexResults <- gregexpr("../", content, fixed = TRUE)
   
   ## Figure out sequential runs of `../`
   runs <- lapply(regexResults, function(x) {
-    if (identical(attr(x, "match.length"), -1L)) return(NULL)
+    if (noMatch(x)) return(NULL)
     rle <- rle(as.integer(x) - seq(0, by = 3, length.out = length(x)))
     rle$lengths
   })
