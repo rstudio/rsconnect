@@ -12,6 +12,9 @@ This R Markdown presentation is made interactive using Shiny. The viewers of the
 
 To learn more, see [Interative Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
 
+Here's some internal help: [Helpful Link](/Users/MrBurns/)
+And another: [Favourite Goats](../../goats.txt)
+
 ## Slide with Interactive Plot
 
 ```{r, echo=FALSE}
