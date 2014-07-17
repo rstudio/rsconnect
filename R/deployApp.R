@@ -80,7 +80,14 @@ deployApp <- function(appDir = getwd(),
           return(invisible(lintResults))
         }
       } else {
-        stop("Cancelling deployment as the linter has identified fatal problems in the project.")
+        message("Cancelling deployment as the linter has identified problems in the project:\n")
+        printLinterResults(lintResults)
+        message(
+          "\nIf you believe these errors are spurious, run:\n\n",
+          "\tdeployApp(lint = FALSE)\n\n",
+          "to disable linting."
+        )
+        return(invisible(lintResults))
       }
       
     }
