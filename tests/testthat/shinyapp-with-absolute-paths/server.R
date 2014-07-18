@@ -16,6 +16,7 @@ shinyServer(function(input, output) {
     otherFile <- read.table("/usr/local/files/files.txt")
     anotherFile <- readLines('../../foo.bar')
     serverFile <- "\\server\path\to\file"
+    validWeblink <- "//www.google.com/"
 
     # generate bins based on input$bins from ui.R
     x    <- faithful[, 2]
