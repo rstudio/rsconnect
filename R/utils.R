@@ -92,3 +92,17 @@ hr <- function(message = "", n = 80) {
     cat(hr, sep="", '\n')
   }
 }
+
+# this function was defined in the shiny package; in the unlikely event that
+# shiny:::checkEncoding() is not available, use a simplified version here
+checkEncoding <- tryCatch(
+  getFromNamespace('checkEncoding', 'shiny'),
+  error = function(e) {
+    function(file) {
+      if (.Platform$OS.type != 'windows') return('UTF-8')
+      x <- readLines(file, encoding = 'UTF-8', warn = FALSE)
+      isUTF8 <- !any(is.na(iconv(x, 'UTF-8')))
+      if (isUTF8) 'UTF-8' else getOption('encoding')
+    }
+  }
+)
