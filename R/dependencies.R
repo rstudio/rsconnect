@@ -97,7 +97,8 @@ fileDependencies <- function(file) {
     if (require(knitr, quietly = TRUE)) {
       purled <- ""
       purled_con <- textConnection("purled", open = "w", local = TRUE)
-      knitr::purl(file, purled_con, quiet = TRUE, documentation = 0)
+      knitr::purl(file, purled_con, quiet = TRUE, documentation = 0,
+                  encoding = checkEncoding(file))
       close(purled_con)
       input <- textConnection(purled, open = "r") 
       # rmarkdown is an implicit dependency (it's not referenced in the Rmd source)
@@ -110,7 +111,8 @@ fileDependencies <- function(file) {
     }    
   } else if (identical(ext, "r")) {
     # if this is an R script, we can parse its output directly
-    input <- file
+    input <- base::file(file, encoding = checkEncoding(file))
+    on.exit(close(input), add = TRUE)
   } else {
     # if it's not an extension we know, emit a warning
     warning("Could not determine dependencies for ", file, 
@@ -119,7 +121,7 @@ fileDependencies <- function(file) {
   }
   
   # parse file and examine expressions
-  exprs <- parse(input, n = -1L) 
+  exprs <- parse(input, n = -1L, encoding = checkEncoding(file))
   for (i in seq_along(exprs))
     pkgs <- append(pkgs, expressionDependencies(exprs[[i]]))
   
