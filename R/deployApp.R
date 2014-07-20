@@ -101,7 +101,11 @@ deployApp <- function(appDir = getwd(),
   appDir <- normalizePath(appDir, mustWork = FALSE)
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory")
-    
+  
+  # try to detect encoding from the RStudio project file
+  .globals$encoding <- rstudioEncoding(appDir)
+  on.exit(.globals$encoding <- NULL, add = TRUE)
+
   # functions to show status (respects quiet param)
   displayStatus <- displayStatus(quiet)
   withStatus <- withStatus(quiet)
