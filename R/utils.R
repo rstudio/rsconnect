@@ -1,3 +1,4 @@
+.globals <- new.env(parent = emptyenv())
 
 isStringParam <- function(param) {
   is.character(param) && (length(param) == 1)
@@ -95,7 +96,7 @@ hr <- function(message = "", n = 80) {
 
 # this function was defined in the shiny package; in the unlikely event that
 # shiny:::checkEncoding() is not available, use a simplified version here
-checkEncoding <- tryCatch(
+checkEncoding2 <- tryCatch(
   getFromNamespace('checkEncoding', 'shiny'),
   error = function(e) {
     function(file) {
@@ -106,3 +107,20 @@ checkEncoding <- tryCatch(
     }
   }
 )
+
+# if shiny:::checkEncoding() gives UTF-8, use it, otherwise first consider
+# the RStudio project encoding, and eventually getOption('encoding')
+checkEncoding <- function(file) {
+  enc1 <- .globals$encoding
+  enc2 <- checkEncoding2(file)
+  if (enc2 == 'UTF-8') return(enc2)
+  if (length(enc1)) enc1 else enc2
+}
+
+# read the Encoding field from the *.Rproj file
+rstudioEncoding <- function(dir) {
+  proj <- list.files(dir, '[.]Rproj$', full.names = TRUE)
+  if (length(proj) != 1L) return()  # there should be one and only one .Rproj
+  enc <- drop(readDcf(proj, 'Encoding'))
+  enc[!is.na(enc)]
+}
