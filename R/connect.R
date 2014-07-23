@@ -1,0 +1,179 @@
+userRecord <- function(id, email, first_name, last_name) {
+  list(
+    id = id,
+    email = email,
+    first_name = first_name,
+    last_name = last_name
+  )
+}
+
+prettyPasteFields <- function(message, fields) {
+  header <- paste(message, ":\n- ", sep = "")
+  body <- paste(strwrap(paste(shQuote(fields), collapse = ", ")),
+                collapse = "\n")
+  paste(header, body, sep = "")
+}
+
+validateUserRecord <- function(record) {
+  requiredFields <- c("id", "email", "first_name", "last_name")
+  missingFields <- setdiff(requiredFields, names(record))
+  extraFields <- setdiff(names(record), requiredFields)
+
+  ## Construct error message if necessary
+  msg <- NULL
+  if (length(missingFields)) {
+    msg <- prettyPasteFields("The following required fields are missing",
+                             missingFields)
+  }
+  if (length(extraFields)) {
+    msg <- paste(msg, prettyPasteFields("The following extraneous fields were found",
+                                        extraFields))
+  }
+
+  if (!is.null(msg)) {
+    stop(msg)
+  }
+  record
+}
+
+# return a list of functions that can be used to interact with connect
+connectClient <- function(authInfo) {
+
+  list(
+
+    ## User API
+
+    addUser = function(userRecord) {
+      userRecord <- validateUserRecord(userRecord)
+      handleResponse(POST_JSON(authInfo,
+                               "/users",
+                               userRecord))
+    },
+
+    getUser = function(userId) {
+      handleResponse(GET(authInfo,
+                         file.path("/users", userId)))
+    },
+
+    ## Applications API
+
+    listApplications = function() {
+      handleResponse(GET(authInfo,
+                         "/applications"))
+    },
+
+    createApplication = function(name) {
+      handleResponse(POST_JSON(authInfo,
+                               "/applications",
+                               list(name = name)))
+    },
+
+    deleteApplication = function(appId) {
+      handleResponse(DELETE(authInfo,
+                            file.path("/applications", appId)))
+    },
+
+    ## Deployment API
+
+    uploadApplication = function(appId, bundlePath) {
+      path <- paste("/applications/", appId, "/upload", sep="")
+      handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
+    },
+
+    NULL ## so we don't worry about commas above
+
+  )
+
+}
+
+listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
+
+  # accumulate multiple pages of results
+  offset <- 0
+  results <- list()
+
+  while(TRUE) {
+
+    # add query params
+    pathWithQuery <- paste(path, "?", query,
+                           "&count=", page,
+                           "&offset=", offset,
+                           sep="")
+
+    # make request and append the results
+    response <- handleResponse(GET(authInfo, pathWithQuery))
+    results <- append(results, response[[listName]])
+
+    # update the offset
+    offset <- offset + response$count
+
+    # get all results if no max was specified
+    if (is.null(max)) {
+      max = response$total
+    }
+
+    # exit if we've got them all
+    if (length(results) >= response$total || length(results) >= max)
+      break
+  }
+
+  return(results)
+}
+
+handleResponse <- function(response, jsonFilter = NULL) {
+
+  # function to report errors
+  reportError <- function(msg) {
+    stop(paste(response$path, response$status, "-", msg), call. = FALSE)
+  }
+
+  # json responses
+  if (isContentType(response, "application/json")) {
+
+    json <- RJSONIO::fromJSON(response$content, simplify = FALSE)
+
+    if (response$status %in% 200:399)
+      if (!is.null(jsonFilter))
+        jsonFilter(json)
+      else
+        json
+    else if (!is.null(json$error))
+      reportError(json$error)
+    else
+      reportError(paste("Unexpected json response:", response$content))
+  }
+
+  # for html responses we can attempt to extract the body
+  else if (isContentType(response, "text/html")) {
+
+    body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
+    if (response$status %in% 200:399)
+      body
+    else if (!is.null(body))
+      reportError(body)
+    else
+      reportError(response$content)
+  }
+
+  # otherwise just dump the whole thing
+  else {
+    if (response$status %in% 200:399)
+      response$content
+    else
+      reportError(response$content)
+  }
+}
+
+filterQuery <- function(param, value, operator = NULL) {
+  if (is.null(operator)) {
+    op <- ":"
+  } else {
+    op <- paste(":", operator, ":", sep="")
+  }
+  q <- paste("filter=", param, op, value, sep="")
+  return(q)
+}
+
+isContentType <- function(response, contentType) {
+  grepl(contentType, response$contentType, fixed = TRUE)
+}

@@ -277,6 +277,11 @@ httpRCurl <- function(protocol,
                          readfunction = fileContents,
                          infilesize = fileLength,
                          upload = TRUE)
+    } else if (method == "DELETE") {
+      RCurl::curlPerform(url = url,
+                         .opts = options,
+                         customrequest = method)
+
     } else {
       RCurl::getURL(url,
                     .opts = options,
@@ -418,6 +423,30 @@ GET <- function(authInfo,
        service$host,
        service$port,
        "GET",
+       path,
+       headers)
+}
+
+DELETE <- function(authInfo,
+                   path,
+                   headers = list()) {
+
+  # get the service url
+  service <- serviceUrl()
+
+  # prepend the service path
+  path <- paste(service$path, path, sep="")
+
+  # get signature headers and append them
+  sigHeaders <- signatureHeaders(authInfo, "DELETE", path, NULL)
+  headers <- append(headers, sigHeaders)
+
+  # perform DELETE
+  http <- httpFunction()
+  http(service$protocol,
+       service$host,
+       service$port,
+       "DELETE",
        path,
        headers)
 }
