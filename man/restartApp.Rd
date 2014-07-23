@@ -15,7 +15,7 @@ system then this parameter can be omitted.}
 during the operation.}
 }
 \description{
-Restart an application currently running on ShinyApps.
+Restart an application currently running on RStudio Connect.
 }
 \examples{
 \dontrun{

@@ -1,7 +1,7 @@
 #' Scale Application Instances
 #' 
 #' Scale the number of parallel instances used for an application deployed to
-#' ShinyApps.
+#' RStudio Connect.
 #' @param appName Name of application
 #' @param instances Number of parallel instances to be used for the application
 #' @param account Account name. If a single account is registered on the system

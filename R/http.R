@@ -1,12 +1,10 @@
-
-
 userAgent <- function() {
-  paste("shinyapps", packageVersion("shinyapps"), sep="/")
+  paste("rsconnect", packageVersion("rsconnect"), sep="/")
 }
 
 serviceUrl <- function() {
-  parseHttpUrl(getOption("shinyapps.service_url", 
-                         "https://api.shinyapps.io/v1"))
+  parseHttpUrl(getOption("rsconnect.service_url", 
+                         "http://localhost:8082"))
 }
 
 parseHttpUrl <- function(urlText) {
@@ -254,7 +252,7 @@ httpRCurl <- function(protocol,
   options$useragent <- userAgent()
   options$ssl.verifypeer <- TRUE
   # Cert from: http://curl.haxx.se/docs/caextract.html
-  options$cainfo <- system.file("cert/cacert.pem", package = "shinyapps")
+  options$cainfo <- system.file("cert/cacert.pem", package = "rsconnect")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
   textGatherer <- RCurl::basicTextGatherer()
@@ -300,11 +298,11 @@ httpRCurl <- function(protocol,
 }
 
 httpVerbose <- function() {
-  getOption("shinyapps.http.verbose", FALSE)
+  getOption("rsconnect.http.verbose", FALSE)
 }
 
 httpTrace <- function(method, path, time) {
-  if (getOption("shinyapps.http.trace", FALSE)) {
+  if (getOption("rsconnect.http.trace", FALSE)) {
     cat(method, " ", path, " ", as.integer(time[['elapsed']]*1000), "ms\n", 
         sep="")
   }
@@ -312,7 +310,7 @@ httpTrace <- function(method, path, time) {
 
 httpFunction <- function() {
   
-  httpType <- getOption("shinyapps.http", "rcurl")
+  httpType <- getOption("rsconnect.http", "rcurl")
   if (identical("rcurl", httpType))
     httpRCurl
   else if (identical("curl",  httpType))

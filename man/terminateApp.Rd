@@ -15,7 +15,7 @@ system then this parameter can be omitted.}
 during the termination.}
 }
 \description{
-Terminate an application currently running on ShinyApps.
+Terminate an application currently running on RStudio Connect.
 }
 \examples{
 \dontrun{

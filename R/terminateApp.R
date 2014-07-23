@@ -1,6 +1,6 @@
 #' Terminate an Application
 #' 
-#' Terminate an application currently running on ShinyApps.
+#' Terminate an application currently running on RStudio Connect.
 #' @param appName Name of application to terminate
 #' @param account Account name. If a single account is registered on the 
 #' system then this parameter can be omitted.

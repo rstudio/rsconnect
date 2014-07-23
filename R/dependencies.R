@@ -38,7 +38,7 @@
 #' # dependencies for an app in another directory
 #' appDependencies("~/projects/shiny/app1")
 #' }
-#' @seealso \link[shinyapps:shinyappsPackages]{Using Packages with ShinyApps}
+#' @seealso \link[rsconnect:rsconnectPackages]{Using Packages with RStudio Connect}
 #' @export
 appDependencies <- function(appDir = getwd()) {
   deps <- dirDependencies(appDir)

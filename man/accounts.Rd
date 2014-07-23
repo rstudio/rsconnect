@@ -15,7 +15,7 @@ accountInfo(name)
 removeAccount(name)
 }
 \arguments{
-\item{name}{Name of ShinyApps account to save or remove}
+\item{name}{Name of RStudio Connect account to save or remove}
 
 \item{token}{User token for the account}
 
@@ -27,9 +27,9 @@ registered on the system. \code{accountInfo} returns a list with account
 details.
 }
 \description{
-Functions to add, enumerate, and remove ShinyApps accounts on the local
+Functions to add, enumerate, and remove RStudio Connect accounts on the local
 system. Prior to deploying applications you need to register
-your ShinyApps account on the local system.
+your RStudio Connect account on the local system.
 }
 \details{
 You register an account using the \code{setAccountInfo} function. You can

@@ -1,15 +1,15 @@
 #' Account Management Functions
 #' 
-#' Functions to add, enumerate, and remove ShinyApps accounts on the local 
+#' Functions to add, enumerate, and remove RStudio Connect accounts on the local 
 #' system. Prior to deploying applications you need to register
-#' your ShinyApps account on the local system.
+#' your RStudio Connect account on the local system.
 #' 
 #' You register an account using the \code{setAccountInfo} function. You can
 #' subsequently remove the account using the \code{removeAccount} function.
 #' 
 #' The \code{accounts} and \code{accountInfo} functions are provided for viewing
 #' previously registered accounts.
-#' @param name Name of ShinyApps account to save or remove
+#' @param name Name of RStudio Connect account to save or remove
 #' @param token User token for the account
 #' @param secret User secret for the account
 #' @return
@@ -120,7 +120,7 @@ accountConfigFile <- function(name) {
 }
 
 accountsConfigDir <- function() {
-  shinyappsConfigDir("accounts")
+  rsconnectConfigDir("accounts")
 }
 
 missingAccountErrorMessage <- function(name) {

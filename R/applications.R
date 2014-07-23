@@ -1,7 +1,7 @@
 
 #' List Deployed Applications
 #' 
-#' List all applications currently deployed to ShinyApps for a given account.
+#' List all applications currently deployed to RStudio Connect for a given account.
 #' @param account Account name. If a single account is registered on the 
 #' system then this parameter can be omitted.
 #' @return 

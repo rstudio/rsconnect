@@ -1,6 +1,6 @@
 #' Restart an Application
 #' 
-#' Restart an application currently running on ShinyApps.
+#' Restart an application currently running on RStudio Connect.
 #' @param appName Name of application to restart
 #' @param account Account name. If a single account is registered on the 
 #' system then this parameter can be omitted.

@@ -25,7 +25,7 @@ system then this parameter can be omitted.}
 during the deployment.}
 }
 \description{
-Configure an application currently running on ShinyApps.
+Configure an application currently running on RStudio Connect.
 }
 \examples{
 \dontrun{

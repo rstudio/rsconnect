@@ -11,10 +11,10 @@ bundleApp <- function(appDir) {
   indexFiles <- writeRmdIndex(appDir)
   on.exit(unlink(indexFiles), add = TRUE)
   
-  # determine the files that will be in the bundle (exclude shinyapps dir
+  # determine the files that will be in the bundle (exclude rsconnect dir
   # as well as common hidden files)
   files <- list.files(appDir, recursive=TRUE, all.files=TRUE)
-  files <- files[!grepl(glob2rx("shinyapps/*"), files)]
+  files <- files[!grepl(glob2rx("rsconnect/*"), files)]
   files <- files[!grepl(glob2rx(".svn/*"), files)]
   files <- files[!grepl(glob2rx(".git/*"), files)]
   files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
@@ -39,7 +39,7 @@ bundleApp <- function(appDir) {
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
-  bundlePath <- tempfile("shinyapps-bundle", fileext = ".tar.gz")
+  bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip")
   bundlePath
 }

@@ -40,8 +40,8 @@ withStatus <- function(quiet) {
 }
 
 httpDiagnosticsEnabled <- function() {
-  return (getOption("shinyapps.http.trace", FALSE) ||
-          getOption("shinyapps.http.verbose", FALSE))
+  return (getOption("rsconnect.http.trace", FALSE) ||
+          getOption("rsconnect.http.verbose", FALSE))
 }
 
 readPassword <- function(prompt) {

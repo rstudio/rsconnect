@@ -1,6 +1,6 @@
 #' Configure an Application
 #' 
-#' Configure an application currently running on ShinyApps.
+#' Configure an application currently running on RStudio Connect.
 #' @param appName Name of application to configure
 #' @param appDir Directory containing application. Defaults to 
 #'   current working directory.  

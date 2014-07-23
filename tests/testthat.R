@@ -1,4 +1,4 @@
 library(testthat)
-library(shinyapps)
+library(rsconnect)
 
-test_check("shinyapps")
+test_check("rsconnect")

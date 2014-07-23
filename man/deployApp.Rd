@@ -4,17 +4,17 @@
 \title{Deploy an Application}
 \usage{
 deployApp(appDir = getwd(), appName = NULL, account = NULL,
-  upload = TRUE, launch.browser = getOption("shinyapps.launch.browser",
+  upload = TRUE, launch.browser = getOption("rsconnect.launch.browser",
   interactive()), quiet = FALSE, lint = TRUE)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to
 current working directory.}
 
-\item{appName}{Name of application (names must be unique with ShinyApps
+\item{appName}{Name of application (names must be unique with RStudio Connect
 accounts). Defaults to the base name of the specified \code{appDir}.}
 
-\item{account}{ShinyApps account to deploy application to. This parameter is
+\item{account}{RStudio Connect account to deploy application to. This parameter is
 only required for the initial deployment of an application when there are
 multiple accounts configured on the system (see \link{accounts}).}
 
@@ -33,21 +33,7 @@ during the deployment.}
 potentially problematic code?}
 }
 \description{
-Deploy a \link[shiny:shiny-package]{shiny} application to the ShinyApps
-service.
-}
-\details{
-Prior to deploying an application you should call the
-  \code{\link{setAccountInfo}} function to register your ShinyApps account on
-  the local system.
-
-  After the initial deployment of an application from a given \code{appDir},
-  subsequent deployments will automatically use the \code{appName} and
-  \code{account} parameters of the initial deployment (unless overriden
-  explicitly).
-
-  For details on options that affect the behavior of \code{deployApp} see the
-  article on \link[shinyapps:shinyappsOptions]{package options}.
+Deploy a \link[shiny:shiny-package]{shiny} application to RStudio Connect.
 }
 \examples{
 \dontrun{

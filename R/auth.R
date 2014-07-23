@@ -137,7 +137,7 @@ validateUsername <- function(username) {
 
 validatePassword <- function(password) {
   
-  min.length <- getOption('shinyapps.min.password.length', 4)
+  min.length <- getOption('rsconnect.min.password.length', 4)
   
   # validate password length
   if (is.null(password) || nchar(password) < min.length) {
@@ -173,7 +173,7 @@ getPasswordFile <- function(appDir) {
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory", call. = FALSE)
   
-  dataDir <- file.path(appDir, "shinyapps")
+  dataDir <- file.path(appDir, "rsconnect")
   if (!file.exists(dataDir))
     dir.create(dataDir, recursive=TRUE)
   

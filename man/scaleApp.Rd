@@ -17,7 +17,7 @@ then this parameter can be omitted.}
 }
 \description{
 Scale the number of parallel instances used for an application deployed to
-ShinyApps.
+RStudio Connect.
 }
 \examples{
 \dontrun{

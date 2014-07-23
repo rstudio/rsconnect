@@ -39,8 +39,8 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL) {
                                      bundleId = character(),
                                      url = character())
   
-  shinyappsDir <- file.path(appDir, "shinyapps")
-  for (accountDir in file.path(shinyappsDir, list.files(shinyappsDir))) {
+  rsconnectDir <- file.path(appDir, "rsconnect")
+  for (accountDir in file.path(rsconnectDir, list.files(rsconnectDir))) {
     
     # ignore regular files
     if (!file.info(accountDir)$isdir)
@@ -70,7 +70,7 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL) {
 }
 
 deploymentFile <- function(appDir, name, account) {
-  accountDir <- file.path(appDir, "shinyapps", account)
+  accountDir <- file.path(appDir, "rsconnect", account)
   if (!file.exists(accountDir))
     dir.create(accountDir, recursive=TRUE)
   file.path(accountDir, paste(name, ".dcf", sep=""))

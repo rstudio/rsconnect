@@ -1,7 +1,7 @@
 
 
-shinyappsConfigDir <- function(subDir = NULL) {
-  applicationConfigDir("shinyapps", subDir)
+rsconnectConfigDir <- function(subDir = NULL) {
+  applicationConfigDir("connect", subDir)
 }
 
 applicationConfigDir <- function(appName, subDir = NULL) {
