@@ -46,16 +46,16 @@ setAccountInfo <- function(name, token, secret) {
   if (!isStringParam(secret))
     stop(stringParamErrorMessage("secret"))
 
-  # create lucid client
+  # create connect client
   authInfo <- list(token = token, secret = secret)
-  lucid <- lucidClient(authInfo)
+  connect <- connectClient(authInfo)
   
   # get user Id
-  userId <- lucid$currentUser()$id
+  userId <- connect$currentUser()$id
   
   # get account id
   accountId <- NULL
-  accounts <- lucid$accountsForUser(userId)
+  accounts <- connect$accountsForUser(userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
       accountId <- account$id

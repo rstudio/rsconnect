@@ -1,6 +1,6 @@
 
-# return a list of functions that can be used to interact with lucid
-lucidClient <- function(authInfo) {
+# return a list of functions that can be used to interact with connect
+connectClient <- function(authInfo) {
   
   list(
     

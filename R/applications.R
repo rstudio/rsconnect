@@ -31,12 +31,12 @@
 #' @export
 applications <- function(account = NULL) {
   
-  # resolve account and create lucid client
+  # resolve account and create connect client
   accountInfo <- accountInfo(resolveAccount(account))
-  lucid <- lucidClient(accountInfo)
+  connect <- connectClient(accountInfo)
   
   # retreive applications
-  apps <- lucid$listApplications(accountInfo$accountId)
+  apps <- connect$listApplications(accountInfo$accountId)
   
   # extract the subset of fields we're interested in 
   res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time', 
@@ -62,8 +62,8 @@ applications <- function(account = NULL) {
 }
 
 resolveApplication <- function(accountInfo, appName) {
-  lucid <- lucidClient(accountInfo)
-  apps <- lucid$listApplications(accountInfo$accountId)
+  connect <- connectClient(accountInfo)
+  apps <- connect$listApplications(accountInfo$accountId)
   for (app in apps) {
     if (identical(app$name, appName))
       return (app)
@@ -88,9 +88,9 @@ applicationTask <- function(taskDef, appName, account, quiet) {
   application <- resolveApplication(accountInfo, appName)
   
   # perform the action
-  lucid <- lucidClient(accountInfo)
-  task <- taskDef$action(lucid, application)
-  lucid$waitForTask(task$task_id, quiet)
+  connect <- connectClient(accountInfo)
+  task <- taskDef$action(connect, application)
+  connect$waitForTask(task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
   
   invisible(NULL)

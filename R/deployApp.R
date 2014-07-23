@@ -99,8 +99,8 @@ deployApp <- function(appDir = getwd(),
   displayStatus <- displayStatus(quiet)
   withStatus <- withStatus(quiet)
   
-  # initialize lucid client
-  lucid <- lucidClient(accountInfo)
+  # initialize connect client
+  connect <- connectClient(accountInfo)
   
   # determine the deployment target and target account info
   target <- deploymentTarget(appDir, appName, account)
@@ -108,14 +108,14 @@ deployApp <- function(appDir = getwd(),
     
   # get the application to deploy (creates a new app on demand)
   withStatus("Preparing to deploy application", {
-    application <- applicationForTarget(lucid, accountInfo, target)
+    application <- applicationForTarget(connect, accountInfo, target)
   })
 
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
       bundlePath <- bundleApp(appDir)
-      bundle <- lucid$uploadApplication(application$id, bundlePath)
+      bundle <- connect$uploadApplication(application$id, bundlePath)
     })
   } else {
     # redeploy current bundle
@@ -126,8 +126,8 @@ deployApp <- function(appDir = getwd(),
   displayStatus(paste("Deploying application: ", 
                       application$id, 
                       "...\n", sep=""))
-  task <- lucid$deployApplication(application$id, bundle$id)
-  lucid$waitForTask(task$task_id, quiet)
+  task <- connect$deployApplication(application$id, bundle$id)
+  connect$waitForTask(task$task_id, quiet)
   displayStatus(paste("Application successfully deployed to ", 
                       application$url,
                       "\n", sep=""))
@@ -272,12 +272,12 @@ deploymentTarget <- function(appDir, appName, account) {
 
 # get the application associated with the passed deployment target
 # (creates a new application if necessary)
-applicationForTarget <- function(lucid, accountInfo, target) {
+applicationForTarget <- function(connect, accountInfo, target) {
   
   # list the existing applications for this account and see if we 
   # need to create a new application
   app <- NULL
-  existingApps <- lucid$listApplications(accountInfo$accountId)
+  existingApps <- connect$listApplications(accountInfo$accountId)
   for (existingApp in existingApps) {
     if (identical(existingApp$name, target$appName)) {
       app <- existingApp
@@ -297,7 +297,7 @@ applicationForTarget <- function(lucid, accountInfo, target) {
   
   # create the application if we need to
   if (is.null(app)) {
-    app <- lucid$createApplication(target$appName, 
+    app <- connect$createApplication(target$appName, 
                                    "shiny", 
                                    accountInfo$accountId)
   }

@@ -22,8 +22,8 @@ scaleApp <- function(appName, instances, account = NULL, quiet = FALSE) {
   taskDef <- list()
   taskDef$beginStatus <- "Scaling application instances"
   taskDef$endStatus <- "Application instances successfully scaled"
-  taskDef$action <- function(lucid, application) {
-    lucid$scaleApplication(application$id, instances)
+  taskDef$action <- function(connect, application) {
+    connect$scaleApplication(application$id, instances)
   }
   
   # perform it

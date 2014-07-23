@@ -22,12 +22,12 @@
 #' @export
 tasks <- function(account = NULL) {
   
-  # resolve account and create lucid client
+  # resolve account and create connect client
   accountInfo <- accountInfo(resolveAccount(account))
-  lucid <- lucidClient(accountInfo)
+  connect <- connectClient(accountInfo)
 
   # list tasks 
-  tasks <- lucid$listTasks(accountInfo$accountId)
+  tasks <- connect$listTasks(accountInfo$accountId)
   
   # extract the subset of fields we're interested in 
   res <- lapply(tasks, `[`, c('id', 'action', 'status', 'created_time'))
@@ -60,9 +60,9 @@ tasks <- function(account = NULL) {
 #' @export
 taskLog <- function(taskId, account = NULL, output = NULL) {
 
-  # resolve account and create lucid client
+  # resolve account and create connect client
   accountInfo <- accountInfo(resolveAccount(account))
-  lucid <- lucidClient(accountInfo)
+  connect <- connectClient(accountInfo)
 
   if (identical(output, "stderr")) {
     conn <- stderr()
@@ -71,10 +71,10 @@ taskLog <- function(taskId, account = NULL, output = NULL) {
   }
   
   # show task log
-  cat(lucid$getTaskLogs(taskId), file=conn)
+  cat(connect$getTaskLogs(taskId), file=conn)
 
   # get child tasks
-  tasks <- lucid$listTasks(accountInfo$accountId, 
+  tasks <- connect$listTasks(accountInfo$accountId, 
                            filters=filterQuery("parent_id", taskId))
   
   # get child task logs
