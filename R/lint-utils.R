@@ -22,26 +22,26 @@ noMatch <- function(x) {
 }
 
 badRelativePaths <- function(content, project, path) {
-  
+
   ## Figure out how deeply the path of the file is nested
   ## (it is relative to the project root)
   slashMatches <- gregexpr("/", path)
   nestLevel <- if (noMatch(slashMatches)) 0 else length(slashMatches[[1]])
-  
+
   ## Identify occurrences of "../"
   regexResults <- gregexpr("../", content, fixed = TRUE)
-  
+
   ## Figure out sequential runs of `../`
   runs <- lapply(regexResults, function(x) {
     if (noMatch(x)) return(NULL)
     rle <- rle(as.integer(x) - seq(0, by = 3, length.out = length(x)))
     rle$lengths
   })
-  
+
   badPaths <- vapply(runs, function(x) {
     any(x > nestLevel)
   }, logical(1))
-  
+
   badPaths
 }
 

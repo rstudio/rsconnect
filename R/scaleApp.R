@@ -1,5 +1,5 @@
 #' Scale Application Instances
-#' 
+#'
 #' Scale the number of parallel instances used for an application deployed to
 #' RStudio Connect.
 #' @param appName Name of application
@@ -9,7 +9,7 @@
 #' @param quiet Request that no status information be printed to the console
 #' @examples
 #' \dontrun{
-#' 
+#'
 #' # specify that an application use 3 instances
 #' scaleApp("myapp" instances = 3)
 #' }
@@ -17,7 +17,7 @@
 #'   \code{\link{terminateApp}}
 #' @export
 scaleApp <- function(appName, instances, account = NULL, quiet = FALSE) {
-  
+
   # define task
   taskDef <- list()
   taskDef$beginStatus <- "Scaling application instances"
@@ -25,7 +25,7 @@ scaleApp <- function(appName, instances, account = NULL, quiet = FALSE) {
   taskDef$action <- function(connect, application) {
     connect$scaleApplication(application$id, instances)
   }
-  
+
   # perform it
   applicationTask(taskDef, appName, account, quiet)
 }
