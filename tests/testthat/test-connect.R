@@ -15,13 +15,11 @@ findConnect <- function() {
   }
 }
 
-connectRunning <- function() {
-  any(grepl("./bin/connect", system("ps -a", intern = TRUE), fixed = TRUE))
-}
-
-checkConnectRunning <- function() {
-  if (!connectRunning()) {
-    stop("'connect' is not currently running; cannot run tests")
+isConnectRunning <- function() {
+  if (!any(grepl("./bin/connect", system("ps -a", intern = TRUE), fixed = TRUE))) {
+    stop("Couldn't find a running instance of connect")
+  } else {
+    TRUE
   }
 }
 
@@ -31,61 +29,88 @@ dummyConnectClient <- function() {
 
 test_that("RStudio Connect users API", {
 
-  checkConnectRunning()
+  if (isConnectRunning()) {
 
-  connect <- dummyConnectClient()
+    connect <- dummyConnectClient()
 
-  # add a user
-  record <- userRecord(
-    id = 1L,
-    email = "user@gmail.com",
-    first_name = "User",
-    last_name = "Resu"
-  )
-
-  response <- connect$addUser(record)
-  expect_equal(
-    response[c("email", "first_name", "last_name")],
-    list(
+    # add a user
+    record <- userRecord(
+      id = 1L,
       email = "user@gmail.com",
       first_name = "User",
       last_name = "Resu"
     )
-  )
 
-  # get that user's info again
-  user <- connect$getUser(response$id)
-  expect_equal(
-    response[c("email", "first_name", "last_name")],
-    user[c("email", "first_name", "last_name")]
-  )
+    response <- connect$addUser(record)
+    expect_equal(
+      response[c("email", "first_name", "last_name")],
+      list(
+        email = "user@gmail.com",
+        first_name = "User",
+        last_name = "Resu"
+      )
+    )
+
+    # get that user's info again
+    user <- connect$getUser(response$id)
+    expect_equal(
+      response[c("email", "first_name", "last_name")],
+      user[c("email", "first_name", "last_name")]
+    )
+
+  }
 
 })
 
-test_that("RStudio Connect applications API", {
+test_that("RStudio Connect applications + tasks API", {
 
-  checkConnectRunning()
-  connect <- dummyConnectClient()
+  if (isConnectRunning()) {
 
-  # Create and remove an example application
+    connect <- dummyConnectClient()
 
-  ## Create it
-  splineReticulator <- connect$createApplication("SplineReticulator")
+    # Create and remove an example application
 
-  ## Confirm it exists
-  apps <- connect$listApplications()
-  app <- apps[[which(sapply(apps, `[[`, "id") == splineReticulator$id)]]
-  expect_true(app$name == "SplineReticulator")
+    ## Create it
+    splineReticulator <- connect$createApplication("SplineReticulator")
 
-  ## Upload a bundle
-  response <- connect$uploadApplication(
-    splineReticulator$id,
-    normalizePath(path = "internal/test-shinyApp.tar.gz")
-  )
+    ## Confirm it exists
+    apps <- connect$listApplications()
+    app <- apps[[which(sapply(apps, `[[`, "id") == splineReticulator$id)]]
+    expect_true(app$name == "SplineReticulator")
 
-  ## Delete an application
-  connect$deleteApplication(app$id)
-  apps <- connect$listApplications()
-  expect_false(app$id %in% sapply(apps, "[[", "id"))
+    ## Upload a bundle
+    response <- connect$uploadApplication(
+      splineReticulator$id,
+      normalizePath(path = "test-shinyApp/test-shinyApp.tar.gz")
+    )
+
+    ## Deploy an application
+    appId <- response$app_id
+    response <- connect$deployApplication(appId)
+    id <- response$id
+
+    ## Query the app for success / failure
+    while (TRUE) {
+      response <- connect$getTask(id)
+      if (response$finished) {
+        break
+      }
+      Sys.sleep(2)
+    }
+
+    ## Delete an application
+    connect$deleteApplication(0)
+    apps <- connect$listApplications()
+    expect_false(app$id %in% sapply(apps, "[[", "id"))
+
+    ## Delete all applications
+    ids <- sapply(apps, "[[", "id")
+    lapply(ids, connect$deleteApplication)
+    expect_identical(
+      unclass(connect$listApplications()),
+      list()
+    )
+
+  }
 
 })

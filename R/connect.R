@@ -73,14 +73,38 @@ connectClient <- function(authInfo) {
                             file.path("/applications", appId)))
     },
 
-    ## Deployment API
-
     uploadApplication = function(appId, bundlePath) {
-      path <- paste("/applications/", appId, "/upload", sep="")
+      path <- file.path("/applications", appId, "upload")
       handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
     },
 
-    NULL ## so we don't worry about commas above
+    deployApplication = function(appId) {
+      path <- file.path("/applications", appId, "deploy")
+      handleResponse(POST_JSON(authInfo,
+                               path,
+                               list()))
+    },
+
+    ## Tasks API
+
+    listTasks = function() {
+      path <- "/tasks"
+      handleResponse(GET(authInfo,
+                         path))
+    },
+
+    getTask = function(taskId) {
+      path <- file.path("/tasks", taskId)
+      handleResponse(GET(authInfo,
+                         path))
+    },
+
+    killTask = function(taskId) {
+      path <- file.path("/tasks", taskId, "kill")
+      handleResponse(POST_JSON(authInfo,
+                               path,
+                               list()))
+    }
 
   )
 
