@@ -88,8 +88,7 @@ lint <- function(project) {
   satisfiedLayouts <- c(
     shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
     shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
-    indexInBase = any(c("index.htm", "index.html") %in% appFilesBase),
-    Rmd = any(grepl(glob2rx("*.[Rr]md"), appFilesBase))
+    Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase))
   )
   
   if (!any(satisfiedLayouts)) {
@@ -97,10 +96,7 @@ lint <- function(project) {
             The project should have one of the following layouts:
             1. 'shiny.R' and 'ui.R' in the application base directory,
             2. 'shiny.R' and 'www/index.html' in the application base directory,
-            3. An R Markdown (.Rmd) document.
-            Or, if you are deploying multiple applications, please include an
-            'index.html' file within the base directory (that directs users to
-            sub-applications)"
+            3. An R Markdown (.Rmd) document."
     
     # strip leading whitespace from the above
     msg <- paste(collapse = "\n",
