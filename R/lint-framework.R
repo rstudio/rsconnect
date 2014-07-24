@@ -77,10 +77,38 @@ lint <- function(project) {
   on.exit(setwd(owd))
   setwd(project)
   
-  # Read in project files
+  # List all files within the project
   projectFiles <- list.files(full.names = TRUE, recursive = TRUE, all.files = TRUE)
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
+  
+  # Do some checks for a valid application structure
+  appFilesBase <- tolower(list.files())
+  wwwFiles <- tolower(list.files("www/"))
+  satisfiedLayouts <- c(
+    shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
+    shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
+    indexInBase = any(c("index.htm", "index.html") %in% appFilesBase),
+    Rmd = any(grepl(glob2rx("*.[Rr]md"), appFilesBase))
+  )
+  
+  if (!any(satisfiedLayouts)) {
+    msg <- "Cancelling deployment: invalid project layout.
+            The project should have one of the following layouts:
+            1. 'shiny.R' and 'ui.R' in the application base directory,
+            2. 'shiny.R' and 'www/index.html' in the application base directory,
+            3. An R Markdown (.Rmd) document.
+            Or, if you are deploying multiple applications, please include an
+            'index.html' file within the base directory (that directs users to
+            sub-applications)"
+    
+    # strip leading whitespace from the above
+    msg <- paste(collapse = "\n",
+                 gsub("^ *", "", unlist(strsplit(msg, "\n", fixed = TRUE))))
+                 
+    stop(msg)
+  }
+  
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
   
   # Identify all files that will be read in by one or more linters
