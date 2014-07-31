@@ -7,7 +7,7 @@
 #' \dontrun{
 #'
 #' # add a user (prompts for password)
-#' addAuthroizedUser("andy")
+#' addAuthorizedUser("andy")
 #'
 #' # add a user using supplied password
 #' addAuthorizedUser("tareef", "MrShiny45")
@@ -126,7 +126,7 @@ validateUsername <- function(username) {
     stop("Username must be at least 1 characters.", call. = FALSE)
   }
 
-  # validate password has no invalid characeters
+  # validate username has no invalid characeters
   invalid <- c(":", "$", "\n", "\r")
   if (any(lapply(invalid, grepl, username, fixed = TRUE)==TRUE)) {
     stop("Username may not contain: $, :, \\n, or \\r", call. = FALSE)

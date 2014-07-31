@@ -1,5 +1,7 @@
 context("connect")
 
+# NOTE: These tests expect that you're already running connect; the tests
+# will speak to that running connect process (if it can find it)
 findConnect <- function() {
   connect <- Sys.which("connect")
   if (connect == "") {
@@ -38,7 +40,8 @@ test_that("RStudio Connect users API", {
       id = 1L,
       email = "user@gmail.com",
       first_name = "User",
-      last_name = "Resu"
+      last_name = "Resu",
+      password = "some really hard to break password"
     )
 
     response <- connect$addUser(record)
@@ -90,18 +93,12 @@ test_that("RStudio Connect applications + tasks API", {
     id <- response$id
 
     ## Query the app for success / failure
-    while (TRUE) {
-      response <- connect$getTask(id)
-      if (response$finished) {
-        break
-      }
-      Sys.sleep(2)
-    }
+    response <- connect$waitForTask(id)
 
     ## Delete an application
-    connect$deleteApplication(0)
+    connect$deleteApplication(response$id)
     apps <- connect$listApplications()
-    expect_false(app$id %in% sapply(apps, "[[", "id"))
+    expect_false(response$id %in% sapply(apps, "[[", "id"))
 
     ## Delete all applications
     ids <- sapply(apps, "[[", "id")

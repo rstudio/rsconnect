@@ -1,9 +1,10 @@
-userRecord <- function(id, email, first_name, last_name) {
+userRecord <- function(id, email, first_name, last_name, password = password) {
   list(
     id = id,
     email = email,
     first_name = first_name,
-    last_name = last_name
+    last_name = last_name,
+    password = password
   )
 }
 
@@ -15,7 +16,7 @@ prettyPasteFields <- function(message, fields) {
 }
 
 validateUserRecord <- function(record) {
-  requiredFields <- c("id", "email", "first_name", "last_name")
+  requiredFields <- c("id", "email", "first_name", "last_name", "password")
   missingFields <- setdiff(requiredFields, names(record))
   extraFields <- setdiff(names(record), requiredFields)
 
@@ -104,6 +105,17 @@ connectClient <- function(authInfo) {
       handleResponse(POST_JSON(authInfo,
                                path,
                                list()))
+    },
+
+    waitForTask = function(taskId) {
+      path <- file.path("/tasks", taskId)
+      while (TRUE) {
+        response <- handleResponse(GET(authInfo, path))
+        if (response$finished) {
+          break
+        }
+        Sys.sleep(2)
+      }
     }
 
   )
