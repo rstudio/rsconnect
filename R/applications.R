@@ -100,13 +100,18 @@ applicationTask <- function(taskDef, appName, account, quiet) {
 #' 
 #' Show the logs of an application.
 #' @export
-showLogs <- function(applicationId, account = NULL){
+showLogs <- function(appDir = getwd(), appName = NULL, account = NULL){
   
-  # resolve account and create lucid client
-  accountInfo <- accountInfo(resolveAccount(account))
+  # determine the log target and target account info
+  target <- deploymentTarget(appDir, appName, account)
+  accountInfo <- accountInfo(target$account)  
   lucid <- lucidClient(accountInfo)
-  
+  application <- getAppByName(lucid, accountInfo, target$appName)
+  if (is.null(application))
+    stop("No application found. Specify the application's directory, name, ",
+         "and/or associated account.")
+    
   # retreive logs
-  logs <- lucid$getLogs(applicationId)
+  logs <- lucid$getLogs(application$id)
   cat(logs)
 }
