@@ -96,3 +96,17 @@ applicationTask <- function(taskDef, appName, account, quiet) {
   invisible(NULL)
 }
 
+#' Show Application Logs
+#' 
+#' Show the logs of an application.
+#' @export
+showLogs <- function(applicationId, account = NULL){
+  
+  # resolve account and create lucid client
+  accountInfo <- accountInfo(resolveAccount(account))
+  lucid <- lucidClient(accountInfo)
+  
+  # retreive logs
+  logs <- lucid$getLogs(applicationId)
+  cat(logs)
+}

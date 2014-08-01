@@ -32,6 +32,11 @@ lucidClient <- function(authInfo) {
       
     },
     
+    getLogs = function(applicationId) {
+      handleResponse(GET(authInfo,
+        paste("/applications/", applicationId, "/logs", sep="")))
+    },
+    
     createApplication = function(name, template, accountId) {    
       json <- list()
       json$name <- name
@@ -193,12 +198,20 @@ handleResponse <- function(response, jsonFilter = NULL) {
   else if (isContentType(response, "text/html")) {
     
     body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
-    if (response$status %in% 200:399)
-      body
-    else if (!is.null(body))
-      reportError(body)
-    else
-      reportError(response$content)  
+    if (response$status >= 200 && response$status < 400){
+      # Good response, return the body if we have one, or the content if not
+      if (!is.null(body)){
+        body
+      } else{
+        response$content
+      }
+    } else {
+      # Error response
+      if (!is.null(body))
+        reportError(body)
+      else
+        reportError(response$content)  
+    }
   }
   
   # otherwise just dump the whole thing
