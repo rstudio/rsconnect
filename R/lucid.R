@@ -32,10 +32,12 @@ lucidClient <- function(authInfo) {
       
     },
     
-    getLogs = function(applicationId, entries = 50) {
+    getLogs = function(applicationId, entries = 50, streaming = FALSE, 
+                       writer = NULL) {
       handleResponse(GET(authInfo,
         paste("/applications/", applicationId, "/logs?count=", 
-              entries, sep="")))
+              entries, "&tail=", if (streaming) "1" else "0", sep=""), 
+        writer = writer))
     },
 
     createApplication = function(name, template, accountId) {    

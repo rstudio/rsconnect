@@ -106,9 +106,12 @@ applicationTask <- function(taskDef, appName, account, quiet) {
 #' @param account The account under which the application was deployed. May be
 #' omitted if only one account is registered on the system.
 #' @param entries The number of log entries to show. Defaults to 50 entries.
+#' @param streaming Whether to stream the logs. If \code{TRUE}, then the
+#'   function does not return; instead, log entries are written to the console
+#'   as they are made, until R is interrupted. Defaults to \code{FALSE}.
 #' @export
 showLogs <- function(appDir = getwd(), appName = NULL, account = NULL, 
-                     entries = 50) {
+                     entries = 50, streaming = FALSE) {
   
   # determine the log target and target account info
   target <- deploymentTarget(appDir, appName, account)
@@ -118,9 +121,46 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
-    
-  # retreive logs
-  logs <- lucid$getLogs(application$id, entries)
-  cat(logs)
+  
+  # check for streaming log compatibility
+  if (streaming) {
+    httpType <- getOption("shinyapps.http", "rcurl")
+    if (!identical("rcurl", httpType)) {
+      stop("RCurl is required to show streaming logs. Install RCurl and set ", 
+            "shinyapps.http to 'rcurl', or call showLogs with streaming = ", 
+            "FALSE to show a log snapshot.")
+    }
+  }    
+  # retrieve logs
+  logs <- lucid$getLogs(application$id, entries, streaming, 
+                        if (streaming) writeLogMessage() else NULL)
+  if (!streaming)
+    cat(logs)
+}
+
+writeLogMessage <- function() {
+  update = function(data) {
+    # write incoming log data to the console
+    tryCatch({
+      cat(data)
+      nchar(data, "bytes") 
+    },
+    error = function(e, ...) {
+      message("Error: ", e$message)
+      1L
+    }, 
+    interrupt = function(...) {
+      message("Interrupted")
+      1L
+    })
+  }
+  value = function() {
+    # log data is written to the console, but not returned
+    return(NULL)
+  }
+  reset = function() {}
+  writer = list(update = update, value = value, reset = reset)
+  class(writer) <- c("RCurlTextHandler", "RCurlCallbackFunction")
+  return(writer)
 }
 

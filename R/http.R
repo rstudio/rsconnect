@@ -85,7 +85,8 @@ httpInternal <- function(protocol,
                          path,
                          headers,
                          contentType = NULL,
-                         file = NULL) {
+                         file = NULL, 
+                         writer = NULL) {
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -161,7 +162,8 @@ httpCurl <- function(protocol,
                      path,
                      headers,
                      contentType = NULL,
-                     file = NULL) {  
+                     file = NULL, 
+                     writer = NULL) {  
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -230,7 +232,8 @@ httpRCurl <- function(protocol,
                       path,
                       headers,
                       contentType = NULL,
-                      file = NULL) {
+                      file = NULL, 
+                      writer = NULL) {
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -257,7 +260,10 @@ httpRCurl <- function(protocol,
   options$cainfo <- system.file("cert/cacert.pem", package = "shinyapps")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
-  textGatherer <- RCurl::basicTextGatherer()
+  textGatherer <- if (is.null(writer)) 
+      RCurl::basicTextGatherer()
+    else
+      writer
   if (!is.null(file))
     options$writefunction <- textGatherer$update
   
@@ -402,7 +408,8 @@ httpWithBody <- function(authInfo,
 
 GET <- function(authInfo,
                 path, 
-                headers = list()) {
+                headers = list(),
+                writer = NULL) {
     
   # get the service url
   service <- serviceUrl()
@@ -421,7 +428,8 @@ GET <- function(authInfo,
        service$port,
        "GET", 
        path,
-       headers)
+       headers, 
+       writer = writer)
 }
 
 rfc2616Date <- function(time = Sys.time()) {

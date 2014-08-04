@@ -3,7 +3,8 @@
 \alias{showLogs}
 \title{Show Application Logs}
 \usage{
-showLogs(appDir = getwd(), appName = NULL, account = NULL, entries = 50)
+showLogs(appDir = getwd(), appName = NULL, account = NULL, entries = 50,
+  streaming = FALSE)
 }
 \arguments{
 \item{appDir}{The directory where the local copy of the application
@@ -16,6 +17,10 @@ if only one application deployment was made from \code{appDir}.}
 omitted if only one account is registered on the system.}
 
 \item{entries}{The number of log entries to show. Defaults to 50 entries.}
+
+\item{streaming}{Whether to stream the logs. If \code{TRUE}, then the
+function does not return; instead, log entries are written to the console
+as they are made, until R is interrupted. Defaults to \code{FALSE}.}
 }
 \description{
 Show the logs for a deployed application.
