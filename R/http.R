@@ -499,7 +499,7 @@ signatureHeaders <- function(authInfo, method, path, file) {
 checkProgress <- function(down, up) {
   tryCatch((function() { 
         # leave event loop for a moment to give interrupt a chance to arrive
-        Sys.sleep(0.01)
+        Sys.sleep(0.01); cat("")
         0L 
       })(),
      error = function(e, ...) {
