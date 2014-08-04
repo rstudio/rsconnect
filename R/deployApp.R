@@ -281,21 +281,28 @@ deploymentTarget <- function(appDir, appName, account) {
   }
 }
 
-# get the application associated with the passed deployment target
-# (creates a new application if necessary)
-applicationForTarget <- function(lucid, accountInfo, target) {
-  
-  # list the existing applications for this account and see if we 
-  # need to create a new application
+# get the record for the application of the given name in the given account, or
+# NULL if no application exists by that name
+getAppByName <- function(lucid, accountInfo, name) {
   app <- NULL
   existingApps <- lucid$listApplications(accountInfo$accountId)
   for (existingApp in existingApps) {
-    if (identical(existingApp$name, target$appName)) {
+    if (identical(existingApp$name, name)) {
       app <- existingApp
       break
     }
   }
-  
+  return(app)
+}
+
+# get the application associated with the passed deployment target
+# (creates a new application if necessary)
+applicationForTarget <- function(lucid, accountInfo, target) {
+
+  # list the existing applications for this account and see if we 
+  # need to create a new application
+  app <- getAppByName(lucid, accountInfo, target$appName)  
+
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
   if (!target$isUpdate && !is.null(app) && interactive()) {

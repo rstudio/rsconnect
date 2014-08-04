@@ -85,7 +85,8 @@ httpInternal <- function(protocol,
                          path,
                          headers,
                          contentType = NULL,
-                         file = NULL) {
+                         file = NULL, 
+                         writer = NULL) {
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -161,7 +162,8 @@ httpCurl <- function(protocol,
                      path,
                      headers,
                      contentType = NULL,
-                     file = NULL) {  
+                     file = NULL, 
+                     writer = NULL) {  
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -230,7 +232,8 @@ httpRCurl <- function(protocol,
                       path,
                       headers,
                       contentType = NULL,
-                      file = NULL) {
+                      file = NULL, 
+                      writer = NULL) {
   
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -257,9 +260,19 @@ httpRCurl <- function(protocol,
   options$cainfo <- system.file("cert/cacert.pem", package = "shinyapps")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
-  textGatherer <- RCurl::basicTextGatherer()
+  textGatherer <- if (is.null(writer)) 
+      RCurl::basicTextGatherer()
+    else
+      writer
   if (!is.null(file))
     options$writefunction <- textGatherer$update
+  
+  # when using a custom output writer, add a progress check so we can 
+  # propagate interrupts
+  if (!is.null(writer)) {
+    options$noprogress <- FALSE
+    options$progressfunction <- checkProgress
+  }
   
   # verbose if requested
   if (httpVerbose())
@@ -271,7 +284,7 @@ httpRCurl <- function(protocol,
   options$httpheader <- extraHeaders
   
   # make the request
-  time <- system.time(gcFirst = FALSE, {
+  time <- system.time(gcFirst = FALSE, tryCatch({
     if (!is.null(file)) {
       RCurl::curlPerform(url = url,
                          .opts = options,
@@ -283,7 +296,12 @@ httpRCurl <- function(protocol,
       RCurl::getURL(url, 
                     .opts = options,
                     write = textGatherer)
-  }})
+    }}, 
+    error = function(e, ...) {
+      # ignore errors resulting from user abort 
+      if (!identical(e$message, "Callback aborted"))
+        stop(e)
+    }))
   httpTrace(method, path, time)
   
   # return list
@@ -402,7 +420,8 @@ httpWithBody <- function(authInfo,
 
 GET <- function(authInfo,
                 path, 
-                headers = list()) {
+                headers = list(),
+                writer = NULL) {
     
   # get the service url
   service <- serviceUrl()
@@ -421,7 +440,8 @@ GET <- function(authInfo,
        service$port,
        "GET", 
        path,
-       headers)
+       headers, 
+       writer = writer)
 }
 
 rfc2616Date <- function(time = Sys.time()) {
@@ -474,4 +494,20 @@ signatureHeaders <- function(authInfo, method, path, file) {
   headers
 }
 
-
+# dummy progress meter--exists to allow us to cancel requests when R is 
+# interrupted
+checkProgress <- function(down, up) {
+  tryCatch((function() { 
+        # leave event loop for a moment to give interrupt a chance to arrive
+        Sys.sleep(0.01); cat("")
+        0L 
+      })(),
+     error = function(e, ...) {
+       message("Error:", e$message)
+       1L
+     },
+     interrupt = function(...) {
+       1L
+     }
+  )
+}
