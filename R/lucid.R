@@ -32,11 +32,12 @@ lucidClient <- function(authInfo) {
       
     },
     
-    getLogs = function(applicationId) {
+    getLogs = function(applicationId, entries = 50) {
       handleResponse(GET(authInfo,
-        paste("/applications/", applicationId, "/logs", sep="")))
+        paste("/applications/", applicationId, "/logs?count=", 
+              entries, sep="")))
     },
-    
+
     createApplication = function(name, template, accountId) {    
       json <- list()
       json$name <- name

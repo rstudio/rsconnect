@@ -98,9 +98,17 @@ applicationTask <- function(taskDef, appName, account, quiet) {
 
 #' Show Application Logs
 #' 
-#' Show the logs of an application.
+#' Show the logs for a deployed application. 
+#' @param appDir The directory where the local copy of the application
+#' resides. 
+#' @param appName The name of the application to show logs for. May be omitted
+#' if only one application deployment was made from \code{appDir}.
+#' @param account The account under which the application was deployed. May be
+#' omitted if only one account is registered on the system.
+#' @param entries The number of log entries to show. Defaults to 50 entries.
 #' @export
-showLogs <- function(appDir = getwd(), appName = NULL, account = NULL){
+showLogs <- function(appDir = getwd(), appName = NULL, account = NULL, 
+                     entries = 50) {
   
   # determine the log target and target account info
   target <- deploymentTarget(appDir, appName, account)
@@ -112,6 +120,7 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL){
          "and/or associated account.")
     
   # retreive logs
-  logs <- lucid$getLogs(application$id)
+  logs <- lucid$getLogs(application$id, entries)
   cat(logs)
 }
+
