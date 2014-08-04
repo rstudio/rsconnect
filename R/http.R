@@ -267,6 +267,13 @@ httpRCurl <- function(protocol,
   if (!is.null(file))
     options$writefunction <- textGatherer$update
   
+  # when using a custom output writer, add a progress check so we can 
+  # propagate interrupts
+  if (!is.null(writer)) {
+    options$noprogress <- FALSE
+    options$progressfunction <- checkProgress
+  }
+  
   # verbose if requested
   if (httpVerbose())
     options$verbose <- TRUE
@@ -277,7 +284,7 @@ httpRCurl <- function(protocol,
   options$httpheader <- extraHeaders
   
   # make the request
-  time <- system.time(gcFirst = FALSE, {
+  time <- system.time(gcFirst = FALSE, tryCatch({
     if (!is.null(file)) {
       RCurl::curlPerform(url = url,
                          .opts = options,
@@ -289,7 +296,12 @@ httpRCurl <- function(protocol,
       RCurl::getURL(url, 
                     .opts = options,
                     write = textGatherer)
-  }})
+    }}, 
+    error = function(e, ...) {
+      # ignore errors resulting from user abort 
+      if (!identical(e$message, "Callback aborted"))
+        stop(e)
+    }))
   httpTrace(method, path, time)
   
   # return list
@@ -482,4 +494,20 @@ signatureHeaders <- function(authInfo, method, path, file) {
   headers
 }
 
-
+# dummy progress meter--exists to allow us to cancel requests when R is 
+# interrupted
+checkProgress <- function(down, up) {
+  tryCatch((function() { 
+        # leave event loop for a moment to give interrupt a chance to arrive
+        Sys.sleep(0.01)
+        0L 
+      })(),
+     error = function(e, ...) {
+       message("Error:", e$message)
+       1L
+     },
+     interrupt = function(...) {
+       1L
+     }
+  )
+}

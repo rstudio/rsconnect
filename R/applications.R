@@ -141,22 +141,12 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
 writeLogMessage <- function() {
   update = function(data) {
     # write incoming log data to the console
-    tryCatch({
-      cat(data)
-      nchar(data, "bytes") 
-    },
-    error = function(e, ...) {
-      message("Error: ", e$message)
-      1L
-    }, 
-    interrupt = function(...) {
-      message("Interrupted")
-      1L
-    })
+    cat(data)
+    nchar(data, "bytes") 
   }
   value = function() {
     # log data is written to the console, but not returned
-    return(NULL)
+    return("")
   }
   reset = function() {}
   writer = list(update = update, value = value, reset = reset)
