@@ -473,6 +473,19 @@ signatureHeaders <- function(authInfo, method, path, file) {
   # headers to return
   headers <- list()
 
+  # anonymous access
+  if (length(authInfo) == 0)
+    return(headers)
+
+  # if using username/password auth, pass those in the headers directly
+  # CONSIDER: should we have a safeguard to avoid doing this unless over TLS?
+  if (!is.null(authInfo$username) &&
+      !is.null(authInfo$password)) {
+    headers$`X-Auth-Username` <- authInfo$username
+    headers$`X-Auth-Password` <- authInfo$password
+    return(headers)
+  }
+
   # remove query string from path if necessary
   path <- strsplit(path, "?", fixed = TRUE)[[1]][[1]]
 
@@ -481,22 +494,24 @@ signatureHeaders <- function(authInfo, method, path, file) {
 
   # generate contents hash
   if (!is.null(file))
-    md5 <- digest::digest(file, algo="md5", file=TRUE)
+    md5 <- digest::digest(file, algo="md5", file=TRUE, raw=TRUE)
   else
-    md5 <- digest::digest("", algo="md5", serialize=FALSE)
+    md5 <- digest::digest("", algo="md5", serialize=FALSE, raw=TRUE)
+  md5 <- RCurl::base64Encode(md5)
 
   # build cannonical request
-  cannonicalRequest <- paste(method, path, date, md5, sep="\n")
+  canonicalRequest <- paste(method, path, date, md5, sep="\n")
 
   # sign request
-  decodedSecret <- RCurl::base64Decode(authInfo$secret, mode="raw")
-  hmac <- digest::hmac(decodedSecret, cannonicalRequest, algo="sha256")
-  signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
+  private_key <- structure(RCurl::base64Decode(authInfo$private_key, mode="raw"), class="private.key.DER")
+  private_key <- PKI::PKI.load.key(what = private_key, format = "DER", private = TRUE)
+  hashed <- digest::digest(object = canonicalRequest, algo = "sha1", serialize = FALSE, raw = TRUE)
+  signature <- PKI::PKI.sign(key = private_key, digest = hashed)
 
   # return headers
   headers$Date <- date
   headers$`X-Auth-Token` <- authInfo$token
-  headers$`X-Auth-Signature` <- signature
+  headers$`X-Auth-Signature` <- RCurl::base64Encode(signature)
   headers$`X-Content-Checksum` <- md5
   headers
 }

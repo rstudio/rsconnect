@@ -1,7 +1,8 @@
-userRecord <- function(id, email, first_name, last_name, password = password) {
+userRecord <- function(id, email, username, first_name, last_name, password = password) {
   list(
     id = id,
     email = email,
+    username = username,
     first_name = first_name,
     last_name = last_name,
     password = password
@@ -16,7 +17,7 @@ prettyPasteFields <- function(message, fields) {
 }
 
 validateUserRecord <- function(record) {
-  requiredFields <- c("id", "email", "first_name", "last_name", "password")
+  requiredFields <- c("id", "email", "username", "first_name", "last_name", "password")
   missingFields <- setdiff(requiredFields, names(record))
   extraFields <- setdiff(names(record), requiredFields)
 
@@ -54,6 +55,14 @@ connectClient <- function(authInfo) {
     getUser = function(userId) {
       handleResponse(GET(authInfo,
                          file.path("/users", userId)))
+    },
+
+    ## Tokens API
+
+    addToken = function(token) {
+      handleResponse(POST_JSON(authInfo,
+                               "/tokens",
+                               token))
     },
 
     ## Applications API

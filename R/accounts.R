@@ -35,7 +35,7 @@ accounts <- function() {
 
 #' @rdname accounts
 #' @export
-setAccountInfo <- function(name, token, secret) {
+setAccountInfo <- function(name, token, private_key) {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
@@ -43,11 +43,11 @@ setAccountInfo <- function(name, token, secret) {
   if (!isStringParam(token))
     stop(stringParamErrorMessage("token"))
 
-  if (!isStringParam(secret))
-    stop(stringParamErrorMessage("secret"))
+  if (!isStringParam(private_key))
+    stop(stringParamErrorMessage("private_key"))
 
   # create connect client
-  authInfo <- list(token = token, secret = secret)
+  authInfo <- list(token = token, private_key = private_key)
   connect <- connectClient(authInfo)
 
   # get user Id
@@ -73,7 +73,7 @@ setAccountInfo <- function(name, token, secret) {
                  userId = userId,
                  accountId = accountId,
                  token = token,
-                 secret = secret),
+                 private_key = private_key),
             configFile)
 
   # set restrictive permissions on it if possible

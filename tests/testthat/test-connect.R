@@ -25,34 +25,53 @@ isConnectRunning <- function() {
   }
 }
 
-dummyConnectClient <- function() {
-  connectClient(list(token = "token", secret = "secret"))
+createUniqueId <- function(bytes) {
+  paste(as.hexmode(sample(256, bytes)-1), collapse="")
 }
 
 test_that("RStudio Connect users API", {
 
   if (isConnectRunning()) {
 
-    connect <- dummyConnectClient()
+    connect <- connectClient(list())
+    id <- createUniqueId(16)
 
     # add a user
     record <- userRecord(
       id = 1L,
-      email = "user@gmail.com",
+      email = paste0("user", id ,"@gmail.com"),
+      username = paste0("user", id),
       first_name = "User",
       last_name = "Resu",
-      password = "some really hard to break password"
+      password = paste0("password", id)
     )
 
     response <- connect$addUser(record)
     expect_equal(
       response[c("email", "first_name", "last_name")],
       list(
-        email = "user@gmail.com",
-        first_name = "User",
-        last_name = "Resu"
+        email = record$email,
+        first_name = record$first_name,
+        last_name = record$last_name
       )
     )
+
+    # now get a token by using the password we just made
+    connect <- connectClient(list(username = record$username,
+                                  password = record$password))
+
+    token <- generateToken()
+    tokenResponse <- connect$addToken(list(token = token$token,
+                                           public_key = token$public_key))
+    expect_equal(
+      tokenResponse["token"],
+      list(
+        token = token$token
+      )
+    )
+    # finally, create a fully authenticated client using the new token
+    connect <- connectClient(list(token = token$token,
+                                  private_key = token$private_key))
 
     # get that user's info again
     user <- connect$getUser(response$id)
@@ -69,7 +88,7 @@ test_that("RStudio Connect applications + tasks API", {
 
   if (isConnectRunning()) {
 
-    connect <- dummyConnectClient()
+    connect <- connectClient(list())
 
     # Create and remove an example application
 
