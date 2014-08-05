@@ -164,6 +164,7 @@ accountInfo <- function(name) {
   if (!is.null(info$private_key)) {
     info$private_key <- sub("[[:space:]]","",info$private_key)
   }
+  info
 }
 
 #' @rdname accounts

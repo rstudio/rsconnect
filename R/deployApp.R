@@ -127,7 +127,7 @@ deployApp <- function(appDir = getwd(),
                       application$id,
                       "...\n", sep=""))
   task <- connect$deployApplication(application$id, bundle$id)
-  connect$waitForTask(task$task_id, quiet)
+  connect$waitForTask(task$id, quiet)
   displayStatus(paste("Application successfully deployed to ",
                       application$url,
                       "\n", sep=""))
@@ -297,9 +297,7 @@ applicationForTarget <- function(connect, accountInfo, target) {
 
   # create the application if we need to
   if (is.null(app)) {
-    app <- connect$createApplication(target$appName,
-                                   "shiny",
-                                   accountInfo$accountId)
+    app <- connect$createApplication(target$appName)
   }
 
   # return the application

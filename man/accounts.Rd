@@ -8,7 +8,7 @@
 \usage{
 accounts()
 
-setAccountInfo(name, token, secret)
+setAccountInfo(name, token, private_key)
 
 accountInfo(name)
 

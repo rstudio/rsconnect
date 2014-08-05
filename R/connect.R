@@ -97,11 +97,11 @@ connectClient <- function(authInfo) {
       handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
     },
 
-    deployApplication = function(appId) {
-      path <- file.path("/applications", appId, "deploy")
-      handleResponse(POST_JSON(authInfo,
-                               path,
-                               list()))
+    deployApplication = function(applicationId, bundleId=NULL) {
+      path <- paste("/applications/", applicationId, "/deploy", sep="")
+      json <- list()
+      json$bundle <- as.numeric(bundleId)
+      handleResponse(POST_JSON(authInfo, path, json))
     },
 
     ## Tasks API
@@ -125,7 +125,7 @@ connectClient <- function(authInfo) {
                                list()))
     },
 
-    waitForTask = function(taskId) {
+    waitForTask = function(taskId, quiet) {
       path <- file.path("/tasks", taskId)
       while (TRUE) {
         response <- handleResponse(GET(authInfo, path))
