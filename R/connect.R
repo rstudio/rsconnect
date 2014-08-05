@@ -71,9 +71,14 @@ connectClient <- function(authInfo) {
 
     ## Applications API
 
-    listApplications = function() {
-      handleResponse(GET(authInfo,
-                         "/applications"))
+    listApplications = function(accountId, filters = NULL) {
+      if (is.null(filters)) {
+        filters <- vector()
+      }
+      path <- "/applications/"
+      filters <- c(filterQuery("account_id", accountId), filters)
+      query <- paste(filters, collapse="&")
+      listRequest(authInfo, path, query, "applications")
     },
 
     createApplication = function(name) {

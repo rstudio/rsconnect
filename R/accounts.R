@@ -53,7 +53,7 @@ addUser <- function(username, first_name, last_name, email, password = NULL,
     stop(response$error)
 
   # quietly register this user
-  registerUser(username, password, quiet = TRUE)
+  registerUser(username, response$id, password, quiet = TRUE)
 
   if (!quiet)
     message("User '", response$username, "' created successfully.")
@@ -86,6 +86,7 @@ registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
 
   # write the user info
   write.dcf(list(username = username,
+                 accountId = response$id,
                  token = token$token,
                  private_key = as.character(token$private_key)),
             configFile)
@@ -158,9 +159,12 @@ accountInfo <- function(name) {
     stop(missingAccountErrorMessage(name))
 
   accountDcf <- readDcf(accountConfigFile(name), all=TRUE)
-  as.list(accountDcf)
+  info <- as.list(accountDcf)
+  # remove all whitespace from private key
+  if (!is.null(info$private_key)) {
+    info$private_key <- sub("[[:space:]]","",info$private_key)
+  }
 }
-
 
 #' @rdname accounts
 #' @export
