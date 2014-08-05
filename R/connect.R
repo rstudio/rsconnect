@@ -57,6 +57,10 @@ connectClient <- function(authInfo) {
                          file.path("/users", userId)))
     },
 
+    currentUser = function() {
+      handleResponse(GET(authInfo, "/users/current/"))
+    },
+
     ## Tokens API
 
     addToken = function(token) {

@@ -32,6 +32,71 @@ accounts <- function() {
                                        pattern=glob2rx("*.dcf")))
 }
 
+#' Add a user
+#' @export
+addUser <- function(username, first_name, last_name, email, password = NULL,
+                    quiet = FALSE) {
+  if (!quiet)
+    message("Creating new RStudio Connect user '", username, "'")
+  if (is.null(password))
+    password <- promptPassword()
+  connect <- connectClient(list())
+  response <- connect$addUser(userRecord(
+      id = 0,
+      username = username,
+      first_name = first_name,
+      last_name = last_name,
+      email = email,
+      password = password
+    ))
+  if (!is.null(response$error))
+    stop(response$error)
+
+  # quietly register this user
+  registerUser(username, password, quiet = TRUE)
+
+  if (!quiet)
+    message("User '", response$username, "' created successfully.")
+  invisible(NULL)
+}
+
+registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
+  if (!quiet)
+    message("Registering RStudio Connect user '", username, "'")
+  if (is.null(password))
+    password <- readPassword("Password")
+  connect <- connectClient(list(username = username, password = password))
+  if (userId == 0) {
+    response <- connect$currentUser()
+    if (!is.null(response$error))
+      stop(response$error)
+    userId <- response$id
+  }
+
+  # generate and store an auth token for this user
+  token <- generateToken()
+  response <- connect$addToken(list(token = token$token,
+                                    public_key = token$public_key))
+
+  if (!is.null(response$error))
+    stop(response$error)
+
+  # get the path to the config file
+  configFile <- accountConfigFile(username)
+
+  # write the user info
+  write.dcf(list(username = username,
+                 token = token$token,
+                 private_key = as.character(token$private_key)),
+            configFile)
+
+  # set restrictive permissions on it if possible
+  if (identical(.Platform$OS.type, "unix"))
+    Sys.chmod(configFile, mode="0600")
+  if (!quiet)
+    message("User '", username, "' registered successfully.")
+  invisible(NULL)
+}
 
 #' @rdname accounts
 #' @export

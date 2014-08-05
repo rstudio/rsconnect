@@ -25,10 +25,6 @@ isConnectRunning <- function() {
   }
 }
 
-createUniqueId <- function(bytes) {
-  paste(as.hexmode(sample(256, bytes)-1), collapse="")
-}
-
 test_that("RStudio Connect users API", {
 
   if (isConnectRunning()) {
