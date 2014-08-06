@@ -129,6 +129,9 @@ connectClient <- function(authInfo) {
       path <- file.path("/tasks", taskId)
       while (TRUE) {
         response <- handleResponse(GET(authInfo, path))
+        if (length(response$status) > 0) {
+          lapply(response$status, message)
+        }
         if (response$finished) {
           break
         }
