@@ -29,6 +29,17 @@ bundleApp <- function(appDir) {
     file.copy(from, to)
   }
 
+  # ensure we have an up-to-date packrat lockfile
+  packratVersion <- packageVersion("packrat")
+  if (packratVersion < "0.4.0.6") {
+    stop("You must install the latest version of packrat before you can bundle an application.")
+  }
+  suppressMessages(
+    packrat:::snapshotImpl(project = bundleDir,
+                           snapshot.sources = FALSE,
+                           verbose = FALSE)
+  )
+
   # get application users
   users <- authorizedUsers(appDir)
 
