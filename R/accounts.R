@@ -33,6 +33,23 @@ accounts <- function() {
 }
 
 #' Add a user
+#'
+#' Adds a new user to an RStudio Connect server.
+#'
+#' @param username Username to add.
+#' @param first_name User's first name.
+#' @param last_name User's last name.
+#' @param email User's email address.
+#' @param password User's password. Can be \code{NULL}, in which case an
+#'   interactive prompt will ask you to enter and confirm a password. The
+#'   password is not stored.
+#' @param quiet Whether to print status messages.
+#'
+#' @details This function creates a new user on an RStudio Conenct server, and
+#'   registers that user on the machine, so subsequent calls to e.g.
+#'   \code{deployApp} will use the new user account. If you already have an
+#'   account on RStudio Connect, use \code{\link{registerUser}} instead.
+#'
 #' @export
 addUser <- function(username, first_name, last_name, email, password = NULL,
                     quiet = FALSE) {
@@ -58,7 +75,30 @@ addUser <- function(username, first_name, last_name, email, password = NULL,
   invisible(NULL)
 }
 
+#' Register an existing user
+#'
+#' Registers an existing user account on an RStudio Connect server.
+#'
+#' @param username Username to register.
+#' @param userId Numeric ID of user to register. Normally this is set to 0, in
+#'   which case the user ID is retrieved from the server.
+#' @param password User's password. Can be \code{NULL}, in which case you will
+#'   be prompted to supply a password interactively. The password is not stored.
+#' @param quiet Whether to print status messages.
+#'
+#' @details This function registers an existing user account on RStudio Connect
+#'   with the \pkg{rsconnect} package. At least one account must be registered
+#'   before applications can be deployed.
+#'
+#' @export
 registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
+  # get the path to the config file
+  configFile <- accountConfigFile(username)
+  if (file.exists(configFile)) {
+    message("The user '", username, "' is already registered.")
+    return(invisible(NULL))
+  }
+
   if (!quiet)
     message("Registering RStudio Connect user '", username, "'")
   if (is.null(password))
@@ -73,9 +113,6 @@ registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
   token <- generateToken()
   response <- connect$addToken(list(token = token$token,
                                     public_key = token$public_key))
-
-  # get the path to the config file
-  configFile <- accountConfigFile(username)
 
   # write the user info
   write.dcf(list(username = username,

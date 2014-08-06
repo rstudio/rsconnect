@@ -76,7 +76,7 @@ connectClient <- function(authInfo) {
         filters <- vector()
       }
       path <- "/applications/"
-      filters <- c(filterQuery("account_id", accountId), filters)
+      filters <- c(filterQuery("user_id", accountId), filters)
       query <- paste(filters, collapse="&")
       listRequest(authInfo, path, query, "applications")
     },

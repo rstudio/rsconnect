@@ -6,7 +6,28 @@
 addUser(username, first_name, last_name, email, password = NULL,
   quiet = FALSE)
 }
+\arguments{
+\item{username}{Username to add.}
+
+\item{first_name}{User's first name.}
+
+\item{last_name}{User's last name.}
+
+\item{email}{User's email address.}
+
+\item{password}{User's password. Can be \code{NULL}, in which case an
+interactive prompt will ask you to enter and confirm a password. The
+password is not stored.}
+
+\item{quiet}{Whether to print status messages.}
+}
 \description{
-Add a user
+Adds a new user to an RStudio Connect server.
+}
+\details{
+This function creates a new user on an RStudio Conenct server, and
+  registers that user on the machine, so subsequent calls to e.g.
+  \code{deployApp} will use the new user account. If you already have an
+  account on RStudio Connect, use \code{\link{registerUser}} instead.
 }
 
