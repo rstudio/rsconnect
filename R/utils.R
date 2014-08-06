@@ -86,10 +86,10 @@ readDcf <- function(...) {
 hr <- function(message = "", n = 80) {
   if (nzchar(message)) {
     r <- as.integer((n - nchar(message) - 2) / 2)
-    hr <- paste(rep_len("#", r), collapse = '')
+    hr <- paste(rep.int("#", r), collapse = '')
     cat(hr, message, hr, sep=" ", '\n')
   } else {
-    hr <- paste(rep_len("#", n), collapse = '')
+    hr <- paste(rep.int("#", n), collapse = '')
     cat(hr, sep="", '\n')
   }
 }
