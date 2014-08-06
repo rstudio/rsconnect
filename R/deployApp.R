@@ -127,10 +127,15 @@ deployApp <- function(appDir = getwd(),
                       application$id,
                       "...\n", sep=""))
   task <- connect$deployApplication(application$id, bundle$id)
-  connect$waitForTask(task$id, quiet)
-  displayStatus(paste("Application successfully deployed to ",
-                      application$url,
-                      "\n", sep=""))
+  response <- connect$waitForTask(task$id, quiet)
+  if (response$code != 0) {
+    displayStatus(paste0("Application deployment failed with error: ",
+                         response$error, "\n"))
+    return
+  } else {
+    displayStatus(paste0("Application successfully deployed to ",
+                        application$url, "\n"))
+  }
 
   # save the deployment info for subsequent updates
   saveDeployment(appDir,

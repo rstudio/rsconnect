@@ -133,7 +133,7 @@ connectClient <- function(authInfo) {
           lapply(response$status, message)
         }
         if (response$finished) {
-          break
+          return(response)
         }
         Sys.sleep(2)
       }
