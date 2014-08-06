@@ -51,6 +51,7 @@ test_that("RStudio Connect users API", {
         last_name = record$last_name
       )
     )
+    accountId <- response$id
 
     # now get a token by using the password we just made
     connect <- connectClient(list(username = record$username,
@@ -70,21 +71,11 @@ test_that("RStudio Connect users API", {
                                   private_key = token$private_key))
 
     # get that user's info again
-    user <- connect$getUser(response$id)
+    user <- connect$getUser(accountId)
     expect_equal(
       response[c("email", "first_name", "last_name")],
       user[c("email", "first_name", "last_name")]
     )
-
-  }
-
-})
-
-test_that("RStudio Connect applications + tasks API", {
-
-  if (isConnectRunning()) {
-
-    connect <- connectClient(list())
 
     # Create and remove an example application
 
@@ -92,7 +83,7 @@ test_that("RStudio Connect applications + tasks API", {
     splineReticulator <- connect$createApplication("SplineReticulator")
 
     ## Confirm it exists
-    apps <- connect$listApplications()
+    apps <- connect$listApplications(accountId)
     app <- apps[[which(sapply(apps, `[[`, "id") == splineReticulator$id)]]
     expect_true(app$name == "SplineReticulator")
 
@@ -112,14 +103,14 @@ test_that("RStudio Connect applications + tasks API", {
 
     ## Delete an application
     connect$deleteApplication(response$id)
-    apps <- connect$listApplications()
+    apps <- connect$listApplications(accountId)
     expect_false(response$id %in% sapply(apps, "[[", "id"))
 
     ## Delete all applications
     ids <- sapply(apps, "[[", "id")
     lapply(ids, connect$deleteApplication)
     expect_identical(
-      unclass(connect$listApplications()),
+      unclass(connect$listApplications(accountId)),
       list()
     )
 
