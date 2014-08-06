@@ -49,8 +49,6 @@ addUser <- function(username, first_name, last_name, email, password = NULL,
       email = email,
       password = password
     ))
-  if (!is.null(response$error))
-    stop(response$error)
 
   # quietly register this user
   registerUser(username, response$id, password, quiet = TRUE)
@@ -68,8 +66,6 @@ registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
   connect <- connectClient(list(username = username, password = password))
   if (userId == 0) {
     response <- connect$currentUser()
-    if (!is.null(response$error))
-      stop(response$error)
     userId <- response$id
   }
 
@@ -77,9 +73,6 @@ registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
   token <- generateToken()
   response <- connect$addToken(list(token = token$token,
                                     public_key = token$public_key))
-
-  if (!is.null(response$error))
-    stop(response$error)
 
   # get the path to the config file
   configFile <- accountConfigFile(username)
@@ -162,7 +155,7 @@ accountInfo <- function(name) {
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
-    info$private_key <- sub("[[:space:]]","",info$private_key)
+    info$private_key <- gsub("[[:space:]]","",info$private_key)
   }
   info
 }
