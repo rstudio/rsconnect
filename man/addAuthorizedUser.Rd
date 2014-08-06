@@ -19,7 +19,7 @@ Add authorized user for application
 \dontrun{
 
 # add a user (prompts for password)
-addAuthroizedUser("andy")
+addAuthorizedUser("andy")
 
 # add a user using supplied password
 addAuthorizedUser("tareef", "MrShiny45")
