@@ -15,5 +15,6 @@ Imports:
     RJSONIO
 Suggests:
     scrypt,
-    knitr
+    knitr,
+    testthat
 License: GPL-2

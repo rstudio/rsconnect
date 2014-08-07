@@ -14,7 +14,8 @@ paths that this linter uses.}
 
 \item{message}{Function that, given content and lines, returns an
 informative message for the user. Typically generated with
-\code{\link{makeLinterMessage}}.}
+\code{makeLinterMessage}, which pretty-prints a message alongside
+some content and lines.}
 
 \item{suggestion}{String giving a prescribed fix for the linted problem.}
 }
@@ -38,7 +39,10 @@ addLinter("no.capitals", linter(
   # Use the default message constructor
   message = function(content, lines, ...) {
     makeLinterMessage("Capital letters found on the following lines", content, lines)
-  }
+  },
+  
+  # Give a suggested prescription
+  suggest = "Do not use capital letters in these documents."
   
 ))
 }
