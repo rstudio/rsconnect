@@ -268,10 +268,11 @@ httpRCurl <- function(protocol,
     options$writefunction <- textGatherer$update
   
   # when using a custom output writer, add a progress check so we can 
-  # propagate interrupts
+  # propagate interrupts, and wait a long time (for streaming)
   if (!is.null(writer)) {
     options$noprogress <- FALSE
     options$progressfunction <- checkProgress
+    options$timeout <- 9999999
   }
   
   # verbose if requested
@@ -298,8 +299,13 @@ httpRCurl <- function(protocol,
                     write = textGatherer)
     }}, 
     error = function(e, ...) {
-      # ignore errors resulting from user abort 
-      if (!identical(e$message, "Callback aborted"))
+      # ignore errors resulting from timeout or user abort
+      if (identical(e$message, 
+                    "transfer closed with outstanding read data remaining") ||
+          identical(e$message, "Callback aborted"))
+        return
+      # bubble remaining errors through  
+      else
         stop(e)
     }))
   httpTrace(method, path, time)
