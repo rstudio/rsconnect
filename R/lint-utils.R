@@ -55,7 +55,16 @@ enumerate <- function(X, FUN, ...) {
   result
 }
 
+#' Construct a Linter Message
+#' 
+#' Pretty-prints a linter message. Primarily used as a helper
+#' for constructing linter messages with \code{\link{linter}}.
+#' 
+#' @param header A header message describing the linter.
+#' @param content The content of the file that was linted.
+#' @param lines The line numbers from \code{content} that contain lint.
 makeLinterMessage <- function(header, content, lines) {
+  
   c(
     paste0(header, ":"),
     paste(lines, ": ", content[lines], sep = ""),

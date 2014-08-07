@@ -24,8 +24,7 @@ addLinter <- function(name, linter) {
 ##'   paths that this linter uses.
 ##' @param message Function that, given content and lines, returns an 
 ##'   informative message for the user. Typically generated with 
-##'   \code{makeLinterMessage}, which pretty-prints a message alongside
-##'   some content and lines.
+##'   \code{\link{makeLinterMessage}}.
 ##' @param suggestion String giving a prescribed fix for the linted problem.
 ##' @export
 ##' @example examples/example-linter.R
