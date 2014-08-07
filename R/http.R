@@ -271,7 +271,7 @@ httpRCurl <- function(protocol,
   # propagate interrupts, and wait a long time (for streaming)
   if (!is.null(writer)) {
     options$noprogress <- FALSE
-    options$progressfunction <- checkProgress
+    options$progressfunction <- writer$progress
     options$timeout <- 9999999
   }
   
@@ -300,9 +300,8 @@ httpRCurl <- function(protocol,
     }}, 
     error = function(e, ...) {
       # ignore errors resulting from timeout or user abort
-      if (identical(e$message, 
-                    "transfer closed with outstanding read data remaining") ||
-          identical(e$message, "Callback aborted"))
+      if (identical(e$message, "Callback aborted") || 
+          identical(e$message, "transfer closed with outstanding read data remaining"))
         return
       # bubble remaining errors through  
       else
@@ -498,22 +497,4 @@ signatureHeaders <- function(authInfo, method, path, file) {
   headers$`X-Auth-Signature` <- signature
   headers$`X-Content-Checksum` <- md5
   headers
-}
-
-# dummy progress meter--exists to allow us to cancel requests when R is 
-# interrupted
-checkProgress <- function(down, up) {
-  tryCatch((function() { 
-        # leave event loop for a moment to give interrupt a chance to arrive
-        Sys.sleep(0.01); cat("")
-        0L 
-      })(),
-     error = function(e, ...) {
-       message("Error:", e$message)
-       1L
-     },
-     interrupt = function(...) {
-       1L
-     }
-  )
 }

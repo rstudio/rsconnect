@@ -131,17 +131,108 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
             "FALSE to show a log snapshot.")
     }
   }    
-  # retrieve logs
-  logs <- lucid$getLogs(application$id, entries, streaming, 
-                        if (streaming) writeLogMessage() else NULL)
-  if (!streaming)
+  if (streaming) {
+    # if streaming, fork a new R process to do the blocking operation
+    rPath <- file.path(R.home("bin"), "R")
+    killfile <- tempfile()
+    outfile <- tempfile()
+    
+    # remove the output filewhen done. don't remove the killfile; wait for the 
+    # forked process to do that when it's finished (happens async after we 
+    # exit)
+    on.exit(unlink(outfile), add = TRUE)
+
+    # form the command 
+    cmd <- paste0("shinyapps:::showStreamingLogs(", 
+                  "account = '", target$account, "', ", 
+                  "applicationId = '", application$id, "', ", 
+                  "entries = ", entries, ", ", 
+                  "killfile = '", killfile, "')")
+    args <- paste("--vanilla", "--slave", paste0("-e \"", cmd, "\""))
+
+    # execute the command, then wait for the file to which output will be 
+    # written to exist
+    system2(command = rPath, args = args, stdout = outfile, stderr = outfile, 
+            wait = FALSE)
+    repeat {
+      tryCatch({
+        logReader <- file(outfile, open = "rt", blocking = FALSE)
+        break
+      }, 
+      error = function(e, ...) { Sys.sleep(0.1) }, 
+      warning = function (...) {})
+    }
+    
+    # once the file is open, close it when finished
+    on.exit(close(logReader), add = TRUE)
+    
+    # read from the output file until interrupted
+    repeat {
+      tryCatch({
+        if (file.exists(killfile))
+          break
+        writeLines(readLines(con = logReader, warn = FALSE))
+        Sys.sleep(0.1)
+      },
+      interrupt = function(...) {
+        # when R is interrupted, write out the killfile so the async process
+        # won't hang around listening for logs
+        close(file(killfile, open="wt"))
+      }, 
+      error = function(e, ...) {
+        print(e$message)
+      })
+    }
+  } else {
+    # if not streaming, poll for the entries directly 
+    logs <- lucid$getLogs(application$id, entries, FALSE, NULL)
     cat(logs)
+  }
 }
 
-writeLogMessage <- function() {
+# blocks for network traffic--should be run in a child process
+showStreamingLogs <- function(account, applicationId, entries, killfile) {
+  # get account information
+  accountInfo <- accountInfo(account)  
+  lucid <- lucidClient(accountInfo)
+
+  # remove the killfile when we're done
+  on.exit(unlink(killfile), add = TRUE)
+  
+  # the server may time out the request after a few minutes--keep asking for it
+  # until interrupted by the presence of the killfile
+  skip <- 0
+  repeat {
+  tryCatch({
+             lucid$getLogs(applicationId, entries, TRUE, 
+                           writeLogMessage(killfile, skip))
+             if (file.exists(killfile)) 
+               break
+             # after the first fetch, we've seen all recent entries, so show 
+             # only new entries. unfortunately /logs/ doesn't support getting 0
+             # entries, so get one and don't log it.
+             entries <- 1
+             skip <- 1
+           }, 
+           error = function(e) {
+             # if the server times out, ignore the error; otherwise, let it 
+             # bubble through
+             if (!identical(e$message, 
+                      "transfer closed with outstanding read data remaining")) {
+               stop(e)
+             }
+           })
+  }
+}
+
+writeLogMessage <- function(killfile, skip) {
   update = function(data) {
     # write incoming log data to the console
-    cat(data)
+    if (skip > 0) {
+      skip <<- skip - 1 
+    } else {
+      cat(data) 
+    }
     nchar(data, "bytes") 
   }
   value = function() {
@@ -149,7 +240,32 @@ writeLogMessage <- function() {
     return("")
   }
   reset = function() {}
-  writer = list(update = update, value = value, reset = reset)
+  # dummy progress meter--exists to allow us to cancel requests when R is 
+  # interrupted
+  progress <- function(down, up) {
+    tryCatch((function() { 
+      # leave event loop for a moment to give interrupt a chance to arrive
+      Sys.sleep(0.01); cat("")
+      # check for the existance of the killfile--if it exists, abort the process
+      if (file.exists(killfile))
+        1L
+      else
+        0L 
+    })(),
+    # when an error or interrupt occurs, write the killfile and tell RCurl to
+    # abort the request
+    error = function(e, ...) {
+      close(file(killfile, open="wt"))
+      1L
+    },
+    interrupt = function(...) {
+      close(file(killfile, open="wt"))
+      1L
+    }
+    )
+  }  
+  writer = list(update = update, value = value, reset = reset, 
+                progress = progress)
   class(writer) <- c("RCurlTextHandler", "RCurlCallbackFunction")
   return(writer)
 }
