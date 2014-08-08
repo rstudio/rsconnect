@@ -112,7 +112,7 @@ applicationTask <- function(taskDef, appName, account, quiet) {
 #' @export
 showLogs <- function(appDir = getwd(), appName = NULL, account = NULL, 
                      entries = 50, streaming = FALSE) {
-  
+
   # determine the log target and target account info
   target <- deploymentTarget(appDir, appName, account)
   accountInfo <- accountInfo(target$account)  
@@ -142,24 +142,35 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
     # exit)
     on.exit(unlink(outfile), add = TRUE)
 
-    # form the command 
+    # form the command. we need to double-escape backslashes in file names, as
+    # they will get collapsed twice before being resolved.
     cmd <- paste0("shinyapps:::showStreamingLogs(", 
                   "account = '", target$account, "', ", 
                   "applicationId = '", application$id, "', ", 
-                  "entries = ", entries, ", ", 
-                  "killfile = '", killfile, "')")
+                  "entries = ", entries, ", ",
+                  "outfile = '", gsub("\\", "\\\\", outfile, fixed = TRUE), "', ",
+                  "killfile = '", gsub("\\", "\\\\", killfile, fixed = TRUE), "')")
     args <- paste("--vanilla", "--slave", paste0("-e \"", cmd, "\""))
 
     # execute the command, then wait for the file to which output will be 
     # written to exist
-    system2(command = rPath, args = args, stdout = outfile, stderr = outfile, 
+    system2(command = rPath, args = args, stdout = NULL, stderr = NULL, 
             wait = FALSE)
+    tries <- 0
     repeat {
       tryCatch({
+        Sys.sleep(0.1) 
+        tries <- tries + 1
         logReader <- file(outfile, open = "rt", blocking = FALSE)
         break
       }, 
-      error = function(e, ...) { Sys.sleep(0.1) }, 
+      error = function(e, ...) { 
+        # if we can't open the file, keep trying until we can, or until we've
+        # exhausted our maximum retries (~5s).
+        if (tries > 500) {
+          stop("Failed to start log listener.")
+        }
+      }, 
       warning = function (...) {})
     }
     
@@ -191,7 +202,8 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
 }
 
 # blocks for network traffic--should be run in a child process
-showStreamingLogs <- function(account, applicationId, entries, killfile) {
+showStreamingLogs <- function(account, applicationId, entries, outfile, 
+                              killfile) {
   # get account information
   accountInfo <- accountInfo(account)  
   lucid <- lucidClient(accountInfo)
@@ -199,13 +211,15 @@ showStreamingLogs <- function(account, applicationId, entries, killfile) {
   # remove the killfile when we're done
   on.exit(unlink(killfile), add = TRUE)
   
+  conn <- file(outfile, open = "wt", blocking = FALSE)
+  
   # the server may time out the request after a few minutes--keep asking for it
   # until interrupted by the presence of the killfile
   skip <- 0
   repeat {
   tryCatch({
              lucid$getLogs(applicationId, entries, TRUE, 
-                           writeLogMessage(killfile, skip))
+                           writeLogMessage(conn, killfile, skip))
              if (file.exists(killfile)) 
                break
              # after the first fetch, we've seen all recent entries, so show 
@@ -225,13 +239,13 @@ showStreamingLogs <- function(account, applicationId, entries, killfile) {
   }
 }
 
-writeLogMessage <- function(killfile, skip) {
+writeLogMessage <- function(conn, killfile, skip) {
   update = function(data) {
     # write incoming log data to the console
     if (skip > 0) {
       skip <<- skip - 1 
     } else {
-      cat(data) 
+      cat(data, file = conn) 
     }
     nchar(data, "bytes") 
   }
