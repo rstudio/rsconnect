@@ -126,16 +126,18 @@ connectClient <- function(authInfo) {
     },
 
     waitForTask = function(taskId, quiet) {
-      path <- file.path("/tasks", taskId)
+      start <- 0
       while (TRUE) {
+        path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
         response <- handleResponse(GET(authInfo, path))
         if (length(response$status) > 0) {
           lapply(response$status, message)
+          start <- response$last_status
         }
         if (response$finished) {
           return(response)
         }
-        Sys.sleep(2)
+        Sys.sleep(1)
       }
     }
 
