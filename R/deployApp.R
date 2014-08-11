@@ -284,15 +284,9 @@ deploymentTarget <- function(appDir, appName, account) {
 # get the record for the application of the given name in the given account, or
 # NULL if no application exists by that name
 getAppByName <- function(lucid, accountInfo, name) {
-  app <- NULL
-  existingApps <- lucid$listApplications(accountInfo$accountId)
-  for (existingApp in existingApps) {
-    if (identical(existingApp$name, name)) {
-      app <- existingApp
-      break
-    }
-  }
-  return(app)
+  # NOTE: returns a list with 0 or 1 elements
+  app <- lucid$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(app)) app[[1]] else NULL
 }
 
 # get the application associated with the passed deployment target

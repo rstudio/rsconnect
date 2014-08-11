@@ -18,13 +18,12 @@ lucidClient <- function(authInfo) {
       listRequest(authInfo, path, query, "accounts")
     },
     
-    listApplications = function(accountId, filters = NULL) {
-      if (is.null(filters)) {
-        filters <- vector()
-      }
+    listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
-      filters <- c(filterQuery("account_id", accountId), filters)
-      query <- paste(filters, collapse="&")
+      query <- paste(filterQuery(
+        c("account_id", names(filters)),
+        c(accountId, unname(filters))
+      ), collapse = "&")
       listRequest(authInfo, path, query, "applications")
     },
   
