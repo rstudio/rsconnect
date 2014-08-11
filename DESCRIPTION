@@ -8,7 +8,7 @@ Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Interface for deploying shiny applications to the ShinyApps
     service
 Depends:
-    R (>= 2.15.0)
+    R (>= 3.0.0)
 Imports:
     digest,
     RCurl,
