@@ -1,6 +1,5 @@
-userRecord <- function(id, email, username, first_name, last_name, password = password) {
+userRecord <- function(email, username, first_name, last_name, password) {
   list(
-    id = id,
     email = email,
     username = username,
     first_name = first_name,
@@ -17,7 +16,7 @@ prettyPasteFields <- function(message, fields) {
 }
 
 validateUserRecord <- function(record) {
-  requiredFields <- c("id", "email", "username", "first_name", "last_name", "password")
+  requiredFields <- c("email", "username", "first_name", "last_name", "password")
   missingFields <- setdiff(requiredFields, names(record))
   extraFields <- setdiff(names(record), requiredFields)
 
@@ -87,7 +86,7 @@ connectClient <- function(authInfo) {
                                list(name = name)))
     },
 
-    deleteApplication = function(appId) {
+    terminateApplication = function(appId) {
       handleResponse(DELETE(authInfo,
                             file.path("/applications", appId)))
     },

@@ -34,7 +34,6 @@ test_that("RStudio Connect users API", {
 
     # add a user
     record <- userRecord(
-      id = 1L,
       email = paste0("user", id ,"@gmail.com"),
       username = paste0("user", id),
       first_name = "User",
@@ -43,14 +42,21 @@ test_that("RStudio Connect users API", {
     )
 
     response <- connect$addUser(record)
+
+    # check a couple main fields
     expect_equal(
-      response[c("email", "first_name", "last_name")],
+      response[c("email", "first_name", "last_name", "username")],
       list(
         email = record$email,
         first_name = record$first_name,
-        last_name = record$last_name
+        last_name = record$last_name,
+        username = record$username
       )
     )
+
+    # make sure we returned an empty password field (or no password field?)
+    expect_true(response$password %in% "" || is.null(response$password))
+
     accountId <- response$id
 
     # now get a token by using the password we just made
@@ -66,6 +72,7 @@ test_that("RStudio Connect users API", {
         token = token$token
       )
     )
+
     # finally, create a fully authenticated client using the new token
     connect <- connectClient(list(token = token$token,
                                   private_key = token$private_key))
@@ -102,17 +109,9 @@ test_that("RStudio Connect users API", {
     response <- connect$waitForTask(id)
 
     ## Delete an application
-    connect$deleteApplication(response$id)
+    connect$terminateApplication(appId)
     apps <- connect$listApplications(accountId)
     expect_false(response$id %in% sapply(apps, "[[", "id"))
-
-    ## Delete all applications
-    ids <- sapply(apps, "[[", "id")
-    lapply(ids, connect$deleteApplication)
-    expect_identical(
-      unclass(connect$listApplications(accountId)),
-      list()
-    )
 
   }
 
