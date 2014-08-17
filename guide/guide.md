@@ -233,7 +233,7 @@ across application deployments.__ Additionally, the distributed nature of the Sh
 means that instances may be shutdown and re-created at any time for maintenance or to recover from
 server failures.
 
-2) It is possible to have more then one instance of an application. This means that __multiple instances
+2) It is possible to have more than one instance of an application. This means that __multiple instances
 of an application do not share a local filesystem__. A file written to one instance will not be available
 to the other.
 
