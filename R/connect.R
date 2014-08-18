@@ -68,6 +68,11 @@ connectClient <- function(authInfo) {
                                token))
     },
 
+    getToken = function(tokenId) {
+      handleResponse(GET(authInfo,
+                         file.path("/tokens", tokenId)))
+    },
+
     ## Applications API
 
     listApplications = function(accountId, filters = NULL) {

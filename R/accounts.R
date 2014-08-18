@@ -32,91 +32,77 @@ accounts <- function() {
                                        pattern=glob2rx("*.dcf")))
 }
 
-#' Add a user
+#' Connect User Account
 #'
-#' Adds a new user to an RStudio Connect server.
+#' Connect an RStudio Connect user account to the package, so that it can be
+#' used to deploy and manage applications on behalf of the account.
 #'
-#' @param username Username to add.
-#' @param first_name User's first name.
-#' @param last_name User's last name.
-#' @param email User's email address.
-#' @param password User's password. Can be \code{NULL}, in which case an
-#'   interactive prompt will ask you to enter and confirm a password. The
-#'   password is not stored.
-#' @param quiet Whether to print status messages.
+#' @param username An optional nickname for the account; applied only if the
+#'   account doesn't have a nickname already set on RStudio Connect.
+#' @param quiet Whether or not to show messages and prompts while connecting
+#'   the account.
 #'
-#' @details This function creates a new user on an RStudio Conenct server, and
-#'   registers that user on the machine, so subsequent calls to e.g.
-#'   \code{deployApp} will use the new user account. If you already have an
-#'   account on RStudio Connect, use \code{\link{registerUser}} instead.
-#'
-#' @export
-addUser <- function(username, first_name, last_name, email, password = NULL,
-                    quiet = FALSE) {
-  if (!quiet)
-    message("Creating new RStudio Connect user '", username, "'")
-  if (is.null(password))
-    password <- promptPassword()
-  connect <- connectClient(list())
-  response <- connect$addUser(userRecord(
-      id = 0,
-      username = username,
-      first_name = first_name,
-      last_name = last_name,
-      email = email,
-      password = password
-    ))
-
-  # quietly register this user
-  registerUser(username, response$id, password, quiet = TRUE)
-
-  if (!quiet)
-    message("User '", response$username, "' created successfully.")
-  invisible(NULL)
-}
-
-#' Register an existing user
-#'
-#' Registers an existing user account on an RStudio Connect server.
-#'
-#' @param username Username to register.
-#' @param userId Numeric ID of user to register. Normally this is set to 0, in
-#'   which case the user ID is retrieved from the server.
-#' @param password User's password. Can be \code{NULL}, in which case you will
-#'   be prompted to supply a password interactively. The password is not stored.
-#' @param quiet Whether to print status messages.
-#'
-#' @details This function registers an existing user account on RStudio Connect
-#'   with the \pkg{rsconnect} package. At least one account must be registered
-#'   before applications can be deployed.
+#' @details When this function is invoked, a web browser will be launched on
+#'   RStudio Connect, where you will be prompted to enter your credentials. Upon
+#'   successful authentication, your local installation of \pkg{rsconnect} and
+#'   your RStudio Connect account will be paired, and you'll be able to deploy
+#'   and manage applications using the package without further prompts for
+#'   credentials.
 #'
 #' @export
-registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
-  # get the path to the config file
-  configFile <- accountConfigFile(username)
-  if (file.exists(configFile)) {
-    message("The user '", username, "' is already registered.")
-    return(invisible(NULL))
-  }
-
-  if (!quiet)
-    message("Registering RStudio Connect user '", username, "'")
-  if (is.null(password))
-    password <- readPassword("Password")
-  connect <- connectClient(list(username = username, password = password))
-  if (userId == 0) {
-    response <- connect$currentUser()
-    userId <- response$id
-  }
-
-  # generate and store an auth token for this user
+connectUser <- function(username = "", quiet = FALSE) {
+  # generate a token and send it to the server
   token <- generateToken()
+  connect <- connectClient(list())
   response <- connect$addToken(list(token = token$token,
                                     public_key = token$public_key))
+  if (!quiet) {
+    message("A browser window should open; if it doesn't, you may authenticate ",
+            "manually by visiting ", response$token_claim_url, ".")
+    message("Waiting for authentication...")
+  }
+  utils::browseURL(response$token_claim_url)
+
+  # keep trying to authenticate until we're successful
+  connect <- connectClient(list(token = token$token,
+                                private_key = token$private_key))
+  interrupted <- FALSE
+  repeat {
+    tryCatch({
+      Sys.sleep(1)
+      user <- connect$currentUser()
+      break
+    },
+    error = function(e, ...) {
+      # we expect this to return unauthorized until the token becomes active,
+      # but bubble other errors
+      if (length(grep("401 - Unauthorized", e$message)) == 0) {
+        stop(e)
+      }
+    })
+  }
+
+  # populate the username if there wasn't one set on the server
+  if (nchar(user$username) == 0) {
+    if (nchar(username) > 0)
+      user$username <- username
+    else
+      user$username <- tolower(paste0(substr(user$first_name, 1, 1),
+                                      user$last_name))
+
+    # in interactive mode, prompt for a username before accepting defaults
+    if (!quiet && interactive() && nchar(username) == 0) {
+      input <- readline(paste0("Choose a nickname for this account (default '",
+                               user$username, "'): "))
+      if (nchar(input) > 0)
+        user$username <- input
+    }
+  }
 
   # write the user info
-  write.dcf(list(username = username,
-                 accountId = response$id,
+  configFile <- accountConfigFile(user$username)
+  write.dcf(list(username = user$username,
+                 accountId = user$id,
                  token = token$token,
                  private_key = as.character(token$private_key)),
             configFile)
@@ -124,9 +110,11 @@ registerUser <- function(username, userId = 0, password = NULL, quiet = FALSE) {
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
     Sys.chmod(configFile, mode="0600")
-  if (!quiet)
-    message("User '", username, "' registered successfully.")
-  invisible(NULL)
+
+  if (!quiet) {
+    message("Account registered successfully: ", user$first_name, " ",
+            user$last_name, " (", user$username, ")")
+  }
 }
 
 #' @rdname accounts
