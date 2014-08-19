@@ -38,7 +38,8 @@ validateUserRecord <- function(record) {
 }
 
 # return a list of functions that can be used to interact with connect
-connectClient <- function(authInfo) {
+connectClient <- function(service, authInfo) {
+  service <- parseHttpUrl(service)
 
   list(
 
@@ -52,12 +53,12 @@ connectClient <- function(authInfo) {
     },
 
     getUser = function(userId) {
-      handleResponse(GET(authInfo,
+      handleResponse(GET(service, authInfo,
                          file.path("/users", userId)))
     },
 
     currentUser = function() {
-      handleResponse(GET(authInfo, "/users/current/"))
+      handleResponse(GET(service, authInfo, "/users/current/"))
     },
 
     ## Tokens API
@@ -69,7 +70,7 @@ connectClient <- function(authInfo) {
     },
 
     getToken = function(tokenId) {
-      handleResponse(GET(authInfo,
+      handleResponse(GET(service, authInfo,
                          file.path("/tokens", tokenId)))
     },
 
@@ -112,19 +113,22 @@ connectClient <- function(authInfo) {
 
     listTasks = function() {
       path <- "/tasks"
-      handleResponse(GET(authInfo,
+      handleResponse(GET(service,
+                         authInfo,
                          path))
     },
 
     getTask = function(taskId) {
       path <- file.path("/tasks", taskId)
-      handleResponse(GET(authInfo,
+      handleResponse(GET(service,
+                         authInfo,
                          path))
     },
 
     killTask = function(taskId) {
       path <- file.path("/tasks", taskId, "kill")
-      handleResponse(POST_JSON(authInfo,
+      handleResponse(POST_JSON(service,
+                               authInfo,
                                path,
                                list()))
     },
@@ -133,7 +137,7 @@ connectClient <- function(authInfo) {
       start <- 0
       while (TRUE) {
         path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
-        response <- handleResponse(GET(authInfo, path))
+        response <- handleResponse(GET(service, authInfo, path))
         if (length(response$status) > 0) {
           lapply(response$status, message)
           start <- response$last_status
@@ -164,7 +168,7 @@ listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
                            sep="")
 
     # make request and append the results
-    response <- handleResponse(GET(authInfo, pathWithQuery))
+    response <- handleResponse(GET(service, authInfo, pathWithQuery))
     results <- append(results, response[[listName]])
 
     # update the offset

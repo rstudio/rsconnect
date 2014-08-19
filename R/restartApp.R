@@ -21,8 +21,8 @@ restartApp <- function(appName, account = NULL, quiet = FALSE) {
   taskDef <- list()
   taskDef$beginStatus <- "Restarting application"
   taskDef$endStatus <- "Application successfully restarted"
-  taskDef$action <- function(connect, application) {
-    connect$deployApplication(application$id)
+  taskDef$action <- function(client, application) {
+    client$deployApplication(application$id)
   }
 
   # perform it

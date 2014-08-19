@@ -3,9 +3,12 @@
 \alias{connectUser}
 \title{Connect User Account}
 \usage{
-connectUser(username = "", quiet = FALSE)
+connectUser(server = NULL, username = "", quiet = FALSE)
 }
 \arguments{
+\item{server}{The server to connect to. Optional if there is only one server
+registered.}
+
 \item{username}{An optional nickname for the account; applied only if the
 account doesn't have a nickname already set on RStudio Connect.}
 

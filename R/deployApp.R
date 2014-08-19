@@ -100,7 +100,7 @@ deployApp <- function(appDir = getwd(),
   withStatus <- withStatus(quiet)
 
   # initialize connect client
-  connect <- connectClient(accountInfo)
+  client <- clientForAccount(accountInfo)
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appDir, appName, account)
@@ -108,14 +108,14 @@ deployApp <- function(appDir = getwd(),
 
   # get the application to deploy (creates a new app on demand)
   withStatus("Preparing to deploy application", {
-    application <- applicationForTarget(connect, accountInfo, target)
+    application <- applicationForTarget(client, accountInfo, target)
   })
 
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
       bundlePath <- bundleApp(appDir)
-      bundle <- connect$uploadApplication(application$id, bundlePath)
+      bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {
     # redeploy current bundle
@@ -126,8 +126,8 @@ deployApp <- function(appDir = getwd(),
   displayStatus(paste("Deploying application: ",
                       application$id,
                       "...\n", sep=""))
-  task <- connect$deployApplication(application$id, bundle$id)
-  response <- connect$waitForTask(task$id, quiet)
+  task <- client$deployApplication(application$id, bundle$id)
+  response <- client$waitForTask(task$id, quiet)
   if (response$code != 0) {
     displayStatus(paste0("Application deployment failed with error: ",
                          response$error, "\n"))
@@ -277,12 +277,12 @@ deploymentTarget <- function(appDir, appName, account) {
 
 # get the application associated with the passed deployment target
 # (creates a new application if necessary)
-applicationForTarget <- function(connect, accountInfo, target) {
+applicationForTarget <- function(client, accountInfo, target) {
 
   # list the existing applications for this account and see if we
   # need to create a new application
   app <- NULL
-  existingApps <- connect$listApplications(accountInfo$accountId)
+  existingApps <- client$listApplications(accountInfo$accountId)
   for (existingApp in existingApps) {
     if (identical(existingApp$name, target$appName)) {
       app <- existingApp
@@ -302,7 +302,7 @@ applicationForTarget <- function(connect, accountInfo, target) {
 
   # create the application if we need to
   if (is.null(app)) {
-    app <- connect$createApplication(target$appName)
+    app <- client$createApplication(target$appName)
   }
 
   # return the application

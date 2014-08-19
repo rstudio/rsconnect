@@ -40,11 +40,11 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, redeploy = TRU
   }
 
   # set application properties
-  connect <- connectClient(accountInfo)
+  client <- clientForAccount(accountInfo)
   for (i in names(properties)) {
     propertyName <- i
     propertyValue <- properties[[i]]
-    connect$configureApplication(application$id, propertyName, propertyValue)
+    client$configureApplication(application$id, propertyName, propertyValue)
   }
 
   # redeploy application if requested

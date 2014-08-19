@@ -2,11 +2,6 @@ userAgent <- function() {
   paste("rsconnect", packageVersion("rsconnect"), sep="/")
 }
 
-serviceUrl <- function() {
-  parseHttpUrl(getOption("rsconnect.service_url",
-                         "http://localhost:8082"))
-}
-
 parseHttpUrl <- function(urlText) {
 
   matches <- regexec("(http|https)://([^:/#?]+)(?::(\\d+))?(.*)", urlText)
@@ -335,13 +330,15 @@ POST_JSON <- function(authInfo, path, json, headers = list()) {
        headers = headers)
 }
 
-POST <- function(authInfo,
+POST <- function(service,
+                 authInfo,
                  path,
                  contentType,
                  file = NULL,
                  content = NULL,
                  headers = list()) {
-  httpWithBody(authInfo, "POST", path, contentType, file, content, headers)
+  httpWithBody(service, authInfo, "POST", path, contentType, file, content,
+               headers)
 }
 
 PUT_JSON <- function(authInfo, path, json, headers = list()) {
@@ -352,17 +349,19 @@ PUT_JSON <- function(authInfo, path, json, headers = list()) {
       headers = headers)
 }
 
-PUT <- function(authInfo,
+PUT <- function(service,
+                authInfo,
                 path,
                 contentType,
                 file = NULL,
                 content = NULL,
                 headers = list()) {
-  httpWithBody(authInfo, "PUT", path, contentType, file, content, headers)
+  httpWithBody(service, authInfo, "PUT", path, contentType, file, content, headers)
 }
 
 
-httpWithBody <- function(authInfo,
+httpWithBody <- function(service,
+                         authInfo,
                          method,
                          path,
                          contentType,
@@ -374,9 +373,6 @@ httpWithBody <- function(authInfo,
     stop("You must specify either the file or content parameter.")
   if ((!is.null(file) && !is.null(content)))
     stop("You must specify either the file or content parameter but not both.")
-
-  # get the service url
-  service <- serviceUrl()
 
   # prepend the service path
   path <- paste(service$path, path, sep="")
@@ -403,12 +399,10 @@ httpWithBody <- function(authInfo,
        file)
 }
 
-GET <- function(authInfo,
+GET <- function(service,
+                authInfo,
                 path,
                 headers = list()) {
-
-  # get the service url
-  service <- serviceUrl()
 
   # prepend the service path
   path <- paste(service$path, path, sep="")
@@ -427,12 +421,10 @@ GET <- function(authInfo,
        headers)
 }
 
-DELETE <- function(authInfo,
+DELETE <- function(service,
+                   authInfo,
                    path,
                    headers = list()) {
-
-  # get the service url
-  service <- serviceUrl()
 
   # prepend the service path
   path <- paste(service$path, path, sep="")
@@ -469,22 +461,8 @@ rfc2616Date <- function(time = Sys.time()) {
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {
-
   # headers to return
   headers <- list()
-
-  # anonymous access
-  if (length(authInfo) == 0)
-    return(headers)
-
-  # if using username/password auth, pass those in the headers directly
-  # CONSIDER: should we have a safeguard to avoid doing this unless over TLS?
-  if (!is.null(authInfo$username) &&
-      !is.null(authInfo$password)) {
-    headers$`X-Auth-Username` <- authInfo$username
-    headers$`X-Auth-Password` <- authInfo$password
-    return(headers)
-  }
 
   # remove query string from path if necessary
   path <- strsplit(path, "?", fixed = TRUE)[[1]][[1]]
@@ -494,26 +472,36 @@ signatureHeaders <- function(authInfo, method, path, file) {
 
   # generate contents hash
   if (!is.null(file))
-    md5 <- digest::digest(file, algo="md5", file=TRUE, raw=TRUE)
+    md5 <- digest::digest(file, algo="md5", file=TRUE)
   else
-    md5 <- digest::digest("", algo="md5", serialize=FALSE, raw=TRUE)
-  md5 <- RCurl::base64Encode(md5)
+    md5 <- digest::digest("", algo="md5", serialize=FALSE)
 
-  # build cannonical request
+  # build canonical request
   canonicalRequest <- paste(method, path, date, md5, sep="\n")
 
-  # sign request
-  private_key <- structure(RCurl::base64Decode(authInfo$private_key, mode="raw"), class="private.key.DER")
-  private_key <- PKI::PKI.load.key(what = private_key, format = "DER", private = TRUE)
-  hashed <- digest::digest(object = canonicalRequest, algo = "sha1", serialize = FALSE, raw = TRUE)
-  signature <- PKI::PKI.sign(key = private_key, digest = hashed)
+  if (!is.null(authInfo$secret)) {
+    # sign request using shared secret
+    decodedSecret <- RCurl::base64Decode(authInfo$secret, mode="raw")
+    hmac <- digest::hmac(decodedSecret, canonicalRequest, algo="sha256")
+    signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
+  } else if (!is.null(authInfo$private_key)) {
+    # sign request using local private key
+    private_key <- structure(
+      RCurl::base64Decode(authInfo$private_key, mode="raw"),
+      class="private.key.DER")
+    private_key <- PKI::PKI.load.key(what = private_key, format = "DER",
+                                     private = TRUE)
+    hashed <- digest::digest(object = canonicalRequest, algo = "sha1",
+                             serialize = FALSE, raw = TRUE)
+    signature <- PKI::PKI.sign(key = private_key, digest = hashed)
+  } else {
+    stop("can't sign request: no shared secret or private key")
+  }
 
   # return headers
   headers$Date <- date
   headers$`X-Auth-Token` <- authInfo$token
-  headers$`X-Auth-Signature` <- RCurl::base64Encode(signature)
+  headers$`X-Auth-Signature` <- signature
   headers$`X-Content-Checksum` <- md5
   headers
 }
-
-

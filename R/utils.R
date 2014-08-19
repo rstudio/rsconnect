@@ -124,3 +124,11 @@ rstudioEncoding <- function(dir) {
   enc <- drop(readDcf(proj, 'Encoding'))
   enc[!is.na(enc)]
 }
+
+# return the leaf from a path (e.g. /foo/abc/def -> def)
+fileLeaf <- function(path) {
+  components <- strsplit(path, "/")
+  unlist(lapply(components, function(component) {
+    component[length(component)]
+  }))
+}

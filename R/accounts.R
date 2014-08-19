@@ -28,8 +28,15 @@
 #' }
 #' @export
 accounts <- function() {
-  tools::file_path_sans_ext(list.files(accountsConfigDir(),
-                                       pattern=glob2rx("*.dcf")))
+  # get a raw list of accounts
+  accountnames <- tools::file_path_sans_ext(list.files(accountsConfigDir(),
+    pattern=glob2rx("*.dcf"), recursive = TRUE))
+
+  # convert to a data frame
+  servers <- dirname(accountnames)
+  servers[servers == "."] <- "shinyapps.io"
+  names <- fileLeaf(accountnames)
+  data.frame(name = names, server = servers)
 }
 
 #' Connect User Account
@@ -37,6 +44,8 @@ accounts <- function() {
 #' Connect an RStudio Connect user account to the package, so that it can be
 #' used to deploy and manage applications on behalf of the account.
 #'
+#' @param server The server to connect to. Optional if there is only one server
+#'   registered.
 #' @param username An optional nickname for the account; applied only if the
 #'   account doesn't have a nickname already set on RStudio Connect.
 #' @param quiet Whether or not to show messages and prompts while connecting
@@ -50,10 +59,17 @@ accounts <- function() {
 #'   credentials.
 #'
 #' @export
-connectUser <- function(username = "", quiet = FALSE) {
+connectUser <- function(server = NULL, username = "", quiet = FALSE) {
+  # if server isn't specified, look up the default
+  if (is.null(server)) {
+    target <- getDefaultServer(local = TRUE)
+  } else {
+    target <- serverInfo(server)
+  }
+
   # generate a token and send it to the server
   token <- generateToken()
-  connect <- connectClient(list())
+  connect <- connectClient(service = target$url, authInfo = list())
   response <- connect$addToken(list(token = token$token,
                                     public_key = token$public_key))
   if (!quiet) {
@@ -64,8 +80,9 @@ connectUser <- function(username = "", quiet = FALSE) {
   utils::browseURL(response$token_claim_url)
 
   # keep trying to authenticate until we're successful
-  connect <- connectClient(list(token = token$token,
-                                private_key = token$private_key))
+  connect <- connectClient(service = target$url, authInfo =
+                             list(token = token$token,
+                                  private_key = token$private_key))
   interrupted <- FALSE
   repeat {
     tryCatch({
@@ -100,10 +117,11 @@ connectUser <- function(username = "", quiet = FALSE) {
   }
 
   # write the user info
-  configFile <- accountConfigFile(user$username)
+  configFile <- accountConfigFile(server, user$username)
   write.dcf(list(username = user$username,
                  accountId = user$id,
                  token = token$token,
+                 server = server,
                  private_key = as.character(token$private_key)),
             configFile)
 
@@ -119,7 +137,7 @@ connectUser <- function(username = "", quiet = FALSE) {
 
 #' @rdname accounts
 #' @export
-setAccountInfo <- function(name, token, private_key) {
+setAccountInfo <- function(name, token, secret) {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
@@ -127,19 +145,19 @@ setAccountInfo <- function(name, token, private_key) {
   if (!isStringParam(token))
     stop(stringParamErrorMessage("token"))
 
-  if (!isStringParam(private_key))
-    stop(stringParamErrorMessage("private_key"))
+  if (!isStringParam(secret))
+    stop(stringParamErrorMessage("secret"))
 
   # create connect client
-  authInfo <- list(token = token, private_key = private_key)
-  connect <- connectClient(authInfo)
+  authInfo <- list(token = token, secret = secret)
+  lucid <- lucidClient(.lucidServerInfo$url, authInfo)
 
   # get user Id
-  userId <- connect$currentUser()$id
+  userId <- lucid$currentUser()$id
 
   # get account id
   accountId <- NULL
-  accounts <- connect$accountsForUser(userId)
+  accounts <- lucid$accountsForUser(userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
       accountId <- account$id
@@ -150,14 +168,14 @@ setAccountInfo <- function(name, token, private_key) {
     stop("Unable to determine account id for account named '", name, "'")
 
   # get the path to the config file
-  configFile <- accountConfigFile(name)
+  configFile <- accountConfigFile(name, .lucidServerInfo$name)
 
   # write the user info
   write.dcf(list(name = name,
                  userId = userId,
                  accountId = accountId,
                  token = token,
-                 private_key = private_key),
+                 secret = secret),
             configFile)
 
   # set restrictive permissions on it if possible
@@ -167,16 +185,16 @@ setAccountInfo <- function(name, token, private_key) {
 
 #' @rdname accounts
 #' @export
-accountInfo <- function(name) {
+accountInfo <- function(name, server = NULL) {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
 
-  configFile <- accountConfigFile(name)
+  configFile <- accountConfigFile(name, server)
   if (!file.exists(configFile))
     stop(missingAccountErrorMessage(name))
 
-  accountDcf <- readDcf(accountConfigFile(name), all=TRUE)
+  accountDcf <- readDcf(configFile, all = TRUE)
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
@@ -187,12 +205,12 @@ accountInfo <- function(name) {
 
 #' @rdname accounts
 #' @export
-removeAccount <- function(name) {
+removeAccount <- function(name, server = NULL) {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
 
-  configFile <- accountConfigFile(name)
+  configFile <- accountConfigFile(name, server)
   if (!file.exists(configFile))
     stop(missingAccountErrorMessage(name))
 
@@ -202,8 +220,19 @@ removeAccount <- function(name) {
 }
 
 
-accountConfigFile <- function(name) {
-  normalizePath(file.path(accountsConfigDir(), paste(name, ".dcf", sep="")),
+accountConfigFile <- function(name, server = NULL) {
+  # if no server is specified, try to find an account with the given name
+  # associated with any server
+  if (is.null(server)) {
+    file <- list.files(accountsConfigDir(), pattern = paste0(name, ".dcf"),
+                       recursive = TRUE, full.names = TRUE)
+    if (length(file) != 1) {
+      return(NULL)
+    }
+    return(file)
+  }
+  normalizePath(file.path(accountsConfigDir(), server,
+                          paste(name, ".dcf", sep="")),
                 mustWork = FALSE)
 }
 

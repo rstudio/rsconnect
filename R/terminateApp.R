@@ -21,8 +21,8 @@ terminateApp <- function(appName, account = NULL, quiet = FALSE) {
   taskDef <- list()
   taskDef$beginStatus <- "Terminating application"
   taskDef$endStatus <- "Application successfully terminated"
-  taskDef$action <- function(connect, application) {
-    connect$terminateApplication(application$id)
+  taskDef$action <- function(client, application) {
+    client$terminateApplication(application$id)
   }
 
   # perform it
