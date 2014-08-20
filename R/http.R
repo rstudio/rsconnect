@@ -290,10 +290,16 @@ httpRCurl <- function(protocol,
     location <- headers[["Location"]]
   else
     location <- NULL
+  # presume a plain text response unless specified otherwise
+  contentType <- if ("Content-Type" %in% names(headers)) {
+    headers[["Content-Type"]]
+  } else {
+    "text/plain"
+  }
   list(path = path,
        status = as.integer(headers[["status"]]),
        location = location,
-       contentType = headers[["Content-Type"]],
+       contentType = contentType,
        content = textGatherer$value())
 }
 
@@ -322,8 +328,9 @@ httpFunction <- function() {
                ". Valid values are rcurl, curl, and internal"))
 }
 
-POST_JSON <- function(authInfo, path, json, headers = list()) {
-  POST(authInfo,
+POST_JSON <- function(service, authInfo, path, json, headers = list()) {
+  POST(service,
+       authInfo,
        path,
        "application/json",
        content = RJSONIO::toJSON(json, pretty = TRUE),
@@ -383,9 +390,11 @@ httpWithBody <- function(service,
     writeChar(content, file,  eos = NULL, useBytes=TRUE)
   }
 
-  # get signature headers and append them
-  sigHeaders <- signatureHeaders(authInfo, method, path, file)
-  headers <- append(headers, sigHeaders)
+  # if this request is to be authenticated, sign it
+  if (length(authInfo) > 0) {
+    sigHeaders <- signatureHeaders(authInfo, method, path, file)
+    headers <- append(headers, sigHeaders)
+  }
 
   # perform POST
   http <- httpFunction()
@@ -470,21 +479,32 @@ signatureHeaders <- function(authInfo, method, path, file) {
   # generate date
   date <- rfc2616Date()
 
-  # generate contents hash
-  if (!is.null(file))
-    md5 <- digest::digest(file, algo="md5", file=TRUE)
-  else
-    md5 <- digest::digest("", algo="md5", serialize=FALSE)
-
-  # build canonical request
-  canonicalRequest <- paste(method, path, date, md5, sep="\n")
-
   if (!is.null(authInfo$secret)) {
+    # generate contents hash
+    if (!is.null(file))
+      md5 <- digest::digest(file, algo="md5", file=TRUE)
+    else
+      md5 <- digest::digest("", algo="md5", serialize=FALSE)
+
+    # build canonical request
+    canonicalRequest <- paste(method, path, date, md5, sep="\n")
+
     # sign request using shared secret
     decodedSecret <- RCurl::base64Decode(authInfo$secret, mode="raw")
     hmac <- digest::hmac(decodedSecret, canonicalRequest, algo="sha256")
     signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
   } else if (!is.null(authInfo$private_key)) {
+    # generate contents hash (this is done slightly differently for private key
+    # auth since we use base64 throughout)
+    if (!is.null(file))
+      md5 <- digest::digest(file, algo="md5", file = TRUE, raw = TRUE)
+    else
+      md5 <- digest::digest("", algo="md5", serialize = FALSE, raw = TRUE)
+    md5 <- RCurl::base64Encode(md5)
+
+    # build canonical request
+    canonicalRequest <- paste(method, path, date, md5, sep="\n")
+
     # sign request using local private key
     private_key <- structure(
       RCurl::base64Decode(authInfo$private_key, mode="raw"),
@@ -493,7 +513,8 @@ signatureHeaders <- function(authInfo, method, path, file) {
                                      private = TRUE)
     hashed <- digest::digest(object = canonicalRequest, algo = "sha1",
                              serialize = FALSE, raw = TRUE)
-    signature <- PKI::PKI.sign(key = private_key, digest = hashed)
+    signature <- RCurl::base64Encode(
+      PKI::PKI.sign(key = private_key, digest = hashed))
   } else {
     stop("can't sign request: no shared secret or private key")
   }

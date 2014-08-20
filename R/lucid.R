@@ -16,7 +16,7 @@ lucidClient <- function(service, authInfo) {
     accountsForUser = function(userId) {
       path <- "/accounts/"
       query <- ""
-      listRequest(authInfo, path, query, "accounts")
+      listRequest(service, authInfo, path, query, "accounts")
     },
 
     listApplications = function(accountId, filters = list()) {
@@ -25,7 +25,7 @@ lucidClient <- function(service, authInfo) {
         c("account_id", names(filters)),
         c(accountId, unname(filters))
       ), collapse = "&")
-      listRequest(authInfo, path, query, "applications")
+      listRequest(service, authInfo, path, query, "applications")
     },
 
     getApplicationInfo = function(appId) {
@@ -45,7 +45,7 @@ lucidClient <- function(service, authInfo) {
       json$name <- name
       json$template <- template
       json$account <- as.numeric(accountId)
-      handleResponse(POST_JSON(authInfo, "/applications/", json))
+      handleResponse(POST_JSON(service, authInfo, "/applications/", json))
     },
 
     configureApplication = function(applicationId, propertyName, propertyValue) {
@@ -64,19 +64,19 @@ lucidClient <- function(service, authInfo) {
       path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
       json$bundle <- as.numeric(bundleId)
-      handleResponse(POST_JSON(authInfo, path, json))
+      handleResponse(POST_JSON(service, authInfo, path, json))
     },
 
     terminateApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/terminate", sep="")
-      handleResponse(POST_JSON(authInfo, path, list()))
+      handleResponse(POST_JSON(service, authInfo, path, list()))
     },
 
     scaleApplication = function(applicationId, instances) {
       path <- paste("/applications/", applicationId, "/scale", sep="")
       json <- list()
       json$instance_count <- instances
-      handleResponse(POST_JSON(authInfo, path, json))
+      handleResponse(POST_JSON(service, authInfo, path, json))
     },
 
     listTasks = function(accountId, filters = NULL) {
@@ -86,7 +86,7 @@ lucidClient <- function(service, authInfo) {
       path <- "/tasks/"
       filters <- c(filterQuery("account_id", accountId), filters)
       query <- paste(filters, collapse="&")
-      listRequest(authInfo, path, query, "tasks", max=100)
+      listRequest(service, authInfo, path, query, "tasks", max=100)
     },
 
     getTaskInfo = function(taskId) {
@@ -140,7 +140,8 @@ lucidClient <- function(service, authInfo) {
   )
 }
 
-listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
+listRequest = function(service, authInfo, path, query, listName, page = 100,
+                       max=NULL) {
 
   # accumulate multiple pages of results
   offset <- 0

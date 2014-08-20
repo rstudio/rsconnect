@@ -47,7 +47,8 @@ connectClient <- function(service, authInfo) {
 
     addUser = function(userRecord) {
       userRecord <- validateUserRecord(userRecord)
-      handleResponse(POST_JSON(authInfo,
+      handleResponse(POST_JSON(service,
+                               authInfo,
                                "/users",
                                userRecord))
     },
@@ -64,7 +65,8 @@ connectClient <- function(service, authInfo) {
     ## Tokens API
 
     addToken = function(token) {
-      handleResponse(POST_JSON(authInfo,
+      handleResponse(POST_JSON(service,
+                               authInfo,
                                "/tokens",
                                token))
     },
@@ -83,11 +85,12 @@ connectClient <- function(service, authInfo) {
       path <- "/applications/"
       filters <- c(filterQuery("user_id", accountId), filters)
       query <- paste(filters, collapse="&")
-      listRequest(authInfo, path, query, "applications")
+      listRequest(service, authInfo, path, query, "applications")
     },
 
     createApplication = function(name) {
-      handleResponse(POST_JSON(authInfo,
+      handleResponse(POST_JSON(service,
+                               authInfo,
                                "/applications",
                                list(name = name)))
     },
@@ -106,7 +109,7 @@ connectClient <- function(service, authInfo) {
       path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
       json$bundle <- as.numeric(bundleId)
-      handleResponse(POST_JSON(authInfo, path, json))
+      handleResponse(POST_JSON(service, authInfo, path, json))
     },
 
     ## Tasks API
@@ -153,7 +156,8 @@ connectClient <- function(service, authInfo) {
 
 }
 
-listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
+listRequest = function(service, authInfo, path, query, listName, page = 100,
+                       max=NULL) {
 
   # accumulate multiple pages of results
   offset <- 0

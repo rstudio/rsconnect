@@ -32,11 +32,15 @@ accounts <- function() {
   accountnames <- tools::file_path_sans_ext(list.files(accountsConfigDir(),
     pattern=glob2rx("*.dcf"), recursive = TRUE))
 
+  if (length(accountnames) == 0) {
+    return(NULL)
+  }
+
   # convert to a data frame
   servers <- dirname(accountnames)
   servers[servers == "."] <- "shinyapps.io"
   names <- fileLeaf(accountnames)
-  data.frame(name = names, server = servers)
+  data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
 #' Connect User Account
@@ -83,7 +87,7 @@ connectUser <- function(server = NULL, username = "", quiet = FALSE) {
   connect <- connectClient(service = target$url, authInfo =
                              list(token = token$token,
                                   private_key = token$private_key))
-  interrupted <- FALSE
+
   repeat {
     tryCatch({
       Sys.sleep(1)
@@ -118,6 +122,7 @@ connectUser <- function(server = NULL, username = "", quiet = FALSE) {
 
   # write the user info
   configFile <- accountConfigFile(server, user$username)
+  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
   write.dcf(list(username = user$username,
                  accountId = user$id,
                  token = token$token,
@@ -169,13 +174,15 @@ setAccountInfo <- function(name, token, secret) {
 
   # get the path to the config file
   configFile <- accountConfigFile(name, .lucidServerInfo$name)
+  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
 
   # write the user info
   write.dcf(list(name = name,
                  userId = userId,
                  accountId = accountId,
                  token = token,
-                 secret = secret),
+                 secret = secret,
+                 server = .lucidServerInfo$name),
             configFile)
 
   # set restrictive permissions on it if possible
@@ -247,7 +254,7 @@ missingAccountErrorMessage <- function(name) {
 resolveAccount <- function(account) {
 
   # get existing accounts
-  accounts <- accounts()
+  accounts <- accounts()[,"name"]
   if (length(accounts) == 0)
     stopWithNoAccount()
 
