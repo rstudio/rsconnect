@@ -23,11 +23,11 @@
 tasks <- function(account = NULL) {
 
   # resolve account and create connect client
-  accountInfo <- accountInfo(resolveAccount(account))
-  client <- clientForAccount(accountInfo)
+  accountDetails <- accountInfo(resolveAccount(account))
+  client <- clientForAccount(accountDetails)
 
   # list tasks
-  tasks <- client$listTasks(accountInfo$accountId)
+  tasks <- client$listTasks(accountDetails$accountId)
 
   # extract the subset of fields we're interested in
   res <- lapply(tasks, `[`, c('id', 'action', 'status', 'created_time'))
@@ -61,8 +61,8 @@ tasks <- function(account = NULL) {
 taskLog <- function(taskId, account = NULL, output = NULL) {
 
   # resolve account and create connect client
-  accountInfo <- accountInfo(resolveAccount(account))
-  client <- clientForAccount(accountInfo)
+  accountDetails <- accountInfo(resolveAccount(account))
+  client <- clientForAccount(accountDetails)
 
   if (identical(output, "stderr")) {
     conn <- stderr()
@@ -74,7 +74,7 @@ taskLog <- function(taskId, account = NULL, output = NULL) {
   cat(client$getTaskLogs(taskId), file=conn)
 
   # get child tasks
-  tasks <- client$listTasks(accountInfo$accountId,
+  tasks <- client$listTasks(accountDetails$accountId,
                             filters=filterQuery("parent_id", taskId))
 
   # get child task logs

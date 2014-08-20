@@ -121,12 +121,12 @@ connectUser <- function(server = NULL, username = "", quiet = FALSE) {
   }
 
   # write the user info
-  configFile <- accountConfigFile(server, user$username)
+  configFile <- accountConfigFile(user$username, target$name)
   dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
   write.dcf(list(username = user$username,
                  accountId = user$id,
                  token = token$token,
-                 server = server,
+                 server = target$name,
                  private_key = as.character(token$private_key)),
             configFile)
 

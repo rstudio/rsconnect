@@ -57,7 +57,8 @@ lucidClient <- function(service, authInfo) {
 
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep="")
-      handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
+      handleResponse(POST(service, authInfo, path, "application/x-gzip",
+                          bundlePath))
     },
 
     deployApplication = function(applicationId, bundleId=NULL) {

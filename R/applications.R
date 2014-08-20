@@ -32,11 +32,11 @@
 applications <- function(account = NULL) {
 
   # resolve account and create connect client
-  accountInfo <- accountInfo(resolveAccount(account))
-  client <- clientForAccount(accountInfo)
+  accountDetails <- accountInfo(resolveAccount(account))
+  client <- clientForAccount(accountDetails)
 
   # retreive applications
-  apps <- client$listApplications(accountInfo$accountId)
+  apps <- client$listApplications(accountDetails$accountId)
 
   # extract the subset of fields we're interested in
   res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time',
@@ -61,9 +61,9 @@ applications <- function(account = NULL) {
   as.data.frame(res, stringsAsFactors = FALSE)
 }
 
-resolveApplication <- function(accountInfo, appName) {
-  client <- clientForAccount(accountInfo)
-  apps <- client$listApplications(accountInfo$accountId)
+resolveApplication <- function(accountDetails, appName) {
+  client <- clientForAccount(accountDetails)
+  apps <- client$listApplications(accountDetails$accountId)
   for (app in apps) {
     if (identical(app$name, appName))
       return (app)
@@ -84,11 +84,11 @@ applicationTask <- function(taskDef, appName, account, quiet) {
   displayStatus(paste(taskDef$beginStatus, "...\n", sep=""))
 
   # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(account))
-  application <- resolveApplication(accountInfo, appName)
+  accountDetails <- accountInfo(resolveAccount(account))
+  application <- resolveApplication(accountDetails, appName)
 
   # perform the action
-  client <- clientForAccount(accountInfo)
+  client <- clientForAccount(accountDetails)
   task <- taskDef$action(client, application)
   client$waitForTask(task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))

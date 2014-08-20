@@ -135,11 +135,11 @@ missingServerErrorMessage <- function(name) {
   paste0("server named '", name, "' does not exist")
 }
 
-clientForAccount <- function(accountInfo) {
-  if (accountInfo$server == .lucidServerInfo$name)
-    lucidClient(.lucidServerInfo$url, accountInfo)
+clientForAccount <- function(account) {
+  if (account$server == .lucidServerInfo$name)
+    lucidClient(.lucidServerInfo$url, account)
   else {
-    server <- serverInfo(accountInfo$server)
-    connectClient(serve$url, accountInfo)
+    server <- serverInfo(account$server)
+    connectClient(server$url, account)
   }
 }

@@ -100,15 +100,15 @@ deployApp <- function(appDir = getwd(),
   withStatus <- withStatus(quiet)
 
   # initialize connect client
-  client <- clientForAccount(accountInfo)
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appDir, appName, account)
-  accountInfo <- accountInfo(target$account)
+  accountDetails <- accountInfo(target$account)
+  client <- clientForAccount(accountDetails)
 
   # get the application to deploy (creates a new app on demand)
   withStatus("Preparing to deploy application", {
-    application <- applicationForTarget(client, accountInfo, target)
+    application <- applicationForTarget(client,   accountDetails, target)
   })
 
   if (upload) {
@@ -127,7 +127,8 @@ deployApp <- function(appDir = getwd(),
                       application$id,
                       "...\n", sep=""))
   task <- client$deployApplication(application$id, bundle$id)
-  response <- client$waitForTask(task$id, quiet)
+  taskId <- if (is.null(task$task_id)) task$id else task$task_id
+  response <- client$waitForTask(taskId, quiet)
   if (response$code != 0) {
     displayStatus(paste0("Application deployment failed with error: ",
                          response$error, "\n"))
@@ -171,7 +172,7 @@ deployApp <- function(appDir = getwd(),
 deploymentTarget <- function(appDir, appName, account) {
 
   # read existing accounts
-  accounts <- accounts()
+  accounts <- accounts()[,"name"]
   if (length(accounts) == 0)
     stopWithNoAccount()
 
@@ -277,12 +278,12 @@ deploymentTarget <- function(appDir, appName, account) {
 
 # get the application associated with the passed deployment target
 # (creates a new application if necessary)
-applicationForTarget <- function(client, accountInfo, target) {
+applicationForTarget <- function(client, accountDetails, target) {
 
   # list the existing applications for this account and see if we
   # need to create a new application
   app <- NULL
-  existingApps <- client$listApplications(accountInfo$accountId)
+  existingApps <- client$listApplications(accountDetails$accountId)
   for (existingApp in existingApps) {
     if (identical(existingApp$name, target$appName)) {
       app <- existingApp

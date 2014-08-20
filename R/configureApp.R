@@ -22,8 +22,8 @@
 configureApp <- function(appName, appDir=getwd(), account = NULL, redeploy = TRUE, size = NULL, instances = NULL, quiet = FALSE) {
 
   # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(account))
-  application <- resolveApplication(accountInfo, appName)
+  accountDetails <- accountInfo(resolveAccount(account))
+  application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(quiet)
 
@@ -40,7 +40,7 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, redeploy = TRU
   }
 
   # set application properties
-  client <- clientForAccount(accountInfo)
+  client <- clientForAccount(accountDetails)
   for (i in names(properties)) {
     propertyName <- i
     propertyValue <- properties[[i]]

@@ -96,13 +96,15 @@ connectClient <- function(service, authInfo) {
     },
 
     terminateApplication = function(appId) {
-      handleResponse(DELETE(authInfo,
+      handleResponse(DELETE(service,
+                            authInfo,
                             file.path("/applications", appId)))
     },
 
     uploadApplication = function(appId, bundlePath) {
       path <- file.path("/applications", appId, "upload")
-      handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
+      handleResponse(POST(service, authInfo, path, "application/x-gzip",
+                          bundlePath))
     },
 
     deployApplication = function(applicationId, bundleId=NULL) {
