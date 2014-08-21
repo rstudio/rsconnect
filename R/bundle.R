@@ -65,6 +65,13 @@ createAppManifest <- function(appDir, files, users) {
     # validate the repository (returns an error message if there is a problem)
     msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
     
+    # append the bioc version to any bioconductor packages
+    # TODO: resolve against actual BioC repo a package was pulled from
+    # (in case the user mixed and matched)
+    if ("biocViews" %in% names(description$description)) {
+      description$description$biocVersion <- BiocInstaller::biocVersion()
+    }
+    
     # good to go
     packages[[pkg]] <- description
   }
