@@ -15,7 +15,8 @@
 #' @seealso \code{\link{applications}}, \code{\link{deployApp}}, and
 #'   \code{\link{restartApp}}
 #' @export
-terminateApp <- function(appName, account = NULL, quiet = FALSE) {
+terminateApp <- function(appName, account = NULL, server = NULL,
+                         quiet = FALSE) {
 
   # define terminate task
   taskDef <- list()
@@ -26,6 +27,6 @@ terminateApp <- function(appName, account = NULL, quiet = FALSE) {
   }
 
   # perform it
-  applicationTask(taskDef, appName, account, quiet)
+  applicationTask(taskDef, appName, account, server = NULL, quiet)
 }
 

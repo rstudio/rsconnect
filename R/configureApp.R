@@ -19,10 +19,12 @@
 #' }
 #' @seealso \code{\link{applications}}, \code{\link{deployApp}}
 #' @export
-configureApp <- function(appName, appDir=getwd(), account = NULL, redeploy = TRUE, size = NULL, instances = NULL, quiet = FALSE) {
+configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
+                         redeploy = TRUE, size = NULL, instances = NULL,
+                         quiet = FALSE) {
 
   # resolve target account and application
-  accountDetails <- accountInfo(resolveAccount(account))
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
   application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(quiet)

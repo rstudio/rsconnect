@@ -29,10 +29,10 @@
 #' @seealso \code{\link{deployApp}}, \code{\link{terminateApp}}, and
 #'   \code{\link{scaleApp}}
 #' @export
-applications <- function(account = NULL) {
+applications <- function(account = NULL, server = NULL) {
 
   # resolve account and create connect client
-  accountDetails <- accountInfo(resolveAccount(account))
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
   client <- clientForAccount(accountDetails)
 
   # retreive applications
@@ -77,14 +77,14 @@ stopWithApplicationNotFound <- function(appName) {
              sep=""), call. = FALSE)
 }
 
-applicationTask <- function(taskDef, appName, account, quiet) {
+applicationTask <- function(taskDef, appName, account, server, quiet) {
 
   # get status function and display initial status
   displayStatus <- displayStatus(quiet)
   displayStatus(paste(taskDef$beginStatus, "...\n", sep=""))
 
   # resolve target account and application
-  accountDetails <- accountInfo(resolveAccount(account))
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
   application <- resolveApplication(accountDetails, appName)
 
   # perform the action

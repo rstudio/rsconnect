@@ -20,10 +20,10 @@
 #' }
 #' @seealso \code{\link{taskLog}}
 #' @export
-tasks <- function(account = NULL) {
+tasks <- function(account = NULL, server = NULL) {
 
   # resolve account and create connect client
-  accountDetails <- accountInfo(resolveAccount(account))
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
   client <- clientForAccount(accountDetails)
 
   # list tasks
@@ -58,10 +58,10 @@ tasks <- function(account = NULL) {
 #' }
 #' @seealso \code{\link{tasks}}
 #' @export
-taskLog <- function(taskId, account = NULL, output = NULL) {
+taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 
   # resolve account and create connect client
-  accountDetails <- accountInfo(resolveAccount(account))
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
   client <- clientForAccount(accountDetails)
 
   if (identical(output, "stderr")) {

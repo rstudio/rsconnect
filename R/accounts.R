@@ -27,9 +27,13 @@
 #' removeAccount("user")
 #' }
 #' @export
-accounts <- function() {
+accounts <- function(server = NULL) {
+  path <- accountsConfigDir()
+  if (!is.null(server))
+    path <- file.path(path, server)
+
   # get a raw list of accounts
-  accountnames <- tools::file_path_sans_ext(list.files(accountsConfigDir(),
+  accountnames <- tools::file_path_sans_ext(list.files(path,
     pattern=glob2rx("*.dcf"), recursive = TRUE))
 
   if (length(accountnames) == 0) {
@@ -251,10 +255,10 @@ missingAccountErrorMessage <- function(name) {
   paste("account named '", name, "' does not exist", sep="")
 }
 
-resolveAccount <- function(account) {
+resolveAccount <- function(account, server = NULL) {
 
   # get existing accounts
-  accounts <- accounts()[,"name"]
+  accounts <- accounts(server)[,"name"]
   if (length(accounts) == 0)
     stopWithNoAccount()
 
@@ -267,24 +271,31 @@ resolveAccount <- function(account) {
   }
   # account explicitly specified, confirm it exists
   else {
-      if (account %in% accounts)
-        account
-      else
-        stopWithMissingAccount(account)
+    count <- sum(accounts == account)
+    if (count == 0)
+      stopWithMissingAccount(account)
+    else if (count == 1)
+      account
+    else
+      stopWithMultipleAccounts(account)
   }
 }
 
 stopWithNoAccount <- function() {
-  stop(paste("You must register an account using setAccountInfo prior to",
-             "proceeding."), call. = FALSE)
+  stop("You must register an account using setAccountInfo prior to ",
+       "proceeding.", call. = FALSE)
 }
 
 stopWithSpecifyAccount <- function() {
-  stop(paste("Please specify the account name (there are more than one",
-             "accounts registered on this system)", call. = FALSE))
+  stop("Please specify the account name (there is more than one ",
+       "account registered on this system)", call. = FALSE)
 }
 
 stopWithMissingAccount <- function(account) {
   stop(missingAccountErrorMessage(account), call. = FALSE)
 }
 
+stopWithMultipleAccounts <- function(account) {
+  stop("Multiple accounts with the name '", account, "' exist. Please specify ",
+       "the server of the account you wish to use.", call. = FALSE)
+}

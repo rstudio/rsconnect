@@ -16,7 +16,8 @@
 #' @seealso \code{\link{applications}}, \code{\link{deployApp}}, and
 #'   \code{\link{terminateApp}}
 #' @export
-scaleApp <- function(appName, instances, account = NULL, quiet = FALSE) {
+scaleApp <- function(appName, instances, account = NULL, server = NULL,
+                     quiet = FALSE) {
 
   # define task
   taskDef <- list()
@@ -27,5 +28,5 @@ scaleApp <- function(appName, instances, account = NULL, quiet = FALSE) {
   }
 
   # perform it
-  applicationTask(taskDef, appName, account, quiet)
+  applicationTask(taskDef, appName, account, server, quiet)
 }
