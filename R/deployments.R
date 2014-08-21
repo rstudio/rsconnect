@@ -1,9 +1,9 @@
 
 
-saveDeployment <- function(appDir, name, account, bundleId, url) {
+saveDeployment <- function(appDir, name, account, server, bundleId, url) {
 
-  deployment <- deploymentRecord(name, account, bundleId, url)
-  write.dcf(deployment, deploymentFile(appDir, name, account))
+  deployment <- deploymentRecord(name, account, server, bundleId, url)
+  write.dcf(deployment, deploymentFile(appDir, name, account, server))
   invisible(NULL)
 }
 
@@ -32,53 +32,56 @@ saveDeployment <- function(appDir, name, account, bundleId, url) {
 #' @seealso \code{\link{applications}} to get a list of deployments from the
 #'   server, and \code{\link{deployApp}} to create a new deployment.
 #' @export
-deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL) {
+deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
+                        serverFilter = NULL) {
 
   deploymentRecs <- deploymentRecord(name = character(),
                                      account = character(),
+                                     server = character(),
                                      bundleId = character(),
                                      url = character())
 
   rsconnectDir <- file.path(appDir, "rsconnect")
-  for (accountDir in file.path(rsconnectDir, list.files(rsconnectDir))) {
+  for (deploymentFile in list.files(rsconnectDir, glob2rx("*.dcf"),
+                                    recursive = TRUE)) {
 
-    # ignore regular files
-    if (!file.info(accountDir)$isdir)
+    # derive account and server name from deployment record location
+    account <- basename(dirname(deploymentFile))
+    server <- basename(dirname(dirname(deploymentFile)))
+
+    # apply optional server filter
+    if (!is.null(serverFilter) && !identical(serverFilter, server))
       next
 
     # apply optional account filter
-    if (!is.null(accountFilter) && !identical(accountFilter,
-                                              basename(accountDir)))
+    if (!is.null(accountFilter) && !identical(accountFilter, account))
       next
 
-    deploymentFiles <- list.files(accountDir, glob2rx("*.dcf"))
-    for (deploymentFile in file.path(accountDir, deploymentFiles)) {
+    # apply optional name filter
+    name <- tools::file_path_sans_ext(basename(deploymentFile))
+    if (!is.null(nameFilter) && !identical(nameFilter, name))
+      next
 
-      deployment <- as.data.frame(readDcf(deploymentFile),
-                                  stringsAsFactors = FALSE)
-
-      # apply optional name filter
-      name <- tools::file_path_sans_ext(basename(deploymentFile))
-      if (!is.null(nameFilter) && !identical(nameFilter, name))
-        next
-
-      deploymentRecs <- rbind(deploymentRecs, deployment)
-    }
+    # parse file
+    deployment <- as.data.frame(readDcf(file.path(rsconnectDir, deploymentFile)),
+                                stringsAsFactors = FALSE)
+    deploymentRecs <- rbind(deploymentRecs, deployment)
   }
 
   deploymentRecs
 }
 
-deploymentFile <- function(appDir, name, account) {
-  accountDir <- file.path(appDir, "rsconnect", account)
+deploymentFile <- function(appDir, name, account, server) {
+  accountDir <- file.path(appDir, "rsconnect", server, account)
   if (!file.exists(accountDir))
     dir.create(accountDir, recursive=TRUE)
   file.path(accountDir, paste(name, ".dcf", sep=""))
 }
 
-deploymentRecord <- function(name, account, bundleId, url) {
+deploymentRecord <- function(name, account, server, bundleId, url) {
   data.frame(name = name,
              account = account,
+             server = server,
              bundleId = bundleId,
              url = url,
              stringsAsFactors = FALSE)

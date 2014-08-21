@@ -88,7 +88,9 @@ connectClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    createApplication = function(name) {
+    createApplication = function(name, template, accountId) {
+      # RStudio Connect doesn't currently use the template or account ID
+      # parameters; they exist for compatibility with lucid.
       handleResponse(POST_JSON(service,
                                authInfo,
                                "/applications",

@@ -46,6 +46,7 @@
 deployApp <- function(appDir = getwd(),
                       appName = NULL,
                       account = NULL,
+                      server = NULL,
                       upload = TRUE,
                       launch.browser = getOption("rsconnect.launch.browser",
                                                  interactive()),
@@ -102,8 +103,8 @@ deployApp <- function(appDir = getwd(),
   # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appDir, appName, account)
-  accountDetails <- accountInfo(target$account)
+  target <- deploymentTarget(appDir, appName, account, server)
+  accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
   # get the application to deploy (creates a new app on demand)
@@ -129,7 +130,7 @@ deployApp <- function(appDir = getwd(),
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
-  if (response$code != 0) {
+  if (!is.null(response$code) && response$code != 0) {
     displayStatus(paste0("Application deployment failed with error: ",
                          response$error, "\n"))
     return
@@ -142,6 +143,7 @@ deployApp <- function(appDir = getwd(),
   saveDeployment(appDir,
                  target$appName,
                  target$account,
+                 accountDetails$server,
                  bundle$id,
                  application$url)
 
@@ -169,10 +171,10 @@ deployApp <- function(appDir = getwd(),
 
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appDir, appName, account) {
+deploymentTarget <- function(appDir, appName, account, server = NULL) {
 
   # read existing accounts
-  accounts <- accounts()[,"name"]
+  accounts <- accounts(server)[,"name"]
   if (length(accounts) == 0)
     stopWithNoAccount()
 
@@ -189,22 +191,24 @@ deploymentTarget <- function(appDir, appName, account) {
 
   # function to create a deployment target list (checks whether the target
   # is an update and adds that field)
-  createDeploymentTarget <- function(appName, account) {
+  createDeploymentTarget <- function(appName, account, server) {
 
     # check to see whether this is an update
     existingDeployment <- deployments(appDir,
                                       nameFilter = appName,
-                                      accountFilter = account)
+                                      accountFilter = account,
+                                      serverFilter = server)
     isUpdate <- nrow(existingDeployment) == 1
 
-    list(appName = appName, account = account, isUpdate = isUpdate)
+    list(appName = appName, account = account, isUpdate = isUpdate,
+         server = server)
   }
 
 
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
 
-    createDeploymentTarget(appName, account)
+    createDeploymentTarget(appName, account, server)
 
   }
 
@@ -217,15 +221,19 @@ deploymentTarget <- function(appDir, appName, account) {
     # if there are none then we can create it if there is a single account
     # registered that we can default to
     if (nrow(appDeployments) == 0) {
-      if (length(accounts) == 1)
-        createDeploymentTarget(appName, accounts[[1]])
-      else
+      if (length(accounts) == 1) {
+        # read the server associated with the account
+        accountDetails <- accountInfo(accounts, server)
+        createDeploymentTarget(appName, accounts, accountDetails$server)
+      } else {
         stopWithSpecifyAccount()
+      }
     }
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
-      createDeploymentTarget(appName, appDeployments$account)
+      createDeploymentTarget(appName, appDeployments$account,
+                             appDeployments$server)
     }
 
     # multiple existing deployments
@@ -237,18 +245,24 @@ deploymentTarget <- function(appDir, appName, account) {
 
   }
 
-  # just account specified, that's fine we just default the app name
-  # based on the basename of the applicaton directory
-  else if (!is.null(account)) {
-
-    createDeploymentTarget(basename(appDir), account)
-
+  # just account/server specified, that's fine we just default the app name
+  # based on the basename of the application directory
+  else if (!is.null(account) || !is.null(server)) {
+    if (is.null(account)) {
+      account <- accounts(server)[,"name"]
+      if (length(account) > 1) {
+        stopWithSpecifyAccount()
+      }
+    }
+    accountDetails <- accountInfo(account, server)
+    createDeploymentTarget(basename(appDir), account, accountDetails$server)
   }
 
   # neither specified but a single existing deployment
   else if (nrow(appDeployments) == 1) {
 
-    createDeploymentTarget(appDeployments$name, appDeployments$account)
+    createDeploymentTarget(appName, appDeployments$account,
+                           appDeployments$server)
 
   }
 
@@ -256,12 +270,14 @@ deploymentTarget <- function(appDir, appName, account) {
   else if (nrow(appDeployments) == 0) {
 
     # single account we can default to
-    if (length(accounts) == 1)
-      createDeploymentTarget(basename(appDir), accounts[[1]])
+    if (length(accounts) == 1) {
+      accountDetails <- accountInfo(account)
+      createDeploymentTarget(basename(appDir), accounts, accountDetails$server)
+    }
     else
-      stop(paste("Please specify the account which you want to deploy the",
-                 "application to (there is more than one account registered",
-                 "on this system)."), call. = FALSE)
+      stop("Please specify the account and server to which you want to deploy ",
+           "the application (there is more than one account registered ",
+           "on this system).", call. = FALSE)
 
   }
 
@@ -303,7 +319,8 @@ applicationForTarget <- function(client, accountDetails, target) {
 
   # create the application if we need to
   if (is.null(app)) {
-    app <- client$createApplication(target$appName)
+    app <- client$createApplication(target$appName, "shiny",
+                                    accountDetails$accountId)
   }
 
   # return the application

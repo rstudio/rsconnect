@@ -202,7 +202,9 @@ accountInfo <- function(name, server = NULL) {
     stop(stringParamErrorMessage("name"))
 
   configFile <- accountConfigFile(name, server)
-  if (!file.exists(configFile))
+  if (length(configFile) > 1)
+    stopWithMultipleAccounts(name)
+  if (length(configFile) == 0 || !file.exists(configFile))
     stop(missingAccountErrorMessage(name))
 
   accountDcf <- readDcf(configFile, all = TRUE)
@@ -235,12 +237,8 @@ accountConfigFile <- function(name, server = NULL) {
   # if no server is specified, try to find an account with the given name
   # associated with any server
   if (is.null(server)) {
-    file <- list.files(accountsConfigDir(), pattern = paste0(name, ".dcf"),
-                       recursive = TRUE, full.names = TRUE)
-    if (length(file) != 1) {
-      return(NULL)
-    }
-    return(file)
+    return(list.files(accountsConfigDir(), pattern = paste0(name, ".dcf"),
+                      recursive = TRUE, full.names = TRUE))
   }
   normalizePath(file.path(accountsConfigDir(), server,
                           paste(name, ".dcf", sep="")),
