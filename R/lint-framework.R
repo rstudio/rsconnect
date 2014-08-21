@@ -88,6 +88,7 @@ lint <- function(project) {
   satisfiedLayouts <- c(
     shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
     shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
+    app = "app.r" %in% appFilesBase,
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase))
   )
   
