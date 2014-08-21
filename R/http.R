@@ -347,9 +347,14 @@ httpFunction <- function() {
                ". Valid values are rcurl, curl, and internal"))
 }
 
-POST_JSON <- function(authInfo, path, json, headers = list()) {
+POST_JSON <- function(authInfo, 
+                      path, 
+                      query, 
+                      json, 
+                      headers = list()) {
   POST(authInfo,
        path,
+       query,
        "application/json",
        content = RJSONIO::toJSON(json, pretty = TRUE),
        headers = headers)
@@ -357,16 +362,22 @@ POST_JSON <- function(authInfo, path, json, headers = list()) {
 
 POST <- function(authInfo, 
                  path, 
+                 query,
                  contentType, 
                  file = NULL,
                  content = NULL,
                  headers = list()) {
-  httpWithBody(authInfo, "POST", path, contentType, file, content, headers)
+  httpWithBody(authInfo, "POST", path, query, contentType, file, content, headers)
 }
 
-PUT_JSON <- function(authInfo, path, json, headers = list()) {
+PUT_JSON <- function(authInfo, 
+                     path, 
+                     query,
+                     json, 
+                     headers = list()) {
   PUT(authInfo,
       path,
+      query,
       "application/json",
       content = RJSONIO::toJSON(json, pretty = TRUE),
       headers = headers)
@@ -374,6 +385,7 @@ PUT_JSON <- function(authInfo, path, json, headers = list()) {
 
 PUT <- function(authInfo,
                 path, 
+                query,
                 contentType, 
                 file = NULL,
                 content = NULL,
@@ -385,6 +397,7 @@ PUT <- function(authInfo,
 httpWithBody <- function(authInfo, 
                          method,
                          path, 
+                         query,
                          contentType, 
                          file = NULL,
                          content = NULL,
@@ -398,8 +411,16 @@ httpWithBody <- function(authInfo,
   # get the service url
   service <- serviceUrl()
   
+  # encoude query args
+  if (!is.null(query)) {
+    query <- utils::URLencode(query)
+  } else {
+    query <- ""
+  }
+  
   # prepend the service path
   path <- paste(service$path, path, sep="")
+  path <- paste(path, "?", query, sep="")
   
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
@@ -425,14 +446,23 @@ httpWithBody <- function(authInfo,
 
 GET <- function(authInfo,
                 path, 
+                query,
                 headers = list(),
                 writer = NULL) {
     
   # get the service url
   service <- serviceUrl()
   
+  # encode query args
+  if (!is.null(query)) {
+    query <- utils::URLencode(query)
+  } else {
+    query <- ""
+  }
+  
   # prepend the service path
   path <- paste(service$path, path, sep="")
+  path <- paste(path, "?", query, sep="")
   
   # get signature headers and append them
   sigHeaders <- signatureHeaders(authInfo, "GET", path, NULL)

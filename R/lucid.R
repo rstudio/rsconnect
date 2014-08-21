@@ -5,17 +5,16 @@ lucidClient <- function(authInfo) {
   list(
     
     status = function() {
-      handleResponse(GET(authInfo,  "/internal/status"))
+      handleResponse(GET(authInfo,  "/internal/status", NULL))
     },
     
     currentUser = function() {
-      handleResponse(GET(authInfo, "/users/current/"))
+      handleResponse(GET(authInfo, "/users/current/", NULL))
     },
     
     accountsForUser = function(userId) {
       path <- "/accounts/"
-      query <- ""
-      listRequest(authInfo, path, query, "accounts")
+      listRequest(authInfo, path, NULL, "accounts")
     },
     
     listApplications = function(accountId, filters = list()) {
@@ -33,10 +32,10 @@ lucidClient <- function(authInfo) {
     
     getLogs = function(applicationId, entries = 50, streaming = FALSE, 
                        writer = NULL) {
-      handleResponse(GET(authInfo,
-        paste("/applications/", applicationId, "/logs?count=", 
-              entries, "&tail=", if (streaming) "1" else "0", sep=""), 
-        writer = writer))
+      path <- paste("/applications/", applicationId, "/logs", sep="")
+      query <- paste("count=", entries, 
+                     "&tail=", if (streaming) "1" else "0", sep="")
+      handleResponse(GET(authInfo, path, query, writer = writer))
     },
 
     createApplication = function(name, template, accountId) {    
@@ -44,38 +43,38 @@ lucidClient <- function(authInfo) {
       json$name <- name
       json$template <- template
       json$account <- as.numeric(accountId)
-      handleResponse(POST_JSON(authInfo, "/applications/", json))      
+      handleResponse(POST_JSON(authInfo, "/applications/", NULL, json))      
     },
   
     configureApplication = function(applicationId, propertyName, propertyValue) {
       path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
       v <- list()
       v$value <- propertyValue
-      handleResponse(PUT_JSON(authInfo, path, v))
+      handleResponse(PUT_JSON(authInfo, path, NULL, v))
     },
     
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep="")
-      handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
+      handleResponse(POST(authInfo, path, NULL, "application/x-gzip", bundlePath))
     },
     
     deployApplication = function(applicationId, bundleId=NULL) {
       path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
       json$bundle <- as.numeric(bundleId)
-      handleResponse(POST_JSON(authInfo, path, json))
+      handleResponse(POST_JSON(authInfo, path, NULL, json))
     },
     
     terminateApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/terminate", sep="")
-      handleResponse(POST_JSON(authInfo, path, list()))
+      handleResponse(POST_JSON(authInfo, path, NULL, list()))
     },
     
     scaleApplication = function(applicationId, instances) {
       path <- paste("/applications/", applicationId, "/scale", sep="")
       json <- list()
       json$instance_count <- instances
-      handleResponse(POST_JSON(authInfo, path, json))
+      handleResponse(POST_JSON(authInfo, path, NULL, json))
     },
     
     listTasks = function(accountId, filters = NULL) {
@@ -90,12 +89,12 @@ lucidClient <- function(authInfo) {
     
     getTaskInfo = function(taskId) {
       path <- paste("/tasks/", taskId, sep="")
-      handleResponse(GET(authInfo, path))
+      handleResponse(GET(authInfo, path, NULL))
     },
   
     getTaskLogs = function(taskId) {
       path <- paste("/tasks/", taskId, "/logs/", sep="")
-      handleResponse(GET(authInfo, path))
+      handleResponse(GET(authInfo, path, NULL))
     },
     
     waitForTask = function(taskId, quiet = FALSE) {
@@ -110,7 +109,7 @@ lucidClient <- function(authInfo) {
       while(TRUE) {
         
         # check status
-        status <- handleResponse(GET(authInfo, path))
+        status <- handleResponse(GET(authInfo, path, NULL))
         
         # display status to the user if it changed
         if (!identical(lastStatus, status$description)) {
@@ -147,14 +146,13 @@ listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
   
   while(TRUE) {
     
-    # add query params
-    pathWithQuery <- paste(path, "?", query,
-                           "&count=", page, 
-                           "&offset=", offset, 
+    # add list query args
+    query <- paste(query, "&count=", page, 
+                          "&offset=", offset, 
                            sep="")
-    
+
     # make request and append the results
-    response <- handleResponse(GET(authInfo, pathWithQuery))        
+    response <- handleResponse(GET(authInfo, path, query))        
     results <- append(results, response[[listName]])
     
     # update the offset
