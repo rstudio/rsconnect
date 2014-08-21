@@ -3,11 +3,14 @@
 \alias{tasks}
 \title{List Tasks}
 \usage{
-tasks(account = NULL)
+tasks(account = NULL, server = NULL)
 }
 \arguments{
-\item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+\item{account}{Account name. If a single account is registered on the system
+then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers (see \code{\link{servers}})}
 }
 \value{
 Returns a data frame with the following columns:

@@ -10,12 +10,14 @@
 #' The \code{accounts} and \code{accountInfo} functions are provided for viewing
 #' previously registered accounts.
 #' @param name Name of RStudio Connect account to save or remove
+#' @param server Name of the server on which the account is registered
+#'   (optional; see \code{\link{servers}})
 #' @param token User token for the account
 #' @param secret User secret for the account
 #' @return
-#' \code{accounts} returns a character vector with the names of all accounts
-#' registered on the system. \code{accountInfo} returns a list with account
-#' details.
+#' \code{accounts} returns a data frame with the names of all accounts
+#' registered on the system and the servers on which they reside.
+#' \code{accountInfo} returns a list with account details.
 #' @rdname accounts
 #' @examples
 #' \dontrun{

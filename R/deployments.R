@@ -14,6 +14,8 @@ saveDeployment <- function(appDir, name, account, server, bundleId, url) {
 #' @param nameFilter Return only deployments matching the given name (optional)
 #' @param accountFilter Return only deployments matching the given account
 #'   (optional)
+#' @param serverFilter Return only deployments matching the given server
+#'   (optional)
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{

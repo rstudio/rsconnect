@@ -6,6 +6,8 @@
 #' @param instances Number of parallel instances to be used for the application
 #' @param account Account name. If a single account is registered on the system
 #'   then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers (see \code{\link{servers}})
 #' @param quiet Request that no status information be printed to the console
 #' @examples
 #' \dontrun{

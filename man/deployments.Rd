@@ -3,7 +3,8 @@
 \alias{deployments}
 \title{List Application Deployments}
 \usage{
-deployments(appDir, nameFilter = NULL, accountFilter = NULL)
+deployments(appDir, nameFilter = NULL, accountFilter = NULL,
+  serverFilter = NULL)
 }
 \arguments{
 \item{appDir}{The directory from which to read deployment records.}
@@ -11,6 +12,9 @@ deployments(appDir, nameFilter = NULL, accountFilter = NULL)
 \item{nameFilter}{Return only deployments matching the given name (optional)}
 
 \item{accountFilter}{Return only deployments matching the given account
+(optional)}
+
+\item{serverFilter}{Return only deployments matching the given server
 (optional)}
 }
 \value{

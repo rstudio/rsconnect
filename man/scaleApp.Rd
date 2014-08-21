@@ -3,7 +3,7 @@
 \alias{scaleApp}
 \title{Scale Application Instances}
 \usage{
-scaleApp(appName, instances, account = NULL, quiet = FALSE)
+scaleApp(appName, instances, account = NULL, server = NULL, quiet = FALSE)
 }
 \arguments{
 \item{appName}{Name of application}
@@ -12,6 +12,9 @@ scaleApp(appName, instances, account = NULL, quiet = FALSE)
 
 \item{account}{Account name. If a single account is registered on the system
 then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers (see \code{\link{servers}})}
 
 \item{quiet}{Request that no status information be printed to the console}
 }

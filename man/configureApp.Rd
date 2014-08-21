@@ -3,8 +3,8 @@
 \alias{configureApp}
 \title{Configure an Application}
 \usage{
-configureApp(appName, appDir = getwd(), account = NULL, redeploy = TRUE,
-  size = NULL, instances = NULL, quiet = FALSE)
+configureApp(appName, appDir = getwd(), account = NULL, server = NULL,
+  redeploy = TRUE, size = NULL, instances = NULL, quiet = FALSE)
 }
 \arguments{
 \item{appName}{Name of application to configure}
@@ -14,6 +14,9 @@ current working directory.}
 
 \item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers (see \code{\link{servers}})}
 
 \item{redeploy}{Re-deploy application after its been configured.}
 

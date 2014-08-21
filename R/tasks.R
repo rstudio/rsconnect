@@ -1,7 +1,9 @@
 #' List Tasks
 #'
-#' @param account Account name. If a single account is registered on the
-#' system then this parameter can be omitted.
+#' @param account Account name. If a single account is registered on the system
+#'   then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers (see \code{\link{servers}})
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
@@ -43,8 +45,10 @@ tasks <- function(account = NULL, server = NULL) {
 #'
 #' Writes the task log for the given task
 #' @param taskId Task Id
-#' @param account Account name. If a single account is registered on the
-#' system then this parameter can be omitted.
+#' @param account Account name. If a single account is registered on the system
+#'   then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers (see \code{\link{servers}})
 #' @param output Where to write output. Valid values are \code{NULL} or \code{stderr}
 #' @examples
 #' \dontrun{

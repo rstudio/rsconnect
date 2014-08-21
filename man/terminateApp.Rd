@@ -3,13 +3,16 @@
 \alias{terminateApp}
 \title{Terminate an Application}
 \usage{
-terminateApp(appName, account = NULL, quiet = FALSE)
+terminateApp(appName, account = NULL, server = NULL, quiet = FALSE)
 }
 \arguments{
 \item{appName}{Name of application to terminate}
 
-\item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+\item{account}{Account name. If a single account is registered on the system
+then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers (see \code{\link{servers}})}
 
 \item{quiet}{Request that no status information be printed to the console
 during the termination.}

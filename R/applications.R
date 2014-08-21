@@ -2,8 +2,10 @@
 #' List Deployed Applications
 #'
 #' List all applications currently deployed to RStudio Connect for a given account.
-#' @param account Account name. If a single account is registered on the
-#' system then this parameter can be omitted.
+#' @param account Account name. If a single account is registered on the system
+#'   then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{

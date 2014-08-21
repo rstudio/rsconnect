@@ -3,13 +3,19 @@
 \alias{restartApp}
 \title{Restart an Application}
 \usage{
-restartApp(appName, account = NULL, quiet = FALSE)
+restartApp(appName, account = NULL, server = NULL, quiet = FALSE)
 }
 \arguments{
 \item{appName}{Name of application to restart}
 
-\item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+\item{account}{Account name. If a single account is registered on the system
+then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers (see \code{\link{servers}})}
+
+\item{accountFilter}{Return only deployments matching the given account
+(optional)}
 
 \item{quiet}{Request that no status information be printed to the console
 during the operation.}

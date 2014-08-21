@@ -4,8 +4,9 @@
 \title{Deploy an Application}
 \usage{
 deployApp(appDir = getwd(), appName = NULL, account = NULL,
-  upload = TRUE, launch.browser = getOption("rsconnect.launch.browser",
-  interactive()), quiet = FALSE, lint = TRUE)
+  server = NULL, upload = TRUE,
+  launch.browser = getOption("rsconnect.launch.browser", interactive()),
+  quiet = FALSE, lint = TRUE)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to
@@ -14,9 +15,13 @@ current working directory.}
 \item{appName}{Name of application (names must be unique with RStudio Connect
 accounts). Defaults to the base name of the specified \code{appDir}.}
 
-\item{account}{RStudio Connect account to deploy application to. This parameter is
-only required for the initial deployment of an application when there are
-multiple accounts configured on the system (see \link{accounts}).}
+\item{account}{RStudio Connect account to deploy application to. This
+parameter is only required for the initial deployment of an application
+when there are multiple accounts configured on the system (see
+\link{accounts}).}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded
 from the local system prior to deployment. If \code{FALSE} then it is

@@ -1,16 +1,41 @@
-serverConfigDir <- function() {
-  rsconnectConfigDir("servers")
-}
-
-serverConfigFile <- function(name) {
-  normalizePath(file.path(serverConfigDir(), paste(name, ".dcf", sep="")),
-                mustWork = FALSE)
-}
-
-.lucidServerInfo <- list(
-  name = "shinyapps.io",
-  url = "https://api.shinyapps.io/v1")
-
+#' Server Management Functions
+#'
+#' Functions to manage the list of known RStudio Connect servers to which
+#' \pkg{rsconnect} can deploy and manage applications.
+#'
+#' Register a server with \code{addServer} or \code{discoverServers} (the latter
+#' is useful only if your administrator has configured server autodiscovery).
+#' Once a server is registered, you can connect to an account on the server
+#' using \code{\link{connectUser}}.
+#'
+#' The \code{servers} and \code{serverInfo} functions are provided for viewing
+#' previously registered servers.
+#'
+#' There is always at least one server registered: the \code{shinyapps.io}
+#' server, which represents the RStudio Connect cloud service.
+#'
+#' @param name Optional nickname for the server. If none is given, the nickname
+#'   is inferred from the server's hostname.
+#' @param url Server's URL. Should look like \code{http://servername/} or
+#'  \code{http://servername:port/}.
+#' @param local Return only local servers (i.e. not \code{shinyapps.io})
+#' @param quiet Suppress output and prompts where possible.
+#' @return
+#' \code{servers} returns a data frame with registered server names and URLs.
+#' \code{serverInfo} returns a list with details for a particular server.
+#' @rdname servers
+#' @examples
+#' \dontrun{
+#'
+#' # register a local server
+#' addServer("http://myrsconnect/", "myserver")
+#'
+#' # list servers
+#' servers(local = TRUE)
+#'
+#' # connect to an account on the server
+#' connectUser(server = "myserver")
+#' }
 #' @export
 servers <- function(local = FALSE) {
   configFiles <- list.files(serverConfigDir(), pattern=glob2rx("*.dcf"),
@@ -24,6 +49,20 @@ servers <- function(local = FALSE) {
   }
 }
 
+serverConfigDir <- function() {
+  rsconnectConfigDir("servers")
+}
+
+serverConfigFile <- function(name) {
+  normalizePath(file.path(serverConfigDir(), paste(name, ".dcf", sep="")),
+                mustWork = FALSE)
+}
+
+.lucidServerInfo <- list(
+  name = "shinyapps.io",
+  url = "https://api.shinyapps.io/v1")
+
+#' @rdname servers
 #' @export
 discoverServers <- function(quiet = FALSE) {
   # TODO: Better discovery mechanism?
@@ -72,6 +111,7 @@ getDefaultServer <- function(local = FALSE, prompt = TRUE) {
   }
 }
 
+#' @rdname servers
 #' @export
 addServer <- function(url, name = NULL, quiet = FALSE) {
   if (!isStringParam(url))
@@ -105,6 +145,7 @@ addServer <- function(url, name = NULL, quiet = FALSE) {
   }
 }
 
+#' @rdname servers
 #' @export
 removeServer <- function(name) {
   if (!isStringParam(name))
@@ -117,6 +158,7 @@ removeServer <- function(name) {
 }
 
 
+#' @rdname servers
 #' @export
 serverInfo <- function(name) {
   if (!isStringParam(name))

@@ -3,11 +3,14 @@
 \alias{applications}
 \title{List Deployed Applications}
 \usage{
-applications(account = NULL)
+applications(account = NULL, server = NULL)
 }
 \arguments{
-\item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+\item{account}{Account name. If a single account is registered on the system
+then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 }
 \value{
 Returns a data frame with the following columns:

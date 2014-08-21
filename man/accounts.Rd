@@ -6,25 +6,28 @@
 \alias{setAccountInfo}
 \title{Account Management Functions}
 \usage{
-accounts()
+accounts(server = NULL)
 
 setAccountInfo(name, token, secret)
 
-accountInfo(name)
+accountInfo(name, server = NULL)
 
-removeAccount(name)
+removeAccount(name, server = NULL)
 }
 \arguments{
 \item{name}{Name of RStudio Connect account to save or remove}
+
+\item{server}{Name of the server on which the account is registered
+(optional; see \code{\link{servers}})}
 
 \item{token}{User token for the account}
 
 \item{secret}{User secret for the account}
 }
 \value{
-\code{accounts} returns a character vector with the names of all accounts
-registered on the system. \code{accountInfo} returns a list with account
-details.
+\code{accounts} returns a data frame with the names of all accounts
+registered on the system and the servers on which they reside.
+\code{accountInfo} returns a list with account details.
 }
 \description{
 Functions to add, enumerate, and remove RStudio Connect accounts on the local
