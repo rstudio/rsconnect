@@ -65,6 +65,13 @@ createAppManifest <- function(appDir, files, users) {
     # validate the repository (returns an error message if there is a problem)
     msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
     
+    # append the bioc version to any bioconductor packages
+    # TODO: resolve against actual BioC repo a package was pulled from
+    # (in case the user mixed and matched)
+    if ("biocViews" %in% names(description$description)) {
+      description$description$biocVersion <- BiocInstaller::biocVersion()
+    }
+    
     # good to go
     packages[[pkg]] <- description
   }
@@ -125,6 +132,8 @@ getRepository <- function(description) {
   if (is.null(repository)) {
     if (identical(priority, "base") || identical(priority, "recommended"))
       repository <- "CRAN"
+    else if ("biocViews" %in% names(description))
+      repository <- "BioC"
     else if (!is.null(githubRepo))
       repository <- "GitHub"
   }
@@ -132,7 +141,7 @@ getRepository <- function(description) {
 }
 
 validateRepository <- function(pkg, repository) {
-  if (!identical(repository, "CRAN") && !identical(repository, "GitHub")) {
+  if (!(repository %in% c("CRAN", "GitHub", "BioC"))) {
     msg <- paste("Unable to deploy package dependency '", pkg, "'\n\n", sep="")
     if (is.null(repository))
       msg <- paste(msg, "The package was installed locally from source.",
@@ -140,8 +149,12 @@ validateRepository <- function(pkg, repository) {
     else 
       msg <- paste(msg, " The package was installed from an unsupported ",
                    "repository '", repository, "'.", sep="")
-    msg <- paste(msg, " Only packages installed from CRAN or GitHub are ",
-                 "supported.\n", sep="")
+    msg <- paste(
+      msg,
+      " Only packages installed from CRAN, BioConductor and GitHub are ",
+      "supported.\n", sep=""
+    )
+    
     if (!hasRequiredDevtools()) {
       msg <- paste(msg, "\nTo use packages from GitHub you need to install ",
                         "them with the most recent version of devtools. ",
