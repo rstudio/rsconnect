@@ -54,10 +54,9 @@ accounts <- function(server = NULL) {
 #' Connect an RStudio Connect user account to the package, so that it can be
 #' used to deploy and manage applications on behalf of the account.
 #'
+#' @param account A name for the account to connect. Optional.
 #' @param server The server to connect to. Optional if there is only one server
 #'   registered.
-#' @param username An optional nickname for the account; applied only if the
-#'   account doesn't have a nickname already set on RStudio Connect.
 #' @param quiet Whether or not to show messages and prompts while connecting
 #'   the account.
 #'
@@ -69,7 +68,7 @@ accounts <- function(server = NULL) {
 #'   credentials.
 #'
 #' @export
-connectUser <- function(server = NULL, username = "", quiet = FALSE) {
+connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   # if server isn't specified, look up the default
   if (is.null(server)) {
     target <- getDefaultServer(local = TRUE)
@@ -77,11 +76,31 @@ connectUser <- function(server = NULL, username = "", quiet = FALSE) {
     target <- serverInfo(server)
   }
 
+  if (is.null(target)) {
+    stop("You must specify a server to connect to.")
+  }
+
+  # if account is specified and we already know about the account, get the User
+  # ID so we can prefill authentication fields
+  userId <- 0
+  userAccounts <- accounts(target$name)
+  if (!is.null(account) && !is.null(userAccounts)) {
+    if (account %in% userAccounts[,"name"]) {
+      accountDetails <- accountInfo(account, target$name)
+      userId <- accountDetails$accountId
+      if (!quiet) {
+        message("The account '",  account, "' is already registered; ",
+                "attempting to reconnect it.")
+      }
+    }
+  }
+
   # generate a token and send it to the server
   token <- generateToken()
   connect <- connectClient(service = target$url, authInfo = list())
   response <- connect$addToken(list(token = token$token,
-                                    public_key = token$public_key))
+                                    public_key = token$public_key,
+                                    user_id = as.integer(userId)))
   if (!quiet) {
     message("A browser window should open; if it doesn't, you may authenticate ",
             "manually by visiting ", response$token_claim_url, ".")
@@ -111,14 +130,14 @@ connectUser <- function(server = NULL, username = "", quiet = FALSE) {
 
   # populate the username if there wasn't one set on the server
   if (nchar(user$username) == 0) {
-    if (nchar(username) > 0)
-      user$username <- username
+    if (!is.null(account))
+      user$username <- account
     else
       user$username <- tolower(paste0(substr(user$first_name, 1, 1),
                                       user$last_name))
 
     # in interactive mode, prompt for a username before accepting defaults
-    if (!quiet && interactive() && nchar(username) == 0) {
+    if (!quiet && interactive() && is.null(account)) {
       input <- readline(paste0("Choose a nickname for this account (default '",
                                user$username, "'): "))
       if (nchar(input) > 0)
