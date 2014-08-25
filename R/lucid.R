@@ -5,16 +5,17 @@ lucidClient <- function(authInfo) {
   list(
     
     status = function() {
-      handleResponse(GET(authInfo,  "/internal/status", NULL))
+      handleResponse(GET(authInfo,  "/internal/status"))
     },
     
     currentUser = function() {
-      handleResponse(GET(authInfo, "/users/current/", NULL))
+      handleResponse(GET(authInfo, "/users/current/"))
     },
     
     accountsForUser = function(userId) {
       path <- "/accounts/"
-      listRequest(authInfo, path, NULL, "accounts")
+      query <- "" 
+      listRequest(authInfo, path, query, "accounts")
     },
     
     listApplications = function(accountId, filters = list()) {
@@ -43,38 +44,41 @@ lucidClient <- function(authInfo) {
       json$name <- name
       json$template <- template
       json$account <- as.numeric(accountId)
-      handleResponse(POST_JSON(authInfo, "/applications/", NULL, json))      
+      handleResponse(POST_JSON(authInfo, "/applications/", json))      
     },
   
     configureApplication = function(applicationId, propertyName, propertyValue) {
       path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
       v <- list()
       v$value <- propertyValue
-      handleResponse(PUT_JSON(authInfo, path, NULL, v))
+      handleResponse(PUT_JSON(authInfo, path, v))
     },
     
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep="")
-      handleResponse(POST(authInfo, path, NULL, "application/x-gzip", bundlePath))
+      handleResponse(POST(authInfo, 
+                          path, 
+                          contentType="application/x-gzip", 
+                          file=bundlePath))
     },
     
     deployApplication = function(applicationId, bundleId=NULL) {
       path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
       json$bundle <- as.numeric(bundleId)
-      handleResponse(POST_JSON(authInfo, path, NULL, json))
+      handleResponse(POST_JSON(authInfo, path, json))
     },
     
     terminateApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/terminate", sep="")
-      handleResponse(POST_JSON(authInfo, path, NULL, list()))
+      handleResponse(POST_JSON(authInfo, path, list()))
     },
     
     scaleApplication = function(applicationId, instances) {
       path <- paste("/applications/", applicationId, "/scale", sep="")
       json <- list()
       json$instance_count <- instances
-      handleResponse(POST_JSON(authInfo, path, NULL, json))
+      handleResponse(POST_JSON(authInfo, path, json))
     },
     
     listTasks = function(accountId, filters = NULL) {
@@ -89,12 +93,12 @@ lucidClient <- function(authInfo) {
     
     getTaskInfo = function(taskId) {
       path <- paste("/tasks/", taskId, sep="")
-      handleResponse(GET(authInfo, path, NULL))
+      handleResponse(GET(authInfo, path))
     },
   
     getTaskLogs = function(taskId) {
       path <- paste("/tasks/", taskId, "/logs/", sep="")
-      handleResponse(GET(authInfo, path, NULL))
+      handleResponse(GET(authInfo, path))
     },
     
     waitForTask = function(taskId, quiet = FALSE) {
@@ -109,7 +113,7 @@ lucidClient <- function(authInfo) {
       while(TRUE) {
         
         # check status
-        status <- handleResponse(GET(authInfo, path, NULL))
+        status <- handleResponse(GET(authInfo, path))
         
         # display status to the user if it changed
         if (!identical(lastStatus, status$description)) {
@@ -145,14 +149,12 @@ listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
   results <- list()
   
   while(TRUE) {
-    
-    # add list query args
-    query <- paste(query, "&count=", page, 
-                          "&offset=", offset, 
-                           sep="")
+  
+    # add query params
+    queryWithList <- paste(query, "&count=", page, "&offset=", offset, sep="")
 
     # make request and append the results
-    response <- handleResponse(GET(authInfo, path, query))        
+    response <- handleResponse(GET(authInfo, path, queryWithList))        
     results <- append(results, response[[listName]])
     
     # update the offset

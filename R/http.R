@@ -348,8 +348,8 @@ httpFunction <- function() {
 
 POST_JSON <- function(authInfo, 
                       path, 
-                      query, 
                       json, 
+                      query = NULL, 
                       headers = list()) {
   POST(authInfo,
        path,
@@ -361,8 +361,8 @@ POST_JSON <- function(authInfo,
 
 PUT_JSON <- function(authInfo, 
                      path, 
-                     query,
                      json, 
+                     query = NULL,
                      headers = list()) {
   PUT(authInfo,
       path,
@@ -374,8 +374,8 @@ PUT_JSON <- function(authInfo,
 
 POST <- function(authInfo, 
                  path, 
-                 query,
-                 contentType, 
+                 query = NULL, 
+                 contentType = NULL, 
                  file = NULL,
                  content = NULL,
                  headers = list()) {
@@ -384,17 +384,17 @@ POST <- function(authInfo,
 
 PUT <- function(authInfo,
                 path, 
-                query,
-                contentType, 
+                query = NULL,
+                contentType = NULL, 
                 file = NULL,
                 content = NULL,
                 headers = list()) {
-  httpRequestWithBody(authInfo, "PUT", path, contentType, file, content, headers)
+  httpRequestWithBody(authInfo, "PUT", path, query, contentType, file, content, headers)
 }
 
 GET <- function(authInfo,
                 path, 
-                query,
+                query = NULL,
                 headers = list(),
                 writer = NULL) {
   httpRequest(authInfo, "GET", path, query, headers, writer)
@@ -402,7 +402,7 @@ GET <- function(authInfo,
 
 DELETE <- function(authInfo,
                    path, 
-                   query,
+                   query = NULL,
                    headers = list(),
                    writer = NULL) {
   httpRequest(authInfo, "DELETE", path, query, headers, writer)
@@ -411,8 +411,8 @@ DELETE <- function(authInfo,
 httpRequestWithBody <- function(authInfo, 
                          method,
                          path, 
-                         query,
-                         contentType, 
+                         query = NULL,
+                         contentType = NULL, 
                          file = NULL,
                          content = NULL,
                          headers = list()) {
@@ -425,16 +425,15 @@ httpRequestWithBody <- function(authInfo,
   # get the service url
   service <- serviceUrl()
   
-  # encoude query args
-  if (!is.null(query)) {
-    query <- utils::URLencode(query)
-  } else {
-    query <- ""
-  }
-  
   # prepend the service path
-  path <- paste(service$path, path, sep="")
-  path <- paste(path, "?", query, sep="")
+  url <- paste(service$path, path, sep="")
+
+  # append the query
+  if (!is.null(query)) {
+    # URL encode query args
+    query <- utils::URLencode(query)
+    url <- paste(url, "?", query, sep="")
+  }
   
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
@@ -443,16 +442,16 @@ httpRequestWithBody <- function(authInfo,
   }
 
   # get signature headers and append them
-  sigHeaders <- signatureHeaders(authInfo, method, path, file)
+  sigHeaders <- signatureHeaders(authInfo, method, url, file)
   headers <- append(headers, sigHeaders)
   
-  # perform POST
+  # perform request 
   http <- httpFunction()
   http(service$protocol,
        service$host,
        service$port,
        method, 
-       path,
+       url,
        headers, 
        contentType, 
        file)
@@ -468,19 +467,18 @@ httpRequest <- function(authInfo,
   # get the service url
   service <- serviceUrl()
   
-  # encode query args
+  # prepend the service path
+  url <- paste(service$path, path, sep="")
+  
+  # append the query
   if (!is.null(query)) {
+    # URL encode query args
     query <- utils::URLencode(query)
-  } else {
-    query <- ""
+    url <- paste(url, "?", query, sep="")
   }
   
-  # prepend the service path
-  path <- paste(service$path, path, sep="")
-  path <- paste(path, "?", query, sep="")
-  
   # get signature headers and append them
-  sigHeaders <- signatureHeaders(authInfo, method, path, NULL)
+  sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
   headers <- append(headers, sigHeaders)
    
   # perform GET
@@ -489,7 +487,7 @@ httpRequest <- function(authInfo,
        service$host,
        service$port,
        method, 
-       path,
+       url,
        headers, 
        writer = writer)
 }
