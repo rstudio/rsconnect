@@ -264,8 +264,6 @@ httpRCurl <- function(protocol,
       RCurl::basicTextGatherer()
     else
       writer
-  if (!is.null(file))
-    options$writefunction <- textGatherer$update
   
   # when using a custom output writer, add a progress check so we can 
   # propagate interrupts, and wait a long time (for streaming)
@@ -292,11 +290,19 @@ httpRCurl <- function(protocol,
                          customrequest = method,
                          readfunction = fileContents,
                          infilesize = fileLength,
+                         writefunction = textGatherer$update,
                          upload = TRUE)
     } else {
-      RCurl::getURL(url, 
-                    .opts = options,
-                    write = textGatherer)
+      if (identical(method, "GET")) {
+        RCurl::getURL(url, 
+                      .opts = options,
+                      write = textGatherer)  
+      } else {
+        RCurl::curlPerform(url = url,
+                           .opts = options,
+                           customrequest = method,
+                           writefunction = textGatherer$update)
+      }
     }}, 
     error = function(e, ...) {
       # ignore errors resulting from timeout or user abort
