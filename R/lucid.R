@@ -27,8 +27,9 @@ lucidClient <- function(authInfo) {
       listRequest(authInfo, path, query, "applications")
     },
   
-    getApplicationInfo = function(appId) {
-      
+    getApplication = function(applicationId) {
+      path <- paste("/applications/", applicationId, sep="")
+      handleResponse(GET(authInfo, path))
     },
     
     getLogs = function(applicationId, entries = 50, streaming = FALSE, 
@@ -47,11 +48,16 @@ lucidClient <- function(authInfo) {
       handleResponse(POST_JSON(authInfo, "/applications/", json))      
     },
   
-    configureApplication = function(applicationId, propertyName, propertyValue) {
+    setApplicationProperty = function(applicationId, propertyName, propertyValue) {
       path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
       v <- list()
       v$value <- propertyValue
       handleResponse(PUT_JSON(authInfo, path, v))
+    },
+    
+    unsetApplicationProperty = function(applicationId, propertyName) {
+      path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
+      handleResponse(DELETE(authInfo, path))
     },
     
     uploadApplication = function(applicationId, bundlePath) {
