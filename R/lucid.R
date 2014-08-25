@@ -14,7 +14,7 @@ lucidClient <- function(authInfo) {
     
     accountsForUser = function(userId) {
       path <- "/accounts/"
-      query <- ""
+      query <- "" 
       listRequest(authInfo, path, query, "accounts")
     },
     
@@ -33,10 +33,10 @@ lucidClient <- function(authInfo) {
     
     getLogs = function(applicationId, entries = 50, streaming = FALSE, 
                        writer = NULL) {
-      handleResponse(GET(authInfo,
-        paste("/applications/", applicationId, "/logs?count=", 
-              entries, "&tail=", if (streaming) "1" else "0", sep=""), 
-        writer = writer))
+      path <- paste("/applications/", applicationId, "/logs", sep="")
+      query <- paste("count=", entries, 
+                     "&tail=", if (streaming) "1" else "0", sep="")
+      handleResponse(GET(authInfo, path, query, writer = writer))
     },
 
     createApplication = function(name, template, accountId) {    
@@ -56,7 +56,10 @@ lucidClient <- function(authInfo) {
     
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep="")
-      handleResponse(POST(authInfo, path, "application/x-gzip", bundlePath))
+      handleResponse(POST(authInfo, 
+                          path, 
+                          contentType="application/x-gzip", 
+                          file=bundlePath))
     },
     
     deployApplication = function(applicationId, bundleId=NULL) {
@@ -146,15 +149,12 @@ listRequest = function(authInfo, path, query, listName, page = 100, max=NULL) {
   results <- list()
   
   while(TRUE) {
-    
+  
     # add query params
-    pathWithQuery <- paste(path, "?", query,
-                           "&count=", page, 
-                           "&offset=", offset, 
-                           sep="")
-    
+    queryWithList <- paste(query, "&count=", page, "&offset=", offset, sep="")
+
     # make request and append the results
-    response <- handleResponse(GET(authInfo, pathWithQuery))        
+    response <- handleResponse(GET(authInfo, path, queryWithList))        
     results <- append(results, response[[listName]])
     
     # update the offset
