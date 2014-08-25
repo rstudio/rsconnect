@@ -28,7 +28,8 @@ lucidClient <- function(authInfo) {
     },
   
     getApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/logs", sep="")
+      path <- paste("/applications/", applicationId, sep="")
+      handleResponse(GET(authInfo, path))
     },
     
     getLogs = function(applicationId, entries = 50, streaming = FALSE, 
@@ -57,10 +58,6 @@ lucidClient <- function(authInfo) {
     unsetApplicationProperty = function(applicationId, propertyName) {
       path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
       handleResponse(DELETE(authInfo, path))
-    },
-  
-    getApplicationProperties = function(applicationId) {
-      
     },
     
     uploadApplication = function(applicationId, bundlePath) {
