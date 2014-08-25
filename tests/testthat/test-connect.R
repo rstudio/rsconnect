@@ -29,7 +29,9 @@ test_that("RStudio Connect users API", {
 
   if (isConnectRunning()) {
 
-    connect <- connectClient(list())
+    server <- getDefaultServer(local = TRUE)
+
+    connect <- connectClient(server$url, list())
     id <- createUniqueId(16)
 
     # add a user
@@ -57,32 +59,36 @@ test_that("RStudio Connect users API", {
     # make sure we returned an empty password field (or no password field?)
     expect_true(response$password %in% "" || is.null(response$password))
 
+    # generate a token
     accountId <- response$id
-
-    # now get a token by using the password we just made
-    connect <- connectClient(list(username = record$username,
-                                  password = record$password))
-
     token <- generateToken()
     tokenResponse <- connect$addToken(list(token = token$token,
-                                           public_key = token$public_key))
-    expect_equal(
-      tokenResponse["token"],
-      list(
-        token = token$token
-      )
-    )
+                                           public_key = token$public_key,
+                                           user_id = accountId))
 
-    # finally, create a fully authenticated client using the new token
-    connect <- connectClient(list(token = token$token,
-                                  private_key = token$private_key))
+    # open the URL in the browser
+    utils::browseURL(tokenResponse$token_claim_url)
 
-    # get that user's info again
-    user <- connect$getUser(accountId)
-    expect_equal(
-      response[c("email", "first_name", "last_name")],
-      user[c("email", "first_name", "last_name")]
-    )
+    # finally, create a fully authenticated client using the new token, and
+    # keep trying to authenticate until we're successful
+    connect <- connectClient(service = server$url, authInfo =
+                               list(token = token$token,
+                                    private_key = token$private_key))
+
+    repeat {
+      tryCatch({
+        Sys.sleep(1)
+        user <- connect$currentUser()
+        break
+      },
+      error = function(e, ...) {
+        # we expect this to return unauthorized until the token becomes active,
+        # but bubble other errors
+        if (length(grep("401 - Unauthorized", e$message)) == 0) {
+          stop(e)
+        }
+      })
+    }
 
     # Create and remove an example application
 
