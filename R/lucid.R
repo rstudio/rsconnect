@@ -47,7 +47,12 @@ lucidClient <- function(authInfo) {
       json$account <- as.numeric(accountId)
       handleResponse(POST_JSON(authInfo, "/applications/", json))      
     },
-  
+
+    listApplicationProperties = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/properties/", sep="")
+      handleResponse(GET(authInfo, path))
+    }
+    
     setApplicationProperty = function(applicationId, propertyName, propertyValue) {
       path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
       v <- list()
