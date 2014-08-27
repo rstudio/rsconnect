@@ -4,7 +4,7 @@
 \title{Unset Application property}
 \usage{
 unsetProperty(propertyName, appDir = getwd(), appName = NULL,
-  account = NULL)
+  account = NULL, force = FALSE)
 }
 \arguments{
 \item{propertyName}{Name of property to unset}
@@ -16,6 +16,8 @@ current working directory.}
 
 \item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
+
+\item{force}{Forcibly unset the property}
 }
 \description{
 Unset a property on currently deployed application to restoring its default
