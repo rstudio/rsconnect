@@ -4,7 +4,7 @@
 \title{Set Application property}
 \usage{
 setProperty(propertyName, propertyValue, appDir = getwd(), appName = NULL,
-  account = NULL)
+  account = NULL, force = FALSE)
 }
 \arguments{
 \item{propertyName}{Name of property to set}
@@ -18,6 +18,8 @@ current working directory.}
 
 \item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
+
+\item{force}{Forcibly set the property}
 }
 \description{
 Set a property on currently deployed application

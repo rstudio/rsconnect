@@ -71,6 +71,7 @@ configureApp <- function(appName, appDir=getwd(), account = NULL,
 #'   current working directory.  
 #' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
+#' @param force Forcibly set the property 
 #' @examples
 #' \dontrun{
 #' 
@@ -83,7 +84,7 @@ configureApp <- function(appName, appDir=getwd(), account = NULL,
 #' }
 #' @export
 setProperty <- function(propertyName, propertyValue, appDir=getwd(), 
-                        appName=NULL, account = NULL) {
+                        appName=NULL, account = NULL, force=FALSE) {
   
   # resolve the application target and target account info
   target <- deploymentTarget(appDir, appName, account)
@@ -96,7 +97,8 @@ setProperty <- function(propertyName, propertyValue, appDir=getwd(),
   
   invisible(lucid$setApplicationProperty(application$id, 
                                          propertyName, 
-                                         propertyValue))
+                                         propertyValue,
+                                         force))
 }
 
 #' Unset Application property 
@@ -108,6 +110,7 @@ setProperty <- function(propertyName, propertyValue, appDir=getwd(),
 #'   current working directory.  
 #' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
+#' @param force Forcibly unset the property 
 #' @examples
 #' \dontrun{
 #' 
@@ -117,7 +120,7 @@ setProperty <- function(propertyName, propertyValue, appDir=getwd(),
 #' }
 #' @export
 unsetProperty <- function(propertyName, appDir=getwd(), appName=NULL, 
-                          account = NULL) {
+                          account = NULL, force=FALSE) {
   
   # resolve the application target and target account info
   target <- deploymentTarget(appDir, appName, account)
@@ -129,7 +132,8 @@ unsetProperty <- function(propertyName, appDir=getwd(), appName=NULL,
          "and/or associated account.")
   
   invisible(lucid$unsetApplicationProperty(application$id, 
-                                           propertyName))
+                                           propertyName,
+                                           force))
 }
 
 

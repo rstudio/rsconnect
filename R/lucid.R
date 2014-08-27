@@ -47,17 +47,28 @@ lucidClient <- function(authInfo) {
       json$account <- as.numeric(accountId)
       handleResponse(POST_JSON(authInfo, "/applications/", json))      
     },
-  
-    setApplicationProperty = function(applicationId, propertyName, propertyValue) {
-      path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
-      v <- list()
-      v$value <- propertyValue
-      handleResponse(PUT_JSON(authInfo, path, v))
+
+    listApplicationProperties = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/properties/", sep="")
+      handleResponse(GET(authInfo, path))
     },
     
-    unsetApplicationProperty = function(applicationId, propertyName) {
-      path <- paste("/applications/", applicationId, "/properties/", propertyName, sep="")
-      handleResponse(DELETE(authInfo, path))
+    setApplicationProperty = function(applicationId, propertyName, 
+                                      propertyValue, force=FALSE) {
+      path <- paste("/applications/", applicationId, "/properties/", 
+                    propertyName, sep="")
+      v <- list()
+      v$value <- propertyValue
+      query <- paste("force=", if (force) "1" else "0", sep="")
+      handleResponse(PUT_JSON(authInfo, path, v, query))
+    },
+    
+    unsetApplicationProperty = function(applicationId, propertyName, 
+                                        force=FALSE) {
+      path <- paste("/applications/", applicationId, "/properties/", 
+                    propertyName, sep="")
+      query <- paste("force=", if (force) "1" else "0", sep="")
+      handleResponse(DELETE(authInfo, path, query))
     },
     
     uploadApplication = function(applicationId, bundlePath) {
