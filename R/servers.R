@@ -66,7 +66,7 @@ serverConfigFile <- function(name) {
 #' @export
 discoverServers <- function(quiet = FALSE) {
   # TODO: Better discovery mechanism?
-  discovered <- getOption("rsconnect.local_servers", "http://localhost:3939/api")
+  discovered <- getOption("rsconnect.local_servers", "http://localhost:3939/__api__")
 
   # get the URLs of the known servers, and silently add any that aren't yet
   # present

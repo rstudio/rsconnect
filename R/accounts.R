@@ -120,9 +120,9 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
       break
     },
     error = function(e, ...) {
-      # we expect this to return unauthorized until the token becomes active,
+      # we expect this to return server errors until the token becomes active,
       # but bubble other errors
-      if (length(grep("401 - Unauthorized", e$message)) == 0) {
+      if (length(grep("500 -", e$message)) == 0) {
         stop(e)
       }
     })
