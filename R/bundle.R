@@ -141,30 +141,27 @@ getRepository <- function(description) {
 }
 
 validateRepository <- function(pkg, repository) {
-  if (!(repository %in% c("CRAN", "GitHub", "BioC"))) {
-    msg <- paste("Unable to deploy package dependency '", pkg, "'\n\n", sep="")
-    if (is.null(repository))
-      msg <- paste(msg, "The package was installed locally from source.",
-                   sep = "")
-    else 
-      msg <- paste(msg, " The package was installed from an unsupported ",
-                   "repository '", repository, "'.", sep="")
-    msg <- paste(
-      msg,
-      " Only packages installed from CRAN, BioConductor and GitHub are ",
-      "supported.\n", sep=""
-    )
-    
-    if (!hasRequiredDevtools()) {
-      msg <- paste(msg, "\nTo use packages from GitHub you need to install ",
-                        "them with the most recent version of devtools. ",
-                        "To ensure you have the latest version of devtools ",
-                        "use:\n\n",
-                        "install.packages('devtools'); ",
-                        "devtools::install_github('devtools')\n", sep="")
-    }
-    msg
+  msg <- if (is.null(repository)) {
+    "The package was installed locally from source."
+  } else if (!(repository %in% c("CRAN", "GitHub", "BioC"))) {
+    paste(" The package was installed from an unsupported ",
+          "repository '", repository, "'.", sep = "")
   }
+  if (is.null(msg)) return()
+  msg <- paste(
+    "Unable to deploy package dependency '", pkg, "'\n\n", msg, " ",
+    "Only packages installed from CRAN, BioConductor and GitHub are supported.\n",
+    sep = ""
+  )
+  if (!hasRequiredDevtools()) {
+    msg <- paste(msg, "\nTo use packages from GitHub you need to install ",
+                 "them with the most recent version of devtools. ",
+                 "To ensure you have the latest version of devtools ",
+                 "use:\n\n",
+                 "install.packages('devtools'); ",
+                 "devtools::install_github('devtools')\n", sep = "")
+  }
+  msg
 }
 
 hasRequiredDevtools <- function() {
