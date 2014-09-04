@@ -5,7 +5,11 @@
 \alias{shinyapps-package}
 \title{ShinyApps}
 \description{
-An \R package for deploying \pkg{shiny} applications to the ShinyApps service.
+An \R package for deploying \pkg{shiny} applications to the ShinyApps
+service.\cr\cr
+Please read
+\href{http://shiny.rstudio.com/articles/shinyapps.html}{Getting Started with ShinyApps.io}
+for comprehensive information on getting started with \pkg{shinyapps}.
 }
 \section{Managing Applications}{
 
@@ -56,11 +60,6 @@ Manage ShinyApps accounts on the local system.
 
 More information on account management is available in the
 \code{\link{accounts}} help page.
-}
-\seealso{
-Please read
-  \href{http://shiny.rstudio.com/articles/shinyapps.html}{Getting Started with ShinyApps.io}
-  for information on getting started with \code{shinyapps}.
 }
 \keyword{package}
 

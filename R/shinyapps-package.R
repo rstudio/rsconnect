@@ -1,6 +1,10 @@
 ##' ShinyApps
 ##' 
-##' An \R package for deploying \pkg{shiny} applications to the ShinyApps service.
+##' An \R package for deploying \pkg{shiny} applications to the ShinyApps
+##' service.\cr\cr
+##' Please read
+##' \href{http://shiny.rstudio.com/articles/shinyapps.html}{Getting Started with ShinyApps.io}
+##' for information on getting started with \pkg{shinyapps}.
 ##' 
 ##' @section Managing Applications:
 ##' 
@@ -53,9 +57,5 @@
 ##' @name shinyapps-package
 ##' @aliases shinyapps-package shinyapps
 ##' @docType package
-##' @seealso
-##'   Please read
-##'   \href{http://shiny.rstudio.com/articles/shinyapps.html}{Getting Started with ShinyApps.io}
-##'   for information on getting started with \code{shinyapps}.
 ##' @keywords package
 NULL
