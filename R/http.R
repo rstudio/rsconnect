@@ -1,5 +1,3 @@
-
-
 userAgent <- function() {
   paste("shinyapps", packageVersion("shinyapps"), sep="/")
 }
