@@ -58,8 +58,9 @@ More information on account management is available in the
 \code{\link{accounts}} help page.
 }
 \seealso{
-\code{\link[shiny:shiny-package]{shiny}}, for authoring \code{shiny}
-  applications.
+Please read
+  \href{http://shiny.rstudio.com/articles/shinyapps.html}{Getting Started with ShinyApps.io}
+  for information on getting started with \code{shinyapps}.
 }
 \keyword{package}
 

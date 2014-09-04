@@ -53,7 +53,9 @@
 ##' @name shinyapps-package
 ##' @aliases shinyapps-package shinyapps
 ##' @docType package
-##' @seealso \code{\link[shiny:shiny-package]{shiny}}, for authoring \code{shiny}
-##'   applications.
+##' @seealso
+##'   Please read
+##'   \href{http://shiny.rstudio.com/articles/shinyapps.html}{Getting Started with ShinyApps.io}
+##'   for information on getting started with \code{shinyapps}.
 ##' @keywords package
 NULL
