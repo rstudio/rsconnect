@@ -62,12 +62,22 @@ test_that("RStudio Connect users API", {
     # generate a token
     accountId <- response$id
     token <- generateToken()
+
+    # temporary workaround
+    # keep regenerating tokens until we get one starting with a letter
+    while (!grepl("^[[:alpha:]]", token$token)) {
+      token <- generateToken()
+    }
+
     tokenResponse <- connect$addToken(list(token = token$token,
                                            public_key = token$public_key,
                                            user_id = accountId))
 
     # open the URL in the browser
     utils::browseURL(tokenResponse$token_claim_url)
+
+    # Sleep for a second so we can be sure that automatic auth happened
+    Sys.sleep(2)
 
     # finally, create a fully authenticated client using the new token, and
     # keep trying to authenticate until we're successful
@@ -118,8 +128,12 @@ test_that("RStudio Connect users API", {
     ## Query the app for success / failure
     response <- connect$waitForTask(id)
 
-    ## Delete an application
+    ## Terminate the application (does not remove it from store)
     connect$terminateApplication(appId)
+
+    ## Delete the application too
+    connect$deleteApplication(appId)
+
     apps <- connect$listApplications(accountId)
     expect_false(response$id %in% sapply(apps, "[[", "id"))
 
