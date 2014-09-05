@@ -97,10 +97,9 @@ connectClient <- function(service, authInfo) {
                                list(name = name)))
     },
 
-    terminateApplication = function(appId) {
-      handleResponse(DELETE(service,
-                            authInfo,
-                            file.path("/applications", appId)))
+    terminateApplication = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/terminate", sep="")
+      handleResponse(POST_JSON(service, authInfo, path, list()))
     },
 
     uploadApplication = function(appId, bundlePath) {
