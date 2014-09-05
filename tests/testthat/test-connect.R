@@ -77,7 +77,6 @@ test_that("RStudio Connect users API", {
 
     repeat {
       tryCatch({
-        Sys.sleep(1)
         user <- connect$currentUser()
         break
       },
@@ -87,6 +86,7 @@ test_that("RStudio Connect users API", {
         if (length(grep("401 - Unauthorized", e$message)) == 0) {
           stop(e)
         }
+        Sys.sleep(1)
       })
     }
 
@@ -94,6 +94,10 @@ test_that("RStudio Connect users API", {
 
     ## Create it
     splineReticulator <- connect$createApplication("SplineReticulator")
+
+    # Update the account id (since we have moved from unauthed user
+    # to authed user)
+    accountId <- splineReticulator$user_id
 
     ## Confirm it exists
     apps <- connect$listApplications(accountId)
