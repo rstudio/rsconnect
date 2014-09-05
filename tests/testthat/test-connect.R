@@ -131,9 +131,6 @@ test_that("RStudio Connect users API", {
     ## Terminate the application (does not remove it from store)
     connect$terminateApplication(appId)
 
-    ## Delete the application too
-    connect$deleteApplication(appId)
-
     apps <- connect$listApplications(accountId)
     expect_false(response$id %in% sapply(apps, "[[", "id"))
 
