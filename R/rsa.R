@@ -12,7 +12,7 @@ generateToken <- function() {
   priv.der <- PKI::PKI.save.key(key, format = "DER")
   pub.der <- PKI::PKI.save.key(key, format = "DER", private = FALSE)
   list(
-    token = createUniqueId(16),
+    token = paste0("T", createUniqueId(16)),
     public_key = RCurl::base64Encode(pub.der),
     private_key = RCurl::base64Encode(priv.der)
   )
