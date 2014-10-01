@@ -4,11 +4,11 @@ stripComments <- function(content) {
 
 hasAbsolutePaths <- function(content) {
   regex <- c(
-    "[\'\"]\\s*[a-zA-Z]:", ## windows-style absolute paths
+    "[\'\"]\\s*[a-zA-Z]:/[^\"\']", ## windows-style absolute paths
     "[\'\"]\\s*\\\\\\\\", ## windows UNC paths
     "[\'\"]\\s*/(?!/)(.*?)/(.*?)", ## unix-style absolute paths
     "[\'\"]\\s*~/", ## path to home directory
-    "\\[(.*?)\\]\\(\\s*[a-zA-Z]:", ## windows-style markdown references [Some image](C:/...)
+    "\\[(.*?)\\]\\(\\s*[a-zA-Z]:/[^\"\']", ## windows-style markdown references [Some image](C:/...)
     "\\[(.*?)\\]\\(\\s*/", ## unix-style markdown references [Some image](/Users/...)
     NULL ## so we don't worry about commas above
   )

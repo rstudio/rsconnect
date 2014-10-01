@@ -33,7 +33,4 @@ test_that("The linter identifies invalid application structures", {
   expect_error(lint("."))
   expect_error(lint("shiny-app-in-subdir"))
   lint("shiny-app-in-subdir/my-app")
-  file.create("shiny-app-in-subdir/index.html")
-  lint("shiny-app-in-subdir")
-  file.remove("shiny-app-in-subdir/index.html")
 })
