@@ -115,6 +115,11 @@ connectClient <- function(service, authInfo) {
       handleResponse(POST_JSON(service, authInfo, path, json))
     },
 
+    configureApplication = function(applicationId) {
+      handleResponse(GET(service, authInfo, paste(
+        "/applications/", applicationId, "/config", sep="")))
+    },
+
     ## Tasks API
 
     listTasks = function() {

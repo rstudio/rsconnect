@@ -112,7 +112,7 @@ deployApp <- function(appDir = getwd(),
 
   # get the application to deploy (creates a new app on demand)
   withStatus("Preparing to deploy application", {
-    application <- applicationForTarget(client,   accountDetails, target)
+    application <- applicationForTarget(client, accountDetails, target)
   })
 
   if (upload) {
@@ -150,6 +150,15 @@ deployApp <- function(appDir = getwd(),
                  bundle$id,
                  application$url)
 
+  # if this client supports config, see if the app needs it
+  if (!quiet && !is.null(client$configureApplication)) {
+    config <- client$configureApplication(application$id)
+    if (config$needs_config) {
+      # app needs config, finish deployment on the server
+      utils::browseURL(config$config_url)
+      return(invisible(TRUE))
+    }
+  }
 
   # append the file to be launched to the URL if necessary
   amendedUrl <- application$url
