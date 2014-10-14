@@ -40,6 +40,8 @@ addLinter("filepath.capitalization", linter(
   
   apply = function(content, project, path, files) {
     
+    # Inferred files within source documents (really, we just
+    # extract everything between two quotes)
     inferredFiles <- lapply(c("(?!\\\\)\'", "(?!\\\\)\""), function(regex) {
       matches <- gregexpr(regex, content, perl = TRUE)
       results <- vector("list", length(content))
@@ -56,13 +58,19 @@ addLinter("filepath.capitalization", linter(
       results
     })
     
+    ## Replace '\' with '/' in filepaths for consistency in comparisons
+    inferredFiles <- lapply(inferredFiles, function(x) {
+      gsub("\\\\", "/", x, perl = TRUE)
+    })
+    
+    # Compare in case sensitive, case insensitive fashion
     projectFiles <- files
     projectFilesLower <- tolower(files)
     
     badLines <- lapply(inferredFiles, function(x) {
       which(
         (tolower(x) %in% projectFilesLower) &
-          (!(x %in% projectFiles))
+        (!(x %in% projectFiles))
       )
     })
     
