@@ -51,10 +51,12 @@ getLinterApplicableFiles <- function(linter, files) {
 applyLinter <- function(linter, ...) {
   result <- linter$apply(...)
   if (is.logical(result)) {
-    return(which(result))
+    output <- which(result)
   } else {
-    return(as.numeric(result))
+    output <- as.numeric(result)
   }
+  attributes(output) <- attributes(result)
+  output
 }
 
 ##' Lint a Project
@@ -232,5 +234,5 @@ collectSuggestions <- function(fileResults) {
       }
     }))
   })
-  Reduce(intersect, suggestions)
+  Reduce(union, suggestions)
 }

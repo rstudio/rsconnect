@@ -65,9 +65,14 @@ enumerate <- function(X, FUN, ...) {
 #' @param lines The line numbers from \code{content} that contain lint.
 makeLinterMessage <- function(header, content, lines) {
   
+  lint <- attr(lines, "lint")
+  
   c(
     paste0(header, ":"),
-    paste(lines, ": ", content[lines], sep = ""),
+    paste(lines, ": ", 
+          content[lines], 
+          if (!is.null(lint)) paste("    ", lint, sep = ""),
+          sep = ""),
     "\n"
   )
 }
@@ -82,4 +87,15 @@ hasLint <- function(x) {
 
 isRCodeFile <- function(path) {
   grepl("\\.[rR]$|\\.[rR]md$|\\.[rR]nw$", path)
+}
+
+transposeList <- function(list) {
+  unname(as.list(
+    as.data.frame(
+      t(
+        as.matrix(
+          as.data.frame(list, stringsAsFactors = FALSE)
+        )
+      ), stringsAsFactors = FALSE)
+  ))
 }
