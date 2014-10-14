@@ -40,6 +40,8 @@ addLinter("filepath.capitalization", linter(
   
   apply = function(content, project, path, files) {
     
+    content <- stripComments(content)
+    
     # Inferred files within source documents (really, we just
     # extract everything between two quotes)
     inferredFiles <- lapply(c("(?!\\\\)\'", "(?!\\\\)\""), function(regex) {
