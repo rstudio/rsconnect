@@ -21,7 +21,7 @@ noMatch <- function(x) {
   identical(attr(x, "match.length"), -1L)
 }
 
-badRelativePaths <- function(content, project, path) {
+badRelativePaths <- function(content, project, path, ...) {
   
   ## Figure out how deeply the path of the file is nested
   ## (it is relative to the project root)

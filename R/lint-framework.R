@@ -133,7 +133,8 @@ lint <- function(project) {
       lintIndices[[j]] <- applyLinter(linter,
                                       projectContent[[file]],
                                       project = project,
-                                      path = file)
+                                      path = file,
+                                      files = projectFiles)
     }
     
     ## Get the messages associated with each lint

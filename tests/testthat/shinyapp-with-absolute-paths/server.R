@@ -28,6 +28,10 @@ shinyServer(function(input, output) {
 
     # draw the histogram with the specified number of bins
     hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    
+    ## read a csv file
+    file <- read.csv("college.txt") ## bad
+    file <- read.csv("College.txt") ## okay
 
   })
 
