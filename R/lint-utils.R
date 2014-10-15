@@ -4,7 +4,7 @@ stripComments <- function(content) {
 
 hasAbsolutePaths <- function(content) {
   regex <- c(
-    "[\'\"]\\s*[a-zA-Z]:/[^\"\']", ## windows-style absolute paths
+    "[\'\"]\\s*[a-zA-Z]:[\\\\/][^\"\']", ## windows-style absolute paths
     "[\'\"]\\s*\\\\\\\\", ## windows UNC paths
     "[\'\"]\\s*/(?!/)(.*?)/(.*?)", ## unix-style absolute paths
     "[\'\"]\\s*~/", ## path to home directory
