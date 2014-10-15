@@ -51,10 +51,12 @@ getLinterApplicableFiles <- function(linter, files) {
 applyLinter <- function(linter, ...) {
   result <- linter$apply(...)
   if (is.logical(result)) {
-    return(which(result))
+    output <- which(result)
   } else {
-    return(as.numeric(result))
+    output <- as.numeric(result)
   }
+  attributes(output) <- attributes(result)
+  output
 }
 
 ##' Lint a Project
@@ -133,7 +135,8 @@ lint <- function(project) {
       lintIndices[[j]] <- applyLinter(linter,
                                       projectContent[[file]],
                                       project = project,
-                                      path = file)
+                                      path = file,
+                                      files = projectFiles)
     }
     
     ## Get the messages associated with each lint
@@ -231,5 +234,5 @@ collectSuggestions <- function(fileResults) {
       }
     }))
   })
-  Reduce(intersect, suggestions)
+  Reduce(union, suggestions)
 }

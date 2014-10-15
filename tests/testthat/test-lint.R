@@ -34,3 +34,31 @@ test_that("The linter identifies invalid application structures", {
   expect_error(lint("shiny-app-in-subdir"))
   lint("shiny-app-in-subdir/my-app")
 })
+
+test_that("The linter identifies files not matching in case sensitivity", {
+  result <- lint("shinyapp-with-absolute-paths")
+  server.R <- result[["server.R"]]
+  filepath.capitalization <- server.R[["filepath.capitalization"]]
+  expect_true(filepath.capitalization$indices == 33)
+})
+
+test_that("The linter believes that the Shiny example apps are okay", {
+  
+  examples <- list.files(system.file("examples", package = "shiny"), full.names = TRUE)
+  if (length(examples)) {
+    
+    results <- lapply(examples, lint)
+    
+    lints <- suppressMessages(lapply(results, printLinterResults))
+    lapply(lints, function(project) {
+      lapply(project, function(file) {
+        lapply(file, function(linter) {
+          expect_true(length(linter$indices) == 0)
+        })
+      })
+    })
+    
+  }
+  
+  
+})
