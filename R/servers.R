@@ -113,6 +113,18 @@ getDefaultServer <- function(local = FALSE, prompt = TRUE) {
 
 #' @rdname servers
 #' @export
+addConnectServer <- function(url, name = NULL, quiet = FALSE) {
+  # ensure 'url' ends with '/__api__'
+  if (!grepl("/__api__$", url))
+    url <- paste(url, "/__api__", sep = "")
+
+  # if we have duplicated leading slashes, remove them
+  url <- gsub("(/+__api__)$", "/__api__", url)
+  addServer(url, name, quiet)
+}
+
+#' @rdname servers
+#' @export
 addServer <- function(url, name = NULL, quiet = FALSE) {
   if (!isStringParam(url))
     stop(stringParamErrorMessage("url"))
@@ -178,6 +190,7 @@ missingServerErrorMessage <- function(name) {
 }
 
 clientForAccount <- function(account) {
+
   if (account$server == .lucidServerInfo$name)
     lucidClient(.lucidServerInfo$url, account)
   else {

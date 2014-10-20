@@ -3,6 +3,7 @@
 export(accountInfo)
 export(accounts)
 export(addAuthorizedUser)
+export(addConnectServer)
 export(addLinter)
 export(addServer)
 export(appDependencies)
