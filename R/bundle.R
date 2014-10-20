@@ -31,7 +31,7 @@ bundleApp <- function(appDir) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  if (packratVersion < "0.4.0.6") {
+  if (packratVersion < "0.4.1.12") {
     stop("You must install the latest version of packrat before you can bundle an application.")
   }
   suppressMessages(
