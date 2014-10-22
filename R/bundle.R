@@ -31,8 +31,12 @@ bundleApp <- function(appDir) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  if (packratVersion < "0.4.1.18") {
-    stop("You must install the latest version of packrat before you can bundle an application.")
+  requiredVersion <- "0.4.1.19"
+  if (packratVersion < requiredVersion) {
+    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
+         "you have version '", packratVersion, "' installed.\n",
+         "Please use devtools::install_github('rstudio/packrat') to obtain ",
+         "the latest version of Packrat.")
   }
   suppressMessages(
     packrat:::snapshotImpl(project = bundleDir,
