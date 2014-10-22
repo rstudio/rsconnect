@@ -283,7 +283,7 @@ deploymentTarget <- function(appDir, appName, account, server = NULL) {
 
     # single account we can default to
     if (length(accounts) == 1) {
-      accountDetails <- accountInfo(account)
+      accountDetails <- accountInfo(accounts)
       createDeploymentTarget(basename(appDir), accounts, accountDetails$server)
     }
     else
