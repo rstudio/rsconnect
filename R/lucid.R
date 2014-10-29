@@ -169,24 +169,12 @@ listRequest = function(service, authInfo, path, query, listName, page = 100,
   results <- list()
 
   while(TRUE) {
-<<<<<<< HEAD
-
-    # add query params
-    pathWithQuery <- paste(path, "?", query,
-                           "&count=", page,
-                           "&offset=", offset,
-                           sep="")
-
-    # make request and append the results
-    response <- handleResponse(GET(service, authInfo, pathWithQuery))
-=======
   
     # add query params
     queryWithList <- paste(query, "&count=", page, "&offset=", offset, sep="")
 
     # make request and append the results
-    response <- handleResponse(GET(authInfo, path, queryWithList))        
->>>>>>> upstream/master
+    response <- handleResponse(GET(service, authInfo, path, queryWithList))        
     results <- append(results, response[[listName]])
 
     # update the offset
@@ -244,11 +232,7 @@ handleResponse <- function(response, jsonFilter = NULL) {
       if (!is.null(body))
         reportError(body)
       else
-<<<<<<< HEAD
-        reportError(response$content)
-=======
         reportError(response$content)  
->>>>>>> upstream/master
     }
   }
 
