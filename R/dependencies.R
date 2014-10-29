@@ -121,7 +121,10 @@ fileDependencies <- function(file) {
   }
 
   # parse file and examine expressions
-  exprs <- parse(input, n = -1L, encoding = checkEncoding(file))
+  withCallingHandlers(
+    exprs <- parse(input, n = -1L, encoding = checkEncoding(file)),
+    error = function(e) message('\n\n* Failed to parse ', file, '\n')
+  )
   for (i in seq_along(exprs))
     pkgs <- append(pkgs, expressionDependencies(exprs[[i]]))
 

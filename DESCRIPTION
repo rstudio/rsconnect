@@ -1,14 +1,14 @@
 Package: rsconnect
 Type: Package
 Title: Interface to RStudio Connect
-Version: 0.3.55
-Date: 2014-07-23
+Version: 0.3.60
+Date: 2013-10-03
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Interface for deploying shiny applications to the
     RStudio Connect service
 Depends:
-    R (>= 2.15.0)
+    R (>= 3.0.0)
 Imports:
     digest,
     PKI,
@@ -17,5 +17,6 @@ Imports:
     packrat (>= 0.4.0.6)
 Suggests:
     scrypt,
-    knitr
+    knitr,
+    testthat
 License: GPL-2

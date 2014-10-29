@@ -78,8 +78,9 @@ httpInternal <- function(protocol,
                          path,
                          headers,
                          contentType = NULL,
-                         file = NULL) {
-
+                         file = NULL,
+                         writer = NULL) {
+  
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
@@ -154,8 +155,14 @@ httpCurl <- function(protocol,
                      path,
                      headers,
                      contentType = NULL,
+<<<<<<< HEAD
                      file = NULL) {
 
+=======
+                     file = NULL, 
+                     writer = NULL) {  
+  
+>>>>>>> upstream/master
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
@@ -223,8 +230,14 @@ httpRCurl <- function(protocol,
                       path,
                       headers,
                       contentType = NULL,
+<<<<<<< HEAD
                       file = NULL) {
 
+=======
+                      file = NULL, 
+                      writer = NULL) {
+  
+>>>>>>> upstream/master
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
@@ -250,10 +263,26 @@ httpRCurl <- function(protocol,
   options$cainfo <- system.file("cert/cacert.pem", package = "rsconnect")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
+<<<<<<< HEAD
   textGatherer <- RCurl::basicTextGatherer()
   if (!is.null(file))
     options$writefunction <- textGatherer$update
 
+=======
+  textGatherer <- if (is.null(writer)) 
+      RCurl::basicTextGatherer()
+    else
+      writer
+  
+  # when using a custom output writer, add a progress check so we can 
+  # propagate interrupts, and wait a long time (for streaming)
+  if (!is.null(writer)) {
+    options$noprogress <- FALSE
+    options$progressfunction <- writer$progress
+    options$timeout <- 9999999
+  }
+  
+>>>>>>> upstream/master
   # verbose if requested
   if (httpVerbose())
     options$verbose <- TRUE
@@ -264,13 +293,14 @@ httpRCurl <- function(protocol,
   options$httpheader <- extraHeaders
 
   # make the request
-  time <- system.time(gcFirst = FALSE, {
+  time <- system.time(gcFirst = FALSE, tryCatch({
     if (!is.null(file)) {
       RCurl::curlPerform(url = url,
                          .opts = options,
                          customrequest = method,
                          readfunction = fileContents,
                          infilesize = fileLength,
+                         writefunction = textGatherer$update,
                          upload = TRUE)
     } else if (method == "DELETE") {
       RCurl::curlPerform(url = url,
@@ -278,10 +308,33 @@ httpRCurl <- function(protocol,
                          customrequest = method)
 
     } else {
+<<<<<<< HEAD
       RCurl::getURL(url,
                     .opts = options,
                     write = textGatherer)
   }})
+=======
+      if (identical(method, "GET")) {
+        RCurl::getURL(url, 
+                      .opts = options,
+                      write = textGatherer)  
+      } else {
+        RCurl::curlPerform(url = url,
+                           .opts = options,
+                           customrequest = method,
+                           writefunction = textGatherer$update)
+      }
+    }}, 
+    error = function(e, ...) {
+      # ignore errors resulting from timeout or user abort
+      if (identical(e$message, "Callback aborted") || 
+          identical(e$message, "transfer closed with outstanding read data remaining"))
+        return
+      # bubble remaining errors through  
+      else
+        stop(e)
+    }))
+>>>>>>> upstream/master
   httpTrace(method, path, time)
 
   # return list
@@ -314,9 +367,14 @@ httpTrace <- function(method, path, time) {
   }
 }
 
+<<<<<<< HEAD
 httpFunction <- function() {
 
   httpType <- getOption("rsconnect.http", "rcurl")
+=======
+httpFunction <- function() {  
+  httpType <- getOption("shinyapps.http", "rcurl")
+>>>>>>> upstream/master
   if (identical("rcurl", httpType))
     httpRCurl
   else if (identical("curl",  httpType))
@@ -328,15 +386,26 @@ httpFunction <- function() {
                ". Valid values are rcurl, curl, and internal"))
 }
 
+<<<<<<< HEAD
 POST_JSON <- function(service, authInfo, path, json, headers = list()) {
   POST(service,
        authInfo,
+=======
+POST_JSON <- function(authInfo, 
+                      path, 
+                      json, 
+                      query = NULL, 
+                      headers = list()) {
+  POST(authInfo,
+>>>>>>> upstream/master
        path,
+       query,
        "application/json",
        content = RJSONIO::toJSON(json, pretty = TRUE),
        headers = headers)
 }
 
+<<<<<<< HEAD
 POST <- function(service,
                  authInfo,
                  path,
@@ -349,13 +418,22 @@ POST <- function(service,
 }
 
 PUT_JSON <- function(authInfo, path, json, headers = list()) {
+=======
+PUT_JSON <- function(authInfo, 
+                     path, 
+                     json, 
+                     query = NULL,
+                     headers = list()) {
+>>>>>>> upstream/master
   PUT(authInfo,
       path,
+      query,
       "application/json",
       content = RJSONIO::toJSON(json, pretty = TRUE),
       headers = headers)
 }
 
+<<<<<<< HEAD
 PUT <- function(service,
                 authInfo,
                 path,
@@ -364,14 +442,57 @@ PUT <- function(service,
                 content = NULL,
                 headers = list()) {
   httpWithBody(service, authInfo, "PUT", path, contentType, file, content, headers)
+=======
+POST <- function(authInfo, 
+                 path, 
+                 query = NULL, 
+                 contentType = NULL, 
+                 file = NULL,
+                 content = NULL,
+                 headers = list()) {
+  httpRequestWithBody(authInfo, "POST", path, query, contentType, file, content, headers)
 }
 
+PUT <- function(authInfo,
+                path, 
+                query = NULL,
+                contentType = NULL, 
+                file = NULL,
+                content = NULL,
+                headers = list()) {
+  httpRequestWithBody(authInfo, "PUT", path, query, contentType, file, content, headers)
+>>>>>>> upstream/master
+}
 
+GET <- function(authInfo,
+                path, 
+                query = NULL,
+                headers = list(),
+                writer = NULL) {
+  httpRequest(authInfo, "GET", path, query, headers, writer)
+}
+
+DELETE <- function(authInfo,
+                   path, 
+                   query = NULL,
+                   headers = list(),
+                   writer = NULL) {
+  httpRequest(authInfo, "DELETE", path, query, headers, writer)
+}
+
+<<<<<<< HEAD
 httpWithBody <- function(service,
                          authInfo,
                          method,
                          path,
                          contentType,
+=======
+httpRequestWithBody <- function(authInfo, 
+                         method,
+                         path, 
+                         query = NULL,
+                         contentType = NULL, 
+>>>>>>> upstream/master
                          file = NULL,
                          content = NULL,
                          headers = list()) {
@@ -382,14 +503,27 @@ httpWithBody <- function(service,
     stop("You must specify either the file or content parameter but not both.")
 
   # prepend the service path
+<<<<<<< HEAD
   path <- paste(service$path, path, sep="")
 
+=======
+  url <- paste(service$path, path, sep="")
+
+  # append the query
+  if (!is.null(query)) {
+    # URL encode query args
+    query <- utils::URLencode(query)
+    url <- paste(url, "?", query, sep="")
+  }
+  
+>>>>>>> upstream/master
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
     file <- tempfile()
     writeChar(content, file,  eos = NULL, useBytes=TRUE)
   }
 
+<<<<<<< HEAD
   # if this request is to be authenticated, sign it
   if (length(authInfo) > 0) {
     sigHeaders <- signatureHeaders(authInfo, method, path, file)
@@ -397,10 +531,18 @@ httpWithBody <- function(service,
   }
 
   # perform POST
+=======
+  # get signature headers and append them
+  sigHeaders <- signatureHeaders(authInfo, method, url, file)
+  headers <- append(headers, sigHeaders)
+  
+  # perform request 
+>>>>>>> upstream/master
   http <- httpFunction()
   http(service$protocol,
        service$host,
        service$port,
+<<<<<<< HEAD
        method,
        path,
        headers,
@@ -416,8 +558,37 @@ GET <- function(service,
   # prepend the service path
   path <- paste(service$path, path, sep="")
 
+=======
+       method, 
+       url,
+       headers, 
+       contentType, 
+       file)
+}
+
+httpRequest <- function(authInfo,
+                        method,
+                        path, 
+                        query,
+                        headers = list(),
+                        writer = NULL) {
+    
+  # get the service url
+  service <- serviceUrl()
+  
+  # prepend the service path
+  url <- paste(service$path, path, sep="")
+  
+  # append the query
+  if (!is.null(query)) {
+    # URL encode query args
+    query <- utils::URLencode(query)
+    url <- paste(url, "?", query, sep="")
+  }
+  
+>>>>>>> upstream/master
   # get signature headers and append them
-  sigHeaders <- signatureHeaders(authInfo, "GET", path, NULL)
+  sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
   headers <- append(headers, sigHeaders)
 
   # perform GET
@@ -425,6 +596,7 @@ GET <- function(service,
   http(service$protocol,
        service$host,
        service$port,
+<<<<<<< HEAD
        "GET",
        path,
        headers)
@@ -450,6 +622,12 @@ DELETE <- function(service,
        "DELETE",
        path,
        headers)
+=======
+       method, 
+       url,
+       headers, 
+       writer = writer)
+>>>>>>> upstream/master
 }
 
 rfc2616Date <- function(time = Sys.time()) {

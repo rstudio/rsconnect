@@ -73,14 +73,14 @@ deployApp <- function(appDir = getwd(),
           return(invisible(lintResults))
         }
       } else {
-        message("Cancelling deployment as the linter has identified problems in the project:\n")
+        message("The linter has identified potential problems in the project:\n")
         printLinterResults(lintResults)
 #         message(
 #           "\nIf you believe these errors are spurious, run:\n\n",
 #           "\tdeployApp(lint = FALSE)\n\n",
 #           "to disable linting."
 #         )
-        return(invisible(lintResults))
+        message("If your application fails to run post-deployment, please double-check these messages.")
       }
 
     }
@@ -304,20 +304,19 @@ deploymentTarget <- function(appDir, appName, account, server = NULL) {
   }
 }
 
-# get the application associated with the passed deployment target
-# (creates a new application if necessary)
-applicationForTarget <- function(client, accountDetails, target) {
+# get the record for the application of the given name in the given account, or
+# NULL if no application exists by that name
+getAppByName <- function(client, accountInfo, name) {
+  # NOTE: returns a list with 0 or 1 elements
+  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(app)) app[[1]] else NULL
+}
 
-  # list the existing applications for this account and see if we
+applicationForTarget <- function(client, accountInfo, target) {
+
+  # list the existing applications for this account and see if we 
   # need to create a new application
-  app <- NULL
-  existingApps <- client$listApplications(accountDetails$accountId)
-  for (existingApp in existingApps) {
-    if (identical(existingApp$name, target$appName)) {
-      app <- existingApp
-      break
-    }
-  }
+  app <- getAppByName(client, accountInfo, target$appName)  
 
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm

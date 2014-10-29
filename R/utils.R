@@ -82,14 +82,22 @@ readDcf <- function(...) {
   read.dcf(...)
 }
 
+
+#' Generate a line with embedded message
+#' 
+#' Generates a message, surrounded with \code{#}, that extends
+#' up to length \code{n}.
+#' @param message A string (single-line message).
+#' @param n The total number length of the generated string --
+#'   the message is padded with \code{#} up to length \code{n}.
 #' @export
 hr <- function(message = "", n = 80) {
   if (nzchar(message)) {
     r <- as.integer((n - nchar(message) - 2) / 2)
-    hr <- paste(rep_len("#", r), collapse = '')
+    hr <- paste(rep.int("#", r), collapse = '')
     cat(hr, message, hr, sep=" ", '\n')
   } else {
-    hr <- paste(rep_len("#", n), collapse = '')
+    hr <- paste(rep.int("#", n), collapse = '')
     cat(hr, sep="", '\n')
   }
 }

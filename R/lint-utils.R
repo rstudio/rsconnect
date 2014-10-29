@@ -4,11 +4,11 @@ stripComments <- function(content) {
 
 hasAbsolutePaths <- function(content) {
   regex <- c(
-    "[\'\"]\\s*[a-zA-Z]:", ## windows-style absolute paths
+    "[\'\"]\\s*[a-zA-Z]:[\\\\/][^\"\']", ## windows-style absolute paths
     "[\'\"]\\s*\\\\\\\\", ## windows UNC paths
     "[\'\"]\\s*/(?!/)(.*?)/(.*?)", ## unix-style absolute paths
     "[\'\"]\\s*~/", ## path to home directory
-    "\\[(.*?)\\]\\(\\s*[a-zA-Z]:", ## windows-style markdown references [Some image](C:/...)
+    "\\[(.*?)\\]\\(\\s*[a-zA-Z]:/[^\"\']", ## windows-style markdown references [Some image](C:/...)
     "\\[(.*?)\\]\\(\\s*/", ## unix-style markdown references [Some image](/Users/...)
     NULL ## so we don't worry about commas above
   )
@@ -21,8 +21,8 @@ noMatch <- function(x) {
   identical(attr(x, "match.length"), -1L)
 }
 
-badRelativePaths <- function(content, project, path) {
-
+badRelativePaths <- function(content, project, path, ...) {
+  
   ## Figure out how deeply the path of the file is nested
   ## (it is relative to the project root)
   slashMatches <- gregexpr("/", path)
@@ -55,10 +55,24 @@ enumerate <- function(X, FUN, ...) {
   result
 }
 
+#' Construct a Linter Message
+#' 
+#' Pretty-prints a linter message. Primarily used as a helper
+#' for constructing linter messages with \code{\link{linter}}.
+#' 
+#' @param header A header message describing the linter.
+#' @param content The content of the file that was linted.
+#' @param lines The line numbers from \code{content} that contain lint.
 makeLinterMessage <- function(header, content, lines) {
+  
+  lint <- attr(lines, "lint")
+  
   c(
     paste0(header, ":"),
-    paste(lines, ": ", content[lines], sep = ""),
+    paste(lines, ": ", 
+          content[lines], 
+          if (!is.null(lint)) paste("    ", lint, sep = ""),
+          sep = ""),
     "\n"
   )
 }
@@ -74,3 +88,15 @@ hasLint <- function(x) {
 isRCodeFile <- function(path) {
   grepl("\\.[rR]$|\\.[rR]md$|\\.[rR]nw$", path)
 }
+
+transposeList <- function(list) {
+  unname(as.list(
+    as.data.frame(
+      t(
+        as.matrix(
+          as.data.frame(list, stringsAsFactors = FALSE)
+        )
+      ), stringsAsFactors = FALSE)
+  ))
+}
+

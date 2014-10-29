@@ -6,9 +6,9 @@
 addAuthorizedUser(username, password = NULL, appDir = getwd())
 }
 \arguments{
-\item{username}{}
+\item{username}{The user name.}
 
-\item{password}{}
+\item{password}{The password.}
 
 \item{appDir}{Directory containing application. Defaults to current working directory.}
 }

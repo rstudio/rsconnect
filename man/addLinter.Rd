@@ -29,8 +29,16 @@ addLinter("no.capitals", linter(
   # Use the default message constructor
   message = function(content, lines, ...) {
     makeLinterMessage("Capital letters found on the following lines", content, lines)
+<<<<<<< HEAD
   }
 
+=======
+  },
+  
+  # Give a suggested prescription
+  suggest = "Do not use capital letters in these documents."
+  
+>>>>>>> upstream/master
 ))
 }
 

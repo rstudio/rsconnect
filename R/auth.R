@@ -1,7 +1,7 @@
 #' Add authorized user for application
-#'
-#' @param username
-#' @param password
+#' 
+#' @param username The user name.
+#' @param password The password.
 #' @param appDir Directory containing application. Defaults to current working directory.
 #' @examples
 #' \dontrun{
@@ -67,16 +67,16 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
   invisible(writePasswordFile(path, passwords))
 }
 
-#' Remove authroized user from an application
-#'
-#' @param username
+#' Remove authorized user from an application
+#' 
+#' @param username The user name.
 #' @param appDir Directory containing application. Defaults to current working directory.
 #' @examples
 #' \dontrun{
-#'
-#' # remove user
-#' removeAuthroizedUser("andy")
-#'
+#' 
+#' # remove user 
+#' removeAuthorizedUser("andy")
+#' 
 #' }
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
