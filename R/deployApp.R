@@ -314,9 +314,9 @@ getAppByName <- function(client, accountInfo, name) {
 
 applicationForTarget <- function(client, accountInfo, target) {
 
-  # list the existing applications for this account and see if we 
+  # list the existing applications for this account and see if we
   # need to create a new application
-  app <- getAppByName(client, accountInfo, target$appName)  
+  app <- getAppByName(client, accountInfo, target$appName)
 
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
@@ -331,7 +331,7 @@ applicationForTarget <- function(client, accountInfo, target) {
   # create the application if we need to
   if (is.null(app)) {
     app <- client$createApplication(target$appName, "shiny",
-                                    accountDetails$accountId)
+                                    accountInfo$accountId)
   }
 
   # return the application
