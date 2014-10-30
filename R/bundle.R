@@ -1,24 +1,36 @@
 
+bundleFiles <- function(appDir, rmdFile, fullNames) {
+  # determine the files that will be in the bundle (exclude rsconnect dir
+  # as well as common hidden files)
+  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
+                      full.names = fullNames)
+  files <- files[!grepl(glob2rx("rsconnect/*"), files)]
+  files <- files[!grepl(glob2rx(".svn/*"), files)]
+  files <- files[!grepl(glob2rx(".git/*"), files)]
+  files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
+  files <- files[!grepl(glob2rx("*.Rproj"), files)]
 
-bundleApp <- function(appDir) {
+  # if deploying a specific Rmd file, exclude other Rmd files
+  if (nchar(rmdFile) > 0) {
+    files <- files[!grepl(glob2rx("*.Rmd"), files, ignore.case = TRUE)]
+    files[length(files)+1] <- if (fullNames) {
+      file.path(appDir, rmdFile)
+    } else {
+      rmdFile
+    }
+  }
+  files
+}
+
+bundleApp <- function(appDir, rmdFile) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
-  # if necessary write an index.htm for shinydoc deployments
-  indexFiles <- writeRmdIndex(appDir)
-  on.exit(unlink(indexFiles), add = TRUE)
-
-  # determine the files that will be in the bundle (exclude rsconnect dir
-  # as well as common hidden files)
-  files <- list.files(appDir, recursive=TRUE, all.files=TRUE)
-  files <- files[!grepl(glob2rx("rsconnect/*"), files)]
-  files <- files[!grepl(glob2rx(".svn/*"), files)]
-  files <- files[!grepl(glob2rx(".git/*"), files)]
-  files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
-  files <- files[!grepl(glob2rx("*.Rproj"), files)]
+  # create a list of files to be bundled
+  files <- bundleFiles(appDir, rmdFile, FALSE)
 
   # copy the files into the bundle dir
   for (file in files) {
@@ -48,8 +60,12 @@ bundleApp <- function(appDir) {
   users <- authorizedUsers(appDir)
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(appDir, files, users))
+  manifestJson <- enc2utf8(createAppManifest(bundleDir, files, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
+
+  # if necessary write an index.htm for shinydoc deployments
+  indexFiles <- writeRmdIndex(bundleDir)
+  on.exit(unlink(indexFiles), add = TRUE)
 
   # create the bundle and return it's path
   prevDir <- setwd(bundleDir)
@@ -79,14 +95,14 @@ createAppManifest <- function(appDir, files, users) {
 
     # validate the repository (returns an error message if there is a problem)
     msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
-    
+
     # append the bioc version to any bioconductor packages
     # TODO: resolve against actual BioC repo a package was pulled from
     # (in case the user mixed and matched)
     if ("biocViews" %in% names(description$description)) {
       description$description$biocVersion <- BiocInstaller::biocVersion()
     }
-    
+
     # good to go
     packages[[pkg]] <- description
   }

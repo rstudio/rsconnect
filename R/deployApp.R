@@ -59,8 +59,25 @@ deployApp <- function(appDir = getwd(),
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
 
+  # normalize appDir path and ensure it exists
+  appDir <- normalizePath(appDir, mustWork = FALSE)
+  if (!file.exists(appDir)) {
+    stop(appDir, " does not exist")
+  }
+
+  # if a specific file is named, make sure it's an Rmd
+  rmdFile <- ""
+  if (!file.info(appDir)$isdir) {
+    if (grepl("\\.Rmd$", appDir, ignore.case = TRUE)) {
+      rmdFile <- basename(appDir)
+      appDir <- dirname(appDir)
+    } else {
+      stop(appDir, " must be a directory or an R Markdown document")
+    }
+  }
+
   if (isTRUE(lint)) {
-    lintResults <- lint(appDir)
+    lintResults <- lint(appDir, rmdFile)
 
     if (hasLint(lintResults)) {
 
@@ -90,11 +107,6 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
 
-  # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir) || !file.info(appDir)$isdir)
-    stop(appDir, " is not a valid directory")
-
   # try to detect encoding from the RStudio project file
   .globals$encoding <- rstudioEncoding(appDir)
   on.exit(.globals$encoding <- NULL, add = TRUE)
@@ -118,7 +130,7 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
-      bundlePath <- bundleApp(appDir)
+      bundlePath <- bundleApp(appDir, rmdFile)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {

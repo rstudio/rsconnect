@@ -66,7 +66,7 @@ applyLinter <- function(linter, ...) {
 ##'
 ##' @param project Path to a project directory.
 ##' @export
-lint <- function(project) {
+lint <- function(project, file) {
 
   if (!file.exists(project))
     stop("No directory at path '", project, "'")
@@ -78,12 +78,12 @@ lint <- function(project) {
   owd <- getwd()
   on.exit(setwd(owd))
   setwd(project)
-  
-  # List all files within the project
-  projectFiles <- list.files(full.names = TRUE, recursive = TRUE, all.files = TRUE)
+
+  # List the files that will be bundled
+  projectFiles <- bundleFiles(project, file, TRUE)
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
-  
+
   # Do some checks for a valid application structure
   appFilesBase <- tolower(list.files())
   wwwFiles <- tolower(list.files("www/"))
@@ -93,21 +93,21 @@ lint <- function(project) {
     app = "app.r" %in% appFilesBase,
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase))
   )
-  
+
   if (!any(satisfiedLayouts)) {
     msg <- "Cancelling deployment: invalid project layout.
             The project should have one of the following layouts:
             1. 'shiny.R' and 'ui.R' in the application base directory,
             2. 'shiny.R' and 'www/index.html' in the application base directory,
             3. An R Markdown (.Rmd) document."
-    
+
     # strip leading whitespace from the above
     msg <- paste(collapse = "\n",
                  gsub("^ *", "", unlist(strsplit(msg, "\n", fixed = TRUE))))
-                 
+
     stop(msg)
   }
-  
+
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
 
   # Identify all files that will be read in by one or more linters
