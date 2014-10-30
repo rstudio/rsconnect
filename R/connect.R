@@ -104,8 +104,9 @@ connectClient <- function(service, authInfo) {
 
     uploadApplication = function(appId, bundlePath) {
       path <- file.path("/applications", appId, "upload")
-      handleResponse(POST(service, authInfo, path, "application/x-gzip",
-                          bundlePath))
+      handleResponse(POST(service, authInfo, path,
+                          contentType="application/x-gzip",
+                          file=bundlePath))
     },
 
     deployApplication = function(applicationId, bundleId=NULL) {

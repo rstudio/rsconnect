@@ -458,7 +458,7 @@ httpRequestWithBody <- function(service,
 
   # if this request is to be authenticated, sign it
   if (length(authInfo) > 0) {
-    sigHeaders <- signatureHeaders(authInfo, method, path, file)
+    sigHeaders <- signatureHeaders(authInfo, method, url, file)
     headers <- append(headers, sigHeaders)
   }
 
@@ -494,7 +494,7 @@ httpRequest <- function(service,
 
   # if this request is to be authenticated, sign it
   if (length(authInfo) > 0) {
-    sigHeaders <- signatureHeaders(authInfo, method, path, NULL)
+    sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
     headers <- append(headers, sigHeaders)
   }
 
