@@ -176,7 +176,7 @@ deployApp <- function(appDir = getwd(),
   amendedUrl <- application$url
 
   # check for a launch file (i.e. an Rmd file)
-  launchFile <- guessLaunchFile(appDir)
+  launchFile <- if (nzchar(rmdFile)) rmdFile else guessLaunchFile(appDir)
   if (nchar(launchFile) > 0) {
     if (substr(amendedUrl, nchar(amendedUrl), nchar(amendedUrl)) != "/")
       amendedUrl = paste(amendedUrl, "/", sep = "")
