@@ -1,8 +1,8 @@
 Package: rsconnect
 Type: Package
 Title: Interface to RStudio Connect
-Version: 0.3.60
-Date: 2013-10-03
+Version: 0.3.70
+Date: 2013-11-03
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Interface for deploying shiny applications to the
