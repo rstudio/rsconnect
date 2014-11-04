@@ -74,7 +74,8 @@ setAccountInfo <- function(name, token, secret) {
                  accountId = accountId,
                  token = token, 
                  secret = secret), 
-            configFile)
+            configFile,
+            width = 100)
   
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
