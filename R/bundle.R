@@ -22,7 +22,7 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
   files
 }
 
-bundleApp <- function(appDir, rmdFile) {
+bundleApp <- function(appName, appDir, rmdFile) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -64,7 +64,7 @@ bundleApp <- function(appDir, rmdFile) {
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
-  indexFiles <- writeRmdIndex(bundleDir)
+  indexFiles <- writeRmdIndex(appName, bundleDir)
   on.exit(unlink(indexFiles), add = TRUE)
 
   # create the bundle and return it's path

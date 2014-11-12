@@ -1,7 +1,7 @@
 
 # Write an index.htm file for an Rmd deployment if necessary (returns the
 # files written so they can be removed after deployment)
-writeRmdIndex <- function(appDir) {
+writeRmdIndex <- function(appName, appDir) {
 
   # files written
   files <- NULL
@@ -19,7 +19,7 @@ writeRmdIndex <- function(appDir) {
     if (length(appFiles) == 1)
       indexPage <- redirectWebPage(appFiles[1])
     else
-      indexPage <- listingWebPage(appDir, appFiles)
+      indexPage <- listingWebPage(appName, appFiles)
 
     indexFile <- file.path(appDir, "index.htm")
     files <- c(files, indexFile)
