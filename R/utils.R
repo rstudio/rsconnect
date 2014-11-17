@@ -84,7 +84,7 @@ readDcf <- function(...) {
 
 
 #' Generate a line with embedded message
-#' 
+#'
 #' Generates a message, surrounded with \code{#}, that extends
 #' up to length \code{n}.
 #' @param message A string (single-line message).
@@ -104,17 +104,17 @@ hr <- function(message = "", n = 80) {
 
 # this function was defined in the shiny package; in the unlikely event that
 # shiny:::checkEncoding() is not available, use a simplified version here
-checkEncoding2 <- tryCatch(
-  getFromNamespace('checkEncoding', 'shiny'),
-  error = function(e) {
-    function(file) {
+checkEncoding2 <- function(file) {
+  tryCatch(
+    getFromNamespace('checkEncoding', 'shiny')(file),
+    error = function(e) {
       if (.Platform$OS.type != 'windows') return('UTF-8')
       x <- readLines(file, encoding = 'UTF-8', warn = FALSE)
       isUTF8 <- !any(is.na(iconv(x, 'UTF-8')))
       if (isUTF8) 'UTF-8' else getOption('encoding')
     }
-  }
-)
+  )
+}
 
 # if shiny:::checkEncoding() gives UTF-8, use it, otherwise first consider
 # the RStudio project encoding, and eventually getOption('encoding')
