@@ -1,5 +1,5 @@
 rsconnect
 =======================================================
 
-An R package used for deploying Shiny applications.
+Deployment interface for the [ShinyApps](http://www.shinyapps.io) service and RStudio Connect servers.
 
