@@ -208,7 +208,8 @@ setAccountInfo <- function(name, token, secret) {
                  token = token,
                  secret = secret,
                  server = .lucidServerInfo$name),
-            configFile)
+            configFile,
+            width = 100)
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))

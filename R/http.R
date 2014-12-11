@@ -367,7 +367,7 @@ POST_JSON <- function(service,
        path,
        query,
        "application/json",
-       content = RJSONIO::toJSON(json, pretty = TRUE),
+       content = RJSONIO::toJSON(json, pretty = TRUE, digits=30),
        headers = headers)
 }
 
@@ -382,7 +382,7 @@ PUT_JSON <- function(service,
       path,
       query,
       "application/json",
-      content = RJSONIO::toJSON(json, pretty = TRUE),
+      content = RJSONIO::toJSON(json, pretty = TRUE, digits=30),
       headers = headers)
 }
 
