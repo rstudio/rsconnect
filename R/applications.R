@@ -122,7 +122,7 @@ showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
   # determine the log target and target account info
   target <- deploymentTarget(appDir, appName, account)
   accountInfo <- accountInfo(target$account)
-  lucid <- lucidClient(accountInfo)
+  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
   application <- getAppByName(lucid, accountInfo, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -212,7 +212,7 @@ showStreamingLogs <- function(account, applicationId, entries, outfile,
                               killfile) {
   # get account information
   accountInfo <- accountInfo(account)
-  lucid <- lucidClient(accountInfo)
+  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
 
   # remove the killfile when we're done
   on.exit(unlink(killfile), add = TRUE)

@@ -65,8 +65,9 @@ applyLinter <- function(linter, ...) {
 ##' them to all files within a project.
 ##'
 ##' @param project Path to a project directory.
+##' @param file Rmd file (can be empty)
 ##' @export
-lint <- function(project, file) {
+lint <- function(project, file = "") {
 
   if (!file.exists(project))
     stop("No directory at path '", project, "'")

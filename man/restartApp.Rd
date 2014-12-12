@@ -16,9 +16,6 @@ multiple servers (see \code{\link{servers}})}
 
 \item{quiet}{Request that no status information be printed to the console
 during the operation.}
-
-\item{accountFilter}{Return only deployments matching the given account
-(optional)}
 }
 \description{
 Restart an application currently running on a remote server.
