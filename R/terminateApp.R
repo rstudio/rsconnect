@@ -30,6 +30,6 @@ terminateApp <- function(appName, account = NULL, server = NULL,
   }
 
   # perform it
-  applicationTask(taskDef, appName, account, server = NULL, quiet)
+  applicationTask(taskDef, appName, account, server = server, quiet)
 }
 
