@@ -18,4 +18,5 @@ Suggests:
     scrypt,
     knitr,
     testthat
+Enhances: BiocInstaller
 License: GPL-2
