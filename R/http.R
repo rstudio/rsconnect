@@ -417,7 +417,8 @@ GET <- function(service,
   httpRequest(service, authInfo, "GET", path, query, headers, writer)
 }
 
-DELETE <- function(authInfo,
+DELETE <- function(service,
+                   authInfo,
                    path,
                    query = NULL,
                    headers = list(),

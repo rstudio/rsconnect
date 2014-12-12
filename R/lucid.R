@@ -69,7 +69,7 @@ lucidClient <- function(service, authInfo) {
       path <- paste("/applications/", applicationId, "/properties/", 
                     propertyName, sep="")
       query <- paste("force=", if (force) "1" else "0", sep="")
-      handleResponse(DELETE(authInfo, path, query))
+      handleResponse(DELETE(service, authInfo, path, query))
     },
 
     uploadApplication = function(applicationId, bundlePath) {
