@@ -1,5 +1,5 @@
 #' Add authorized user for application
-#' 
+#'
 #' @param username The user name.
 #' @param password The password.
 #' @param appDir Directory containing application. Defaults to current working directory.
@@ -68,15 +68,15 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
 }
 
 #' Remove authorized user from an application
-#' 
+#'
 #' @param username The user name.
 #' @param appDir Directory containing application. Defaults to current working directory.
 #' @examples
 #' \dontrun{
-#' 
-#' # remove user 
+#'
+#' # remove user
 #' removeAuthorizedUser("andy")
-#' 
+#'
 #' }
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export

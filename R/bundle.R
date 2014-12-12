@@ -101,13 +101,13 @@ createAppManifest <- function(appDir, files, users) {
     # (in case the user mixed and matched)
     if ("biocViews" %in% names(description$description)) {
 
-      # capture Bioc repository if available 
+      # capture Bioc repository if available
       biocPackages = available.packages(contriburl=contrib.url(BiocInstaller::biocinstallRepos(),
-                                                               type="source")) 
+                                                               type="source"))
       if (pkg %in% biocPackages) {
         description$description$biocRepo <- biocPackages[pkg, 'Repository']
       }
-        
+
       description$description$biocVersion <- BiocInstaller::biocVersion()
     }
 
