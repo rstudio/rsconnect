@@ -3,12 +3,9 @@
 \alias{accountInfo}
 \alias{accounts}
 \alias{removeAccount}
-\alias{setAccountInfo}
 \title{Account Management Functions}
 \usage{
 accounts(server = NULL)
-
-setAccountInfo(name, token, secret)
 
 accountInfo(name, server = NULL)
 
@@ -16,13 +13,9 @@ removeAccount(name, server = NULL)
 }
 \arguments{
 \item{server}{Name of the server on which the account is registered
-(optional; see \code{\link{servers}})}
+  (optional; see \code{\link{servers}})}
 
-\item{name}{Name of RStudio Connect account to save or remove}
-
-\item{token}{User token for the account}
-
-\item{secret}{User secret for the account}
+\item{name}{Name of account}
 }
 \value{
 \code{accounts} returns a data frame with the names of all accounts
@@ -30,25 +23,15 @@ registered on the system and the servers on which they reside.
 \code{accountInfo} returns a list with account details.
 }
 \description{
-Functions to add, enumerate, and remove RStudio Connect accounts on the local
-system. Prior to deploying applications you need to register
-your RStudio Connect account on the local system.
+Functions to enumerate and remove accounts on the local system. Prior to
+deploying applications you need to register your account on the local system.
 }
 \details{
-You register an account using the \code{setAccountInfo} function. You can
+You register an account using the \code{\link{setAccountInfo}} function (for
+ShinyApps) or \code{\link{connectUser}} function (for other servers). You can
 subsequently remove the account using the \code{removeAccount} function.
 
 The \code{accounts} and \code{accountInfo} functions are provided for viewing
 previously registered accounts.
-}
-\examples{
-\dontrun{
-
-# register an account
-setAccountInfo("user", "token", "secret")
-
-# remove the same account
-removeAccount("user")
-}
 }
 

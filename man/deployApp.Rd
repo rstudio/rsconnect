@@ -12,10 +12,10 @@ deployApp(appDir = getwd(), appName = NULL, account = NULL,
 \item{appDir}{Directory containing application. Defaults to
 current working directory.}
 
-\item{appName}{Name of application (names must be unique with RStudio Connect
-accounts). Defaults to the base name of the specified \code{appDir}.}
+\item{appName}{Name of application (names must be unique within an
+account). Defaults to the base name of the specified \code{appDir}.}
 
-\item{account}{RStudio Connect account to deploy application to. This
+\item{account}{Account to deploy application to. This
 parameter is only required for the initial deployment of an application
 when there are multiple accounts configured on the system (see
 \link{accounts}).}
@@ -38,7 +38,7 @@ during the deployment.}
 potentially problematic code?}
 }
 \description{
-Deploy a \link[shiny:shiny-package]{shiny} application to RStudio Connect.
+Deploy a \link[shiny:shiny-package]{shiny} application
 }
 \examples{
 \dontrun{

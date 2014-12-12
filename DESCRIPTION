@@ -1,13 +1,11 @@
 Package: rsconnect
 Type: Package
-Title: Deployment Interface for the ShinyApps Service and
-  RStudio Connect Servers
+Title: Deployment Interface for Shiny Applications
 Version: 0.3.70
 Date: 2013-11-03
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
-Description: Deployment Interface for the ShinyApps Service and
-  RStudio Connect Servers
+Description: Deployment Interface for Shiny Applications
 Depends:
     R (>= 3.0.0)
 Imports:

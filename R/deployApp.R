@@ -1,12 +1,12 @@
 #' Deploy an Application
 #'
-#' Deploy a \link[shiny:shiny-package]{shiny} application to RStudio Connect.
+#' Deploy a \link[shiny:shiny-package]{shiny} application
 #'
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
-#' @param appName Name of application (names must be unique with RStudio Connect
-#'   accounts). Defaults to the base name of the specified \code{appDir}.
-#' @param account RStudio Connect account to deploy application to. This
+#' @param appName Name of application (names must be unique within an
+#'   account). Defaults to the base name of the specified \code{appDir}.
+#' @param account Account to deploy application to. This
 #'   parameter is only required for the initial deployment of an application
 #'   when there are multiple accounts configured on the system (see
 #'   \link{accounts}).

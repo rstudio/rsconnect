@@ -19,10 +19,13 @@ omitted if only one account is registered on the system.}
 \item{entries}{The number of log entries to show. Defaults to 50 entries.}
 
 \item{streaming}{Whether to stream the logs. If \code{TRUE}, then the
-function does not return; instead, log entries are written to the console
-as they are made, until R is interrupted. Defaults to \code{FALSE}.}
+  function does not return; instead, log entries are written to the console
+  as they are made, until R is interrupted. Defaults to \code{FALSE}.}
 }
 \description{
-Show the logs for a deployed application.
+Show the logs for a deployed ShinyApps application.
+}
+\note{
+This function works only for ShinyApps servers.
 }
 

@@ -12,9 +12,12 @@ current working directory.}
 \item{appName}{Name of application}
 
 \item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+  system then this parameter can be omitted.}
 }
 \description{
-Show application propreties of a currently deployed application
+Show propreties of an application deployed to ShinyApps.
+}
+\note{
+This function works only for ShinyApps servers.
 }
 

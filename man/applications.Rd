@@ -23,7 +23,7 @@ Returns a data frame with the following columns:
 }
 }
 \description{
-List all applications currently deployed to RStudio Connect for a given account.
+List all applications currently deployed for a given account.
 }
 \note{
 To register an account you call the \link{setAccountInfo} function.

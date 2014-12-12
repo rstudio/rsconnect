@@ -3,7 +3,7 @@
 \alias{lint}
 \title{Lint a Project}
 \usage{
-lint(project)
+lint(project, file)
 }
 \arguments{
 \item{project}{Path to a project directory.}

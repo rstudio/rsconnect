@@ -22,7 +22,10 @@ system then this parameter can be omitted.}
 \item{force}{Forcibly set the property}
 }
 \description{
-Set a property on currently deployed application
+Set a property on currently deployed ShinyApps application.
+}
+\note{
+This function only works for ShinyApps servers.
 }
 \examples{
 \dontrun{

@@ -21,7 +21,7 @@ isConnectRunning <- function() {
   any(grepl("./bin/connect", system2("ps", "-a", stdout = TRUE), fixed = TRUE))
 }
 
-test_that("RStudio Connect users API", {
+test_that("Users API", {
 
   if (!isConnectRunning())
     stop("Couldn't find a running connect instance (expected './bin/connect' in 'ps -a'")

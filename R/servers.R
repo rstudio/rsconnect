@@ -1,6 +1,6 @@
 #' Server Management Functions
 #'
-#' Functions to manage the list of known RStudio Connect servers to which
+#' Functions to manage the list of known servers to which
 #' \pkg{rsconnect} can deploy and manage applications.
 #'
 #' Register a server with \code{addServer} or \code{discoverServers} (the latter
@@ -11,8 +11,8 @@
 #' The \code{servers} and \code{serverInfo} functions are provided for viewing
 #' previously registered servers.
 #'
-#' There is always at least one server registered: the \code{shinyapps.io}
-#' server, which represents the RStudio Connect cloud service.
+#' There is always at least one server registered (the \code{shinyapps.io}
+#' server)
 #'
 #' @param name Optional nickname for the server. If none is given, the nickname
 #'   is inferred from the server's hostname.
@@ -75,11 +75,11 @@ discoverServers <- function(quiet = FALSE) {
   lapply(introduced, function(url) { addServer(url, quiet = TRUE) })
 
   if (!quiet && length(introduced) > 0) {
-    message("Discovered ", length(introduced), " RStudio Connect ",
+    message("Discovered ", length(introduced),
             (if (length(introduced) == 1) "server" else "servers"), ":")
     lapply(introduced, message)
   } else if (!quiet) {
-    message("No new RStudio Connect servers found.")
+    message("No new servers found.")
   }
   invisible(introduced)
 }

@@ -19,8 +19,7 @@ multiple servers (see \code{\link{servers}})}
 \item{quiet}{Request that no status information be printed to the console}
 }
 \description{
-Scale the number of parallel instances used for an application deployed to
-RStudio Connect.
+Scale the number of parallel instances used for a deployed application.
 }
 \examples{
 \dontrun{

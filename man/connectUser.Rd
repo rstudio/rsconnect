@@ -11,19 +11,19 @@ connectUser(account = NULL, server = NULL, quiet = FALSE)
 \item{server}{The server to connect to. Optional if there is only one server
 registered.}
 
-\item{quiet}{Whether or not to show messages and prompts while connecting
-  the account.}
+\item{quiet}{Whether or not to show messages and prompts while connecting the
+  account.}
 }
 \description{
-Connect an RStudio Connect user account to the package, so that it can be
-used to deploy and manage applications on behalf of the account.
+Connect a user account to the package so that it can be used to deploy and
+manage applications on behalf of the account.
 }
 \details{
-When this function is invoked, a web browser will be launched on
-  RStudio Connect, where you will be prompted to enter your credentials. Upon
-  successful authentication, your local installation of \pkg{rsconnect} and
-  your RStudio Connect account will be paired, and you'll be able to deploy
-  and manage applications using the package without further prompts for
-  credentials.
+When this function is invoked, a web browser will be opened to a
+  page on the target server where you will be prompted to enter your
+  credentials. Upon successful authentication, your local installation of
+  \pkg{rsconnect} and your server account will be paired, and you'll
+  be able to deploy and manage applications using the package without further
+  prompts for credentials.
 }
 

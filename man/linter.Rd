@@ -42,7 +42,6 @@ addLinter("no.capitals", linter(
   
   # Give a suggested prescription
   suggest = "Do not use capital letters in these documents."
-  
 ))
 }
 

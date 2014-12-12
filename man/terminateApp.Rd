@@ -18,7 +18,7 @@ multiple servers (see \code{\link{servers}})}
 during the termination.}
 }
 \description{
-Terminate an application currently running on RStudio Connect.
+Terminate an application currently running on a remote server.
 }
 \examples{
 \dontrun{

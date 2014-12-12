@@ -91,7 +91,7 @@ connectClient <- function(service, authInfo) {
     },
 
     createApplication = function(name, template, accountId) {
-      # RStudio Connect doesn't currently use the template or account ID
+      # RSC doesn't currently use the template or account ID
       # parameters; they exist for compatibility with lucid.
       handleResponse(POST_JSON(service,
                                authInfo,

@@ -21,7 +21,7 @@ during the operation.}
 (optional)}
 }
 \description{
-Restart an application currently running on RStudio Connect.
+Restart an application currently running on a remote server.
 }
 \examples{
 \dontrun{

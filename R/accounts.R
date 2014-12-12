@@ -1,33 +1,24 @@
 #' Account Management Functions
 #'
-#' Functions to add, enumerate, and remove RStudio Connect accounts on the local
-#' system. Prior to deploying applications you need to register
-#' your RStudio Connect account on the local system.
+#' Functions to enumerate and remove accounts on the local system. Prior to
+#' deploying applications you need to register your account on the local system.
 #'
-#' You register an account using the \code{setAccountInfo} function. You can
+#' You register an account using the \code{\link{setAccountInfo}} function (for
+#' ShinyApps) or \code{\link{connectUser}} function (for other servers). You can
 #' subsequently remove the account using the \code{removeAccount} function.
 #'
 #' The \code{accounts} and \code{accountInfo} functions are provided for viewing
 #' previously registered accounts.
-#' @param name Name of RStudio Connect account to save or remove
+#'
+#' @param name Name of account
 #' @param server Name of the server on which the account is registered
 #'   (optional; see \code{\link{servers}})
-#' @param token User token for the account
-#' @param secret User secret for the account
-#' @return
-#' \code{accounts} returns a data frame with the names of all accounts
+#'
+#' @return \code{accounts} returns a data frame with the names of all accounts
 #' registered on the system and the servers on which they reside.
 #' \code{accountInfo} returns a list with account details.
+#'
 #' @rdname accounts
-#' @examples
-#' \dontrun{
-#'
-#' # register an account
-#' setAccountInfo("user", "token", "secret")
-#'
-#' # remove the same account
-#' removeAccount("user")
-#' }
 #' @export
 accounts <- function(server = NULL) {
   path <- accountsConfigDir()
@@ -51,21 +42,21 @@ accounts <- function(server = NULL) {
 
 #' Connect User Account
 #'
-#' Connect an RStudio Connect user account to the package, so that it can be
-#' used to deploy and manage applications on behalf of the account.
+#' Connect a user account to the package so that it can be used to deploy and
+#' manage applications on behalf of the account.
 #'
 #' @param account A name for the account to connect. Optional.
 #' @param server The server to connect to. Optional if there is only one server
 #'   registered.
-#' @param quiet Whether or not to show messages and prompts while connecting
-#'   the account.
+#' @param quiet Whether or not to show messages and prompts while connecting the
+#'   account.
 #'
-#' @details When this function is invoked, a web browser will be launched on
-#'   RStudio Connect, where you will be prompted to enter your credentials. Upon
-#'   successful authentication, your local installation of \pkg{rsconnect} and
-#'   your RStudio Connect account will be paired, and you'll be able to deploy
-#'   and manage applications using the package without further prompts for
-#'   credentials.
+#' @details When this function is invoked, a web browser will be opened to a
+#'   page on the target server where you will be prompted to enter your
+#'   credentials. Upon successful authentication, your local installation of
+#'   \pkg{rsconnect} and your server account will be paired, and you'll
+#'   be able to deploy and manage applications using the package without further
+#'   prompts for credentials.
 #'
 #' @export
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
@@ -165,7 +156,24 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   }
 }
 
-#' @rdname accounts
+#' Set ShinyApps Account Info
+#'
+#' Configure a ShinyApps account for publishing from this system.
+#'
+#' @param name Name of account to save or remove
+#' @param token User token for the account
+#' @param secret User secret for the account
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # register an account
+#' setAccountInfo("user", "token", "secret")
+#'
+#' # remove the same account
+#' removeAccount("user")
+#' }
+#'
 #' @export
 setAccountInfo <- function(name, token, secret) {
 
