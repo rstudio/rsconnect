@@ -37,13 +37,43 @@ saveDeployment <- function(appDir, name, account, server, bundleId, url) {
 deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
                         serverFilter = NULL) {
 
+  # calculate rsconnect dir
+  rsconnectDir <- file.path(appDir, "rsconnect")
+
+  # migrate shinyapps package created records if necessary
+  shinyappsDir <- file.path(appDir, "shinyapps")
+  if (file.exists(shinyappsDir)) {
+    for (shinyappsFile in list.files(shinyappsDir, glob2rx("*.dcf"),
+                                     recursive = TRUE)) {
+      # read deployment record
+      shinyappsDCF <- file.path(shinyappsDir, shinyappsFile)
+      deployment <- as.data.frame(readDcf(shinyappsDCF),
+                                  stringsAsFactors = FALSE)
+      deployment$server <- "shinyapps.io"
+
+      # write the new record
+      rsconnectDCF <- file.path(rsconnectDir, "shinyapps.io", shinyappsFile)
+      dir.create(dirname(rsconnectDCF), showWarnings = FALSE, recursive = TRUE)
+      write.dcf(deployment, rsconnectDCF)
+
+      # remove old DCF
+      file.remove(shinyappsDCF)
+    }
+
+    # remove shinyapps dir if it's completely empty
+    remainingFiles <- list.files(shinyappsDir,
+                                 recursive = TRUE,
+                                 all.files = TRUE)
+    if (length(remainingFiles) == 0)
+      unlink(shinyappsDir, recursive = TRUE)
+  }
+
+  # build list of deployment records
   deploymentRecs <- deploymentRecord(name = character(),
                                      account = character(),
                                      server = character(),
                                      bundleId = character(),
                                      url = character())
-
-  rsconnectDir <- file.path(appDir, "rsconnect")
   for (deploymentFile in list.files(rsconnectDir, glob2rx("*.dcf"),
                                     recursive = TRUE)) {
 
