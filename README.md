@@ -12,7 +12,7 @@ To install directly from GitHub, run this:
 ```r
 if (!require("devtools"))
     install.packages("devtools")
-devtools::install_github("rstudio/shinyapps")
+devtools::install_github("rstudio/rsconnect")
 ```
 
 ## Usage
