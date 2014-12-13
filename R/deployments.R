@@ -60,8 +60,12 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
       file.remove(shinyappsDCF)
     }
 
-    # remove shinyapps dir
-    unlink(shinyappsDir, TRUE)
+    # remove shinyapps dir if it's completely empty
+    remainingFiles <- list.files(shinyappsDir,
+                                 recursive = TRUE,
+                                 all.files = TRUE)
+    if (length(remainingFiles) == 0)
+      unlink(shinyappsDir, recursive = TRUE)
   }
 
   # build list of deployment records
