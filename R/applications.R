@@ -49,6 +49,8 @@ applications <- function(account = NULL, server = NULL) {
     if (! is.null(x$deployment)) {
       x$size <- x$deployment$properties$application.instances.template
       x$instances <- x$deployment$properties$application.instances.count
+      if (is.null(x$instances))
+        x$instances <- NA
     } else {
       x$size <- NA
       x$instances <- NA
