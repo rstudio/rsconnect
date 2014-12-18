@@ -51,7 +51,7 @@ bundleApp <- function(appName, appDir, rmdFile) {
          "the latest version of Packrat.")
   }
   suppressMessages(
-    packrat:::snapshotImpl(project = bundleDir,
+    packrat::.snapshotImpl(project = bundleDir,
                            snapshot.sources = FALSE,
                            verbose = FALSE)
   )
