@@ -9,6 +9,8 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
   files <- files[!grepl(glob2rx(".git/*"), files)]
   files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
   files <- files[!grepl(glob2rx("*.Rproj"), files)]
+  files <- files[!grepl(glob2rx(".DS_Store"), files)]
+  files <- files[!grepl(glob2rx(".gitignore"), files)]
 
   # if deploying a specific Rmd file, exclude other Rmd files
   if (nchar(rmdFile) > 0) {
