@@ -33,6 +33,9 @@
 #' # list servers
 #' servers(local = TRUE)
 #'
+#' # validate a server URL
+#' validateServerUrl("http://myrsconnect")
+#'
 #' # connect to an account on the server
 #' connectUser(server = "myserver")
 #' }
@@ -196,5 +199,25 @@ clientForAccount <- function(account) {
   else {
     server <- serverInfo(account$server)
     connectClient(server$url, account)
+  }
+}
+
+#' @rdname servers
+#' @export
+validateServerUrl <- function(url) {
+  response <- NULL
+  errMessage <- ""
+  tryCatch({
+    response <- handleResponse(
+      GET(parseHttpUrl(url), NULL, "/server_settings"))
+  }, error = function(e) {
+    errMessage <<- e$message
+  })
+  if (is.null(response)) {
+    list(
+      valid = FALSE,
+      message = errMessage)
+  } else {
+    c(list(valid = TRUE), response)
   }
 }
