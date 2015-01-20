@@ -67,10 +67,6 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
     target <- serverInfo(server)
   }
 
-  if (is.null(target)) {
-    stop("You must specify a server to connect to.")
-  }
-
   # if account is specified and we already know about the account, get the User
   # ID so we can prefill authentication fields
   userId <- 0
@@ -87,17 +83,13 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   }
 
   # generate a token and send it to the server
-  token <- generateToken()
-  connect <- connectClient(service = target$url, authInfo = list())
-  response <- connect$addToken(list(token = token$token,
-                                    public_key = token$public_key,
-                                    user_id = as.integer(userId)))
+  token <- getAuthToken(target$name)
   if (!quiet) {
     message("A browser window should open; if it doesn't, you may authenticate ",
-            "manually by visiting ", response$token_claim_url, ".")
+            "manually by visiting ", token$claim_url, ".")
     message("Waiting for authentication...")
   }
-  utils::browseURL(response$token_claim_url)
+  utils::browseURL(token$claim_url)
 
   # keep trying to authenticate until we're successful
   connect <- connectClient(service = target$url, authInfo =
@@ -105,18 +97,9 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
                                   private_key = token$private_key))
 
   repeat {
-    tryCatch({
       Sys.sleep(1)
-      user <- connect$currentUser()
-      break
+      user <- getUserFromRawToken()
     },
-    error = function(e, ...) {
-      # we expect this to return server errors until the token becomes active,
-      # but bubble other errors
-      if (length(grep("500 -", e$message)) == 0) {
-        stop(e)
-      }
-    })
   }
 
   # populate the username if there wasn't one set on the server
@@ -262,6 +245,48 @@ removeAccount <- function(name, server = NULL) {
   invisible(NULL)
 }
 
+getAuthToken <- function(server) {
+  if (is.missing(server)) {
+    stop("You must specify a server to connect to.")
+  }
+  target <- serverInfo(server)
+
+  # generate a token and push it to the server
+  token <- generateToken()
+  connect <- connectClient(service = target$url, authInfo = list())
+  response <- connect$addToken(list(token = token$token,
+                                    public_key = token$public_key,
+                                    user_id = as.integer(userId)))
+
+  # return the generated token and the information needed to claim it
+  list(
+    token = token$token,
+    private_key = token$private_key,
+    claim_url = response$token_claim_url)
+}
+
+# given a server URL and raw information about an auth token, return the user
+# who owns the token, if it's claimed, and NULL if the token is unclaimed.
+# raises an error on any other HTTP error.
+getUserFromRawToken <- function(serverUrl, token, privateKey) {
+  # form a temporary client from the raw token
+  connect <- connectClient(service = serverUrl, authInfo =
+                           list(token = token,
+                                private_key = privateKey))
+
+  # attempt to fetch the user
+  user <- NULL
+  tryCatch({
+    user <- connect$currentUser()
+  }, error = function(e) {
+    if (length(grep("500 -", e$message)) == 0) {
+      stop(e)
+    }
+  })
+
+  # return the user we found
+  user
+}
 
 accountConfigFile <- function(name, server = NULL) {
   # if no server is specified, try to find an account with the given name
