@@ -6,7 +6,6 @@
 \alias{removeServer}
 \alias{serverInfo}
 \alias{servers}
-\alias{validateServerUrl}
 \title{Server Management Functions}
 \usage{
 servers(local = FALSE)
@@ -20,8 +19,6 @@ addServer(url, name = NULL, quiet = FALSE)
 removeServer(name)
 
 serverInfo(name)
-
-validateServerUrl(url)
 }
 \arguments{
 \item{local}{Return only local servers (i.e. not \code{shinyapps.io})}
@@ -62,9 +59,6 @@ addServer("http://myrsconnect/", "myserver")
 
 # list servers
 servers(local = TRUE)
-
-# validate a server URL
-validateServerUrl("http://myrsconnect")
 
 # connect to an account on the server
 connectUser(server = "myserver")
