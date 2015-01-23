@@ -3,7 +3,7 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
   # determine the files that will be in the bundle (exclude rsconnect dir
   # as well as common hidden files)
   files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
-                      full.names = fullNames)
+                      full.names = FALSE)
   files <- files[!grepl(glob2rx("rsconnect/*"), files)]
   files <- files[!grepl(glob2rx(".svn/*"), files)]
   files <- files[!grepl(glob2rx(".git/*"), files)]
@@ -22,7 +22,10 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
       rmdFile
     }
   }
-  files
+  if (fullNames)
+    file.path(appDir, files)
+  else
+    files
 }
 
 bundleApp <- function(appName, appDir, rmdFile) {
