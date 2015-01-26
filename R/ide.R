@@ -19,7 +19,10 @@ validateServerUrl <- function(url) {
       valid = FALSE,
       message = errMessage)
   } else {
-    c(list(valid = TRUE), response)
+    c(list(valid = TRUE,
+           url = url,
+           name = findLocalServer(url)),
+      response)
   }
 }
 

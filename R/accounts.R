@@ -235,8 +235,13 @@ removeAccount <- function(name, server = NULL) {
   invisible(NULL)
 }
 
-getAuthToken <- function(server) {
-  if (is.missing(server)) {
+# given the name of a registered server, does the following:
+# 1) generates a public/private key pair and token ID
+# 2) pushes the public side of the key pair to the server, and obtains
+#    from the server a URL at which the token can be claimed
+# 3) returns the token ID, private key, and claim URL
+getAuthToken <- function(server, userId = 0) {
+  if (missing(server) || is.null(server)) {
     stop("You must specify a server to connect to.")
   }
   target <- serverInfo(server)
