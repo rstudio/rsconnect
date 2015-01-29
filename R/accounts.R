@@ -67,6 +67,10 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
     target <- serverInfo(server)
   }
 
+  if (is.null(target)) {
+    stop("You must specify a server to connect to.")
+  }
+
   # if account is specified and we already know about the account, get the User
   # ID so we can prefill authentication fields
   userId <- 0
