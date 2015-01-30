@@ -1,3 +1,4 @@
+
 stripComments <- function(content) {
   gsub("#.*", "", content, perl = TRUE)
 }
@@ -22,7 +23,7 @@ noMatch <- function(x) {
 }
 
 badRelativePaths <- function(content, project, path, ...) {
-  
+
   ## Figure out how deeply the path of the file is nested
   ## (it is relative to the project root)
   slashMatches <- gregexpr("/", path)
@@ -56,21 +57,21 @@ enumerate <- function(X, FUN, ...) {
 }
 
 #' Construct a Linter Message
-#' 
+#'
 #' Pretty-prints a linter message. Primarily used as a helper
 #' for constructing linter messages with \code{\link{linter}}.
-#' 
+#'
 #' @param header A header message describing the linter.
 #' @param content The content of the file that was linted.
 #' @param lines The line numbers from \code{content} that contain lint.
 makeLinterMessage <- function(header, content, lines) {
-  
+
   lint <- attr(lines, "lint")
-  
+
   c(
     paste0(header, ":"),
-    paste(lines, ": ", 
-          content[lines], 
+    paste(lines, ": ",
+          content[lines],
           if (!is.null(lint)) paste("    ", lint, sep = ""),
           sep = ""),
     "\n"

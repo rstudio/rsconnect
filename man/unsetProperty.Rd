@@ -9,18 +9,22 @@ unsetProperty(propertyName, appDir = getwd(), appName = NULL,
 \arguments{
 \item{propertyName}{Name of property to unset}
 
-\item{appDir}{Directory containing application. Defaults to
-current working directory.}
+\item{appDir}{Directory containing application. Defaults to current working
+directory.}
 
 \item{appName}{Name of application}
 
-\item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+\item{account}{Account name. If a single account is registered on the system
+then this parameter can be omitted.}
 
 \item{force}{Forcibly unset the property}
 }
 \description{
-Unset a property on currently deployed application to restoring its default
+Unset a property on currently deployed ShinyApps application (restoring to
+its default value)
+}
+\note{
+This function only works for ShinyApps servers.
 }
 \examples{
 \dontrun{

@@ -3,10 +3,12 @@
 \alias{lint}
 \title{Lint a Project}
 \usage{
-lint(project)
+lint(project, file = "")
 }
 \arguments{
 \item{project}{Path to a project directory.}
+
+\item{file}{Rmd file (can be empty)}
 }
 \description{
 Takes the set of active linters (see \code{\link{addLinter}}), and applies

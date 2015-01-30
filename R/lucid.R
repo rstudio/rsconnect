@@ -15,10 +15,10 @@ lucidClient <- function(service, authInfo) {
 
     accountsForUser = function(userId) {
       path <- "/accounts/"
-      query <- "" 
+      query <- ""
       listRequest(service, authInfo, path, query, "accounts")
     },
-    
+
     listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
       query <- paste(filterQuery(
@@ -27,21 +27,21 @@ lucidClient <- function(service, authInfo) {
       ), collapse = "&")
       listRequest(service, authInfo, path, query, "applications")
     },
-  
+
     getApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, sep="")
       handleResponse(GET(authInfo, path))
     },
-    
-    getLogs = function(applicationId, entries = 50, streaming = FALSE, 
+
+    getLogs = function(applicationId, entries = 50, streaming = FALSE,
                        writer = NULL) {
       path <- paste("/applications/", applicationId, "/logs", sep="")
-      query <- paste("count=", entries, 
+      query <- paste("count=", entries,
                      "&tail=", if (streaming) "1" else "0", sep="")
       handleResponse(GET(service, authInfo, path, query, writer = writer))
     },
 
-    createApplication = function(name, template, accountId) {    
+    createApplication = function(name, template, accountId) {
       json <- list()
       json$name <- name
       json$template <- template
@@ -53,31 +53,31 @@ lucidClient <- function(service, authInfo) {
       path <- paste("/applications/", applicationId, "/properties/", sep="")
       handleResponse(GET(authInfo, path))
     },
-    
-    setApplicationProperty = function(applicationId, propertyName, 
+
+    setApplicationProperty = function(applicationId, propertyName,
                                       propertyValue, force=FALSE) {
-      path <- paste("/applications/", applicationId, "/properties/", 
+      path <- paste("/applications/", applicationId, "/properties/",
                     propertyName, sep="")
       v <- list()
       v$value <- propertyValue
       query <- paste("force=", if (force) "1" else "0", sep="")
       handleResponse(PUT_JSON(authInfo, path, v, query))
     },
-    
-    unsetApplicationProperty = function(applicationId, propertyName, 
+
+    unsetApplicationProperty = function(applicationId, propertyName,
                                         force=FALSE) {
-      path <- paste("/applications/", applicationId, "/properties/", 
+      path <- paste("/applications/", applicationId, "/properties/",
                     propertyName, sep="")
       query <- paste("force=", if (force) "1" else "0", sep="")
-      handleResponse(DELETE(authInfo, path, query))
+      handleResponse(DELETE(service, authInfo, path, query))
     },
 
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep="")
       handleResponse(POST(service,
-                          authInfo, 
-                          path, 
-                          contentType="application/x-gzip", 
+                          authInfo,
+                          path,
+                          contentType="application/x-gzip",
                           file=bundlePath))
     },
 
@@ -169,12 +169,12 @@ listRequest = function(service, authInfo, path, query, listName, page = 100,
   results <- list()
 
   while(TRUE) {
-  
+
     # add query params
     queryWithList <- paste(query, "&count=", page, "&offset=", offset, sep="")
 
     # make request and append the results
-    response <- handleResponse(GET(service, authInfo, path, queryWithList))        
+    response <- handleResponse(GET(service, authInfo, path, queryWithList))
     results <- append(results, response[[listName]])
 
     # update the offset
@@ -232,7 +232,7 @@ handleResponse <- function(response, jsonFilter = NULL) {
       if (!is.null(body))
         reportError(body)
       else
-        reportError(response$content)  
+        reportError(response$content)
     }
   }
 

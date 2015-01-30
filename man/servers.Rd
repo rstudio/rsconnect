@@ -36,7 +36,7 @@ is inferred from the server's hostname.}
 \code{serverInfo} returns a list with details for a particular server.
 }
 \description{
-Functions to manage the list of known RStudio Connect servers to which
+Functions to manage the list of known servers to which
 \pkg{rsconnect} can deploy and manage applications.
 }
 \details{
@@ -48,8 +48,8 @@ using \code{\link{connectUser}}.
 The \code{servers} and \code{serverInfo} functions are provided for viewing
 previously registered servers.
 
-There is always at least one server registered: the \code{shinyapps.io}
-server, which represents the RStudio Connect cloud service.
+There is always at least one server registered (the \code{shinyapps.io}
+server)
 }
 \examples{
 \dontrun{

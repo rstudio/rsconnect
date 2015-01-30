@@ -28,7 +28,7 @@ multiple servers (see \code{\link{servers}})}
 during the deployment.}
 }
 \description{
-Configure an application currently running on RStudio Connect.
+Configure an application running on a remote server.
 }
 \examples{
 \dontrun{

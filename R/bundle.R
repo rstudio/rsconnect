@@ -3,12 +3,15 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
   # determine the files that will be in the bundle (exclude rsconnect dir
   # as well as common hidden files)
   files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
-                      full.names = fullNames)
+                      full.names = FALSE)
   files <- files[!grepl(glob2rx("rsconnect/*"), files)]
   files <- files[!grepl(glob2rx(".svn/*"), files)]
   files <- files[!grepl(glob2rx(".git/*"), files)]
   files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
   files <- files[!grepl(glob2rx("*.Rproj"), files)]
+  files <- files[!grepl(glob2rx(".DS_Store"), files)]
+  files <- files[!grepl(glob2rx(".gitignore"), files)]
+  files <- files[!grepl(glob2rx("packrat/*"), files)]
 
   # if deploying a specific Rmd file, exclude other Rmd files
   if (nchar(rmdFile) > 0) {
@@ -19,10 +22,13 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
       rmdFile
     }
   }
-  files
+  if (fullNames)
+    file.path(appDir, files)
+  else
+    files
 }
 
-bundleApp <- function(appDir, rmdFile) {
+bundleApp <- function(appName, appDir, rmdFile) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -51,7 +57,7 @@ bundleApp <- function(appDir, rmdFile) {
          "the latest version of Packrat.")
   }
   suppressMessages(
-    packrat:::snapshotImpl(project = bundleDir,
+    packrat::.snapshotImpl(project = bundleDir,
                            snapshot.sources = FALSE,
                            verbose = FALSE)
   )
@@ -64,7 +70,7 @@ bundleApp <- function(appDir, rmdFile) {
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
-  indexFiles <- writeRmdIndex(bundleDir)
+  indexFiles <- writeRmdIndex(appName, bundleDir)
   on.exit(unlink(indexFiles), add = TRUE)
 
   # create the bundle and return it's path
@@ -137,6 +143,14 @@ createAppManifest <- function(appDir, files, users) {
     # TODO: resolve against actual BioC repo a package was pulled from
     # (in case the user mixed and matched)
     if ("biocViews" %in% names(description$description)) {
+
+      # capture Bioc repository if available
+      biocPackages = available.packages(contriburl=contrib.url(BiocInstaller::biocinstallRepos(),
+                                                               type="source"))
+      if (pkg %in% biocPackages) {
+        description$description$biocRepo <- biocPackages[pkg, 'Repository']
+      }
+
       description$description$biocVersion <- BiocInstaller::biocVersion()
     }
 
