@@ -87,36 +87,20 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   }
 
   # generate a token and send it to the server
-  token <- generateToken()
-  connect <- connectClient(service = target$url, authInfo = list())
-  response <- connect$addToken(list(token = token$token,
-                                    public_key = token$public_key,
-                                    user_id = as.integer(userId)))
+  token <- getAuthToken(target$name)
   if (!quiet) {
     message("A browser window should open; if it doesn't, you may authenticate ",
-            "manually by visiting ", response$token_claim_url, ".")
+            "manually by visiting ", token$claim_url, ".")
     message("Waiting for authentication...")
   }
-  utils::browseURL(response$token_claim_url)
+  utils::browseURL(token$claim_url)
 
   # keep trying to authenticate until we're successful
-  connect <- connectClient(service = target$url, authInfo =
-                             list(token = token$token,
-                                  private_key = token$private_key))
-
   repeat {
-    tryCatch({
-      Sys.sleep(1)
-      user <- connect$currentUser()
+    Sys.sleep(1)
+    user <- getUserFromRawToken(target$url, token$token, token$private_key)
+    if (!is.null(user))
       break
-    },
-    error = function(e, ...) {
-      # we expect this to return server errors until the token becomes active,
-      # but bubble other errors
-      if (length(grep("500 -", e$message)) == 0) {
-        stop(e)
-      }
-    })
   }
 
   # populate the username if there wasn't one set on the server
@@ -137,18 +121,11 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   }
 
   # write the user info
-  configFile <- accountConfigFile(user$username, target$name)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(list(username = user$username,
-                 accountId = user$id,
-                 token = token$token,
-                 server = target$name,
-                 private_key = as.character(token$private_key)),
-            configFile)
-
-  # set restrictive permissions on it if possible
-  if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode="0600")
+  registerUserToken(serverName = target$name,
+                    accountName = user$username,
+                    userId = user$id,
+                    token = token$token,
+                    privateKey = token$private_key)
 
   if (!quiet) {
     message("Account registered successfully: ", user$first_name, " ",
@@ -262,6 +239,70 @@ removeAccount <- function(name, server = NULL) {
   invisible(NULL)
 }
 
+# given the name of a registered server, does the following:
+# 1) generates a public/private key pair and token ID
+# 2) pushes the public side of the key pair to the server, and obtains
+#    from the server a URL at which the token can be claimed
+# 3) returns the token ID, private key, and claim URL
+getAuthToken <- function(server, userId = 0) {
+  if (missing(server) || is.null(server)) {
+    stop("You must specify a server to connect to.")
+  }
+  target <- serverInfo(server)
+
+  # generate a token and push it to the server
+  token <- generateToken()
+  connect <- connectClient(service = target$url, authInfo = list())
+  response <- connect$addToken(list(token = token$token,
+                                    public_key = token$public_key,
+                                    user_id = as.integer(userId)))
+
+  # return the generated token and the information needed to claim it
+  list(
+    token = token$token,
+    private_key = token$private_key,
+    claim_url = response$token_claim_url)
+}
+
+# given a server URL and raw information about an auth token, return the user
+# who owns the token, if it's claimed, and NULL if the token is unclaimed.
+# raises an error on any other HTTP error.
+getUserFromRawToken <- function(serverUrl, token, privateKey) {
+  # form a temporary client from the raw token
+  connect <- connectClient(service = serverUrl, authInfo =
+                           list(token = token,
+                                private_key = as.character(privateKey)))
+
+  # attempt to fetch the user
+  user <- NULL
+  tryCatch({
+    user <- connect$currentUser()
+  }, error = function(e) {
+    if (length(grep("500 -", e$message)) == 0) {
+      stop(e)
+    }
+  })
+
+  # return the user we found
+  user
+}
+
+registerUserToken <- function(serverName, accountName, userId, token,
+                              privateKey) {
+  # write the user info
+  configFile <- accountConfigFile(accountName, serverName)
+  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
+  write.dcf(list(username = accountName,
+                 accountId = userId,
+                 token = token,
+                 server = serverName,
+                 private_key = as.character(privateKey)),
+            configFile)
+
+  # set restrictive permissions on it if possible
+  if (identical(.Platform$OS.type, "unix"))
+    Sys.chmod(configFile, mode="0600")
+}
 
 accountConfigFile <- function(name, server = NULL) {
   # if no server is specified, try to find an account with the given name
