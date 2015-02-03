@@ -57,7 +57,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
   api <- lucidClient(accountInfo)
   api$inviteApplicationUser(application$id, validateEmail(email))
 
-  message(paste("Added:", user$email, "to application", sep=" "))
+  message(paste("Added:", email, "to application", sep=" "))
   
   invisible(TRUE)
 }
