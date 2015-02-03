@@ -13,7 +13,7 @@ cleanupPasswordFile <- function(appDir) {
   
   # check if password file exists
   if (file.exists(passwordFile)) {
-    message("WARNING! Password file found. This application is configured to use scrypt ",
+    message("WARNING: Password file found! This application is configured to use scrypt ",
             "authenication, which no longer supported.\nIf you choose to proceed ",
             "all exists users defined for this application will be removed, ",
             "and will NOT be recoverable.\nFor for information please visit: ",
@@ -191,7 +191,7 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL) {
   return(df)
 }
 
-#' List authorized users for an application
+#' (Deprecated) List authorized users for an application
 #' 
 #' @param appDir Directory containing application. Defaults to current working
 #'  directory.

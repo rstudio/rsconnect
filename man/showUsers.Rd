@@ -4,7 +4,7 @@
 \alias{showUsers}
 \title{List authorized users for an application}
 \usage{
-showUsers(appDir = getwd(), appName = NULL, accountName = NULL)
+showUsers(appDir = getwd(), appName = NULL, account = NULL)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to
@@ -12,10 +12,13 @@ current working directory.}
 
 \item{appName}{Name of application.}
 
-\item{accountName}{Account name. If a single account is registered on the
+\item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
 }
 \description{
 List authorized users for an application
+}
+\seealso{
+\code{\link{addAuthorizedUser}} and \code{\link{showInvited}}
 }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/auth.R
 \name{authorizedUsers}
 \alias{authorizedUsers}
-\title{List authorized users for an application}
+\title{(Deprecated) List authorized users for an application}
 \usage{
 authorizedUsers(appDir = getwd())
 }
@@ -11,6 +11,6 @@ authorizedUsers(appDir = getwd())
 directory.}
 }
 \description{
-List authorized users for an application
+(Deprecated) List authorized users for an application
 }
 
