@@ -120,6 +120,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
 #' @param appName Name of application.
 #' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showInvited}}
 #' @export
 showUsers <- function(appDir=getwd(), appName=NULL, account = NULL) {
   
@@ -160,6 +161,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL) {
 #' @param appName Name of application.
 #' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
 #' @export
 showInvited <- function(appDir=getwd(), appName=NULL, account = NULL) {
 
@@ -187,6 +189,25 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL) {
   users <- do.call(rbind, users)
   df <- as.data.frame(users, stringsAsFactors = FALSE)
   return(df)
+}
+
+#' List authorized users for an application
+#' 
+#' @param appDir Directory containing application. Defaults to current working
+#'  directory.
+#' @export
+authorizedUsers <- function(appDir = getwd()) {
+  .Deprecated("showUsers")
+  
+  # read password file
+  path <- getPasswordFile(appDir)
+  if (file.exists(path)) {
+    passwords <- readPasswordFile(path)
+  } else {
+    passwords <- NULL
+  }
+  
+  return(passwords)
 }
 
 validateEmail <- function(email) {
