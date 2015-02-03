@@ -82,6 +82,13 @@ deployApp <- function(appDir = getwd(),
     if (hasLint(lintResults)) {
 
       if (interactive()) {
+        # if enabled, show warnings in friendly marker tab in addition to
+        # printing to console
+        if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
+            rstudioapi::hasFun("sourceMarkers"))
+        {
+          showRstudioSourceMarkers(lintResults)
+        }
         message("The following potential problems were identified in the project files:\n")
         printLinterResults(lintResults)
         response <- readline("Do you want to proceed with deployment? [Y/n]: ")

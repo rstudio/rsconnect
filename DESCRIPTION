@@ -13,7 +13,8 @@ Imports:
     PKI,
     RCurl,
     RJSONIO,
-    packrat (>= 0.4.2-1)
+    packrat (>= 0.4.2-1),
+    rstudioapi (>= 0.2)
 Suggests:
     scrypt,
     knitr,
