@@ -1,4 +1,4 @@
-cleanupPasswordFile <- function(appDir=getwd()) {
+cleanupPasswordFile <- function(appDir) {
 
   # normalize appDir path and ensure it exists
   appDir <- normalizePath(appDir, mustWork = FALSE)
@@ -13,17 +13,21 @@ cleanupPasswordFile <- function(appDir=getwd()) {
   
   # check if password file exists
   if (file.exists(passwordFile)) {
-    message("Password file found. This application is configured to use scrypt
-            authenication, which no longer supported. If you choose to proceed,
-            all exists users defined for this application will be removed,
-            and will NOT be recoverable.")
+    message("WARNING! Password file found. This application is configured to use scrypt ",
+            "authenication, which no longer supported.\nIf you choose to proceed ",
+            "all exists users defined for this application will be removed, ",
+            "and will NOT be recoverable.\nFor for information please visit: ",
+            "http://shiny.rstudio.com/articles/migration.html")
     response <- readline("Do you want to proceed?? [Y/n]: ")
     if (tolower(substring(response, 1, 1)) != "y") {
-      stop("Cancelled", .call = FALSE)
+      stop("Cancelled", call. = FALSE)
     } else {
       # remove old password file
+      file.remove(passwordFile)
     }
   }
+  
+  invisible(TRUE)
 }
 
 #' Add authorized user to application
@@ -32,25 +36,30 @@ cleanupPasswordFile <- function(appDir=getwd()) {
 #' @param appDir Directory containing application. Defaults to 
 #'   current working directory.  
 #' @param appName Name of application.
-#' @param accountName Account name. If a single account is registered on the 
+#' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
 #' @export
 addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL, 
-                              accountName = NULL, sendEmail=TRUE) {
+                              account = NULL, sendEmail=TRUE) {
 
   # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(accountName))
+  if (is.null(appName)) {
+    appName = basename(appDir)
+  }
+  accountInfo <- accountInfo(resolveAccount(account))
   application <- resolveApplication(accountInfo, appName)
 
   # check for and remove password file
-  cleanupPasswordFile()
+  cleanupPasswordFile(appDir)
   
   # fetch authoriztion list
   api <- lucidClient(accountInfo)
   api$inviteApplicationUser(application$id, validateEmail(email))
 
-
+  message(paste("Added:", user$email, "to application", sep=" "))
+  
+  invisible(TRUE)
 }
 
 #' Remove authorized user from an application
@@ -59,22 +68,25 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 #' @param appDir Directory containing application. Defaults to 
 #' current working directory.
 #' @param appName Name of application.
-#' @param accountName Account name. If a single account is registered on the 
+#' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
 #' @export
 removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL, 
-                                 accountName = NULL) {
+                                 account = NULL) {
   
   # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(accountName))
+  if (is.null(appName)) {
+    appName = basename(appDir)
+  }
+  accountInfo <- accountInfo(resolveAccount(account))
   application <- resolveApplication(accountInfo, appName)
   
   # check and remove password file
-  cleanupPasswordFile()
+  cleanupPasswordFile(appDir)
   
   # get users
-  users <- showUsers(appDir, appName, accountName)
+  users <- showUsers(appDir, appName, account)
   
   if (is.numeric(user)) {
     # lookup by id
@@ -97,6 +109,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
   api$removeApplicationUser(application$id, user$id)
   
   message(paste("Removed:", user$email, "from application", sep=" "))
+  
   invisible(TRUE)
 }
 
@@ -105,13 +118,16 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
 #' @param appDir Directory containing application. Defaults to 
 #'   current working directory.  
 #' @param appName Name of application.
-#' @param accountName Account name. If a single account is registered on the 
+#' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
 #' @export
-showUsers <- function(appDir=getwd(), appName=NULL, accountName = NULL) {
+showUsers <- function(appDir=getwd(), appName=NULL, account = NULL) {
   
   # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(accountName))
+  if (is.null(appName)) {
+    appName = basename(appDir)
+  }
+  accountInfo <- accountInfo(resolveAccount(account))
   application <- resolveApplication(accountInfo, appName)
 
   # fetch authoriztion list
@@ -142,13 +158,16 @@ showUsers <- function(appDir=getwd(), appName=NULL, accountName = NULL) {
 #' @param appDir Directory containing application. Defaults to 
 #'   current working directory.  
 #' @param appName Name of application.
-#' @param accountName Account name. If a single account is registered on the 
+#' @param account Account name. If a single account is registered on the 
 #'   system then this parameter can be omitted.
 #' @export
-showInvited <- function(appDir=getwd(), appName=NULL, accountName = NULL) {
+showInvited <- function(appDir=getwd(), appName=NULL, account = NULL) {
 
   # resolve target account and application
-  accountInfo <- accountInfo(resolveAccount(accountName))
+  if (is.null(appName)) {
+    appName = basename(appDir)
+  }
+  accountInfo <- accountInfo(resolveAccount(account))
   application <- resolveApplication(accountInfo, appName)
   
   # fetch invitation list
