@@ -1,122 +1,182 @@
-#' Add authorized user for application
-#' 
-#' @param username The user name.
-#' @param password The password.
-#' @param appDir Directory containing application. Defaults to current working directory.
-#' @examples
-#' \dontrun{
-#' 
-#' # add a user (prompts for password)
-#' addAuthroizedUser("andy")
-#' 
-#' # add a user using supplied password
-#' addAuthorizedUser("tareef", "MrShiny45")
-#' 
-#' }
-#' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{authorizedUsers}}
-#' @export
-addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
-  
-  if (!require(scrypt)) {
-    stop("scrypt package is not installed.")
-  }
-  
-  if (missing(username) || !isStringParam(username))
-    stop(stringParamErrorMessage("username"))
-  
-  # validate username
-  validateUsername(username)
-  
-  # prompt for password if not given
-  if (is.null(password)) {
-    password <- promptPassword()
-  }
+cleanupPasswordFile <- function(appDir=getwd()) {
 
-  # validate password
-  validatePassword(password)
+  # normalize appDir path and ensure it exists
+  appDir <- normalizePath(appDir, mustWork = FALSE)
+  if (!file.exists(appDir) || !file.info(appDir)$isdir)
+    stop(appDir, " is not a valid directory", call. = FALSE)
   
-  # hash password
-  hash <- paste("{scrypt}", hashPassword(password), sep="")
+  # get data dir from appDir
+  dataDir <- file.path(appDir, "shinyapps")
+
+  # get password file
+  passwordFile <- file.path(dataDir, paste("passwords", ".txt", sep=""))
   
-  # read password file
-  path <- getPasswordFile(appDir)
-  if (file.exists(path)) {
-    passwords <- readPasswordFile(path)
-  } else {
-    passwords <- NULL
-  }
-  
-  # check if username is already in password list
-  if (username %in% passwords$user) {
-    # promp to reset password
-    prompt <- paste("Reset password for user \"", username, "\"? [Y/n] ", sep="")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(tolower(input), "y")) {
-      stop("Password not updated", call. = FALSE)
+  # check if password file exists
+  if (file.exists(passwordFile)) {
+    message("Password file found. This application is configured to use scrypt
+            authenication, which no longer supported. If you choose to proceed,
+            all exists users defined for this application will be removed,
+            and will NOT be recoverable.")
+    response <- readline("Do you want to proceed?? [Y/n]: ")
+    if (tolower(substring(response, 1, 1)) != "y") {
+      stop("Cancelled", .call = FALSE)
     } else {
-      # update pasword
-      passwords[passwords$user==username, "hash"] <- hash 
+      # remove old password file
     }
-  } else {
-    # add row to data frame
-    row <- data.frame(user=username, hash=hash, stringsAsFactors=FALSE)
-    passwords <- rbind(passwords, row)
   }
+}
 
-  # write passwords
-  invisible(writePasswordFile(path, passwords))
+#' Add authorized user to application
+#' 
+#' @param email Email address of user to add.
+#' @param appDir Directory containing application. Defaults to 
+#'   current working directory.  
+#' @param appName Name of application.
+#' @param accountName Account name. If a single account is registered on the 
+#'   system then this parameter can be omitted.
+#' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
+#' @export
+addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL, 
+                              accountName = NULL, sendEmail=TRUE) {
+
+  # resolve target account and application
+  accountInfo <- accountInfo(resolveAccount(accountName))
+  application <- resolveApplication(accountInfo, appName)
+
+  # check for and remove password file
+  cleanupPasswordFile()
+  
+  # fetch authoriztion list
+  api <- lucidClient(accountInfo)
+  api$inviteApplicationUser(application$id, validateEmail(email))
+
+
 }
 
 #' Remove authorized user from an application
 #' 
-#' @param username The user name.
-#' @param appDir Directory containing application. Defaults to current working directory.
-#' @examples
-#' \dontrun{
-#' 
-#' # remove user 
-#' removeAuthorizedUser("andy")
-#' 
-#' }
-#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
+#' @param user The user to remove. Can be id or email address.
+#' @param appDir Directory containing application. Defaults to 
+#' current working directory.
+#' @param appName Name of application.
+#' @param accountName Account name. If a single account is registered on the 
+#'   system then this parameter can be omitted.
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
 #' @export
-removeAuthorizedUser <- function(username, appDir = getwd()) {
+removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL, 
+                                 accountName = NULL) {
   
-  # read password file
-  path <- getPasswordFile(appDir)
-  if (file.exists(path)) {
-    passwords <- readPasswordFile(path)
+  # resolve target account and application
+  accountInfo <- accountInfo(resolveAccount(accountName))
+  application <- resolveApplication(accountInfo, appName)
+  
+  # check and remove password file
+  cleanupPasswordFile()
+  
+  # get users
+  users <- showUsers(appDir, appName, accountName)
+  
+  if (is.numeric(user)) {
+    # lookup by id
+    if (user %in% users$id) {
+      user = users[users$id==user, ]
+    } else {
+      stop("User ", user, " not found", call. = FALSE)
+    }
   } else {
-    passwords <- NULL
+    # lookup by email
+    if (user %in% users$email) {
+      user = users[users$email==user, ]
+    } else {
+      stop("User \"", user, "\" not found", call. = FALSE)
+    }
   }
-
-  # check if username is already in password list
-  if (!username %in% passwords$user) {
-    stop("User \"", username, "\" not found", call. = FALSE)
-  }
-
-  # remove user 
-  passwords <- passwords[passwords$user!=username, ]
-
-  # write passwords
-  invisible(writePasswordFile(path, passwords))
+  
+  # remove user
+  api <- lucidClient(accountInfo)
+  api$removeApplicationUser(application$id, user$id)
+  
+  message(paste("Removed:", user$email, "from application", sep=" "))
+  invisible(TRUE)
 }
 
 #' List authorized users for an application
 #' 
-#' @param appDir Directory containing application. Defaults to current working directory.
+#' @param appDir Directory containing application. Defaults to 
+#'   current working directory.  
+#' @param appName Name of application.
+#' @param accountName Account name. If a single account is registered on the 
+#'   system then this parameter can be omitted.
 #' @export
-authorizedUsers <- function(appDir = getwd()) {
+showUsers <- function(appDir=getwd(), appName=NULL, accountName = NULL) {
   
-  # read password file
-  path <- getPasswordFile(appDir)
-  if (file.exists(path)) {
-    passwords <- readPasswordFile(path)
-  } else {
-    passwords <- NULL
+  # resolve target account and application
+  accountInfo <- accountInfo(resolveAccount(accountName))
+  application <- resolveApplication(accountInfo, appName)
+
+  # fetch authoriztion list
+  api <- lucidClient(accountInfo)
+  res <- api$listApplicationAuthoization(application$id)
+
+  # get interesting fields
+  users <- lapply(res, function(x) {
+    a = list()
+    a$id = x$user$id
+    a$email = x$user$email
+    if (!is.null(x$account)) {
+      a$account <- x$account
+    } else {
+      a$account <- NA
+    }
+    return(a)
+  })
+  
+  # convert to data frame
+  users <- do.call(rbind, users)
+  df <- as.data.frame(users, stringsAsFactors = FALSE)
+  return(df)
+}
+  
+#' List invited users for an application
+#' 
+#' @param appDir Directory containing application. Defaults to 
+#'   current working directory.  
+#' @param appName Name of application.
+#' @param accountName Account name. If a single account is registered on the 
+#'   system then this parameter can be omitted.
+#' @export
+showInvited <- function(appDir=getwd(), appName=NULL, accountName = NULL) {
+
+  # resolve target account and application
+  accountInfo <- accountInfo(resolveAccount(accountName))
+  application <- resolveApplication(accountInfo, appName)
+  
+  # fetch invitation list
+  api <- lucidClient(accountInfo)
+  res <- api$listApplicationInvitations(application$id)
+
+  # get intersting fields 
+  users <- lapply(res, function(x) {
+    a = list()
+    a$id = x$id
+    a$email = x$email
+    a$link = x$link
+    return(a)
+  })
+  
+  # convert to data frame
+  users <- do.call(rbind, users)
+  df <- as.data.frame(users, stringsAsFactors = FALSE)
+  return(df)
+}
+
+validateEmail <- function(email) {
+
+  if (is.null(email) || !grepl(".+\\@.+\\..+", email)) {
+    stop("Invalid email address.", call. = FALSE)
   }
   
-  return(passwords)
+  invisible(email)
 }
 
 validateUsername <- function(username) {
