@@ -50,3 +50,30 @@ findLocalServer <- function(url) {
     name
   }
 }
+
+# generate the markers
+showRstudioSourceMarkers <- function(basePath, lint) {
+  markers <- list()
+  applied <- lapply(lint, function(file) {
+    lapply(file, function(linter) {
+      lapply(linter$indices, function(index) {
+        marker <- list()
+        marker$type <- "warning"
+        marker$file <- linter$file
+        marker$line <- index
+        marker$column <- 1
+        marker$message <- linter$suggestion
+        markers <<- c(markers, list(marker))
+        marker
+      })
+    })
+  })
+
+  rstudioapi::callFun("sourceMarkers",
+                      name = "rsconnect",
+                      markers = markers,
+                      basePath = basePath,
+                      autoSelect = "first")
+}
+
+
