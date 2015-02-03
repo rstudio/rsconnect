@@ -15,7 +15,7 @@ cleanupPasswordFile <- function(appDir) {
   if (file.exists(passwordFile)) {
     message("WARNING: Password file found! This application is configured to use scrypt ",
             "authenication, which no longer supported.\nIf you choose to proceed ",
-            "all exists users defined for this application will be removed, ",
+            "all existing users of this application will be removed, ",
             "and will NOT be recoverable.\nFor for information please visit: ",
             "http://shiny.rstudio.com/articles/migration.html")
     response <- readline("Do you want to proceed?? [Y/n]: ")
