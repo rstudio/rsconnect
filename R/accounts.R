@@ -158,7 +158,7 @@ stopWithNoAccount <- function() {
 
 stopWithSpecifyAccount <- function() {
   stop(paste("Please specify the account name (there are more than one",
-             "accounts registered on this system)", call. = FALSE))
+             "accounts registered on this system)"), call. = FALSE)
 }
 
 stopWithMissingAccount <- function(account) {
