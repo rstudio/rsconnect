@@ -70,7 +70,7 @@ showRstudioSourceMarkers <- function(basePath, lint) {
   })
 
   rstudioapi::callFun("sourceMarkers",
-                      name = "rsconnect",
+                      name = "Publish Content Issues",
                       markers = markers,
                       basePath = basePath,
                       autoSelect = "first")
