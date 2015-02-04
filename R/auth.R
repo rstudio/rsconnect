@@ -14,11 +14,11 @@ cleanupPasswordFile <- function(appDir) {
   # check if password file exists
   if (file.exists(passwordFile)) {
     message("WARNING: Password file found! This application is configured to use scrypt ",
-            "authenication, which no longer supported.\nIf you choose to proceed ",
+            "authentication, which is no longer supported.\nIf you choose to proceed, ",
             "all existing users of this application will be removed, ",
-            "and will NOT be recoverable.\nFor for information please visit: ",
+            "and will NOT be recoverable.\nFor for more information please visit: ",
             "http://shiny.rstudio.com/articles/migration.html")
-    response <- readline("Do you want to proceed?? [Y/n]: ")
+    response <- readline("Do you want to proceed? [Y/n]: ")
     if (tolower(substring(response, 1, 1)) != "y") {
       stop("Cancelled", call. = FALSE)
     } else {
