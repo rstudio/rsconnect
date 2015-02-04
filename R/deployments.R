@@ -97,6 +97,19 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
     # parse file
     deployment <- as.data.frame(readDcf(file.path(rsconnectDir, deploymentFile)),
                                 stringsAsFactors = FALSE)
+
+    # fill in any missing columns and remove any extra so we can rbind
+    # successfully
+    missingCols <- setdiff(colnames(deploymentRecs), colnames(deployment))
+    if (length(missingCols) > 0) {
+      deployment[,missingCols] <- ""
+    }
+    extraCols <- setdiff(colnames(deployment), colnames(deploymentRecs))
+    if (length(extraCols) > 0) {
+      deployment[,extraCols] <- NULL
+    }
+
+    # append to record set to return
     deploymentRecs <- rbind(deploymentRecs, deployment)
   }
 
