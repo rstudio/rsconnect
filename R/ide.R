@@ -6,6 +6,7 @@
 # TRUE) and server settings, or a list containing (valid = FALSE) and an error
 # message.
 validateServerUrl <- function(url) {
+  url <- ensureConnectServerUrl(url)
   response <- NULL
   errMessage <- ""
   tryCatch({
@@ -30,6 +31,9 @@ validateServerUrl <- function(url) {
 # currently registered, the server is registered and the short name of the newly
 # registered server is returned.
 findLocalServer <- function(url) {
+  # make sure the url has the current API suffix
+  url <- ensureConnectServerUrl(url)
+
   # helper to find a server given its URL
   findServerByUrl <- function(name) {
     allServers <- as.data.frame(rsconnect::servers(local = TRUE))
@@ -44,7 +48,7 @@ findLocalServer <- function(url) {
   # name
   name <- findServerByUrl(url)
   if (is.null(name)) {
-    rsconnect::addServer(url, NULL, TRUE)
+    addConnectServer(url, NULL, TRUE)
     findServerByUrl(url)
   } else {
     name
