@@ -170,6 +170,11 @@ serverInfo <- function(name) {
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
 
+  # there's no config file for shinyapps.io
+  if (identical(name, "shinyapps.io")) {
+    return(.lucidServerInfo)
+  }
+
   configFile <- serverConfigFile(name)
   if (!file.exists(configFile))
     stop(missingServerErrorMessage(name))

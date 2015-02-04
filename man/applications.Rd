@@ -18,6 +18,7 @@ Returns a data frame with the following columns:
 \tabular{ll}{
 \code{name} \tab Name of application \cr
 \code{url} \tab URL where application can be accessed\cr
+\code{config_url} \tab URL where application can be configured\cr
 \code{status} \tab Current status of application. Valid values are
 \code{pending}, \code{deploying}, \code{running}, \code{terminating}, and
 \code{terminated}.
