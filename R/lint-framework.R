@@ -75,7 +75,7 @@ lint <- function(project, file = "") {
   if (file.exists(project) && !isTRUE(file.info(project)$isdir))
     stop("Path '", project, "' is not a directory")
 
-  project <- normalizePath(project, mustWork = TRUE)
+  project <- normalizePath(project, mustWork = TRUE, winslash = "/")
 
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
