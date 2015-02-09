@@ -23,8 +23,10 @@ isConnectRunning <- function() {
 
 test_that("Users API", {
 
-  if (!isConnectRunning())
-    stop("Couldn't find a running connect instance (expected './bin/connect' in 'ps -a'")
+  if (!isConnectRunning()) {
+    cat("No running 'connect' instance detected -- tests skipped.")
+    return()
+  }
 
   ## rm db/*.db
   server <- getDefaultServer(local = TRUE)
