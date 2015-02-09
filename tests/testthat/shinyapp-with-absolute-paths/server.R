@@ -12,9 +12,7 @@ shinyServer(function(input, output) {
   output$distPlot <- renderPlot({
 
     # read a file on disk
-    file <- read.table("C:\\results.txt")
-    fileForward <- read.table("C:/results.txt")
-    otherFile <- read.table("/usr/local/files/files.txt")
+    otherFile <- read.table("~/.rsconnect/local-file.txt")
     anotherFile <- readLines('../../foo.bar')
     serverFile <- "\\\\server\\path\\to\\file"
     validWeblink <- "//www.google.com/"
