@@ -81,6 +81,43 @@ bundleApp <- function(appName, appDir, rmdFile) {
   bundlePath
 }
 
+inferAppMode <- function(appDir, files) {
+  shinyFiles <- grep("^(server|app).r$", files, ignore.case=TRUE, perl=TRUE)
+  if (length(shinyFiles) > 0) {
+    return("shiny")
+  }
+
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case=TRUE, perl=TRUE)
+  if (length(rmdFiles) > 1) {
+    return("rmd-shiny")
+  } else if (length(rmdFiles) == 1) {
+    # Read front matter to see if this is a static or dynamic Rmd
+    lines <- readLines(files[[rmdFiles]], warn = FALSE, encoding = "UTF-8")
+    delim <- grep("^---\\s*$", lines)
+    if (length(delim) >= 2) {
+      # If at least two --- lines were found...
+      if (delim[[1]] == 1 || all(grepl("^\\s*$", lines[1:delim[[1]]]))) {
+        # ...and the first --- line is not preceded by non-whitespace...
+        if (diff(delim[1:2]) > 1) {
+          # ...and there is actually something between the two --- lines...
+          yamlData <- paste(lines[(delim[[1]]+1):(delim[[2]]-1)], collapse="\n")
+          frontMatter <- yaml::yaml.load(yamlData)
+          runtime <- frontMatter[["runtime"]]
+          if (!is.null(runtime) && identical(runtime, "shiny")) {
+            # ...and "runtime: shiny", then it's a dynamic Rmd.
+            return("rmd-shiny")
+          }
+        }
+      }
+    }
+
+    # Otherwise, a single Rmd means static Rmd.
+    return("rmd-static")
+  }
+
+  return(NA)
+}
+
 createAppManifest <- function(appDir, files, users) {
 
   # provide package entries for all dependencies
@@ -130,6 +167,8 @@ createAppManifest <- function(appDir, files, users) {
     filelist[[file]] <- I(checksum)
   }
 
+  appMode <- inferAppMode(appDir, files)
+
   # create userlist
   userlist <- list()
   if (!is.null(users) && length(users) > 0) {
@@ -145,6 +184,7 @@ createAppManifest <- function(appDir, files, users) {
   # create the manifest
   manifest <- list()
   manifest$version <- 1
+  manifest$appmode <- appMode
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".")
 
   # if there are no packages set manifes$packages to NA (json null)
