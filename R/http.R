@@ -232,7 +232,7 @@ httpRCurl <- function(protocol,
     stop("You must specify a contentType for the specified file")
 
   # add prefix to port if necessary
-  if (nzchar(port))
+  if (!is.null(port) && nzchar(port))
     port <- paste(":", port, sep="")
 
   # build url

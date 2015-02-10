@@ -11,6 +11,7 @@
 #' \tabular{ll}{
 #' \code{name} \tab Name of application \cr
 #' \code{url} \tab URL where application can be accessed\cr
+#' \code{config_url} \tab URL where application can be configured\cr
 #' \code{status} \tab Current status of application. Valid values are
 #' \code{pending}, \code{deploying}, \code{running}, \code{terminating}, and
 #' \code{terminated}.
@@ -35,6 +36,7 @@ applications <- function(account = NULL, server = NULL) {
 
   # resolve account and create connect client
   accountDetails <- accountInfo(resolveAccount(account, server), server)
+  serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
   # retreive applications
@@ -56,6 +58,15 @@ applications <- function(account = NULL, server = NULL) {
       x$instances <- NA
     }
     x$deployment <- NULL
+
+    # this may be provided by the server at some point, but for now infer it
+    # from the account type
+    x$config_url <- if (identical(accountDetails$server, "shinyapps.io"))
+      paste("https://www.shinyapps.io/admin/#/application", x$id, sep = "/")
+    else
+      sub("/__api__", paste("/connect/#/apps", x$id, sep = "/"),
+          serverDetails$url)
+
     return(x)
   })
 

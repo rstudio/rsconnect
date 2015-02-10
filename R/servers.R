@@ -114,13 +114,7 @@ getDefaultServer <- function(local = FALSE, prompt = TRUE) {
 #' @rdname servers
 #' @export
 addConnectServer <- function(url, name = NULL, quiet = FALSE) {
-  # ensure 'url' ends with '/__api__'
-  if (!grepl("/__api__$", url))
-    url <- paste(url, "/__api__", sep = "")
-
-  # if we have duplicated leading slashes, remove them
-  url <- gsub("(/+__api__)$", "/__api__", url)
-  addServer(url, name, quiet)
+  addServer(ensureConnectServerUrl(url), name, quiet)
 }
 
 #' @rdname servers
@@ -176,6 +170,11 @@ serverInfo <- function(name) {
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
 
+  # there's no config file for shinyapps.io
+  if (identical(name, "shinyapps.io")) {
+    return(.lucidServerInfo)
+  }
+
   configFile <- serverConfigFile(name)
   if (!file.exists(configFile))
     stop(missingServerErrorMessage(name))
@@ -197,4 +196,14 @@ clientForAccount <- function(account) {
     server <- serverInfo(account$server)
     connectClient(server$url, account)
   }
+}
+
+ensureConnectServerUrl <- function(url) {
+  # ensure 'url' ends with '/__api__'
+  if (!grepl("/__api__$", url))
+    url <- paste(url, "/__api__", sep = "")
+
+  # if we have duplicated leading slashes, remove them
+  url <- gsub("(/+__api__)$", "/__api__", url)
+  url
 }

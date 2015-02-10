@@ -4,18 +4,48 @@ stripComments <- function(content) {
 }
 
 hasAbsolutePaths <- function(content) {
+
   regex <- c(
-    "[\'\"]\\s*[a-zA-Z]:[\\\\/][^\"\']", ## windows-style absolute paths
-    "[\'\"]\\s*\\\\\\\\", ## windows UNC paths
-    "[\'\"]\\s*/(?!/)(.*?)/(.*?)", ## unix-style absolute paths
-    "[\'\"]\\s*~/", ## path to home directory
     "\\[(.*?)\\]\\(\\s*[a-zA-Z]:/[^\"\']", ## windows-style markdown references [Some image](C:/...)
-    "\\[(.*?)\\]\\(\\s*/", ## unix-style markdown references [Some image](/Users/...)
+    "\\[(.*?)\\]\\(\\s*/[^/]", ## unix-style markdown references [Some image](/Users/...)
     NULL ## so we don't worry about commas above
   )
-  results <- as.logical(Reduce(`+`, lapply(regex, function(rex) {
+
+  regexResults <- as.logical(Reduce(`+`, lapply(regex, function(rex) {
     grepl(rex, content, perl = TRUE)
   })))
+
+  # Strip out all strings in the document, and check to see if any of them
+  # resolve to absolute paths on the system.
+  sQuoteRegex <- "['](?:(?:\\\\.)|(?:[^'\\\\]))*?[']"
+  dQuoteRegex <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
+
+  extractedStrings <- lapply(c(sQuoteRegex, dQuoteRegex), function(regex) {
+    matches <- gregexpr(regex, content, perl = TRUE)
+    lapply(seq_along(matches), function(i) {
+      match <- matches[[i]]
+      if (c(match[[1]]) == -1L) return(character())
+      starts <- as.integer(match) + 1
+      ends <- starts + attr(match, "match.length") - 3
+      substring(content[[i]], starts, ends)
+    })
+  })
+
+  strings <- vector("list", length(extractedStrings[[1]]))
+  for (i in seq_along(extractedStrings[[1]])) {
+    strings[[i]] <- unique(c(extractedStrings[[1]][[i]], extractedStrings[[2]][[i]]))
+    strings[[i]] <- strings[[i]][nchar(strings[[i]]) >= 5]
+  }
+
+  lineHasAbsolutePath <- unlist(lapply(strings, function(x) {
+    any(
+      grepl("^/|^[a-zA-Z]:/|^~", x, perl = TRUE) &
+      file.exists(x)
+    )
+  }))
+
+  as.logical(lineHasAbsolutePath + regexResults)
+
 }
 
 noMatch <- function(x) {
