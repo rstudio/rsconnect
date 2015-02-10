@@ -75,13 +75,15 @@ lint <- function(project, file = "") {
   if (file.exists(project) && !isTRUE(file.info(project)$isdir))
     stop("Path '", project, "' is not a directory")
 
+  project <- normalizePath(project, mustWork = TRUE, winslash = "/")
+
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
   on.exit(setwd(owd))
   setwd(project)
 
   # List the files that will be bundled
-  projectFiles <- bundleFiles(project, file, TRUE)
+  projectFiles <- bundleFiles(project, file, TRUE) %relativeTo% project
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
 
@@ -236,4 +238,26 @@ collectSuggestions <- function(fileResults) {
     }))
   })
   Reduce(union, suggestions)
+}
+
+`%relativeTo%` <- function(paths, directory) {
+
+  nd <- nchar(directory)
+
+  unlist(lapply(paths, function(path) {
+    np <- nchar(path)
+    if (nd > np) {
+      warning("'", path, "' is not a subdirectory of '", directory, "'")
+      return(path)
+    }
+
+    if (substring(path, 1, nd) != directory) {
+      warning("'", path, "' is not a subdirectory of '", directory, "'")
+      return(path)
+    }
+
+    offset <- if (substring(directory, nd, nd) == "/") 1 else 2
+    substring(path, nd + offset, np)
+  }))
+
 }
