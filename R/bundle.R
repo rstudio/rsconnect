@@ -28,7 +28,7 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
     files
 }
 
-bundleApp <- function(appName, appDir, rmdFile) {
+bundleApp <- function(appName, appDir, accountInfo, rmdFile) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -66,7 +66,7 @@ bundleApp <- function(appName, appDir, rmdFile) {
   users <- authorizedUsers(appDir)
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, files, users))
+  manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, files, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
@@ -118,7 +118,7 @@ inferAppMode <- function(appDir, files) {
   return(NA)
 }
 
-createAppManifest <- function(appDir, files, users) {
+createAppManifest <- function(appDir, accountInfo, files, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -184,7 +184,8 @@ createAppManifest <- function(appDir, files, users) {
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$appmode <- appMode
+  if (!isShinyapps(accountInfo))
+    manifest$appmode <- appMode
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".")
 
   # if there are no packages set manifes$packages to NA (json null)
