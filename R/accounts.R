@@ -350,6 +350,10 @@ resolveAccount <- function(account, server = NULL) {
   }
 }
 
+isShinyapps <- function(accountInfo) {
+  identical(accountInfo$server, "shinyapps.io")
+}
+
 stopWithNoAccount <- function() {
   stop("You must register an account using setAccountInfo prior to ",
        "proceeding.", call. = FALSE)

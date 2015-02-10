@@ -137,7 +137,7 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
-      bundlePath <- bundleApp(target$appName, appDir, rmdFile)
+      bundlePath <- bundleApp(target$appName, appDir, accountDetails, rmdFile)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {

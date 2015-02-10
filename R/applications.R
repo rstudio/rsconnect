@@ -61,7 +61,7 @@ applications <- function(account = NULL, server = NULL) {
 
     # this may be provided by the server at some point, but for now infer it
     # from the account type
-    x$config_url <- if (identical(accountDetails$server, "shinyapps.io"))
+    x$config_url <- if (isShinyapps(accountDetails))
       paste("https://www.shinyapps.io/admin/#/application", x$id, sep = "/")
     else
       sub("/__api__", paste("/connect/#/apps", x$id, sep = "/"),
