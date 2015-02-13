@@ -19,13 +19,13 @@ In addition to the R Markdown file itself, any files which are
   required to render and display the file must be deployed.
 
   This method discovers these additional files using
-  \link[rmarkdown:find_external_resources]{find_external_resources} from
-  \pkg{rmarkdown}.
+  \code{\link[rmarkdown:find_external_resources]{find_external_resources}}
+  from \pkg{rmarkdown}.
 
   If you find that the document is missing dependencies, either specify the
   dependencies explicitly in the document (the documentation for
-  \link[rmarkdown:find_external_resources]{find_external_resources} explains
-  how to do this), or call \code{\link{deployApp}} directly and specify your
-  own file list in the \code{appFiles} parameter.
+  \code{\link[rmarkdown:find_external_resources]{find_external_resources}}
+  explains how to do this), or call \code{\link{deployApp}} directly and
+  specify your own file list in the \code{appFiles} parameter.
 }
 
