@@ -2,8 +2,11 @@
 #'
 #' Deploy a \link[shiny:shiny-package]{shiny} application
 #'
-#' @param appDir Directory containing application. Defaults to
-#'   current working directory.
+#' @param appDir Directory containing application. Defaults to current working
+#'   directory.
+#' @param appFiles The files to bundle and deploy (only if \code{upload =
+#'   TRUE}). Can be \code{NULL}, in which case all the files in the directory
+#'   containing the application are bundled.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
 #' @param account Account to deploy application to. This
@@ -47,6 +50,7 @@
 #'   \code{\link{restartApp}}
 #' @export
 deployApp <- function(appDir = getwd(),
+                      appFiles = NULL,
                       appName = NULL,
                       account = NULL,
                       server = NULL,
@@ -65,19 +69,27 @@ deployApp <- function(appDir = getwd(),
     stop(appDir, " does not exist")
   }
 
-  # if a specific file is named, make sure it's an Rmd
+  # if a specific file is named, make sure it's an Rmd, and just deploy a single
+  # document in this case
   rmdFile <- ""
   if (!file.info(appDir)$isdir) {
     if (grepl("\\.Rmd$", appDir, ignore.case = TRUE)) {
-      rmdFile <- basename(appDir)
-      appDir <- dirname(appDir)
+      return(deployDoc(appDir, appName = appName, account = account,
+                       server = server, upload = upload,
+                       launch.browser = launch.browser, quiet = quiet,
+                       lint = lint))
     } else {
       stop(appDir, " must be a directory or an R Markdown document")
     }
   }
 
+  # if the list of files wasn't specified, generate it
+  if (is.null(appFiles)) {
+    appFiles <- bundleFiles(appDir)
+  }
+
   if (isTRUE(lint)) {
-    lintResults <- lint(appDir, rmdFile)
+    lintResults <- lint(appDir, appFiles)
 
     if (hasLint(lintResults)) {
 
@@ -137,7 +149,7 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
-      bundlePath <- bundleApp(target$appName, appDir, accountDetails, rmdFile)
+      bundlePath <- bundleApp(target$appName, appDir, appFiles, accountDetails)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {

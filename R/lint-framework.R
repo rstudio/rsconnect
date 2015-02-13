@@ -65,9 +65,10 @@ applyLinter <- function(linter, ...) {
 ##' them to all files within a project.
 ##'
 ##' @param project Path to a project directory.
-##' @param file Rmd file (can be empty)
+##' @param files Specific files to lint. Can be NULL, in which case all
+##'   the files in the directory will be linted.
 ##' @export
-lint <- function(project, file = "") {
+lint <- function(project, files = NULL) {
 
   if (!file.exists(project))
     stop("No directory at path '", project, "'")
@@ -82,8 +83,13 @@ lint <- function(project, file = "") {
   on.exit(setwd(owd))
   setwd(project)
 
+  # If the set of files wasn't specified, generate it
+  if (is.null(files)) {
+    files <- bundleFiles(project)
+  }
+
   # List the files that will be bundled
-  projectFiles <- bundleFiles(project, file, TRUE) %relativeTo% project
+  projectFiles <- file.path(project, files)  %relativeTo% project
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
 
