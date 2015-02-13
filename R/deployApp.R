@@ -99,7 +99,7 @@ deployApp <- function(appDir = getwd(),
         if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
             rstudioapi::hasFun("sourceMarkers"))
         {
-          showRstudioSourceMarkers(lintResults)
+          showRstudioSourceMarkers(appDir, lintResults)
         }
         message("The following potential problems were identified in the project files:\n")
         printLinterResults(lintResults)
