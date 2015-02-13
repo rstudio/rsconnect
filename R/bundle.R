@@ -76,7 +76,8 @@ inferAppMode <- function(appDir, files) {
     return("rmd-shiny")
   } else if (length(rmdFiles) == 1) {
     # Read front matter to see if this is a static or dynamic Rmd
-    lines <- readLines(files[[rmdFiles]], warn = FALSE, encoding = "UTF-8")
+    lines <- readLines(file.path(appDir, files[[rmdFiles]]), 
+                       warn = FALSE, encoding = "UTF-8")
     delim <- grep("^---\\s*$", lines)
     if (length(delim) >= 2) {
       # If at least two --- lines were found...
