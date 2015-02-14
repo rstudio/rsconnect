@@ -4,14 +4,18 @@
 \alias{deployApp}
 \title{Deploy an Application}
 \usage{
-deployApp(appDir = getwd(), appName = NULL, account = NULL,
-  server = NULL, upload = TRUE,
+deployApp(appDir = getwd(), appFiles = NULL, appName = NULL,
+  account = NULL, server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   quiet = FALSE, lint = TRUE)
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to
-current working directory.}
+\item{appDir}{Directory containing application. Defaults to current working
+directory.}
+
+\item{appFiles}{The files to bundle and deploy (only if \code{upload =
+TRUE}). Can be \code{NULL}, in which case all the files in the directory
+containing the application are bundled.}
 
 \item{appName}{Name of application (names must be unique within an
 account). Defaults to the base name of the specified \code{appDir}.}

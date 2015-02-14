@@ -63,7 +63,7 @@ showRstudioSourceMarkers <- function(basePath, lint) {
       lapply(linter$indices, function(index) {
         marker <- list()
         marker$type <- "warning"
-        marker$file <- linter$file
+        marker$file <- file.path(basePath, linter$file)
         marker$line <- index
         marker$column <- 1
         marker$message <- linter$suggestion

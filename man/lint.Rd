@@ -4,12 +4,13 @@
 \alias{lint}
 \title{Lint a Project}
 \usage{
-lint(project, file = "")
+lint(project, files = NULL)
 }
 \arguments{
 \item{project}{Path to a project directory.}
 
-\item{file}{Rmd file (can be empty)}
+\item{files}{Specific files to lint. Can be NULL, in which case all
+the files in the directory will be linted.}
 }
 \description{
 Takes the set of active linters (see \code{\link{addLinter}}), and applies

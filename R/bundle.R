@@ -1,5 +1,5 @@
 
-bundleFiles <- function(appDir, rmdFile, fullNames) {
+bundleFiles <- function(appDir) {
   # determine the files that will be in the bundle (exclude rsconnect dir
   # as well as common hidden files)
   files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
@@ -12,34 +12,18 @@ bundleFiles <- function(appDir, rmdFile, fullNames) {
   files <- files[!grepl(glob2rx(".DS_Store"), files)]
   files <- files[!grepl(glob2rx(".gitignore"), files)]
   files <- files[!grepl(glob2rx("packrat/*"), files)]
-
-  # if deploying a specific Rmd file, exclude other Rmd files
-  if (nchar(rmdFile) > 0) {
-    files <- files[!grepl(glob2rx("*.Rmd"), files, ignore.case = TRUE)]
-    files[length(files)+1] <- if (fullNames) {
-      file.path(appDir, rmdFile)
-    } else {
-      rmdFile
-    }
-  }
-  if (fullNames)
-    file.path(appDir, files)
-  else
-    files
+  files
 }
 
-bundleApp <- function(appName, appDir, accountInfo, rmdFile) {
+bundleApp <- function(appName, appDir, appFiles, accountInfo) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
-  # create a list of files to be bundled
-  files <- bundleFiles(appDir, rmdFile, FALSE)
-
   # copy the files into the bundle dir
-  for (file in files) {
+  for (file in appFiles) {
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
     if (!file.exists(dirname(to)))
@@ -66,14 +50,14 @@ bundleApp <- function(appName, appDir, accountInfo, rmdFile) {
   users <- authorizedUsers(appDir)
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, files, users))
+  manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, appFiles, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appName, bundleDir)
   on.exit(unlink(indexFiles), add = TRUE)
 
-  # create the bundle and return it's path
+  # create the bundle and return its path
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
@@ -92,7 +76,8 @@ inferAppMode <- function(appDir, files) {
     return("rmd-shiny")
   } else if (length(rmdFiles) == 1) {
     # Read front matter to see if this is a static or dynamic Rmd
-    lines <- readLines(files[[rmdFiles]], warn = FALSE, encoding = "UTF-8")
+    lines <- readLines(file.path(appDir, files[[rmdFiles]]), 
+                       warn = FALSE, encoding = "UTF-8")
     delim <- grep("^---\\s*$", lines)
     if (length(delim) >= 2) {
       # If at least two --- lines were found...
