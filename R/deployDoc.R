@@ -27,6 +27,11 @@ deployDoc <- function(doc, ...) {
   if (tolower(tools::file_ext(doc)) != "rmd") {
     stop("Document deployment is only supported for R Markdown documents.")
   }
+  if (!require("rmarkdown") ||
+      packageVersion("rmarkdown") < "0.5.2") {
+    stop("Version 0.5.2 or later of the rmarkdown package is required to ",
+         "deploy individual R Markdown documents.")
+  }
 
   # discover the resources in the document using the facilities in rmarkdown
   message("Discovering document dependencies... ", appendLF = FALSE)
