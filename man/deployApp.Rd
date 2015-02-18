@@ -4,8 +4,8 @@
 \alias{deployApp}
 \title{Deploy an Application}
 \usage{
-deployApp(appDir = getwd(), appFiles = NULL, appName = NULL,
-  account = NULL, server = NULL, upload = TRUE,
+deployApp(appDir = getwd(), appFiles = NULL, appPrimaryRmd = NULL,
+  appName = NULL, account = NULL, server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   quiet = FALSE, lint = TRUE)
 }
@@ -16,6 +16,11 @@ directory.}
 \item{appFiles}{The files to bundle and deploy (only if \code{upload =
 TRUE}). Can be \code{NULL}, in which case all the files in the directory
 containing the application are bundled.}
+
+\item{appPrimaryRmd}{If the application is contains one or more R Markdown
+documents, this parameter indicates the primary one. Can be \code{NULL}, in
+which case the primary document is inferred from the contents being
+deployed.}
 
 \item{appName}{Name of application (names must be unique within an
 account). Defaults to the base name of the specified \code{appDir}.}

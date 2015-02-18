@@ -15,7 +15,7 @@ bundleFiles <- function(appDir) {
   files
 }
 
-bundleApp <- function(appName, appDir, appFiles, accountInfo) {
+bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -50,7 +50,8 @@ bundleApp <- function(appName, appDir, appFiles, accountInfo) {
   users <- authorizedUsers(appDir)
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, appFiles, users))
+  manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, appFiles,
+                                             appPrimaryRmd, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
@@ -76,7 +77,7 @@ inferAppMode <- function(appDir, files) {
     return("rmd-shiny")
   } else if (length(rmdFiles) == 1) {
     # Read front matter to see if this is a static or dynamic Rmd
-    lines <- readLines(file.path(appDir, files[[rmdFiles]]), 
+    lines <- readLines(file.path(appDir, files[[rmdFiles]]),
                        warn = FALSE, encoding = "UTF-8")
     delim <- grep("^---\\s*$", lines)
     if (length(delim) >= 2) {
@@ -103,7 +104,7 @@ inferAppMode <- function(appDir, files) {
   return(NA)
 }
 
-createAppManifest <- function(appDir, accountInfo, files, users) {
+createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -154,6 +155,23 @@ createAppManifest <- function(appDir, accountInfo, files, users) {
 
   appMode <- inferAppMode(appDir, files)
 
+  # if deploying an R Markdown app, infer a primary document if not
+  # already specified
+  if (grepl("rmd", appMode, fixed = TRUE) && is.null(appPrimaryRmd)) {
+    # use index.Rmd if it exists
+    primary <- which(grepl("index\\.Rmd", files, fixed = FALSE, ignore.case = TRUE))
+    if (length(primary) == 0) {
+      # no index.Rmd, so pick the first Rmd we find
+      primary <- which(grepl(glob2rx("*.Rmd"), files, fixed = FALSE, ignore.case = TRUE))
+      if (length(primary) == 0) {
+        stop("Application mode ", appMode, " requires at least one R Markdown ",
+             "document.")
+      }
+      primary <- primary[[1]]
+    }
+    appPrimaryRmd <- files[[primary]]
+  }
+
   # create userlist
   userlist <- list()
   if (!is.null(users) && length(users) > 0) {
@@ -191,6 +209,11 @@ createAppManifest <- function(appDir, accountInfo, files, users) {
   } else {
     manifest$users <- NA
   }
+
+  manifest$primary_rmd <- if (is.null(appPrimaryRmd))
+    NA
+  else
+    appPrimaryRmd
 
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
