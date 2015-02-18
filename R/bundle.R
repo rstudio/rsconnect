@@ -210,10 +210,13 @@ createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) 
     manifest$users <- NA
   }
 
-  manifest$primary_rmd <- if (is.null(appPrimaryRmd))
-    NA
-  else
-    appPrimaryRmd
+  # supply the primary R Markdown document
+  if (!isShinyapps(accountInfo)) {
+    manifest$primary_rmd <- if (is.null(appPrimaryRmd))
+      NA
+    else
+      appPrimaryRmd
+  }
 
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
