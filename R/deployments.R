@@ -41,16 +41,15 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
   # calculate rsconnect dir
   rsconnectDir <- rsconnectRootPath(appPath)
 
-  # migrate shinyapps package created records if necessary
-  shinyappsDir <- file.path(appDir, "shinyapps")
-  if (file.exists(shinyappsDir)) {
-    # calculate migration dir--all shinyapps deployment records go into the root
-    # folder since it wasn't possible to deploy individual docs using the
-    # shinyapps package
-    migrateDir <- file.path(if (isDocumentPath(appPath)) dirname(appPath)
-                            else appPath,
-                            "rsconnect")
+  # calculate migration dir--all shinyapps deployment records go into the root
+  # folder since it wasn't possible to deploy individual docs using the
+  # shinyapps package
+  migrateRoot <- if (isDocumentPath(appPath)) dirname(appPath) else appPath
 
+  # migrate shinyapps package created records if necessary
+  shinyappsDir <- file.path(migrateRoot, "shinyapps")
+  if (file.exists(shinyappsDir)) {
+    migrateDir <- file.path(migrateRoot, "rsconnect")
     for (shinyappsFile in list.files(shinyappsDir, glob2rx("*.dcf"),
                                      recursive = TRUE)) {
       # read deployment record
