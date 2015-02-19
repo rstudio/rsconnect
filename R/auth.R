@@ -173,7 +173,7 @@ getPasswordFile <- function(appPath) {
 
   # normalize appPath and ensure it exists
   appPath <- normalizePath(appPath, mustWork = FALSE)
-  if (!file.exists(appPath) || !file.info(appPath)$isdir)
+  if (!file.exists(appPath))
     stop(appPath, " is not a valid file or directory", call. = FALSE)
 
   dataDir <- rsconnectRootPath(appPath)

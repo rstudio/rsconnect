@@ -150,7 +150,7 @@ isDocumentPath <- function(path) {
 # stored
 rsconnectRootPath <- function(appPath) {
   if (isDocumentPath(appPath))
-    file.path(dirname(appPath), "rsconnect", basename(appPath))
+    file.path(dirname(appPath), "rsconnect", "documents", basename(appPath))
   else
     file.path(appPath, "rsconnect")
 }
