@@ -187,9 +187,12 @@ createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) 
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$metadata <- list()
-  manifest$metadata$appmode <- appMode
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".")
+
+  # add metadata
+  manifest$metadata <- list(
+    appmode = appMode,
+    primary_rmd = if (is.null(appPrimaryRmd)) NA else appPrimaryRmd)
 
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
@@ -209,12 +212,6 @@ createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) 
   } else {
     manifest$users <- NA
   }
-
-  # supply the primary R Markdown document
-  manifest$metadata$primary_rmd <- if (is.null(appPrimaryRmd))
-      NA
-    else
-      appPrimaryRmd
 
   # return it as json
   RJSONIO::toJSON(manifest, pretty = TRUE)
