@@ -7,6 +7,10 @@
 #' @param appFiles The files to bundle and deploy (only if \code{upload =
 #'   TRUE}). Can be \code{NULL}, in which case all the files in the directory
 #'   containing the application are bundled.
+#' @param appPrimaryRmd If the application is contains one or more R Markdown
+#'   documents, this parameter indicates the primary one. Can be \code{NULL}, in
+#'   which case the primary document is inferred from the contents being
+#'   deployed.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
 #' @param account Account to deploy application to. This
@@ -51,6 +55,7 @@
 #' @export
 deployApp <- function(appDir = getwd(),
                       appFiles = NULL,
+                      appPrimaryRmd = NULL,
                       appName = NULL,
                       account = NULL,
                       server = NULL,
@@ -149,7 +154,8 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
-      bundlePath <- bundleApp(target$appName, appDir, appFiles, accountDetails)
+      bundlePath <- bundleApp(target$appName, appDir, appFiles,
+                              appPrimaryRmd, accountDetails)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {

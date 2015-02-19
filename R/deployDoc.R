@@ -42,6 +42,7 @@ deployDoc <- function(doc, ...) {
   # deploy the document with the discovered dependencies
   deployApp(appDir = dirname(qualified_doc),
             appFiles = c(res$path, basename(qualified_doc)),
+            appPrimaryRmd = basename(qualified_doc),
             ...)
 }
 
