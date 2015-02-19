@@ -314,7 +314,9 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
       }
     }
     accountDetails <- accountInfo(account, server)
-    createDeploymentTarget(basename(appDir), account, accountDetails$server)
+    createDeploymentTarget(
+      tools::file_path_sans_ext(basename(appPath)),
+      account, accountDetails$server)
   }
 
   # neither specified but a single existing deployment
@@ -331,7 +333,9 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     # single account we can default to
     if (length(accounts) == 1) {
       accountDetails <- accountInfo(accounts)
-      createDeploymentTarget(basename(appDir), accounts, accountDetails$server)
+      createDeploymentTarget(
+        tools::file_path_sans_ext(basename(appPath)),
+        accounts, accountDetails$server)
     }
     else
       stop("Please specify the account and server to which you want to deploy ",
