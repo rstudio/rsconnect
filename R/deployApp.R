@@ -322,7 +322,8 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
   # neither specified but a single existing deployment
   else if (nrow(appDeployments) == 1) {
 
-    createDeploymentTarget(appName, appDeployments$account,
+    createDeploymentTarget(appDeployments$name,
+                           appDeployments$account,
                            appDeployments$server)
 
   }
