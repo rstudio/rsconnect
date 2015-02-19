@@ -4,12 +4,13 @@
 \alias{removeAuthorizedUser}
 \title{Remove authorized user from an application}
 \usage{
-removeAuthorizedUser(username, appDir = getwd())
+removeAuthorizedUser(username, appPath = getwd())
 }
 \arguments{
 \item{username}{The user name.}
 
-\item{appDir}{Directory containing application. Defaults to current working directory.}
+\item{appPath}{Directory or file that was deployed. Defaults to current
+working directory.}
 }
 \description{
 Remove authorized user from an application

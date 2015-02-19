@@ -4,14 +4,14 @@
 \alias{unsetProperty}
 \title{Unset Application property}
 \usage{
-unsetProperty(propertyName, appDir = getwd(), appName = NULL,
+unsetProperty(propertyName, appPath = getwd(), appName = NULL,
   account = NULL, force = FALSE)
 }
 \arguments{
 \item{propertyName}{Name of property to unset}
 
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appPath}{Directory or file that was deployed. Defaults to current
+working directory.}
 
 \item{appName}{Name of application}
 

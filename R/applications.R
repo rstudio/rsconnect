@@ -115,12 +115,11 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #'
 #' Show the logs for a deployed ShinyApps application.
 #'
-#' @param appDir The directory where the local copy of the application
-#' resides.
+#' @param appPath The path to the directory or file that was deployed.
 #' @param appName The name of the application to show logs for. May be omitted
-#' if only one application deployment was made from \code{appDir}.
+#'   if only one application deployment was made from \code{appPath}.
 #' @param account The account under which the application was deployed. May be
-#' omitted if only one account is registered on the system.
+#'   omitted if only one account is registered on the system.
 #' @param entries The number of log entries to show. Defaults to 50 entries.
 #' @param streaming Whether to stream the logs. If \code{TRUE}, then the
 #'   function does not return; instead, log entries are written to the console
@@ -129,11 +128,11 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #' @note This function works only for ShinyApps servers.
 #'
 #' @export
-showLogs <- function(appDir = getwd(), appName = NULL, account = NULL,
-                     entries = 50, streaming = FALSE) {
+showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
+                     account = NULL, entries = 50, streaming = FALSE) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appDir, appName, account)
+  target <- deploymentTarget(appPath, appName, account)
   accountInfo <- accountInfo(target$account)
   lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
   application <- getAppByName(lucid, accountInfo, target$appName)

@@ -140,3 +140,17 @@ fileLeaf <- function(path) {
     component[length(component)]
   }))
 }
+
+# whether the given path points to an R Markdown document
+isDocumentPath <- function(path) {
+  identical(tolower(tools::file_ext(path)), "rmd")
+}
+
+# given a path, return the directory under which rsconnect package state is
+# stored
+rsconnectRootPath <- function(appPath) {
+  if (isDocumentPath(appPath))
+    file.path(dirname(appPath), "rsconnect", basename(appPath))
+  else
+    file.path(appPath, "rsconnect")
+}

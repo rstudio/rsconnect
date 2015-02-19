@@ -4,15 +4,14 @@
 \alias{showLogs}
 \title{Show Application Logs}
 \usage{
-showLogs(appDir = getwd(), appName = NULL, account = NULL, entries = 50,
-  streaming = FALSE)
+showLogs(appPath = getwd(), appFile = NULL, appName = NULL,
+  account = NULL, entries = 50, streaming = FALSE)
 }
 \arguments{
-\item{appDir}{The directory where the local copy of the application
-resides.}
+\item{appPath}{The path to the directory or file that was deployed.}
 
 \item{appName}{The name of the application to show logs for. May be omitted
-if only one application deployment was made from \code{appDir}.}
+if only one application deployment was made from \code{appPath}.}
 
 \item{account}{The account under which the application was deployed. May be
 omitted if only one account is registered on the system.}

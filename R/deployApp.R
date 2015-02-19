@@ -74,6 +74,15 @@ deployApp <- function(appDir = getwd(),
     stop(appDir, " does not exist")
   }
 
+  # create the full path that we'll deploy (append document if requested)
+  appPath <- appDir
+  if (!is.null(appPrimaryRmd)) {
+    appPath <- file.path(appPath, appPrimaryRmd)
+    if (!file.exists(appPath)) {
+      stop(appPath, " does not exist")
+    }
+  }
+
   # if a specific file is named, make sure it's an Rmd, and just deploy a single
   # document in this case
   rmdFile <- ""
@@ -142,7 +151,7 @@ deployApp <- function(appDir = getwd(),
   # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appDir, appName, account, server)
+  target <- deploymentTarget(appPath, appName, account, server)
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
@@ -180,7 +189,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # save the deployment info for subsequent updates
-  saveDeployment(appDir,
+  saveDeployment(appPath,
                  target$appName,
                  target$account,
                  accountDetails$server,
@@ -220,7 +229,7 @@ deployApp <- function(appDir = getwd(),
 
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appDir, appName, account, server = NULL) {
+deploymentTarget <- function(appPath, appName, account, server = NULL) {
 
   # read existing accounts
   accounts <- accounts(server)[,"name"]
@@ -236,14 +245,14 @@ deploymentTarget <- function(appDir, appName, account, server = NULL) {
   }
 
   # read existing deployments
-  appDeployments <- deployments(appDir)
+  appDeployments <- deployments(appPath = appPath)
 
   # function to create a deployment target list (checks whether the target
   # is an update and adds that field)
   createDeploymentTarget <- function(appName, account, server) {
 
     # check to see whether this is an update
-    existingDeployment <- deployments(appDir,
+    existingDeployment <- deployments(appPath,
                                       nameFilter = appName,
                                       accountFilter = account,
                                       serverFilter = server)
@@ -265,7 +274,8 @@ deploymentTarget <- function(appDir, appName, account, server = NULL) {
   else if (!is.null(appName)) {
 
     # find any existing deployments of this application
-    appDeployments <- deployments(appDir, nameFilter = appName)
+    appDeployments <- deployments(appPath,
+                                  nameFilter = appName)
 
     # if there are none then we can create it if there is a single account
     # registered that we can default to

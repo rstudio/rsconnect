@@ -4,7 +4,7 @@
 \alias{setProperty}
 \title{Set Application property}
 \usage{
-setProperty(propertyName, propertyValue, appDir = getwd(), appName = NULL,
+setProperty(propertyName, propertyValue, appPath = getwd(), appName = NULL,
   account = NULL, force = FALSE)
 }
 \arguments{
@@ -12,13 +12,13 @@ setProperty(propertyName, propertyValue, appDir = getwd(), appName = NULL,
 
 \item{propertyValue}{Nalue to set property to}
 
-\item{appDir}{Directory containing application. Defaults to
-current working directory.}
+\item{appPath}{Directory or file that was deployed. Defaults to current
+working directory.}
 
 \item{appName}{Name of application}
 
-\item{account}{Account name. If a single account is registered on the
-system then this parameter can be omitted.}
+\item{account}{Account name. If a single account is registered on the system
+then this parameter can be omitted.}
 
 \item{force}{Forcibly set the property}
 }

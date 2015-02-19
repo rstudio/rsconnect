@@ -47,7 +47,10 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
   )
 
   # get application users
-  users <- authorizedUsers(appDir)
+  users <- authorizedUsers(if (is.null(appPrimaryRmd))
+                               appDir
+                          else
+                               file.path(appDir, appPrimaryRmd))
 
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, appFiles,
