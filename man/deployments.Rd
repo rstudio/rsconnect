@@ -4,11 +4,12 @@
 \alias{deployments}
 \title{List Application Deployments}
 \usage{
-deployments(appDir, nameFilter = NULL, accountFilter = NULL,
+deployments(appPath, nameFilter = NULL, accountFilter = NULL,
   serverFilter = NULL)
 }
 \arguments{
-\item{appDir}{The directory from which to read deployment records.}
+\item{appPath}{The path to the content that was deployed, either a directory
+or an individual document.}
 
 \item{nameFilter}{Return only deployments matching the given name (optional)}
 
@@ -28,7 +29,7 @@ Returns a data frame with the following columns:
 }
 }
 \description{
-List deployment records for a given application directory.
+List deployment records for a given application.
 }
 \examples{
 \dontrun{

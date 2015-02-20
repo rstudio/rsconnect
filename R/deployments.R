@@ -1,16 +1,17 @@
 
 
-saveDeployment <- function(appDir, name, account, server, bundleId, url) {
+saveDeployment <- function(appPath, name, account, server, bundleId, url) {
 
   deployment <- deploymentRecord(name, account, server, bundleId, url)
-  write.dcf(deployment, deploymentFile(appDir, name, account, server))
+  write.dcf(deployment, deploymentFile(appPath, name, account, server))
   invisible(NULL)
 }
 
 #' List Application Deployments
 #'
-#' List deployment records for a given application directory.
-#' @param appDir The directory from which to read deployment records.
+#' List deployment records for a given application.
+#' @param appPath The path to the content that was deployed, either a directory
+#'   or an individual document.
 #' @param nameFilter Return only deployments matching the given name (optional)
 #' @param accountFilter Return only deployments matching the given account
 #'   (optional)
@@ -34,15 +35,21 @@ saveDeployment <- function(appDir, name, account, server, bundleId, url) {
 #' @seealso \code{\link{applications}} to get a list of deployments from the
 #'   server, and \code{\link{deployApp}} to create a new deployment.
 #' @export
-deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
+deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
                         serverFilter = NULL) {
 
   # calculate rsconnect dir
-  rsconnectDir <- file.path(appDir, "rsconnect")
+  rsconnectDir <- rsconnectRootPath(appPath)
+
+  # calculate migration dir--all shinyapps deployment records go into the root
+  # folder since it wasn't possible to deploy individual docs using the
+  # shinyapps package
+  migrateRoot <- if (isDocumentPath(appPath)) dirname(appPath) else appPath
 
   # migrate shinyapps package created records if necessary
-  shinyappsDir <- file.path(appDir, "shinyapps")
+  shinyappsDir <- file.path(migrateRoot, "shinyapps")
   if (file.exists(shinyappsDir)) {
+    migrateDir <- file.path(migrateRoot, "rsconnect")
     for (shinyappsFile in list.files(shinyappsDir, glob2rx("*.dcf"),
                                      recursive = TRUE)) {
       # read deployment record
@@ -52,7 +59,7 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
       deployment$server <- "shinyapps.io"
 
       # write the new record
-      rsconnectDCF <- file.path(rsconnectDir, "shinyapps.io", shinyappsFile)
+      rsconnectDCF <- file.path(migrateDir, "shinyapps.io", shinyappsFile)
       dir.create(dirname(rsconnectDCF), showWarnings = FALSE, recursive = TRUE)
       write.dcf(deployment, rsconnectDCF)
 
@@ -116,8 +123,8 @@ deployments <- function(appDir, nameFilter = NULL, accountFilter = NULL,
   deploymentRecs
 }
 
-deploymentFile <- function(appDir, name, account, server) {
-  accountDir <- file.path(appDir, "rsconnect", server, account)
+deploymentFile <- function(appPath, name, account, server) {
+  accountDir <- file.path(rsconnectRootPath(appPath), server, account)
   if (!file.exists(accountDir))
     dir.create(accountDir, recursive=TRUE)
   file.path(accountDir, paste(name, ".dcf", sep=""))

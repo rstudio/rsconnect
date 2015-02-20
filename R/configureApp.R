@@ -75,10 +75,10 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
 #' @param propertyName Name of property to set
 #' @param propertyValue Nalue to set property to
 #' @param appName Name of application
-#' @param appDir Directory containing application. Defaults to
-#'   current working directory.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
+#' @param appPath Directory or file that was deployed. Defaults to current
+#'   working directory.
+#' @param account Account name. If a single account is registered on the system
+#'   then this parameter can be omitted.
 #' @param force Forcibly set the property
 #'
 #' @note This function only works for ShinyApps servers.
@@ -94,11 +94,11 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
 #'
 #' }
 #' @export
-setProperty <- function(propertyName, propertyValue, appDir=getwd(),
-                        appName=NULL, account = NULL, force=FALSE) {
+setProperty <- function(propertyName, propertyValue, appPath = getwd(),
+                        appName = NULL, account = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- deploymentTarget(appDir, appName, account)
+  target <- deploymentTarget(appPath, appName, account)
   accountInfo <- accountInfo(target$account)
   lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
   application <- getAppByName(lucid, accountInfo, target$appName)
@@ -119,8 +119,8 @@ setProperty <- function(propertyName, propertyValue, appDir=getwd(),
 #'
 #' @param propertyName Name of property to unset
 #' @param appName Name of application
-#' @param appDir Directory containing application. Defaults to current working
-#'   directory.
+#' @param appPath Directory or file that was deployed. Defaults to current
+#'   working directory.
 #' @param account Account name. If a single account is registered on the system
 #'   then this parameter can be omitted.
 #' @param force Forcibly unset the property
@@ -135,11 +135,11 @@ setProperty <- function(propertyName, propertyValue, appDir=getwd(),
 #'
 #' }
 #' @export
-unsetProperty <- function(propertyName, appDir=getwd(), appName=NULL,
+unsetProperty <- function(propertyName, appPath = getwd(), appName=NULL,
                           account = NULL, force=FALSE) {
 
   # resolve the application target and target account info
-  target <- deploymentTarget(appDir, appName, account)
+  target <- deploymentTarget(appPath, appName, account)
   accountInfo <- accountInfo(target$account)
   lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
   application <- getAppByName(lucid, accountInfo, target$appName)
@@ -158,18 +158,18 @@ unsetProperty <- function(propertyName, appDir=getwd(), appName=NULL,
 #' Show propreties of an application deployed to ShinyApps.
 #'
 #' @param appName Name of application
-#' @param appDir Directory containing application. Defaults to
-#'   current working directory.
+#' @param appPath Directory or file that was deployed. Defaults to current
+#'   working directory.
 #' @param account Account name. If a single account is registered on the
 #'   system then this parameter can be omitted.
 #'
 #' @note This function works only for ShinyApps servers.
 #'
 #' @export
-showProperties <- function(appDir=getwd(), appName=NULL, account = NULL) {
+showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appDir, appName, account)
+  target <- deploymentTarget(appPath, appName, account)
   accountInfo <- accountInfo(target$account)
   lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
   application <- getAppByName(lucid, accountInfo, target$appName)

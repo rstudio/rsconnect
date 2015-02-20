@@ -4,11 +4,11 @@
 \alias{showProperties}
 \title{Show Application property}
 \usage{
-showProperties(appDir = getwd(), appName = NULL, account = NULL)
+showProperties(appPath = getwd(), appName = NULL, account = NULL)
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to
-current working directory.}
+\item{appPath}{Directory or file that was deployed. Defaults to current
+working directory.}
 
 \item{appName}{Name of application}
 

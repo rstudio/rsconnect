@@ -4,14 +4,15 @@
 \alias{addAuthorizedUser}
 \title{Add authorized user for application}
 \usage{
-addAuthorizedUser(username, password = NULL, appDir = getwd())
+addAuthorizedUser(username, password = NULL, appPath = getwd())
 }
 \arguments{
 \item{username}{The user name.}
 
 \item{password}{The password.}
 
-\item{appDir}{Directory containing application. Defaults to current working directory.}
+\item{appPath}{Directory or file that was deployed. Defaults to current
+working directory.}
 }
 \description{
 Add authorized user for application

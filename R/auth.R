@@ -2,7 +2,8 @@
 #'
 #' @param username The user name.
 #' @param password The password.
-#' @param appDir Directory containing application. Defaults to current working directory.
+#' @param appPath Directory or file that was deployed. Defaults to current
+#'   working directory.
 #' @examples
 #' \dontrun{
 #'
@@ -15,7 +16,7 @@
 #' }
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
-addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
+addAuthorizedUser <- function(username, password = NULL, appPath = getwd()) {
 
   if (!require(scrypt)) {
     stop("scrypt package is not installed.")
@@ -39,7 +40,7 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
   hash <- paste("{scrypt}", hashPassword(password), sep="")
 
   # read password file
-  path <- getPasswordFile(appDir)
+  path <- getPasswordFile(appPath)
   if (file.exists(path)) {
     passwords <- readPasswordFile(path)
   } else {
@@ -70,7 +71,8 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
 #' Remove authorized user from an application
 #'
 #' @param username The user name.
-#' @param appDir Directory containing application. Defaults to current working directory.
+#' @param appPath Directory or file that was deployed. Defaults to current
+#'   working directory.
 #' @examples
 #' \dontrun{
 #'
@@ -80,10 +82,10 @@ addAuthorizedUser <- function(username, password = NULL, appDir = getwd()) {
 #' }
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
 #' @export
-removeAuthorizedUser <- function(username, appDir = getwd()) {
+removeAuthorizedUser <- function(username, appPath = getwd()) {
 
   # read password file
-  path <- getPasswordFile(appDir)
+  path <- getPasswordFile(appPath)
   if (file.exists(path)) {
     passwords <- readPasswordFile(path)
   } else {
@@ -104,12 +106,13 @@ removeAuthorizedUser <- function(username, appDir = getwd()) {
 
 #' List authorized users for an application
 #'
-#' @param appDir Directory containing application. Defaults to current working directory.
+#' @param appPath Directory or file that was deployed. Defaults to current
+#'   working directory.
 #' @export
-authorizedUsers <- function(appDir = getwd()) {
+authorizedUsers <- function(appPath = getwd()) {
 
   # read password file
-  path <- getPasswordFile(appDir)
+  path <- getPasswordFile(appPath)
   if (file.exists(path)) {
     passwords <- readPasswordFile(path)
   } else {
@@ -164,16 +167,16 @@ promptPassword <- function() {
   return(password.one)
 }
 
-getPasswordFile <- function(appDir) {
-  if (!isStringParam(appDir))
-    stop(stringParamErrorMessage("appDir"))
+getPasswordFile <- function(appPath) {
+  if (!isStringParam(appPath))
+    stop(stringParamErrorMessage("appPath"))
 
-  # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir) || !file.info(appDir)$isdir)
-    stop(appDir, " is not a valid directory", call. = FALSE)
+  # normalize appPath and ensure it exists
+  appPath <- normalizePath(appPath, mustWork = FALSE)
+  if (!file.exists(appPath))
+    stop(appPath, " is not a valid file or directory", call. = FALSE)
 
-  dataDir <- file.path(appDir, "rsconnect")
+  dataDir <- rsconnectRootPath(appPath)
   if (!file.exists(dataDir))
     dir.create(dataDir, recursive=TRUE)
 

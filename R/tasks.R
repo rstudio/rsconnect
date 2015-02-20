@@ -83,7 +83,7 @@ taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 
   # get child task logs
   for (task in tasks) {
-    taskLog(task['id'], account, output)
+    taskLog(task['id'], account = account, server = server, output = output)
   }
 
 }
