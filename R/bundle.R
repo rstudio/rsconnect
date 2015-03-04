@@ -168,7 +168,7 @@ createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) 
   # already specified
   if (grepl("rmd", appMode, fixed = TRUE) && is.null(appPrimaryRmd)) {
     # use index.Rmd if it exists
-    primary <- which(grepl("index\\.Rmd", files, fixed = FALSE, ignore.case = TRUE))
+    primary <- which(grepl("^index\\.Rmd$", files, fixed = FALSE, ignore.case = TRUE))
     if (length(primary) == 0) {
       # no index.Rmd, so pick the first Rmd we find
       primary <- which(grepl(glob2rx("*.Rmd"), files, fixed = FALSE, ignore.case = TRUE))
@@ -176,8 +176,10 @@ createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) 
         stop("Application mode ", appMode, " requires at least one R Markdown ",
              "document.")
       }
-      primary <- primary[[1]]
     }
+    # if we have multiple matches, pick the first
+    if (length(primary) > 1)
+      primary <- primary[[1]]
     appPrimaryRmd <- files[[primary]]
   }
 
