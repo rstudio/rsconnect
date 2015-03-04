@@ -69,6 +69,28 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
   bundlePath
 }
 
+isShinyRmd <- function(filename) {
+  lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
+  delim <- grep("^---\\s*$", lines)
+  if (length(delim) >= 2) {
+    # If at least two --- lines were found...
+    if (delim[[1]] == 1 || all(grepl("^\\s*$", lines[1:delim[[1]]]))) {
+      # ...and the first --- line is not preceded by non-whitespace...
+      if (diff(delim[1:2]) > 1) {
+        # ...and there is actually something between the two --- lines...
+        yamlData <- paste(lines[(delim[[1]]+1):(delim[[2]]-1)], collapse="\n")
+        frontMatter <- yaml::yaml.load(yamlData)
+        runtime <- frontMatter[["runtime"]]
+        if (!is.null(runtime) && identical(runtime, "shiny")) {
+          # ...and "runtime: shiny", then it's a dynamic Rmd.
+          return(TRUE)
+        }
+      }
+    }
+  }
+  return(FALSE)
+}
+
 inferAppMode <- function(appDir, files) {
   shinyFiles <- grep("^(server|app).r$", files, ignore.case=TRUE, perl=TRUE)
   if (length(shinyFiles) > 0) {
@@ -76,34 +98,18 @@ inferAppMode <- function(appDir, files) {
   }
 
   rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case=TRUE, perl=TRUE)
-  if (length(rmdFiles) > 1) {
-    return("rmd-shiny")
-  } else if (length(rmdFiles) == 1) {
-    # Read front matter to see if this is a static or dynamic Rmd
-    lines <- readLines(file.path(appDir, files[[rmdFiles]]),
-                       warn = FALSE, encoding = "UTF-8")
-    delim <- grep("^---\\s*$", lines)
-    if (length(delim) >= 2) {
-      # If at least two --- lines were found...
-      if (delim[[1]] == 1 || all(grepl("^\\s*$", lines[1:delim[[1]]]))) {
-        # ...and the first --- line is not preceded by non-whitespace...
-        if (diff(delim[1:2]) > 1) {
-          # ...and there is actually something between the two --- lines...
-          yamlData <- paste(lines[(delim[[1]]+1):(delim[[2]]-1)], collapse="\n")
-          frontMatter <- yaml::yaml.load(yamlData)
-          runtime <- frontMatter[["runtime"]]
-          if (!is.null(runtime) && identical(runtime, "shiny")) {
-            # ...and "runtime: shiny", then it's a dynamic Rmd.
-            return("rmd-shiny")
-          }
-        }
-      }
-    }
 
-    # Otherwise, a single Rmd means static Rmd.
+  # if there are one or more R Markdown documents, use the Shiny app mode if any
+  # are Shiny documents
+  if (length(rmdFiles) > 0) {
+    for (idx in seq_along(rmdFiles)) {
+      if (isShinyRmd(file.path(appDir, files[[idx]])))
+        return("rmd-shiny")
+    }
     return("rmd-static")
   }
 
+  # no Shiny .R files and no R Markdown docs--app mode is unknown
   return(NA)
 }
 
