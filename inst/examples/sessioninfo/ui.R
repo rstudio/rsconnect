@@ -1,6 +1,12 @@
 library(shiny)
 
 shinyUI(fluidPage(
-  titlePanel("SessionInfo"),
-  verbatimTextOutput("session")
+  h3("URL"),
+  verbatimTextOutput("urlInfo"),
+  
+  h3("Session"),
+  verbatimTextOutput("sessionInfo"),
+  
+  h3("User"),
+  verbatimTextOutput("userInfo")
 ))
