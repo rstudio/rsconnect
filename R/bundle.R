@@ -22,6 +22,9 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
   dir.create(bundleDir, recursive=TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
+  # infer the mode of the application from its layout
+  appMode <- inferAppMode(appDir, appFiles)
+
   # copy the files into the bundle dir
   for (file in appFiles) {
     from <- file.path(appDir, file)
@@ -29,6 +32,27 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
     if (!file.exists(dirname(to)))
       dir.create(dirname(to), recursive=TRUE)
     file.copy(from, to)
+  }
+
+  # infer any additional package dependencies from app mode
+  extraPkgDeps <- ""
+  if (grepl("\\brmd\\b", appMode))
+    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
+  if (grepl("\\bshiny\\b", appMode))
+    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
+
+  # if we discovered any extra dependencies, write them to a file for packrat to
+  # discover when it creates the snapshot
+  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
+  if (nchar(extraPkgDeps) > 0) {
+    # emit dependencies to file
+    writeLines(extraPkgDeps, tempDependencyFile)
+
+    # ensure temp file is cleaned up even if there's an error
+    on.exit({
+      if (file.exists(tempDependencyFile))
+        unlink (tempDependencyFile)
+      }, add = TRUE)
   }
 
   # ensure we have an up-to-date packrat lockfile
@@ -46,6 +70,12 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
                            verbose = FALSE)
   )
 
+  # if we emitted a temporary dependency file for packrat's benefit, remove it
+  # now so it isn't included in the bundle sent to the server
+  if (file.exists(tempDependencyFile)) {
+    unlink(tempDependencyFile)
+  }
+
   # get application users
   users <- authorizedUsers(if (is.null(appPrimaryRmd))
                                appDir
@@ -53,7 +83,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
                                file.path(appDir, appPrimaryRmd))
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, accountInfo, appFiles,
+  manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode, accountInfo, appFiles,
                                              appPrimaryRmd, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
 
@@ -113,7 +143,7 @@ inferAppMode <- function(appDir, files) {
   return(NA)
 }
 
-createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) {
+createAppManifest <- function(appDir, appMode, accountInfo, files, appPrimaryRmd, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -161,8 +191,6 @@ createAppManifest <- function(appDir, accountInfo, files, appPrimaryRmd, users) 
                                                algo="md5", file=TRUE))
     filelist[[file]] <- I(checksum)
   }
-
-  appMode <- inferAppMode(appDir, files)
 
   # if deploying an R Markdown app, infer a primary document if not
   # already specified
