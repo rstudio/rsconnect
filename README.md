@@ -3,8 +3,6 @@ rsconnect
 
 An R package used for deploying applications to the [ShinyApps](http://shinyapps.io/) hosted service.
 
-ShinyApps is not yet generally available however if you are interested in alpha or beta testing the service you can sign up here: http://www.shinyapps.io/
-
 ## Installation
 
 To install directly from GitHub, run this:
