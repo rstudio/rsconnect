@@ -15,13 +15,6 @@
 #' @param properties A named list containing additional document properties
 #'   (RPubs doesn't currently expect any additional properties, this parameter
 #'   is reserved for future use).
-#' @param method Method to be used for uploading. "internal" uses a plain http
-#'   socket connection; "curl" uses the curl binary to do an https upload;
-#'   "rcurl" uses the RCurl package to do an https upload; and "auto" uses
-#'   the best available method searched for in the following order: "curl",
-#'   "rcurl", and then "internal". The global default behavior can be
-#'   configured by setting the \code{rpubs.upload.method} option (the default
-#'   is "auto").
 #'
 #' @return A named list. If the upload was successful then the list contains a
 #'   \code{id} element that can be used to subsequently update the document as
