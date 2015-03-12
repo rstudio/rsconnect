@@ -46,8 +46,7 @@
 rpubsUpload <- function(title,
                         htmlFile,
                         id = NULL,
-                        properties = list(),
-                        method = getOption("rpubs.upload.method")) {
+                        properties = list()) {
 
   # validate inputs
   if (!is.character(title))
@@ -60,40 +59,6 @@ rpubsUpload <- function(title,
     stop("specified htmlFile does not exist")
   if (!is.list(properties))
     stop("properties paramater must be a named list")
-
-  # resolve method to auto if necessary
-  if (is.null(method))
-    method <- "auto"
-
-
-  parseHeader <- function(header) {
-    split <- strsplit(header, ": ")[[1]]
-    if (length(split) == 2)
-      return (list(name = split[1], value = split[2]))
-    else
-      return (NULL)
-  }
-
-  regexExtract <- function(re, input) {
-    match <- regexec(re, input)
-    matchLoc <- match[1][[1]]
-    if (length(matchLoc) > 1) {
-      matchLen <-attributes(matchLoc)$match.length
-      url <- substr(input, matchLoc[2], matchLoc[2] + matchLen[2]-1)
-      return (url)
-    }
-    else {
-      return (NULL)
-    }
-  }
-
-  parseHttpStatusCode <- function(statusLine) {
-    statusCode <- regexExtract("HTTP/[0-9]+\\.[0-9]+ ([0-9]+).*", statusLine)
-    if (is.null(statusCode))
-      return (-1)
-    else
-      return (as.integer(statusCode))
-  }
 
   pathFromId <- function(id) {
     split <- strsplit(id, "^https?://[^/]+")[[1]]
@@ -134,250 +99,34 @@ rpubsUpload <- function(title,
     return (tarfile)
   }
 
-  # Use skipDecoding=TRUE if transfer-encoding: chunked but the
-  # chunk decoding has already been performed on conn
-  readResponse <- function(conn, skipDecoding) {
-    # read status code
-    resp <- readLines(conn, 1)
-    statusCode <- parseHttpStatusCode(resp[1])
-
-    # read response headers
-    contentLength <- NULL
-    location <- NULL
-    transferEncoding <- NULL
-    repeat {
-      resp <- readLines(conn, 1)
-      if (nzchar(resp) == 0)
-        break
-
-      header <- parseHeader(resp)
-      # Case insensitive header name comparison
-      headerName <- tolower(header$name)
-      if (!is.null(header)) {
-        if (identical(headerName, "content-type"))
-          contentType <- header$value
-        if (identical(headerName, "content-length"))
-          contentLength <- as.integer(header$value)
-        if (identical(headerName, "location"))
-          location <- header$value
-        if (identical(headerName, "transfer-encoding"))
-          transferEncoding <- tolower(header$value)
-      }
-    }
-
-    # read the response content
-    content <- if (is.null(transferEncoding) || skipDecoding) {
-      if (!is.null(contentLength)) {
-        rawToChar(readBin(conn, what = 'raw', n=contentLength))
-      }
-      else {
-        paste(readLines(conn, warn = FALSE), collapse = "\r\n")
-      }
-    } else if (identical(transferEncoding, "chunked")) {
-      accum <- ""
-      repeat {
-        resp <- readLines(conn, 1)
-        resp <- sub(";.*", "", resp) # Ignore chunk extensions
-        chunkLen <- as.integer(paste("0x", resp, sep = ""))
-        if (is.na(chunkLen)) {
-          stop("Unexpected chunk length")
-        }
-        if (identical(chunkLen, 0L)) {
-          break
-        }
-        accum <- paste0(accum, rawToChar(readBin(conn, what = 'raw', n=chunkLen)))
-        # Eat CRLF
-        if (!identical("\r\n", rawToChar(readBin(conn, what = 'raw', n=2)))) {
-          stop("Invalid chunk encoding: missing CRLF")
-        }
-      }
-      accum
-    } else {
-      stop("Unexpected transfer encoding")
-    }
-
-    # return list
-    list(status = statusCode,
-         location = location,
-         contentType = contentType,
-         content = content)
-  }
-
-  # internal sockets implementation of upload (supports http-only)
-  internalUpload <- function(path,
-                             contentType,
-                             headers,
-                             packageFile) {
-
-    # read file in binary mode
-    fileLength <- file.info(packageFile)$size
-    fileContents <- readBin(packageFile, what="raw", n=fileLength)
-
-    # build http request
-    request <- NULL
-    request <- c(request, paste("POST ", path, " HTTP/1.1\r\n", sep=""))
-    request <- c(request, "User-Agent: RStudio\r\n")
-    request <- c(request, "Host: api.rpubs.com\r\n")
-    request <- c(request, "Accept: */*\r\n")
-    request <- c(request, paste("Content-Type: ",
-                                contentType,
-                                "\r\n",
-                                sep=""))
-    request <- c(request, paste("Content-Length: ",
-                                fileLength,
-                                "\r\n",
-                                sep=""))
-    for (name in names(headers))
-    {
-      request <- c(request,
-                   paste(name, ": ", headers[[name]], "\r\n", sep=""))
-    }
-    request <- c(request, "\r\n")
-
-    # open socket connection
-    conn <- socketConnection(host="api.rpubs.com",
-                             port=80,
-                             open="w+b",
-                             blocking=TRUE)
-    on.exit(close(conn))
-
-    # write the request header and file payload
-    writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
-    writeBin(fileContents, conn, size=1)
-
-    # read the response
-    readResponse(conn, skipDecoding = FALSE)
-  }
-
-
-  rcurlUpload <- function(path,
-                          contentType,
-                          headers,
-                          packageFile) {
-
-    require(RCurl)
-
-    # url to post to
-    url <- paste("https://api.rpubs.com", path, sep="")
-
-    # upload package file
-    params <- list(file = RCurl::fileUpload(filename = packageFile,
-                                            contentType = contentType))
-
-    # use custom header and text gatherers
-    options <- RCurl::curlOptions(url)
-    headerGatherer <- RCurl::basicHeaderGatherer()
-    options$headerfunction <- headerGatherer$update
-    textGatherer <- RCurl::basicTextGatherer()
-    options$writefunction <- textGatherer$update
-
-    # add extra headers
-    extraHeaders <- as.character(headers)
-    names(extraHeaders) <- names(headers)
-    options$httpheader <- extraHeaders
-
-    # post the form
-    RCurl::postForm(paste("https://api.rpubs.com", path, sep=""),
-                    .params = params,
-                    .opts = options,
-                    useragent = "RStudio")
-
-    # return list
-    headers <- headerGatherer$value()
-    if ("Location" %in% names(headers))
-      location <- headers[["Location"]]
-    else
-      location <- NULL
-    list(status = as.integer(headers[["status"]]),
-         location = location,
-         contentType <- headers[["Content-Type"]],
-         content = textGatherer$value())
-
-  }
-
-  curlUpload <- function(path,
-                         contentType,
-                         headers,
-                         packageFile) {
-
-    fileLength <- file.info(packageFile)$size
-
-    extraHeaders <- character()
-    for (header in names(headers))
-    {
-      extraHeaders <- paste(extraHeaders, "--header")
-      extraHeaders <- paste(extraHeaders,
-                            paste(header,":",headers[[header]], sep=""))
-    }
-
-    outputFile <- tempfile()
-
-    command <- paste("curl",
-                     "-X",
-                     "POST",
-                     "--data-binary",
-                     shQuote(paste("@", packageFile, sep="")),
-                     "-i",
-                     "--header", paste("Content-Type:",contentType, sep=""),
-                     "--header", paste("Content-Length:", fileLength, sep=""),
-                     extraHeaders,
-                     "--header", "Expect:",
-                     "--silent",
-                     "--show-error",
-                     "-o", shQuote(outputFile),
-                     paste("https://api.rpubs.com", path, sep=""))
-
-    result <- system(command)
-
-    if (result == 0) {
-      fileConn <- file(outputFile, "rb")
-      on.exit(close(fileConn))
-      readResponse(fileConn, skipDecoding = TRUE)
-    } else {
-      stop(paste("Upload failed (curl error", result, "occurred)"))
-    }
-  }
-
-  uploadFunction <- NULL
-  if (is.function(method)) {
-    uploadFunction <- method
-  } else if (identical("auto", method)) {
-    if (nzchar(Sys.which("curl")))
-      uploadFunction <- curlUpload
-    else if (suppressWarnings(require("RCurl", quietly=TRUE)))
-      uploadFunction <- rcurlUpload
-    else
-      uploadFunction <- internalUpload
-  } else if (identical("internal", method)) {
-    uploadFunction <- internalUpload
-  } else if (identical("curl",  method)) {
-    uploadFunction <- curlUpload
-  } else if (identical("rcurl", method)) {
-    uploadFunction <- rcurlUpload
-  } else {
-    stop(paste("Invalid upload method specified:",method))
-  }
-
   # build the package
   packageFile <- buildPackage(title, htmlFile, properties)
 
   # determine whether this is a new doc or an update
   isUpdate <- FALSE
+  method <- "POST"
   path <- "/api/v1/document"
   headers <- list()
   headers$Connection <- "close"
   if (!is.null(id)) {
     isUpdate <- TRUE
     path <- pathFromId(id)
-    headers$`X-HTTP-Method-Override` <- "PUT"
+    method <- "PUT"
   }
 
+  # use https if using RCurl, and vanilla HTTP otherwise
+  http <- httpFunction()
+  if (identical(http, httpRCurl)) {
+    protocol <- "https"
+    port <- 443
+  } else {
+    protocol <- "http"
+    port <- 80
+  }
 
   # send the request
-  result <- uploadFunction(path,
-                           "application/x-compressed",
-                           headers,
-                           packageFile)
+  result <- http(protocol, "api.rpubs.com", port, method, path, headers,
+                 "application/x-compressed", file = packageFile)
 
   # check for success
   succeeded <- FALSE
