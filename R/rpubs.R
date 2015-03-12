@@ -155,8 +155,7 @@ rpubsUpload <- function(title,
     # return the publish information
     return (list(id = id,
                  continueUrl = url))
-  }
-  else {
+  } else {
     return (list(error = content))
   }
 }
