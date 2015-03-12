@@ -4,12 +4,15 @@
 \alias{rpubsUpload}
 \title{Upload an HTML file to RPubs}
 \usage{
-rpubsUpload(title, htmlFile, id = NULL, properties = list())
+rpubsUpload(title, htmlFile, originalRmd, id = NULL, properties = list())
 }
 \arguments{
 \item{title}{The title of the document.}
 
 \item{htmlFile}{The path to the HTML file to upload.}
+
+\item{originalRmd}{The R Markdown document that was rendered to produce the
+\code{htmlFile}.}
 
 \item{id}{If this upload is an update of an existing document then the id
 parameter should specify the document id to update. Note that the id is

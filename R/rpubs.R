@@ -8,6 +8,8 @@
 #'
 #' @param title The title of the document.
 #' @param htmlFile The path to the HTML file to upload.
+#' @param originalRmd The R Markdown document that was rendered to produce the
+#'   \code{htmlFile}.
 #' @param id If this upload is an update of an existing document then the id
 #'   parameter should specify the document id to update. Note that the id is
 #'   provided as an element of the list returned by successful calls to
@@ -38,6 +40,7 @@
 #' @export
 rpubsUpload <- function(title,
                         htmlFile,
+                        originalRmd,
                         id = NULL,
                         properties = list()) {
 
@@ -50,6 +53,10 @@ rpubsUpload <- function(title,
     stop("htmlFile parameter must be specified")
   if (!file.exists(htmlFile))
     stop("specified htmlFile does not exist")
+  if (!is.character(originalRmd))
+    stop("originalRmd parameter must be specified")
+  if (!file.exists(originalRmd))
+    stop("specified originalRmd does not exist")
   if (!is.list(properties))
     stop("properties paramater must be a named list")
 
@@ -135,7 +142,18 @@ rpubsUpload <- function(title,
   # return either id & continueUrl or error
   if (succeeded) {
     parsedContent <- RJSONIO::fromJSON(content)
-    return (list(id = ifelse(isUpdate, id, result$location),
+    id <- ifelse(isUpdate, id, result$location)
+
+    # write the deployment record
+    rpubsRec <- data.frame(
+      rpubsId = id,
+      stringsAsFactors = FALSE)
+    rpubsRecFile <- deploymentFile(originalRmd, basename(originalRmd), "rpubs",
+                                   "rpubs.com")
+    write.dcf(rpubsRec, rpubsRecFile)
+
+    # return the publish information
+    return (list(id = id,
                  continueUrl = as.character(parsedContent["continueUrl"])))
   }
   else {
