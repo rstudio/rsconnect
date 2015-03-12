@@ -74,30 +74,6 @@ rpubsUpload <- function(title,
       return (NULL)
   }
 
-  jsonEscapeString <- function(value) {
-    chars <- strsplit(value, "")[[1]]
-    chars <- vapply(chars, function(x) {
-      if (x %in% c('"', '\\', '/'))
-        paste('\\', x, sep='')
-      else if (charToRaw(x) < 20)
-        paste('\\u', toupper(format(as.hexmode(as.integer(charToRaw(x))),
-                                    width=4)),
-              sep='')
-      else
-        x
-    }, character(1))
-    paste(chars, sep="", collapse="")
-  }
-
-  jsonProperty <- function(name, value) {
-    paste("\"",
-          jsonEscapeString(enc2utf8(name)),
-          "\" : \"",
-          jsonEscapeString(enc2utf8(value)),
-          "\"",
-          sep="")
-  }
-
   regexExtract <- function(re, input) {
     match <- regexec(re, input)
     matchLoc <- match[1][[1]]
@@ -109,14 +85,6 @@ rpubsUpload <- function(title,
     else {
       return (NULL)
     }
-  }
-
-  # NOTE: we parse the json naively using a regex because:
-  #  - We don't want to take a dependency on a json library for just this case
-  #  - We know the payload is an ascii url so we don't need a robust parser
-  parseContinueUrl <- function(continueUrl) {
-    regexExtract("\\{\\s*\"continueUrl\"\\s*:\\s*\"([^\"]+)\"\\s*\\}",
-                 continueUrl)
   }
 
   parseHttpStatusCode <- function(statusLine) {
@@ -140,16 +108,8 @@ rpubsUpload <- function(title,
                            properties = list()) {
 
     # build package.json
-    packageJson <- "{"
-    packageJson <- paste(packageJson, jsonProperty("title", title), ",")
-    for (name in names(properties)) {
-      if (nzchar(name) == FALSE)
-        stop("all properties must be named")
-      value <- properties[[name]]
-      packageJson <- paste(packageJson, jsonProperty(name, value), ",")
-    }
-    packageJson <- substr(packageJson, 1, nchar(packageJson)-1)
-    packageJson <- paste(packageJson,"}")
+    properties$title = title
+    packageJson <- RJSONIO::toJSON(properties)
 
     # create a tempdir to build the package in and copy the files to it
     fileSep <- .Platform$file.sep
@@ -432,8 +392,9 @@ rpubsUpload <- function(title,
 
   # return either id & continueUrl or error
   if (succeeded) {
+    parsedContent <- RJSONIO::fromJSON(content)
     return (list(id = ifelse(isUpdate, id, result$location),
-                 continueUrl = parseContinueUrl(content)))
+                 continueUrl = as.character(parsedContent["continueUrl"])))
   }
   else {
     return (list(error = content))
