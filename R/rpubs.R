@@ -143,18 +143,18 @@ rpubsUpload <- function(title,
   if (succeeded) {
     parsedContent <- RJSONIO::fromJSON(content)
     id <- ifelse(isUpdate, id, result$location)
+    url <- as.character(parsedContent["continueUrl"])
 
     # write the deployment record
-    rpubsRec <- data.frame(
-      rpubsId = id,
-      stringsAsFactors = FALSE)
+    rpubsRec <- deploymentRecord(basename(originalRmd), "rpubs", "rpubs.com",
+                                 id, url)
     rpubsRecFile <- deploymentFile(originalRmd, basename(originalRmd), "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile)
 
     # return the publish information
     return (list(id = id,
-                 continueUrl = as.character(parsedContent["continueUrl"])))
+                 continueUrl = url))
   }
   else {
     return (list(error = content))
