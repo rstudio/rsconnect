@@ -26,6 +26,8 @@ Returns a data frame with the following columns:
 \code{account} \tab Account owning deployed application\cr
 \code{bundleId} \tab Identifier of deployed application's bundle\cr
 \code{url} \tab URL of deployed application\cr
+\code{when} \tab When the application was deployed (in seconds since the
+  epoch)\cr
 }
 }
 \description{

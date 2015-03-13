@@ -147,7 +147,7 @@ rpubsUpload <- function(title,
 
     # write the deployment record
     rpubsRec <- deploymentRecord(basename(originalRmd), "rpubs", "rpubs.com",
-                                 id, url)
+                                 id, url, as.numeric(Sys.time()))
     rpubsRecFile <- deploymentFile(originalRmd, basename(originalRmd), "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile)

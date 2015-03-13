@@ -2,7 +2,8 @@
 
 saveDeployment <- function(appPath, name, account, server, bundleId, url) {
 
-  deployment <- deploymentRecord(name, account, server, bundleId, url)
+  deployment <- deploymentRecord(name, account, server, bundleId, url,
+                                 when = as.numeric(Sys.time()))
   write.dcf(deployment, deploymentFile(appPath, name, account, server))
   invisible(NULL)
 }
@@ -24,6 +25,8 @@ saveDeployment <- function(appPath, name, account, server, bundleId, url) {
 #' \code{account} \tab Account owning deployed application\cr
 #' \code{bundleId} \tab Identifier of deployed application's bundle\cr
 #' \code{url} \tab URL of deployed application\cr
+#' \code{when} \tab When the application was deployed (in seconds since the
+#'   epoch)\cr
 #' }
 #' @examples
 #' \dontrun{
@@ -80,7 +83,8 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
                                      account = character(),
                                      server = character(),
                                      bundleId = character(),
-                                     url = character())
+                                     url = character(),
+                                     when = numeric())
   for (deploymentFile in list.files(rsconnectDir, glob2rx("*.dcf"),
                                     recursive = TRUE)) {
 
@@ -130,11 +134,12 @@ deploymentFile <- function(appPath, name, account, server) {
   file.path(accountDir, paste(name, ".dcf", sep=""))
 }
 
-deploymentRecord <- function(name, account, server, bundleId, url) {
+deploymentRecord <- function(name, account, server, bundleId, url, when) {
   data.frame(name = name,
              account = account,
              server = server,
              bundleId = bundleId,
              url = url,
+             when = when,
              stringsAsFactors = FALSE)
 }
