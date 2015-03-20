@@ -110,6 +110,7 @@ createAppManifest <- function(appDir, files, users) {
   # create the manifest
   manifest <- list()
   manifest$version <- 1
+  manifest$locale <- getOption('shinyapps.locale', detectLocale())
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".") 
   
   # if there are no packages set manifes$packages to NA (json null)
