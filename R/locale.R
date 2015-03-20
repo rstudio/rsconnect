@@ -5,7 +5,6 @@ detectLocale <- function () {
   } else {
     locale <- detectLocale.Unix()
   }
-  
   return(locale)
 }
 
