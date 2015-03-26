@@ -34,46 +34,9 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, accountInfo) {
     file.copy(from, to)
   }
 
-  # infer any additional package dependencies from app mode
-  extraPkgDeps <- ""
-  if (grepl("\\brmd\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
-  if (grepl("\\bshiny\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
-
-  # if we discovered any extra dependencies, write them to a file for packrat to
-  # discover when it creates the snapshot
-  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
-  if (nchar(extraPkgDeps) > 0) {
-    # emit dependencies to file
-    writeLines(extraPkgDeps, tempDependencyFile)
-
-    # ensure temp file is cleaned up even if there's an error
-    on.exit({
-      if (file.exists(tempDependencyFile))
-        unlink (tempDependencyFile)
-      }, add = TRUE)
-  }
-
-  # ensure we have an up-to-date packrat lockfile
-  packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.1.19"
-  if (packratVersion < requiredVersion) {
-    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
-         "you have version '", packratVersion, "' installed.\n",
-         "Please use devtools::install_github('rstudio/packrat') to obtain ",
-         "the latest version of Packrat.")
-  }
-  suppressMessages(
-    packrat::.snapshotImpl(project = bundleDir,
-                           snapshot.sources = FALSE,
-                           verbose = FALSE)
-  )
-
-  # if we emitted a temporary dependency file for packrat's benefit, remove it
-  # now so it isn't included in the bundle sent to the server
-  if (file.exists(tempDependencyFile)) {
-    unlink(tempDependencyFile)
+  # infer package dependencies for non-static content deployment
+  if (appMode != "static") {
+    addPackratSnapshot(bundleDir, appMode)
   }
 
   # get application users
@@ -318,5 +281,49 @@ validateRepository <- function(pkg, repository) {
 hasRequiredDevtools <- function() {
   "devtools" %in% .packages(all.available=TRUE) &&
   packageVersion("devtools") > "1.3"
+}
+
+addPackratSnapshot <- function(bundleDir, appMode) {
+  # check for extra dependencies congruent to application mode
+  extraPkgDeps <- ""
+  if (grepl("\\brmd\\b", appMode))
+    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
+  if (grepl("\\bshiny\\b", appMode))
+    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
+
+  # if we discovered any extra dependencies, write them to a file for packrat to
+  # discover when it creates the snapshot
+  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
+  if (nchar(extraPkgDeps) > 0) {
+    # emit dependencies to file
+    writeLines(extraPkgDeps, tempDependencyFile)
+
+    # ensure temp file is cleaned up even if there's an error
+    on.exit({
+      if (file.exists(tempDependencyFile))
+        unlink(tempDependencyFile)
+      }, add = TRUE)
+  }
+
+  # ensure we have an up-to-date packrat lockfile
+  packratVersion <- packageVersion("packrat")
+  requiredVersion <- "0.4.1.19"
+  if (packratVersion < requiredVersion) {
+    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
+         "you have version '", packratVersion, "' installed.\n",
+         "Please use devtools::install_github('rstudio/packrat') to obtain ",
+         "the latest version of Packrat.")
+  }
+  suppressMessages(
+    packrat::.snapshotImpl(project = bundleDir,
+                           snapshot.sources = FALSE,
+                           verbose = FALSE)
+  )
+
+  # if we emitted a temporary dependency file for packrat's benefit, remove it
+  # now so it isn't included in the bundle sent to the server
+  if (file.exists(tempDependencyFile)) {
+    unlink(tempDependencyFile)
+  }
 }
 
