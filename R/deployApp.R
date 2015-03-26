@@ -7,10 +7,9 @@
 #' @param appFiles The files to bundle and deploy (only if \code{upload =
 #'   TRUE}). Can be \code{NULL}, in which case all the files in the directory
 #'   containing the application are bundled.
-#' @param appPrimaryRmd If the application is contains one or more R Markdown
-#'   documents, this parameter indicates the primary one. Can be \code{NULL}, in
-#'   which case the primary document is inferred from the contents being
-#'   deployed.
+#' @param appPrimaryDoc If the application is contains more than one document,
+#'   this parameter indicates the primary one. Can be \code{NULL}, in which case
+#'   the primary document is inferred from the contents being deployed.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
 #' @param account Account to deploy application to. This
@@ -55,7 +54,7 @@
 #' @export
 deployApp <- function(appDir = getwd(),
                       appFiles = NULL,
-                      appPrimaryRmd = NULL,
+                      appPrimaryDoc = NULL,
                       appName = NULL,
                       account = NULL,
                       server = NULL,
@@ -76,8 +75,8 @@ deployApp <- function(appDir = getwd(),
 
   # create the full path that we'll deploy (append document if requested)
   appPath <- appDir
-  if (!is.null(appPrimaryRmd)) {
-    appPath <- file.path(appPath, appPrimaryRmd)
+  if (!is.null(appPrimaryDoc)) {
+    appPath <- file.path(appPath, appPrimaryDoc)
     if (!file.exists(appPath)) {
       stop(appPath, " does not exist")
     }
@@ -87,13 +86,15 @@ deployApp <- function(appDir = getwd(),
   # document in this case
   rmdFile <- ""
   if (!file.info(appDir)$isdir) {
-    if (grepl("\\.Rmd$", appDir, ignore.case = TRUE)) {
+    if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
+        grepl("\\.html$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, account = account,
                        server = server, upload = upload,
                        launch.browser = launch.browser, quiet = quiet,
                        lint = lint))
     } else {
-      stop(appDir, " must be a directory or an R Markdown document")
+      stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
+           "document.")
     }
   }
 
@@ -164,7 +165,7 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryRmd, accountDetails)
+                              appPrimaryDoc, accountDetails)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {
