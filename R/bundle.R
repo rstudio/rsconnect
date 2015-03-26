@@ -215,8 +215,8 @@ createAppManifest <- function(appDir, appMode, accountInfo, files,
 
   # emit appropriate primary document information
   primaryDoc <- ifelse(is.null(appPrimaryDoc), NA, appPrimaryDoc)
-  manifest$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
-  manifest$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
+  metadata$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
+  metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
   # add metadata
   manifest$metadata <- metadata

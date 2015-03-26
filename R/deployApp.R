@@ -176,7 +176,7 @@ deployApp <- function(appDir = getwd(),
   # wait for the deployment to complete (will raise an error if it can't)
   displayStatus(paste("Deploying application: ",
                       application$id,
-                      "...\n", sep=""))
+                      "...\n", sep = ""))
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
