@@ -209,12 +209,17 @@ createAppManifest <- function(appDir, appMode, accountInfo, files,
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".")
+  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep = ".")
+
+  metadata <- list(appmode = appMode)
+
+  # emit appropriate primary document information
+  primaryDoc <- ifelse(is.null(appPrimaryDoc), NA, appPrimaryDoc)
+  manifest$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
+  manifest$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
   # add metadata
-  manifest$metadata <- list(
-    appmode = appMode,
-    primary_rmd = if (is.null(appPrimaryDoc)) NA else appPrimaryDoc)
+  manifest$metadata <- metadata
 
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
