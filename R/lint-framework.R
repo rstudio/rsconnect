@@ -141,11 +141,21 @@ lint <- function(project, files = NULL) {
     ## Apply linter to each file
     for (j in seq_along(applicableFiles)) {
       file <- applicableFiles[[j]]
-      lintIndices[[j]] <- applyLinter(linter,
-                                      projectContent[[file]],
-                                      project = project,
-                                      path = file,
-                                      files = projectFiles)
+      tryCatch(
+        expr = {
+          lintIndices[[j]] <- applyLinter(linter,
+                                          projectContent[[file]],
+                                          project = project,
+                                          path = file,
+                                          files = projectFiles)
+        },
+        error = function(e) {
+          message("Failed to lint file '", file, "'")
+          message("The linter failed with message:\n")
+          message(e$message)
+          lintIndices[[j]] <- numeric(0)
+        }
+      )
     }
 
     ## Get the messages associated with each lint
