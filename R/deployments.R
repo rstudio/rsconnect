@@ -1,9 +1,11 @@
 
 
-saveDeployment <- function(appPath, name, account, server, bundleId, url) {
+saveDeployment <- function(appPath, name, account, server, bundleId, url,
+                           metadata) {
 
   deployment <- deploymentRecord(name, account, server, bundleId, url,
-                                 when = as.numeric(Sys.time()))
+                                 when = as.numeric(Sys.time()),
+                                 metadata)
   write.dcf(deployment, deploymentFile(appPath, name, account, server))
   invisible(NULL)
 }
@@ -19,7 +21,7 @@ saveDeployment <- function(appPath, name, account, server, bundleId, url) {
 #' @param serverFilter Return only deployments matching the given server
 #'   (optional)
 #' @return
-#' Returns a data frame with the following columns:
+#' Returns a data frame with at least following columns:
 #' \tabular{ll}{
 #' \code{name} \tab Name of deployed application\cr
 #' \code{account} \tab Account owning deployed application\cr
@@ -28,6 +30,11 @@ saveDeployment <- function(appPath, name, account, server, bundleId, url) {
 #' \code{when} \tab When the application was deployed (in seconds since the
 #'   epoch)\cr
 #' }
+#'
+#' If additional metadata has been saved with the deployment record using the
+#' \code{metadata} argument to \code{\link{deployApp}}, the frame will include
+#' additional columns.
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -109,15 +116,17 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
     deployment <- as.data.frame(readDcf(file.path(rsconnectDir, deploymentFile)),
                                 stringsAsFactors = FALSE)
 
-    # fill in any missing columns and remove any extra so we can rbind
-    # successfully
+    # fill in any columns missing in this record
     missingCols <- setdiff(colnames(deploymentRecs), colnames(deployment))
     if (length(missingCols) > 0) {
-      deployment[,missingCols] <- ""
+      deployment[,missingCols] <- NA
     }
+
+    # if this record contains any columns that aren't present everywhere, add
+    # them
     extraCols <- setdiff(colnames(deployment), colnames(deploymentRecs))
-    if (length(extraCols) > 0) {
-      deployment[,extraCols] <- NULL
+    if (length(extraCols) > 0 && nrow(deploymentRecs) > 0) {
+      deploymentRecs[,extraCols] <- NA
     }
 
     # append to record set to return
@@ -130,16 +139,20 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
 deploymentFile <- function(appPath, name, account, server) {
   accountDir <- file.path(rsconnectRootPath(appPath), server, account)
   if (!file.exists(accountDir))
-    dir.create(accountDir, recursive=TRUE)
-  file.path(accountDir, paste(name, ".dcf", sep=""))
+    dir.create(accountDir, recursive = TRUE)
+  file.path(accountDir, paste0(name, ".dcf"))
 }
 
-deploymentRecord <- function(name, account, server, bundleId, url, when) {
-  data.frame(name = name,
-             account = account,
-             server = server,
-             bundleId = bundleId,
-             url = url,
-             when = when,
-             stringsAsFactors = FALSE)
+deploymentRecord <- function(name, account, server, bundleId, url, when,
+                             metadata = list()) {
+  # compose the standard set of fields and append any requested
+  as.data.frame(c(
+      list(name = name,
+           account = account,
+           server = server,
+           bundleId = bundleId,
+           url = url,
+           when = when),
+      metadata),
+    stringsAsFactors = FALSE)
 }

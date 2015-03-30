@@ -7,7 +7,7 @@
 deployApp(appDir = getwd(), appFiles = NULL, appPrimaryDoc = NULL,
   appName = NULL, account = NULL, server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
-  quiet = FALSE, lint = TRUE)
+  quiet = FALSE, lint = TRUE, metadata = list(), ...)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -45,6 +45,10 @@ during the deployment.}
 
 \item{lint}{Lint the project before initiating deployment, to identify
 potentially problematic code?}
+
+\item{metadata}{Additional metadata fields to save with the deployment
+record. These fields will be returned on subsequent calls to
+\code{\link{deployments}}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application

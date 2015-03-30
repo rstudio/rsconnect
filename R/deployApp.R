@@ -28,6 +28,9 @@
 #'   during the deployment.
 #' @param lint Lint the project before initiating deployment, to identify
 #'   potentially problematic code?
+#' @param metadata Additional metadata fields to save with the deployment
+#'   record. These fields will be returned on subsequent calls to
+#'   \code{\link{deployments}}.
 #' @examples
 #' \dontrun{
 #'
@@ -62,7 +65,9 @@ deployApp <- function(appDir = getwd(),
                       launch.browser = getOption("rsconnect.launch.browser",
                                                  interactive()),
                       quiet = FALSE,
-                      lint = TRUE) {
+                      lint = TRUE,
+                      metadata = list(),
+                      ...) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -71,6 +76,15 @@ deployApp <- function(appDir = getwd(),
   appDir <- normalizePath(appDir, mustWork = FALSE)
   if (!file.exists(appDir)) {
     stop(appDir, " does not exist")
+  }
+
+  # if the primary doc was not specified, check for "appPrimaryRmd" -- this was
+  # the name of the appPrimaryDoc parameter used by older versions of the IDE
+  if (is.null(appPrimaryDoc)) {
+    args <- eval(substitute(list(...)))
+    if (!is.null(args$appPrimaryRmd)) {
+      appPrimaryDoc <- args$appPrimaryRmd
+    }
   }
 
   # create the full path that we'll deploy (append document if requested)
@@ -82,8 +96,9 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
-  # if a specific file is named, make sure it's an Rmd, and just deploy a single
-  # document in this case
+  # if a specific file is named, make sure it's an Rmd or HTML, and just deploy
+  # a single document in this case (this will call back to deployApp with a list
+  # of supporting documents)
   rmdFile <- ""
   if (!file.info(appDir)$isdir) {
     if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
@@ -195,7 +210,8 @@ deployApp <- function(appDir = getwd(),
                  target$account,
                  accountDetails$server,
                  bundle$id,
-                 application$url)
+                 application$url,
+                 metadata)
 
   # if this client supports config, see if the app needs it
   if (!quiet && !is.null(client$configureApplication)) {
