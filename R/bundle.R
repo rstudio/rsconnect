@@ -48,7 +48,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, accountInfo) {
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode, accountInfo, appFiles,
                                              appPrimaryDoc, users))
-  writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
+  writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
+             useBytes = TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appName, bundleDir)

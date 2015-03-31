@@ -420,8 +420,11 @@ guessLaunchFile <- function(appDir) {
   appFiles <- list.files(path = appDir, pattern = glob2rx("*.Rmd"),
                          recursive = FALSE, ignore.case = TRUE)
 
-  if (length(appFiles) == 0)
-    return("")
+  # no Rmd to launch? how about an HTML file?
+  if (length(appFiles) == 0) {
+    appFiles <- list.files(path = appDir, pattern = glob2rx("*.html"),
+                           recursive = FALSE, ignore.case = TRUE)
+  }
 
   # launch whichever file was most recently saved in the folder (presumably the
   # one the user has been working on)
