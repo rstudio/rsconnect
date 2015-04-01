@@ -5,9 +5,9 @@
 \title{Deploy an Application}
 \usage{
 deployApp(appDir = getwd(), appFiles = NULL, appPrimaryDoc = NULL,
-  appName = NULL, account = NULL, server = NULL, upload = TRUE,
-  launch.browser = getOption("rsconnect.launch.browser", interactive()),
-  quiet = FALSE, lint = TRUE, metadata = list(), ...)
+  appSourceDoc = NULL, appName = NULL, account = NULL, server = NULL,
+  upload = TRUE, launch.browser = getOption("rsconnect.launch.browser",
+  interactive()), quiet = FALSE, lint = TRUE, metadata = list(), ...)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -17,9 +17,15 @@ directory.}
 TRUE}). Can be \code{NULL}, in which case all the files in the directory
 containing the application are bundled.}
 
-\item{appPrimaryDoc}{If the application is contains more than one document,
-this parameter indicates the primary one. Can be \code{NULL}, in which case
-the primary document is inferred from the contents being deployed.}
+\item{appPrimaryDoc}{If the application contains more than one document, this
+parameter indicates the primary one, as a path relative to \code{appDir}.
+Can be \code{NULL}, in which case the primary document is inferred from the
+contents being deployed.}
+
+\item{appSourceDoc}{If the application is composed of static files (e.g
+HTML), this parameter indicates the source document, if any, as a fully
+qualified path. Deployment information returned by
+\code{\link{deployments}} is associated with the source document.}
 
 \item{appName}{Name of application (names must be unique within an
 account). Defaults to the base name of the specified \code{appDir}.}
@@ -51,7 +57,8 @@ record. These fields will be returned on subsequent calls to
 \code{\link{deployments}}.}
 }
 \description{
-Deploy a \link[shiny:shiny-package]{shiny} application
+Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
+document, or HTML content to a server.
 }
 \examples{
 \dontrun{

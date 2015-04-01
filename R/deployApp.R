@@ -1,15 +1,21 @@
 #' Deploy an Application
 #'
-#' Deploy a \link[shiny:shiny-package]{shiny} application
+#' Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
+#' document, or HTML content to a server.
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @param appFiles The files to bundle and deploy (only if \code{upload =
 #'   TRUE}). Can be \code{NULL}, in which case all the files in the directory
 #'   containing the application are bundled.
-#' @param appPrimaryDoc If the application is contains more than one document,
-#'   this parameter indicates the primary one. Can be \code{NULL}, in which case
-#'   the primary document is inferred from the contents being deployed.
+#' @param appPrimaryDoc If the application contains more than one document, this
+#'   parameter indicates the primary one, as a path relative to \code{appDir}.
+#'   Can be \code{NULL}, in which case the primary document is inferred from the
+#'   contents being deployed.
+#' @param appSourceDoc If the application is composed of static files (e.g
+#'   HTML), this parameter indicates the source document, if any, as a fully
+#'   qualified path. Deployment information returned by
+#'   \code{\link{deployments}} is associated with the source document.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
 #' @param account Account to deploy application to. This
@@ -58,6 +64,7 @@
 deployApp <- function(appDir = getwd(),
                       appFiles = NULL,
                       appPrimaryDoc = NULL,
+                      appSourceDoc = NULL,
                       appName = NULL,
                       account = NULL,
                       server = NULL,
@@ -89,7 +96,9 @@ deployApp <- function(appDir = getwd(),
 
   # create the full path that we'll deploy (append document if requested)
   appPath <- appDir
-  if (!is.null(appPrimaryDoc)) {
+  if (!is.null(appSourceDoc)) {
+    appPath <- appSourceDoc
+  } else if (!is.null(appPrimaryDoc)) {
     appPath <- file.path(appPath, appPrimaryDoc)
     if (!file.exists(appPath)) {
       stop(appPath, " does not exist")
@@ -316,7 +325,7 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     else if (nrow(appDeployments) > 1) {
       stop(paste("Please specify the account you want to deploy '", appName,
                  "' to (you have previously deployed this application to ",
-                 "more than one account).",sep = ""), call. = FALSE)
+                 "more than one account).", sep = ""), call. = FALSE)
     }
 
   }
