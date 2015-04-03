@@ -1,15 +1,15 @@
-#' Upload an HTML file to RPubs
+#' Upload a file to RPubs
 #'
-#' This function uploads an HTML file to rpubs.com. If the upload succeeds a
+#' This function publishes a file to rpubs.com. If the upload succeeds a
 #' list that includes an \code{id} and \code{continueUrl} is returned. A browser
 #' should be opened to the \code{continueUrl} to complete publishing of the
 #' document. If an error occurs then a diagnostic message is returned in the
 #' \code{error} element of the list.
 #'
 #' @param title The title of the document.
-#' @param htmlFile The path to the HTML file to upload.
-#' @param originalRmd The R Markdown document that was rendered to produce the
-#'   \code{htmlFile}.
+#' @param contentFile The path to the content file to upload.
+#' @param originalDoc The document that was rendered to produce the
+#'   \code{contentFile}. May be \code{NULL} if the document is not known.
 #' @param id If this upload is an update of an existing document then the id
 #'   parameter should specify the document id to update. Note that the id is
 #'   provided as an element of the list returned by successful calls to
@@ -35,12 +35,13 @@
 #'    stop(result$error)
 #'
 #' # update the same document with a new title
-#' updateResult <- rpubsUpload("My updated title", "Document.html", result$id)
+#' updateResult <- rpubsUpload("My updated title", "Document.html",
+#'                             id = result$id)
 #' }
 #' @export
 rpubsUpload <- function(title,
-                        htmlFile,
-                        originalRmd,
+                        contentFile,
+                        originalDoc,
                         id = NULL,
                         properties = list()) {
 
@@ -49,27 +50,23 @@ rpubsUpload <- function(title,
     stop("title must be specified")
   if (nzchar(title) == FALSE)
     stop("title pmust be a non-empty string")
-  if (!is.character(htmlFile))
-    stop("htmlFile parameter must be specified")
-  if (!file.exists(htmlFile))
-    stop("specified htmlFile does not exist")
-  if (!is.character(originalRmd))
-    stop("originalRmd parameter must be specified")
-  if (!file.exists(originalRmd))
-    stop("specified originalRmd does not exist")
+  if (!is.character(contentFile))
+    stop("contentFile parameter must be specified")
+  if (!file.exists(contentFile))
+    stop("specified contentFile does not exist")
   if (!is.list(properties))
     stop("properties paramater must be a named list")
 
   pathFromId <- function(id) {
     split <- strsplit(id, "^https?://[^/]+")[[1]]
     if (length(split) == 2)
-      return (split[2])
+      return(split[2])
     else
-      return (NULL)
+      return(NULL)
   }
 
   buildPackage <- function(title,
-                           htmlFile,
+                           contentFile,
                            properties = list()) {
 
     # build package.json
@@ -81,10 +78,10 @@ rpubsUpload <- function(title,
     packageDir <- tempfile()
     dir.create(packageDir)
     packageFile <- function(fileName) {
-      paste(packageDir,fileName,sep=fileSep)
+      paste(packageDir, fileName, sep = fileSep)
     }
     writeLines(packageJson, packageFile("package.json"))
-    file.copy(htmlFile, packageFile("index.html"))
+    file.copy(contentFile, packageFile("index.html"))
 
     # switch to the package dir for building
     oldWd <- getwd()
@@ -96,11 +93,11 @@ rpubsUpload <- function(title,
     utils::tar(tarfile, files = ".", compression = "gzip")
 
     # return the full path to the tarball
-    return (tarfile)
+    return(tarfile)
   }
 
   # build the package
-  packageFile <- buildPackage(title, htmlFile, properties)
+  packageFile <- buildPackage(title, contentFile, properties)
 
   # determine whether this is a new doc or an update
   isUpdate <- FALSE
@@ -145,18 +142,25 @@ rpubsUpload <- function(title,
     id <- ifelse(isUpdate, id, result$location)
     url <- as.character(parsedContent["continueUrl"])
 
-    # write the deployment record
-    rpubsRec <- deploymentRecord(basename(originalRmd), "rpubs", "rpubs.com",
-                                 id, url, as.numeric(Sys.time()))
-    rpubsRecFile <- deploymentFile(originalRmd, basename(originalRmd), "rpubs",
+    # write the deployment record and associate it with the original document
+    # if we know it, and the HTML file if we don't
+    recordSource <- ifelse(is.null(originalDoc), contentFile, originalDoc)
+
+    # use the title if given, and the filename name of the document if not
+    recordName <- ifelse(is.null(title) || nchar(title) == 0,
+                         basename(recordSource), title)
+
+    rpubsRec <- deploymentRecord(recordName, "rpubs", "rpubs.com", id, url,
+                                 as.numeric(Sys.time()))
+    rpubsRecFile <- deploymentFile(recordSource, recordName, "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile)
 
     # return the publish information
-    return (list(id = id,
+    return(list(id = id,
                  continueUrl = url))
   } else {
-    return (list(error = content))
+    return(list(error = content))
   }
 }
 
