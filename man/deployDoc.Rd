@@ -7,7 +7,8 @@
 deployDoc(doc, ...)
 }
 \arguments{
-\item{doc}{Path to the document to deploy.}
+\item{doc}{Path to the document to deploy; must be either an R Markdown file
+(.Rmd) or HTML file (.html)}
 
 \item{...}{Additional arguments to \code{\link{deployApp}}}
 }

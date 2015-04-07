@@ -15,11 +15,11 @@ bundleFiles <- function(appDir) {
   files
 }
 
-bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
+bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, accountInfo) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
-  dir.create(bundleDir, recursive=TRUE)
+  dir.create(bundleDir, recursive = TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
   # infer the mode of the application from its layout
@@ -30,62 +30,26 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryRmd, accountInfo) {
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
     if (!file.exists(dirname(to)))
-      dir.create(dirname(to), recursive=TRUE)
+      dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
   }
 
-  # infer any additional package dependencies from app mode
-  extraPkgDeps <- ""
-  if (grepl("\\brmd\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
-  if (grepl("\\bshiny\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
-
-  # if we discovered any extra dependencies, write them to a file for packrat to
-  # discover when it creates the snapshot
-  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
-  if (nchar(extraPkgDeps) > 0) {
-    # emit dependencies to file
-    writeLines(extraPkgDeps, tempDependencyFile)
-
-    # ensure temp file is cleaned up even if there's an error
-    on.exit({
-      if (file.exists(tempDependencyFile))
-        unlink (tempDependencyFile)
-      }, add = TRUE)
-  }
-
-  # ensure we have an up-to-date packrat lockfile
-  packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.1.19"
-  if (packratVersion < requiredVersion) {
-    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
-         "you have version '", packratVersion, "' installed.\n",
-         "Please use devtools::install_github('rstudio/packrat') to obtain ",
-         "the latest version of Packrat.")
-  }
-  suppressMessages(
-    packrat::.snapshotImpl(project = bundleDir,
-                           snapshot.sources = FALSE,
-                           verbose = FALSE)
-  )
-
-  # if we emitted a temporary dependency file for packrat's benefit, remove it
-  # now so it isn't included in the bundle sent to the server
-  if (file.exists(tempDependencyFile)) {
-    unlink(tempDependencyFile)
+  # infer package dependencies for non-static content deployment
+  if (appMode != "static") {
+    addPackratSnapshot(bundleDir, appMode)
   }
 
   # get application users
-  users <- authorizedUsers(if (is.null(appPrimaryRmd))
+  users <- authorizedUsers(if (is.null(appPrimaryDoc))
                                appDir
                           else
-                               file.path(appDir, appPrimaryRmd))
+                               file.path(appDir, appPrimaryDoc))
 
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode, accountInfo, appFiles,
-                                             appPrimaryRmd, users))
-  writeLines(manifestJson, file.path(bundleDir, "manifest.json"), useBytes=TRUE)
+                                             appPrimaryDoc, users))
+  writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
+             useBytes = TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appName, bundleDir)
@@ -108,7 +72,8 @@ isShinyRmd <- function(filename) {
       # ...and the first --- line is not preceded by non-whitespace...
       if (diff(delim[1:2]) > 1) {
         # ...and there is actually something between the two --- lines...
-        yamlData <- paste(lines[(delim[[1]]+1):(delim[[2]]-1)], collapse="\n")
+        yamlData <- paste(lines[(delim[[1]] + 1):(delim[[2]] - 1)],
+                          collapse = "\n")
         frontMatter <- yaml::yaml.load(yamlData)
         runtime <- frontMatter[["runtime"]]
         if (!is.null(runtime) && identical(runtime, "shiny")) {
@@ -122,12 +87,12 @@ isShinyRmd <- function(filename) {
 }
 
 inferAppMode <- function(appDir, files) {
-  shinyFiles <- grep("^(server|app).r$", files, ignore.case=TRUE, perl=TRUE)
+  shinyFiles <- grep("^(server|app).r$", files, ignore.case = TRUE, perl = TRUE)
   if (length(shinyFiles) > 0) {
     return("shiny")
   }
 
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case=TRUE, perl=TRUE)
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE)
 
   # if there are one or more R Markdown documents, use the Shiny app mode if any
   # are Shiny documents
@@ -139,48 +104,63 @@ inferAppMode <- function(appDir, files) {
     return("rmd-static")
   }
 
-  # no Shiny .R files and no R Markdown docs--app mode is unknown
+  # if there are one or more HTML documents, use the static mode
+  htmlFiles <- grep("^[^/\\\\]+\\.html$", files, ignore.case = TRUE,
+                    perl = TRUE)
+  if (length(htmlFiles) > 0) {
+    return("static")
+  }
+
+  # there doesn't appear to be any content here we can use
   return(NA)
 }
 
-createAppManifest <- function(appDir, appMode, accountInfo, files, appPrimaryRmd, users) {
+createAppManifest <- function(appDir, appMode, accountInfo, files,
+                              appPrimaryDoc, users) {
 
   # provide package entries for all dependencies
   packages <- list()
   # potential error messages
   msg      <- NULL
-  for (pkg in dirDependencies(appDir)) {
 
-    # get the description
-    description <- list(description = suppressWarnings(utils::packageDescription(pkg)))
+  # for apps which run code, discover dependencies
+  if (appMode != "static") {
+    for (pkg in dirDependencies(appDir)) {
 
-    # if description is NA, application dependency may not be installed
-    if (is.na(description)) {
-      msg <- c(msg, paste("Application depends on package \"", pkg, "\" but it is not",
-                          " installed. Please resolve before continuing.", sep = ""))
-      next
-    }
+      # get the description
+      description <- list(description = suppressWarnings(
+        utils::packageDescription(pkg)))
 
-    # validate the repository (returns an error message if there is a problem)
-    msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
-
-    # append the bioc version to any bioconductor packages
-    # TODO: resolve against actual BioC repo a package was pulled from
-    # (in case the user mixed and matched)
-    if ("biocViews" %in% names(description$description)) {
-
-      # capture Bioc repository if available
-      biocPackages = available.packages(contriburl=contrib.url(BiocInstaller::biocinstallRepos(),
-                                                               type="source"))
-      if (pkg %in% biocPackages) {
-        description$description$biocRepo <- biocPackages[pkg, 'Repository']
+      # if description is NA, application dependency may not be installed
+      if (is.na(description)) {
+        msg <- c(msg, paste("Application depends on package \"", pkg, "\" but ",
+                            "it is not installed. Please resolve before ",
+                            "continuing.", sep = ""))
+        next
       }
 
-      description$description$biocVersion <- BiocInstaller::biocVersion()
-    }
+      # validate the repository (returns an error message if there is a problem)
+      msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
 
-    # good to go
-    packages[[pkg]] <- description
+      # append the bioc version to any bioconductor packages
+      # TODO: resolve against actual BioC repo a package was pulled from
+      # (in case the user mixed and matched)
+      if ("biocViews" %in% names(description$description)) {
+
+        # capture Bioc repository if available
+        biocPackages = available.packages(
+          contriburl = contrib.url(BiocInstaller::biocinstallRepos(),
+                                   type = "source"))
+        if (pkg %in% biocPackages) {
+          description$description$biocRepo <- biocPackages[pkg, 'Repository']
+        }
+
+        description$description$biocVersion <- BiocInstaller::biocVersion()
+      }
+
+      # good to go
+      packages[[pkg]] <- description
+    }
   }
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
 
@@ -188,27 +168,32 @@ createAppManifest <- function(appDir, appMode, accountInfo, files, appPrimaryRmd
   filelist <- list()
   for (file in files) {
     checksum <- list(checksum = digest::digest(file.path(appDir, file),
-                                               algo="md5", file=TRUE))
+                                               algo = "md5", file = TRUE))
     filelist[[file]] <- I(checksum)
   }
 
-  # if deploying an R Markdown app, infer a primary document if not
-  # already specified
-  if (grepl("rmd", appMode, fixed = TRUE) && is.null(appPrimaryRmd)) {
-    # use index.Rmd if it exists
-    primary <- which(grepl("^index\\.Rmd$", files, fixed = FALSE, ignore.case = TRUE))
+  # if deploying an R Markdown app or static content, infer a primary document
+  # if not already specified
+  if ((grepl("rmd", appMode, fixed = TRUE) || appMode == "static")
+      && is.null(appPrimaryDoc)) {
+    # determine expected primary document extension
+    ext <- ifelse(appMode == "static", "html", "Rmd")
+
+    # use index file if it exists
+    primary <- which(grepl(paste0("^index\\.", ext, "$"), files, fixed = FALSE,
+                           ignore.case = TRUE))
     if (length(primary) == 0) {
       # no index.Rmd, so pick the first Rmd we find
-      primary <- which(grepl(glob2rx("*.Rmd"), files, fixed = FALSE, ignore.case = TRUE))
+      primary <- which(grepl(glob2rx("*.Rmd"), files, fixed = FALSE,
+                             ignore.case = TRUE))
       if (length(primary) == 0) {
-        stop("Application mode ", appMode, " requires at least one R Markdown ",
-             "document.")
+        stop("Application mode ", appMode, " requires at least one document.")
       }
     }
     # if we have multiple matches, pick the first
     if (length(primary) > 1)
       primary <- primary[[1]]
-    appPrimaryRmd <- files[[primary]]
+    appPrimaryDoc <- files[[primary]]
   }
 
   # create userlist
@@ -226,12 +211,17 @@ createAppManifest <- function(appDir, appMode, accountInfo, files, appPrimaryRmd
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep=".")
+  manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep = ".")
+
+  metadata <- list(appmode = appMode)
+
+  # emit appropriate primary document information
+  primaryDoc <- ifelse(is.null(appPrimaryDoc), NA, appPrimaryDoc)
+  metadata$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
+  metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
   # add metadata
-  manifest$metadata <- list(
-    appmode = appMode,
-    primary_rmd = if (is.null(appPrimaryRmd)) NA else appPrimaryRmd)
+  manifest$metadata <- metadata
 
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
@@ -296,7 +286,51 @@ validateRepository <- function(pkg, repository) {
 }
 
 hasRequiredDevtools <- function() {
-  "devtools" %in% .packages(all.available=TRUE) &&
+  "devtools" %in% .packages(all.available = TRUE) &&
   packageVersion("devtools") > "1.3"
+}
+
+addPackratSnapshot <- function(bundleDir, appMode) {
+  # check for extra dependencies congruent to application mode
+  extraPkgDeps <- ""
+  if (grepl("\\brmd\\b", appMode))
+    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
+  if (grepl("\\bshiny\\b", appMode))
+    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
+
+  # if we discovered any extra dependencies, write them to a file for packrat to
+  # discover when it creates the snapshot
+  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
+  if (nchar(extraPkgDeps) > 0) {
+    # emit dependencies to file
+    writeLines(extraPkgDeps, tempDependencyFile)
+
+    # ensure temp file is cleaned up even if there's an error
+    on.exit({
+      if (file.exists(tempDependencyFile))
+        unlink(tempDependencyFile)
+      }, add = TRUE)
+  }
+
+  # ensure we have an up-to-date packrat lockfile
+  packratVersion <- packageVersion("packrat")
+  requiredVersion <- "0.4.1.19"
+  if (packratVersion < requiredVersion) {
+    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
+         "you have version '", packratVersion, "' installed.\n",
+         "Please use devtools::install_github('rstudio/packrat') to obtain ",
+         "the latest version of Packrat.")
+  }
+  suppressMessages(
+    packrat::.snapshotImpl(project = bundleDir,
+                           snapshot.sources = FALSE,
+                           verbose = FALSE)
+  )
+
+  # if we emitted a temporary dependency file for packrat's benefit, remove it
+  # now so it isn't included in the bundle sent to the server
+  if (file.exists(tempDependencyFile)) {
+    unlink(tempDependencyFile)
+  }
 }
 

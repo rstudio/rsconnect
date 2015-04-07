@@ -2,7 +2,8 @@
 #'
 #' Deploys an application consisting of a single R Markdown document.
 #'
-#' @param doc Path to the document to deploy.
+#' @param doc Path to the document to deploy; must be either an R Markdown file
+#'   (.Rmd) or HTML file (.html)
 #' @param ... Additional arguments to \code{\link{deployApp}}
 #'
 #' @details In addition to the R Markdown file itself, any files which are
@@ -24,9 +25,12 @@ deployDoc <- function(doc, ...) {
   if (!file.exists(doc)) {
     stop("The document '", doc, "' does not exist.")
   }
-  if (tolower(tools::file_ext(doc)) != "rmd") {
-    stop("Document deployment is only supported for R Markdown documents.")
+  ext <- tolower(tools::file_ext(doc))
+  if (!(ext %in% c("rmd", "html"))) {
+    stop("Document deployment is only supported for R Markdown or HTML ",
+         "documents.")
   }
+
   if (!require("rmarkdown") ||
       packageVersion("rmarkdown") < "0.5.2") {
     stop("Version 0.5.2 or later of the rmarkdown package is required to ",
@@ -42,7 +46,7 @@ deployDoc <- function(doc, ...) {
   # deploy the document with the discovered dependencies
   deployApp(appDir = dirname(qualified_doc),
             appFiles = c(res$path, basename(qualified_doc)),
-            appPrimaryRmd = basename(qualified_doc),
+            appPrimaryDoc = basename(qualified_doc),
             ...)
 }
 

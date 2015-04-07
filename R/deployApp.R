@@ -1,16 +1,21 @@
 #' Deploy an Application
 #'
-#' Deploy a \link[shiny:shiny-package]{shiny} application
+#' Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
+#' document, or HTML content to a server.
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @param appFiles The files to bundle and deploy (only if \code{upload =
 #'   TRUE}). Can be \code{NULL}, in which case all the files in the directory
 #'   containing the application are bundled.
-#' @param appPrimaryRmd If the application is contains one or more R Markdown
-#'   documents, this parameter indicates the primary one. Can be \code{NULL}, in
-#'   which case the primary document is inferred from the contents being
-#'   deployed.
+#' @param appPrimaryDoc If the application contains more than one document, this
+#'   parameter indicates the primary one, as a path relative to \code{appDir}.
+#'   Can be \code{NULL}, in which case the primary document is inferred from the
+#'   contents being deployed.
+#' @param appSourceDoc If the application is composed of static files (e.g
+#'   HTML), this parameter indicates the source document, if any, as a fully
+#'   qualified path. Deployment information returned by
+#'   \code{\link{deployments}} is associated with the source document.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
 #' @param account Account to deploy application to. This
@@ -29,6 +34,9 @@
 #'   during the deployment.
 #' @param lint Lint the project before initiating deployment, to identify
 #'   potentially problematic code?
+#' @param metadata Additional metadata fields to save with the deployment
+#'   record. These fields will be returned on subsequent calls to
+#'   \code{\link{deployments}}.
 #' @examples
 #' \dontrun{
 #'
@@ -55,7 +63,8 @@
 #' @export
 deployApp <- function(appDir = getwd(),
                       appFiles = NULL,
-                      appPrimaryRmd = NULL,
+                      appPrimaryDoc = NULL,
+                      appSourceDoc = NULL,
                       appName = NULL,
                       account = NULL,
                       server = NULL,
@@ -63,7 +72,9 @@ deployApp <- function(appDir = getwd(),
                       launch.browser = getOption("rsconnect.launch.browser",
                                                  interactive()),
                       quiet = FALSE,
-                      lint = TRUE) {
+                      lint = TRUE,
+                      metadata = list(),
+                      ...) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -74,26 +85,40 @@ deployApp <- function(appDir = getwd(),
     stop(appDir, " does not exist")
   }
 
+  # if the primary doc was not specified, check for "appPrimaryRmd" -- this was
+  # the name of the appPrimaryDoc parameter used by older versions of the IDE
+  if (is.null(appPrimaryDoc)) {
+    args <- eval(substitute(list(...)))
+    if (!is.null(args$appPrimaryRmd)) {
+      appPrimaryDoc <- args$appPrimaryRmd
+    }
+  }
+
   # create the full path that we'll deploy (append document if requested)
   appPath <- appDir
-  if (!is.null(appPrimaryRmd)) {
-    appPath <- file.path(appPath, appPrimaryRmd)
+  if (!is.null(appSourceDoc)) {
+    appPath <- appSourceDoc
+  } else if (!is.null(appPrimaryDoc)) {
+    appPath <- file.path(appPath, appPrimaryDoc)
     if (!file.exists(appPath)) {
       stop(appPath, " does not exist")
     }
   }
 
-  # if a specific file is named, make sure it's an Rmd, and just deploy a single
-  # document in this case
+  # if a specific file is named, make sure it's an Rmd or HTML, and just deploy
+  # a single document in this case (this will call back to deployApp with a list
+  # of supporting documents)
   rmdFile <- ""
   if (!file.info(appDir)$isdir) {
-    if (grepl("\\.Rmd$", appDir, ignore.case = TRUE)) {
+    if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
+        grepl("\\.html$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, account = account,
                        server = server, upload = upload,
                        launch.browser = launch.browser, quiet = quiet,
                        lint = lint))
     } else {
-      stop(appDir, " must be a directory or an R Markdown document")
+      stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
+           "document.")
     }
   }
 
@@ -164,7 +189,7 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryRmd, accountDetails)
+                              appPrimaryDoc, accountDetails)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {
@@ -175,7 +200,7 @@ deployApp <- function(appDir = getwd(),
   # wait for the deployment to complete (will raise an error if it can't)
   displayStatus(paste("Deploying application: ",
                       application$id,
-                      "...\n", sep=""))
+                      "...\n", sep = ""))
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
@@ -194,7 +219,8 @@ deployApp <- function(appDir = getwd(),
                  target$account,
                  accountDetails$server,
                  bundle$id,
-                 application$url)
+                 application$url,
+                 metadata)
 
   # if this client supports config, see if the app needs it
   if (!quiet && !is.null(client$configureApplication)) {
@@ -299,7 +325,7 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     else if (nrow(appDeployments) > 1) {
       stop(paste("Please specify the account you want to deploy '", appName,
                  "' to (you have previously deployed this application to ",
-                 "more than one account).",sep = ""), call. = FALSE)
+                 "more than one account).", sep = ""), call. = FALSE)
     }
 
   }
@@ -403,8 +429,11 @@ guessLaunchFile <- function(appDir) {
   appFiles <- list.files(path = appDir, pattern = glob2rx("*.Rmd"),
                          recursive = FALSE, ignore.case = TRUE)
 
-  if (length(appFiles) == 0)
-    return("")
+  # no Rmd to launch? how about an HTML file?
+  if (length(appFiles) == 0) {
+    appFiles <- list.files(path = appDir, pattern = glob2rx("*.html"),
+                           recursive = FALSE, ignore.case = TRUE)
+  }
 
   # launch whichever file was most recently saved in the folder (presumably the
   # one the user has been working on)

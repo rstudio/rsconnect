@@ -20,13 +20,19 @@ or an individual document.}
 (optional)}
 }
 \value{
-Returns a data frame with the following columns:
+Returns a data frame with at least following columns:
 \tabular{ll}{
 \code{name} \tab Name of deployed application\cr
 \code{account} \tab Account owning deployed application\cr
 \code{bundleId} \tab Identifier of deployed application's bundle\cr
 \code{url} \tab URL of deployed application\cr
+\code{when} \tab When the application was deployed (in seconds since the
+  epoch)\cr
 }
+
+If additional metadata has been saved with the deployment record using the
+\code{metadata} argument to \code{\link{deployApp}}, the frame will include
+additional columns.
 }
 \description{
 List deployment records for a given application.
