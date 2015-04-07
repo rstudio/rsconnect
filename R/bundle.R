@@ -72,7 +72,8 @@ isShinyRmd <- function(filename) {
       # ...and the first --- line is not preceded by non-whitespace...
       if (diff(delim[1:2]) > 1) {
         # ...and there is actually something between the two --- lines...
-        yamlData <- paste(lines[(delim[[1]]+1):(delim[[2]]-1)], collapse="\n")
+        yamlData <- paste(lines[(delim[[1]] + 1):(delim[[2]] - 1)],
+                          collapse = "\n")
         frontMatter <- yaml::yaml.load(yamlData)
         runtime <- frontMatter[["runtime"]]
         if (!is.null(runtime) && identical(runtime, "shiny")) {
@@ -103,7 +104,7 @@ inferAppMode <- function(appDir, files) {
     return("rmd-static")
   }
 
-  # if there are one or HTML documents, use the static mode
+  # if there are one or more HTML documents, use the static mode
   htmlFiles <- grep("^[^/\\\\]+\\.html$", files, ignore.case = TRUE,
                     perl = TRUE)
   if (length(htmlFiles) > 0) {
@@ -167,7 +168,7 @@ createAppManifest <- function(appDir, appMode, accountInfo, files,
   filelist <- list()
   for (file in files) {
     checksum <- list(checksum = digest::digest(file.path(appDir, file),
-                                               algo="md5", file=TRUE))
+                                               algo = "md5", file = TRUE))
     filelist[[file]] <- I(checksum)
   }
 
@@ -285,7 +286,7 @@ validateRepository <- function(pkg, repository) {
 }
 
 hasRequiredDevtools <- function() {
-  "devtools" %in% .packages(all.available=TRUE) &&
+  "devtools" %in% .packages(all.available = TRUE) &&
   packageVersion("devtools") > "1.3"
 }
 

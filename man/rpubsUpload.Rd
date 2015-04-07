@@ -2,17 +2,17 @@
 % Please edit documentation in R/rpubs.R
 \name{rpubsUpload}
 \alias{rpubsUpload}
-\title{Upload an HTML file to RPubs}
+\title{Upload a file to RPubs}
 \usage{
-rpubsUpload(title, htmlFile, originalRmd, id = NULL, properties = list())
+rpubsUpload(title, contentFile, originalDoc, id = NULL, properties = list())
 }
 \arguments{
 \item{title}{The title of the document.}
 
-\item{htmlFile}{The path to the HTML file to upload.}
+\item{contentFile}{The path to the content file to upload.}
 
-\item{originalRmd}{The R Markdown document that was rendered to produce the
-\code{htmlFile}.}
+\item{originalDoc}{The document that was rendered to produce the
+\code{contentFile}. May be \code{NULL} if the document is not known.}
 
 \item{id}{If this upload is an update of an existing document then the id
 parameter should specify the document id to update. Note that the id is
@@ -32,7 +32,7 @@ A named list. If the upload was successful then the list contains a
   an explanation of the error that occurred.
 }
 \description{
-This function uploads an HTML file to rpubs.com. If the upload succeeds a
+This function publishes a file to rpubs.com. If the upload succeeds a
 list that includes an \code{id} and \code{continueUrl} is returned. A browser
 should be opened to the \code{continueUrl} to complete publishing of the
 document. If an error occurs then a diagnostic message is returned in the
@@ -48,7 +48,8 @@ else
    stop(result$error)
 
 # update the same document with a new title
-updateResult <- rpubsUpload("My updated title", "Document.html", result$id)
+updateResult <- rpubsUpload("My updated title", "Document.html",
+                            id = result$id)
 }
 }
 
