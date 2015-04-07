@@ -222,12 +222,21 @@ deployApp <- function(appDir = getwd(),
                  application$url,
                  metadata)
 
+
+  # function to browse to a URL using user-supplied browser (config or final)
+  showURL <- function(url) {
+    if (isTRUE(launch.browser))
+      utils::browseURL(url)
+    else if (is.function(launch.browser))
+      launch.browser(url)
+  }
+
   # if this client supports config, see if the app needs it
   if (!quiet && !is.null(client$configureApplication)) {
     config <- client$configureApplication(application$id)
     if (config$needs_config) {
       # app needs config, finish deployment on the server
-      utils::browseURL(config$config_url)
+      showURL(config$config_url)
       return(invisible(TRUE))
     }
   }
@@ -244,10 +253,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # launch the browser if requested
-  if (isTRUE(launch.browser))
-    utils::browseURL(amendedUrl)
-  else if (is.function(launch.browser))
-    launch.browser(amendedUrl)
+  showURL(amendedUrl)
 
   # successful deployment!
   invisible(TRUE)
