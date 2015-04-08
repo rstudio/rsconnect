@@ -26,7 +26,7 @@ deployDoc <- function(doc, ...) {
     stop("The document '", doc, "' does not exist.")
   }
   ext <- tolower(tools::file_ext(doc))
-  if (!(ext %in% c("rmd", "html"))) {
+  if (!(ext %in% c("rmd", "html", "htm"))) {
     stop("Document deployment is only supported for R Markdown or HTML ",
          "documents.")
   }

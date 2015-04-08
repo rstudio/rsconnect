@@ -105,7 +105,7 @@ inferAppMode <- function(appDir, files) {
   }
 
   # if there are one or more HTML documents, use the static mode
-  htmlFiles <- grep("^[^/\\\\]+\\.html$", files, ignore.case = TRUE,
+  htmlFiles <- grep("^[^/\\\\]+\\.html?$", files, ignore.case = TRUE,
                     perl = TRUE)
   if (length(htmlFiles) > 0) {
     return("static")
@@ -177,14 +177,14 @@ createAppManifest <- function(appDir, appMode, accountInfo, files,
   if ((grepl("rmd", appMode, fixed = TRUE) || appMode == "static")
       && is.null(appPrimaryDoc)) {
     # determine expected primary document extension
-    ext <- ifelse(appMode == "static", "html", "Rmd")
+    ext <- ifelse(appMode == "static", "html?", "Rmd")
 
     # use index file if it exists
     primary <- which(grepl(paste0("^index\\.", ext, "$"), files, fixed = FALSE,
                            ignore.case = TRUE))
     if (length(primary) == 0) {
-      # no index.Rmd, so pick the first Rmd we find
-      primary <- which(grepl(glob2rx("*.Rmd"), files, fixed = FALSE,
+      # no index file found, so pick the first one we find
+      primary <- which(grepl(paste0("^.*\\.", ext, "$"), files, fixed = FALSE,
                              ignore.case = TRUE))
       if (length(primary) == 0) {
         stop("Application mode ", appMode, " requires at least one document.")
