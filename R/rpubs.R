@@ -144,7 +144,8 @@ rpubsUpload <- function(title,
 
     # write the deployment record and associate it with the original document
     # if we know it, and the HTML file if we don't
-    recordSource <- ifelse(is.null(originalDoc), contentFile, originalDoc)
+    recordSource <- ifelse(is.null(originalDoc) || nchar(originalDoc) == 0,
+                           contentFile, originalDoc)
 
     # use the title if given, and the filename name of the document if not
     recordName <- ifelse(is.null(title) || nchar(title) == 0,

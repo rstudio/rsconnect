@@ -96,9 +96,9 @@ deployApp <- function(appDir = getwd(),
 
   # create the full path that we'll deploy (append document if requested)
   appPath <- appDir
-  if (!is.null(appSourceDoc)) {
+  if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
     appPath <- appSourceDoc
-  } else if (!is.null(appPrimaryDoc)) {
+  } else if (!is.null(appPrimaryDoc) && nchar(appSourceDoc) > 0) {
     appPath <- file.path(appPath, appPrimaryDoc)
     if (!file.exists(appPath)) {
       stop(appPath, " does not exist")
@@ -111,7 +111,7 @@ deployApp <- function(appDir = getwd(),
   rmdFile <- ""
   if (!file.info(appDir)$isdir) {
     if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
-        grepl("\\.html$", appDir, ignore.case = TRUE)) {
+        grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, account = account,
                        server = server, upload = upload,
                        launch.browser = launch.browser, quiet = quiet,
