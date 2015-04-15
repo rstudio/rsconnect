@@ -98,7 +98,7 @@ deployApp <- function(appDir = getwd(),
   appPath <- appDir
   if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
     appPath <- appSourceDoc
-  } else if (!is.null(appPrimaryDoc) && nchar(appSourceDoc) > 0) {
+  } else if (!is.null(appPrimaryDoc) && nchar(appPrimaryDoc) > 0) {
     appPath <- file.path(appPath, appPrimaryDoc)
     if (!file.exists(appPath)) {
       stop(appPath, " does not exist")
@@ -125,6 +125,8 @@ deployApp <- function(appDir = getwd(),
   # if the list of files wasn't specified, generate it
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
+  } else {
+    appFiles <- explodeFiles(appDir, appFiles)
   }
 
   if (isTRUE(lint)) {

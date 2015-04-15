@@ -334,3 +334,25 @@ addPackratSnapshot <- function(bundleDir, appMode) {
   }
 }
 
+# given a list of mixed files and directories, explodes the directories
+# recursively into their constituent files, and returns just a list of files
+explodeFiles <- function(dir, files) {
+  exploded <- c()
+  for (f in files) {
+    target <- file.path(dir, f)
+    info <- file.info(target)
+    if (is.na(info$isdir)) {
+      # don't return this file; it doesn't appear to exist
+      next
+    } else if (isTRUE(info$isdir)) {
+      # a directory; explode it
+      contents <- list.files(target, full.names = FALSE, recursive = TRUE,
+                             include.dirs = FALSE)
+      exploded <- c(exploded, file.path(f, contents))
+    } else {
+      # not a directory; an ordinary file
+      exploded <- c(exploded, f)
+    }
+  }
+  exploded
+}
