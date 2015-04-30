@@ -92,13 +92,14 @@ inferAppMode <- function(appDir, files) {
     return("shiny")
   }
 
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE)
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
+                   value = TRUE)
 
   # if there are one or more R Markdown documents, use the Shiny app mode if any
   # are Shiny documents
   if (length(rmdFiles) > 0) {
-    for (idx in seq_along(rmdFiles)) {
-      if (isShinyRmd(file.path(appDir, files[[idx]])))
+    for (rmdFile in rmdFiles) {
+      if (isShinyRmd(file.path(appDir, rmdFile)))
         return("rmd-shiny")
     }
     return("rmd-static")
