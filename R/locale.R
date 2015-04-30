@@ -43,19 +43,25 @@ localeCacheFile <- function() {
 
 systemLocale <- function() {
   message("Detecting system locale ... ", appendLF = FALSE)
-  
-  # get system locale
-  info <- systemInfo()
-  raw <- as.character(info$System.Locale)
-  parts <- strsplit(unlist(strsplit(raw, ";",  fixed=TRUE)), "-", fixed=TRUE)
-  
-  # normalize locale to something like en_US
-  locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
-  
+  locale <- "en_US"
+  tryCatch({
+    # get system locale
+    info <- systemInfo()
+    raw <- as.character(info$System.Locale)
+    parts <- strsplit(unlist(strsplit(raw, ";",  fixed=TRUE)), "-", fixed=TRUE)
+    
+    # normalize locale to something like en_US
+    locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
+    
+  }, error=function(e) {
+    warning(e)
+    message("Using default locale: ", appendLF = FALSE)
+  })
   message(locale)
   invisible(locale)
 }
 
 systemInfo <- function () {
-  info <- read.csv(textConnection(system("systeminfo /FO csv", intern=TRUE, wait=TRUE)))
+  raw <- system("systeminfo /FO csv", intern=TRUE, wait=TRUE)
+  info <- read.csv(textConnection(raw))
 }
