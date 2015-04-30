@@ -15,6 +15,9 @@ detectLocale.Unix <- function () {
 detectLocale.Windows <- function (useCache = 
                                   getOption('shinyapps.locale.cache', TRUE)) {
   
+  # default locale
+  locale <- 'en_US'
+  
   cacheFile <- localeCacheFile()
   if (file.exists(cacheFile) && useCache) {
     
@@ -25,13 +28,20 @@ detectLocale.Windows <- function (useCache =
     
   } else {
     
-    # get system locale
-    locale <- systemLocale()
-    
-    # write the user info
-    write.dcf(list(locale = locale),
-              cacheFile,
-              width = 100)
+    tryCatch({
+      
+      # get system locale
+      locale <- systemLocale()
+      
+      # write the user info
+      write.dcf(list(locale = locale),
+                cacheFile,
+                width = 100)
+      
+    }, error=function(e) {
+      warning(paste0("Unable to detect locale. Using default: ", locale), 
+              call.=FALSE)
+    })
   }
   
   return(locale)
@@ -43,20 +53,15 @@ localeCacheFile <- function() {
 
 systemLocale <- function() {
   message("Detecting system locale ... ", appendLF = FALSE)
-  locale <- "en_US"
-  tryCatch({
-    # get system locale
-    info <- systemInfo()
-    raw <- as.character(info$System.Locale)
-    parts <- strsplit(unlist(strsplit(raw, ";",  fixed=TRUE)), "-", fixed=TRUE)
+
+  # get system locale
+  info <- systemInfo()
+  raw <- as.character(info[[20]])
+  parts <- strsplit(unlist(strsplit(raw, ";",  fixed=TRUE)), "-", fixed=TRUE)
+  
+  # normalize locale to something like en_US
+  locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
     
-    # normalize locale to something like en_US
-    locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
-    
-  }, error=function(e) {
-    warning(e)
-    message("Using default locale: ", appendLF = FALSE)
-  })
   message(locale)
   invisible(locale)
 }
