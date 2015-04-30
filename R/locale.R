@@ -15,6 +15,9 @@ detectLocale.Unix <- function () {
 detectLocale.Windows <- function (useCache = 
                                   getOption('rsconnect.locale.cache', TRUE)) {
   
+  # default locale
+  locale <- 'en_US'
+  
   cacheFile <- localeCacheFile()
   if (file.exists(cacheFile) && useCache) {
     
@@ -25,13 +28,20 @@ detectLocale.Windows <- function (useCache =
     
   } else {
     
-    # get system locale
-    locale <- systemLocale()
-    
-    # write the user info
-    write.dcf(list(locale = locale),
-              cacheFile,
-              width = 100)
+    tryCatch({
+      
+      # get system locale
+      locale <- systemLocale()
+      
+      # write the user info
+      write.dcf(list(locale = locale),
+                cacheFile,
+                width = 100)
+      
+    }, error=function(e) {
+      warning(paste0("Unable to detect locale. Using default: ", locale), 
+              call.=FALSE)
+    })
   }
   
   return(locale)
@@ -43,15 +53,14 @@ localeCacheFile <- function() {
 
 systemLocale <- function() {
   message("Detecting system locale ... ", appendLF = FALSE)
-  
+
   # get system locale
   info <- systemInfo()
-  raw <- as.character(info$System.Locale)
+  raw <- as.character(info[[20]])
   parts <- strsplit(unlist(strsplit(raw, ";",  fixed=TRUE)), "-", fixed=TRUE)
   
   # normalize locale to something like en_US
   locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
-  
   message(locale)
   invisible(locale)
 }
