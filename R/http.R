@@ -564,6 +564,29 @@ rfc2616Date <- function(time = Sys.time()) {
   return(date)
 }
 
+urlDecode <- function(x) {
+  RCurl::curlUnescape(x)
+}
+
+urlEncode <- function(x) {
+  if (inherits(x, "AsIs")) return(x)
+  RCurl::curlEscape(x)
+}
+
+queryString <- function (elements) {
+  stopifnot(is.list(elements))
+  elements <- plyr::compact(elements)
+  
+  names <- RCurl::curlEscape(names(elements))
+  values <- vapply(elements, urlEncode, character(1))
+  if (length(elements) > 0) {
+    result <- paste0(names, "=", values, collapse = "&")
+  } else {
+    result <- ""
+  }
+  return(result)
+}
+
 signatureHeaders <- function(authInfo, method, path, file) {
   # headers to return
   headers <- list()
