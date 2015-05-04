@@ -59,12 +59,18 @@ systemLocale <- function() {
   raw <- as.character(info[[20]])
   parts <- strsplit(unlist(strsplit(raw, ";",  fixed=TRUE)), "-", fixed=TRUE)
   
-  # normalize locale to something like en_US
-  locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
+  if (length(parts[[1]]) >= 2) {
+    # normalize locale to something like en_US
+    locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][2]), sep="_")
+  } else {
+    locale <- paste(tolower(parts[[1]][1]), toupper(parts[[1]][1]), sep="_")
+  }
   message(locale)
-  invisible(locale)
+  return(locale)
 }
 
 systemInfo <- function () {
-  info <- read.csv(textConnection(system("systeminfo /FO csv", intern=TRUE, wait=TRUE)))
+  raw <- system("systeminfo /FO csv", intern=TRUE, wait=TRUE)
+  info <- read.csv(textConnection(raw))
+  return(info)
 }
