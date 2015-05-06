@@ -38,7 +38,7 @@ detectLocale.Windows <- function (useCache =
 }
 
 localeCacheFile <- function() {
-  normalizePath(file.path(shinyappsConfigDir(), "locale.dcf"), mustWork = FALSE)
+  normalizePath(file.path(rsconnectConfigDir(), "locale.dcf"), mustWork = FALSE)
 }
 
 systemLocale <- function() {
