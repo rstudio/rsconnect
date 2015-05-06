@@ -32,7 +32,7 @@ bundleApp <- function(appDir) {
   }
   
   # get application users
-  users <- authorizedUsers(appDir)
+  users <- suppressWarnings(authorizedUsers(appDir))
   
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(appDir, files, users))
