@@ -2,15 +2,15 @@
 % Please edit documentation in R/auth.R
 \name{authorizedUsers}
 \alias{authorizedUsers}
-\title{List authorized users for an application}
+\title{(Deprecated) List authorized users for an application}
 \usage{
 authorizedUsers(appPath = getwd())
 }
 \arguments{
-\item{appPath}{Directory or file that was deployed. Defaults to current
-working directory.}
+\item{appDir}{Directory containing application. Defaults to current working
+directory.}
 }
 \description{
-List authorized users for an application
+(Deprecated) List authorized users for an application
 }
 
