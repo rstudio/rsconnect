@@ -165,7 +165,8 @@ setAccountInfo <- function(name, token, secret) {
 
   # create connect client
   authInfo <- list(token = token, secret = secret)
-  lucid <- lucidClient(.lucidServerInfo$url, authInfo)
+  serverInfo <- shinyappsServerInfo()
+  lucid <- lucidClient(serverInfo$url, authInfo)
 
   # get user Id
   userId <- lucid$currentUser()$id
@@ -183,7 +184,7 @@ setAccountInfo <- function(name, token, secret) {
     stop("Unable to determine account id for account named '", name, "'")
 
   # get the path to the config file
-  configFile <- accountConfigFile(name, .lucidServerInfo$name)
+  configFile <- accountConfigFile(name, serverInfo$name)
   dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
 
   # write the user info
@@ -192,7 +193,7 @@ setAccountInfo <- function(name, token, secret) {
                  accountId = accountId,
                  token = token,
                  secret = secret,
-                 server = .lucidServerInfo$name),
+                 server = serverInfo$name),
             configFile,
             width = 100)
 

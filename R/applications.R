@@ -137,8 +137,8 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   # determine the log target and target account info
   target <- deploymentTarget(appPath, appName, account, server)
   accountInfo <- accountInfo(target$account)
-  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
-  application <- getAppByName(lucid, accountInfo, target$appName)
+  client <- clientForAccount(target$account)
+  application <- getAppByName(client, accountInfo, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
@@ -217,7 +217,7 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
     }
   } else {
     # if not streaming, poll for the entries directly
-    logs <- lucid$getLogs(application$id, entries, FALSE, NULL)
+    logs <- client$getLogs(application$id, entries, FALSE, NULL)
     cat(logs)
   }
 }
@@ -227,7 +227,7 @@ showStreamingLogs <- function(account, applicationId, entries, outfile,
                               killfile) {
   # get account information
   accountInfo <- accountInfo(account)
-  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
+  client <- clientForAccount(accountInfo)
 
   # remove the killfile when we're done
   on.exit(unlink(killfile), add = TRUE)
@@ -239,7 +239,7 @@ showStreamingLogs <- function(account, applicationId, entries, outfile,
   skip <- 0
   repeat {
   tryCatch({
-             lucid$getLogs(applicationId, entries, TRUE,
+             client$getLogs(applicationId, entries, TRUE,
                            writeLogMessage(conn, killfile, skip))
              if (file.exists(killfile))
                break

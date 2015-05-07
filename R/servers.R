@@ -45,7 +45,7 @@ servers <- function(local = FALSE) {
   if (local) {
     locals
   } else {
-    rbind(locals, as.data.frame(.lucidServerInfo, stringsAsFactors = FALSE))
+    rbind(locals, as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE))
   }
 }
 
@@ -58,9 +58,10 @@ serverConfigFile <- function(name) {
                 mustWork = FALSE)
 }
 
-.lucidServerInfo <- list(
-  name = "shinyapps.io",
-  url = "https://api.shinyapps.io/v1")
+shinyappsServerInfo <- function() {
+  info <- list(name = "shinyapps.io",
+               url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1"))
+}
 
 #' @rdname servers
 #' @export
@@ -172,7 +173,7 @@ serverInfo <- function(name) {
 
   # there's no config file for shinyapps.io
   if (identical(name, "shinyapps.io")) {
-    return(.lucidServerInfo)
+    return(shinyappsServerInfo())
   }
 
   configFile <- serverConfigFile(name)
@@ -190,8 +191,8 @@ missingServerErrorMessage <- function(name) {
 
 clientForAccount <- function(account) {
 
-  if (account$server == .lucidServerInfo$name)
-    lucidClient(.lucidServerInfo$url, account)
+  if (account$server == shinyappsServerInfo()$name)
+    lucidClient(shinyappsServerInfo()$url, account)
   else {
     server <- serverInfo(account$server)
     connectClient(server$url, account)

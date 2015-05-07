@@ -45,7 +45,9 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
   }
 
   # set application properties
-  lucid <- lucidClient(.lucidServerInfo$url, accountDetails)
+  serverDetails <- serverInfo(accountDetails$server)
+  lucid <- lucidClient(serverDetails$url, accountDetails)
+
   client <- clientForAccount(accountDetails)
   for (i in names(properties)) {
     propertyName <- i
@@ -99,8 +101,9 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 
   # resolve the application target and target account info
   target <- deploymentTarget(appPath, appName, account)
-  accountInfo <- accountInfo(target$account)
-  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
+  accountDetails <- accountInfo(target$account)
+  serverDetails <- serverInfo(accountDetails$server)
+  lucid <- lucidClient(serverDetails$url, accountDetails)
   application <- getAppByName(lucid, accountInfo, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -140,8 +143,9 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName=NULL,
 
   # resolve the application target and target account info
   target <- deploymentTarget(appPath, appName, account)
-  accountInfo <- accountInfo(target$account)
-  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
+  accountDetails <- accountInfo(target$account)
+  serverDetails <- serverInfo(accountDetails$server)
+  lucid <- lucidClient(serverDetails$url, accountDetails)
   application <- getAppByName(lucid, accountInfo, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -170,9 +174,10 @@ showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
 
   # determine the log target and target account info
   target <- deploymentTarget(appPath, appName, account)
-  accountInfo <- accountInfo(target$account)
-  lucid <- lucidClient(.lucidServerInfo$url, accountInfo)
-  application <- getAppByName(lucid, accountInfo, target$appName)
+  accountDetails <- accountInfo(target$account)
+  serverDetails <- serverInfo(accountDetails$server)
+  lucid <- lucidClient(serverDetails$url, accountDetails)
+  application <- getAppByName(lucid, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
