@@ -189,7 +189,7 @@ deployApp <- function(appDir = getwd(),
 
   if (upload) {
     # create, and upload the bundle
-    withStatus(paste("Uploading bundle for application:", 
+    withStatus(paste("Uploading bundle for application:",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, accountDetails)
@@ -249,7 +249,7 @@ deployApp <- function(appDir = getwd(),
 
   # check for a launch file (i.e. an Rmd file)
   launchFile <- if (nzchar(rmdFile)) rmdFile else guessLaunchFile(appDir)
-  if (nchar(launchFile) > 0) {
+  if (length(launchFile) > 0 && nchar(launchFile) > 0) {
     if (substr(amendedUrl, nchar(amendedUrl), nchar(amendedUrl)) != "/")
       amendedUrl = paste(amendedUrl, "/", sep = "")
     amendedUrl = paste(amendedUrl, launchFile, sep = "")

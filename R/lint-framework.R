@@ -100,7 +100,8 @@ lint <- function(project, files = NULL) {
     shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
     shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
     app = "app.r" %in% appFilesBase,
-    Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase))
+    Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
+    static = any(grepl("^.*\\.html?$", appFilesBase))
   )
 
   if (!any(satisfiedLayouts)) {
@@ -268,7 +269,7 @@ collectSuggestions <- function(fileResults) {
     }
 
     if (substring(path, 1, nd) != directory) {
-      warning("'", path, "' is not a subdirectory of '", directory, "'")
+      warning("'", path, "' is not a subdirctory of '", directory, "'")
       return(path)
     }
 
