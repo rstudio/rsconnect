@@ -109,7 +109,8 @@ lint <- function(project, files = NULL) {
             The project should have one of the following layouts:
             1. 'shiny.R' and 'ui.R' in the application base directory,
             2. 'shiny.R' and 'www/index.html' in the application base directory,
-            3. An R Markdown (.Rmd) document."
+            3. An R Markdown (.Rmd) document,
+            4. A static HTML (.html) document."
 
     # strip leading whitespace from the above
     msg <- paste(collapse = "\n",
@@ -269,7 +270,7 @@ collectSuggestions <- function(fileResults) {
     }
 
     if (substring(path, 1, nd) != directory) {
-      warning("'", path, "' is not a subdirctory of '", directory, "'")
+      warning("'", path, "' is not a subdirectory of '", directory, "'")
       return(path)
     }
 
