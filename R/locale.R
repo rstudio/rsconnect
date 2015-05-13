@@ -1,3 +1,12 @@
+overrideWindowsLocale <- function(locale) {
+  map <- list()
+  map[['el_EL']] <- "el_GR"
+  if (locale %in% map) {
+    locale <- map[[locale]]
+  }
+  return(locale)
+}
+
 detectLocale <- function () {
   sysName <- Sys.info()[['sysname']]
   if (identical(sysName, "Windows")) {
@@ -43,8 +52,7 @@ detectLocale.Windows <- function (useCache =
                      " (Using default: ", locale, ")"), call.=FALSE)
     })
   }
-  
-  return(locale)
+  return(overrideWindowsLocale(locale))
 }
 
 localeCacheFile <- function() {
