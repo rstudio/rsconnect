@@ -1,7 +1,7 @@
 overrideWindowsLocale <- function(locale) {
   map <- list()
   map[['el_EL']] <- "el_GR"
-  if (locale %in% map) {
+  if (locale %in% names(map)) {
     locale <- map[[locale]]
   }
   return(locale)
