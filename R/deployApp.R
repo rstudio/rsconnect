@@ -18,6 +18,8 @@
 #'   \code{\link{deployments}} is associated with the source document.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
+#' @param contentCategory Optional; the kind of content being deployed (e.g.
+#'   \code{"plot"}, \code{"document"}, or \code{"application"}).
 #' @param account Account to deploy application to. This
 #'   parameter is only required for the initial deployment of an application
 #'   when there are multiple accounts configured on the system (see
@@ -66,6 +68,7 @@ deployApp <- function(appDir = getwd(),
                       appPrimaryDoc = NULL,
                       appSourceDoc = NULL,
                       appName = NULL,
+                      contentCategory = NULL,
                       account = NULL,
                       server = NULL,
                       upload = TRUE,
@@ -192,7 +195,7 @@ deployApp <- function(appDir = getwd(),
     withStatus(paste("Uploading bundle for application:",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, accountDetails)
+                              appPrimaryDoc, contentCategory, accountDetails)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {

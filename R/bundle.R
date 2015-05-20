@@ -15,7 +15,8 @@ bundleFiles <- function(appDir) {
   files
 }
 
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, accountInfo) {
+bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, contentCategory,
+                      accountInfo) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -46,8 +47,9 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, accountInfo) {
                                file.path(appDir, appPrimaryDoc))
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode, accountInfo, appFiles,
-                                             appPrimaryDoc, users))
+  manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
+                                             contentCategory, accountInfo,
+                                             appFiles, appPrimaryDoc, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
 
@@ -116,8 +118,8 @@ inferAppMode <- function(appDir, files) {
   return(NA)
 }
 
-createAppManifest <- function(appDir, appMode, accountInfo, files,
-                              appPrimaryDoc, users) {
+createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
+                              files, appPrimaryDoc, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -222,6 +224,9 @@ createAppManifest <- function(appDir, appMode, accountInfo, files,
   metadata$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
   metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
+  # emit content category (plots, etc)
+  metadata$content_category <- ifelse(!is.null(contentCategory),
+                                      contentCategory, NA)
   # add metadata
   manifest$metadata <- metadata
 
