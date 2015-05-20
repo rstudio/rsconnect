@@ -5,9 +5,10 @@
 \title{Deploy an Application}
 \usage{
 deployApp(appDir = getwd(), appFiles = NULL, appPrimaryDoc = NULL,
-  appSourceDoc = NULL, appName = NULL, account = NULL, server = NULL,
-  upload = TRUE, launch.browser = getOption("rsconnect.launch.browser",
-  interactive()), quiet = FALSE, lint = TRUE, metadata = list(), ...)
+  appSourceDoc = NULL, appName = NULL, contentCategory = NULL,
+  account = NULL, server = NULL, upload = TRUE,
+  launch.browser = getOption("rsconnect.launch.browser", interactive()),
+  quiet = FALSE, lint = TRUE, metadata = list(), ...)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -29,6 +30,9 @@ qualified path. Deployment information returned by
 
 \item{appName}{Name of application (names must be unique within an
 account). Defaults to the base name of the specified \code{appDir}.}
+
+\item{contentCategory}{Optional; the kind of content being deployed (e.g.
+\code{"plot"}, \code{"document"}, or \code{"application"}).}
 
 \item{account}{Account to deploy application to. This
 parameter is only required for the initial deployment of an application
