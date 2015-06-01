@@ -7,8 +7,7 @@
 deployDoc(doc, ...)
 }
 \arguments{
-\item{doc}{Path to the document to deploy; must be either an R Markdown file
-(.Rmd) or HTML file (.html)}
+\item{doc}{Path to the document to deploy.}
 
 \item{...}{Additional arguments to \code{\link{deployApp}}. Do not supply
   \code{appDir}, \code{appFiles}, or \code{appPrimaryDoc};
@@ -16,10 +15,11 @@ deployDoc(doc, ...)
   the document.}
 }
 \description{
-Deploys an application consisting of a single R Markdown document.
+Deploys an application consisting of a single R Markdown document or other
+single file (such as an HTML or PDF document).
 }
 \details{
-In addition to the R Markdown file itself, any files which are
+When deploying an R Markdown document, any files which are
   required to render and display the file must be deployed.
 
   This method discovers these additional files using

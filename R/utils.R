@@ -141,10 +141,10 @@ fileLeaf <- function(path) {
   }))
 }
 
-# whether the given path points to an R Markdown document
+# whether the given path points to an individual piece of content
 isDocumentPath <- function(path) {
   ext <- tolower(tools::file_ext(path))
-  ext %in% c("htm", "html", "rmd", "md", "rpres")
+  !is.null(ext) && ext != "" && ext != "r"
 }
 
 # given a path, return the directory under which rsconnect package state is
