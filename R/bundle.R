@@ -107,10 +107,9 @@ inferAppMode <- function(appDir, files) {
     return("rmd-static")
   }
 
-  # if there are one or more HTML documents, use the static mode
-  htmlFiles <- grep("^[^/\\\\]+\\.html?$", files, ignore.case = TRUE,
-                    perl = TRUE)
-  if (length(htmlFiles) > 0) {
+  # no renderable content here; if there's at least one file, we can just serve
+  # it as static content
+  if (length(files) > 0) {
     return("static")
   }
 

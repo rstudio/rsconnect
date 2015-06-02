@@ -213,7 +213,7 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(response$code) && response$code != 0) {
     displayStatus(paste0("Application deployment failed with error: ",
                          response$error, "\n"))
-    return
+    return(invisible(FALSE))
   } else {
     displayStatus(paste0("Application successfully deployed to ",
                         application$url, "\n"))
