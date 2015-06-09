@@ -253,8 +253,12 @@ httpRCurl <- function(protocol,
   options$cainfo <- system.file("cert/cacert.pem", package = "rsconnect")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
+
+  # the text processing done by .mapUnicode has the unfortunate side effect
+  # of turning escaped backslashes into ordinary backslashes but leaving
+  # ordinary backslashes alone, which can create malformed JSON.
   textGatherer <- if (is.null(writer))
-      RCurl::basicTextGatherer()
+      RCurl::basicTextGatherer(.mapUnicode = FALSE)
     else
       writer
 
