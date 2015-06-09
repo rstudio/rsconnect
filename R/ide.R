@@ -6,6 +6,12 @@
 # TRUE) and server settings, or a list containing (valid = FALSE) and an error
 # message.
 validateServerUrl <- function(url) {
+  # if no protocol specified, guess HTTP (TODO: unfortunately guessing the wrong
+  # protocol results in a hung request; is there a way we can test for HTTPS
+  # support without hanging if it doesn't exist?)
+  if (!grepl("://", url, fixed = TRUE))
+    url <- paste0("http://", url)
+
   url <- ensureConnectServerUrl(url)
   response <- NULL
   errMessage <- ""
