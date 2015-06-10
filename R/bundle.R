@@ -338,6 +338,34 @@ addPackratSnapshot <- function(bundleDir, appMode) {
   if (file.exists(tempDependencyFile)) {
     unlink(tempDependencyFile)
   }
+
+  # Copy all the DESCRIPTION files we're relying on into packrat/desc.
+  # That directory will contain one file for each package, e.g.
+  # packrat/desc/shiny will be the shiny package's DESCRIPTION.
+  #
+  # The server will use this to calculate package hashes. We don't want
+  # to rely on hashes calculated by our version of packrat, because the
+  # server may be running a different version.
+  lockFilePath <- file.path(bundleDir, "packrat", "packrat.lock")
+  descDir <- file.path(bundleDir, "packrat", "desc")
+  tryCatch({
+    dir.create(descDir)
+    packages <- na.omit(read.dcf(lockFilePath)[,"Package"])
+    lapply(packages, function(pkgName) {
+      descFile <- system.file("DESCRIPTION", package = pkgName)
+      if (!file.exists(descFile)) {
+        stop("Couldn't find DESCRIPTION file for ", pkgName)
+      }
+      file.copy(descFile, file.path(descDir, pkgName))
+    })
+  }, error = function(e) {
+    warning("Unable to package DESCRIPTION files: ", conditionMessage(e), call. = FALSE)
+    if (dir.exists(descDir)) {
+      unlink(descDir, recursive = TRUE)
+    }
+  })
+
+  invisible()
 }
 
 # given a list of mixed files and directories, explodes the directories
