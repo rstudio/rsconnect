@@ -5,7 +5,7 @@
 \title{Remove authorized user from an application}
 \usage{
 removeAuthorizedUser(user, appDir = getwd(), appName = NULL,
-  account = NULL)
+  account = NULL, server = NULL)
 }
 \arguments{
 \item{user}{The user to remove. Can be id or email address.}
@@ -17,9 +17,15 @@ current working directory.}
 
 \item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 }
 \description{
 Remove authorized user from an application
+}
+\note{
+This function works only for ShinyApps servers.
 }
 \seealso{
 \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}

@@ -41,6 +41,7 @@ cleanupPasswordFile <- function(appDir) {
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
+#' @note This function works only for ShinyApps servers.
 #' @export
 addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
                               account = NULL, sendEmail=TRUE, server=NULL) {
@@ -76,6 +77,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+#' @note This function works only for ShinyApps servers.
 #' @export
 removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
                                  account = NULL, server=NULL) {
@@ -129,6 +131,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showInvited}}
+#' @note This function works only for ShinyApps servers.
 #' @export
 showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
                       server=NULL) {
@@ -174,6 +177,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+#' @note This function works only for ShinyApps servers.
 #' @export
 showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
                         server=NULL) {
@@ -231,51 +235,6 @@ validateEmail <- function(email) {
   }
 
   invisible(email)
-}
-
-validateUsername <- function(username) {
-
-  # validate username length
-  if (is.null(username) || nchar(username) < 1) {
-    stop("Username must be at least 1 characters.", call. = FALSE)
-  }
-
-  # validate password has no invalid characeters
-  invalid <- c(":", "$", "\n", "\r")
-  if (any(lapply(invalid, grepl, username, fixed = TRUE)==TRUE)) {
-    stop("Username may not contain: $, :, \\n, or \\r", call. = FALSE)
-  }
-
-  invisible(TRUE)
-}
-
-validatePassword <- function(password) {
-
-  min.length <- getOption('shinyapps.min.password.length', 4)
-
-  # validate password length
-  if (is.null(password) || nchar(password) < min.length) {
-    stop("Password must be at least ", min.length, " characters.", call. = FALSE)
-  }
-
-  # validate password has no invalid characeters
-  invalid <- c(":", "$", "\n", "\r")
-  if (any(lapply(invalid, grepl, password, fixed = TRUE)==TRUE)) {
-    stop("Password may not contain: $, :, \\n, or \\r", call. = FALSE)
-  }
-
-  invisible(TRUE)
-}
-
-promptPassword <- function() {
-  prompt <- "Password: "
-  password.one <- readPassword(prompt)
-  prompt <- "Retype Password: "
-  password.two <- readPassword(prompt)
-  if (!identical(password.one, password.two)) {
-    stop("Passwords do not match.", call. = FALSE)
-  }
-  return(password.one)
 }
 
 getPasswordFile <- function(appDir) {

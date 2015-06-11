@@ -4,7 +4,8 @@
 \alias{showUsers}
 \title{List authorized users for an application}
 \usage{
-showUsers(appDir = getwd(), appName = NULL, account = NULL)
+showUsers(appDir = getwd(), appName = NULL, account = NULL,
+  server = NULL)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to
@@ -14,9 +15,15 @@ current working directory.}
 
 \item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 }
 \description{
 List authorized users for an application
+}
+\note{
+This function works only for ShinyApps servers.
 }
 \seealso{
 \code{\link{addAuthorizedUser}} and \code{\link{showInvited}}

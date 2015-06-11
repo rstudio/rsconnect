@@ -5,7 +5,7 @@
 \title{Add authorized user to application}
 \usage{
 addAuthorizedUser(email, appDir = getwd(), appName = NULL, account = NULL,
-  sendEmail = TRUE)
+  sendEmail = TRUE, server = NULL)
 }
 \arguments{
 \item{email}{Email address of user to add.}
@@ -17,9 +17,15 @@ current working directory.}
 
 \item{account}{Account name. If a single account is registered on the
 system then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 }
 \description{
 Add authorized user to application
+}
+\note{
+This function works only for ShinyApps servers.
 }
 \seealso{
 \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
