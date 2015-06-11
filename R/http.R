@@ -61,6 +61,10 @@ readHttpResponse <- function(path, conn) {
   # read the response content
   content <- rawToChar(readBin(conn, what = 'raw', n=contentLength))
 
+  # emit JSON trace if requested
+  if (httpTraceJson() && identical(contentType, "application/json"))
+    cat(paste0(">> ", content, "\n"))
+
   # return list
   list(path = path,
        status = statusCode,
@@ -144,6 +148,10 @@ httpInternal <- function(protocol,
   if (httpVerbose())
     print(response)
 
+  # output JSON if requested
+  if (httpTraceJson() && identical(contentType, "application/json"))
+    cat(paste0("<< ", rawToChar(fileContents), "\n"))
+
   # return it
   response
 }
@@ -208,6 +216,15 @@ httpCurl <- function(protocol,
     result <- system(command)
   })
   httpTrace(method, path, time)
+
+  # emit JSON trace if requested
+  if (!is.null(file) && httpTraceJson() &&
+      identical(contentType, "application/json"))
+  {
+    fileLength <- file.info(file)$size
+    fileContents <- readBin(file, what="raw", n=fileLength)
+    cat(paste0("<< ", rawToChar(fileContents), "\n"))
+  }
 
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
@@ -317,6 +334,11 @@ httpRCurl <- function(protocol,
     }))
   httpTrace(method, path, time)
 
+  # emit JSON trace if requested
+  if (!is.null(file) && httpTraceJson() &&
+      identical(contentType, "application/json"))
+    cat(paste0("<< ", rawToChar(fileContents), "\n"))
+
   # return list
   headers <- headerGatherer$value()
   if ("Location" %in% names(headers))
@@ -329,15 +351,26 @@ httpRCurl <- function(protocol,
   } else {
     "text/plain"
   }
+
+  contentValue <- textGatherer$value()
+
+  # emit JSON trace if requested
+  if (httpTraceJson() && identical(contentType, "application/json"))
+    cat(paste0(">> ", contentValue, "\n"))
+
   list(path = path,
        status = as.integer(headers[["status"]]),
        location = location,
        contentType = contentType,
-       content = textGatherer$value())
+       content = contentValue)
 }
 
 httpVerbose <- function() {
   getOption("rsconnect.http.verbose", FALSE)
+}
+
+httpTraceJson <- function() {
+  getOption("rsconnect.http.trace.json", FALSE)
 }
 
 httpTrace <- function(method, path, time) {

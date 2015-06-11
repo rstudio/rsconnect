@@ -19,6 +19,7 @@ Supported global options include:
    If no option is specified then \code{rcurl} is used by default.
    }
    \item{\code{rsconnect.http.trace}}{When \code{TRUE}, trace http calls (prints the method, path, and total milliseconds for each http request)}
+   \item{\code{rsconnect.http.trace.json}}{When \code{TRUE}, trace JSON content (shows JSON payloads sent to and received from the server))}
    \item{\code{rsconnect.http.verbose}}{When \code{TRUE}, print verbose output for http connections (useful only for debugging SSL certificate or http connection problems)}
    \item{\code{rsconnect.launch.browser}}{When \code{TRUE}, automatically launch a browser to view applications after they are deployed}
    \item{\code{rsconnect.locale.cache}}{When \code{FALSE}, disable the detected locale cache (Windows only). }
@@ -37,6 +38,9 @@ options(rsconnect.http.trace = TRUE)
 
 # print verbose output for http requests
 options(rsconnect.http.verbose = TRUE)
+
+# print JSON content
+options(rsconnect.http.trace.json = TRUE)
 
 # don't automatically launch a browser after deployment
 options(rsconnect.launch.browser = FALSE)
