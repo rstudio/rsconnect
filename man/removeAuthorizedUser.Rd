@@ -4,26 +4,30 @@
 \alias{removeAuthorizedUser}
 \title{Remove authorized user from an application}
 \usage{
-removeAuthorizedUser(username, appPath = getwd())
+removeAuthorizedUser(user, appDir = getwd(), appName = NULL,
+  account = NULL, server = NULL)
 }
 \arguments{
-\item{username}{The user name.}
+\item{user}{The user to remove. Can be id or email address.}
 
-\item{appPath}{Directory or file that was deployed. Defaults to current
-working directory.}
+\item{appDir}{Directory containing application. Defaults to
+current working directory.}
+
+\item{appName}{Name of application.}
+
+\item{account}{Account name. If a single account is registered on the
+system then this parameter can be omitted.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 }
 \description{
 Remove authorized user from an application
 }
-\examples{
-\dontrun{
-
-# remove user
-removeAuthorizedUser("andy")
-
-}
+\note{
+This function works only for ShinyApps servers.
 }
 \seealso{
-\code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
+\code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
 }
 

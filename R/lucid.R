@@ -93,6 +93,50 @@ lucidClient <- function(service, authInfo) {
       handleResponse(POST_JSON(service, authInfo, path, list()))
     },
 
+    inviteApplicationUser = function(applicationId, email) {
+      path <- paste("/applications/", applicationId, "/authorization/users",
+                    sep="")
+      json <- list()
+      json$email <- email
+      handleResponse(POST_JSON(service, authInfo, path, json))
+    },
+
+    addApplicationUser = function(applicationId, userId) {
+      path <- paste("/applications/", applicationId, "/authorization/users/",
+                    userId, sep="")
+      handleResponse(PUT(service, authInfo, path, NULL))
+    },
+
+    removeApplicationUser = function(applicationId, userId) {
+      path <- paste("/applications/", applicationId, "/authorization/users/",
+                    userId, sep="")
+      handleResponse(DELETE(service, authInfo, path, NULL))
+    },
+
+    listApplicationAuthoization = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/authorization",
+                    sep="")
+      listRequest(service, authInfo, path, NULL, "authorization")
+    },
+
+    listApplicationUsers = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/authorization/users",
+                    sep="")
+      listRequest(service, authInfo, path, NULL, "users")
+    },
+
+    listApplicationGroups = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/authorization/groups",
+                    sep="")
+      listRequest(service, authInfo, path, NULL, "groups")
+    },
+
+    listApplicationInvitations = function(applicationId) {
+      path <- "/invitations/"
+      query <- paste(filterQuery("app_id", applicationId), collapse="&")
+      listRequest(service, authInfo, path, query, "invitations")
+    },
+
     scaleApplication = function(applicationId, instances) {
       path <- paste("/applications/", applicationId, "/scale", sep="")
       json <- list()

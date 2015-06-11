@@ -1,118 +1,224 @@
-#' Add authorized user for application
-#'
-#' @param username The user name.
-#' @param password The password.
-#' @param appPath Directory or file that was deployed. Defaults to current
-#'   working directory.
-#' @examples
-#' \dontrun{
-#'
-#' # add a user (prompts for password)
-#' addAuthorizedUser("andy")
-#'
-#' # add a user using supplied password
-#' addAuthorizedUser("tareef", "MrShiny45")
-#'
-#' }
-#' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{authorizedUsers}}
-#' @export
-addAuthorizedUser <- function(username, password = NULL, appPath = getwd()) {
+cleanupPasswordFile <- function(appDir) {
 
-  if (!require(scrypt)) {
-    stop("scrypt package is not installed.")
-  }
+  # normalize appDir path and ensure it exists
+  appDir <- normalizePath(appDir, mustWork = FALSE)
+  if (!file.exists(appDir) || !file.info(appDir)$isdir)
+    stop(appDir, " is not a valid directory", call. = FALSE)
 
-  if (missing(username) || !isStringParam(username))
-    stop(stringParamErrorMessage("username"))
+  # get data dir from appDir
+  dataDir <- file.path(appDir, "shinyapps")
 
-  # validate username
-  validateUsername(username)
+  # get password file
+  passwordFile <- file.path(dataDir, paste("passwords", ".txt", sep=""))
 
-  # prompt for password if not given
-  if (is.null(password)) {
-    password <- promptPassword()
-  }
-
-  # validate password
-  validatePassword(password)
-
-  # hash password
-  hash <- paste("{scrypt}", hashPassword(password), sep="")
-
-  # read password file
-  path <- getPasswordFile(appPath)
-  if (file.exists(path)) {
-    passwords <- readPasswordFile(path)
-  } else {
-    passwords <- NULL
-  }
-
-  # check if username is already in password list
-  if (username %in% passwords$user) {
-    # promp to reset password
-    prompt <- paste("Reset password for user \"", username, "\"? [Y/n] ", sep="")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(tolower(input), "y")) {
-      stop("Password not updated", call. = FALSE)
+  # check if password file exists
+  if (file.exists(passwordFile)) {
+    message("WARNING: Password file found! This application is configured to use scrypt ",
+            "authentication, which is no longer supported.\nIf you choose to proceed, ",
+            "all existing users of this application will be removed, ",
+            "and will NOT be recoverable.\nFor for more information please visit: ",
+            "http://shiny.rstudio.com/articles/migration.html")
+    response <- readline("Do you want to proceed? [Y/n]: ")
+    if (tolower(substring(response, 1, 1)) != "y") {
+      stop("Cancelled", call. = FALSE)
     } else {
-      # update pasword
-      passwords[passwords$user==username, "hash"] <- hash
+      # remove old password file
+      file.remove(passwordFile)
     }
-  } else {
-    # add row to data frame
-    row <- data.frame(user=username, hash=hash, stringsAsFactors=FALSE)
-    passwords <- rbind(passwords, row)
   }
 
-  # write passwords
-  invisible(writePasswordFile(path, passwords))
+  invisible(TRUE)
+}
+
+#' Add authorized user to application
+#'
+#' @param email Email address of user to add.
+#' @param appDir Directory containing application. Defaults to
+#'   current working directory.
+#' @param appName Name of application.
+#' @param account Account name. If a single account is registered on the
+#'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
+#' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
+#' @note This function works only for ShinyApps servers.
+#' @export
+addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
+                              account = NULL, sendEmail=TRUE, server=NULL) {
+
+  # resolve account
+  accountDetails <- accountInfo(account, server)
+
+  # resolve application
+  if (is.null(appName))
+    appName = basename(appDir)
+  application <- resolveApplication(accountDetails, appName)
+
+  # check for and remove password file
+  cleanupPasswordFile(appDir)
+
+  # fetch authoriztion list
+  api <- clientForAccount(accountDetails)
+  api$inviteApplicationUser(application$id, validateEmail(email))
+
+  message(paste("Added:", email, "to application", sep=" "))
+
+  invisible(TRUE)
 }
 
 #' Remove authorized user from an application
 #'
-#' @param username The user name.
-#' @param appPath Directory or file that was deployed. Defaults to current
-#'   working directory.
-#' @examples
-#' \dontrun{
-#'
-#' # remove user
-#' removeAuthorizedUser("andy")
-#'
-#' }
-#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{authorizedUsers}}
+#' @param user The user to remove. Can be id or email address.
+#' @param appDir Directory containing application. Defaults to
+#' current working directory.
+#' @param appName Name of application.
+#' @param account Account name. If a single account is registered on the
+#'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+#' @note This function works only for ShinyApps servers.
 #' @export
-removeAuthorizedUser <- function(username, appPath = getwd()) {
+removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
+                                 account = NULL, server=NULL) {
 
-  # read password file
-  path <- getPasswordFile(appPath)
-  if (file.exists(path)) {
-    passwords <- readPasswordFile(path)
+  # resolve account
+  accountDetails <- accountInfo(account, server)
+
+  # resolve application
+  if (is.null(appName))
+    appName = basename(appDir)
+  application <- resolveApplication(accountDetails, appName)
+
+  # check and remove password file
+  cleanupPasswordFile(appDir)
+
+  # get users
+  users <- showUsers(appDir, appName, account)
+
+  if (is.numeric(user)) {
+    # lookup by id
+    if (user %in% users$id) {
+      user = users[users$id==user, ]
+    } else {
+      stop("User ", user, " not found", call. = FALSE)
+    }
   } else {
-    passwords <- NULL
-  }
-
-  # check if username is already in password list
-  if (!username %in% passwords$user) {
-    stop("User \"", username, "\" not found", call. = FALSE)
+    # lookup by email
+    if (user %in% users$email) {
+      user = users[users$email==user, ]
+    } else {
+      stop("User \"", user, "\" not found", call. = FALSE)
+    }
   }
 
   # remove user
-  passwords <- passwords[passwords$user!=username, ]
+  api <- clientForAccount(accountDetails)
+  api$removeApplicationUser(application$id, user$id)
 
-  # write passwords
-  invisible(writePasswordFile(path, passwords))
+  message(paste("Removed:", user$email, "from application", sep=" "))
+
+  invisible(TRUE)
 }
 
 #' List authorized users for an application
 #'
-#' @param appPath Directory or file that was deployed. Defaults to current
-#'   working directory.
+#' @param appDir Directory containing application. Defaults to
+#'   current working directory.
+#' @param appName Name of application.
+#' @param account Account name. If a single account is registered on the
+#'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showInvited}}
+#' @note This function works only for ShinyApps servers.
 #' @export
-authorizedUsers <- function(appPath = getwd()) {
+showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
+                      server=NULL) {
+
+  # resolve account
+  accountDetails <- accountInfo(account, server)
+
+  # resolve application
+  if (is.null(appName))
+    appName = basename(appDir)
+  application <- resolveApplication(accountDetails, appName)
+
+  # fetch authoriztion list
+  api <- clientForAccount(accountDetails)
+  res <- api$listApplicationAuthoization(application$id)
+
+  # get interesting fields
+  users <- lapply(res, function(x) {
+    a = list()
+    a$id = x$user$id
+    a$email = x$user$email
+    if (!is.null(x$account)) {
+      a$account <- x$account
+    } else {
+      a$account <- NA
+    }
+    return(a)
+  })
+
+  # convert to data frame
+  users <- do.call(rbind, users)
+  df <- as.data.frame(users, stringsAsFactors = FALSE)
+  return(df)
+}
+
+#' List invited users for an application
+#'
+#' @param appDir Directory containing application. Defaults to
+#'   current working directory.
+#' @param appName Name of application.
+#' @param account Account name. If a single account is registered on the
+#'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
+#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+#' @note This function works only for ShinyApps servers.
+#' @export
+showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
+                        server=NULL) {
+
+  # resolve account
+  accountDetails <- accountInfo(account, server)
+
+  # resolve application
+  if (is.null(appName))
+    appName = basename(appDir)
+  application <- resolveApplication(accountDetails, appName)
+
+  # fetch invitation list
+  api <- clientForAccount(accountDetails)
+  res <- api$listApplicationInvitations(application$id)
+
+  # get intersting fields
+  users <- lapply(res, function(x) {
+    a = list()
+    a$id = x$id
+    a$email = x$email
+    a$link = x$link
+    return(a)
+  })
+
+  # convert to data frame
+  users <- do.call(rbind, users)
+  df <- as.data.frame(users, stringsAsFactors = FALSE)
+  return(df)
+}
+
+#' (Deprecated) List authorized users for an application
+#'
+#' @param appDir Directory containing application. Defaults to current working
+#'  directory.
+#' @export
+authorizedUsers <- function(appDir = getwd()) {
+  .Deprecated("showUsers")
 
   # read password file
-  path <- getPasswordFile(appPath)
+  path <- getPasswordFile(appDir)
   if (file.exists(path)) {
     passwords <- readPasswordFile(path)
   } else {
@@ -122,61 +228,25 @@ authorizedUsers <- function(appPath = getwd()) {
   return(passwords)
 }
 
-validateUsername <- function(username) {
+validateEmail <- function(email) {
 
-  # validate username length
-  if (is.null(username) || nchar(username) < 1) {
-    stop("Username must be at least 1 characters.", call. = FALSE)
+  if (is.null(email) || !grepl(".+\\@.+\\..+", email)) {
+    stop("Invalid email address.", call. = FALSE)
   }
 
-  # validate username has no invalid characeters
-  invalid <- c(":", "$", "\n", "\r")
-  if (any(lapply(invalid, grepl, username, fixed = TRUE)==TRUE)) {
-    stop("Username may not contain: $, :, \\n, or \\r", call. = FALSE)
-  }
-
-  invisible(TRUE)
+  invisible(email)
 }
 
-validatePassword <- function(password) {
+getPasswordFile <- function(appDir) {
+  if (!isStringParam(appDir))
+    stop(stringParamErrorMessage("appDir"))
 
-  min.length <- getOption('rsconnect.min.password.length', 4)
+  # normalize appDir path and ensure it exists
+  appDir <- normalizePath(appDir, mustWork = FALSE)
+  if (!file.exists(appDir) || !file.info(appDir)$isdir)
+    stop(appDir, " is not a valid directory", call. = FALSE)
 
-  # validate password length
-  if (is.null(password) || nchar(password) < min.length) {
-    stop("Password must be at least ", min.length, " characters.", call. = FALSE)
-  }
-
-  # validate password has no invalid characeters
-  invalid <- c(":", "$", "\n", "\r")
-  if (any(lapply(invalid, grepl, password, fixed = TRUE)==TRUE)) {
-    stop("Password may not contain: $, :, \\n, or \\r", call. = FALSE)
-  }
-
-  invisible(TRUE)
-}
-
-promptPassword <- function() {
-  prompt <- "Password: "
-  password.one <- readPassword(prompt)
-  prompt <- "Retype Password: "
-  password.two <- readPassword(prompt)
-  if (!identical(password.one, password.two)) {
-    stop("Passwords do not match.", call. = FALSE)
-  }
-  return(password.one)
-}
-
-getPasswordFile <- function(appPath) {
-  if (!isStringParam(appPath))
-    stop(stringParamErrorMessage("appPath"))
-
-  # normalize appPath and ensure it exists
-  appPath <- normalizePath(appPath, mustWork = FALSE)
-  if (!file.exists(appPath))
-    stop(appPath, " is not a valid file or directory", call. = FALSE)
-
-  dataDir <- rsconnectRootPath(appPath)
+  dataDir <- file.path(appDir, "shinyapps")
   if (!file.exists(dataDir))
     dir.create(dataDir, recursive=TRUE)
 
