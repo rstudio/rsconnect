@@ -1,3 +1,15 @@
+.biocExtraPackages <- c(
+  "nlcv",
+  "org.TguttataTestingSubset.eg.db",
+  "RCurl",
+  "Rlibstree",
+  "SNPRelate",
+  "SSOAP",
+  "SVGAnnotation",
+  "XMLRPC",
+  "XMLSchema"
+)
+
 
 bundleFiles <- function(appDir) {
   # determine the files that will be in the bundle (exclude rsconnect dir
@@ -41,10 +53,10 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, contentCategory,
   }
 
   # get application users
-  users <- authorizedUsers(if (is.null(appPrimaryDoc))
-                               appDir
-                          else
-                               file.path(appDir, appPrimaryDoc))
+  users <- suppressWarnings(authorizedUsers(if (is.null(appPrimaryDoc))
+                                                appDir
+                                            else
+                                                file.path(appDir, appPrimaryDoc)))
 
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
@@ -141,18 +153,20 @@ createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
         next
       }
 
+      # get package repository (e.g. source)
+      repo <-  getRepository(description[[1]])
+
       # validate the repository (returns an error message if there is a problem)
-      msg <- c(msg, validateRepository(pkg, getRepository(description[[1]])))
+      msg <- c(msg, validateRepository(pkg, repo))
 
       # append the bioc version to any bioconductor packages
       # TODO: resolve against actual BioC repo a package was pulled from
       # (in case the user mixed and matched)
-      if ("biocViews" %in% names(description$description)) {
+      if (identical(repo, "BioC")) {
 
-        # capture Bioc repository if available
-        biocPackages = available.packages(
-          contriburl = contrib.url(BiocInstaller::biocinstallRepos(),
-                                   type = "source"))
+        # capture Bioc repository if available 
+        biocPackages = available.packages(contriburl=contrib.url(BiocInstaller::biocinstallRepos(),
+                                                                 type="source")) 
         if (pkg %in% biocPackages) {
           description$description$biocRepo <- biocPackages[pkg, 'Repository']
         }
@@ -253,16 +267,19 @@ createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
 }
 
 getRepository <- function(description) {
+  package <- description$Package
   priority <- description$Priority
   repository <- description$Repository
   githubRepo <- description$GithubRepo
   if (is.null(repository)) {
     if (identical(priority, "base") || identical(priority, "recommended"))
       repository <- "CRAN"
-    else if ("biocViews" %in% names(description))
+    else if ("biocViews" %in% names(description)) 
       repository <- "BioC"
     else if (!is.null(githubRepo))
       repository <- "GitHub"
+    else if (package %in% .biocExtraPackages)
+      repository <- "BioC"
   }
   repository
 }
