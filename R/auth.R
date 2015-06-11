@@ -171,19 +171,23 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' @param appName Name of application.
 #' @param account Account name. If a single account is registered on the
 #'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
 #' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
 #' @export
-showInvited <- function(appDir=getwd(), appName=NULL, account = NULL) {
+showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
+                        server=NULL) {
 
-  # resolve target account and application
-  if (is.null(appName)) {
+  # resolve account
+  accountDetails <- accountInfo(account, server)
+
+  # resolve application
+  if (is.null(appName))
     appName = basename(appDir)
-  }
-  accountInfo <- accountInfo(resolveAccount(account))
-  application <- resolveApplication(accountInfo, appName)
+  application <- resolveApplication(accountDetails, appName)
 
   # fetch invitation list
-  api <- lucidClient(accountInfo)
+  api <- clientForAccount(accountDetails)
   res <- api$listApplicationInvitations(application$id)
 
   # get intersting fields
