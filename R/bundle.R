@@ -47,9 +47,11 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, contentCategory,
     file.copy(from, to)
   }
 
-  # infer package dependencies for non-static content deployment
-  if (appMode != "static") {
-    addPackratSnapshot(bundleDir, appMode)
+  if (!isShinyapps(accountInfo)) {
+    # infer package dependencies for non-static content deployment
+    if (appMode != "static") {
+      addPackratSnapshot(bundleDir, appMode)
+    }
   }
 
   # get application users
@@ -164,9 +166,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
       # (in case the user mixed and matched)
       if (identical(repo, "BioC")) {
 
-        # capture Bioc repository if available 
+        # capture Bioc repository if available
         biocPackages = available.packages(contriburl=contrib.url(BiocInstaller::biocinstallRepos(),
-                                                                 type="source")) 
+                                                                 type="source"))
         if (pkg %in% biocPackages) {
           description$description$biocRepo <- biocPackages[pkg, 'Repository']
         }
@@ -274,7 +276,7 @@ getRepository <- function(description) {
   if (is.null(repository)) {
     if (identical(priority, "base") || identical(priority, "recommended"))
       repository <- "CRAN"
-    else if ("biocViews" %in% names(description)) 
+    else if ("biocViews" %in% names(description))
       repository <- "BioC"
     else if (!is.null(githubRepo))
       repository <- "GitHub"
