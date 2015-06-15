@@ -8,10 +8,13 @@
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @param usageType
-#' @param from
-#' @param until
-#' @param interval
+#' @param usageType Use metric to retreive (for example: "hours")
+#' @param from Date range starting timestamp (Unix timestamp or relative time
+#'   delta such as "2d" or "3w").
+#' @param until Date range ending timestamp (Unix timestamp or relative time
+#'   delta such as "2d" or "3w").
+#' @param interval Sumerization interval. Data points at intervals less then this
+#'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
 #' @export
 showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
                       usageType="hours", from=NULL, until=NULL, interval=NULL) {
@@ -55,10 +58,13 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @param usageType
-#' @param from
-#' @param until
-#' @param interval
+#' @param usageType Use metric to retreive (for example: "hours")
+#' @param from Date range starting timestamp (Unix timestamp or relative time
+#'   delta such as "2d" or "3w").
+#' @param until Date range ending timestamp (Unix timestamp or relative time
+#'   delta such as "2d" or "3w").
+#' @param interval Sumerization interval. Data points at intervals less then this
+#'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
 #' @export
 accountUsage <- function(account=NULL, server=NULL, usageType="hours",
                          from=NULL, until=NULL, interval=NULL) {
