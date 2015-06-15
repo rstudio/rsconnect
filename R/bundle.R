@@ -379,7 +379,7 @@ addPackratSnapshot <- function(bundleDir, appMode) {
     })
   }, error = function(e) {
     warning("Unable to package DESCRIPTION files: ", conditionMessage(e), call. = FALSE)
-    if (dir.exists(descDir)) {
+    if (dirExists(descDir)) {
       unlink(descDir, recursive = TRUE)
     }
   })

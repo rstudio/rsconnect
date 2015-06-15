@@ -155,3 +155,9 @@ rsconnectRootPath <- function(appPath) {
   else
     file.path(appPath, "rsconnect")
 }
+
+dirExists <- function(x) {
+  utils::file_test('-d', x)
+}
+
+
