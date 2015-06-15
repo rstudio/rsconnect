@@ -54,11 +54,11 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, contentCategory,
     }
   }
 
-  # get application users
-  users <- suppressWarnings(authorizedUsers(if (is.null(appPrimaryDoc))
-                                                appDir
-                                            else
-                                                file.path(appDir, appPrimaryDoc)))
+  # get application users (for non-document deployments)
+  users <- NULL
+  if (is.null(appPrimaryDoc)) {
+    users <- suppressWarnings(authorizedUsers(appDir))
+  }
 
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
