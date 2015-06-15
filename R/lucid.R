@@ -152,13 +152,6 @@ lucidClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "invitations")
     },
 
-    scaleApplication = function(applicationId, instances) {
-      path <- paste("/applications/", applicationId, "/scale", sep="")
-      json <- list()
-      json$instance_count <- instances
-      handleResponse(POST_JSON(service, authInfo, path, json))
-    },
-
     listTasks = function(accountId, filters = NULL) {
       if (is.null(filters)) {
         filters <- vector()
