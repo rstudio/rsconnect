@@ -44,7 +44,6 @@ View(applications())
 }
 }
 \seealso{
-\code{\link{deployApp}}, \code{\link{terminateApp}}, and
-  \code{\link{scaleApp}}
+\code{\link{deployApp}}, \code{\link{terminateApp}}
 }
 
