@@ -22,10 +22,13 @@ delta such as "2d" or "3w").}
 \item{until}{Date range ending timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").}
 
-\item{interval}{Sumerization interval. Data points at intervals less then this
+\item{interval}{Summarization interval. Data points at intervals less then this
 will be grouped. (Number of seconds or relative time delta e.g. "1h").}
 }
 \description{
 Show account usage
+}
+\note{
+This function only works for ShinyApps servers.
 }
 

@@ -15,6 +15,7 @@
 #'   delta such as "2d" or "3w").
 #' @param interval Summarization interval. Data points at intervals less then this
 #'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
+#' @note This function only works for ShinyApps servers.
 #' @export
 showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
                       usageType="hours", from=NULL, until=NULL, interval=NULL) {
@@ -65,6 +66,7 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
 #'   delta such as "2d" or "3w").
 #' @param interval Summarization interval. Data points at intervals less then this
 #'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
+#' @note This function only works for ShinyApps servers.
 #' @export
 accountUsage <- function(account=NULL, server=NULL, usageType="hours",
                          from=NULL, until=NULL, interval=NULL) {
