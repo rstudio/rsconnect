@@ -19,7 +19,22 @@ lucidClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "accounts")
     },
 
-    listApplications = function(accountId, filters = list()) {
+    getAccountUsage = function(accountId, usageType='hours', applicationId=NULL,
+                               from=NULL, until=NULL, interval=NULL) {
+      path <- paste("/accounts/", accountId, "/usage/", usageType, "/", sep="")
+      query <- list()
+      if (!is.null(applicationId))
+        query$application=applicationId
+      if (!is.null(from)) 
+        query$from = from
+      if (is.null(until)) 
+        query$until = until
+      if (is.null(interval))
+        query$interval = interval
+      handleResponse(GET(service, authInfo, path, queryString(query)))
+    },
+
+   listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
       query <- paste(filterQuery(
         c("account_id", names(filters)),
