@@ -47,7 +47,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
                               account = NULL, sendEmail=TRUE, server=NULL) {
 
   # resolve account
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   # resolve application
   if (is.null(appName))
@@ -83,7 +83,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
                                  account = NULL, server=NULL) {
 
   # resolve account
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   # resolve application
   if (is.null(appName))
@@ -137,7 +137,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
                       server=NULL) {
 
   # resolve account
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   # resolve application
   if (is.null(appName))
@@ -183,7 +183,7 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
                         server=NULL) {
 
   # resolve account
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   # resolve application
   if (is.null(appName))
