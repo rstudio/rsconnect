@@ -1,40 +1,40 @@
 #' Show Application Usage
-#' 
-#' Show application usage of a currently deployed application 
-#' @param appName Name of application 
-#' @param appDir Directory containing application. Defaults to 
-#'   current working directory.  
-#' @param account Account name. If a single account is registered on the 
+#'
+#' Show application usage of a currently deployed application
+#' @param appName Name of application
+#' @param appDir Directory containing application. Defaults to
+#'   current working directory.
+#' @param account Account name. If a single account is registered on the
 #'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
 #' @param usageType
 #' @param from
 #' @param until
 #' @param interval
 #' @export
-showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, 
+showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
                       usageType="hours", from=NULL, until=NULL, interval=NULL) {
-  
-  # determine the target and target account info
-  target <- deploymentTarget(appDir, appName, account)
-  
-  # get account
-  accountInfo <- accountInfo(target$account)  
-  
-  # get application 
-  lucid <- lucidClient(accountInfo)
-  application <- getAppByName(lucid, accountInfo, appName) 
-  if (is.null(application))
-    stop("No application found. Specify the application's directory, name, ",
-         "and/or associated account.")
-  
+
+  # resolve account
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
+
+  # intialize client
+  api <- clientForAccount(accountDetails)
+
+  # resolve application
+  if (is.null(appName))
+    appName = basename(appDir)
+  application <- resolveApplication(accountDetails, appName)
+
   # get application usage
-  data <- lucid$getAccountUsage(accountInfo$accountId, 
-                                usageType,
-                                application$id, 
-                                from, 
-                                until, 
-                                interval)
-  
+  data <- api$getAccountUsage(accountDetails$accountId,
+                              usageType,
+                              application$id,
+                              from,
+                              until,
+                              interval)
+
   # get data points
   points <- data$points[[1]]
   points <- lapply(points, function(X) {
@@ -49,29 +49,30 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL,
 }
 
 #' Show Account Usage
-#' 
-#' Show account usage 
-#' @param account Account name. If a single account is registered on the 
+#'
+#' Show account usage
+#' @param account Account name. If a single account is registered on the
 #'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
 #' @param usageType
 #' @param from
 #' @param until
 #' @param interval
 #' @export
-accountUsage <- function(account=NULL, usageType="hours", 
+accountUsage <- function(account=NULL, server=NULL, usageType="hours",
                          from=NULL, until=NULL, interval=NULL) {
-  
-  # determine the target and target account info
-  accountInfo <- accountInfo(account)  
-  
-  # get application 
-  lucid <- lucidClient(accountInfo)
-  
+  # resolve account
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
+
+  # intialize client
+  api <- clientForAccount(accountDetails)
+
   # get application usage
-  data <- lucid$getAccountUsage(accountInfo$accountId, 
-                                usageType,
-                                NULL,
-                                from, 
-                                until, 
-                                interval)
+  data <- api$getAccountUsage(accountDetails$accountId,
+                              usageType,
+                              NULL,
+                              from,
+                              until,
+                              interval)
 }
