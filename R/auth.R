@@ -246,12 +246,7 @@ getPasswordFile <- function(appDir) {
   if (!file.exists(appDir) || !file.info(appDir)$isdir)
     stop(appDir, " is not a valid directory", call. = FALSE)
 
-  dataDir <- file.path(appDir, "shinyapps")
-  if (!file.exists(dataDir))
-    dir.create(dataDir, recursive=TRUE)
-
-  passwordFile <- file.path(dataDir, paste("passwords", ".txt", sep=""))
-  return(passwordFile)
+  file.path(appDir, "shinyapps", "passwords.txt")
 }
 
 readPasswordFile <- function(path) {
