@@ -119,8 +119,6 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #'   if only one application deployment was made from \code{appPath}.
 #' @param account The account under which the application was deployed. May be
 #'   omitted if only one account is registered on the system.
-#' @param server The server associated with the account. May be omitted if
-#'   only one account exists with the given name.
 #' @param entries The number of log entries to show. Defaults to 50 entries.
 #' @param streaming Whether to stream the logs. If \code{TRUE}, then the
 #'   function does not return; instead, log entries are written to the console
@@ -130,13 +128,12 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #'
 #' @export
 showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
-                     account = NULL, server = NULL, entries = 50,
-                     streaming = FALSE) {
+                     account = NULL, entries = 50, streaming = FALSE) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appPath, appName, account, server)
+  target <- deploymentTarget(appPath, appName, account)
   accountDetails <- accountInfo(target$account)
-  client <- clientForAccount(accountDetails)
+  client <- lucidClient(shinyappsServerInfo()$url, accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
