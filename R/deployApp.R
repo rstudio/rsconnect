@@ -210,6 +210,9 @@ deployApp <- function(appDir = getwd(),
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
+  # wait 1/10th of a second for any queued output get picked by RStudio
+  # before emitting the final status, to ensure it's the last line the user sees
+  Sys.sleep(0.10)
   if (!is.null(response$code) && response$code != 0) {
     displayStatus(paste0("Application deployment failed with error: ",
                          response$error, "\n"))
