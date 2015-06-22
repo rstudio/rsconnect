@@ -199,9 +199,9 @@ lucidClient <- function(service, authInfo) {
             return (NULL)
           } else {
             # always show task log on error
-            hr("Begin Log")
-            taskLog(taskId, authInfo$name, output="stderr")
-            hr("End Log")
+            hr("Begin Task Log")
+            taskLog(taskId, authInfo$name, authInfo$server, output="stderr")
+            hr("End Task Log")
             stop(status$error, call. = FALSE)
           }
         }
