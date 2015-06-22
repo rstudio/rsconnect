@@ -94,7 +94,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
   cleanupPasswordFile(appDir)
 
   # get users
-  users <- showUsers(appDir, appName, account)
+  users <- showUsers(appDir, appName, account, server)
 
   if (is.numeric(user)) {
     # lookup by id
