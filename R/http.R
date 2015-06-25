@@ -83,7 +83,8 @@ httpInternal <- function(protocol,
                          headers,
                          contentType = NULL,
                          file = NULL,
-                         writer = NULL) {
+                         writer = NULL,
+                         timeout = NULL) {
 
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -125,12 +126,17 @@ httpInternal <- function(protocol,
   if (httpVerbose())
     cat(request)
 
+  # use timeout if supplied, default timeout if not (matches parameter behavior
+  # for socketConnection)
+  timeout <- if (is.null(timeout)) getOption("timeout") else timeout
+
   # open socket connection
   time <- system.time(gcFirst=FALSE, {
-    conn <- socketConnection(host=host,
-                             port=as.integer(port),
-                             open="w+b",
-                             blocking=TRUE)
+    conn <- socketConnection(host = host,
+                             port = as.integer(port),
+                             open = "w+b",
+                             blocking = TRUE,
+                             timeout = timeout)
     on.exit(close(conn))
 
     # write the request header and file payload
@@ -164,7 +170,8 @@ httpCurl <- function(protocol,
                      headers,
                      contentType = NULL,
                      file = NULL,
-                     writer = NULL) {
+                     writer = NULL,
+                     timeout = NULL) {
 
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -189,6 +196,9 @@ httpCurl <- function(protocol,
 
   if (httpVerbose())
     command <- paste(command, "-v")
+
+  if (!is.null(timeout))
+    command <- paste(command, "--connect-timeout", timeout)
 
   if (!is.null(file)) {
     command <- paste(command,
@@ -243,7 +253,8 @@ httpRCurl <- function(protocol,
                       headers,
                       contentType = NULL,
                       file = NULL,
-                      writer = NULL) {
+                      writer = NULL,
+                      timeout = NULL) {
 
   if (!is.null(file) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
@@ -285,6 +296,11 @@ httpRCurl <- function(protocol,
     options$noprogress <- FALSE
     options$progressfunction <- writer$progress
     options$timeout <- 9999999
+  }
+
+  # use timeout if supplied
+  if (!is.null(timeout)) {
+    options$timeout <- timeout
   }
 
   # verbose if requested
@@ -450,8 +466,9 @@ GET <- function(service,
                 path,
                 query = NULL,
                 headers = list(),
-                writer = NULL) {
-  httpRequest(service, authInfo, "GET", path, query, headers, writer)
+                writer = NULL,
+                timeout = NULL) {
+  httpRequest(service, authInfo, "GET", path, query, headers, writer, timeout)
 }
 
 DELETE <- function(service,
@@ -518,7 +535,8 @@ httpRequest <- function(service,
                         path,
                         query,
                         headers = list(),
-                        writer = NULL) {
+                        writer = NULL,
+                        timeout = NULL) {
 
   # prepend the service path
   url <- paste(service$path, path, sep="")
@@ -544,7 +562,8 @@ httpRequest <- function(service,
        method,
        url,
        headers,
-       writer = writer)
+       writer = writer,
+       timeout = timeout)
 }
 
 rfc2616Date <- function(time = Sys.time()) {
@@ -576,7 +595,7 @@ urlEncode <- function(x) {
 queryString <- function (elements) {
   stopifnot(is.list(elements))
   elements <- plyr::compact(elements)
-  
+
   names <- RCurl::curlEscape(names(elements))
   values <- vapply(elements, urlEncode, character(1))
   if (length(elements) > 0) {
