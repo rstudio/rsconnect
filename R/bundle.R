@@ -27,8 +27,8 @@ bundleFiles <- function(appDir) {
   files
 }
 
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, contentCategory,
-                      accountInfo) {
+bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
+                      contentCategory, accountInfo) {
 
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -63,7 +63,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, contentCategory,
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
                                              contentCategory, accountInfo,
-                                             appFiles, appPrimaryDoc, users))
+                                             appFiles, appPrimaryDoc,
+                                             assetTypeName, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
 
@@ -132,7 +133,7 @@ inferAppMode <- function(appDir, files) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
-                              files, appPrimaryDoc, users) {
+                              files, appPrimaryDoc, assetTypeName, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -149,9 +150,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
 
       # if description is NA, application dependency may not be installed
       if (is.na(description)) {
-        msg <- c(msg, paste("Application depends on package \"", pkg, "\" but ",
-                            "it is not installed. Please resolve before ",
-                            "continuing.", sep = ""))
+        msg <- c(msg, paste0(capitalize(assetTypeName), " depends on package \"",
+                             pkg, "\" but it is not installed. Please resolve ",
+                             "before continuing."))
         next
       }
 

@@ -125,6 +125,15 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
+  # figure out what kind of thing we're deploying
+  if (!is.null(contentCategory)) {
+    assetTypeName <- contentCategory
+  } else if (!is.null(appPrimaryDoc)) {
+    assetTypeName <- "document"
+  } else {
+    assetTypeName <- "application"
+  }
+
   # if the list of files wasn't specified, generate it
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
@@ -160,7 +169,8 @@ deployApp <- function(appDir = getwd(),
 #           "\tdeployApp(lint = FALSE)\n\n",
 #           "to disable linting."
 #         )
-        message("If your application fails to run post-deployment, please double-check these messages.")
+        message("If your ", assetTypeName, " fails to run post-deployment, ",
+                "please double-check these messages.")
       }
 
     }
@@ -186,16 +196,17 @@ deployApp <- function(appDir = getwd(),
   client <- clientForAccount(accountDetails)
 
   # get the application to deploy (creates a new app on demand)
-  withStatus("Preparing to deploy application", {
+  withStatus(paste0("Preparing to deploy ", assetTypeName), {
     application <- applicationForTarget(client, accountDetails, target)
   })
 
   if (upload) {
     # create, and upload the bundle
-    withStatus(paste("Uploading bundle for application:",
+    withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, contentCategory, accountDetails)
+                              appPrimaryDoc, assetTypeName, contentCategory,
+                              accountDetails)
       bundle <- client$uploadApplication(application$id, bundlePath)
     })
   } else {
@@ -204,9 +215,9 @@ deployApp <- function(appDir = getwd(),
   }
 
   # wait for the deployment to complete (will raise an error if it can't)
-  displayStatus(paste("Deploying bundle: ", bundle$id,
-                      " for application: ", application$id,
-                      " ...\n", sep=""))
+  displayStatus(paste0("Deploying bundle: ", bundle$id,
+                       " for ", assetTypeName, ": ", application$id,
+                       " ...\n", sep=""))
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
@@ -214,12 +225,12 @@ deployApp <- function(appDir = getwd(),
   # before emitting the final status, to ensure it's the last line the user sees
   Sys.sleep(0.10)
   if (!is.null(response$code) && response$code != 0) {
-    displayStatus(paste0("Application deployment failed with error: ",
-                         response$error, "\n"))
+    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
+                         "with error: ", response$error, "\n"))
     return(invisible(FALSE))
   } else {
-    displayStatus(paste0("Application successfully deployed to ",
-                        application$url, "\n"))
+    displayStatus(paste0(capitalize(assetTypeName), " successfully deployed ",
+                         "to ", application$url, "\n"))
   }
 
   # save the deployment info for subsequent updates
