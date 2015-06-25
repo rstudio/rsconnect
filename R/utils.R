@@ -160,4 +160,11 @@ dirExists <- function(x) {
   utils::file_test('-d', x)
 }
 
+capitalize <- function(x) {
+  if (nchar(x) == 0)
+    x
+  else
+    paste0(toupper(substr(x, 1, 1)), substring(x, 2))
+}
+
 
