@@ -153,7 +153,7 @@ rpubsUpload <- function(title,
 
     rpubsRec <- deploymentRecord(recordName, "rpubs", "rpubs.com", id, url,
                                  as.numeric(Sys.time()))
-    rpubsRecFile <- deploymentFile(recordSource, recordName, "rpubs",
+    rpubsRecFile <- deploymentFile(contentFile, recordName, "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile)
 
