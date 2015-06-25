@@ -16,8 +16,11 @@ validateServerUrl <- function(url) {
   response <- NULL
   errMessage <- ""
   tryCatch({
+    # this shouldn't take more than 10 seconds since it does no work (i.e we
+    # should just be waiting for the network), so timeout quickly to avoid
+    # hanging when the server doesn't accept the connection
     response <- handleResponse(
-      GET(parseHttpUrl(url), NULL, "/server_settings"))
+      GET(parseHttpUrl(url), NULL, "/server_settings", timeout = 10))
   }, error = function(e) {
     errMessage <<- e$message
   })
