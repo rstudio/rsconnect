@@ -142,10 +142,10 @@ rpubsUpload <- function(title,
     id <- ifelse(isUpdate, id, result$location)
     url <- as.character(parsedContent["continueUrl"])
 
-    # write the deployment record and associate it with the original document
-    # if we know it, and the HTML file if we don't
-    recordSource <- ifelse(is.null(originalDoc) || nchar(originalDoc) == 0,
-                           contentFile, originalDoc)
+    # we use the source doc as the key for the deployment record as long as
+    # it's a recognized document path; otherwise we use the content file
+    recordSource <- ifelse(!is.null(originalDoc) && isDocumentPath(originalDoc),
+                           originalDoc, contentFile)
 
     # use the title if given, and the filename name of the document if not
     recordName <- ifelse(is.null(title) || nchar(title) == 0,
@@ -153,7 +153,7 @@ rpubsUpload <- function(title,
 
     rpubsRec <- deploymentRecord(recordName, "rpubs", "rpubs.com", id, url,
                                  as.numeric(Sys.time()))
-    rpubsRecFile <- deploymentFile(contentFile, recordName, "rpubs",
+    rpubsRecFile <- deploymentFile(recordSource, recordName, "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile)
 
