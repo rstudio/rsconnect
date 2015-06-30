@@ -5,7 +5,7 @@
 \title{List Application Deployments}
 \usage{
 deployments(appPath, nameFilter = NULL, accountFilter = NULL,
-  serverFilter = NULL)
+  serverFilter = NULL, excludeOrphaned = TRUE)
 }
 \arguments{
 \item{appPath}{The path to the content that was deployed, either a directory
@@ -18,6 +18,11 @@ or an individual document.}
 
 \item{serverFilter}{Return only deployments matching the given server
 (optional)}
+
+\item{excludeOrphaned}{If \code{TRUE} (the default), return only deployments
+made by a currently registered account. Deployments made from accounts that
+are no longer registered (via e.g.\code{\link{removeAccount}}) will not be
+returned.}
 }
 \value{
 Returns a data frame with at least following columns:

@@ -20,6 +20,10 @@ saveDeployment <- function(appPath, name, account, server, bundleId, url,
 #'   (optional)
 #' @param serverFilter Return only deployments matching the given server
 #'   (optional)
+#' @param excludeOrphaned If \code{TRUE} (the default), return only deployments
+#'   made by a currently registered account. Deployments made from accounts that
+#'   are no longer registered (via e.g.\code{\link{removeAccount}}) will not be
+#'   returned.
 #' @return
 #' Returns a data frame with at least following columns:
 #' \tabular{ll}{
@@ -46,7 +50,7 @@ saveDeployment <- function(appPath, name, account, server, bundleId, url,
 #'   server, and \code{\link{deployApp}} to create a new deployment.
 #' @export
 deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
-                        serverFilter = NULL) {
+                        serverFilter = NULL, excludeOrphaned = TRUE) {
 
   # calculate rsconnect dir
   rsconnectDir <- rsconnectRootPath(appPath)
@@ -85,6 +89,9 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
       unlink(shinyappsDir, recursive = TRUE)
   }
 
+  # get list of active accounts
+  activeAccounts <- accounts()
+
   # build list of deployment records
   deploymentRecs <- deploymentRecord(name = character(),
                                      account = character(),
@@ -111,6 +118,20 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
     name <- tools::file_path_sans_ext(basename(deploymentFile))
     if (!is.null(nameFilter) && !identical(nameFilter, name))
       next
+
+    # exclude orphaned if requested (note that the virtual server "rpubs.com"
+    # is always considered to be registered)
+    if (excludeOrphaned && server != "rpubs.com") {
+      # filter by account name and then by server
+      matchingAccounts <- activeAccounts[activeAccounts[["name"]] == account,]
+      matchingAccounts <-
+        matchingAccounts[matchingAccounts[["server"]] == server,]
+
+      # if there's no account with the given name and server, consider this
+      # record to be an orphan
+      if (nrow(matchingAccounts) == 0)
+        next
+    }
 
     # parse file
     deployment <- as.data.frame(readDcf(file.path(rsconnectDir, deploymentFile)),
