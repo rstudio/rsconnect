@@ -224,16 +224,17 @@ deployApp <- function(appDir = getwd(),
   # wait 1/10th of a second for any queued output get picked by RStudio
   # before emitting the final status, to ensure it's the last line the user sees
   Sys.sleep(0.10)
-  if (!is.null(response$code) && response$code != 0) {
-    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
-                         "with error: ", response$error, "\n"))
-    return(invisible(FALSE))
-  } else {
+  deploymentSucceeded <- is.null(response$code) || response$code == 0
+  if (deploymentSucceeded) {
     displayStatus(paste0(capitalize(assetTypeName), " successfully deployed ",
                          "to ", application$url, "\n"))
+  } else {
+    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
+                         "with error: ", response$error, "\n"))
   }
 
-  # save the deployment info for subsequent updates
+  # save the deployment info for subsequent updates; we do this even in the
+  # failure case to make it easy to try again
   saveDeployment(appPath,
                  target$appName,
                  target$account,
@@ -242,30 +243,31 @@ deployApp <- function(appDir = getwd(),
                  application$url,
                  metadata)
 
+  if (deploymentSucceeded) {
 
-  # function to browse to a URL using user-supplied browser (config or final)
-  showURL <- function(url) {
-    if (isTRUE(launch.browser))
-      utils::browseURL(url)
-    else if (is.function(launch.browser))
-      launch.browser(url)
-  }
-
-  # if this client supports config, see if the app needs it
-  if (!quiet && !is.null(client$configureApplication)) {
-    config <- client$configureApplication(application$id)
-    if (config$needs_config) {
-      # app needs config, finish deployment on the server
-      showURL(config$config_url)
-      return(invisible(TRUE))
+    # function to browse to a URL using user-supplied browser (config or final)
+    showURL <- function(url) {
+      if (isTRUE(launch.browser))
+        utils::browseURL(url)
+      else if (is.function(launch.browser))
+        launch.browser(url)
     }
+
+    # if this client supports config, see if the app needs it
+    if (!quiet && !is.null(client$configureApplication)) {
+      config <- client$configureApplication(application$id)
+      if (config$needs_config) {
+        # app needs config, finish deployment on the server
+        showURL(config$config_url)
+        return(invisible(TRUE))
+      }
+    }
+
+    # launch the browser if requested
+    showURL(application$url)
   }
 
-  # launch the browser if requested
-  showURL(application$url)
-
-  # successful deployment!
-  invisible(TRUE)
+  invisible(deploymentSucceeded)
 }
 
 # calculate the deployment target based on the passed parameters and
