@@ -214,26 +214,8 @@ deployApp <- function(appDir = getwd(),
     bundle <- application$deployment$bundle
   }
 
-  # wait for the deployment to complete (will raise an error if it can't)
-  displayStatus(paste0("Deploying bundle: ", bundle$id,
-                       " for ", assetTypeName, ": ", application$id,
-                       " ...\n", sep=""))
-  task <- client$deployApplication(application$id, bundle$id)
-  taskId <- if (is.null(task$task_id)) task$id else task$task_id
-  response <- client$waitForTask(taskId, quiet)
-  # wait 1/10th of a second for any queued output get picked by RStudio
-  # before emitting the final status, to ensure it's the last line the user sees
-  Sys.sleep(0.10)
-  if (!is.null(response$code) && response$code != 0) {
-    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
-                         "with error: ", response$error, "\n"))
-    return(invisible(FALSE))
-  } else {
-    displayStatus(paste0(capitalize(assetTypeName), " successfully deployed ",
-                         "to ", application$url, "\n"))
-  }
-
-  # save the deployment info for subsequent updates
+  # save the deployment info for subsequent updates--we do this before
+  # attempting the deployment itself to make retry easy on failure
   saveDeployment(appPath,
                  target$appName,
                  target$account,
@@ -242,30 +224,50 @@ deployApp <- function(appDir = getwd(),
                  application$url,
                  metadata)
 
+  # wait for the deployment to complete (will raise an error if it can't)
+  displayStatus(paste0("Deploying bundle: ", bundle$id,
+                       " for ", assetTypeName, ": ", application$id,
+                       " ...\n", sep=""))
+  task <- client$deployApplication(application$id, bundle$id)
+  taskId <- if (is.null(task$task_id)) task$id else task$task_id
+  response <- client$waitForTask(taskId, quiet)
 
-  # function to browse to a URL using user-supplied browser (config or final)
-  showURL <- function(url) {
-    if (isTRUE(launch.browser))
-      utils::browseURL(url)
-    else if (is.function(launch.browser))
-      launch.browser(url)
-  }
+  # wait 1/10th of a second for any queued output get picked by RStudio
+  # before emitting the final status, to ensure it's the last line the user sees
+  Sys.sleep(0.10)
 
-  # if this client supports config, see if the app needs it
-  if (!quiet && !is.null(client$configureApplication)) {
-    config <- client$configureApplication(application$id)
-    if (config$needs_config) {
-      # app needs config, finish deployment on the server
-      showURL(config$config_url)
-      return(invisible(TRUE))
+  deploymentSucceeded <- if (is.null(response$code) || response$code == 0) {
+    displayStatus(paste0(capitalize(assetTypeName), " successfully deployed ",
+                         "to ", application$url, "\n"))
+    # function to browse to a URL using user-supplied browser (config or final)
+    showURL <- function(url) {
+      if (isTRUE(launch.browser))
+        utils::browseURL(url)
+      else if (is.function(launch.browser))
+        launch.browser(url)
     }
+
+    # if this client supports config, see if the app needs it
+    if (!quiet && !is.null(client$configureApplication)) {
+      config <- client$configureApplication(application$id)
+      if (config$needs_config) {
+        # app needs config, finish deployment on the server
+        showURL(config$config_url)
+        return(invisible(TRUE))
+      }
+    }
+
+    # launch the browser if requested
+    showURL(application$url)
+
+    TRUE
+  } else {
+    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
+                         "with error: ", response$error, "\n"))
+    FALSE
   }
 
-  # launch the browser if requested
-  showURL(application$url)
-
-  # successful deployment!
-  invisible(TRUE)
+  invisible(deploymentSucceeded)
 }
 
 # calculate the deployment target based on the passed parameters and
