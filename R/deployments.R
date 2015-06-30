@@ -119,8 +119,9 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
     if (!is.null(nameFilter) && !identical(nameFilter, name))
       next
 
-    # exclude orphaned if requested
-    if (excludeOrphaned) {
+    # exclude orphaned if requested (note that the virtual server "rpubs.com"
+    # is always considered to be registered)
+    if (excludeOrphaned && server != "rpubs.com") {
       # filter by account name and then by server
       matchingAccounts <- activeAccounts[activeAccounts[["name"]] == account,]
       matchingAccounts <-
