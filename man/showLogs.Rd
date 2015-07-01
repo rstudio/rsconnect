@@ -5,7 +5,7 @@
 \title{Show Application Logs}
 \usage{
 showLogs(appPath = getwd(), appFile = NULL, appName = NULL,
-  account = NULL, server = NULL, entries = 50, streaming = FALSE)
+  account = NULL, entries = 50, streaming = FALSE)
 }
 \arguments{
 \item{appPath}{The path to the directory or file that was deployed.}
@@ -15,9 +15,6 @@ if only one application deployment was made from \code{appPath}.}
 
 \item{account}{The account under which the application was deployed. May be
 omitted if only one account is registered on the system.}
-
-\item{server}{The server associated with the account. May be omitted if
-only one account exists with the given name.}
 
 \item{entries}{The number of log entries to show. Defaults to 50 entries.}
 
