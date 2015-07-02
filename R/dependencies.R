@@ -59,6 +59,10 @@ dirDependencies <- function(dir) {
   # and server.R)
   pkgs <- c("shiny")
 
+  if (!dirExists(dir)) {
+    stop(paste0("directory does not exist: ", dir))
+  }
+
   # now get the packages referred to in the source code; look in both .R
   # and .Rmd files
   sapply(list.files(dir, pattern="^.*[.][Rr]([Mm][Dd])?$",
@@ -78,9 +82,47 @@ dirDependencies <- function(dir) {
                                           which,
                                           recursive=TRUE)
 
+  # get suggested dependencies mode
+  suggeted_dependencies = getOption('rsconnect.dependencies.suggested', NULL)
+
+  # include suggested
+  if (!is.null(suggeted_dependencies)) {
+    if (identical(suggeted_dependencies, "recursive")) {
+      # get suggested packages recursively
+      suggestedList <- tools::package_dependencies(pkgs,
+                                                   installed,
+                                                   c('Suggests'),
+                                                   recursive=TRUE)
+    } else {
+      # get suggested packages
+      suggestedList <- tools::package_dependencies(pkgs,
+                                                   installed,
+                                                   c('Suggests'),
+                                                   recursive=FALSE)
+    }
+
+    # filter packages that are not installed
+    suggestedPkgs <- intersect(unlist(suggestedList,
+                                      recursive=TRUE,
+                                      use.names=FALSE),
+                               row.names(installed))
+
+    # get depenencies for suggested packages
+    suggestedDepsList <- tools::package_dependencies(suggestedPkgs,
+                                                     installed,
+                                                     which,
+                                                     recursive=TRUE)
+
+    # flatten the list
+    suggestedDeps <- unlist(suggestedDepsList, recursive=TRUE, use.names=FALSE)
+    suggested <- c(suggestedPkgs, suggestedDeps)
+  } else {
+    suggested <- NULL
+  }
+
   # flatten the list
   deps <- unlist(depsList, recursive=TRUE, use.names=FALSE)
-  unique(c(pkgs, deps))
+  unique(c(pkgs, deps, suggested))
 }
 
 # detect all package dependencies for a source file (parses the file and then
