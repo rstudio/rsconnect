@@ -108,11 +108,16 @@ lucidClient <- function(service, authInfo) {
       handleResponse(POST_JSON(service, authInfo, path, list()))
     },
 
-    inviteApplicationUser = function(applicationId, email) {
+    inviteApplicationUser = function(applicationId, email,
+                                     invite_email=NULL, invite_email_message=NULL) {
       path <- paste("/applications/", applicationId, "/authorization/users",
                     sep="")
       json <- list()
       json$email <- email
+      if (!is.null(invite_email))
+        json$invite_email=invite_email
+      if (!is.null(invite_email_message))
+        json$invite_email_message=invite_email_message
       handleResponse(POST_JSON(service, authInfo, path, json))
     },
 

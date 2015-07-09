@@ -40,11 +40,13 @@ cleanupPasswordFile <- function(appDir) {
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
+#' @param sendEmail Send and email letting the user know the application
+#'   has been shared with them.
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
 #' @note This function works only for ShinyApps servers.
 #' @export
 addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
-                              account = NULL, sendEmail=TRUE, server=NULL) {
+                              account = NULL, server=NULL, sendEmail=NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -59,7 +61,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 
   # fetch authoriztion list
   api <- clientForAccount(accountDetails)
-  api$inviteApplicationUser(application$id, validateEmail(email))
+  api$inviteApplicationUser(application$id, validateEmail(email), sendEmail)
 
   message(paste("Added:", email, "to application", sep=" "))
 
