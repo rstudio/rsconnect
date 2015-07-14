@@ -40,7 +40,7 @@ cleanupPasswordFile <- function(appDir) {
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @param sendEmail Send and email letting the user know the application
+#' @param sendEmail Send an email letting the user know the application
 #'   has been shared with them.
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
 #' @note This function works only for ShinyApps servers.
