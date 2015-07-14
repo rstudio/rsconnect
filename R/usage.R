@@ -39,6 +39,10 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
                               until,
                               interval)
 
+  if (length(data$points) < 1) {
+    stop("No data.", call.=FALSE)
+  }
+
   # get data points
   points <- data$points[[1]]
   points <- lapply(points, function(X) {
