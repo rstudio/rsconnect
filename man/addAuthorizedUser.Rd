@@ -5,7 +5,7 @@
 \title{Add authorized user to application}
 \usage{
 addAuthorizedUser(email, appDir = getwd(), appName = NULL, account = NULL,
-  sendEmail = TRUE, server = NULL)
+  server = NULL, sendEmail = NULL)
 }
 \arguments{
 \item{email}{Email address of user to add.}
@@ -20,6 +20,9 @@ system then this parameter can be omitted.}
 
 \item{server}{Server name. Required only if you use the same account name on
 multiple servers.}
+
+\item{sendEmail}{Send an email letting the user know the application
+has been shared with them.}
 }
 \description{
 Add authorized user to application
