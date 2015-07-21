@@ -149,10 +149,13 @@ inferDependencies <- function(appMode) {
   if (grepl("\\brmd\\b", appMode)) {
     deps <- c(deps, "rmarkdown")
   }
-  if (grepl("\\bshiny\\b", appMode) || identical("rmd-param", appMode)) {
+  if (identical("rmd-param", appMode)) {
     deps <- c(deps, "shiny")
   }
-  deps
+  if (grepl("\\bshiny\\b", appMode)) {
+    deps <- c(deps, "shiny")
+  }
+  unique(deps)
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,

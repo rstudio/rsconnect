@@ -103,6 +103,20 @@ fileDependencies <- function(file) {
       input <- textConnection(purled, open = "r")
       # rmarkdown is an implicit dependency (it's not referenced in the Rmd source)
       pkgs <- c(pkgs, "rmarkdown")
+
+      file_lines = readLines(file, warn = FALSE, encoding = "UTF-8")
+      knit_params <- knitr::knit_params(file_lines)
+      if (length(knit_params) > 0) {
+        # shiny is an implicit dependency when using parameters, which lets us
+        # run rmarkdown::knit_params_ask.
+        pkgs <- c(pkgs, "shiny")
+        # Document parameters can optionally be expressions.
+        for (param in knit_params) {
+          if (!is.null(param$expr)) {
+            pkgs <- append(pkgs, expressionDependencies(parse(text = param$expr)))
+          }
+        }
+      }
     } else {
       # no knitr, return an empty list
       warning("Could not determine dependencies for ", file,
