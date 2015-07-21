@@ -50,7 +50,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   if (!isShinyapps(accountInfo)) {
     # infer package dependencies for non-static content deployment
     if (appMode != "static") {
-      addPackratSnapshot(bundleDir, appMode)
+      addPackratSnapshot(bundleDir, inferDependencies(appMode))
     }
   }
 
@@ -78,6 +78,14 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip")
   bundlePath
+}
+
+isParameterizedRmd <- function(filename) {
+  if (packageVersion("knitr") < "1.10.17") {
+    return(FALSE)
+  }
+  knit_params <- knitr::knit_params(readLines(filename, warn = FALSE, encoding = "UTF-8"))
+  return(length(knit_params) > 0)
 }
 
 isShinyRmd <- function(filename) {
@@ -116,8 +124,11 @@ inferAppMode <- function(appDir, files) {
   # are Shiny documents
   if (length(rmdFiles) > 0) {
     for (rmdFile in rmdFiles) {
-      if (isShinyRmd(file.path(appDir, rmdFile)))
+      if (isShinyRmd(file.path(appDir, rmdFile))) {
         return("rmd-shiny")
+      } else if (isParameterizedRmd(file.path(appDir, rmdFile))) {
+        return("rmd-param")
+      }
     }
     return("rmd-static")
   }
@@ -130,6 +141,18 @@ inferAppMode <- function(appDir, files) {
 
   # there doesn't appear to be any content here we can use
   return(NA)
+}
+
+## check for extra dependencies congruent to application mode
+inferDependencies <- function(appMode) {
+  deps <- c()
+  if (grepl("\\brmd\\b", appMode)) {
+    deps <- c(deps, "rmarkdown")
+  }
+  if (grepl("\\bshiny\\b", appMode) || identical("rmd-param", appMode)) {
+    deps <- c(deps, "shiny")
+  }
+  deps
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
@@ -316,18 +339,16 @@ hasRequiredDevtools <- function() {
   packageVersion("devtools") > "1.3"
 }
 
-addPackratSnapshot <- function(bundleDir, appMode) {
-  # check for extra dependencies congruent to application mode
-  extraPkgDeps <- ""
-  if (grepl("\\brmd\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
-  if (grepl("\\bshiny\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
-
+addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
   tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
-  if (nchar(extraPkgDeps) > 0) {
+  if (length(implicit_dependencies) > 0) {
+    extraPkgDeps <- paste0(lapply(implicit_dependencies,
+                                  function(dep) {
+                                    paste0("library(", dep, ")\n")
+                                  }),
+                           collapse="")
     # emit dependencies to file
     writeLines(extraPkgDeps, tempDependencyFile)
 
