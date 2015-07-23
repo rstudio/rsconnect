@@ -92,7 +92,7 @@ appHasParameters <- function(appDir, files) {
       if (!is.null(yaml)) {
         params <- yaml[["params"]]
         # We don't care about deep parameter processing, only that they exist.
-        return(!is.null(params))
+        return(!is.null(params) && length(params) > 0)
       }
     }
   }
