@@ -82,20 +82,23 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
 isShinyRmd <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
-  delim <- grep("^---\\s*$", lines)
+  delim <- grep("^(---|\\.\\.\\.)\\s*$", lines)
   if (length(delim) >= 2) {
-    # If at least two --- lines were found...
+    # If at least two --- or ... lines were found...
     if (delim[[1]] == 1 || all(grepl("^\\s*$", lines[1:delim[[1]]]))) {
-      # ...and the first --- line is not preceded by non-whitespace...
-      if (diff(delim[1:2]) > 1) {
-        # ...and there is actually something between the two --- lines...
-        yamlData <- paste(lines[(delim[[1]] + 1):(delim[[2]] - 1)],
-                          collapse = "\n")
-        frontMatter <- yaml::yaml.load(yamlData)
-        runtime <- frontMatter[["runtime"]]
-        if (!is.null(runtime) && identical(runtime, "shiny")) {
-          # ...and "runtime: shiny", then it's a dynamic Rmd.
-          return(TRUE)
+      # and the first is a ---
+      if(grepl("^---\\s*$", lines[delim[[1]]])) {
+        # ...and the first --- line is not preceded by non-whitespace...
+        if (diff(delim[1:2]) > 1) {
+          # ...and there is actually something between the two --- lines...
+          yamlData <- paste(lines[(delim[[1]] + 1):(delim[[2]] - 1)],
+                            collapse = "\n")
+          frontMatter <- yaml::yaml.load(yamlData)
+          runtime <- frontMatter[["runtime"]]
+          if (!is.null(runtime) && identical(runtime, "shiny")) {
+            # ...and "runtime: shiny", then it's a dynamic Rmd.
+            return(TRUE)
+          }
         }
       }
     }
@@ -313,7 +316,7 @@ validateRepository <- function(pkg, repository) {
 
 hasRequiredDevtools <- function() {
   "devtools" %in% .packages(all.available = TRUE) &&
-  packageVersion("devtools") > "1.3"
+    packageVersion("devtools") > "1.3"
 }
 
 addPackratSnapshot <- function(bundleDir, appMode) {
@@ -335,7 +338,7 @@ addPackratSnapshot <- function(bundleDir, appMode) {
     on.exit({
       if (file.exists(tempDependencyFile))
         unlink(tempDependencyFile)
-      }, add = TRUE)
+    }, add = TRUE)
   }
 
   # ensure we have an up-to-date packrat lockfile
