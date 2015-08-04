@@ -220,6 +220,7 @@ deployApp <- function(appDir = getwd(),
                  target$appName,
                  target$account,
                  accountDetails$server,
+                 application$id,
                  bundle$id,
                  application$url,
                  metadata)
