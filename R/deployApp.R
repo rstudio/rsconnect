@@ -408,6 +408,13 @@ getAppByName <- function(client, accountInfo, name) {
   if (length(app)) app[[1]] else NULL
 }
 
+# get the record for the application with the given ID in the given account
+getAppById <- function(id, account = NULL, server = NULL) {
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  client <- clientForAccount(accountDetails)
+  client$getApplication(id)
+}
+
 applicationForTarget <- function(client, accountInfo, target) {
 
   # list the existing applications for this account and see if we

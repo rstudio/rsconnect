@@ -45,7 +45,7 @@ lucidClient <- function(service, authInfo) {
 
     getApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, sep="")
-      handleResponse(GET(authInfo, path))
+      handleResponse(GET(service, authInfo, path))
     },
 
     getLogs = function(applicationId, entries = 50, streaming = FALSE,
