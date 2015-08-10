@@ -220,6 +220,7 @@ deployApp <- function(appDir = getwd(),
                  target$appName,
                  target$account,
                  accountDetails$server,
+                 application$id,
                  bundle$id,
                  application$url,
                  metadata)
@@ -405,6 +406,13 @@ getAppByName <- function(client, accountInfo, name) {
   # NOTE: returns a list with 0 or 1 elements
   app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
   if (length(app)) app[[1]] else NULL
+}
+
+# get the record for the application with the given ID in the given account
+getAppById <- function(id, account = NULL, server = NULL) {
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  client <- clientForAccount(accountDetails)
+  client$getApplication(id)
 }
 
 applicationForTarget <- function(client, accountInfo, target) {

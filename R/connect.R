@@ -123,6 +123,11 @@ connectClient <- function(service, authInfo) {
         "/applications/", applicationId, "/config", sep="")))
     },
 
+    getApplication = function(applicationId) {
+      handleResponse(GET(service, authInfo, paste0("/applications/",
+                                                   applicationId)))
+    },
+
     ## Tasks API
 
     listTasks = function() {

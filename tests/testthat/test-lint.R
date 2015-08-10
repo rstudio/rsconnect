@@ -7,7 +7,7 @@ test_that("linter warns about absolute paths and relative paths", {
   exists <- file.exists(testDir)
 
   dir.create("~/.rsconnect-tests", showWarnings = FALSE)
-  file.create("~/.rsconnect/local-file.txt")
+  file.create("~/.rsconnect-tests/local-file.txt")
 
   serverPath <- list.files("shinyapp-with-absolute-paths",
                            pattern = "server\\.R$")
