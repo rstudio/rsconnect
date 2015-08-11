@@ -37,6 +37,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # infer the mode of the application from its layout
   appMode <- inferAppMode(appDir, appFiles)
+  hasParameters <- appHasParameters(appDir, appFiles)
 
   # copy the files into the bundle dir
   for (file in appFiles) {
@@ -50,7 +51,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   if (!isShinyapps(accountInfo)) {
     # infer package dependencies for non-static content deployment
     if (appMode != "static") {
-      addPackratSnapshot(bundleDir, appMode)
+      addPackratSnapshot(bundleDir, inferDependencies(appMode, hasParameters))
     }
   }
 
@@ -62,7 +63,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
-                                             contentCategory, accountInfo,
+                                             contentCategory, hasParameters,
+                                             accountInfo,
                                              appFiles, appPrimaryDoc,
                                              assetTypeName, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
@@ -80,7 +82,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   bundlePath
 }
 
-isShinyRmd <- function(filename) {
+yamlFromRmd <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   delim <- grep("^(---|\\.\\.\\.)\\s*$", lines)
   if (length(delim) >= 2) {
@@ -93,14 +95,38 @@ isShinyRmd <- function(filename) {
           # ...and there is actually something between the two --- lines...
           yamlData <- paste(lines[(delim[[1]] + 1):(delim[[2]] - 1)],
                             collapse = "\n")
-          frontMatter <- yaml::yaml.load(yamlData)
-          runtime <- frontMatter[["runtime"]]
-          if (!is.null(runtime) && identical(runtime, "shiny")) {
-            # ...and "runtime: shiny", then it's a dynamic Rmd.
-            return(TRUE)
-          }
+          return(yaml::yaml.load(yamlData))
         }
       }
+    }
+  }
+  return(NULL)
+}
+
+appHasParameters <- function(appDir, files) {
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
+                   value = TRUE)
+  if (length(rmdFiles) > 0) {
+    for (rmdFile in rmdFiles) {
+      filename <- file.path(appDir, rmdFile)
+      yaml <- yamlFromRmd(filename)
+      if (!is.null(yaml)) {
+        params <- yaml[["params"]]
+        # We don't care about deep parameter processing, only that they exist.
+        return(!is.null(params) && length(params) > 0)
+      }
+    }
+  }
+  FALSE
+}
+
+isShinyRmd <- function(filename) {
+  yaml <- yamlFromRmd(filename)
+  if (!is.null(yaml)) {
+    runtime <- yaml[["runtime"]]
+    if (!is.null(runtime) && identical(runtime, "shiny")) {
+      # ...and "runtime: shiny", then it's a dynamic Rmd.
+      return(TRUE)
     }
   }
   return(FALSE)
@@ -119,8 +145,9 @@ inferAppMode <- function(appDir, files) {
   # are Shiny documents
   if (length(rmdFiles) > 0) {
     for (rmdFile in rmdFiles) {
-      if (isShinyRmd(file.path(appDir, rmdFile)))
+      if (isShinyRmd(file.path(appDir, rmdFile))) {
         return("rmd-shiny")
+      }
     }
     return("rmd-static")
   }
@@ -135,7 +162,23 @@ inferAppMode <- function(appDir, files) {
   return(NA)
 }
 
-createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
+## check for extra dependencies congruent to application mode
+inferDependencies <- function(appMode, hasParameters) {
+  deps <- c()
+  if (grepl("\\brmd\\b", appMode)) {
+    if (hasParameters) {
+      # An Rmd with parameters needs shiny to run the customization app.
+      deps <- c(deps, "shiny")
+    }
+    deps <- c(deps, "rmarkdown")
+  }
+  if (grepl("\\bshiny\\b", appMode)) {
+    deps <- c(deps, "shiny")
+  }
+  unique(deps)
+}
+
+createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, accountInfo,
                               files, appPrimaryDoc, assetTypeName, users) {
 
   # provide package entries for all dependencies
@@ -246,6 +289,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, accountInfo,
   # emit content category (plots, etc)
   metadata$content_category <- ifelse(!is.null(contentCategory),
                                       contentCategory, NA)
+  metadata$has_parameters <- hasParameters
+  
   # add metadata
   manifest$metadata <- metadata
 
@@ -319,18 +364,16 @@ hasRequiredDevtools <- function() {
     packageVersion("devtools") > "1.3"
 }
 
-addPackratSnapshot <- function(bundleDir, appMode) {
-  # check for extra dependencies congruent to application mode
-  extraPkgDeps <- ""
-  if (grepl("\\brmd\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(rmarkdown)\n")
-  if (grepl("\\bshiny\\b", appMode))
-    extraPkgDeps <- paste0(extraPkgDeps, "library(shiny)\n")
-
+addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
   tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
-  if (nchar(extraPkgDeps) > 0) {
+  if (length(implicit_dependencies) > 0) {
+    extraPkgDeps <- paste0(lapply(implicit_dependencies,
+                                  function(dep) {
+                                    paste0("library(", dep, ")\n")
+                                  }),
+                           collapse="")
     # emit dependencies to file
     writeLines(extraPkgDeps, tempDependencyFile)
 
