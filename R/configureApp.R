@@ -104,7 +104,7 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
   accountDetails <- accountInfo(target$account)
   serverDetails <- serverInfo(accountDetails$server)
   lucid <- lucidClient(serverDetails$url, accountDetails)
-  application <- getAppByName(lucid, accountInfo, target$appName)
+  application <- getAppByName(lucid, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
