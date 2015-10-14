@@ -144,7 +144,7 @@ fileLeaf <- function(path) {
 # whether the given path points to an individual piece of content
 isDocumentPath <- function(path) {
   ext <- tolower(tools::file_ext(path))
-  !is.null(ext) && ext != "" && ext != "r"
+  !is.null(ext) && ext != ""
 }
 
 # given a path, return the directory under which rsconnect package state is

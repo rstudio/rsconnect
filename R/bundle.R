@@ -36,13 +36,20 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   on.exit(unlink(bundleDir), add = TRUE)
 
   # infer the mode of the application from its layout
-  appMode <- inferAppMode(appDir, appFiles)
+  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
   hasParameters <- appHasParameters(appDir, appFiles)
 
   # copy the files into the bundle dir
   for (file in appFiles) {
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
+    # if deploying a single-file Shiny application, name it "app.R" so it can
+    # be run as an ordinary Shiny application
+    if (!is.null(appPrimaryDoc) &&
+        tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
+        file == appPrimaryDoc) {
+      to <- file.path(bundleDir, "app.R")
+    }
     if (!file.exists(dirname(to)))
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
@@ -132,7 +139,14 @@ isShinyRmd <- function(filename) {
   return(FALSE)
 }
 
-inferAppMode <- function(appDir, files) {
+inferAppMode <- function(appDir, appPrimaryDoc, files) {
+  # single-file Shiny application
+  if (!is.null(appPrimaryDoc) &&
+      tolower(tools::file_ext(appPrimaryDoc)) == "r") {
+    return("shiny")
+  }
+
+  # shiny directory
   shinyFiles <- grep("^(server|app).r$", files, ignore.case = TRUE, perl = TRUE)
   if (length(shinyFiles) > 0) {
     return("shiny")
@@ -282,7 +296,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   metadata <- list(appmode = appMode)
 
   # emit appropriate primary document information
-  primaryDoc <- ifelse(is.null(appPrimaryDoc), NA, appPrimaryDoc)
+  primaryDoc <- ifelse(is.null(appPrimaryDoc) ||
+                         tolower(tools::file_ext(appPrimaryDoc)) == "r",
+                       NA, appPrimaryDoc)
   metadata$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
   metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
@@ -290,7 +306,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   metadata$content_category <- ifelse(!is.null(contentCategory),
                                       contentCategory, NA)
   metadata$has_parameters <- hasParameters
-  
+
   # add metadata
   manifest$metadata <- metadata
 
