@@ -344,7 +344,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.4.20"
+  requiredVersion <- "0.4.1.19"
   if (packratVersion < requiredVersion) {
     stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
          "you have version '", packratVersion, "' installed.\n",
