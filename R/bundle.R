@@ -27,17 +27,11 @@ bundleFiles <- function(appDir) {
   files
 }
 
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, accountInfo) {
-
+bundleAppDir <- function(appDir, appFiles) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
-
-  # infer the mode of the application from its layout
-  appMode <- inferAppMode(appDir, appFiles)
-  hasParameters <- appHasParameters(appDir, appFiles)
 
   # copy the files into the bundle dir
   for (file in appFiles) {
@@ -47,6 +41,18 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
   }
+  bundleDir
+}
+
+bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
+                      contentCategory, accountInfo) {
+
+  # infer the mode of the application from its layout
+  appMode <- inferAppMode(appDir, appFiles)
+  hasParameters <- appHasParameters(appDir, appFiles)
+
+  # copy files to bundle dir to stage
+  bundleDir <- bundleAppDir(appDir, appFiles)
 
   # get application users (for non-document deployments)
   users <- NULL

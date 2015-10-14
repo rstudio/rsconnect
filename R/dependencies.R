@@ -40,14 +40,17 @@
 #' }
 #' @seealso \link[rsconnect:rsconnectPackages]{Using Packages with rsconnect}
 #' @export
-appDependencies <- function(appDir = getwd()) {
-  deps <- snapshotDependencies(appDir)
-  versions <- sapply(deps, function(dep)  {
-    utils::packageDescription(dep$Package, fields="Version")
-  })
-  data.frame(package = deps,
-             version = versions,
-             row.names = c(1:length(deps$Package)),
+appDependencies <- function(appDir = getwd(), appFiles=NULL) {
+  # if the list of files wasn't specified, generate it
+  if (is.null(appFiles)) {
+    appFiles <- bundleFiles(appDir)
+  }
+  bundleDir <- bundleAppDir(appDir, appFiles)
+  deps <- snapshotDependencies(bundleDir)
+  data.frame(package = deps[,"Package"],
+             version = deps[,"Version"],
+             source = deps[,"Source"],
+             row.names = c(1:length(deps[,"Package"])),
              stringsAsFactors=FALSE)
 }
 
