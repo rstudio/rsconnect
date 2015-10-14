@@ -1,32 +1,3 @@
-.biocExtraPackages <- c(
-  "nlcv",
-  "org.TguttataTestingSubset.eg.db",
-  "RCurl",
-  "Rlibstree",
-  "SNPRelate",
-  "SSOAP",
-  "SVGAnnotation",
-  "XMLRPC",
-  "XMLSchema"
-)
-
-
-bundleFiles <- function(appDir) {
-  # determine the files that will be in the bundle (exclude rsconnect dir
-  # as well as common hidden files)
-  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
-                      full.names = FALSE)
-  files <- files[!grepl(glob2rx("rsconnect/*"), files)]
-  files <- files[!grepl(glob2rx(".svn/*"), files)]
-  files <- files[!grepl(glob2rx(".git/*"), files)]
-  files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
-  files <- files[!grepl(glob2rx("*.Rproj"), files)]
-  files <- files[!grepl(glob2rx(".DS_Store"), files)]
-  files <- files[!grepl(glob2rx(".gitignore"), files)]
-  files <- files[!grepl(glob2rx("packrat/*"), files)]
-  files
-}
-
 bundleAppDir <- function(appDir, appFiles) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
@@ -42,6 +13,22 @@ bundleAppDir <- function(appDir, appFiles) {
     file.copy(from, to)
   }
   bundleDir
+}
+
+bundleFiles <- function(appDir) {
+  # determine the files that will be in the bundle (exclude rsconnect dir
+  # as well as common hidden files)
+  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
+                      full.names = FALSE)
+  files <- files[!grepl(glob2rx("rsconnect/*"), files)]
+  files <- files[!grepl(glob2rx(".svn/*"), files)]
+  files <- files[!grepl(glob2rx(".git/*"), files)]
+  files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
+  files <- files[!grepl(glob2rx("*.Rproj"), files)]
+  files <- files[!grepl(glob2rx(".DS_Store"), files)]
+  files <- files[!grepl(glob2rx(".gitignore"), files)]
+  files <- files[!grepl(glob2rx("packrat/*"), files)]
+  files
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
@@ -185,10 +172,10 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   # potential error messages
   msg      <- NULL
 
-  # infer package dependencies for non-static content deployment
+  # get package dependencies for non-static content deployment
   if (appMode != "static") {
 
-    # detect dependencies
+    # detect dependencies including inferred dependences
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters))
 
     # construct package list from dependencies
@@ -357,7 +344,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.1.19"
+  requiredVersion <- "0.4.4.20"
   if (packratVersion < requiredVersion) {
     stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
          "you have version '", packratVersion, "' installed.\n",
