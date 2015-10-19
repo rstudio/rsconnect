@@ -182,13 +182,12 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
     for (i in seq.int(nrow(deps))) {
       name <- deps[i, "Package"]
 
-      # construct package info
+      # get package info
       info <- as.list(deps[i, c('Source',
-                                'Repository',
-                                'GithubUsername',
-                                'GithubRepo',
-                                'GithubRef',
-                                'GithubSha1')])
+                                'Repository')])
+
+      # include github package info
+      info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
 
       # get package description
       # TODO: should we get description from packrat/desc folder?
