@@ -386,12 +386,11 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.1.19"
+  requiredVersion <- "0.4.5"
   if (packratVersion < requiredVersion) {
     stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
          "you have version '", packratVersion, "' installed.\n",
-         "Please use devtools::install_github('rstudio/packrat') to obtain ",
-         "the latest version of Packrat.")
+         "Please install the latest version of Packrat from CRAN.")
   }
   suppressMessages(
     packrat::.snapshotImpl(project = bundleDir,
