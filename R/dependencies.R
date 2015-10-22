@@ -4,6 +4,7 @@
 #' parses all .R files in the applicaition directory to determine what packages
 #' the application depends on; and for each of those packages what other
 #' packages they depend on.
+#' @inheritParams deployApp
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @return Returns a data frame listing the package

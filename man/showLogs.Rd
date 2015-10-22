@@ -10,6 +10,9 @@ showLogs(appPath = getwd(), appFile = NULL, appName = NULL,
 \arguments{
 \item{appPath}{The path to the directory or file that was deployed.}
 
+\item{appFile}{The path to the R source file that contains the application
+(for single file applications).}
+
 \item{appName}{The name of the application to show logs for. May be omitted
 if only one application deployment was made from \code{appPath}.}
 
