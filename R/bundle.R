@@ -1,15 +1,19 @@
-.biocExtraPackages <- c(
-  "nlcv",
-  "org.TguttataTestingSubset.eg.db",
-  "RCurl",
-  "Rlibstree",
-  "SNPRelate",
-  "SSOAP",
-  "SVGAnnotation",
-  "XMLRPC",
-  "XMLSchema"
-)
+bundleAppDir <- function(appDir, appFiles) {
+  # create a directory to stage the application bundle in
+  bundleDir <- tempfile()
+  dir.create(bundleDir, recursive = TRUE)
+  on.exit(unlink(bundleDir), add = TRUE)
 
+  # copy the files into the bundle dir
+  for (file in appFiles) {
+    from <- file.path(appDir, file)
+    to <- file.path(bundleDir, file)
+    if (!file.exists(dirname(to)))
+      dir.create(dirname(to), recursive = TRUE)
+    file.copy(from, to)
+  }
+  bundleDir
+}
 
 bundleFiles <- function(appDir) {
   # determine the files that will be in the bundle (exclude rsconnect dir
@@ -30,30 +34,12 @@ bundleFiles <- function(appDir) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, accountInfo) {
 
-  # create a directory to stage the application bundle in
-  bundleDir <- tempfile()
-  dir.create(bundleDir, recursive = TRUE)
-  on.exit(unlink(bundleDir), add = TRUE)
-
   # infer the mode of the application from its layout
   appMode <- inferAppMode(appDir, appFiles)
   hasParameters <- appHasParameters(appDir, appFiles)
 
-  # copy the files into the bundle dir
-  for (file in appFiles) {
-    from <- file.path(appDir, file)
-    to <- file.path(bundleDir, file)
-    if (!file.exists(dirname(to)))
-      dir.create(dirname(to), recursive = TRUE)
-    file.copy(from, to)
-  }
-
-  if (!isShinyapps(accountInfo)) {
-    # infer package dependencies for non-static content deployment
-    if (appMode != "static") {
-      addPackratSnapshot(bundleDir, inferDependencies(appMode, hasParameters))
-    }
-  }
+  # copy files to bundle dir to stage
+  bundleDir <- bundleAppDir(appDir, appFiles)
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -186,45 +172,40 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   # potential error messages
   msg      <- NULL
 
-  # for apps which run code, discover dependencies
+  # get package dependencies for non-static content deployment
   if (appMode != "static") {
-    for (pkg in dirDependencies(appDir)) {
 
-      # get the description
-      description <- list(description = suppressWarnings(
-        utils::packageDescription(pkg)))
+    # detect dependencies including inferred dependences
+    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters))
+
+    # construct package list from dependencies
+    for (i in seq.int(nrow(deps))) {
+      name <- deps[i, "Package"]
+
+      # get package info
+      info <- as.list(deps[i, c('Source',
+                                'Repository')])
+
+      # include github package info
+      info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
+
+      # get package description
+      # TODO: should we get description from packrat/desc folder?
+      info$description = suppressWarnings(utils::packageDescription(name))
 
       # if description is NA, application dependency may not be installed
-      if (is.na(description)) {
+      if (is.na(info$description[1])) {
         msg <- c(msg, paste0(capitalize(assetTypeName), " depends on package \"",
-                             pkg, "\" but it is not installed. Please resolve ",
+                             name, "\" but it is not installed. Please resolve ",
                              "before continuing."))
         next
       }
 
-      # get package repository (e.g. source)
-      repo <-  getRepository(description[[1]])
-
-      # validate the repository (returns an error message if there is a problem)
-      msg <- c(msg, validateRepository(pkg, repo))
-
-      # append the bioc version to any bioconductor packages
-      # TODO: resolve against actual BioC repo a package was pulled from
-      # (in case the user mixed and matched)
-      if (identical(repo, "BioC")) {
-
-        # capture Bioc repository if available
-        biocPackages = available.packages(contriburl=contrib.url(BiocInstaller::biocinstallRepos(),
-                                                                 type="source"))
-        if (pkg %in% biocPackages) {
-          description$description$biocRepo <- biocPackages[pkg, 'Repository']
-        }
-
-        description$description$biocVersion <- BiocInstaller::biocVersion()
-      }
+      # validate package source (returns an error message if there is a problem)
+      msg <- c(msg, validatePackageSource(deps[i, ]))
 
       # good to go
-      packages[[pkg]] <- description
+      packages[[name]] <- info
     }
   }
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
@@ -290,7 +271,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   metadata$content_category <- ifelse(!is.null(contentCategory),
                                       contentCategory, NA)
   metadata$has_parameters <- hasParameters
-  
+
   # add metadata
   manifest$metadata <- metadata
 
@@ -317,51 +298,27 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   RJSONIO::toJSON(manifest, pretty = TRUE)
 }
 
-getRepository <- function(description) {
-  package <- description$Package
-  priority <- description$Priority
-  repository <- description$Repository
-  githubRepo <- description$GithubRepo
-  if (is.null(repository)) {
-    if (identical(priority, "base") || identical(priority, "recommended"))
-      repository <- "CRAN"
-    else if ("biocViews" %in% names(description))
-      repository <- "BioC"
-    else if (!is.null(githubRepo))
-      repository <- "GitHub"
-    else if (package %in% .biocExtraPackages)
-      repository <- "BioC"
-  }
-  repository
-}
-
-validateRepository <- function(pkg, repository) {
-  msg <- if (is.null(repository)) {
-    "The package was installed locally from source."
-  } else if (!(repository %in% c("CRAN", "GitHub", "BioC"))) {
-    paste(" The package was installed from an unsupported ",
-          "repository '", repository, "'.", sep = "")
+validatePackageSource <- function(pkg) {
+  msg <- NULL
+  if (!(pkg$Source %in% c("CRAN", "Bioconductor", "github"))) {
+    if (is.null(pkg$Repository)) {
+      msg <- paste("The package was installed from an unsupported ",
+                   "source '", pkg$Source, "'.", sep = "")
+    }
   }
   if (is.null(msg)) return()
-  msg <- paste(
-    "Unable to deploy package dependency '", pkg, "'\n\n", msg, " ",
-    "Only packages installed from CRAN, BioConductor and GitHub are supported.\n",
-    sep = ""
-  )
-  if (!hasRequiredDevtools()) {
-    msg <- paste(msg, "\nTo use packages from GitHub you need to install ",
-                 "them with the most recent version of devtools. ",
-                 "To ensure you have the latest version of devtools ",
-                 "use:\n\n",
-                 "install.packages('devtools'); ",
-                 "devtools::install_github('devtools')\n", sep = "")
-  }
+  msg <- paste("Unable to deploy package dependency '", pkg$Package,
+               "'\n\n", msg, " ", sep = "")
   msg
 }
 
 hasRequiredDevtools <- function() {
   "devtools" %in% .packages(all.available = TRUE) &&
     packageVersion("devtools") > "1.3"
+}
+
+snapshotLockFile <- function(appDir) {
+  file.path(appDir, "packrat", "packrat.lock")
 }
 
 addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
@@ -411,7 +368,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
   # The server will use this to calculate package hashes. We don't want
   # to rely on hashes calculated by our version of packrat, because the
   # server may be running a different version.
-  lockFilePath <- file.path(bundleDir, "packrat", "packrat.lock")
+  lockFilePath <- snapshotLockFile(bundleDir)
   descDir <- file.path(bundleDir, "packrat", "desc")
   tryCatch({
     dir.create(descDir)
@@ -432,6 +389,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   invisible()
 }
+
 
 # given a list of mixed files and directories, explodes the directories
 # recursively into their constituent files, and returns just a list of files
