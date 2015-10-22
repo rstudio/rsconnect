@@ -8,7 +8,7 @@ deployApp(appDir = getwd(), appFiles = NULL, appPrimaryDoc = NULL,
   appSourceDoc = NULL, appName = NULL, contentCategory = NULL,
   account = NULL, server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
-  quiet = FALSE, lint = TRUE, metadata = list(), ...)
+  quiet = FALSE, lint = TRUE, metadata = list())
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working

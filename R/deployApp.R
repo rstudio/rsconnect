@@ -76,8 +76,7 @@ deployApp <- function(appDir = getwd(),
                                                  interactive()),
                       quiet = FALSE,
                       lint = TRUE,
-                      metadata = list(),
-                      ...) {
+                      metadata = list()) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -86,15 +85,6 @@ deployApp <- function(appDir = getwd(),
   appDir <- normalizePath(appDir, mustWork = FALSE)
   if (!file.exists(appDir)) {
     stop(appDir, " does not exist")
-  }
-
-  # if the primary doc was not specified, check for "appPrimaryRmd" -- this was
-  # the name of the appPrimaryDoc parameter used by older versions of the IDE
-  if (is.null(appPrimaryDoc)) {
-    args <- eval(substitute(list(...)))
-    if (!is.null(args$appPrimaryRmd)) {
-      appPrimaryDoc <- args$appPrimaryRmd
-    }
   }
 
   # create the full path that we'll deploy (append document if requested)
