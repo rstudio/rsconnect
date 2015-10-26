@@ -4,13 +4,16 @@
 \alias{lint}
 \title{Lint a Project}
 \usage{
-lint(project, files = NULL)
+lint(project, files = NULL, appPrimaryDoc = NULL)
 }
 \arguments{
 \item{project}{Path to a project directory.}
 
 \item{files}{Specific files to lint. Can be NULL, in which case all
 the files in the directory will be linted.}
+
+\item{appPrimaryDoc}{The primary file in the project directory. Can be NULL,
+in which case it's inferred (if possible) from the directory contents.}
 }
 \description{
 Takes the set of active linters (see \code{\link{addLinter}}), and applies
