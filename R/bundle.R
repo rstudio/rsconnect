@@ -173,7 +173,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   msg      <- NULL
 
   # get package dependencies for non-static content deployment
-  if (appMode != "static") {
+  if (!identical(appMode, "static")) {
 
     # detect dependencies including inferred dependences
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters))
