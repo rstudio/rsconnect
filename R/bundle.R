@@ -65,7 +65,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
                                              contentCategory, hasParameters,
                                              accountInfo,
-                                             appFiles, appPrimaryDoc,
+                                             appPrimaryDoc,
                                              assetTypeName, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
@@ -186,7 +186,7 @@ inferDependencies <- function(appMode, hasParameters) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, accountInfo,
-                              files, appPrimaryDoc, assetTypeName, users) {
+                              appPrimaryDoc, assetTypeName, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -230,6 +230,10 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
     }
   }
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
+
+  # build the list of files to checksum
+  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
+                      full.names = FALSE)
 
   # provide checksums for all files
   filelist <- list()
