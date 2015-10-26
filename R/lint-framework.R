@@ -95,9 +95,19 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
 
-  # Do some checks for a valid application structure
+  # collect files
   appFilesBase <- tolower(list.files())
   wwwFiles <- tolower(list.files("www/"))
+
+  # check for single-file app collision
+  if (!is.null(appPrimaryDoc) &&
+      tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
+      "app.r" %in% appFilesBase) {
+    stop("The project contains both a single-file Shiny application and a ",
+         "file named app.R; it must contain only one of these.")
+  }
+
+  # Do some checks for a valid application structure
   satisfiedLayouts <- c(
     shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
     shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
