@@ -1,4 +1,4 @@
-bundleAppDir <- function(appDir, appFiles) {
+bundleAppDir <- function(appDir, appFiles, appPrimaryDoc) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
@@ -45,14 +45,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
   hasParameters <- appHasParameters(appDir, appFiles)
 
-  # copy the files into the bundle dir
-  for (file in appFiles) {
-    from <- file.path(appDir, file)
-    to <- file.path(bundleDir, file)
-    if (!file.exists(dirname(to)))
-      dir.create(dirname(to), recursive = TRUE)
-    file.copy(from, to)
-  }
+  # copy files to bundle dir to stage
+  bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
 
   if (!isShinyapps(accountInfo)) {
     # infer package dependencies for non-static content deployment
