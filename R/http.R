@@ -594,7 +594,7 @@ urlEncode <- function(x) {
 
 queryString <- function (elements) {
   stopifnot(is.list(elements))
-  elements <- plyr::compact(elements)
+  elements <- elements[!sapply(elements, is.null)]
 
   names <- RCurl::curlEscape(names(elements))
   values <- vapply(elements, urlEncode, character(1))

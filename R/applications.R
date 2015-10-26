@@ -115,6 +115,8 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #' Show the logs for a deployed ShinyApps application.
 #'
 #' @param appPath The path to the directory or file that was deployed.
+#' @param appFile The path to the R source file that contains the application
+#'   (for single file applications).
 #' @param appName The name of the application to show logs for. May be omitted
 #'   if only one application deployment was made from \code{appPath}.
 #' @param account The account under which the application was deployed. May be

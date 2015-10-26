@@ -4,6 +4,7 @@
 #' parses all .R files in the applicaition directory to determine what packages
 #' the application depends on; and for each of those packages what other
 #' packages they depend on.
+#' @inheritParams deployApp
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @return Returns a data frame listing the package
@@ -40,161 +41,66 @@
 #' }
 #' @seealso \link[rsconnect:rsconnectPackages]{Using Packages with rsconnect}
 #' @export
-appDependencies <- function(appDir = getwd()) {
-  deps <- dirDependencies(appDir)
-  versions <- sapply(deps, function(dep)  {
-    utils::packageDescription(dep, fields="Version")
-  })
-  data.frame(package = deps,
-             version = versions,
-             row.names = c(1:length(deps)),
+appDependencies <- function(appDir = getwd(), appFiles=NULL) {
+  # if the list of files wasn't specified, generate it
+  if (is.null(appFiles)) {
+    appFiles <- bundleFiles(appDir)
+  }
+  bundleDir <- bundleAppDir(appDir, appFiles)
+  deps <- snapshotDependencies(bundleDir)
+  data.frame(package = deps[,"Package"],
+             version = deps[,"Version"],
+             source = deps[,"Source"],
+             row.names = c(1:length(deps[,"Package"])),
              stringsAsFactors=FALSE)
 }
 
-# detect all package dependencies for a directory of files
-dirDependencies <- function(dir) {
+snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
 
-  # start with the shiny package (the dependency on shiny can be implicit
-  # as the shiny package is automatically loaded prior to sourcing ui.R
-  # and server.R)
-  pkgs <- c("shiny")
+  # create a packrat "snapshot"
+  addPackratSnapshot(appDir, implicit_dependencies)
 
-  # now get the packages referred to in the source code; look in both .R
-  # and .Rmd files
-  sapply(list.files(dir, pattern="^.*[.][Rr]([Mm][Dd])?$",
-                    ignore.case=TRUE, recursive=TRUE),
-         function(file) {
-           # ignore files in the Packrat folder
-           if (!identical(substr(file, 1, 8), "packrat/"))
-             pkgs <<- append(pkgs, fileDependencies(file.path(dir, file)))
-         })
-  pkgs <- unique(pkgs)
+  # TODO: should we care about lockfile version or packrat version?
+  lockFilePath <- snapshotLockFile(appDir)
+  df <- as.data.frame(read.dcf(lockFilePath), stringsAsFactors = FALSE)
 
-  # then calculate recursive dependencies
-  installed <- installed.packages()
-  which <-  c("Depends", "Imports", "LinkingTo")
-  depsList <- tools::package_dependencies(pkgs,
-                                          installed,
-                                          which,
-                                          recursive=TRUE)
+  # get repos defined in the lockfile
+  repos <- gsub("[\r\n]", " ", df[1, 'Repos'])
+  repos <- strsplit(unlist(strsplit(repos, "\\s*,\\s*", perl = TRUE)), "=", fixed = TRUE)
+  repos <- setNames(
+    sapply(repos, "[[", 2),
+    sapply(repos, "[[", 1)
+  )
 
-  # flatten the list
-  deps <- unlist(depsList, recursive=TRUE, use.names=FALSE)
-  unique(c(pkgs, deps))
-}
+  # get Bioconductor repos if any
+  biocRepos = repos[grep('BioC', names(repos), perl=TRUE, value=TRUE)]
+  if (length(biocRepos) > 0) {
+    biocPackages = available.packages(contriburl=contrib.url(biocRepos, type="source"))
+  } else {
+    biocPackages = c()
+  }
 
-# detect all package dependencies for a source file (parses the file and then
-# recursively examines all expressions in the file)
-fileDependencies <- function(file) {
+  # get packages records defined in the lockfile
+  records <- utils::tail(df, -1)
 
-  # build a list of package dependencies to return
-  pkgs <- character()
-
-  ext <- tolower(tools::file_ext(file))
-  if (identical(ext, "rmd")) {
-    # if this is an R Markdown file, we'll need to use knitr to extract its code
-    # chunks for parsing
-    if (require(knitr, quietly = TRUE)) {
-      purled <- ""
-      purled_con <- textConnection("purled", open = "w", local = TRUE)
-      knitr::purl(file, purled_con, quiet = TRUE, documentation = 0,
-                  encoding = checkEncoding(file))
-      close(purled_con)
-      input <- textConnection(purled, open = "r")
-      # rmarkdown is an implicit dependency (it's not referenced in the Rmd source)
-      pkgs <- c(pkgs, "rmarkdown")
-
-      if (packageVersion("knitr") >= "1.10.18") {
-        file_lines = readLines(file, warn = FALSE, encoding = "UTF-8")
-        knit_params <- knitr::knit_params(file_lines, evaluate = FALSE)
-        if (length(knit_params) > 0) {
-          # shiny is an implicit dependency when using parameters, which lets us
-          # run rmarkdown::knit_params_ask.
-          pkgs <- c(pkgs, "shiny")
-          # Document parameters can optionally be expressions.
-          for (param in knit_params) {
-            if (!is.null(param$expr)) {
-              # When not evaluating, param$value is the parsed expression;
-              # param$expr is always the expression text.
-              pkgs <- append(pkgs, expressionDependencies(param$value))
-            }
-          }
-        }
+  # if the package is in a named CRAN-like repository capture it
+  tmp <- sapply(seq.int(nrow(records)), function(i) {
+    pkg <- records[i, "Package"]
+    source <- records[i, "Source"]
+    repository <- NA
+    # capture Bioconcutor repository
+    if (identical(source, "Bioconductor")) {
+      if (pkg %in% biocPackages) {
+        repository <- biocPackages[pkg, 'Repository']
       }
     } else {
-      # no knitr, return an empty list
-      warning("Could not determine dependencies for ", file,
-              " (requires knitr)")
-      return(character())
+      # capture CRAN-like repository
+      repository <- if (source %in% names(repos)) repos[[source]] else NA
     }
-  } else if (identical(ext, "r")) {
-    # if this is an R script, we can parse its output directly
-    input <- base::file(file, encoding = checkEncoding(file))
-    on.exit(close(input), add = TRUE)
-  } else {
-    # if it's not an extension we know, emit a warning
-    warning("Could not determine dependencies for ", file,
-            " (extension .", ext, " unknown)")
-    return(character())
-  }
-
-  # parse file and examine expressions
-  withCallingHandlers(
-    exprs <- parse(input, n = -1L, encoding = checkEncoding(file)),
-    error = function(e) message('\n\n* Failed to parse ', file, '\n')
-  )
-  for (i in seq_along(exprs))
-    pkgs <- append(pkgs, expressionDependencies(exprs[[i]]))
-
-  # return packages
-  unique(pkgs)
-}
-
-# detect the pacakge dependencies of an expression (adapted from
-# tools:::.check_packages_used)
-expressionDependencies <- function(e) {
-
-  # build a list of packages to return
-  pkgs <- character()
-
-  # examine calls
-  if (is.call(e) || is.expression(e)) {
-
-    # extract call
-    call <- deparse(e[[1L]])[1L]
-
-    # check for library or require and extract package argument
-    if ((call %in% c("library", "require")) && (length(e) >= 2L)) {
-      keep <- sapply(e, function(x) deparse(x)[1L] != "...")
-      mc <- match.call(get(call, baseenv()), e[keep])
-      if (!is.null(pkg <- mc$package)) {
-        # ensure that types are rational
-        if (!identical(mc$character.only, TRUE) ||
-              identical(class(pkg), "character")) {
-          pkg <- sub("^\"(.*)\"$", "\\1", deparse(pkg))
-          pkgs <- append(pkgs, pkg)
-        }
-      }
-    }
-
-    # check for :: or :::
-    else if (call %in% c("::", ":::")) {
-      pkg <- deparse(e[[2L]])
-      pkgs <- append(pkgs, pkg)
-    }
-
-    # check for uses of methods
-    else if (call %in% c("setClass", "setMethod")) {
-      pkgs <- append(pkgs, "methods")
-    }
-
-    # process subexpressions
-    for (i in seq_along(e))
-      pkgs <- append(pkgs, Recall(e[[i]]))
-  }
-
-  # return packages
-  unique(pkgs)
+    repository
+  })
+  records[, "Repository"] <- tmp
+  return(records)
 }
 
 # get source packages from CRAN
