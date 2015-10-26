@@ -1,4 +1,4 @@
-bundleAppDir <- function(appDir, appFiles, appPrimaryDoc) {
+bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
@@ -10,7 +10,7 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc) {
     to <- file.path(bundleDir, file)
     # if deploying a single-file Shiny application, name it "app.R" so it can
     # be run as an ordinary Shiny application
-    if (!is.null(appPrimaryDoc) &&
+    if (is.character(appPrimaryDoc) &&
         tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
         file == appPrimaryDoc) {
       to <- file.path(bundleDir, "app.R")
@@ -47,13 +47,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
-
-  if (!isShinyapps(accountInfo)) {
-    # infer package dependencies for non-static content deployment
-    if (appMode != "static") {
-      addPackratSnapshot(bundleDir, inferDependencies(appMode, hasParameters))
-    }
-  }
 
   # get application users (for non-document deployments)
   users <- NULL
