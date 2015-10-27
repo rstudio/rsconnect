@@ -39,7 +39,7 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, accountInfo) {
+                      contentCategory) {
 
   # infer the mode of the application from its layout
   appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
@@ -57,7 +57,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
                                              contentCategory, hasParameters,
-                                             accountInfo,
                                              appPrimaryDoc,
                                              assetTypeName, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
@@ -178,7 +177,7 @@ inferDependencies <- function(appMode, hasParameters) {
   unique(deps)
 }
 
-createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, accountInfo,
+createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users) {
 
   # provide package entries for all dependencies
