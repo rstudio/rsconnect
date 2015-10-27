@@ -67,8 +67,10 @@ applyLinter <- function(linter, ...) {
 ##' @param project Path to a project directory.
 ##' @param files Specific files to lint. Can be NULL, in which case all
 ##'   the files in the directory will be linted.
+##' @param appPrimaryDoc The primary file in the project directory. Can be NULL,
+##'   in which case it's inferred (if possible) from the directory contents.
 ##' @export
-lint <- function(project, files = NULL) {
+lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 
   if (!file.exists(project))
     stop("No directory at path '", project, "'")
@@ -93,13 +95,25 @@ lint <- function(project, files = NULL) {
   projectFiles <- gsub("^\\./", "", projectFiles)
   names(projectFiles) <- projectFiles
 
-  # Do some checks for a valid application structure
+  # collect files
   appFilesBase <- tolower(list.files())
   wwwFiles <- tolower(list.files("www/"))
+
+  # check for single-file app collision
+  if (!is.null(appPrimaryDoc) &&
+      tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
+      "app.r" %in% appFilesBase) {
+    stop("The project contains both a single-file Shiny application and a ",
+         "file named app.R; it must contain only one of these.")
+  }
+
+  # Do some checks for a valid application structure
   satisfiedLayouts <- c(
     shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
     shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
-    app = "app.r" %in% appFilesBase,
+    app = any("app.r" %in% appFilesBase,
+              !is.null(appPrimaryDoc) &&
+                tolower(tools::file_ext(appPrimaryDoc)) == "r"),
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
     static = any(grepl("^.*\\.html?$", appFilesBase))
   )
@@ -109,8 +123,9 @@ lint <- function(project, files = NULL) {
             The project should have one of the following layouts:
             1. 'shiny.R' and 'ui.R' in the application base directory,
             2. 'shiny.R' and 'www/index.html' in the application base directory,
-            3. An R Markdown (.Rmd) document,
-            4. A static HTML (.html) document."
+            3. 'app.R' or a single-file Shiny .R file,
+            4. An R Markdown (.Rmd) document,
+            5. A static HTML (.html) document."
 
     # strip leading whitespace from the above
     msg <- paste(collapse = "\n",

@@ -1,4 +1,4 @@
-bundleAppDir <- function(appDir, appFiles) {
+bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
@@ -8,6 +8,13 @@ bundleAppDir <- function(appDir, appFiles) {
   for (file in appFiles) {
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
+    # if deploying a single-file Shiny application, name it "app.R" so it can
+    # be run as an ordinary Shiny application
+    if (is.character(appPrimaryDoc) &&
+        tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
+        file == appPrimaryDoc) {
+      to <- file.path(bundleDir, "app.R")
+    }
     if (!file.exists(dirname(to)))
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
@@ -32,14 +39,14 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, accountInfo) {
+                      contentCategory) {
 
   # infer the mode of the application from its layout
-  appMode <- inferAppMode(appDir, appFiles)
+  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
   hasParameters <- appHasParameters(appDir, appFiles)
 
   # copy files to bundle dir to stage
-  bundleDir <- bundleAppDir(appDir, appFiles)
+  bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -50,8 +57,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
                                              contentCategory, hasParameters,
-                                             accountInfo,
-                                             appFiles, appPrimaryDoc,
+                                             appPrimaryDoc,
                                              assetTypeName, users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
@@ -118,7 +124,14 @@ isShinyRmd <- function(filename) {
   return(FALSE)
 }
 
-inferAppMode <- function(appDir, files) {
+inferAppMode <- function(appDir, appPrimaryDoc, files) {
+  # single-file Shiny application
+  if (!is.null(appPrimaryDoc) &&
+      tolower(tools::file_ext(appPrimaryDoc)) == "r") {
+    return("shiny")
+  }
+
+  # shiny directory
   shinyFiles <- grep("^(server|app).r$", files, ignore.case = TRUE, perl = TRUE)
   if (length(shinyFiles) > 0) {
     return("shiny")
@@ -164,8 +177,8 @@ inferDependencies <- function(appMode, hasParameters) {
   unique(deps)
 }
 
-createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, accountInfo,
-                              files, appPrimaryDoc, assetTypeName, users) {
+createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
+                              appPrimaryDoc, assetTypeName, users) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -209,6 +222,10 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
     }
   }
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
+
+  # build the list of files to checksum
+  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
+                      full.names = FALSE)
 
   # provide checksums for all files
   filelist <- list()
@@ -263,7 +280,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters, a
   metadata <- list(appmode = appMode)
 
   # emit appropriate primary document information
-  primaryDoc <- ifelse(is.null(appPrimaryDoc), NA, appPrimaryDoc)
+  primaryDoc <- ifelse(is.null(appPrimaryDoc) ||
+                         tolower(tools::file_ext(appPrimaryDoc)) == "r",
+                       NA, appPrimaryDoc)
   metadata$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
   metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 

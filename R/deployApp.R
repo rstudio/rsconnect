@@ -132,7 +132,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (isTRUE(lint)) {
-    lintResults <- lint(appDir, appFiles)
+    lintResults <- lint(appDir, appFiles, appPrimaryDoc)
 
     if (hasLint(lintResults)) {
 
