@@ -33,7 +33,7 @@ parseHttpStatusCode <- function(statusLine) {
     return (as.integer(statusCode))
 }
 
-readHttpResponse <- function(path, conn) {
+readHttpResponse <- function(request, conn) {
   # read status code
   resp <- readLines(conn, 1)
   statusCode <- parseHttpStatusCode(resp[1])
@@ -66,11 +66,11 @@ readHttpResponse <- function(path, conn) {
     cat(paste0(">> ", content, "\n"))
 
   # return list
-  list(path = path,
-       status = statusCode,
-       location = location,
+  list(req         = req,
+       status      = statusCode,
+       location    = location,
        contentType = contentType,
-       content = content)
+       content     = content)
 }
 
 
@@ -146,7 +146,12 @@ httpInternal <- function(protocol,
     }
 
     # read the response
-    response <- readHttpResponse(path, conn)
+    response <- readHttpResponse(list(
+                    protocol = protocol,
+                    host     = host,
+                    port     = port,
+                    method   = method,
+                    path     = path), conn)
   })
   httpTrace(method, path, time)
 
@@ -239,7 +244,12 @@ httpCurl <- function(protocol,
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
     on.exit(close(fileConn))
-    readHttpResponse(path, fileConn)
+    readHttpResponse(list(
+                    protocol = protocol,
+                    host     = host,
+                    port     = port,
+                    method   = method,
+                    path     = path), fileConn)
   } else {
     stop(paste("Curl request failed (curl error", result, "occurred)"))
   }
@@ -374,7 +384,11 @@ httpRCurl <- function(protocol,
   if (httpTraceJson() && identical(contentType, "application/json"))
     cat(paste0(">> ", contentValue, "\n"))
 
-  list(path = path,
+  list(req = list(protocol = protocol,
+                  host     = host,
+                  port     = port,
+                  method   = method,
+                  path     = path),
        status = as.integer(headers[["status"]]),
        location = location,
        contentType = contentType,

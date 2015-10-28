@@ -279,7 +279,7 @@ getUserFromRawToken <- function(serverUrl, token, privateKey) {
   tryCatch({
     user <- connect$currentUser()
   }, error = function(e) {
-    if (length(grep("500 -", e$message)) == 0) {
+    if (length(grep("HTTP 500", e$message)) == 0) {
       stop(e)
     }
   })
