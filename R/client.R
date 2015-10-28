@@ -2,7 +2,10 @@ handleResponse <- function(response, jsonFilter = NULL) {
 
   # function to report errors
   reportError <- function(msg) {
-    stop(paste(response$path, response$status, "-", msg), call. = FALSE)
+    stop("HTTP ", response$status, "\n",
+         response$req$method, " ",  response$req$protocol, "://",
+         response$req$host, response$req$port, response$req$path, "\n",
+         msg, call. = FALSE)
   }
 
   # json responses
