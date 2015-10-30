@@ -362,17 +362,16 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.5"
+  requiredVersion <- "0.4.5.10"
   if (packratVersion < requiredVersion) {
     stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
          "you have version '", packratVersion, "' installed.\n",
-         "Please install the latest version of Packrat from CRAN.")
+         "Please install the latest version of Packrat from GitHub with:\n- ",
+         "devtools::install_github('rstudio/packrat')")
   }
-  suppressMessages(
-    packrat::.snapshotImpl(project = bundleDir,
-                           snapshot.sources = FALSE,
-                           verbose = FALSE)
-  )
+
+  # generate the packrat snapshot
+  performPackratSnapshot(bundleDir)
 
   # if we emitted a temporary dependency file for packrat's benefit, remove it
   # now so it isn't included in the bundle sent to the server
@@ -431,4 +430,23 @@ explodeFiles <- function(dir, files) {
     }
   }
   exploded
+}
+
+performPackratSnapshot <- function(bundleDir) {
+
+  # move to the bundle directory
+  owd <- getwd()
+  on.exit(setwd(owd), add = TRUE)
+  setwd(bundleDir)
+
+  # ensure we snapshot recommended packages
+  packrat::opts$snapshot.recommended.packages(TRUE)
+
+  # generate a snapshot
+  suppressMessages(
+    packrat::.snapshotImpl(project = bundleDir,
+                           snapshot.sources = FALSE,
+                           verbose = FALSE)
+  )
+  TRUE
 }
