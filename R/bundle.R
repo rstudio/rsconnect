@@ -362,7 +362,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # ensure we have an up-to-date packrat lockfile
   packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.5.10"
+  requiredVersion <- "0.4.5.13"
   if (packratVersion < requiredVersion) {
     stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
          "you have version '", packratVersion, "' installed.\n",
@@ -440,7 +440,7 @@ performPackratSnapshot <- function(bundleDir) {
   setwd(bundleDir)
 
   # ensure we snapshot recommended packages
-  packrat::opts$snapshot.recommended.packages(TRUE)
+  packrat::opts$snapshot.recommended.packages(TRUE, persist = FALSE)
 
   # generate a snapshot
   suppressMessages(
