@@ -9,6 +9,11 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc) {
   bundleTempDir
 }
 
+# avoid 'trying to use CRAN without setting a mirror' errors
+repos <- getOption("repos")
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+on.exit(options(repos = repos), add = TRUE)
+
 test_that("simple Shiny app bundle is runnable", {
   bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
                                           NULL)
@@ -28,4 +33,11 @@ test_that("single-file Shiny app bundle is runnable", {
                                           "single.R")
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
+})
+
+test_that("recommended packages are snapshotted", {
+  bundleTempDir <- makeShinyBundleTempDir("MASS", "project-MASS", "MASS.R")
+  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
+  deps <- packrat:::readLockFilePackages(lockfile)
+  expect_true("MASS" %in% names(deps))
 })
