@@ -1,8 +1,8 @@
 Package: rsconnect
 Type: Package
 Title: Deployment Interface for Shiny Applications
-Version: 0.4.1.8
-Date: 2015-10-22
+Version: 0.4.1.9
+Date: 2015-11-03
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
 Description: Deployment Interface for Shiny Applications
@@ -13,7 +13,7 @@ Imports:
     PKI,
     RCurl,
     RJSONIO,
-    packrat (>= 0.4.5),
+    packrat (>= 0.4.6),
     yaml (>= 2.1.5),
     rstudioapi (>= 0.2)
 Suggests:
