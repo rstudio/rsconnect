@@ -7,6 +7,10 @@ saveDeployment <- function(appPath, name, account, server, appId, bundleId, url,
                                  when = as.numeric(Sys.time()),
                                  metadata)
   write.dcf(deployment, deploymentFile(appPath, name, account, server))
+
+  # also save to global history
+  addToDeploymentHistory(appPath, deployment)
+
   invisible(NULL)
 }
 
@@ -179,3 +183,33 @@ deploymentRecord <- function(name, account, server, appId, bundleId, url, when,
       metadata),
     stringsAsFactors = FALSE)
 }
+
+
+deploymentHistoryDir <- function() {
+  rsconnectConfigDir("deployments")
+}
+
+addToDeploymentHistory <- function(appPath, deploymentRecord) {
+
+  # path to deployments files
+  history <- file.path(deploymentHistoryDir(), "history.dcf")
+  newHistory <- file.path(deploymentHistoryDir(), "history.new.dcf")
+
+  # add the appPath to the deploymentRecord
+  deploymentRecord$appPath <- appPath
+
+  # write new history file
+  write.dcf(deploymentRecord, newHistory)
+  cat("\n", file = newHistory, append = TRUE)
+
+  # append existing history to new history
+  if (file.exists(history))
+    file.append(newHistory, history)
+
+  # overwrite with new history
+  file.rename(newHistory, history)
+}
+
+
+
+
