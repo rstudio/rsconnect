@@ -157,6 +157,10 @@ rpubsUpload <- function(title,
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile)
 
+    # record in global history
+    if (!is.null(originalDoc) && nzchar(originalDoc))
+      addToDeploymentHistory(originalDoc, rpubsRec)
+
     # return the publish information
     return(list(id = id,
                  continueUrl = url))
