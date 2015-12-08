@@ -5,9 +5,13 @@
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
-#' @param appFiles The files to bundle and deploy (only if \code{upload =
-#'   TRUE}). Can be \code{NULL}, in which case all the files in the directory
-#'   containing the application are bundled.
+#' @param appFiles The files and directories to bundle and deploy (only if
+#'   \code{upload = TRUE}). Can be \code{NULL}, in which case all the files in
+#'   the directory containing the application are bundled. Takes precedence over
+#'   \code{appFileManifest} if both are supplied.
+#' @param appFileManifest An alternate way to specify the files to be deployed;
+#'   a file containing the names of the files, one per line, relative to the
+#'   \code{appDir}.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to \code{appDir}.
 #'   Can be \code{NULL}, in which case the primary document is inferred from the
@@ -65,6 +69,7 @@
 #' @export
 deployApp <- function(appDir = getwd(),
                       appFiles = NULL,
+                      appFileManifest = NULL,
                       appPrimaryDoc = NULL,
                       appSourceDoc = NULL,
                       appName = NULL,
@@ -124,10 +129,30 @@ deployApp <- function(appDir = getwd(),
     assetTypeName <- "application"
   }
 
-  # if the list of files wasn't specified, generate it
+  # build the list of files to deploy -- implicitly (directory contents),
+  # explicitly via list, or explicitly via manifest
   if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
+    if (is.null(appFileManifest)) {
+      # no files supplied at all, just bundle the whole directory
+      appFiles <- bundleFiles(appDir)
+    } else {
+      # manifest file provided, read it and apply
+      if (!isStringParam(appFileManifest))
+        stop(stringParamErrorMessage("appFileManifest"))
+      if (!file.exists(appFileManifest))
+        stop(appFileManifest, " was specified as a file manifest, but does not",
+             "exist.")
+
+      # read the filenames from the file
+      manifestLines <- readLines(appFileManifest, warn = FALSE)
+
+      # remove empty/comment lines and explode remaining
+      manifestLines <- manifestLines[nzchar(manifestLines)]
+      manifestLines <- manifestLines[!grepl("^#", manifestLines)]
+      appFiles <- explodeFiles(appDir, manifestLines)
+    }
   } else {
+    # file list provided directly
     appFiles <- explodeFiles(appDir, appFiles)
   }
 

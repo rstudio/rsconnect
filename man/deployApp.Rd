@@ -4,9 +4,9 @@
 \alias{deployApp}
 \title{Deploy an Application}
 \usage{
-deployApp(appDir = getwd(), appFiles = NULL, appPrimaryDoc = NULL,
-  appSourceDoc = NULL, appName = NULL, contentCategory = NULL,
-  account = NULL, server = NULL, upload = TRUE,
+deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
+  appPrimaryDoc = NULL, appSourceDoc = NULL, appName = NULL,
+  contentCategory = NULL, account = NULL, server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   quiet = FALSE, lint = TRUE, metadata = list())
 }
@@ -14,9 +14,14 @@ deployApp(appDir = getwd(), appFiles = NULL, appPrimaryDoc = NULL,
 \item{appDir}{Directory containing application. Defaults to current working
 directory.}
 
-\item{appFiles}{The files to bundle and deploy (only if \code{upload =
-TRUE}). Can be \code{NULL}, in which case all the files in the directory
-containing the application are bundled.}
+\item{appFiles}{The files and directories to bundle and deploy (only if
+\code{upload = TRUE}). Can be \code{NULL}, in which case all the files in
+the directory containing the application are bundled. Takes precedence over
+\code{appFileManifest} if both are supplied.}
+
+\item{appFileManifest}{An alternate way to specify the files to be deployed;
+a file containing the names of the files, one per line, relative to the
+\code{appDir}.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}.
