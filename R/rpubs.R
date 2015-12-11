@@ -155,7 +155,7 @@ rpubsUpload <- function(title,
                                  as.numeric(Sys.time()))
     rpubsRecFile <- deploymentFile(recordSource, recordName, "rpubs",
                                    "rpubs.com")
-    write.dcf(rpubsRec, rpubsRecFile)
+    write.dcf(rpubsRec, rpubsRecFile, width = 4096)
 
     # record in global history
     if (!is.null(originalDoc) && nzchar(originalDoc))

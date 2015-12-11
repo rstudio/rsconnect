@@ -3,10 +3,14 @@
 saveDeployment <- function(appPath, name, account, server, appId, bundleId, url,
                            metadata) {
 
+  # create the record to write to disk
   deployment <- deploymentRecord(name, account, server, appId, bundleId, url,
                                  when = as.numeric(Sys.time()),
                                  metadata)
-  write.dcf(deployment, deploymentFile(appPath, name, account, server))
+
+  # use a long width so URLs don't line-wrap
+  write.dcf(deployment, deploymentFile(appPath, name, account, server),
+            width = 4096)
 
   # also save to global history
   addToDeploymentHistory(appPath, deployment)
@@ -199,7 +203,7 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
   deploymentRecord$appPath <- appPath
 
   # write new history file
-  write.dcf(deploymentRecord, newHistory)
+  write.dcf(deploymentRecord, newHistory, width = 4096)
   cat("\n", file = newHistory, append = TRUE)
 
   # append existing history to new history
