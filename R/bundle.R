@@ -274,7 +274,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  #manifest$locale <- getOption('rsconnect.locale', detectLocale())
+  manifest$locale <- getOption('rsconnect.locale', detectLocale())
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep = ".")
 
   metadata <- list(appmode = appMode)
