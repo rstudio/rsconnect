@@ -48,6 +48,19 @@ lucidClient <- function(service, authInfo) {
       handleResponse(GET(service, authInfo, path))
     },
 
+    getApplicationMetrics = function(applicationId, series, metrics, from=NULL, until=NULL, interval=NULL) {
+      path <- paste("/applications/", applicationId, "/metrics/", series, "/", sep="")
+      query <- list()
+      m <- paste(lapply(metrics, function(x){paste("metric", urlEncode(x), sep="=")}), collapse = "&")
+      if (!is.null(from))
+        query$from = from
+      if (is.null(until))
+        query$until = until
+      if (is.null(interval))
+        query$interval = interval
+      handleResponse(GET(service, authInfo, path, paste(m, queryString(query), sep="&")))
+    },
+
     getLogs = function(applicationId, entries = 50, streaming = FALSE,
                        writer = NULL) {
       path <- paste("/applications/", applicationId, "/logs", sep="")
