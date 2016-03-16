@@ -90,7 +90,7 @@ readDcf <- function(...) {
 #' @param message A string (single-line message).
 #' @param n The total number length of the generated string --
 #'   the message is padded with \code{#} up to length \code{n}.
-#' @export
+#' @noRd
 hr <- function(message = "", n = 80) {
   if (nzchar(message)) {
     r <- as.integer((n - nchar(message) - 2) / 2)
