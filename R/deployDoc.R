@@ -28,7 +28,7 @@ deployDoc <- function(doc, ...) {
   if (!file.exists(doc)) {
     stop("The document '", doc, "' does not exist.")
   }
-  if (!require("rmarkdown") ||
+  if (!requireNamespace("rmarkdown") ||
       packageVersion("rmarkdown") < "0.5.2") {
     stop("Version 0.5.2 or later of the rmarkdown package is required to ",
          "deploy individual R Markdown documents.")
