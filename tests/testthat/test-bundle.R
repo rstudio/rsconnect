@@ -15,6 +15,7 @@ options(repos = c(CRAN = "https://cran.rstudio.com"))
 on.exit(options(repos = repos), add = TRUE)
 
 test_that("simple Shiny app bundle is runnable", {
+  skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
@@ -22,6 +23,7 @@ test_that("simple Shiny app bundle is runnable", {
 })
 
 test_that("app.R Shiny app bundle is runnable", {
+  skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir("app_r_shiny", "shinyapp-appR",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
@@ -29,6 +31,7 @@ test_that("app.R Shiny app bundle is runnable", {
 })
 
 test_that("single-file Shiny app bundle is runnable", {
+  skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir("app_r_shiny", "shinyapp-singleR",
                                           "single.R")
   on.exit(unlink(bundleTempDir, recursive = TRUE))
@@ -36,6 +39,7 @@ test_that("single-file Shiny app bundle is runnable", {
 })
 
 test_that("recommended packages are snapshotted", {
+  skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir("MASS", "project-MASS", "MASS.R")
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
   deps <- packrat:::readLockFilePackages(lockfile)

@@ -105,5 +105,5 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
 
 # get source packages from CRAN
 availableCRANSourcePackages <- function() {
-  available.packages("http://cran.rstudio.com/src/contrib", type = "source")
+  available.packages("https://cran.rstudio.com/src/contrib", type = "source")
 }

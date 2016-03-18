@@ -23,6 +23,8 @@ isConnectRunning <- function() {
 
 test_that("Users API", {
 
+  skip_on_cran()
+
   if (!isConnectRunning()) {
     cat("No running 'connect' instance detected -- tests skipped.")
     return()
