@@ -45,9 +45,8 @@ httpDiagnosticsEnabled <- function() {
 }
 
 readPassword <- function(prompt) {
-  if (exists(".rs.askForPassword", mode = "function")) {
-    askForPassword <- get(".rs.askForPassword", mode = "function")
-    askForPassword(prompt)
+  if (rstudioapi::hasFun("askForPassword")) {
+    password <- rstudioapi::askForPassword(prompt)
   } else {
 
     os <- Sys.info()[['sysname']]
