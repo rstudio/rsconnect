@@ -5,10 +5,9 @@ Version: 0.4.2
 Date: 2016-03-18
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
-Description: The rsconnect package provides a programmatic deployment
-    interface for 'RPubs', 'shinyapps.io', and 'RStudio Connect'. Supported content
-    types include R Markdown documents, Shiny applications, plots, and static
-    web content.
+Description: Programmatic deployment interface for 'RPubs', 'shinyapps.io', and
+    'RStudio Connect'. Supported content types include R Markdown documents,
+    Shiny applications, plots, and static web content.
 Depends:
     R (>= 3.0.0)
 Imports:
