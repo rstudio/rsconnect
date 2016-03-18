@@ -66,7 +66,7 @@ readHttpResponse <- function(request, conn) {
     cat(paste0(">> ", content, "\n"))
 
   # return list
-  list(req         = req,
+  list(req         = request,
        status      = statusCode,
        location    = location,
        contentType = contentType,
