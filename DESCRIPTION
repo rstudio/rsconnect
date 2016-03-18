@@ -18,7 +18,7 @@ Imports:
     RJSONIO,
     packrat (>= 0.4.7),
     yaml (>= 2.1.5),
-    rstudioapi (>= 0.2)
+    rstudioapi (>= 0.5)
 Suggests:
     scrypt,
     knitr,
