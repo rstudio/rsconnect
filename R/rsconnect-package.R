@@ -1,6 +1,11 @@
 ##' rsconnect
 ##'
-##' An \R package for deploying \pkg{shiny} applications.
+##' Deployment Interface for R Markdown Documents and Shiny Applications
+##'
+##' The rsconnect package provides a programmatic deployment
+##' interface for RPubs, shinyapps.io, and RStudio Connect. Supported contents
+##' types include R Markdown documents, Shiny applications, plots, and static
+##' web content.
 ##'
 ##' @section Managing Applications:
 ##'
@@ -39,9 +44,6 @@
 ##'
 ##'   \code{\link{removeAccount}:} \tab
 ##'   Remove an account.\cr\cr
-##'
-##'   \code{\link{removeAuthorizedUser}:} \tab
-##'   Remove authorized user from an application.\cr\cr
 ##'
 ##'   \code{\link{accountInfo}:} \tab
 ##'   View information for a given account.\cr\cr
