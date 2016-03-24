@@ -1,0 +1,64 @@
+#' Deploy a Website
+#'
+#' Deploy an R Markdown website to a server.
+#'
+#' @inheritParams deployApp
+#'
+#' @param siteDir Directory containing website. Defaults to current
+#'   working directory.
+#' @param siteName Name for the site (names must be unique within
+#'   an account). Defaults to the base name of the specified siteDir,
+#'   (or to a name provided by a custom site generation function).
+#' @param sourceCode Should the site's source code be included in the
+#'   upload?
+#' @param ... Additional arguments to pass to \code{\link{deployApp}}.
+#'
+#' @export
+deploySite <- function(siteDir = getwd(),
+                       siteName = NULL,
+                       sourceCode = FALSE,
+                       lint = FALSE,
+                       ...) {
+
+  # validate we have the version of rmarkdown required to discover
+  # whether this directory has a website in it, what it's name
+  # and content directory are, etc.
+  rmarkdownVersion <- "0.9.5.3"
+  if (!requireNamespace("rmarkdown") ||
+      packageVersion("rmarkdown") < rmarkdownVersion) {
+    stop("Version ", rmarkdownVersion, " or later of the rmarkdown package ",
+         "is required to deploy websites.")
+  }
+
+  # validate and normalize siteDir
+  if (!isStringParam(siteDir))
+    stop(stringParamErrorMessage("siteDir"))
+  siteDir <- normalizePath(siteDir, mustWork = FALSE)
+  if (!file.exists(siteDir)) {
+    stop(siteDir, " does not exist")
+  }
+
+  # discover the site generator
+  siteGenerator <- rmarkdown::site_generator(siteDir)
+  if (is.null(siteGenerator))
+    stop("index.Rmd with site entry not found in ", siteDir)
+
+  # if there is no explicit siteName get it from the generator
+  appName <- siteName
+  if (is.null(appName))
+    appName <- siteGenerator$name
+
+  # determine appDir based on whehter we are uploading source code
+  if (sourceCode)
+    appDir <- siteDir
+  else
+    appDir <- siteGenerator$output_dir
+
+  # deploy the site
+  deployApp(appName = appName,
+            appDir = appDir,
+            appSourceDoc = file.path(siteDir, 'index.Rmd'),
+            contentCategory = "site",
+            lint = lint,
+            ...)
+}
