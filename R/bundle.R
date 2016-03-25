@@ -35,6 +35,7 @@ bundleFiles <- function(appDir) {
   files <- files[!grepl(glob2rx(".DS_Store"), files)]
   files <- files[!grepl(glob2rx(".gitignore"), files)]
   files <- files[!grepl(glob2rx("packrat/*"), files)]
+  files <- files[!grepl(glob2rx(".Rhistory"), files)]
   files
 }
 
@@ -43,7 +44,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # infer the mode of the application from its layout
   appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  hasParameters <- appHasParameters(appDir, appFiles)
+  hasParameters <- appHasParameters(appDir, appFiles, contentCategory)
 
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
@@ -95,7 +96,12 @@ yamlFromRmd <- function(filename) {
   return(NULL)
 }
 
-appHasParameters <- function(appDir, files) {
+appHasParameters <- function(appDir, files, contentCategory) {
+
+  # sites don't ever have parameters
+  if (identical(contentCategory, "site"))
+    return(FALSE)
+
   rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
                    value = TRUE)
   if (length(rmdFiles) > 0) {

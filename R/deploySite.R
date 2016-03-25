@@ -20,6 +20,10 @@ deploySite <- function(siteDir = getwd(),
                        lint = FALSE,
                        ...) {
 
+  # switch to siteDir for duration of this function
+  oldwd <- setwd(siteDir)
+  on.exit(setwd(oldwd), add = TRUE)
+
   # validate we have the version of rmarkdown required to discover
   # whether this directory has a website in it, what it's name
   # and content directory are, etc.
@@ -41,23 +45,34 @@ deploySite <- function(siteDir = getwd(),
   # discover the site generator
   siteGenerator <- rmarkdown::site_generator(siteDir)
   if (is.null(siteGenerator))
-    stop("index.Rmd with site entry not found in ", siteDir)
+    stop("index file with site entry not found in ", siteDir)
 
   # if there is no explicit siteName get it from the generator
   appName <- siteName
   if (is.null(appName))
     appName <- siteGenerator$name
 
-  # determine appDir based on whehter we are uploading source code
-  if (sourceCode)
-    appDir <- siteDir
-  else
+  # determine appDir based on whether we are uploading source code
+  if (sourceCode) {
+    appDir <- '.'
+    appFiles <- NULL
+  } else {
     appDir <- siteGenerator$output_dir
+    appFiles <- bundleFiles(siteGenerator$output_dir)
+    appFiles <- appFiles[!grepl("^.*\\.([Rr]|[Rr]md|md)$", appFiles)]
+  }
+
+  # determine appSourceDoc
+  if (file.exists("index.Rmd"))
+    appSourceDoc <- "index.Rmd"
+  else
+    appSourceDoc <- "index.md"
 
   # deploy the site
   deployApp(appName = appName,
             appDir = appDir,
-            appSourceDoc = file.path(siteDir, 'index.Rmd'),
+            appFiles = appFiles,
+            appSourceDoc = appSourceDoc,
             contentCategory = "site",
             lint = lint,
             ...)
