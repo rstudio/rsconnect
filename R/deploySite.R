@@ -11,12 +11,17 @@
 #'   (or to a name provided by a custom site generation function).
 #' @param sourceCode Should the site's source code be included in the
 #'   upload?
+#' @param render \code{TRUE} to render the site before publishing.
+#'   This parameter is only applicable for \code{sourceCode = FALSE},
+#'   since rendering is done on the server when sourceCode is uploaded.
 #' @param ... Additional arguments to pass to \code{\link{deployApp}}.
 #'
 #' @export
 deploySite <- function(siteDir = getwd(),
                        siteName = NULL,
                        sourceCode = FALSE,
+                       render = FALSE,
+                       quiet = FALSE,
                        lint = FALSE,
                        ...) {
 
@@ -47,6 +52,14 @@ deploySite <- function(siteDir = getwd(),
   if (is.null(siteGenerator))
     stop("index file with site entry not found in ", siteDir)
 
+  # render if requested
+  if (render) {
+    siteGenerator$render(output_format = NULL,
+                         envir = new.env(),
+                         quiet = quiet,
+                         encoding = getOption("encoding"))
+  }
+
   # if there is no explicit siteName get it from the generator
   appName <- siteName
   if (is.null(appName))
@@ -74,6 +87,7 @@ deploySite <- function(siteDir = getwd(),
             appFiles = appFiles,
             appSourceDoc = appSourceDoc,
             contentCategory = "site",
+            quiet = quiet,
             lint = lint,
             ...)
 }
