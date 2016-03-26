@@ -1,7 +1,7 @@
 Package: rsconnect
 Type: Package
 Title: Deployment Interface for R Markdown Documents and Shiny Applications
-Version: 0.4.2
+Version: 0.4.2.1
 Date: 2016-03-18
 Author: JJ Allaire
 Maintainer: JJ Allaire <jj@rstudio.com>
