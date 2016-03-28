@@ -5,7 +5,7 @@
 \title{Deploy a Website}
 \usage{
 deploySite(siteDir = getwd(), siteName = NULL, sourceCode = FALSE,
-  lint = FALSE, ...)
+  render = FALSE, quiet = FALSE, lint = FALSE, ...)
 }
 \arguments{
 \item{siteDir}{Directory containing website. Defaults to current
@@ -17,6 +17,13 @@ an account). Defaults to the base name of the specified siteDir,
 
 \item{sourceCode}{Should the site's source code be included in the
 upload?}
+
+\item{render}{\code{TRUE} to render the site before publishing.
+This parameter is only applicable for \code{sourceCode = FALSE},
+since rendering is done on the server when sourceCode is uploaded.}
+
+\item{quiet}{Request that no status information be printed to the console
+during the deployment.}
 
 \item{lint}{Lint the project before initiating deployment, to identify
 potentially problematic code?}
