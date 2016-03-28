@@ -49,12 +49,6 @@ If you are running on Windows and have difficulty configuring proxy settings for
 options(rsconnect.http = "internal")
 }
 
-There are two things to keep in mind when using \code{internal} connection types:
-
-\enumerate{
-  \item The \code{internal} connection type uses an insecure (non-encrypted) http connection to the server. If you require an encrypted https connection it's recommended that you use an \code{rcurl} or \code{curl} connection.
-  \item To take advantage of Internet Explorer proxy settings you must be using the \code{internet2} routines via the \code{setInternet2} function (this is the default within RStudio on Windows). You can check whether \code{internet2} is enabled by executing the following code: \code{ setInternet2(use = NA)}
-}
-
+The \code{internal} connection type uses an insecure (non-encrypted) http connection to the server. If you require an encrypted https connection it's recommended that you use an \code{rcurl} or \code{curl} connection.
 }
 
