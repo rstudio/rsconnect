@@ -9,18 +9,18 @@
 #' @param siteName Name for the site (names must be unique within
 #'   an account). Defaults to the base name of the specified siteDir,
 #'   (or to a name provided by a custom site generation function).
-#' @param sourceCode Should the site's source code be included in the
-#'   upload?
-#' @param render \code{TRUE} to render the site before publishing.
-#'   This parameter is only applicable for \code{sourceCode = FALSE},
-#'   since rendering is done on the server when sourceCode is uploaded.
+#' @param render Rendering behavior for site: "none" to upload a
+#'   static version of the current contents of the site directory;
+#'   "local" to render the site locally then upload it; "server" to
+#'   render the site on the server. Note that for "none" and "local"
+#'   R scripts (.R) and markdown documents (.Rmd and .md) will not be
+#'   uploaded to the server.
 #' @param ... Additional arguments to pass to \code{\link{deployApp}}.
 #'
 #' @export
 deploySite <- function(siteDir = getwd(),
                        siteName = NULL,
-                       sourceCode = FALSE,
-                       render = FALSE,
+                       render = c("none", "local", "server"),
                        quiet = FALSE,
                        lint = FALSE,
                        ...) {
@@ -52,8 +52,9 @@ deploySite <- function(siteDir = getwd(),
   if (is.null(siteGenerator))
     stop("index file with site entry not found in ", siteDir)
 
-  # render if requested
-  if (render) {
+  # render locally if requested
+  render <- match.arg(render)
+  if (render == "local") {
     siteGenerator$render(output_format = NULL,
                          envir = new.env(),
                          quiet = quiet,
@@ -65,8 +66,8 @@ deploySite <- function(siteDir = getwd(),
   if (is.null(appName))
     appName <- siteGenerator$name
 
-  # determine appDir based on whether we are uploading source code
-  if (sourceCode) {
+  # determine appDir based on whether we are rendering on the server
+  if (render == "server") {
     appDir <- '.'
     appFiles <- NULL
   } else {

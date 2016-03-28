@@ -4,8 +4,8 @@
 \alias{deploySite}
 \title{Deploy a Website}
 \usage{
-deploySite(siteDir = getwd(), siteName = NULL, sourceCode = FALSE,
-  render = FALSE, quiet = FALSE, lint = FALSE, ...)
+deploySite(siteDir = getwd(), siteName = NULL, render = c("none", "local",
+  "server"), quiet = FALSE, lint = FALSE, ...)
 }
 \arguments{
 \item{siteDir}{Directory containing website. Defaults to current
@@ -15,12 +15,12 @@ working directory.}
 an account). Defaults to the base name of the specified siteDir,
 (or to a name provided by a custom site generation function).}
 
-\item{sourceCode}{Should the site's source code be included in the
-upload?}
-
-\item{render}{\code{TRUE} to render the site before publishing.
-This parameter is only applicable for \code{sourceCode = FALSE},
-since rendering is done on the server when sourceCode is uploaded.}
+\item{render}{Rendering behavior for site: "none" to upload a
+static version of the current contents of the site directory;
+"local" to render the site locally then upload it; "server" to
+render the site on the server. Note that for "none" and "local"
+R scripts (.R) and markdown documents (.Rmd and .md) will not be
+uploaded to the server.}
 
 \item{quiet}{Request that no status information be printed to the console
 during the deployment.}
