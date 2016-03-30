@@ -55,7 +55,8 @@ deploySite <- function(siteDir = getwd(),
   # render locally if requested
   render <- match.arg(render)
   if (render == "local") {
-    siteGenerator$render(output_format = NULL,
+    siteGenerator$render(input_file = NULL,
+                         output_format = NULL,
                          envir = new.env(),
                          quiet = quiet,
                          encoding = getOption("encoding"))
