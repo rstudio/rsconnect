@@ -4,8 +4,10 @@
 \alias{deploySite}
 \title{Deploy a Website}
 \usage{
-deploySite(siteDir = getwd(), siteName = NULL, render = c("none", "local",
-  "server"), quiet = FALSE, lint = FALSE, ...)
+deploySite(siteDir = getwd(), siteName = NULL, account = NULL,
+  server = NULL, render = c("none", "local", "server"),
+  launch.browser = getOption("rsconnect.launch.browser", interactive()),
+  quiet = FALSE, lint = FALSE, metadata = list())
 }
 \arguments{
 \item{siteDir}{Directory containing website. Defaults to current
@@ -15,6 +17,14 @@ working directory.}
 an account). Defaults to the base name of the specified siteDir,
 (or to a name provided by a custom site generation function).}
 
+\item{account}{Account to deploy application to. This
+parameter is only required for the initial deployment of an application
+when there are multiple accounts configured on the system (see
+\link{accounts}).}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
+
 \item{render}{Rendering behavior for site: "none" to upload a
 static version of the current contents of the site directory;
 "local" to render the site locally then upload it; "server" to
@@ -22,13 +32,19 @@ render the site on the server. Note that for "none" and "local"
 R scripts (.R) and markdown documents (.Rmd and .md) will not be
 uploaded to the server.}
 
+\item{launch.browser}{If true, the system's default web browser will be
+launched automatically after the app is started. Defaults to \code{TRUE} in
+interactive sessions only.}
+
 \item{quiet}{Request that no status information be printed to the console
 during the deployment.}
 
 \item{lint}{Lint the project before initiating deployment, to identify
 potentially problematic code?}
 
-\item{...}{Additional arguments to pass to \code{\link{deployApp}}.}
+\item{metadata}{Additional metadata fields to save with the deployment
+record. These fields will be returned on subsequent calls to
+\code{\link{deployments}}.}
 }
 \description{
 Deploy an R Markdown website to a server.

@@ -15,15 +15,17 @@
 #'   render the site on the server. Note that for "none" and "local"
 #'   R scripts (.R) and markdown documents (.Rmd and .md) will not be
 #'   uploaded to the server.
-#' @param ... Additional arguments to pass to \code{\link{deployApp}}.
 #'
 #' @export
 deploySite <- function(siteDir = getwd(),
                        siteName = NULL,
+                       account = NULL,
+                       server = NULL,
                        render = c("none", "local", "server"),
+                       launch.browser = getOption("rsconnect.launch.browser", interactive()),
                        quiet = FALSE,
                        lint = FALSE,
-                       ...) {
+                       metadata = list()) {
 
   # switch to siteDir for duration of this function
   oldwd <- setwd(siteDir)
@@ -89,7 +91,10 @@ deploySite <- function(siteDir = getwd(),
             appFiles = appFiles,
             appSourceDoc = appSourceDoc,
             contentCategory = "site",
+            account = account,
+            server = server,
+            launch.browser = launch.browser,
             quiet = quiet,
             lint = lint,
-            ...)
+            metadata = metadata)
 }
