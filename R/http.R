@@ -352,11 +352,31 @@ httpRCurl <- function(protocol,
     error = function(e, ...) {
       # ignore errors resulting from timeout or user abort
       if (identical(e$message, "Callback aborted") ||
-          identical(e$message, "transfer closed with outstanding read data remaining"))
-        return
+          identical(e$message, "transfer closed with outstanding read data remaining")) {
+        return()
+      }
+
+      # detect errors due to overly-large bundles
+      if (grepl("long vectors not supported yet", e$message, fixed = TRUE)) {
+
+        msg <- "Deployment failed due to overly-large bundle."
+
+        prescription <- if (!identical(getOption("rsconnect.http"), "curl"))
+          "Try setting 'options(rsconnect.http = \"curl\")' and re-deploying your application."
+
+        # attempt to provide file size in output as well
+        fileInfo <- if (!is.null(file) && file.exists(file)) {
+          fmt <- "(File %s is %s in size)"
+          size <- format(structure(as.numeric(file.info(file)$size), class = "object_size"), units = "auto")
+          sprintf(fmt, file, size)
+        }
+
+        pasted <- paste(e$message, msg, prescription, fileInfo, sep = "\n", collapse = "\n")
+        stop(pasted)
+      }
+
       # bubble remaining errors through
-      else
-        stop(e)
+      stop(e)
     }))
   httpTrace(method, path, time)
 
