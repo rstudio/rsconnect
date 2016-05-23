@@ -195,6 +195,9 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
 
+  if (is.character(appName))
+    validateAppName(appName)
+
   # try to detect encoding from the RStudio project file
   .globals$encoding <- rstudioEncoding(appDir)
   on.exit(.globals$encoding <- NULL, add = TRUE)
@@ -453,4 +456,26 @@ applicationForTarget <- function(client, accountInfo, target) {
 
   # return the application
   app
+}
+
+validateAppName <- function(appName) {
+
+  errMsg <- paste(c(
+    "Application names should be at least 4 characters in length, ",
+    "at most 64 characters in length, and ",
+    "made up of only alphanumeric characters."
+  ), collapse = "")
+
+  if (!is.character(appName) || length(appName) != 1)
+    stop(errMsg)
+
+  nameMsg <- sprintf("(Application name was '%s')", appName)
+  if (nchar(appName) < 4 || nchar(appName) > 64)
+    stop(paste(errMsg, nameMsg, sep = "\n"))
+
+  reAppName <- "^[a-zA-Z0-9_-]+$"
+  if (!grepl(reAppName, appName))
+    stop(paste(errMsg, nameMsg, sep = "\n"))
+
+  TRUE
 }
