@@ -462,18 +462,15 @@ validateAppName <- function(appName) {
 
   errMsg <- paste(c(
     "Application names should be at least 4 characters in length, ",
-    "at most 64 characters in length, and ",
-    "made up of only alphanumeric characters."
+    "at most 63 characters in length, and ",
+    "made up of only alphanumeric characters, '-' and '_'."
   ), collapse = "")
 
   if (!is.character(appName) || length(appName) != 1)
     stop(errMsg)
 
   nameMsg <- sprintf("(Application name was '%s')", appName)
-  if (nchar(appName) < 4 || nchar(appName) > 64)
-    stop(paste(errMsg, nameMsg, sep = "\n"))
-
-  reAppName <- "^[a-zA-Z0-9_-]+$"
+  reAppName <- "^[a-zA-Z0-9_-]{4,63}$"
   if (!grepl(reAppName, appName))
     stop(paste(errMsg, nameMsg, sep = "\n"))
 
