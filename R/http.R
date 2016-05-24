@@ -367,6 +367,15 @@ httpRCurl <- function(protocol,
           "Try setting 'options(rsconnect.http = \"curl\")' and re-deploying your application."
         }
 
+        # inform user of 'rsconnectOption' help page
+        prescription <- paste(sep = "\n",
+          prescription,
+          paste(
+            "Check the `?rsconnectOptions` help page for more information on how",
+            "HTTP communications can be configured."
+          )
+        )
+
         # attempt to provide file size in output as well
         fileInfo <- if (!is.null(file) && file.exists(file)) {
           fmt <- "(File %s is %s in size)"
