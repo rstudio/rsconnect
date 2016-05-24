@@ -361,8 +361,11 @@ httpRCurl <- function(protocol,
 
         msg <- "Deployment failed due to overly-large bundle."
 
-        prescription <- if (!identical(getOption("rsconnect.http"), "curl"))
+        # request use of system curl if available
+        tryCurl <- !identical(getOption("rsconnect.http"), "curl") && nzchar(Sys.which("curl"))
+        prescription <- if (tryCurl) {
           "Try setting 'options(rsconnect.http = \"curl\")' and re-deploying your application."
+        }
 
         # attempt to provide file size in output as well
         fileInfo <- if (!is.null(file) && file.exists(file)) {
