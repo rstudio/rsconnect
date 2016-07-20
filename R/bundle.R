@@ -22,10 +22,6 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
   bundleDir
 }
 
-maxBundleSize <- function() {
-  getOption("rsconnect.max.bundle.size", 1048576000)
-}
-
 maxDirectoryList <- function(dir, parent, totalSize) {
   # generate a list of files at this level
   contents <- list.files(dir, recursive = FALSE, all.files = TRUE,
@@ -48,7 +44,7 @@ maxDirectoryList <- function(dir, parent, totalSize) {
   subdirContents <- NULL
 
   # if we haven't exceeded the maximum size, check each subdirectory
-  if (totalSize < maxBundleSize()) {
+  if (totalSize < getOption("rsconnect.max.bundle.size")) {
     subdirs <- contents[info$isdir]
     for (subdir in subdirs) {
 
@@ -66,7 +62,7 @@ maxDirectoryList <- function(dir, parent, totalSize) {
       subdirContents <- append(subdirContents, dirList$contents)
 
       # abort if we've reached the maximum size
-      if (totalSize > maxBundleSize())
+      if (totalSize > getOption("rsconnect.max.bundle.size"))
         break
     }
   }
@@ -113,10 +109,11 @@ listBundleFiles <- function(appDir) {
 
 bundleFiles <- function(appDir) {
   files <- listBundleFiles(appDir)
-  if (files$totalSize > maxBundleSize()) {
+  if (files$totalSize > getOption("rsconnect.max.bundle.size")) {
     stop("The directory", appDir, "cannot be deployed because it is too",
-         "large (the maximum size is", maxBundleSize(), "bytes). Remove some",
-         "files or adjust the rsconnect.max.bundle.size option.")
+         "large (the maximum size is", getOption("rsconnect.max.bundle.size"),
+         "bytes). Remove some files or adjust the rsconnect.max.bundle.size",
+         "option.")
   }
   files$contents
 }
