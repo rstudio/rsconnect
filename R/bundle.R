@@ -22,21 +22,100 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
   bundleDir
 }
 
+maxDirectoryList <- function(dir, parent, totalSize) {
+  # generate a list of files at this level
+  contents <- list.files(dir, recursive = FALSE, all.files = TRUE,
+                         include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
+
+  # at the root level, exclude those with a forbidden extension
+  if (nchar(parent) == 0) {
+    contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
+    contents <- contents[!grepl(glob2rx(".DS_Store"), contents)]
+    contents <- contents[!grepl(glob2rx(".gitignore"), contents)]
+    contents <- contents[!grepl(glob2rx(".Rhistory"), contents)]
+  }
+
+  # sum the size of the files in the directory
+  info <- file.info(file.path(dir, contents))
+  size <- sum(info$size)
+  if (is.na(size))
+    size <- 0
+  totalSize <- totalSize + size
+  subdirContents <- NULL
+
+  # if we haven't exceeded the maximum size, check each subdirectory
+  if (totalSize < getOption("rsconnect.max.bundle.size")) {
+    subdirs <- contents[info$isdir]
+    for (subdir in subdirs) {
+
+      # ignore known directories from the root
+      if (nchar(parent) == 0 && subdir %in% c(
+           "rsconnect", "packrat", ".svn", ".git", ".Rproj.user"))
+        next
+
+      # get the list of files in the subdirectory
+      dirList <- maxDirectoryList(file.path(dir, subdir),
+                                  if (nchar(parent) == 0) subdir
+                                  else file.path(parent, subdir),
+                                  totalSize)
+      totalSize <- totalSize + dirList$size
+      subdirContents <- append(subdirContents, dirList$contents)
+
+      # abort if we've reached the maximum size
+      if (totalSize > getOption("rsconnect.max.bundle.size"))
+        break
+    }
+  }
+
+  # return the new size and accumulated contents
+  list(
+    size = size,
+    totalSize = totalSize,
+    contents = append(if (nchar(parent) == 0) contents[!info$isdir]
+                      else file.path(parent, contents[!info$isdir]),
+                      subdirContents))
+}
+
+#' List Files to be Bundled
+#'
+#' Given a directory containing an application, returns the names of the files
+#' to be bundled in the application.
+#'
+#' @param appDir Directory containing the application.
+#'
+#' @details This function computes results similar to a recursive directory
+#' listing from \code{\link{list.files}}, with the following constraints:
+#'
+#' \enumerate{
+#' \item{If the total size of the files exceeds the maximum bundle size, no
+#'    more files are listed. The maximum bundle size is controlled by the
+#'    \code{rsconnect.max.bundle.size} option.}
+#' \item{Certain files and folders that don't need to be bundled, such as
+#'    those containing internal version control and RStudio state, are
+#'    excluded.}
+#' }
+#'
+#' @return Returns a list containing the following elements:
+#'
+#' \tabular{ll}{
+#' \code{contents} \tab A list of the files to be bundled \cr
+#' \code{totalSize} \tab The total size of the files \cr
+#' }
+#'
+#' @export
+listBundleFiles <- function(appDir) {
+  maxDirectoryList(appDir, "", 0)
+}
+
 bundleFiles <- function(appDir) {
-  # determine the files that will be in the bundle (exclude rsconnect dir
-  # as well as common hidden files)
-  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
-                      full.names = FALSE)
-  files <- files[!grepl(glob2rx("rsconnect/*"), files)]
-  files <- files[!grepl(glob2rx(".svn/*"), files)]
-  files <- files[!grepl(glob2rx(".git/*"), files)]
-  files <- files[!grepl(glob2rx(".Rproj.user/*"), files)]
-  files <- files[!grepl(glob2rx("*.Rproj"), files)]
-  files <- files[!grepl(glob2rx(".DS_Store"), files)]
-  files <- files[!grepl(glob2rx(".gitignore"), files)]
-  files <- files[!grepl(glob2rx("packrat/*"), files)]
-  files <- files[!grepl(glob2rx(".Rhistory"), files)]
-  files
+  files <- listBundleFiles(appDir)
+  if (files$totalSize > getOption("rsconnect.max.bundle.size")) {
+    stop("The directory", appDir, "cannot be deployed because it is too",
+         "large (the maximum size is", getOption("rsconnect.max.bundle.size"),
+         "bytes). Remove some files or adjust the rsconnect.max.bundle.size",
+         "option.")
+  }
+  files$contents
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,

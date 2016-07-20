@@ -14,6 +14,15 @@ repos <- getOption("repos")
 options(repos = c(CRAN = "https://cran.rstudio.com"))
 on.exit(options(repos = repos), add = TRUE)
 
+test_that("simple Shiny app bundle includes correct files", {
+  skip_on_cran()
+  bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
+                                          NULL)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+  files <- listBundleFiles(bundleTempDir)
+  expect_identical(files$contents, c("manifest.json", "server.R", "ui.R"))
+})
+
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
