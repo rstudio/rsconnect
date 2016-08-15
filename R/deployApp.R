@@ -22,6 +22,9 @@
 #'   \code{\link{deployments}} is associated with the source document.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
+#' @param appTitle Free-form descriptive title of application. Optional; if
+#'   supplied, will often be displayed in favor of the name. You may supply only
+#'   the \code{appTitle} to receive an auto-generated \code{appName}.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   \code{"plot"}, \code{"document"}, or \code{"application"}).
 #' @param account Account to deploy application to. This
@@ -52,8 +55,9 @@
 #' # deploy an application in another directory
 #' deployApp("~/projects/shiny/app1")
 #'
-#' # deploy using an alternative application name
-#' deployApp("~/projects/shiny/app1", appName = "myapp")
+#' # deploy using an alternative application name and title
+#' deployApp("~/projects/shiny/app1", appName = "myapp",
+#'           appTitle = "My Application")
 #'
 #' # deploy specifying an explicit account name, then
 #' # redeploy with no arguments (will automatically use
@@ -73,6 +77,7 @@ deployApp <- function(appDir = getwd(),
                       appPrimaryDoc = NULL,
                       appSourceDoc = NULL,
                       appName = NULL,
+                      appTitle = NULL,
                       contentCategory = NULL,
                       account = NULL,
                       server = NULL,
@@ -210,6 +215,11 @@ deployApp <- function(appDir = getwd(),
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
+  # set up the title for the new app if required
+  if (!is.null(appTitle)) {
+    target$appTitle <- appTitle
+  }
+
   # get the application to deploy (creates a new app on demand)
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
     application <- applicationForTarget(client, accountDetails, target)
@@ -232,6 +242,7 @@ deployApp <- function(appDir = getwd(),
   # attempting the deployment itself to make retry easy on failure
   saveDeployment(appPath,
                  target$appName,
+                 target$appTitle,
                  target$account,
                  accountDetails$server,
                  application$id,
@@ -447,7 +458,7 @@ applicationForTarget <- function(client, accountInfo, target) {
 
   # create the application if we need to
   if (is.null(app)) {
-    app <- client$createApplication(target$appName, "shiny",
+    app <- client$createApplication(target$appName, target$appTitle, "shiny",
                                     accountInfo$accountId)
   }
 
