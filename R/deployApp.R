@@ -211,14 +211,9 @@ deployApp <- function(appDir = getwd(),
   # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appName, account, server)
+  target <- deploymentTarget(appPath, appTitle, appName, account, server)
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
-
-  # set up the title for the new app if required
-  if (!is.null(appTitle)) {
-    target$appTitle <- appTitle
-  }
 
   # get the application to deploy (creates a new app on demand)
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
@@ -298,7 +293,8 @@ deployApp <- function(appDir = getwd(),
 
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appPath, appName, account, server = NULL) {
+deploymentTarget <- function(appPath, appTitle, appName, account,
+                             server = NULL) {
 
   # read existing accounts
   accounts <- accounts(server)[,"name"]
@@ -318,7 +314,7 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
 
   # function to create a deployment target list (checks whether the target
   # is an update and adds that field)
-  createDeploymentTarget <- function(appName, account, server) {
+  createDeploymentTarget <- function(appName, appTitle, account, server) {
 
     # check to see whether this is an update
     existingDeployment <- deployments(appPath,
@@ -327,15 +323,19 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
                                       serverFilter = server)
     isUpdate <- nrow(existingDeployment) == 1
 
-    list(appName = appName, account = account, isUpdate = isUpdate,
-         server = server)
+    list(appName = appName, appTitle = appTitle, account = account,
+         isUpdate = isUpdate, server = server)
   }
 
+  # if appTitle specified but not appName, generate name from title
+  if (is.null(appName) && !is.null(appTitle)) {
+    appName <- generateAppName(appTitle, appPath, account)
+  }
 
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
 
-    createDeploymentTarget(appName, account, server)
+    createDeploymentTarget(appName, appTitle, account, server)
 
   }
 
@@ -352,7 +352,8 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
       if (length(accounts) == 1) {
         # read the server associated with the account
         accountDetails <- accountInfo(accounts, server)
-        createDeploymentTarget(appName, accounts, accountDetails$server)
+        createDeploymentTarget(appName, appTitle, accounts,
+                               accountDetails$server)
       } else {
         stopWithSpecifyAccount()
       }
@@ -360,7 +361,7 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
-      createDeploymentTarget(appName, appDeployments$account,
+      createDeploymentTarget(appName, appTitle, appDeployments$account,
                              appDeployments$server)
     }
 
@@ -384,14 +385,15 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     }
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
-      tools::file_path_sans_ext(basename(appPath)),
-      account, accountDetails$server)
+      generateAppName(appTitle, appPath, account),
+      appTitle, account, accountDetails$server)
   }
 
   # neither specified but a single existing deployment
   else if (nrow(appDeployments) == 1) {
 
     createDeploymentTarget(appDeployments$name,
+                           appDeployments$title,
                            appDeployments$account,
                            appDeployments$server)
 
@@ -404,8 +406,8 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     if (length(accounts) == 1) {
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
-        tools::file_path_sans_ext(basename(appPath)),
-        accounts, accountDetails$server)
+        generateAppName(appTitle, appPath, account),
+        appTitle, accounts, accountDetails$server)
     }
     else
       stop("Please specify the account and server to which you want to deploy ",

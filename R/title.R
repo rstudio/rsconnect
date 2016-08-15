@@ -28,6 +28,11 @@
 
 generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
   munge <- function (title) {
+    # safe default if no title specified
+    if (is.null(title)) {
+      return("")
+    }
+
     # start by removing most non-Latin characters and converting to lowercase
     name <- tolower(gsub("[^A-Za-z0-9\\-_ ]+", "", title))
 
