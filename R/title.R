@@ -1,0 +1,79 @@
+#' Generate Application Name
+#'
+#' Generate a short name (identifier) for an application given an application
+#' title.
+#'
+#' @param appTitle A descriptive title for the application.
+#' @param appPath The path to the application's content, either a directory
+#'   or an individual document. Optional.
+#' @param account The account where the application will be deployed. Optional.
+#' @return
+#' Returns a valid short name for the application.
+#'
+#' @details
+#' This function modifies the title until it forms a suitable application name.
+#' Suitable application names are 3 - 64 characters long and contain only
+#' alphanumeric characters.
+#'
+#' The function is intended to be used to find a name for a new application.
+#' If \code{appPath} and \code{account} are both specified, then the returned
+#' name will also be unique among locally known deployments of the directory
+#' (note that it is not validated against the server).
+#'
+#' @examples
+#' # Generate a short name for a sample application
+#' generateAppName("My Father's Country", "~/fathers-country", "myacct")
+#'
+#' @export
+
+generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
+  munge <- function (title) {
+    # start by removing most non-Latin characters and converting to lowercase
+    name <- tolower(gsub("[^A-Za-z0-9\\-_ ]+", "", title))
+
+    # replace spaces with underscores
+    name <- gsub(" ", "_", name, fixed = TRUE)
+
+    # trim to 64 characters
+    if (nchar(name) > 64) {
+      name <- substr(name, 1, 64)
+    }
+
+    name
+  }
+
+  name <- munge(appTitle)
+
+  # if we wound up with too few characters, try generating from the directory
+  # name instead
+  if (nchar(name) < 3 && !is.null(appPath) && file.exists(appPath))
+    name <- munge(basename(appPath))
+
+  # validate that we wound up with a valid name
+  if (nchar(name) < 3) {
+    stop("The generated app name '", name, "' is invalid. Specify the app ",
+         "name manually or include at least 3 alphanumeric characters in the ",
+         "title.")
+  }
+
+  # if we have an account and a directory, make the new app name unique to the
+  # best of our local knowledge
+  if (!is.null(appPath) && !is.null(account)) {
+    apps <- deployments(appPath, accountFilter = account)
+    if (name %in% apps$name) {
+      # trim a few characters if necessary so we can add unique numbers to the end
+      base <- substr(name, 1, 62)
+      suffix <- 2
+      candidate <- paste0(base, suffix)
+
+      # keep incrementing the suffix until we find a unique name
+      while (candidate %in% apps$name) {
+         suffix <- suffix + 1
+         candidate <- paste0(base, suffix)
+      }
+      name <- candidate
+    }
+  }
+
+  name
+}
