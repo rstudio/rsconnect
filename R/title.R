@@ -63,7 +63,7 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
 
   # if we have an account and a directory, make the new app name unique to the
   # best of our local knowledge
-  if (!is.null(appPath) && !is.null(account)) {
+  if (!is.null(appPath) && nzchar(appPath) && !is.null(account)) {
     apps <- deployments(appPath, accountFilter = account)
     if (name %in% apps$name) {
       # trim a few characters if necessary so we can add unique numbers to the end
