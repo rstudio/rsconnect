@@ -145,8 +145,8 @@ deployApp <- function(appDir = getwd(),
       if (!isStringParam(appFileManifest))
         stop(stringParamErrorMessage("appFileManifest"))
       if (!file.exists(appFileManifest))
-        stop(appFileManifest, " was specified as a file manifest, but does not",
-             "exist.")
+        stop(appFileManifest, " was specified as a file manifest, but does ",
+             "not exist.")
 
       # read the filenames from the file
       manifestLines <- readLines(appFileManifest, warn = FALSE)

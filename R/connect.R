@@ -91,13 +91,17 @@ connectClient <- function(service, authInfo) {
     },
 
     createApplication = function(name, title, template, accountId) {
+      # add name; inject title if specified
+      details <- list(name = name)
+      if (!is.null(title) && nzchar(title))
+        details$title <- title
+
       # RSC doesn't currently use the template or account ID
       # parameters; they exist for compatibility with lucid.
       handleResponse(POST_JSON(service,
                                authInfo,
                                "/applications",
-                               list(name  = name,
-                                    title = title)))
+                               details))
     },
 
     terminateApplication = function(applicationId) {
