@@ -115,8 +115,8 @@ deployApp <- function(appDir = getwd(),
   if (!file.info(appDir)$isdir) {
     if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
-      return(deployDoc(appDir, appName = appName, account = account,
-                       server = server, upload = upload,
+      return(deployDoc(appDir, appName = appName, appTitle = appTitle,
+                       account = account, server = server, upload = upload,
                        launch.browser = launch.browser, quiet = quiet,
                        lint = lint))
     } else {
