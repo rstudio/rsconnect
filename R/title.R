@@ -18,7 +18,7 @@
 #' The function is intended to be used to find a name for a new application.
 #' If \code{appPath} and \code{account} are both specified, then the returned
 #' name will also be unique among locally known deployments of the directory
-#' (note that it is not validated against the server).
+#' (note that it is not guaranteed to be unique on the server).
 #'
 #' @examples
 #' # Generate a short name for a sample application
@@ -56,9 +56,8 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
 
   # validate that we wound up with a valid name
   if (nchar(name) < 3) {
-    stop("The generated app name '", name, "' is invalid. Specify the app ",
-         "name manually or include at least 3 alphanumeric characters in the ",
-         "title.")
+    stop("The generated app name '", name, "' is invalid. Include at least 3 ",
+         "alphanumeric characters in the title.")
   }
 
   # if we have an account and a directory, make the new app name unique to the

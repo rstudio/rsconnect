@@ -23,8 +23,9 @@
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
 #' @param appTitle Free-form descriptive title of application. Optional; if
-#'   supplied, will often be displayed in favor of the name. You may supply only
-#'   the \code{appTitle} to receive an auto-generated \code{appName}.
+#'   supplied, will often be displayed in favor of the name. When deploying a
+#'   new application, you may supply only the \code{appTitle} to receive an
+#'   auto-generated \code{appName}.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   \code{"plot"}, \code{"document"}, or \code{"application"}).
 #' @param account Account to deploy application to. This
@@ -328,7 +329,7 @@ deploymentTarget <- function(appPath, appTitle, appName, account,
   }
 
   # if appTitle specified but not appName, generate name from title
-  if (is.null(appName) && !is.null(appTitle)) {
+  if (is.null(appName) && !is.null(appTitle) && nzchar(appTitle)) {
     appName <- generateAppName(appTitle, appPath, account)
   }
 
