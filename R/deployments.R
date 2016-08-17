@@ -179,7 +179,7 @@ deploymentRecord <- function(name, title, account, server, appId, bundleId, url,
   # compose the standard set of fields and append any requested
   as.data.frame(c(
       list(name = name,
-           title = title,
+           title = if (is.null(title)) "" else title,
            account = account,
            server = server,
            appId = appId,
