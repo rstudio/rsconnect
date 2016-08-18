@@ -212,7 +212,7 @@ deployApp <- function(appDir = getwd(),
   # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appTitle, appName, account, server)
+  target <- deploymentTarget(appPath, appName, appTitle, account, server)
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
@@ -294,7 +294,7 @@ deployApp <- function(appDir = getwd(),
 
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appPath, appTitle, appName, account,
+deploymentTarget <- function(appPath, appName, appTitle, account,
                              server = NULL) {
 
   # read existing accounts
