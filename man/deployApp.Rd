@@ -6,7 +6,8 @@
 \usage{
 deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   appPrimaryDoc = NULL, appSourceDoc = NULL, appName = NULL,
-  contentCategory = NULL, account = NULL, server = NULL, upload = TRUE,
+  appTitle = NULL, contentCategory = NULL, account = NULL,
+  server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   quiet = FALSE, lint = TRUE, metadata = list())
 }
@@ -35,6 +36,11 @@ qualified path. Deployment information returned by
 
 \item{appName}{Name of application (names must be unique within an
 account). Defaults to the base name of the specified \code{appDir}.}
+
+\item{appTitle}{Free-form descriptive title of application. Optional; if
+supplied, will often be displayed in favor of the name. When deploying a
+new application, you may supply only the \code{appTitle} to receive an
+auto-generated \code{appName}.}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"}, \code{"document"}, or \code{"application"}).}
@@ -78,8 +84,9 @@ deployApp()
 # deploy an application in another directory
 deployApp("~/projects/shiny/app1")
 
-# deploy using an alternative application name
-deployApp("~/projects/shiny/app1", appName = "myapp")
+# deploy using an alternative application name and title
+deployApp("~/projects/shiny/app1", appName = "myapp",
+          appTitle = "My Application")
 
 # deploy specifying an explicit account name, then
 # redeploy with no arguments (will automatically use

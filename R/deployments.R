@@ -1,11 +1,11 @@
 
 
-saveDeployment <- function(appPath, name, account, server, appId, bundleId, url,
-                           metadata) {
+saveDeployment <- function(appPath, name, title, account, server, appId,
+                           bundleId, url, metadata) {
 
   # create the record to write to disk
-  deployment <- deploymentRecord(name, account, server, appId, bundleId, url,
-                                 when = as.numeric(Sys.time()),
+  deployment <- deploymentRecord(name, title, account, server, appId, bundleId,
+                                 url, when = as.numeric(Sys.time()),
                                  metadata)
 
   # use a long width so URLs don't line-wrap
@@ -102,6 +102,7 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
 
   # build list of deployment records
   deploymentRecs <- deploymentRecord(name = character(),
+                                     title = character(),
                                      account = character(),
                                      server = character(),
                                      appId = character(),
@@ -173,11 +174,12 @@ deploymentFile <- function(appPath, name, account, server) {
   file.path(accountDir, paste0(name, ".dcf"))
 }
 
-deploymentRecord <- function(name, account, server, appId, bundleId, url, when,
-                             metadata = list()) {
+deploymentRecord <- function(name, title, account, server, appId, bundleId, url,
+                             when, metadata = list()) {
   # compose the standard set of fields and append any requested
   as.data.frame(c(
       list(name = name,
+           title = if (is.null(title)) "" else title,
            account = account,
            server = server,
            appId = appId,

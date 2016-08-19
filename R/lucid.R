@@ -25,9 +25,9 @@ lucidClient <- function(service, authInfo) {
       query <- list()
       if (!is.null(applicationId))
         query$application=applicationId
-      if (!is.null(from)) 
+      if (!is.null(from))
         query$from = from
-      if (is.null(until)) 
+      if (is.null(until))
         query$until = until
       if (is.null(interval))
         query$interval = interval
@@ -69,9 +69,10 @@ lucidClient <- function(service, authInfo) {
       handleResponse(GET(service, authInfo, path, query, writer = writer))
     },
 
-    createApplication = function(name, template, accountId) {
+    createApplication = function(name, title, template, accountId) {
       json <- list()
       json$name <- name
+      # the title field is only used on connect
       json$template <- template
       json$account <- as.numeric(accountId)
       handleResponse(POST_JSON(service, authInfo, "/applications/", json))

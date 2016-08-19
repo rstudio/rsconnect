@@ -100,7 +100,7 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
                         appName = NULL, account = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- deploymentTarget(appPath, appName, account)
+  target <- deploymentTarget(appPath, appName, NULL, account)
   accountDetails <- accountInfo(target$account)
   serverDetails <- serverInfo(accountDetails$server)
   lucid <- lucidClient(serverDetails$url, accountDetails)
@@ -142,7 +142,7 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName=NULL,
                           account = NULL, force=FALSE) {
 
   # resolve the application target and target account info
-  target <- deploymentTarget(appPath, appName, account)
+  target <- deploymentTarget(appPath, appName, NULL, account)
   accountDetails <- accountInfo(target$account)
   serverDetails <- serverInfo(accountDetails$server)
   lucid <- lucidClient(serverDetails$url, accountDetails)
@@ -173,7 +173,7 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName=NULL,
 showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appPath, appName, account)
+  target <- deploymentTarget(appPath, appName, NULL, account)
   accountDetails <- accountInfo(target$account)
   serverDetails <- serverInfo(accountDetails$server)
   lucid <- lucidClient(serverDetails$url, accountDetails)

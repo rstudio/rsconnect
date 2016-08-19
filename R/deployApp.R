@@ -22,6 +22,10 @@
 #'   \code{\link{deployments}} is associated with the source document.
 #' @param appName Name of application (names must be unique within an
 #'   account). Defaults to the base name of the specified \code{appDir}.
+#' @param appTitle Free-form descriptive title of application. Optional; if
+#'   supplied, will often be displayed in favor of the name. When deploying a
+#'   new application, you may supply only the \code{appTitle} to receive an
+#'   auto-generated \code{appName}.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   \code{"plot"}, \code{"document"}, or \code{"application"}).
 #' @param account Account to deploy application to. This
@@ -52,8 +56,9 @@
 #' # deploy an application in another directory
 #' deployApp("~/projects/shiny/app1")
 #'
-#' # deploy using an alternative application name
-#' deployApp("~/projects/shiny/app1", appName = "myapp")
+#' # deploy using an alternative application name and title
+#' deployApp("~/projects/shiny/app1", appName = "myapp",
+#'           appTitle = "My Application")
 #'
 #' # deploy specifying an explicit account name, then
 #' # redeploy with no arguments (will automatically use
@@ -73,6 +78,7 @@ deployApp <- function(appDir = getwd(),
                       appPrimaryDoc = NULL,
                       appSourceDoc = NULL,
                       appName = NULL,
+                      appTitle = NULL,
                       contentCategory = NULL,
                       account = NULL,
                       server = NULL,
@@ -110,8 +116,8 @@ deployApp <- function(appDir = getwd(),
   if (!file.info(appDir)$isdir) {
     if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
-      return(deployDoc(appDir, appName = appName, account = account,
-                       server = server, upload = upload,
+      return(deployDoc(appDir, appName = appName, appTitle = appTitle,
+                       account = account, server = server, upload = upload,
                        launch.browser = launch.browser, quiet = quiet,
                        lint = lint))
     } else {
@@ -140,8 +146,8 @@ deployApp <- function(appDir = getwd(),
       if (!isStringParam(appFileManifest))
         stop(stringParamErrorMessage("appFileManifest"))
       if (!file.exists(appFileManifest))
-        stop(appFileManifest, " was specified as a file manifest, but does not",
-             "exist.")
+        stop(appFileManifest, " was specified as a file manifest, but does ",
+             "not exist.")
 
       # read the filenames from the file
       manifestLines <- readLines(appFileManifest, warn = FALSE)
@@ -206,7 +212,7 @@ deployApp <- function(appDir = getwd(),
   # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appName, account, server)
+  target <- deploymentTarget(appPath, appName, appTitle, account, server)
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
@@ -232,6 +238,7 @@ deployApp <- function(appDir = getwd(),
   # attempting the deployment itself to make retry easy on failure
   saveDeployment(appPath,
                  target$appName,
+                 target$appTitle,
                  target$account,
                  accountDetails$server,
                  application$id,
@@ -287,7 +294,8 @@ deployApp <- function(appDir = getwd(),
 
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appPath, appName, account, server = NULL) {
+deploymentTarget <- function(appPath, appName, appTitle, account,
+                             server = NULL) {
 
   # read existing accounts
   accounts <- accounts(server)[,"name"]
@@ -307,7 +315,7 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
 
   # function to create a deployment target list (checks whether the target
   # is an update and adds that field)
-  createDeploymentTarget <- function(appName, account, server) {
+  createDeploymentTarget <- function(appName, appTitle, account, server) {
 
     # check to see whether this is an update
     existingDeployment <- deployments(appPath,
@@ -316,15 +324,19 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
                                       serverFilter = server)
     isUpdate <- nrow(existingDeployment) == 1
 
-    list(appName = appName, account = account, isUpdate = isUpdate,
-         server = server)
+    list(appName = appName, appTitle = appTitle, account = account,
+         isUpdate = isUpdate, server = server)
   }
 
+  # if appTitle specified but not appName, generate name from title
+  if (is.null(appName) && !is.null(appTitle) && nzchar(appTitle)) {
+    appName <- generateAppName(appTitle, appPath, account)
+  }
 
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
 
-    createDeploymentTarget(appName, account, server)
+    createDeploymentTarget(appName, appTitle, account, server)
 
   }
 
@@ -341,7 +353,8 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
       if (length(accounts) == 1) {
         # read the server associated with the account
         accountDetails <- accountInfo(accounts, server)
-        createDeploymentTarget(appName, accounts, accountDetails$server)
+        createDeploymentTarget(appName, appTitle, accounts,
+                               accountDetails$server)
       } else {
         stopWithSpecifyAccount()
       }
@@ -349,7 +362,7 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
-      createDeploymentTarget(appName, appDeployments$account,
+      createDeploymentTarget(appName, appTitle, appDeployments$account,
                              appDeployments$server)
     }
 
@@ -373,14 +386,15 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     }
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
-      tools::file_path_sans_ext(basename(appPath)),
-      account, accountDetails$server)
+      generateAppName(appTitle, appPath, account),
+      appTitle, account, accountDetails$server)
   }
 
   # neither specified but a single existing deployment
   else if (nrow(appDeployments) == 1) {
 
     createDeploymentTarget(appDeployments$name,
+                           appDeployments$title,
                            appDeployments$account,
                            appDeployments$server)
 
@@ -393,8 +407,8 @@ deploymentTarget <- function(appPath, appName, account, server = NULL) {
     if (length(accounts) == 1) {
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
-        tools::file_path_sans_ext(basename(appPath)),
-        accounts, accountDetails$server)
+        generateAppName(appTitle, appPath, account),
+        appTitle, accounts, accountDetails$server)
     }
     else
       stop("Please specify the account and server to which you want to deploy ",
@@ -447,7 +461,7 @@ applicationForTarget <- function(client, accountInfo, target) {
 
   # create the application if we need to
   if (is.null(app)) {
-    app <- client$createApplication(target$appName, "shiny",
+    app <- client$createApplication(target$appName, target$appTitle, "shiny",
                                     accountInfo$accountId)
   }
 
