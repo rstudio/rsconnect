@@ -34,7 +34,7 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
     }
 
     # start by removing most non-Latin characters and converting to lowercase
-    name <- tolower(gsub("[^A-Za-z0-9\\-_ ]+", "", title))
+    name <- tolower(gsub("[^A-Za-z0-9_ -]+", "", title))
 
     # replace spaces with underscores
     name <- gsub(" ", "_", name, fixed = TRUE)

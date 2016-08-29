@@ -18,8 +18,14 @@ test_that("path is used to generate valid title if title isn't specified", {
   expect_gt(nchar(name), 5)
 })
 
-test_that("invalid charactes are removed from titles", {
+test_that("invalid characters are removed from titles", {
   title <- "Free!* (* = With $5 Donation)"
   name <- generateAppName(title)
   expect_false(grepl("[!*=$]", name))
+})
+
+test_that("valid characters are not removed from titles", {
+  title <- "inexpensive_kittens-5"
+  name <- generateAppName(title)
+  expect_identical(title, name)
 })
