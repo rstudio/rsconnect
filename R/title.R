@@ -7,6 +7,7 @@
 #' @param appPath The path to the application's content, either a directory
 #'   or an individual document. Optional.
 #' @param account The account where the application will be deployed. Optional.
+#' @param unique Whether to try to generate a unique name.
 #' @return
 #' Returns a valid short name for the application.
 #'
@@ -18,7 +19,8 @@
 #' The function is intended to be used to find a name for a new application.
 #' If \code{appPath} and \code{account} are both specified, then the returned
 #' name will also be unique among locally known deployments of the directory
-#' (note that it is not guaranteed to be unique on the server).
+#' (note that it is not guaranteed to be unique on the server). This behavior
+#' can be disabled by setting \code{unique = FALSE}.
 #'
 #' @examples
 #' # Generate a short name for a sample application
@@ -26,7 +28,7 @@
 #'
 #' @export
 
-generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
+generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = TRUE) {
   munge <- function (title) {
     # safe default if no title specified
     if (is.null(title)) {
@@ -74,7 +76,7 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL) {
 
   # if we have an account and a directory, make the new app name unique to the
   # best of our local knowledge
-  if (!is.null(appPath) && nzchar(appPath) && !is.null(account)) {
+  if (unique && !is.null(appPath) && nzchar(appPath) && !is.null(account)) {
     apps <- deployments(appPath, accountFilter = account)
     if (name %in% apps$name) {
       # trim a few characters if necessary so we can add unique numbers to the end

@@ -330,7 +330,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
 
   # if appTitle specified but not appName, generate name from title
   if (is.null(appName) && !is.null(appTitle) && nzchar(appTitle)) {
-    appName <- generateAppName(appTitle, appPath, account)
+    appName <- generateAppName(appTitle, appPath, account, unique = FALSE)
   }
 
   # both appName and account explicitly specified
@@ -386,7 +386,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
     }
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
-      generateAppName(appTitle, appPath, account),
+      generateAppName(appTitle, appPath, account, unique = FALSE),
       appTitle, account, accountDetails$server)
   }
 
@@ -407,7 +407,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
     if (length(accounts) == 1) {
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
-        generateAppName(appTitle, appPath, account),
+        generateAppName(appTitle, appPath, account, unique = FALSE),
         appTitle, accounts, accountDetails$server)
     }
     else

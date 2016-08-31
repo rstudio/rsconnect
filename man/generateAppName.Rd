@@ -4,7 +4,7 @@
 \alias{generateAppName}
 \title{Generate Application Name}
 \usage{
-generateAppName(appTitle, appPath = NULL, account = NULL)
+generateAppName(appTitle, appPath = NULL, account = NULL, unique = TRUE)
 }
 \arguments{
 \item{appTitle}{A descriptive title for the application.}
@@ -13,6 +13,8 @@ generateAppName(appTitle, appPath = NULL, account = NULL)
 or an individual document. Optional.}
 
 \item{account}{The account where the application will be deployed. Optional.}
+
+\item{unique}{Whether to try to generate a unique name.}
 }
 \value{
 Returns a valid short name for the application.
@@ -29,7 +31,8 @@ alphanumeric characters.
 The function is intended to be used to find a name for a new application.
 If \code{appPath} and \code{account} are both specified, then the returned
 name will also be unique among locally known deployments of the directory
-(note that it is not guaranteed to be unique on the server).
+(note that it is not guaranteed to be unique on the server). This behavior
+can be disabled by setting \code{unique = FALSE}.
 }
 \examples{
 # Generate a short name for a sample application
