@@ -5,15 +5,22 @@ saveDeployment <- function(appPath, name, title, account, server, appId,
 
   # if there's no new title specified, load the existing deployment record, if
   # any, to to preserve the old title
-  if (is.null(title) || nchar(title) == 0) {
+  if (is.null(title) || is.na(title) || length(title) == 0 ||
+      nchar(title) == 0) {
     tryCatch({
       path <- deploymentFile(appPath, name, account, server)
       if (file.exists(path)) {
         deployment <- as.data.frame(read.dcf(path))
         title <- as.character(deployment$title[[1]])
+
+        # use empty string rather than character(0) if title isn't specified
+        # in the record
+        if (length(title) == 0)
+          title <- ""
       }
     }, error = function(e) {
       # no action needed here (we just won't write a title)
+      title <<- ""
     })
   }
 
