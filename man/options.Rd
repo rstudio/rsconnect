@@ -24,7 +24,8 @@ Supported global options include:
    \item{\code{rsconnect.launch.browser}}{When \code{TRUE}, automatically launch a browser to view applications after they are deployed}
    \item{\code{rsconnect.locale.cache}}{When \code{FALSE}, disable the detected locale cache (Windows only). }
    \item{\code{rsconnect.locale}}{Override the detected locale. }
-   \item{\code{rsconnect.max.bundle.size}}{The maximum size, in bytes, for deployed content. If not set, defaults to 1 GB.}
+   \item{\code{rsconnect.max.bundle.size}}{The maximum size, in bytes, for deployed content. If not set, defaults to 3 GB.}
+   \item{\code{rsconnect.max.bundle.files}}{The maximum number of files to deploy. If not set, defaults to 10,000.}
 }
 }
 
