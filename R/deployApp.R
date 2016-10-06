@@ -87,7 +87,7 @@ deployApp <- function(appDir = getwd(),
                       upload = TRUE,
                       launch.browser = getOption("rsconnect.launch.browser",
                                                  interactive()),
-                      logLevel = c("verbose", "normal", "quiet", "verbose"),
+                      logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
                       metadata = list()) {
 
