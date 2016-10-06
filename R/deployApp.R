@@ -104,7 +104,6 @@ deployApp <- function(appDir = getwd(),
   if (verbose) {
     options <- c("rsconnect.http.trace",
                  "rsconnect.http.trace.json",
-                 "rsconnect.http.verbose",
                  "rsconnect.error.trace")
     restorelist <- list()
     newlist <- list()
@@ -162,7 +161,7 @@ deployApp <- function(appDir = getwd(),
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, appTitle = appTitle,
                        account = account, server = server, upload = upload,
-                       launch.browser = launch.browser, quiet = quiet,
+                       launch.browser = launch.browser, logLevel = logLevel,
                        lint = lint))
     } else {
       stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
@@ -171,11 +170,11 @@ deployApp <- function(appDir = getwd(),
   }
 
   # at verbose log level, generate header
-  if (identical(logLevel, "verbose")) {
+  if (verbose) {
     cat("----- Deployment log started at ", as.character(Sys.time()), " -----\n")
     cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
     cat("Session information: \n")
-    sessionInfo()
+    print(sessionInfo())
   }
 
   # figure out what kind of thing we're deploying
@@ -275,6 +274,8 @@ deployApp <- function(appDir = getwd(),
 
   if (upload) {
     # create, and upload the bundle
+    if (verbose)
+      cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
@@ -302,6 +303,10 @@ deployApp <- function(appDir = getwd(),
   displayStatus(paste0("Deploying bundle: ", bundle$id,
                        " for ", assetTypeName, ": ", application$id,
                        " ...\n", sep=""))
+  if (verbose) {
+    cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
+  }
+
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
@@ -339,6 +344,10 @@ deployApp <- function(appDir = getwd(),
     displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
                          "with error: ", response$error, "\n"))
     FALSE
+  }
+
+  if (verbose) {
+    cat("----- Deployment log finished at ", as.character(Sys.time()), " -----\n")
   }
 
   invisible(deploymentSucceeded)
