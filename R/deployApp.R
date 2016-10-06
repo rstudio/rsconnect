@@ -92,6 +92,18 @@ deployApp <- function(appDir = getwd(),
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
 
+  # install error handler if requested
+  if (isTRUE(getOption("rsconnect.error.trace"))) {
+    errOption <- getOption("error")
+    options(error = function(e) {
+      cat("----- Deployment error -----\n", file = stderr())
+      cat(geterrmessage(), file = stderr())
+      cat("----- Error stack trace -----\n", file = stderr())
+      traceback(3, sys.calls())
+    })
+    on.exit(options(error = errOption), add = TRUE)
+  }
+
   # normalize appDir path and ensure it exists
   appDir <- normalizePath(appDir, mustWork = FALSE)
   if (!file.exists(appDir)) {
