@@ -23,7 +23,7 @@ deploySite <- function(siteDir = getwd(),
                        server = NULL,
                        render = c("none", "local", "server"),
                        launch.browser = getOption("rsconnect.launch.browser", interactive()),
-                       quiet = FALSE,
+                       logLevel = c("quiet", "normal", "verbose"),
                        lint = FALSE,
                        metadata = list()) {
 
@@ -60,7 +60,7 @@ deploySite <- function(siteDir = getwd(),
     siteGenerator$render(input_file = NULL,
                          output_format = NULL,
                          envir = new.env(),
-                         quiet = quiet,
+                         quiet = identical(match.arg(logLevel), "quiet"),
                          encoding = getOption("encoding"))
   }
 
@@ -94,7 +94,7 @@ deploySite <- function(siteDir = getwd(),
             account = account,
             server = server,
             launch.browser = launch.browser,
-            quiet = quiet,
+            logLevel = logLevel,
             lint = lint,
             metadata = metadata)
 }
