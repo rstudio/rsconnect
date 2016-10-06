@@ -470,7 +470,22 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
   }
 
   # generate the packrat snapshot
-  performPackratSnapshot(bundleDir)
+  tryCatch({
+    performPackratSnapshot(bundleDir)
+  }, error = function(e) {
+    # if an error occurs while generating the snapshot, add a header to the
+    # message for improved attribution
+    e$msg <- paste0("----- Error snapshotting dependencies (Packrat) -----\n",
+                    e$msg)
+
+    # print a traceback if enabled
+    if (isTRUE(getOption("rsconnect.error.trace"))) {
+      traceback(3, sys.calls())
+    }
+
+    # rethrow error so we still halt deployment
+    stop(e)
+  })
 
   # if we emitted a temporary dependency file for packrat's benefit, remove it
   # now so it isn't included in the bundle sent to the server
