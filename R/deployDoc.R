@@ -34,18 +34,27 @@ deployDoc <- function(doc, ...) {
          "deploy individual R Markdown documents.")
   }
 
-  # default to deploying just the single file specified
+  # get qualified doc
   qualified_doc <- normalizePath(doc, winslash = "/")
-  app_files <- basename(qualified_doc)
 
-  # if this document's type supports automated resource discovery, do that now,
-  # and add the discovered files to the deployment list
-  ext <- tolower(tools::file_ext(doc))
-  if (ext %in% c("rmd", "html", "htm")) {
-    message("Discovering document dependencies... ", appendLF = FALSE)
-    res <- rmarkdown::find_external_resources(qualified_doc)
-    message("OK")
-    app_files <- c(app_files, res$path)
+  # see if this doc has runtime: shiny/prerendered, if it does then
+  # appFiles will be NULL (bundle the entire directory)
+  yaml <- rmarkdown::yaml_front_matter(doc)
+  if (is.list(yaml) && identical(yaml$runtime, "shiny/prerendered")) {
+    app_files <- NULL
+  } else {
+    # default to deploying just the single file specified
+    app_files <- basename(qualified_doc)
+
+    # if this document's type supports automated resource discovery, do that now,
+    # and add the discovered files to the deployment list
+    ext <- tolower(tools::file_ext(doc))
+    if (ext %in% c("rmd", "html", "htm")) {
+      message("Discovering document dependencies... ", appendLF = FALSE)
+      res <- rmarkdown::find_external_resources(qualified_doc)
+      message("OK")
+      app_files <- c(app_files, res$path)
+    }
   }
 
   # deploy the document with the discovered dependencies

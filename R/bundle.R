@@ -64,6 +64,11 @@ maxDirectoryList <- function(dir, parent, totalSize) {
       # abort if we've reached the maximum size
       if (totalSize > getOption("rsconnect.max.bundle.size"))
         break
+
+      # abort if we've reached the maximum number of files
+      if ((length(contents) + length(subdirContents)) >
+          getOption("rsconnect.max.bundle.files"))
+        break
     }
   }
 
@@ -90,6 +95,9 @@ maxDirectoryList <- function(dir, parent, totalSize) {
 #' \item{If the total size of the files exceeds the maximum bundle size, no
 #'    more files are listed. The maximum bundle size is controlled by the
 #'    \code{rsconnect.max.bundle.size} option.}
+#' \item{If the total size number of files exceeds the maximum number to be
+#'    bundled, no more files are listed. The maximum number of files in the
+#'    bundle is controlled by the \code{rsconnect.max.bundle.files} option.}
 #' \item{Certain files and folders that don't need to be bundled, such as
 #'    those containing internal version control and RStudio state, are
 #'    excluded.}
@@ -110,11 +118,17 @@ listBundleFiles <- function(appDir) {
 bundleFiles <- function(appDir) {
   files <- listBundleFiles(appDir)
   if (files$totalSize > getOption("rsconnect.max.bundle.size")) {
-    stop("The directory", appDir, "cannot be deployed because it is too",
+    stop("The directory", appDir, "cannot be deployed because it is too ",
          "large (the maximum size is", getOption("rsconnect.max.bundle.size"),
-         "bytes). Remove some files or adjust the rsconnect.max.bundle.size",
+         "bytes). Remove some files or adjust the rsconnect.max.bundle.size ",
          "option.")
+  } else if (length(files$contents) > getOption("rsconnect.max.bundle.files")) {
+    stop("The directory", appDir, "cannot be deployed because it contains ",
+         "too many files (the maximum number of files is ",
+         getOption("rsconnect.max.bundle.files"), "). Remove some files or ",
+         "adjust the rsconnect.max.bundle.files option.")
   }
+
   files$contents
 }
 
@@ -201,7 +215,7 @@ isShinyRmd <- function(filename) {
   yaml <- yamlFromRmd(filename)
   if (!is.null(yaml)) {
     runtime <- yaml[["runtime"]]
-    if (!is.null(runtime) && identical(runtime, "shiny")) {
+    if (!is.null(runtime) && grepl('^shiny', runtime)) {
       # ...and "runtime: shiny", then it's a dynamic Rmd.
       return(TRUE)
     }
