@@ -22,7 +22,7 @@ Suggests:
     scrypt,
     knitr,
     testthat,
-    rmarkdown (>= 0.9.6)
+    rmarkdown (>= 1.0.9016)
 Enhances: BiocInstaller
 License: GPL-2
 RoxygenNote: 5.0.1
