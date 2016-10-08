@@ -23,6 +23,7 @@ Suggests:
     knitr,
     testthat,
     rmarkdown (>= 1.0.9016)
+Remotes: rstudio/rmarkdown
 Enhances: BiocInstaller
 License: GPL-2
 RoxygenNote: 5.0.1
