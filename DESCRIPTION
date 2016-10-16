@@ -22,7 +22,7 @@ Suggests:
     scrypt,
     knitr,
     testthat,
-    rmarkdown (>= 1.0.9016)
+    rmarkdown (>= 1.1)
 Remotes: rstudio/rmarkdown
 Enhances: BiocInstaller
 License: GPL-2
