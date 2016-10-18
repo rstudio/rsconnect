@@ -22,6 +22,16 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
   bundleDir
 }
 
+isKnitrCacheDir <- function(subdir, contents) {
+  if (grepl("^.+_cache$", subdir)) {
+    stem <- substr(subdir, 1, nchar(subdir) - nchar("_cache"))
+    rmd <- paste0(stem, ".Rmd")
+    tolower(rmd) %in% tolower(contents)
+  } else {
+    FALSE
+  }
+}
+
 maxDirectoryList <- function(dir, parent, totalSize) {
   # generate a list of files at this level
   contents <- list.files(dir, recursive = FALSE, all.files = TRUE,
@@ -51,6 +61,10 @@ maxDirectoryList <- function(dir, parent, totalSize) {
       # ignore known directories from the root
       if (nchar(parent) == 0 && subdir %in% c(
            "rsconnect", "packrat", ".svn", ".git", ".Rproj.user"))
+        next
+
+      # ignore knitr _cache directories
+      if (isKnitrCacheDir(subdir, contents))
         next
 
       # get the list of files in the subdirectory
