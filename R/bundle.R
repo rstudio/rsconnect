@@ -277,7 +277,8 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
 ## check for extra dependencies congruent to application mode
 inferDependencies <- function(appMode, hasParameters) {
   deps <- c()
-  if (grepl("\\brmd\\b", appMode)) {
+  rmdMode <- grepl("\\brmd\\b", appMode)
+  if (rmdMode) {
     if (hasParameters) {
       # An Rmd with parameters needs shiny to run the customization app.
       deps <- c(deps, "shiny")
@@ -286,6 +287,8 @@ inferDependencies <- function(appMode, hasParameters) {
   }
   if (grepl("\\bshiny\\b", appMode)) {
     deps <- c(deps, "shiny")
+    if (rmdMode) # uses shinythemes for themes
+      deps <- c(deps, "shinythemes")
   }
   unique(deps)
 }
