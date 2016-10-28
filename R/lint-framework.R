@@ -115,7 +115,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
               !is.null(appPrimaryDoc) &&
                 tolower(tools::file_ext(appPrimaryDoc)) == "r"),
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
-    static = any(grepl("^.*\\.html?$", appFilesBase))
+    static = any(grepl("(?:html?|pdf)$", appFilesBase))
   )
 
   if (!any(satisfiedLayouts)) {
@@ -125,7 +125,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
             2. 'shiny.R' and 'www/index.html' in the application base directory,
             3. 'app.R' or a single-file Shiny .R file,
             4. An R Markdown (.Rmd) document,
-            5. A static HTML (.html) document."
+            5. A static HTML (.html) or PDF (.pdf) document."
 
     # strip leading whitespace from the above
     msg <- paste(collapse = "\n",
