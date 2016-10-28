@@ -80,7 +80,7 @@ lucidClient <- function(service, authInfo) {
 
     listApplicationProperties = function(applicationId) {
       path <- paste("/applications/", applicationId, "/properties/", sep="")
-      handleResponse(GET(authInfo, path))
+      handleResponse(GET(service, authInfo, path))
     },
 
     setApplicationProperty = function(applicationId, propertyName,
@@ -90,7 +90,7 @@ lucidClient <- function(service, authInfo) {
       v <- list()
       v$value <- propertyValue
       query <- paste("force=", if (force) "1" else "0", sep="")
-      handleResponse(PUT_JSON(authInfo, path, v, query))
+      handleResponse(PUT_JSON(service, authInfo, path, v, query))
     },
 
     unsetApplicationProperty = function(applicationId, propertyName,
