@@ -40,8 +40,10 @@
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to \code{TRUE} in
 #'   interactive sessions only.
-#' @param quiet Request that no status information be printed to the console
-#'   during the deployment.
+#' @param logLevel One of \code{"quiet"}, \code{"normal"} or \code{"verbose"};
+#'   indicates how much logging to the console is to be performed. At
+#'   \code{"quiet"} reports no information; at \code{"verbose"}, a full
+#'   diagnostic log is captured.
 #' @param lint Lint the project before initiating deployment, to identify
 #'   potentially problematic code?
 #' @param metadata Additional metadata fields to save with the deployment
@@ -85,12 +87,53 @@ deployApp <- function(appDir = getwd(),
                       upload = TRUE,
                       launch.browser = getOption("rsconnect.launch.browser",
                                                  interactive()),
-                      quiet = FALSE,
+                      logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
                       metadata = list()) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
+
+  # respect log level
+  logLevel <- match.arg(logLevel)
+  quiet <- identical(logLevel, "quiet")
+  verbose <- identical(logLevel, "verbose")
+
+  # at verbose log level, turn on all tracing options implicitly for the
+  # duration of the call
+  if (verbose) {
+    options <- c("rsconnect.http.trace",
+                 "rsconnect.http.trace.json",
+                 "rsconnect.error.trace")
+    restorelist <- list()
+    newlist <- list()
+
+    # record options at non-default position
+    for (option in options) {
+      if (!isTRUE(getOption(option))) {
+        restorelist[[option]] <- FALSE
+        newlist[[option]] <- TRUE
+      }
+    }
+
+    # apply new option values
+    options(newlist)
+
+    # restore all old option values on exit
+    on.exit(options(restorelist), add = TRUE)
+  }
+
+  # install error handler if requested
+  if (isTRUE(getOption("rsconnect.error.trace"))) {
+    errOption <- getOption("error")
+    options(error = function(e) {
+      cat("----- Deployment error -----\n")
+      cat(geterrmessage(), "\n")
+      cat("----- Error stack trace -----\n")
+      traceback(3, sys.calls())
+    })
+    on.exit(options(error = errOption), add = TRUE)
+  }
 
   # normalize appDir path and ensure it exists
   appDir <- normalizePath(appDir, mustWork = FALSE)
@@ -118,12 +161,20 @@ deployApp <- function(appDir = getwd(),
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, appTitle = appTitle,
                        account = account, server = server, upload = upload,
-                       launch.browser = launch.browser, quiet = quiet,
+                       launch.browser = launch.browser, logLevel = logLevel,
                        lint = lint))
     } else {
       stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
            "document.")
     }
+  }
+
+  # at verbose log level, generate header
+  if (verbose) {
+    cat("----- Deployment log started at ", as.character(Sys.time()), " -----\n")
+    cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
+    cat("Session information: \n")
+    print(sessionInfo())
   }
 
   # figure out what kind of thing we're deploying
@@ -223,6 +274,8 @@ deployApp <- function(appDir = getwd(),
 
   if (upload) {
     # create, and upload the bundle
+    if (verbose)
+      cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
@@ -250,6 +303,10 @@ deployApp <- function(appDir = getwd(),
   displayStatus(paste0("Deploying bundle: ", bundle$id,
                        " for ", assetTypeName, ": ", application$id,
                        " ...\n", sep=""))
+  if (verbose) {
+    cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
+  }
+
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
@@ -287,6 +344,10 @@ deployApp <- function(appDir = getwd(),
     displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
                          "with error: ", response$error, "\n"))
     FALSE
+  }
+
+  if (verbose) {
+    cat("----- Deployment log finished at ", as.character(Sys.time()), " -----\n")
   }
 
   invisible(deploymentSucceeded)

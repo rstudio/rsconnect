@@ -9,7 +9,8 @@ deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   appTitle = NULL, contentCategory = NULL, account = NULL,
   server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
-  quiet = FALSE, lint = TRUE, metadata = list())
+  logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
+  metadata = list())
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -61,8 +62,10 @@ re-deployed using the last version that was uploaded.}
 launched automatically after the app is started. Defaults to \code{TRUE} in
 interactive sessions only.}
 
-\item{quiet}{Request that no status information be printed to the console
-during the deployment.}
+\item{logLevel}{One of \code{"quiet"}, \code{"normal"} or \code{"verbose"};
+indicates how much logging to the console is to be performed. At
+\code{"quiet"} reports no information; at \code{"verbose"}, a full
+diagnostic log is captured.}
 
 \item{lint}{Lint the project before initiating deployment, to identify
 potentially problematic code?}
