@@ -353,7 +353,7 @@ httpRCurl <- function(protocol,
       # ignore errors resulting from timeout or user abort
       if (identical(e$message, "Callback aborted") ||
           identical(e$message, "transfer closed with outstanding read data remaining"))
-        return
+        return(NULL)
       # bubble remaining errors through
       else
         stop(e)
