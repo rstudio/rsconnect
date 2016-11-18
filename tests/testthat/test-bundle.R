@@ -20,7 +20,7 @@ test_that("simple Shiny app bundle includes correct files", {
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   files <- listBundleFiles(bundleTempDir)
-  expect_identical(files$contents, c("manifest.json", "server.R", "ui.R", "packrat/packrat.lock"))
+  expect_identical(files$contents, c("manifest.json", "server.R", "ui.R"))
 })
 
 test_that("simple Shiny app bundle is runnable", {
@@ -54,13 +54,3 @@ test_that("recommended packages are snapshotted", {
   deps <- packrat:::readLockFilePackages(lockfile)
   expect_true("MASS" %in% names(deps))
 })
-
-test_that("existing packrat lock file is respected", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("shinyapp-packrat", "shinyapp-packrat", "packrat.R")
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  orig <- packrat:::readLockFile("shinyapp-packrat/packrat/packrat.lock")
-  new <- packrat:::readLockFile(file.path(bundleTempDir, "packrat/packrat.lock"))
-  expect_identical(orig, new)
-})
-
