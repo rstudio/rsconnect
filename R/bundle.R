@@ -54,13 +54,15 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     contents <- contents[!grepl(glob2rx(".DS_Store"), contents)]
     contents <- contents[!grepl(glob2rx(".gitignore"), contents)]
     contents <- contents[!grepl(glob2rx(".Rhistory"), contents)]
+
+    # add packrat lock file to contents if it exists
+    # TODO: Handle the case where appDir is a subdirectory of the packrat package, ie:
+    #  /project/myapp/app.R   where /project/packrat/packrat.lock is what we want
+    # Currently only works for  /project/app.R  /project/packrat
+    if (file.exists(snapshotLockFile(dir)))
+      contents <- c(contents, "packrat/packrat.lock")
   }
 
-
-  # add packrat lock file to contents if it exists
-  # TODO: Handle the case where dir is a subdirectory of the project
-  if (file.exists(snapshotLockFile(dir)))
-    contents <- c(contents, "packrat/packrat.lock")
 
   # sum the size of the files in the directory
   info <- file.info(file.path(dir, contents))
