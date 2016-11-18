@@ -23,8 +23,12 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
     #ensure .Rprofile doesn't call packrat/init.R
     if (basename(to) == ".Rprofile") {
       origRprofile <- readLines(to)
+      msg <- paste0("# Modified by rsconnect package ", packageVersion("rsconnect"), " on ", Sys.time(), ":")
+      replacement <- paste(msg,
+                           "# Packrat initialization disabled in published application",
+                           '# source(\"packrat/init.R\")', sep="\n")
       newRprofile <- gsub( 'source(\"packrat/init.R\")',
-                           '#source(\"packrat/init.R\")',
+                           replacement,
                            origRprofile, fixed = TRUE)
       cat(newRprofile, file=to, sep="\n")
     }
