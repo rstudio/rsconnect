@@ -15,9 +15,20 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
         file == appPrimaryDoc) {
       to <- file.path(bundleDir, "app.R")
     }
+
+
+
     if (!file.exists(dirname(to)))
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
+
+    #ensure .Rprofile doesn't call packrat/init.R
+    if(basename(to)==".Rprofile"){
+      origRprofile <- readLines(to)
+      newRprofile <- gsub( 'source(\"packrat/init.R\")', '#source(\"packrat/init.R\")', origRprofile, fixed = TRUE)
+      cat(newRprofile, file=to, sep="\n")
+    }
+
   }
   bundleDir
 }
@@ -44,6 +55,12 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     contents <- contents[!grepl(glob2rx(".gitignore"), contents)]
     contents <- contents[!grepl(glob2rx(".Rhistory"), contents)]
   }
+
+
+  # add packrat lock file to contents if it exists
+  # TODO: Handle the case where dir is a subdirectory of the project
+  if (file.exists(snapshotLockFile(dir)))
+    contents <- c(contents, "packrat/packrat.lock")
 
   # sum the size of the files in the directory
   info <- file.info(file.path(dir, contents))
@@ -485,7 +502,11 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # generate the packrat snapshot
   tryCatch({
-    performPackratSnapshot(bundleDir)
+    if(!file.exists(snapshotLockFile(bundleDir))){
+      performPackratSnapshot(bundleDir)
+    }else{
+      message("Re-using Packrat Lock File")
+    }
   }, error = function(e) {
     # if an error occurs while generating the snapshot, add a header to the
     # message for improved attribution
