@@ -16,16 +16,16 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
       to <- file.path(bundleDir, "app.R")
     }
 
-
-
     if (!file.exists(dirname(to)))
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
 
     #ensure .Rprofile doesn't call packrat/init.R
-    if(basename(to)==".Rprofile"){
+    if (basename(to) == ".Rprofile") {
       origRprofile <- readLines(to)
-      newRprofile <- gsub( 'source(\"packrat/init.R\")', '#source(\"packrat/init.R\")', origRprofile, fixed = TRUE)
+      newRprofile <- gsub( 'source(\"packrat/init.R\")',
+                           '#source(\"packrat/init.R\")',
+                           origRprofile, fixed = TRUE)
       cat(newRprofile, file=to, sep="\n")
     }
 
@@ -502,9 +502,9 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
 
   # generate the packrat snapshot
   tryCatch({
-    if(!file.exists(snapshotLockFile(bundleDir))){
+    if (!file.exists(snapshotLockFile(bundleDir))) {
       performPackratSnapshot(bundleDir)
-    }else{
+    } else {
       message("Re-using Packrat Lock File")
     }
   }, error = function(e) {
