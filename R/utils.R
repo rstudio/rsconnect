@@ -166,4 +166,20 @@ capitalize <- function(x) {
     paste0(toupper(substr(x, 1, 1)), substring(x, 2))
 }
 
+activeEncoding <- function(project = getwd()) {
+  defaultEncoding <- getOption("encoding")
 
+  # attempt to locate .Rproj file
+  files <- list.files(project, full.names = TRUE)
+  rprojFile <- grep("\\.Rproj$", files, value = TRUE)
+  if (length(rprojFile) != 1)
+    return(defaultEncoding)
+
+  # read the file
+  contents <- readLines(rprojFile, warn = FALSE, encoding = "UTF-8")
+  encodingLine <- grep("^Encoding:", contents, value = TRUE)
+  if (length(encodingLine) != 1)
+    return(defaultEncoding)
+
+  sub("^Encoding:\\s*", "", encodingLine)
+}

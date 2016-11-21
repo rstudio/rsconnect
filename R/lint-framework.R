@@ -142,8 +142,8 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   }))
 
   # Read in the files
-  # TODO: perform this task more lazily?
-  projectContent <- suppressWarnings(lapply(projectFilesToLint, readLines))
+  encoding <- activeEncoding(project)
+  projectContent <- suppressWarnings(lapply(projectFilesToLint, readLines, encoding = encoding))
   names(projectContent) <- projectFilesToLint
   lintResults <- vector("list", length(linters))
   names(lintResults) <- names(linters)
