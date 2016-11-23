@@ -7,7 +7,7 @@
 deploySite(siteDir = getwd(), siteName = NULL, account = NULL,
   server = NULL, render = c("none", "local", "server"),
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
-  logLevel = c("quiet", "normal", "verbose"), lint = FALSE,
+  logLevel = c("normal", "quiet", "verbose"), lint = FALSE,
   metadata = list())
 }
 \arguments{
