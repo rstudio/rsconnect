@@ -174,7 +174,7 @@ deployApp <- function(appDir = getwd(),
     cat("----- Deployment log started at ", as.character(Sys.time()), " -----\n")
     cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
     cat("Session information: \n")
-    print(sessionInfo())
+    print(utils::sessionInfo())
   }
 
   # figure out what kind of thing we're deploying

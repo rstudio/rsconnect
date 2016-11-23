@@ -5,7 +5,8 @@
 \title{Configure an Application}
 \usage{
 configureApp(appName, appDir = getwd(), account = NULL, server = NULL,
-  redeploy = TRUE, size = NULL, instances = NULL, quiet = FALSE)
+  redeploy = TRUE, size = NULL, instances = NULL, logLevel = c("normal",
+  "quiet", "verbose"))
 }
 \arguments{
 \item{appName}{Name of application to configure}
@@ -25,8 +26,10 @@ multiple servers (see \code{\link{servers}})}
 
 \item{instances}{Configure number of application instances}
 
-\item{quiet}{Request that no status information be printed to the console
-during the deployment.}
+\item{logLevel}{One of \code{"quiet"}, \code{"normal"} or \code{"verbose"};
+indicates how much logging to the console is to be performed. At
+\code{"quiet"} reports no information; at \code{"verbose"}, a full
+diagnostic log is captured.}
 }
 \description{
 Configure an application running on a remote server.

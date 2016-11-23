@@ -2,6 +2,8 @@
 #'
 #' Configure an application running on a remote server.
 #'
+#' @inheritParams deployApp
+#'
 #' @param appName Name of application to configure
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
@@ -12,8 +14,6 @@
 #' @param redeploy Re-deploy application after its been configured.
 #' @param size Configure application instance size
 #' @param instances Configure number of application instances
-#' @param quiet Request that no status information be printed to the console
-#'   during the deployment.
 #' @examples
 #' \dontrun{
 #'
@@ -24,13 +24,13 @@
 #' @export
 configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
                          redeploy = TRUE, size = NULL,
-                         instances = NULL, quiet = FALSE) {
+                         instances = NULL, logLevel = c("normal", "quiet", "verbose")) {
 
   # resolve target account and application
   accountDetails <- accountInfo(resolveAccount(account, server), server)
   application <- resolveApplication(accountDetails, appName)
 
-  displayStatus <- displayStatus(quiet)
+  displayStatus <- displayStatus(identical(logLevel, "quiet"))
 
   # some properties may required a rebuild to take effect
   rebuildRequired = FALSE
@@ -61,7 +61,7 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
   # redeploy application if requested
   if (redeploy) {
     if (length(properties) > 0) {
-      deployApp(appDir=appDir, appName=appName, account=account, quiet=quiet, upload=rebuildRequired)
+      deployApp(appDir=appDir, appName=appName, account=account, logLevel=logLevel, upload=rebuildRequired)
     }
     else
     {
