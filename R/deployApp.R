@@ -329,11 +329,9 @@ deployApp <- function(appDir = getwd(),
     # if this client supports config, see if the app needs it
     if (!quiet && !is.null(client$configureApplication)) {
       config <- client$configureApplication(application$id)
-      if (config$needs_config) {
-        # app needs config, finish deployment on the server
-        showURL(config$config_url)
-        return(invisible(TRUE))
-      }
+      # open app in Dashboard for publishing or further configuration
+      showURL(config$config_url)
+      return(invisible(TRUE))
     }
 
     # launch the browser if requested
