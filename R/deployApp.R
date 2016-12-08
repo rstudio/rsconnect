@@ -332,7 +332,7 @@ deployApp <- function(appDir = getwd(),
       # Open app in Dashboard for publishing or further configuration.
       # Preserve compatibility with older versions of connect by checking
       # to see if config$config_url is set.
-      if (!(is.na(config$config_url) || config$config_url == '')) {
+      if (!(is.null(config$config_url) || config$config_url == '')) {
         showURL(config$config_url)
         return(invisible(TRUE))
       }
