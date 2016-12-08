@@ -329,9 +329,13 @@ deployApp <- function(appDir = getwd(),
     # if this client supports config, see if the app needs it
     if (!quiet && !is.null(client$configureApplication)) {
       config <- client$configureApplication(application$id)
-      # open app in Dashboard for publishing or further configuration
-      showURL(config$config_url)
-      return(invisible(TRUE))
+      # Open app in Dashboard for publishing or further configuration.
+      # Preserve compatibility with older versions of connect by checking
+      # to see if config$config_url is set.
+      if (!(is.na(config$config_url) || config$config_url == '')) {
+        showURL(config$config_url)
+        return(invisible(TRUE))
+      }
     }
 
     # launch the browser if requested
