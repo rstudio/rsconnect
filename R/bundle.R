@@ -73,12 +73,18 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     for (subdir in subdirs) {
 
       # ignore known directories from the root
-      if (nchar(parent) == 0 && subdir %in% c(
-           "rsconnect", "packrat", ".svn", ".git", ".Rproj.user"))
+      ignoredSubdirs <- c("rsconnect", ".svn", ".git", ".Rproj.user")
+      if (nchar(parent) == 0 && subdir %in% ignoredSubdirs)
         next
 
       # ignore knitr _cache directories
       if (isKnitrCacheDir(subdir, contents))
+        next
+
+      # if this is a packrat sub-directory, ignore all other files
+      # and directories except for the 'src' directory
+      if (identical(basename(dir), "packrat") &&
+          !identical(subdir, "src"))
         next
 
       # get the list of files in the subdirectory
