@@ -59,6 +59,11 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     contents <- contents[!grepl(glob2rx(".Rhistory"), contents)]
   }
 
+  # within the packrat directory, only include 'src' folder
+  if (identical(basename(dir), "packrat")) {
+    contents <- contents[contents == "src"]
+  }
+
   # sum the size of the files in the directory
   info <- file.info(file.path(dir, contents))
   size <- sum(info$size)
@@ -79,12 +84,6 @@ maxDirectoryList <- function(dir, parent, totalSize) {
 
       # ignore knitr _cache directories
       if (isKnitrCacheDir(subdir, contents))
-        next
-
-      # if this is a packrat sub-directory, ignore all other files
-      # and directories except for the 'src' directory
-      if (identical(basename(dir), "packrat") &&
-          !identical(subdir, "src"))
         next
 
       # get the list of files in the subdirectory
