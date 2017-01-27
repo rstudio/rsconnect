@@ -59,6 +59,11 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     contents <- contents[!grepl(glob2rx(".Rhistory"), contents)]
   }
 
+  # within the packrat directory, only include 'src' folder
+  if (identical(basename(dir), "packrat")) {
+    contents <- contents[contents == "src"]
+  }
+
   # sum the size of the files in the directory
   info <- file.info(file.path(dir, contents))
   size <- sum(info$size)
@@ -73,8 +78,8 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     for (subdir in subdirs) {
 
       # ignore known directories from the root
-      if (nchar(parent) == 0 && subdir %in% c(
-           "rsconnect", "packrat", ".svn", ".git", ".Rproj.user"))
+      ignoredSubdirs <- c("rsconnect", ".svn", ".git", ".Rproj.user")
+      if (nchar(parent) == 0 && subdir %in% ignoredSubdirs)
         next
 
       # ignore knitr _cache directories
