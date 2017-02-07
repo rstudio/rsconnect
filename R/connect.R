@@ -59,7 +59,7 @@ connectClient <- function(service, authInfo) {
     },
 
     currentUser = function() {
-      handleResponse(GET(service, authInfo, "/users/current/"))
+      handleResponse(GET(service, authInfo, "/users/current"))
     },
 
     ## Tokens API
