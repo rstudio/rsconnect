@@ -82,7 +82,7 @@ connectClient <- function(service, authInfo) {
       if (is.null(filters)) {
         filters <- vector()
       }
-      path <- "/applications/"
+      path <- "/applications"
       query <- paste(filterQuery(
         c("account_id", names(filters)),
         c(accountId, unname(filters))
