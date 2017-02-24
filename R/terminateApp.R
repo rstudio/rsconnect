@@ -1,6 +1,6 @@
 #' Terminate an Application
 #'
-#' Terminate an application currently running on a remote server.
+#' Terminate an application currently running on a remote server, this will also archive the application.
 #'
 #' @param appName Name of application to terminate
 #' @param account Account name. If a single account is registered on the system
