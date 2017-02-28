@@ -1,6 +1,6 @@
 #' Terminate an Application
 #'
-#' Terminate an application currently running on a remote server.
+#' Terminate and archive a currently deployed ShinyApps application.
 #'
 #' @param appName Name of application to terminate
 #' @param account Account name. If a single account is registered on the system
@@ -9,6 +9,9 @@
 #'   multiple servers (see \code{\link{servers}})
 #' @param quiet Request that no status information be printed to the console
 #'   during the termination.
+#'
+#' @note This function only works for ShinyApps servers.
+#'
 #' @examples
 #' \dontrun{
 #'
