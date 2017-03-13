@@ -59,7 +59,7 @@ connectClient <- function(service, authInfo) {
     },
 
     currentUser = function() {
-      handleResponse(GET(service, authInfo, "/users/current/"))
+      handleResponse(GET(service, authInfo, "/users/current"))
     },
 
     ## Tokens API
@@ -82,7 +82,7 @@ connectClient <- function(service, authInfo) {
       if (is.null(filters)) {
         filters <- vector()
       }
-      path <- "/applications/"
+      path <- "/applications"
       query <- paste(filterQuery(
         c("account_id", names(filters)),
         c(accountId, unname(filters))
