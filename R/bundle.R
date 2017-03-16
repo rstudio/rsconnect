@@ -192,7 +192,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
-  utils::tar(bundlePath, files = ".", compression = "gzip")
+  utils::tar(bundlePath, files = ".", compression = "gzip", tar = "internal")
   bundlePath
 }
 
