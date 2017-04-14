@@ -328,7 +328,7 @@ deployApp <- function(appDir = getwd(),
                          "to ", application$url, "\n"))
 
     # if this client supports config, see if the app needs it
-    checkForConfig(client, application, showURL, quiet)
+    openConfigURL(client, application, showURL, quiet)
 
     # launch the browser if requested
     showURL(application$url)
@@ -339,7 +339,7 @@ deployApp <- function(appDir = getwd(),
                          "with error: ", response$error, "\n"))
 
     # a client can still require config with some deployment failures
-    checkForConfig(client, application, showURL, quiet)
+    openConfigURL(client, application, showURL, quiet)
 
     FALSE
   }
@@ -529,7 +529,7 @@ applicationForTarget <- function(client, accountInfo, target) {
 }
 
 ## Check if client requires configuration, and if so, open to URL
-checkForConfig <- function(client, application, showURL = utils::browseURL, quiet = FALSE) {
+openConfigURL <- function(client, application, showURL = utils::browseURL, quiet = FALSE) {
   if (!quiet && !is.null(client$configureApplication)) {
     config <- client$configureApplication(application$id)
     # Open app in Dashboard for publishing or further configuration.
