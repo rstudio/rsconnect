@@ -37,8 +37,6 @@ options(RCurlOptions = list(proxy = "http://proxy.example.com")
 
 You can set any underling curl option using this mechanism. To do this you translate curl options to lowercase and remove the \code{CURL_} prefix (for example, \code{CURLOPT_PROXYPORT} becomes \code{proxyport}).
 
-A list of available curl options can be found here: \href{https://curl.haxx.se/libcurl/c/curl_easy_setopt.html}{curl http proxy options}.
-
 }
 
 \section{Using Internet Explorer Proxy Settings}{

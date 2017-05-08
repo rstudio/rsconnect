@@ -18,7 +18,7 @@ If a locally installed package was not obtained from CRAN (e.g. was installed fr
 }
 
 \section{GitHub Packages}{
-It's also possible to depend on packages hosted in public GitHub repositories, so long as they are installed via the \link[devtools:install_github]{install_github} function from the \pkg{devtools} package.
+It's also possible to depend on packages hosted in public GitHub repositories, so long as they are installed via the \code{install_github} function from the \pkg{devtools} package.
 
 This works because \code{install_github} records the exact Github commit that was installed locally, making it possible to download and install the same source code on the deployment server.
 

@@ -75,7 +75,7 @@ record. These fields will be returned on subsequent calls to
 \code{\link{deployments}}.}
 }
 \description{
-Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
+Deploy a Shiny application, an R Markdown
 document, or HTML content to a server.
 }
 \examples{
