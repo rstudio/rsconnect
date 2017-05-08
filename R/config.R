@@ -9,7 +9,8 @@ rsconnectConfigDir <- function(subDir = NULL) {
   if (!file_test("-d", config_dir)) {
     old_config_dir <- applicationConfigDir("connect", create = FALSE)
     if (file_test("-d", old_config_dir))
-      file.rename(old_config_dir, config_dir)
+      if (!file.rename(old_config_dir, config_dir))
+        return(old_config_dir)
   }
 
   # return the directory
