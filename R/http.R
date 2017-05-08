@@ -287,7 +287,7 @@ httpRCurl <- function(protocol,
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
   options$ssl.verifypeer <- TRUE
-  # Cert from: http://curl.haxx.se/docs/caextract.html
+  # Cert from: https://curl.haxx.se/docs/caextract.html
   options$cainfo <- system.file("cert/cacert.pem", package = "rsconnect")
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
