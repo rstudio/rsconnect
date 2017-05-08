@@ -21,4 +21,3 @@ Show propreties of an application deployed to ShinyApps.
 \note{
 This function works only for ShinyApps servers.
 }
-

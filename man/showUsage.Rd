@@ -37,4 +37,3 @@ Show application usage of a currently deployed application
 \note{
 This function only works for ShinyApps servers.
 }
-

@@ -31,4 +31,3 @@ Show the logs for a deployed ShinyApps application.
 \note{
 This function works only for ShinyApps servers.
 }
-

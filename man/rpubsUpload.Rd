@@ -52,4 +52,3 @@ updateResult <- rpubsUpload("My updated title", "Document.html",
                             id = result$id)
 }
 }
-

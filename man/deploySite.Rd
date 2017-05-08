@@ -52,4 +52,3 @@ record. These fields will be returned on subsequent calls to
 \description{
 Deploy an R Markdown website to a server.
 }
-

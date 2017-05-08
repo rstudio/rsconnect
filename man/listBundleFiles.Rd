@@ -37,4 +37,3 @@ listing from \code{\link{list.files}}, with the following constraints:
    excluded.}
 }
 }
-

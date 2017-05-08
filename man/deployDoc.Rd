@@ -32,4 +32,3 @@ When deploying an R Markdown document, any files which are
   explains how to do this), or call \code{\link{deployApp}} directly and
   specify your own file list in the \code{appFiles} parameter.
 }
-

@@ -34,4 +34,3 @@ taskLog(12345, output="stderr")
 \seealso{
 \code{\link{tasks}}
 }
-

@@ -17,4 +17,3 @@ makeLinterMessage(header, content, lines)
 Pretty-prints a linter message. Primarily used as a helper
 for constructing linter messages with \code{\link{linter}}.
 }
-

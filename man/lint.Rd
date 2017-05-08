@@ -19,4 +19,3 @@ in which case it's inferred (if possible) from the directory contents.}
 Takes the set of active linters (see \code{\link{addLinter}}), and applies
 them to all files within a project.
 }
-

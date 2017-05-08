@@ -105,4 +105,3 @@ deployApp(launch.browser = FALSE)
 \code{\link{applications}}, \code{\link{terminateApp}}, and
   \code{\link{restartApp}}
 }
-

@@ -46,4 +46,3 @@ View(applications())
 \seealso{
 \code{\link{deployApp}}, \code{\link{terminateApp}}
 }
-

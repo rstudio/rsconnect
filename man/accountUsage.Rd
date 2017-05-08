@@ -31,4 +31,3 @@ Show account usage
 \note{
 This function only works for ShinyApps servers.
 }
-

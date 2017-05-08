@@ -33,4 +33,3 @@ This function works only for ShinyApps servers.
 \seealso{
 \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
 }
-

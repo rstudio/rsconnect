@@ -2,8 +2,8 @@
 % Please edit documentation in R/rsconnect-package.R
 \docType{package}
 \name{rsconnect-package}
-\alias{rsconnect}
 \alias{rsconnect-package}
+\alias{rsconnect}
 \title{rsconnect}
 \description{
 Deployment Interface for R Markdown Documents and Shiny Applications
@@ -61,5 +61,5 @@ Manage accounts on the local system.
 More information on account management is available in the
 \code{\link{accounts}} help page.
 }
-\keyword{package}
 
+\keyword{package}

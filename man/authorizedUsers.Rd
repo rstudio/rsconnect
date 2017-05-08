@@ -13,4 +13,3 @@ directory.}
 \description{
 (Deprecated) List authorized users for an application
 }
-

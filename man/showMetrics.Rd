@@ -39,4 +39,3 @@ Show application metrics of a currently deployed application
 \note{
 This function only works for ShinyApps servers.
 }
-

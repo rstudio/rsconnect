@@ -28,4 +28,3 @@ This function works only for ShinyApps servers.
 \seealso{
 \code{\link{addAuthorizedUser}} and \code{\link{showInvited}}
 }
-

@@ -27,4 +27,3 @@ When this function is invoked, a web browser will be opened to a
   be able to deploy and manage applications using the package without further
   prompts for credentials.
 }
-

@@ -37,4 +37,3 @@ tasks()
 \seealso{
 \code{\link{taskLog}}
 }
-

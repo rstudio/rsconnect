@@ -35,4 +35,3 @@ terminateApp("myapp")
 \code{\link{applications}}, \code{\link{deployApp}}, and
   \code{\link{restartApp}}
 }
-

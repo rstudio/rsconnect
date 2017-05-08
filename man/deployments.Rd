@@ -54,4 +54,3 @@ deployments("~/r/myapp", accountFilter="abc")
 \code{\link{applications}} to get a list of deployments from the
   server, and \code{\link{deployApp}} to create a new deployment.
 }
-

@@ -44,4 +44,3 @@ configureApp("myapp", size="xlarge")
 \seealso{
 \code{\link{applications}}, \code{\link{deployApp}}
 }
-
