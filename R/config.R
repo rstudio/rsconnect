@@ -2,7 +2,7 @@
 
 rsconnectConfigDir <- function(subDir = NULL) {
 
-  # first check whether the main rsconect directory exists
+  # first check whether the main rsconnect directory exists
   config_dir <- applicationConfigDir("rsconnect", create = FALSE)
 
   # if it doesn't exist then see whether there is a main "connect" directory to migrate
