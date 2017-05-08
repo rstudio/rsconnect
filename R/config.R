@@ -1,10 +1,22 @@
 
 
 rsconnectConfigDir <- function(subDir = NULL) {
-  applicationConfigDir("connect", subDir)
+
+  # first check whether the main rsconect directory exists
+  config_dir <- applicationConfigDir("rsconnect", create = FALSE)
+
+  # if it doesn't exist then see whether there is a main "connect" directory to migrate
+  if (!file_test("-d", config_dir)) {
+    old_config_dir <- applicationConfigDir("connect", create = FALSE)
+    if (file_test("-d", old_config_dir))
+      file.rename(old_config_dir, config_dir)
+  }
+
+  # return the directory
+  applicationConfigDir("rsconnect", subDir)
 }
 
-applicationConfigDir <- function(appName, subDir = NULL) {
+applicationConfigDir <- function(appName, subDir = NULL, create = TRUE) {
 
   # get the home directory from the operating system (in case
   # the user has redefined the meaning of ~) but fault back
@@ -29,7 +41,7 @@ applicationConfigDir <- function(appName, subDir = NULL) {
   configDir <- normalizePath(configDir, mustWork=FALSE)
 
   # ensure that it exists
-  if (!file.exists(configDir))
+  if (!file.exists(configDir) && create)
     dir.create(configDir, recursive=TRUE)
 
   # return it
