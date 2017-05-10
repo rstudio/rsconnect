@@ -197,12 +197,21 @@ deploymentFile <- function(appPath, name, account, server) {
 
 deploymentRecord <- function(name, title, account, server, appId, bundleId, url,
                              when, metadata = list()) {
+
+  # find the username (may differ from account nickname)
+  userinfo <- NULL
+  try({ userInfo <- accountInfo(account, server) }, silent = TRUE)
+  serverinfo <- NULL
+  try({ serverinfo <- serverInfo(server) }, silent = TRUE)
+
   # compose the standard set of fields and append any requested
   as.data.frame(c(
       list(name = name,
            title = if (is.null(title)) "" else title,
+           username = if (is.null(userinfo$username)) "" else userinfo$username,
            account = account,
            server = server,
+           hostUrl = if (is.null(serverinfo$url)) "" else serverinfo$url,
            appId = appId,
            bundleId = bundleId,
            url = url,
