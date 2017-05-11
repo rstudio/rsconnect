@@ -280,7 +280,60 @@ deployApp <- function(appDir = getwd(),
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory)
-      bundle <- client$uploadApplication(application$id, bundlePath)
+      cat("doing upload", "\n")
+      if(!is.null(client$clientName) && client$clientName() == "lucid"){
+        cat("lucid: ", bundlePath, "\n")
+
+        # Step 1. Create presigned URL and register pending bundle.
+        bundleSize <- file.info(bundlePath)$size
+
+        # Generate a hex-encoded md5 hash.
+        checkSum <- digest::digest(bundlePath, 'md5', file=TRUE)
+        bundle <- client$generatePresignedLink(application$id, "application/x-tar", bundleSize, checkSum)
+
+        # Step 2. Upload Bundle to presigned URL
+        presigned_service <- parseHttpUrl(bundle$presigned_url)
+
+        headers <- list()
+        headers$`Content-Type` <-  'application/x-tar'
+        headers$`Content-Length` <-  bundleSize
+
+        # AWS requires a base64 encoded hash
+        headers$`Content-MD5` <-  bundle$presigned_checksum
+
+        # AWS seems very sensitive to additional headers (likely becauseit was not included and signed
+        # for when the presigned link was created). So the lower level library is used here.
+        http <- httpFunction()
+        response <- http(
+             presigned_service$protocol,
+             presigned_service$host,
+             presigned_service$port,
+             "PUT",
+             presigned_service$path,
+             headers,
+             'application/x-tar',
+             bundlePath
+        )
+
+        if(response$status != 200){
+          stop("Could not upload file.")
+        }
+
+        # Step 3. Upload revise bundle status.
+        response <- client$updateBundleStatus(bundle$id, status="ready")
+        if(response$status != 303){
+          stop("Errors updating bundle status.")
+        }
+
+        # Step 4. Retrieve updated bundle post status change - which is required in subsequent
+        # areas of the code below.
+        bundle <- client$getBundleById(bundle$id)
+
+        cat("Bundle done", "\n")
+      }else{
+        cat("connect path")
+        bundle <- client$uploadApplication(application$id, bundlePath)
+      }
     })
   } else {
     # redeploy current bundle

@@ -5,6 +5,10 @@ lucidClient <- function(service, authInfo) {
 
   list(
 
+    clientName = function(){
+      "lucid"
+    },
+
     status = function() {
       handleResponse(GET(service, authInfo,  "/internal/status"))
     },
@@ -32,6 +36,27 @@ lucidClient <- function(service, authInfo) {
       if (is.null(interval))
         query$interval = interval
       handleResponse(GET(service, authInfo, path, queryString(query)))
+    },
+
+    getBundleById = function(bundleId){
+      path <- paste("/bundles/", bundleId, sep="")
+      handleResponse(GET(service, authInfo, path))
+    },
+
+    updateBundleStatus = function(bundleId, status) {
+      path <- paste("/bundles/", bundleId, "/status", sep="")
+      json <- list()
+      json$status = status
+      POST_JSON(service, authInfo, path, json)
+    },
+
+    generatePresignedLink = function(application, content_type, content_length, checksum) {
+      json <- list()
+      json$application = application
+      json$content_type = content_type
+      json$content_length = content_length
+      json$checksum = checksum
+      handleResponse(POST_JSON(service, authInfo, "/bundles", json))
     },
 
    listApplications = function(accountId, filters = list()) {
