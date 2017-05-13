@@ -293,8 +293,10 @@ deployApp <- function(appDir = getwd(),
   saveDeployment(appPath,
                  target$appName,
                  target$appTitle,
+                 target$username,
                  target$account,
                  accountDetails$server,
+                 serverInfo(target$server)$hostUrl,
                  application$id,
                  bundle$id,
                  application$url,
@@ -357,18 +359,46 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
   # read existing deployments
   appDeployments <- deployments(appPath = appPath)
 
+  # function to compute the target username from a deployment
+  usernameFromDeployment <- function(deployment) {
+    # determine which username on the serve owns the application
+    if (!is.null(appDeployments$username)) {
+      # read from the deployment record if supplied
+      username <- appDeployments$username
+    } else {
+      # lookup account info if not
+      username <- accountInfo(appDeployments$account)$username
+    }
+    username
+  }
+
   # function to create a deployment target list (checks whether the target
   # is an update and adds that field)
-  createDeploymentTarget <- function(appName, appTitle, account, server) {
+  createDeploymentTarget <- function(appName, appTitle, username, account, server) {
+    # look up the server URL
+    serverDetails <- serverInfo(server)
 
     # check to see whether this is an update
-    existingDeployment <- deployments(appPath,
-                                      nameFilter = appName,
-                                      accountFilter = account,
-                                      serverFilter = server)
-    isUpdate <- nrow(existingDeployment) == 1
+    isUpdate <- FALSE
+    existingDeployments <- deployments(appPath, nameFilter = appName)
+    for (i in seq_along(existingDeployments)) {
+      if (identical(existingDeployments[[i, "account"]], account) &&
+          identical(existingDeployments[[i, "server"]], server))
+      {
+        # account and server matches a locally configured account
+        isUpdate <- TRUE
+        break
+      }
+      else if (identical(existingDeployments[[i, "username"]], username) &&
+               identical(existingDeployments[[i, "host"]], serverDetails$url))
+      {
+        # username and host match the user and host we're deploying to
+        isUpdate <- TRUE
+        break
+      }
+    }
 
-    list(appName = appName, appTitle = appTitle, account = account,
+    list(appName = appName, appTitle = appTitle, username = username, account = account,
          isUpdate = isUpdate, server = server)
   }
 
@@ -379,9 +409,8 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
 
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
-
-    createDeploymentTarget(appName, appTitle, account, server)
-
+    accountDetails <- accountInfo(account)
+    createDeploymentTarget(appName, appTitle, accountDetails$username, account, server)
   }
 
   # just appName specified
@@ -397,7 +426,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
       if (length(accounts) == 1) {
         # read the server associated with the account
         accountDetails <- accountInfo(accounts, server)
-        createDeploymentTarget(appName, appTitle, accounts,
+        createDeploymentTarget(appName, appTitle, accountDetails$username, accounts,
                                accountDetails$server)
       } else {
         stopWithSpecifyAccount()
@@ -406,7 +435,8 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
-      createDeploymentTarget(appName, appTitle, appDeployments$account,
+      createDeploymentTarget(appName, appTitle,
+                             usernameFromDeployment(appDeployments), appDeployments$account,
                              appDeployments$server)
     }
 
@@ -431,17 +461,16 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
       generateAppName(appTitle, appPath, account, unique = FALSE),
-      appTitle, account, accountDetails$server)
+      appTitle, accountDetails$username, account, accountDetails$server)
   }
 
   # neither specified but a single existing deployment
   else if (nrow(appDeployments) == 1) {
-
     createDeploymentTarget(appDeployments$name,
                            appDeployments$title,
+                           usernameFromDeployment(appDeployments),
                            appDeployments$account,
                            appDeployments$server)
-
   }
 
   # neither specified and no existing deployments
@@ -452,7 +481,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
         generateAppName(appTitle, appPath, account, unique = FALSE),
-        appTitle, accounts, accountDetails$server)
+        appTitle, accountDetails$username, accounts, accountDetails$server)
     }
     else
       stop("Please specify the account and server to which you want to deploy ",
