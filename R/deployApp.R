@@ -281,7 +281,7 @@ deployApp <- function(appDir = getwd(),
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory)
 
-      if (!isShinyapps(accountDetails)) {
+      if (isShinyapps(accountDetails)) {
 
         # Step 1. Create presigned URL and register pending bundle.
         bundleSize <- file.info(bundlePath)$size
@@ -291,7 +291,7 @@ deployApp <- function(appDir = getwd(),
         bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
 
         # Step 2. Upload Bundle to presigned URL
-        if (lucid::uploadBundle(bundle, bundleSize, bundlePath)) {
+        if (uploadBundle(bundle, bundleSize, bundlePath)) {
           stop("Could not upload file.")
         }
 
@@ -306,7 +306,6 @@ deployApp <- function(appDir = getwd(),
         bundle <- client$getBundle(bundle$id)
 
       } else {
-        cat("connect path")
         bundle <- client$uploadApplication(application$id, bundlePath)
       }
     })
