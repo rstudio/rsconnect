@@ -291,7 +291,7 @@ deployApp <- function(appDir = getwd(),
         bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
 
         # Step 2. Upload Bundle to presigned URL
-        if (uploadBundle(bundle, bundleSize, bundlePath)) {
+        if (!uploadBundle(bundle, bundleSize, bundlePath)) {
           stop("Could not upload file.")
         }
 

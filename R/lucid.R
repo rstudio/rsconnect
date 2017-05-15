@@ -324,5 +324,5 @@ uploadBundle <- function(bundle, bundleSize, bundlePath){
     bundlePath
   )
 
-  response$status != 200
+  response$status == 200
 }
