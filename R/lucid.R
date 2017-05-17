@@ -320,7 +320,7 @@ uploadBundle <- function(bundle, bundleSize, bundlePath){
     "PUT",
     presigned_service$path,
     headers,
-    'application/x-tar',
+    headers$`Content-Type`,
     bundlePath
   )
 

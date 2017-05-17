@@ -298,7 +298,8 @@ deployApp <- function(appDir = getwd(),
         # Step 3. Upload revise bundle status.
         response <- client$updateBundleStatus(bundle$id, status="ready")
         if (response$status != 303) {
-          stop("Errors updating bundle status.")
+          err <- handleResponse(response)
+          stop(paste("Errors updating bundle status:", response$status, "-" , err$error, sep=" "))
         }
 
         # Step 4. Retrieve updated bundle post status change - which is required in subsequent
