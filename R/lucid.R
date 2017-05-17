@@ -43,7 +43,7 @@ lucidClient <- function(service, authInfo) {
       path <- paste("/bundles/", bundleId, "/status", sep="")
       json <- list()
       json$status = status
-      POST_JSON(service, authInfo, path, json)
+      handleResponse(POST_JSON(service, authInfo, path, json))
     },
 
     createBundle = function(application, content_type, content_length, checksum) {
