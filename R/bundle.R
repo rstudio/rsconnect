@@ -597,6 +597,7 @@ performPackratSnapshot <- function(bundleDir) {
   suppressMessages(
     packrat::.snapshotImpl(project = bundleDir,
                            snapshot.sources = FALSE,
+                           fallback.ok = TRUE,
                            verbose = FALSE)
   )
 
