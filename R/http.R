@@ -7,6 +7,17 @@ userAgent <- function() {
   paste("rsconnect", packageVersion("rsconnect"), sep="/")
 }
 
+getCookieHost <- function(requestURL){
+  host <- requestURL$host
+  if (nchar(requestURL$port) > 0){
+    # By my reading of the RFC, we technically only need to include the port #
+    # in the index if the host is an IP address. But here we're including the
+    # port number as a part of the host whether using a domain name or IP.
+    # Erring on the side of not sending the cookies to the wrong services
+    host <- paste(host, requestURL$port, sep=":")
+  }
+}
+
 # Parse out the raw headers provided and insert them into the cookieStore
 # FIXME: expires
 # FIXME: secure flag
@@ -21,14 +32,7 @@ storeCookies <- function(requestURL, cookieHeaders){
   # Filter out invalid cookies (which would return as NULL)
   cookies <- Filter(Negate(is.null), cookies)
 
-  host <- requestURL$host
-  if (nchar(requestURL$port) > 0){
-    # By my reading of the RFC, we technically only need to include the port #
-    # in the index if the host is an IP address. But here we're including the
-    # port number as a part of the host whether using a domain name or IP.
-    # Erring on the side of not sending the cookies to the wrong services
-    host <- paste(host, requestURL$port, sep=":")
-  }
+  host <- getCookieHost(requestURL)
 
   hostCookies <- NULL
   if (!exists(host, .cookieStore)){
@@ -58,6 +62,10 @@ storeCookies <- function(requestURL, cookieHeaders){
   assign(host, hostCookies, envir=.cookieStore)
 }
 
+# Parse out an individual cookie
+# @param requestURL the parsed URL as returned from `parseHttpUrl`
+# @param cookieHeader the raw text contents of the Set-Cookie header with the
+#   header name omitted.
 parseCookie <- function(requestURL, cookieHeader){
   keyval <- regmatches(cookieHeader, regexec(
     "^(\\w+)\\s*=\\s*([^;]*)(;|\\z)", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
@@ -98,6 +106,37 @@ parseCookie <- function(requestURL, cookieHeader){
        value=val,
        expires=expires,
        path=path)
+}
+
+# Appends a cookie header from the .cookieStore to the existing set of headers
+# @param requestURL the parsed URL as returned from `parseHttpUrl`
+# @param headers a named character vector containing the set of headers to be extended
+appendCookieHeaders <- function(requestURL, headers){
+  host <- getCookieHost(requestURL)
+
+  if (!exists(host, .cookieStore)){
+    # Nothing to do
+    return(headers)
+  }
+
+  cookies <- get(host, envir=.cookieStore)
+
+  # If any cookies are expired, remove them from the cookie store
+  if (any(cookies$expires < as.integer(Sys.time()))){
+    cookies <- cookies[cookies$expires > as.integer(Sys.time()),]
+    # Update the store, removing the expired cookies
+    assign(host, envir=.cookieStore)
+  }
+
+  # Filter to only include cookies that match the path prefix
+  cookies <- cookies[startsWith(requestURL$path, cookies$path),]
+
+  # TODO: Technically per the RFC we're supposed to order these cookies by which
+  # paths most specifically match the request.
+  cookieHeader <- paste(apply(cookies, 1,
+                              function(x){ paste0(x["name"], "=", x["value"]) }), collapse="; ")
+
+  c(headers, cookie= cookieHeader)
 }
 
 parseHttpUrl <- function(urlText) {

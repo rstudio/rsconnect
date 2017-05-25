@@ -141,3 +141,40 @@ test_that("duplicate cookies overwrite one another", {
   expect_true(co$expires > Sys.time() + 94)
   expect_true(co$expires < Sys.time() + 104)
 })
+
+test_that("appending cookie headers works", {
+  clearCookieStore()
+
+  # Nothing to append, no-op
+  headers <- appendCookieHeaders(parsedUrl, c(header1=123, header2="abc"))
+  expect_length(headers, 2)
+  expect_equivalent(headers["header1"], "123")
+  expect_equivalent(headers["header2"], "abc")
+
+  # Store a cookie
+  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
+  storeCookies(parsedUrl, "cookie1=value1; Path=/; Max-Age=3600")
+
+  headers <- appendCookieHeaders(parsedUrl, c(header1=123, header2="abc"))
+  expect_length(headers, 3)
+  expect_equivalent(headers["header1"], "123")
+  expect_equivalent(headers["header2"], "abc")
+  expect_equivalent(headers["cookie"], "cookie1=value1")
+
+  # Store a couple more cookies
+  storeCookies(parsedUrl, "cookie2=value2; Path=/test; Max-Age=3600")
+  # This one has the wrong path, will be filtered out
+  storeCookies(parseHttpUrl("http://fakedomain:123/another"), "cookie3=value3; Path=/another; Max-Age=3600")
+
+  headers <- appendCookieHeaders(parsedUrl, c(header1=123, header2="abc"))
+  expect_length(headers, 3)
+  expect_equivalent(headers["header1"], "123")
+  expect_equivalent(headers["header2"], "abc")
+  expect_equivalent(headers["cookie"], "cookie2=value2; cookie1=value1")
+
+  # If you already have a cookie header, you end up with two
+  headers <- appendCookieHeaders(parsedUrl, c(cookie="existing=value"))
+  expect_length(headers, 2)
+  expect_equal(headers[1], c(cookie="existing=value"))
+  expect_equal(headers[2], c(cookie="cookie2=value2; cookie1=value1"))
+})
