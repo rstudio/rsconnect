@@ -92,11 +92,11 @@ parseCookie <- function(requestURL, cookieHeader){
   }
 
   maxage <- regmatches(cookieHeader, regexec(
-    "^.*\\sMax-Age\\s*=\\s*(\\d+)(;|\\z).*$", cookieHeader, perl = TRUE, ignore.case=TRUE))[[1]]
+    "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|\\z).*$", cookieHeader, perl = TRUE, ignore.case=TRUE))[[1]]
   # If no maxage specified, then this is a session cookie, which means that
   # (since our cookies only survive for a single session anyways...) we should
   # keep this cookie around as long as we're alive.
-  expires <- NULL
+  expires <- Sys.time() + 10^10
   if (length(maxage) > 0){
     # Compute time maxage seconds from now
     expires <- Sys.time() + as.numeric(maxage[2])
@@ -123,9 +123,9 @@ appendCookieHeaders <- function(requestURL, headers){
 
   # If any cookies are expired, remove them from the cookie store
   if (any(cookies$expires < as.integer(Sys.time()))){
-    cookies <- cookies[cookies$expires > as.integer(Sys.time()),]
+    cookies <- cookies[cookies$expires >= as.integer(Sys.time()),]
     # Update the store, removing the expired cookies
-    assign(host, envir=.cookieStore)
+    assign(host, cookies, envir=.cookieStore)
   }
 
   # Filter to only include cookies that match the path prefix
@@ -136,7 +136,12 @@ appendCookieHeaders <- function(requestURL, headers){
   cookieHeader <- paste(apply(cookies, 1,
                               function(x){ paste0(x["name"], "=", x["value"]) }), collapse="; ")
 
-  c(headers, cookie= cookieHeader)
+  if (nrow(cookies) > 0){
+    return(c(headers, cookie=cookieHeader))
+  } else {
+    # Return unmodified headers
+    return(headers)
+  }
 }
 
 parseHttpUrl <- function(urlText) {

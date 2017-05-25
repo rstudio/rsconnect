@@ -42,14 +42,14 @@ test_that("Parsing cookies works", {
   cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2; Path=/test")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
-  expect_null(cookie$expires)
+  expect_true(cookie$expires > (Sys.time() + 10^9))
   expect_equal(cookie$path, "/test")
 
   # No path, value with no semicolon
   cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
-  expect_null(cookie$expires)
+  expect_true(cookie$expires > (Sys.time() + 10^9))
   expect_equal(cookie$path, "/")
 
   # Full cookie with spaces around =s
@@ -145,6 +145,8 @@ test_that("duplicate cookies overwrite one another", {
 test_that("appending cookie headers works", {
   clearCookieStore()
 
+  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
+
   # Nothing to append, no-op
   headers <- appendCookieHeaders(parsedUrl, c(header1=123, header2="abc"))
   expect_length(headers, 2)
@@ -152,7 +154,6 @@ test_that("appending cookie headers works", {
   expect_equivalent(headers["header2"], "abc")
 
   # Store a cookie
-  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
   storeCookies(parsedUrl, "cookie1=value1; Path=/; Max-Age=3600")
 
   headers <- appendCookieHeaders(parsedUrl, c(header1=123, header2="abc"))
@@ -177,4 +178,37 @@ test_that("appending cookie headers works", {
   expect_length(headers, 2)
   expect_equal(headers[1], c(cookie="existing=value"))
   expect_equal(headers[2], c(cookie="cookie2=value2; cookie1=value1"))
+})
+
+test_that("Expired cookies are removed", {
+  clearCookieStore()
+
+  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
+
+  # Expired cookies are removed from the store and not included in the request
+  storeCookies(parsedUrl, "expired=something; Max-Age=-1")
+
+  cookies <- get("fakedomain:123", envir=.cookieStore)
+  expect_equal(nrow(cookies), 1)
+
+  # Now it will recognize that it's expired and remove it
+  headers <- appendCookieHeaders(parsedUrl, NULL)
+  expect_null(headers)
+
+  cookies <- get("fakedomain:123", envir=.cookieStore)
+  expect_equal(nrow(cookies), 0)
+
+  # And with multiple cookies, it still removes only the expired one
+  storeCookies(parsedUrl, "expired=something; Max-Age=-1")
+  storeCookies(parsedUrl, "notexpired=something")
+
+  cookies <- get("fakedomain:123", envir=.cookieStore)
+  expect_equal(nrow(cookies), 2)
+
+  # Now it will recognize that it's expired and remove it
+  headers <- appendCookieHeaders(parsedUrl, c())
+  expect_length(headers, 1)
+
+  cookies <- get("fakedomain:123", envir=.cookieStore)
+  expect_equal(nrow(cookies), 1)
 })
