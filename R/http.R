@@ -1,5 +1,103 @@
+# Environment in which cookies will be stored. Cookies are expected to survive
+# the duration of the R session, but are not persisted outside of the R
+# session.
+.cookieStore <- new.env(parent=emptyenv())
+
 userAgent <- function() {
   paste("rsconnect", packageVersion("rsconnect"), sep="/")
+}
+
+# Parse out the raw headers provided and insert them into the cookieStore
+# FIXME: expires
+# FIXME: secure flag
+# FIXME: multiple cookies in a single header "followed by a comma-separated list of one or more cookies."
+# NOTE: Domain attribute is currently ignored
+# @param requestURL the parsed URL as returned from `parseHttpUrl`
+# @param cookieHeaders a list of characters strings representing the raw
+#   Set-Cookie header value with the "Set-Cookie: " prefix omitted
+storeCookies <- function(requestURL, cookieHeaders){
+  cookies <- lapply(cookieHeaders, function(co){ parseCookie(requestURL, co) })
+
+  # Filter out invalid cookies (which would return as NULL)
+  cookies <- Filter(Negate(is.null), cookies)
+
+  host <- requestURL$host
+  if (nchar(requestURL$port) > 0){
+    # By my reading of the RFC, we technically only need to include the port #
+    # in the index if the host is an IP address. But here we're including the
+    # port number as a part of the host whether using a domain name or IP.
+    # Erring on the side of not sending the cookies to the wrong services
+    host <- paste(host, requestURL$port, sep=":")
+  }
+
+  hostCookies <- NULL
+  if (!exists(host, .cookieStore)){
+    # Create a new data frame for this host
+    hostCookies <- data.frame(
+      path=character(0),
+      name=character(0),
+      value=character(0),
+      secure=logical(0),
+      expires=character(0),
+      stringsAsFactors = FALSE
+    )
+  } else {
+    hostCookies <- get(host, envir=.cookieStore)
+  }
+
+  lapply(cookies, function(co){
+    # Remove any duplicates
+    # RFC says duplicate cookies are ones that have the same domain, name, and path
+    hostCookies <<- hostCookies[!(co$name == hostCookies$name & co$path == hostCookies$path),]
+
+    # append this new cookie on
+    hostCookies <<- rbind(co, hostCookies, stringsAsFactors=FALSE)
+  })
+
+  # Save this host's cookies into the cookies store.
+  assign(host, hostCookies, envir=.cookieStore)
+}
+
+parseCookie <- function(requestURL, cookieHeader){
+  keyval <- regmatches(cookieHeader, regexec(
+    "^(\\w+)\\s*=\\s*([^;]*)(;|\\z)", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
+  if (length(keyval) == 0){
+    # Invalid cookie format.
+    warning("Unable to parse set-cookie header: ", cookieHeader)
+    return(NULL)
+  }
+  key <- keyval[2]
+  val <- keyval[3]
+
+  path <- regmatches(cookieHeader, regexec(
+    "^.*\\sPath\\s*=\\s*([^;]+)(;|\\z).*$", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
+  if (length(path) == 0){
+    path <- "/"
+  } else {
+    path <- path[2]
+  }
+
+  if (!startsWith(requestURL$path, path)){
+    # Per the RFC, the cookie's path must be a prefix of the request URL
+    warning("Invalid path set for cookie on request for '", requestURL$path, "': ", cookieHeader)
+    return(NULL)
+  }
+
+  maxage <- regmatches(cookieHeader, regexec(
+    "^.*\\sMax-Age\\s*=\\s*(\\d+)(;|\\z).*$", cookieHeader, perl = TRUE, ignore.case=TRUE))[[1]]
+  # If no maxage specified, then this is a session cookie, which means that
+  # (since our cookies only survive for a single session anyways...) we should
+  # keep this cookie around as long as we're alive.
+  expires <- NULL
+  if (length(maxage) > 0){
+    # Compute time maxage seconds from now
+    expires <- Sys.time() + as.numeric(maxage[2])
+  }
+
+  list(name=key,
+       value=val,
+       expires=expires,
+       path=path)
 }
 
 parseHttpUrl <- function(urlText) {
@@ -377,6 +475,11 @@ httpRCurl <- function(protocol,
   } else {
     "text/plain"
   }
+
+  # Parse cookies from header; bear in mind that there may be multiple headers
+  cookieHeaders <- headers[names(headers) == "Set-Cookie"]
+  # TODO: we technically have the URL components already handy; don't have to reparse.
+  storeCookies(parseHttpUrl(url), cookieHeaders)
 
   contentValue <- textGatherer$value()
 
