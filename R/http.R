@@ -9,12 +9,14 @@ userAgent <- function() {
 
 getCookieHost <- function(requestURL){
   host <- requestURL$host
-  if (nchar(requestURL$port) > 0){
+  port <- requestURL$port
+  if (nchar(port) > 0){
+    port <- sub("^:", "", port)
     # By my reading of the RFC, we technically only need to include the port #
     # in the index if the host is an IP address. But here we're including the
     # port number as a part of the host whether using a domain name or IP.
     # Erring on the side of not sending the cookies to the wrong services
-    host <- paste(host, requestURL$port, sep=":")
+    host <- paste(host, port, sep=":")
   }
 }
 
@@ -175,6 +177,7 @@ parseHttpStatusCode <- function(statusLine) {
     return (as.integer(statusCode))
 }
 
+# @param request a list containing protocol, host, port, method, and path fields
 readHttpResponse <- function(request, conn) {
   # read status code
   resp <- readLines(conn, 1)
@@ -183,6 +186,7 @@ readHttpResponse <- function(request, conn) {
   # read response headers
   contentLength <- NULL
   location <- NULL
+  setCookies <- NULL
   repeat {
     resp <- readLines(conn, 1)
     if (nzchar(resp) == 0)
@@ -191,14 +195,20 @@ readHttpResponse <- function(request, conn) {
     header <- parseHttpHeader(resp)
     if (!is.null(header))
     {
-      if (identical(header$name, "Content-Type"))
+      name <- tolower(header$name)
+      if (name == "content-type")
         contentType <- header$value
-      if (identical(header$name, "Content-Length"))
+      if (name == "content-length")
         contentLength <- as.integer(header$value)
-      if (identical(header$name, "Location"))
+      if (name == "location")
         location <- header$value
+      if (name == "set-cookie")
+        setCookies <- c(setCookies, header$value)
     }
   }
+
+  # Store the cookies that were found in the request
+  storeCookies(request, setCookies)
 
   # read the response content
   content <- rawToChar(readBin(conn, what = 'raw', n=contentLength))
@@ -257,6 +267,8 @@ httpInternal <- function(protocol,
                                 "\r\n",
                                 sep=""))
   }
+  headers <- appendCookieHeaders(
+    list(protocol=protocol, host=host, port=port, path=path), headers)
   for (name in names(headers))
   {
     request <- c(request,
@@ -326,6 +338,8 @@ httpCurl <- function(protocol,
   if (!is.null(file))
     fileLength <- file.info(file)$size
 
+  headers <- appendCookieHeaders(
+    list(protocol=protocol, host=host, port=port, path=path), headers)
   extraHeaders <- character()
   for (header in names(headers))
   {
@@ -460,6 +474,8 @@ httpRCurl <- function(protocol,
     options$verbose <- TRUE
 
   # add extra headers
+  headers <- appendCookieHeaders(
+    list(protocol=protocol, host=host, port=port, path=path), headers)
   extraHeaders <- as.character(headers)
   names(extraHeaders) <- names(headers)
   options$httpheader <- extraHeaders
@@ -522,8 +538,7 @@ httpRCurl <- function(protocol,
 
   # Parse cookies from header; bear in mind that there may be multiple headers
   cookieHeaders <- headers[names(headers) == "Set-Cookie"]
-  # TODO: we technically have the URL components already handy; don't have to reparse.
-  storeCookies(parseHttpUrl(url), cookieHeaders)
+  storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
 
   contentValue <- textGatherer$value()
 
