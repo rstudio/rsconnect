@@ -120,7 +120,7 @@ parseCookieHeader <- function(requestURL, cookieHeader){
 #   header name omitted.
 parseSingleCookie <- function(requestURL, cookieHeader){
   keyval <- regmatches(cookieHeader, regexec(
-    "^(\\w+)\\s*=\\s*([^;]*)(;|\\z)", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
+    "^(\\w+)\\s*=\\s*([^;]*)(;|$)", cookieHeader, ignore.case=TRUE))[[1]]
   if (length(keyval) == 0){
     # Invalid cookie format.
     warning("Unable to parse set-cookie header: ", cookieHeader)
@@ -131,7 +131,7 @@ parseSingleCookie <- function(requestURL, cookieHeader){
 
   # Path
   path <- regmatches(cookieHeader, regexec(
-    "^.*\\sPath\\s*=\\s*([^;]+)(;|\\z).*$", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
+    "^.*\\sPath\\s*=\\s*([^;]+)(;|$).*$", cookieHeader, ignore.case=TRUE))[[1]]
   if (length(path) == 0){
     path <- "/"
   } else {
@@ -145,7 +145,7 @@ parseSingleCookie <- function(requestURL, cookieHeader){
 
   # MaxAge
   maxage <- regmatches(cookieHeader, regexec(
-    "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|\\z).*$", cookieHeader, perl = TRUE, ignore.case=TRUE))[[1]]
+    "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|$).*$", cookieHeader, ignore.case=TRUE))[[1]]
   # If no maxage specified, then this is a session cookie, which means that
   # (since our cookies only survive for a single session anyways...) we should
   # keep this cookie around as long as we're alive.
@@ -156,7 +156,7 @@ parseSingleCookie <- function(requestURL, cookieHeader){
   }
 
   # Secure
-  secure <- grepl(";\\s+Secure(;|\\z)", cookieHeader, perl=TRUE, ignore.case=TRUE)
+  secure <- grepl(";\\s+Secure(;|$)", cookieHeader, ignore.case=TRUE)
 
   list(name=key,
        value=val,
