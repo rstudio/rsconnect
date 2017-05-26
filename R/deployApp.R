@@ -267,6 +267,18 @@ deployApp <- function(appDir = getwd(),
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
+  if(verbose){
+    urlstr <- serverInfo(accountDetails$server)$url
+    url <- parseHttpUrl(urlstr)
+    cat("Cookies:", "\n")
+    host <- getCookieHost(url)
+    if (exists(host, .cookieStore)){
+      print(get(host, envir=.cookieStore))
+    } else {
+      print("None")
+    }
+  }
+
   # get the application to deploy (creates a new app on demand)
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
     application <- applicationForTarget(client, accountDetails, target)
