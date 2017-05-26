@@ -21,7 +21,6 @@ getCookieHost <- function(requestURL){
 }
 
 # Parse out the raw headers provided and insert them into the cookieStore
-# FIXME: secure flag
 # NOTE: Domain attribute is currently ignored
 # @param requestURL the parsed URL as returned from `parseHttpUrl`
 # @param cookieHeaders a vector of characters strings representing the raw
