@@ -21,15 +21,16 @@ getCookieHost <- function(requestURL){
 }
 
 # Parse out the raw headers provided and insert them into the cookieStore
-# FIXME: expires
 # FIXME: secure flag
-# FIXME: multiple cookies in a single header "followed by a comma-separated list of one or more cookies."
 # NOTE: Domain attribute is currently ignored
 # @param requestURL the parsed URL as returned from `parseHttpUrl`
-# @param cookieHeaders a list of characters strings representing the raw
+# @param cookieHeaders a vector of characters strings representing the raw
 #   Set-Cookie header value with the "Set-Cookie: " prefix omitted
 storeCookies <- function(requestURL, cookieHeaders){
-  cookies <- lapply(cookieHeaders, function(co){ parseCookie(requestURL, co) })
+  cookies <- lapply(cookieHeaders, function(co){ parseCookieHeader(requestURL, co) })
+
+  # Flatten out since some headers might contain multiple cookies
+  cookies <- unlist(cookies, recursive=FALSE)
 
   # Filter out invalid cookies (which would return as NULL)
   cookies <- Filter(Negate(is.null), cookies)
@@ -67,8 +68,17 @@ storeCookies <- function(requestURL, cookieHeaders){
 # Parse out an individual cookie
 # @param requestURL the parsed URL as returned from `parseHttpUrl`
 # @param cookieHeader the raw text contents of the Set-Cookie header with the
+#   header name omitted. May contain multiple comma-separated cookies
+parseCookieHeader <- function(requestURL, cookieHeader){
+  cookieStrs <- trimws(strsplit(cookieHeader, ",", fixed=TRUE)[[1]])
+  lapply(cookieStrs, function(co){ parseSingleCookie(requestURL, co) })
+}
+
+# Parse out an individual cookie
+# @param requestURL the parsed URL as returned from `parseHttpUrl`
+# @param cookieHeader the raw text contents of the Set-Cookie header with the
 #   header name omitted.
-parseCookie <- function(requestURL, cookieHeader){
+parseSingleCookie <- function(requestURL, cookieHeader){
   keyval <- regmatches(cookieHeader, regexec(
     "^(\\w+)\\s*=\\s*([^;]*)(;|\\z)", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
   if (length(keyval) == 0){

@@ -23,7 +23,7 @@ test_that("URL parsing works", {
 test_that("Parsing cookies works", {
   parsedUrl <- parseHttpUrl("http://rstudio.com/test/stuff")
   # Note that the Expires field is ignored
-  cookie <- parseCookie(parsedUrl, "mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
   expect_true(cookie$expires > Sys.time() + 3595)
@@ -31,7 +31,7 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$path, "/")
 
   # Max-Age with no semicolon, non-root path
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2; Path=/test; Max-Age=3600")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; Path=/test; Max-Age=3600")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > Sys.time() + 3595)
@@ -39,21 +39,21 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$path, "/test")
 
   # Path with no semicolon, no max age
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2; Path=/test")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; Path=/test")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
   expect_equal(cookie$path, "/test")
 
   # No path, value with no semicolon
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
   expect_equal(cookie$path, "/")
 
   # Full cookie with spaces around =s
-  cookie <- parseCookie(parsedUrl, "mycookie = myvalue; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie = myvalue; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
   expect_true(cookie$expires > Sys.time() + 3595)
@@ -61,21 +61,39 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$path, "/")
 
   # Value-less cookie
-  cookie <- parseCookie(parsedUrl, "mycookie=; Path = /")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie=; Path = /")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "")
   expect_equal(cookie$path, "/")
 })
 
+test_that("Parsing multiple cookies works", {
+  parsedUrl <- parseHttpUrl("http://rstudio.com/test/stuff")
+  # Multiple cookies in one header
+  cookies <- parseCookieHeader(parsedUrl, "mycookie=myvalue; Path=/; Max-Age=3600; HttpOnly, anothercookie=anothervalue; Path=/test; Max-Age=100; HttpOnly")
+
+  expect_equal(cookies[[1]]$name, "mycookie")
+  expect_equal(cookies[[1]]$value, "myvalue")
+  expect_true(cookies[[1]]$expires > Sys.time() + 3595)
+  expect_true(cookies[[1]]$expires < Sys.time() + 3605)
+  expect_equal(cookies[[1]]$path, "/")
+
+  expect_equal(cookies[[2]]$name, "anothercookie")
+  expect_equal(cookies[[2]]$value, "anothervalue")
+  expect_true(cookies[[2]]$expires > Sys.time() + 95)
+  expect_true(cookies[[2]]$expires < Sys.time() + 105)
+  expect_equal(cookies[[2]]$path, "/test")
+})
+
 test_that("Invalid cookies fail parsing", {
   # Invalid path, doesn't match request's path
   parsedUrl <- parseHttpUrl("http://rstudio.com/test/stuff")
-  expect_warning({cookie <- parseCookie(parsedUrl, "mycookie=myvalue; Path=/something/else")},
+  expect_warning({cookie <- parseSingleCookie(parsedUrl, "mycookie=myvalue; Path=/something/else")},
                  "Invalid path set for cookie")
   expect_null(cookie)
 
   # Invalid key/val format
-  expect_warning({cookie <- parseCookie(parsedUrl, "mycookie;")},
+  expect_warning({cookie <- parseSingleCookie(parsedUrl, "mycookie;")},
                  "Unable to parse set-cookie ")
   expect_null(cookie)
 })
@@ -94,11 +112,11 @@ test_that("cookies can be stored", {
     storeCookies(parsedUrl, c(
       "mycookie=myvalue; Path=/; Max-Age=3600; HttpOnly",
       "anotherCookie=what; Path=/test; Max-Age=100",
-      "wrongpath=huh; Path=/uhoh; Max-Age=100")
+      "wrongpath=huh; Path=/uhoh; Max-Age=100, third=cookie; Path=/; Max-Age=500")
     )
   }, "Invalid path set for cookie")
   cookies <- get("fakedomain:123", envir=.cookieStore)
-  expect_equal(nrow(cookies), 2)
+  expect_equal(nrow(cookies), 3)
 
   # Check the first cookie
   co <- cookies[cookies$name=="mycookie",]
@@ -108,13 +126,21 @@ test_that("cookies can be stored", {
   expect_true(co$expires < Sys.time() + 3605)
   expect_equal(co$path, "/")
 
-  # And the other
+  # Another
   co <- cookies[cookies$name=="anotherCookie",]
   expect_equal(co$name, "anotherCookie")
   expect_equal(co$value, "what")
   expect_true(co$expires > Sys.time() + 95)
   expect_true(co$expires < Sys.time() + 105)
   expect_equal(co$path, "/test")
+
+  # Third
+  co <- cookies[cookies$name=="third",]
+  expect_equal(co$name, "third")
+  expect_equal(co$value, "cookie")
+  expect_true(co$expires > Sys.time() + 495)
+  expect_true(co$expires < Sys.time() + 505)
+  expect_equal(co$path, "/")
 })
 
 
