@@ -3,6 +3,43 @@
 # session.
 .cookieStore <- new.env(parent=emptyenv())
 
+# Returns the cookies associated with a particular host/port
+# If no hostname is specified, returns all cookies
+getCookies <- function(hostname, port=NULL){
+  if (missing(hostname)){
+    hosts <- ls(envir=.cookieStore)
+    cookies <- lapply(hosts, function(h){
+      getCookiesHostname(h)
+    })
+    do.call("rbind", cookies)
+  } else {
+    host <- getCookieHost(list(host=hostname, port=port))
+    getCookiesHostname(host)
+  }
+}
+
+# Get cookies for a particular hostname(:port)
+getCookiesHostname <- function(host){
+  if (!exists(host, .cookieStore)){
+    NULL
+  } else {
+    cookies <- get(host, envir=.cookieStore)
+    cookies$host <- host
+    cookies
+  }
+}
+
+# Clears the cookies associated with a particular hostname/port combination.
+# If hostname and port are omitted, clears all the cookies
+clearCookies <- function(hostname, port=NULL){
+  if (missing(hostname)){
+    rm(list=ls(envir=.cookieStore), envir=.cookieStore)
+  } else {
+    host <- getCookieHost(list(host=hostname, port=port))
+    rm(list=host, envir=.cookieStore)
+  }
+}
+
 userAgent <- function() {
   paste("rsconnect", packageVersion("rsconnect"), sep="/")
 }
@@ -10,7 +47,7 @@ userAgent <- function() {
 getCookieHost <- function(requestURL){
   host <- requestURL$host
   port <- requestURL$port
-  if (nchar(port) > 0){
+  if (!is.null(port) && nchar(port) > 0){
     port <- sub("^:", "", port)
     # By my reading of the RFC, we technically only need to include the port #
     # in the index if the host is an IP address. But here we're including the

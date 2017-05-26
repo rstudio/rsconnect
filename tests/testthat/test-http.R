@@ -276,3 +276,50 @@ test_that("getCookieHost works", {
   expect_equal(getCookieHost(parseHttpUrl("http://127.0.0.1")), "127.0.0.1")
   expect_equal(getCookieHost(parseHttpUrl("http://127.0.0.1:3939")), "127.0.0.1:3939")
 })
+
+test_that("getting and clearing cookies works", {
+  clearCookieStore()
+
+  all <- getCookies()
+  expect_null(all)
+
+  # Add a few cookies
+  domain1 <- parseHttpUrl("http://domain1/test/stuff")
+  storeCookies(domain1, "c1=v1")
+  storeCookies(domain1, "c2=v2")
+
+  domain2 <- parseHttpUrl("http://domain2:3939/test/stuff")
+  storeCookies(domain2, "c3=v3")
+
+  d1c <- getCookies("domain1")
+  expect_equal(nrow(d1c), 2)
+  expect_equal(d1c$host[1], "domain1")
+
+  d2c <- getCookies("domain2")
+  expect_null(d2c)
+  d2c <- getCookies("domain2", 3939)
+  expect_equal(nrow(d2c), 1)
+  expect_equal(d2c$host[1], "domain2:3939")
+
+  all <- getCookies()
+  expect_equal(nrow(all), 3)
+
+  # Delete cookies from one domain
+  clearCookies("domain2", 3939)
+
+  d2c <- getCookies("domain2", 3939)
+  expect_null(d2c)
+
+  all <- getCookies()
+  expect_equal(nrow(all), 2)
+
+  # Clear all cookies
+  clearCookies()
+
+  d1c <- getCookies("domain1")
+  expect_null(d1c)
+
+  all <- getCookies()
+  expect_null(all)
+
+})
