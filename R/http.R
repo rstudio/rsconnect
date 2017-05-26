@@ -18,6 +18,7 @@ getCookieHost <- function(requestURL){
     # Erring on the side of not sending the cookies to the wrong services
     host <- paste(host, port, sep=":")
   }
+  host
 }
 
 # Parse out the raw headers provided and insert them into the cookieStore

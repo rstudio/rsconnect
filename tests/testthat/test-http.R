@@ -269,3 +269,10 @@ test_that("Expired cookies are removed", {
   cookies <- get("fakedomain:123", envir=.cookieStore)
   expect_equal(nrow(cookies), 1)
 })
+
+test_that("getCookieHost works", {
+  expect_equal(getCookieHost(parseHttpUrl("http://rstudio.com")), "rstudio.com")
+  expect_equal(getCookieHost(parseHttpUrl("http://rstudio.com:3939")), "rstudio.com:3939")
+  expect_equal(getCookieHost(parseHttpUrl("http://127.0.0.1")), "127.0.0.1")
+  expect_equal(getCookieHost(parseHttpUrl("http://127.0.0.1:3939")), "127.0.0.1:3939")
+})
