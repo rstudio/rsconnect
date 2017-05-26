@@ -61,13 +61,10 @@ getCookieHost <- function(requestURL){
 # Parse out the raw headers provided and insert them into the cookieStore
 # NOTE: Domain attribute is currently ignored
 # @param requestURL the parsed URL as returned from `parseHttpUrl`
-# @param cookieHeaders a vector of characters strings representing the raw
+# @param cookieHeaders a list of characters strings representing the raw
 #   Set-Cookie header value with the "Set-Cookie: " prefix omitted
 storeCookies <- function(requestURL, cookieHeaders){
-  cookies <- lapply(cookieHeaders, function(co){ parseCookieHeader(requestURL, co) })
-
-  # Flatten out since some headers might contain multiple cookies
-  cookies <- unlist(cookies, recursive=FALSE)
+  cookies <- lapply(cookieHeaders, function(co){ parseCookie(requestURL, co) })
 
   # Filter out invalid cookies (which would return as NULL)
   cookies <- Filter(Negate(is.null), cookies)
@@ -105,20 +102,8 @@ storeCookies <- function(requestURL, cookieHeaders){
 # Parse out an individual cookie
 # @param requestURL the parsed URL as returned from `parseHttpUrl`
 # @param cookieHeader the raw text contents of the Set-Cookie header with the
-#   header name omitted. May contain multiple comma-separated cookies
-parseCookieHeader <- function(requestURL, cookieHeader){
-  cookieStrs <- strsplit(cookieHeader, ",", fixed=TRUE)[[1]]
-  # Trim whitespace
-  cookieStrs <- gsub("^\\s*|\\s*$", "", cookieStrs)
-
-  lapply(cookieStrs, function(co){ parseSingleCookie(requestURL, co) })
-}
-
-# Parse out an individual cookie
-# @param requestURL the parsed URL as returned from `parseHttpUrl`
-# @param cookieHeader the raw text contents of the Set-Cookie header with the
 #   header name omitted.
-parseSingleCookie <- function(requestURL, cookieHeader){
+parseCookie <- function(requestURL, cookieHeader){
   keyval <- regmatches(cookieHeader, regexec(
     "^(\\w+)\\s*=\\s*([^;]*)(;|$)", cookieHeader, ignore.case=TRUE))[[1]]
   if (length(keyval) == 0){
