@@ -70,7 +70,10 @@ storeCookies <- function(requestURL, cookieHeaders){
 # @param cookieHeader the raw text contents of the Set-Cookie header with the
 #   header name omitted. May contain multiple comma-separated cookies
 parseCookieHeader <- function(requestURL, cookieHeader){
-  cookieStrs <- trimws(strsplit(cookieHeader, ",", fixed=TRUE)[[1]])
+  cookieStrs <- strsplit(cookieHeader, ",", fixed=TRUE)[[1]]
+  # Trim whitespace
+  cookieStrs <- gsub("^\\s*|\\s*$", "", cookieStrs)
+
   lapply(cookieStrs, function(co){ parseSingleCookie(requestURL, co) })
 }
 
