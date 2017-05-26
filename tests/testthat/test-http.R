@@ -29,21 +29,24 @@ test_that("Parsing cookies works", {
   expect_true(cookie$expires > Sys.time() + 3595)
   expect_true(cookie$expires < Sys.time() + 3605)
   expect_equal(cookie$path, "/")
+  expect_false(cookie$secure)
 
   # Max-Age with no semicolon, non-root path
-  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; Path=/test; Max-Age=3600")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; Secure; Path=/test; max-AGE=3600")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > Sys.time() + 3595)
   expect_true(cookie$expires < Sys.time() + 3605)
   expect_equal(cookie$path, "/test")
+  expect_true(cookie$secure)
 
   # Path with no semicolon, no max age
-  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; Path=/test")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; PATH=/test")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
   expect_equal(cookie$path, "/test")
+  expect_false(cookie$secure)
 
   # No path, value with no semicolon
   cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2")
@@ -51,11 +54,21 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
   expect_equal(cookie$path, "/")
+  expect_false(cookie$secure)
+
+  # Trailing secure
+  cookie <- parseSingleCookie(parsedUrl, "mycookie2=myvalue2; Secure")
+  expect_equal(cookie$name, "mycookie2")
+  expect_equal(cookie$value, "myvalue2")
+  expect_true(cookie$expires > (Sys.time() + 10^9))
+  expect_equal(cookie$path, "/")
+  expect_true(cookie$secure)
 
   # Full cookie with spaces around =s
-  cookie <- parseSingleCookie(parsedUrl, "mycookie = myvalue; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
+  cookie <- parseSingleCookie(parsedUrl, "mycookie = myvalue; SEcure; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
+  expect_true(cookie$secure)
   expect_true(cookie$expires > Sys.time() + 3595)
   expect_true(cookie$expires < Sys.time() + 3605)
   expect_equal(cookie$path, "/")
@@ -111,12 +124,12 @@ test_that("cookies can be stored", {
   expect_warning({
     storeCookies(parsedUrl, c(
       "mycookie=myvalue; Path=/; Max-Age=3600; HttpOnly",
-      "anotherCookie=what; Path=/test; Max-Age=100",
+      "anotherCookie=what; Path=/test; Max-Age=100, secureCookie=123; Secure",
       "wrongpath=huh; Path=/uhoh; Max-Age=100, third=cookie; Path=/; Max-Age=500")
     )
   }, "Invalid path set for cookie")
   cookies <- get("fakedomain:123", envir=.cookieStore)
-  expect_equal(nrow(cookies), 3)
+  expect_equal(nrow(cookies), 4)
 
   # Check the first cookie
   co <- cookies[cookies$name=="mycookie",]
@@ -125,6 +138,7 @@ test_that("cookies can be stored", {
   expect_true(co$expires > Sys.time() + 3595)
   expect_true(co$expires < Sys.time() + 3605)
   expect_equal(co$path, "/")
+  expect_false(co$secure)
 
   # Another
   co <- cookies[cookies$name=="anotherCookie",]
@@ -133,6 +147,7 @@ test_that("cookies can be stored", {
   expect_true(co$expires > Sys.time() + 95)
   expect_true(co$expires < Sys.time() + 105)
   expect_equal(co$path, "/test")
+  expect_false(co$secure)
 
   # Third
   co <- cookies[cookies$name=="third",]
@@ -141,6 +156,13 @@ test_that("cookies can be stored", {
   expect_true(co$expires > Sys.time() + 495)
   expect_true(co$expires < Sys.time() + 505)
   expect_equal(co$path, "/")
+  expect_false(co$secure)
+
+  # Fourth
+  co <- cookies[cookies$name=="secureCookie",]
+  expect_equal(co$name, "secureCookie")
+  expect_equal(co$value, "123")
+  expect_true(co$secure)
 })
 
 
@@ -204,6 +226,15 @@ test_that("appending cookie headers works", {
   expect_length(headers, 2)
   expect_equal(headers[1], c(cookie="existing=value"))
   expect_equal(headers[2], c(cookie="cookie2=value2; cookie1=value1"))
+
+  # Add a secure cookie
+  storeCookies(parsedUrl, "securecookie=secureval; Path=/; Max-Age=3600; Secure")
+  headers <- appendCookieHeaders(parsedUrl, c())
+  expect_equivalent(headers["cookie"], "cookie2=value2; cookie1=value1")
+
+  # But over a secure channel, you'd include the secure cookie
+  headers <- appendCookieHeaders(parseHttpUrl("https://fakedomain:123/test/stuff"), c())
+  expect_equivalent(headers["cookie"], "securecookie=secureval; cookie2=value2; cookie1=value1")
 })
 
 test_that("Expired cookies are removed", {

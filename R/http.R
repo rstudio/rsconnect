@@ -89,6 +89,7 @@ parseSingleCookie <- function(requestURL, cookieHeader){
   key <- keyval[2]
   val <- keyval[3]
 
+  # Path
   path <- regmatches(cookieHeader, regexec(
     "^.*\\sPath\\s*=\\s*([^;]+)(;|\\z).*$", cookieHeader, perl=TRUE, ignore.case=TRUE))[[1]]
   if (length(path) == 0){
@@ -96,13 +97,13 @@ parseSingleCookie <- function(requestURL, cookieHeader){
   } else {
     path <- path[2]
   }
-
   if (!startsWith(requestURL$path, path)){
     # Per the RFC, the cookie's path must be a prefix of the request URL
     warning("Invalid path set for cookie on request for '", requestURL$path, "': ", cookieHeader)
     return(NULL)
   }
 
+  # MaxAge
   maxage <- regmatches(cookieHeader, regexec(
     "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|\\z).*$", cookieHeader, perl = TRUE, ignore.case=TRUE))[[1]]
   # If no maxage specified, then this is a session cookie, which means that
@@ -114,10 +115,14 @@ parseSingleCookie <- function(requestURL, cookieHeader){
     expires <- Sys.time() + as.numeric(maxage[2])
   }
 
+  # Secure
+  secure <- grepl(";\\s+Secure(;|\\z)", cookieHeader, perl=TRUE, ignore.case=TRUE)
+
   list(name=key,
        value=val,
        expires=expires,
-       path=path)
+       path=path,
+       secure=secure)
 }
 
 # Appends a cookie header from the .cookieStore to the existing set of headers
@@ -142,6 +147,11 @@ appendCookieHeaders <- function(requestURL, headers){
 
   # Filter to only include cookies that match the path prefix
   cookies <- cookies[startsWith(requestURL$path, cookies$path),]
+
+  # If insecure channel, filter out secure cookies
+  if(tolower(requestURL$protocol) != "https"){
+    cookies <- cookies[!cookies$secure,]
+  }
 
   # TODO: Technically per the RFC we're supposed to order these cookies by which
   # paths most specifically match the request.
