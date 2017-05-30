@@ -197,11 +197,11 @@ deploymentFile <- function(appPath, name, account, server) {
   file.path(accountDir, paste0(name, ".dcf"))
 }
 
-deploymentRecord <- function(name, title, username, account, server, appId, bundleId, url,
-                             when, metadata = list()) {
+deploymentRecord <- function(name, title, username, account, server, hostUrl,
+                             appId, bundleId, url, when, metadata = list()) {
 
   # find the username if not already supplied (may differ from account nickname)
-  if (is.null(username)) {
+  if (is.null(username) && length(account) > 0) {
     # default to empty
     username <- ""
     userinfo <- NULL
@@ -211,11 +211,13 @@ deploymentRecord <- function(name, title, username, account, server, appId, bund
   }
 
   # find host information
-  hostUrl <- ""
-  serverinfo <- NULL
-  try({ serverinfo <- serverInfo(server) }, silent = TRUE)
-  if (!is.null(serverinfo$url))
-    hostUrl <- serverinfo$url
+  if (is.null(hostUrl) && length(server) > 0) {
+    hostUrl <- ""
+    serverinfo <- NULL
+    try({ serverinfo <- serverInfo(server) }, silent = TRUE)
+    if (!is.null(serverinfo$url))
+      hostUrl <- serverinfo$url
+  }
 
   # compose the standard set of fields and append any requested
   as.data.frame(c(
