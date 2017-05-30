@@ -381,7 +381,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
     # check to see whether this is an update
     isUpdate <- FALSE
     existingDeployments <- deployments(appPath, nameFilter = appName)
-    for (i in seq_along(existingDeployments)) {
+    for (i in seq_len(nrow(existingDeployments))) {
       if (identical(existingDeployments[[i, "account"]], account) &&
           identical(existingDeployments[[i, "server"]], server))
       {

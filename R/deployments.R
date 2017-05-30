@@ -1,7 +1,7 @@
 
 
-saveDeployment <- function(appPath, name, title, username, account, server, appId,
-                           bundleId, url, metadata) {
+saveDeployment <- function(appPath, name, title, username, account, server,
+                           hostUrl, appId, bundleId, url, metadata) {
 
   # if there's no new title specified, load the existing deployment record, if
   # any, to to preserve the old title
@@ -25,8 +25,8 @@ saveDeployment <- function(appPath, name, title, username, account, server, appI
   }
 
   # create the record to write to disk
-  deployment <- deploymentRecord(name, title, username, account, server, appId, bundleId,
-                                 url, when = as.numeric(Sys.time()),
+  deployment <- deploymentRecord(name, title, username, account, server, hostUrl,
+                                 appId, bundleId, url, when = as.numeric(Sys.time()),
                                  metadata)
 
   # use a long width so URLs don't line-wrap
