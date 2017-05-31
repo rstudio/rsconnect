@@ -12,8 +12,7 @@ deployAPI(api, ...)
 \item{...}{Additional arguments to \code{\link{deployApp}}.}
 }
 \description{
-Deploys an application consisting of a series of plumber API routes.
-Only one of api or entry may be passed.
+Deploys an application consisting of plumber API routes. The given directory must contain a script returning a `plumb` object or a plumber API definition.
 }
 \details{
 Deploy a plumber API definition by either supplying a directory containing `plumber.R` (an API definition)

@@ -165,7 +165,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # infer the mode of the application from its layout
   # unless we're an API, in which case, we're API mode.
-  if(contentCategory == "api") {
+  if (contentCategory == "api") {
     appMode <- "api"
   } else {
     appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)

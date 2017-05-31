@@ -1,7 +1,6 @@
 #' Deploy a Plumber API
 #'
-#' Deploys an application consisting of a series of plumber API routes.
-#' Only one of api or entry may be passed.
+#' Deploys an application consisting of plumber API routes. The given directory must contain a script returning a `plumb` object or a plumber API definition.
 #'
 #' @param api Path to the API project directory. Must contain either `entrypoint.R` or `plumber.R`
 #' @param ... Additional arguments to \code{\link{deployApp}}.
@@ -21,7 +20,7 @@ deployAPI <- function(api,
   if (!file.exists(api)) {
     stop("The api at '", api, "' does not exist.")
   }
-  if (!dir.exists(api)) {
+  if (!utils::file_test("-d", api)) {
     stop("The api at '", api, "' is not a directory.")
   }
   # Checking for entrypoint.R or plumber.R is done in `lint-framework.R`
