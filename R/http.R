@@ -122,7 +122,7 @@ parseCookie <- function(requestURL, cookieHeader){
   } else {
     path <- path[2]
   }
-  if (!startsWith(requestURL$path, path)){
+  if (!substring(requestURL$path, 1, nchar(path)) == path){
     # Per the RFC, the cookie's path must be a prefix of the request URL
     warning("Invalid path set for cookie on request for '", requestURL$path, "': ", cookieHeader)
     return(NULL)
@@ -170,8 +170,13 @@ appendCookieHeaders <- function(requestURL, headers){
     assign(host, cookies, envir=.cookieStore)
   }
 
+  if (nrow(cookies) == 0){
+    # Short-circuit, return unmodified headers.
+    return(headers)
+  }
+
   # Filter to only include cookies that match the path prefix
-  cookies <- cookies[startsWith(requestURL$path, cookies$path),]
+  cookies <- cookies[substring(requestURL$path, 1, nchar(cookies$path)) == cookies$path,]
 
   # If insecure channel, filter out secure cookies
   if(tolower(requestURL$protocol) != "https"){
