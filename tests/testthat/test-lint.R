@@ -71,3 +71,8 @@ test_that("The linter believes that the Shiny example apps are okay", {
 
 
 })
+
+test_that("The linter accepts a plumber API", {
+  result <- lint("test-plumber")
+  expect_false(is.null(result$plumber.R))
+})

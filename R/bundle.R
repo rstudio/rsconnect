@@ -164,7 +164,12 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory) {
 
   # infer the mode of the application from its layout
-  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
+  # unless we're an API, in which case, we're API mode.
+  if(contentCategory == "api") {
+    appMode <- "api"
+  } else {
+    appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
+  }
   hasParameters <- appHasParameters(appDir, appFiles, contentCategory)
 
   # copy files to bundle dir to stage
@@ -300,6 +305,9 @@ inferDependencies <- function(appMode, hasParameters) {
   }
   if (grepl("\\bshiny\\b", appMode)) {
     deps <- c(deps, "shiny")
+  }
+  if (appMode == 'api') {
+    deps <- c(deps, "plumber")
   }
   unique(deps)
 }
