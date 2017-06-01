@@ -165,11 +165,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # infer the mode of the application from its layout
   # unless we're an API, in which case, we're API mode.
-  if (contentCategory == "api") {
-    appMode <- "api"
-  } else {
-    appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  }
+  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
   hasParameters <- appHasParameters(appDir, appFiles, contentCategory)
 
   # copy files to bundle dir to stage
@@ -257,6 +253,12 @@ isShinyRmd <- function(filename) {
 }
 
 inferAppMode <- function(appDir, appPrimaryDoc, files) {
+  # plumber API
+  plumberFiles <- grep("^(plumber|entrypoint).r$", files, ignore.case = TRUE, perl = TRUE)
+  if (length(plumberFiles) > 0) {
+    return("api")
+  }
+
   # single-file Shiny application
   if (!is.null(appPrimaryDoc) &&
       tolower(tools::file_ext(appPrimaryDoc)) == "r") {
