@@ -1,7 +1,7 @@
 #' Deploy an Application
 #'
 #' Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
-#' document, or HTML content to a server.
+#' document, a plumber API, or HTML content to a server.
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
