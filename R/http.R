@@ -447,6 +447,8 @@ httpCurl <- function(protocol,
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
   }
 
+  Sys.sleep(2)
+
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
     on.exit(close(fileConn))
