@@ -22,7 +22,7 @@ Suggests:
     knitr,
     testthat,
     rmarkdown (>= 1.1),
-    plumber (>= 0.3.3)
+    plumber (>= 0.3.2)
 Enhances: BiocInstaller
 License: GPL-2
 RoxygenNote: 6.0.1
