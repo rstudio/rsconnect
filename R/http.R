@@ -234,7 +234,8 @@ readHttpResponse <- function(request, conn) {
   statusCode <- parseHttpStatusCode(resp[1])
 
   # read response headers
-  contentLength <- NULL
+  contentLength <- 0
+  contentType <- NULL
   location <- NULL
   setCookies <- NULL
   repeat {
@@ -393,9 +394,11 @@ httpCurl <- function(protocol,
   extraHeaders <- character()
   for (header in names(headers))
   {
-    extraHeaders <- paste(extraHeaders, "--header")
-    extraHeaders <- paste(extraHeaders,
-                          paste('"', header,": ",headers[[header]], '"', sep=""))
+    if(!identical(header, "Content-Type") && !identical(header, "Content-Length")){
+      extraHeaders <- paste(extraHeaders, "--header")
+      extraHeaders <- paste(extraHeaders,
+                            paste('"', header,": ",headers[[header]], '"', sep=""))
+    }
   }
 
   outputFile <- tempfile()
@@ -430,7 +433,7 @@ httpCurl <- function(protocol,
                    "--silent",
                    "--show-error",
                    "-o", shQuote(outputFile),
-                   paste(protocol, "://", host, port, path, sep=""))
+                   paste('"', protocol, "://", host, port, path, '"', sep=""))
 
   result <- NULL
   time <- system.time(gcFirst = FALSE, {
