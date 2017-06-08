@@ -155,7 +155,7 @@ connectClient <- function(service, authInfo) {
     waitForTask = function(taskId, quiet) {
       start <- 0
       while (TRUE) {
-        path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
+        path <- paste0(file.path("/tasks", taskId), "?first_status=", start, "&wait_time=5")
         response <- handleResponse(GET(service, authInfo, path))
         if (length(response$status) > 0) {
           lapply(response$status, message)
@@ -164,7 +164,6 @@ connectClient <- function(service, authInfo) {
         if (response$finished) {
           return(response)
         }
-        Sys.sleep(1)
       }
     }
 
