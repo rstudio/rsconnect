@@ -418,7 +418,7 @@ httpCurl <- function(protocol,
     command <- paste(command,
                      "--data-binary",
                      shQuote(paste("@", file, sep="")),
-                     "--header", paste('"' ,"Content-Type: ", contentType, '"', sep=""),
+                     "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
                      "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
 
@@ -448,16 +448,6 @@ httpCurl <- function(protocol,
     fileLength <- file.info(file)$size
     fileContents <- readBin(file, what="raw", n=fileLength)
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
-  }
-
-  # Wait for 1 seonds for the file to appear.
-  seconds_waiting <- 0
-  while(!file.exists(outputFile)){
-    Sys.sleep(1)
-    seconds_waiting <- seconds_waiting + 1
-    if(seconds_waiting > 20){
-      break;
-    }
   }
 
   if (result == 0) {
