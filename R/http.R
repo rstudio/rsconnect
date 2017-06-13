@@ -92,7 +92,7 @@ storeCookies <- function(requestURL, cookieHeaders){
     hostCookies <<- hostCookies[!(co$name == hostCookies$name & co$path == hostCookies$path),]
 
     # append this new cookie on
-    hostCookies <<- rbind(co, hostCookies, stringsAsFactors=FALSE)
+    hostCookies <<- rbind(as.data.frame(co, stringsAsFactors=FALSE), hostCookies)
   })
 
   # Save this host's cookies into the cookies store.
