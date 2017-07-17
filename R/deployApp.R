@@ -326,19 +326,28 @@ deployApp <- function(appDir = getwd(),
     bundle <- application$deployment$bundle
   }
 
-  # save the deployment info for subsequent updates--we do this before
-  # attempting the deployment itself to make retry easy on failure
-  saveDeployment(appPath,
-                 target$appName,
-                 target$appTitle,
-                 target$username,
-                 target$account,
-                 accountDetails$server,
-                 serverInfo(target$server)$hostUrl,
-                 application$id,
-                 bundle$id,
-                 application$url,
-                 metadata)
+  # write a deployment record only if this is the account that owns the content
+  if (is.null(application$owner_username) ||
+      accountDetails$username == application$owner_username) {
+    # save the deployment info for subsequent updates--we do this before
+    # attempting the deployment itself to make retry easy on failure.
+    if (verbose)
+      cat("Saving deployment record for", target$appName, "-", target$username, "\n")
+    saveDeployment(appPath,
+                   target$appName,
+                   target$appTitle,
+                   target$username,
+                   target$account,
+                   accountDetails$server,
+                   serverInfo(target$server)$hostUrl,
+                   application$id,
+                   bundle$id,
+                   application$url,
+                   metadata)
+  } else if (verbose) {
+    cat("Updating", target$appName, ", owned by", application$owner_username,
+        ", from account", accountDetails$username, "\n")
+  }
 
   # wait for the deployment to complete (will raise an error if it can't)
   displayStatus(paste0("Deploying bundle: ", bundle$id,
