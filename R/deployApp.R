@@ -26,6 +26,8 @@
 #'   supplied, will often be displayed in favor of the name. When deploying a
 #'   new application, you may supply only the \code{appTitle} to receive an
 #'   auto-generated \code{appName}.
+#' @param appId If updating an application, the ID of the application being
+#'   updated. Optional unless updating an app owned by another user.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   \code{"plot"}, \code{"document"}, or \code{"application"}).
 #' @param account Account to deploy application to. This
@@ -264,7 +266,7 @@ deployApp <- function(appDir = getwd(),
   # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appName, appTitle, account, server)
+  target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
@@ -340,7 +342,7 @@ deployApp <- function(appDir = getwd(),
 
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appPath, appName, appTitle, account,
+deploymentTarget <- function(appPath, appName, appTitle, appId, account,
                              server = NULL) {
 
   # read existing accounts
@@ -374,32 +376,35 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
 
   # function to create a deployment target list (checks whether the target
   # is an update and adds that field)
-  createDeploymentTarget <- function(appName, appTitle, username, account, server) {
+  createDeploymentTarget <- function(appName, appTitle, appId,
+                                     username, account, server) {
     # look up the server URL
     serverDetails <- serverInfo(server)
 
-    # check to see whether this is an update
-    isUpdate <- FALSE
-    existingDeployments <- deployments(appPath, nameFilter = appName)
-    for (i in seq_len(nrow(existingDeployments))) {
-      if (identical(existingDeployments[[i, "account"]], account) &&
-          identical(existingDeployments[[i, "server"]], server))
-      {
-        # account and server matches a locally configured account
-        isUpdate <- TRUE
-        break
-      }
-      else if (identical(existingDeployments[[i, "username"]], username) &&
-               identical(existingDeployments[[i, "host"]], serverDetails$url))
-      {
-        # username and host match the user and host we're deploying to
-        isUpdate <- TRUE
-        break
+    # look for an application ID if we weren't supplied one
+    if (is.null(appId))
+    {
+      existingDeployments <- deployments(appPath, nameFilter = appName)
+      for (i in seq_len(nrow(existingDeployments))) {
+        if (identical(existingDeployments[[i, "account"]], account) &&
+            identical(existingDeployments[[i, "server"]], server))
+        {
+          # account and server matches a locally configured account
+          appId <- existingDeployments[[i, "appId"]]
+          break
+        }
+        else if (identical(existingDeployments[[i, "username"]], username) &&
+                 identical(existingDeployments[[i, "host"]], serverDetails$url))
+        {
+          # username and host match the user and host we're deploying to
+          appId <- existingDeployments[[i, "appId"]]
+          break
+        }
       }
     }
 
-    list(appName = appName, appTitle = appTitle, username = username, account = account,
-         isUpdate = isUpdate, server = server)
+    list(appName = appName, appTitle = appTitle, appId = appId, username = username,
+         account = account, server = server)
   }
 
   # if appTitle specified but not appName, generate name from title
@@ -409,8 +414,8 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
 
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
-    accountDetails <- accountInfo(account)
-    createDeploymentTarget(appName, appTitle, accountDetails$username, account, server)
+    accountDetails <- accountInfo(account, server)
+    createDeploymentTarget(appName, appTitle, appId, accountDetails$username, account, server)
   }
 
   # just appName specified
@@ -426,7 +431,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
       if (length(accounts) == 1) {
         # read the server associated with the account
         accountDetails <- accountInfo(accounts, server)
-        createDeploymentTarget(appName, appTitle, accountDetails$username, accounts,
+        createDeploymentTarget(appName, appTitle, appId, accountDetails$username, accounts,
                                accountDetails$server)
       } else {
         stopWithSpecifyAccount()
@@ -435,7 +440,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
-      createDeploymentTarget(appName, appTitle,
+      createDeploymentTarget(appName, appTitle, appId,
                              usernameFromDeployment(appDeployments), appDeployments$account,
                              appDeployments$server)
     }
@@ -460,7 +465,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
     }
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
-      generateAppName(appTitle, appPath, account, unique = FALSE),
+      generateAppName(appTitle, appPath, appId, account, unique = FALSE),
       appTitle, accountDetails$username, account, accountDetails$server)
   }
 
@@ -468,6 +473,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
   else if (nrow(appDeployments) == 1) {
     createDeploymentTarget(appDeployments$name,
                            appDeployments$title,
+                           appDeployments$appId,
                            usernameFromDeployment(appDeployments),
                            appDeployments$account,
                            appDeployments$server)
@@ -480,7 +486,7 @@ deploymentTarget <- function(appPath, appName, appTitle, account,
     if (length(accounts) == 1) {
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
-        generateAppName(appTitle, appPath, account, unique = FALSE),
+        generateAppName(appTitle, appPath, appId, account, unique = FALSE),
         appTitle, accountDetails$username, accounts, accountDetails$server)
     }
     else
@@ -509,22 +515,48 @@ getAppByName <- function(client, accountInfo, name) {
   if (length(app)) app[[1]] else NULL
 }
 
-# get the record for the application with the given ID in the given account
-getAppById <- function(id, account = NULL, server = NULL) {
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+# get the record for the application with the given ID in the given account;
+# this isn't used inside the package itself but is invoked from the RStudio IDE
+# to look up app details
+getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
+  accountDetails <- NULL
+  tryCatch({
+    # attempt to look up the account locally
+    accountDetails <- accountInfo(resolveAccount(account, server), server)
+  }, error = function(e) {
+    # we'll retry below
+  })
+
+  if (is.null(accountDetails)) {
+    if (is.null(hostUrl)) {
+      # rethrow if no host url to go on
+      stop("No account '", account, "' found and no host URL specified.",
+           call. = FALSE)
+    }
+
+    # no account details yet, look up from the host URL if we have one
+    accountDetails <- accountInfoFromHostUrl(hostUrl)
+  }
+
+  # create the appropriate client and fetch the application
   client <- clientForAccount(accountDetails)
   client$getApplication(id)
 }
 
 applicationForTarget <- function(client, accountInfo, target) {
 
-  # list the existing applications for this account and see if we
-  # need to create a new application
-  app <- getAppByName(client, accountInfo, target$appName)
+  if (is.null(target$appId)) {
+    # list the existing applications for this account and see if we
+    # need to create a new application
+    app <- getAppByName(client, accountInfo, target$appName)
+  } else {
+    # we already know the app's id, so just retrieve the rest of the metadata
+    app <- client$getApplication(target$appId)
+  }
 
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
-  if (!target$isUpdate && !is.null(app) && interactive()) {
+  if (!is.null(target$appId) && !is.null(app) && interactive()) {
     prompt <- paste("Update application currently deployed at\n", app$url,
                     "? [Y/n] ", sep="")
     input <- readline(prompt)
