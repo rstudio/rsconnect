@@ -1,7 +1,7 @@
 #' Deploy an Application
 #'
 #' Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
-#' document, or HTML content to a server.
+#' document, a plumber API, or HTML content to a server.
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
@@ -270,6 +270,18 @@ deployApp <- function(appDir = getwd(),
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
 
+  if(verbose){
+    urlstr <- serverInfo(accountDetails$server)$url
+    url <- parseHttpUrl(urlstr)
+    cat("Cookies:", "\n")
+    host <- getCookieHost(url)
+    if (exists(host, .cookieStore)){
+      print(get(host, envir=.cookieStore))
+    } else {
+      print("None")
+    }
+  }
+
   # get the application to deploy (creates a new app on demand)
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
     application <- applicationForTarget(client, accountDetails, target)
@@ -283,7 +295,31 @@ deployApp <- function(appDir = getwd(),
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory)
-      bundle <- client$uploadApplication(application$id, bundlePath)
+
+      if (isShinyapps(accountDetails)) {
+
+        # Step 1. Create presigned URL and register pending bundle.
+        bundleSize <- file.info(bundlePath)$size
+
+        # Generate a hex-encoded md5 hash.
+        checkSum <- digest::digest(bundlePath, 'md5', file=TRUE)
+        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
+
+        # Step 2. Upload Bundle to presigned URL
+        if (!uploadBundle(bundle, bundleSize, bundlePath)) {
+          stop("Could not upload file.")
+        }
+
+        # Step 3. Upload revise bundle status.
+        response <- client$updateBundleStatus(bundle$id, status="ready")
+
+        # Step 4. Retrieve updated bundle post status change - which is required in subsequent
+        # areas of the code below.
+        bundle <- client$getBundle(bundle$id)
+
+      } else {
+        bundle <- client$uploadApplication(application$id, bundlePath)
+      }
     })
   } else {
     # redeploy current bundle

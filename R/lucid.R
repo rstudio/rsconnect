@@ -34,6 +34,27 @@ lucidClient <- function(service, authInfo) {
       handleResponse(GET(service, authInfo, path, queryString(query)))
     },
 
+    getBundle = function(bundleId){
+      path <- paste("/bundles/", bundleId, sep="")
+      handleResponse(GET(service, authInfo, path))
+    },
+
+    updateBundleStatus = function(bundleId, status) {
+      path <- paste("/bundles/", bundleId, "/status", sep="")
+      json <- list()
+      json$status = status
+      handleResponse(POST_JSON(service, authInfo, path, json))
+    },
+
+    createBundle = function(application, content_type, content_length, checksum) {
+      json <- list()
+      json$application = application
+      json$content_type = content_type
+      json$content_length = content_length
+      json$checksum = checksum
+      handleResponse(POST_JSON(service, authInfo, "/bundles", json))
+    },
+
    listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
       query <- paste(filterQuery(
@@ -276,4 +297,32 @@ filterQuery <- function(param, value, operator = NULL) {
 
 isContentType <- function(response, contentType) {
   grepl(contentType, response$contentType, fixed = TRUE)
+}
+
+uploadBundle <- function(bundle, bundleSize, bundlePath){
+
+  presigned_service <- parseHttpUrl(bundle$presigned_url)
+
+  headers <- list()
+  headers$`Content-Type` <-  'application/x-tar'
+  headers$`Content-Length` <-  bundleSize
+
+  # AWS requires a base64 encoded hash
+  headers$`Content-MD5` <-  bundle$presigned_checksum
+
+  # AWS seems very sensitive to additional headers (likely becauseit was not included and signed
+  # for when the presigned link was created). So the lower level library is used here.
+  http <- httpFunction()
+  response <- http(
+    presigned_service$protocol,
+    presigned_service$host,
+    presigned_service$port,
+    "PUT",
+    presigned_service$path,
+    headers,
+    headers$`Content-Type`,
+    bundlePath
+  )
+
+  response$status == 200
 }

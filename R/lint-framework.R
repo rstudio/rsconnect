@@ -115,7 +115,8 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
               !is.null(appPrimaryDoc) &&
                 tolower(tools::file_ext(appPrimaryDoc)) == "r"),
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
-    static = any(grepl("(?:html?|pdf)$", appFilesBase))
+    static = any(grepl("(?:html?|pdf)$", appFilesBase)),
+    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase)
   )
 
   if (!any(satisfiedLayouts)) {
