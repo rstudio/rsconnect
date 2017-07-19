@@ -373,3 +373,27 @@ stopWithMultipleAccounts <- function(account) {
   stop("Multiple accounts with the name '", account, "' exist. Please specify ",
        "the server of the account you wish to use.", call. = FALSE)
 }
+
+accountInfoFromHostUrl <- function(hostUrl) {
+  # get the list of all registered servers
+  servers <- servers()
+
+  # filter to just those matching the given host url
+  server <- servers[as.character(servers$url) == hostUrl,]
+  if (nrow(server) < 1) {
+    stop("No server with the URL ", hostUrl, " is registered.", call. = FALSE)
+  }
+
+  # extract server name
+  server <- as.character(server[1,"name"])
+
+  # now find accounts with the given server
+  account <- accounts(server = server)
+  if (is.null(account) || nrow(account) < 1) {
+    stop("No accounts registered with server ", server, call. = FALSE)
+  }
+
+  # return account info from the first one
+  return(accountInfo(name = as.character(account[1,"name"]),
+                     server = server))
+}

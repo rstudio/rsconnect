@@ -151,7 +151,7 @@ rpubsUpload <- function(title,
     recordName <- ifelse(is.null(title) || nchar(title) == 0,
                          basename(recordSource), title)
 
-    rpubsRec <- deploymentRecord(recordName, "", "rpubs", "rpubs.com", id, id,
+    rpubsRec <- deploymentRecord(recordName, "", "", "rpubs", "rpubs.com", "rpubs.com", id, id,
                                  url, as.numeric(Sys.time()))
     rpubsRecFile <- deploymentFile(recordSource, recordName, "rpubs",
                                    "rpubs.com")

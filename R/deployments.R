@@ -1,7 +1,7 @@
 
 
-saveDeployment <- function(appPath, name, title, account, server, appId,
-                           bundleId, url, metadata) {
+saveDeployment <- function(appPath, name, title, username, account, server,
+                           hostUrl, appId, bundleId, url, metadata) {
 
   # if there's no new title specified, load the existing deployment record, if
   # any, to to preserve the old title
@@ -25,8 +25,8 @@ saveDeployment <- function(appPath, name, title, account, server, appId,
   }
 
   # create the record to write to disk
-  deployment <- deploymentRecord(name, title, account, server, appId, bundleId,
-                                 url, when = as.numeric(Sys.time()),
+  deployment <- deploymentRecord(name, title, username, account, server, hostUrl,
+                                 appId, bundleId, url, when = as.numeric(Sys.time()),
                                  metadata)
 
   # use a long width so URLs don't line-wrap
@@ -124,8 +124,10 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
   # build list of deployment records
   deploymentRecs <- deploymentRecord(name = character(),
                                      title = character(),
+                                     username = character(),
                                      account = character(),
                                      server = character(),
+                                     hostUrl = character(),
                                      appId = character(),
                                      bundleId = character(),
                                      url = character(),
@@ -195,14 +197,36 @@ deploymentFile <- function(appPath, name, account, server) {
   file.path(accountDir, paste0(name, ".dcf"))
 }
 
-deploymentRecord <- function(name, title, account, server, appId, bundleId, url,
-                             when, metadata = list()) {
+deploymentRecord <- function(name, title, username, account, server, hostUrl,
+                             appId, bundleId, url, when, metadata = list()) {
+
+  # find the username if not already supplied (may differ from account nickname)
+  if (is.null(username) && length(account) > 0) {
+    # default to empty
+    username <- ""
+    userinfo <- NULL
+    try({ userInfo <- accountInfo(account, server) }, silent = TRUE)
+    if (!is.null(userinfo$username))
+      username <- userinfo$username
+  }
+
+  # find host information
+  if (is.null(hostUrl) && length(server) > 0) {
+    hostUrl <- ""
+    serverinfo <- NULL
+    try({ serverinfo <- serverInfo(server) }, silent = TRUE)
+    if (!is.null(serverinfo$url))
+      hostUrl <- serverinfo$url
+  }
+
   # compose the standard set of fields and append any requested
   as.data.frame(c(
       list(name = name,
            title = if (is.null(title)) "" else title,
+           username = username,
            account = account,
            server = server,
+           hostUrl = hostUrl,
            appId = appId,
            bundleId = bundleId,
            url = url,
