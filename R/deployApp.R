@@ -510,8 +510,8 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
     }
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
-      generateAppName(appTitle, appPath, appId, account, unique = FALSE),
-      appTitle, accountDetails$username, account, accountDetails$server)
+      generateAppName(appTitle, appPath, account, unique = FALSE),
+      appTitle, appId, accountDetails$username, account, accountDetails$server)
   }
 
   # neither specified but a single existing deployment
@@ -531,8 +531,9 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
     if (length(accounts) == 1) {
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
-        generateAppName(appTitle, appPath, appId, account, unique = FALSE),
-        appTitle, accountDetails$username, accounts, accountDetails$server)
+        generateAppName(appTitle, appPath, account, unique = FALSE),
+        appTitle, appId, accountDetails$username,
+        accounts, accountDetails$server)
     }
     else
       stop("Please specify the account and server to which you want to deploy ",
