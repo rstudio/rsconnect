@@ -294,7 +294,7 @@ deployApp <- function(appDir = getwd(),
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory)
+                              appPrimaryDoc, assetTypeName, contentCategory, verbose)
 
       if (isShinyapps(accountDetails)) {
 

@@ -1,4 +1,4 @@
-bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
+bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
   if (verbose)
     cat(paste(as.character(Sys.time())), "Creating tempfile for appdir")
   # create a directory to stage the application bundle in
@@ -167,7 +167,7 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory) {
+                      contentCategory, verbose = FALSE) {
   if (verbose)
     cat(paste(as.character(Sys.time())), "Inferring App mode and parameters")
 
