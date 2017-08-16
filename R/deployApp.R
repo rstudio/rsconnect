@@ -305,10 +305,14 @@ deployApp <- function(appDir = getwd(),
         checkSum <- digest::digest(bundlePath, 'md5', file=TRUE)
         bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
 
+        if (verbose)
+          cat(paste(as.character(Sys.time())), "Starting upload now")
         # Step 2. Upload Bundle to presigned URL
         if (!uploadBundle(bundle, bundleSize, bundlePath)) {
           stop("Could not upload file.")
         }
+        if (verbose)
+          cat(paste(as.character(Sys.time())), "Upload complete")
 
         # Step 3. Upload revise bundle status.
         response <- client$updateBundleStatus(bundle$id, status="ready")
