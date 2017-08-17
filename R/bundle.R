@@ -1,17 +1,17 @@
 bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Creating tempfile for appdir")
+    timestampedLog("Creating tempfile for appdir")
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Copying files")
+    timestampedLog("Copying files")
   # copy the files into the bundle dir
   for (file in appFiles) {
     if (verbose)
-      cat(paste(as.character(Sys.time())), "Copying", file)
+      timestampedLog("Copying", file)
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
     # if deploying a single-file Shiny application, name it "app.R" so it can
@@ -169,7 +169,7 @@ bundleFiles <- function(appDir) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE) {
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Inferring App mode and parameters")
+    timestampedLog("Inferring App mode and parameters")
 
   # infer the mode of the application from its layout
   # unless we're an API, in which case, we're API mode.
@@ -177,7 +177,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   hasParameters <- appHasParameters(appDir, appFiles, contentCategory)
 
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Bundling app dir")
+    timestampedLog("Bundling app dir")
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
 
@@ -188,7 +188,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   }
 
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Generate manifest.json")
+    timestampedLog("Generate manifest.json")
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
                                              contentCategory, hasParameters,
@@ -198,13 +198,13 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
              useBytes = TRUE)
 
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Writing Rmd index if necessary")
+    timestampedLog("Writing Rmd index if necessary")
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appName, bundleDir)
   on.exit(unlink(indexFiles), add = TRUE)
 
   if (verbose)
-    cat(paste(as.character(Sys.time())), "Compressing the bundle")
+    timestampedLog("Compressing the bundle")
   # create the bundle and return its path
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)

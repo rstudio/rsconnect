@@ -1,5 +1,13 @@
 .globals <- new.env(parent = emptyenv())
 
+logTimestamper <- function() {
+  paste("[", as.character(Sys.time()), "]", sep = "")
+}
+
+timestampedLog <- function(...) {
+  cat(paste(logTimestamper(), ..., "\n"))
+}
+
 isStringParam <- function(param) {
   is.character(param) && (length(param) == 1)
 }

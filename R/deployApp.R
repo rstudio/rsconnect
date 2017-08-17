@@ -306,13 +306,13 @@ deployApp <- function(appDir = getwd(),
         bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
 
         if (verbose)
-          cat(paste(as.character(Sys.time())), "Starting upload now")
+          timestampedLog("Starting upload now")
         # Step 2. Upload Bundle to presigned URL
         if (!uploadBundle(bundle, bundleSize, bundlePath)) {
           stop("Could not upload file.")
         }
         if (verbose)
-          cat(paste(as.character(Sys.time())), "Upload complete")
+          timestampedLog("Upload complete")
 
         # Step 3. Upload revise bundle status.
         response <- client$updateBundleStatus(bundle$id, status="ready")
@@ -336,7 +336,7 @@ deployApp <- function(appDir = getwd(),
     # save the deployment info for subsequent updates--we do this before
     # attempting the deployment itself to make retry easy on failure.
     if (verbose)
-      cat("Saving deployment record for", target$appName, "-", target$username, "\n")
+      timestampedLog("Saving deployment record for", target$appName, "-", target$username)
     saveDeployment(appPath,
                    target$appName,
                    target$appTitle,
@@ -349,8 +349,8 @@ deployApp <- function(appDir = getwd(),
                    application$url,
                    metadata)
   } else if (verbose) {
-    cat("Updating", target$appName, ", owned by", application$owner_username,
-        ", from account", accountDetails$username, "\n")
+    timestampedLog("Updating", target$appName, ", owned by", application$owner_username,
+        ", from account", accountDetails$username)
   }
 
   # wait for the deployment to complete (will raise an error if it can't)
