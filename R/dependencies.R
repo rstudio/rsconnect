@@ -1,7 +1,7 @@
 #' Detect Application Dependencies
 #'
 #' Recursively detect all package dependencies for an application. This function
-#' parses all .R files in the applicaition directory to determine what packages
+#' parses all .R files in the application directory to determine what packages
 #' the application depends on; and for each of those packages what other
 #' packages they depend on.
 #' @inheritParams deployApp
