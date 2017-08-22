@@ -1,11 +1,17 @@
-bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL) {
+bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
+  if (verbose)
+    timestampedLog("Creating tempfile for appdir")
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
+  if (verbose)
+    timestampedLog("Copying files")
   # copy the files into the bundle dir
   for (file in appFiles) {
+    if (verbose)
+      timestampedLog("Copying", file)
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
     # if deploying a single-file Shiny application, name it "app.R" so it can
@@ -161,13 +167,17 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory) {
+                      contentCategory, verbose = FALSE) {
+  if (verbose)
+    timestampedLog("Inferring App mode and parameters")
 
   # infer the mode of the application from its layout
   # unless we're an API, in which case, we're API mode.
   appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
   hasParameters <- appHasParameters(appDir, appFiles, contentCategory)
 
+  if (verbose)
+    timestampedLog("Bundling app dir")
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
 
@@ -177,6 +187,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
     users <- suppressWarnings(authorizedUsers(appDir))
   }
 
+  if (verbose)
+    timestampedLog("Generate manifest.json")
   # generate the manifest and write it into the bundle dir
   manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
                                              contentCategory, hasParameters,
@@ -185,10 +197,14 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
 
+  if (verbose)
+    timestampedLog("Writing Rmd index if necessary")
   # if necessary write an index.htm for shinydoc deployments
   indexFiles <- writeRmdIndex(appName, bundleDir)
   on.exit(unlink(indexFiles), add = TRUE)
 
+  if (verbose)
+    timestampedLog("Compressing the bundle")
   # create the bundle and return its path
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
