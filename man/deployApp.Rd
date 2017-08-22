@@ -6,7 +6,7 @@
 \usage{
 deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   appPrimaryDoc = NULL, appSourceDoc = NULL, appName = NULL,
-  appTitle = NULL, contentCategory = NULL, account = NULL,
+  appTitle = NULL, appId = NULL, contentCategory = NULL, account = NULL,
   server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
@@ -42,6 +42,9 @@ account). Defaults to the base name of the specified \code{appDir}.}
 supplied, will often be displayed in favor of the name. When deploying a
 new application, you may supply only the \code{appTitle} to receive an
 auto-generated \code{appName}.}
+
+\item{appId}{If updating an application, the ID of the application being
+updated. Optional unless updating an app owned by another user.}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"}, \code{"document"}, or \code{"application"}).}
