@@ -624,6 +624,9 @@ applicationForTarget <- function(client, accountInfo, target) {
   app
 }
 
+validURL <- function(url) {
+  !(is.null(url) || url == '')
+}
 
 openURL <- function(client, application, launch.browser, deploymentSucceeded) {
 
@@ -638,9 +641,15 @@ openURL <- function(client, application, launch.browser, deploymentSucceeded) {
   # Check to see if we should open config url or app url
   if (!is.null(client$configureApplication)) {
     config <- client$configureApplication(application$id)
-    if (!(is.null(config$config_url) || config$config_url == '')) {
+    url <- config$config_url
+    if (!deploymentSucceeded && validURL(config$logs_url)) {
+      # With 1.5.5+, Connect application configuration includes
+      # a logs URL to be shown on unsuccessful deployment.
+      url <- config$logs_url
+    }
+    if (validURL(url)) {
       # Connect should always end up here, even on deployment failures
-      showURL(config$config_url)
+      showURL(url)
     }
   } else if (deploymentSucceeded) {
     # shinyapps.io should land here if things succeeded
