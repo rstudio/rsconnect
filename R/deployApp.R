@@ -464,7 +464,8 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
     accountDetails <- accountInfo(account, server)
-    createDeploymentTarget(appName, appTitle, appId, accountDetails$username, account, server)
+    createDeploymentTarget(appName, appTitle, appId, accountDetails$username,
+                           account, accountDetails$server)
   }
 
   # just appName specified
