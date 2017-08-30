@@ -286,6 +286,7 @@ httpInternal <- function(protocol,
                          headers,
                          contentType = NULL,
                          file = NULL,
+                         certificate = NULL,
                          writer = NULL,
                          timeout = NULL) {
 
@@ -380,6 +381,7 @@ httpCurl <- function(protocol,
                      headers,
                      contentType = NULL,
                      file = NULL,
+                     certificate = NULL,
                      writer = NULL,
                      timeout = NULL) {
 
@@ -425,6 +427,10 @@ httpCurl <- function(protocol,
   # add prefix to port if necessary
   if (nzchar(port))
     port <- paste(":", port, sep="")
+
+  if (!is.null(certificate))
+    command <- paste(command,
+                     "--cacert", shQuote(certificate))
 
   command <- paste(command,
                    extraHeaders,
@@ -472,6 +478,7 @@ httpRCurl <- function(protocol,
                       headers,
                       contentType = NULL,
                       file = NULL,
+                      certificate = NULL,
                       writer = NULL,
                       timeout = NULL) {
 
@@ -496,8 +503,11 @@ httpRCurl <- function(protocol,
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
   options$ssl.verifypeer <- TRUE
-  # Cert from: https://curl.haxx.se/docs/caextract.html
-  options$cainfo <- system.file("cert/cacert.pem", package = "rsconnect")
+
+  # apply certificate information if present
+  if (!is.null(certificate))
+    options$cainfo <- certificate
+
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
 
@@ -755,7 +765,8 @@ httpRequestWithBody <- function(service,
        url,
        headers,
        contentType,
-       file)
+       file,
+       certificate = certificateFile(authInfo$certificate))
 }
 
 httpRequest <- function(service,

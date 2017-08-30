@@ -98,7 +98,8 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   # keep trying to authenticate until we're successful
   repeat {
     Sys.sleep(1)
-    user <- getUserFromRawToken(target$url, token$token, token$private_key)
+    user <- getUserFromRawToken(target$url, target$certificate,
+                                token$token, token$private_key)
     if (!is.null(user))
       break
   }
@@ -164,8 +165,9 @@ setAccountInfo <- function(name, token, secret) {
     stop(stringParamErrorMessage("secret"))
 
   # create connect client
-  authInfo <- list(token = token, secret = secret)
   serverInfo <- shinyappsServerInfo()
+  authInfo <- list(token = token, secret = secret,
+                   certificate = serverInfo$certificate)
   lucid <- lucidClient(serverInfo$url, authInfo)
 
   # get user Id
@@ -268,11 +270,13 @@ getAuthToken <- function(server, userId = 0) {
 # given a server URL and raw information about an auth token, return the user
 # who owns the token, if it's claimed, and NULL if the token is unclaimed.
 # raises an error on any other HTTP error.
-getUserFromRawToken <- function(serverUrl, token, privateKey) {
+getUserFromRawToken <- function(serverUrl, serverCertificate,
+                                token, privateKey) {
   # form a temporary client from the raw token
   connect <- connectClient(service = serverUrl, authInfo =
                            list(token = token,
-                                private_key = as.character(privateKey)))
+                                private_key = as.character(privateKey),
+                                certificate = serverCertificate))
 
   # attempt to fetch the user
   user <- NULL

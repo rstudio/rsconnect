@@ -19,6 +19,8 @@
 #' @param url Server's URL. Should look like \code{http://servername/} or
 #'  \code{http://servername:port/}.
 #' @param local Return only local servers (i.e. not \code{shinyapps.io})
+#' @param certificate A character vector containing a certificate to be used
+#'   when making SSL connections to the server.
 #' @param quiet Suppress output and prompts where possible.
 #' @return
 #' \code{servers} returns a data frame with registered server names and URLs.
@@ -60,7 +62,10 @@ serverConfigFile <- function(name) {
 
 shinyappsServerInfo <- function() {
   info <- list(name = "shinyapps.io",
-               url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1"))
+               certificate = inferCertificateContents(
+                 system.file("cert/shinyapps.io.pem", package = "rsconnect")),
+               url = getOption("rsconnect.shinyapps_url",
+                               "https://api.shinyapps.io/v1"))
 }
 
 #' @rdname servers
@@ -114,13 +119,14 @@ getDefaultServer <- function(local = FALSE, prompt = TRUE) {
 
 #' @rdname servers
 #' @export
-addConnectServer <- function(url, name = NULL, quiet = FALSE) {
-  addServer(ensureConnectServerUrl(url), name, quiet)
+addConnectServer <- function(url, name = NULL, certificate = NULL,
+                             quiet = FALSE) {
+  addServer(ensureConnectServerUrl(url), name, certificate, quiet)
 }
 
 #' @rdname servers
 #' @export
-addServer <- function(url, name = NULL, quiet = FALSE) {
+addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
   if (!isStringParam(url))
     stop(stringParamErrorMessage("url"))
 
@@ -141,10 +147,14 @@ addServer <- function(url, name = NULL, quiet = FALSE) {
     }
   }
 
+  # resolve certificate argument
+  certificate <- inferCertificateContents(certificate)
+
   # write the server info
   configFile <- serverConfigFile(name)
   write.dcf(list(name = name,
-                 url = url),
+                 url = url,
+                 certificate = certificate),
             configFile)
 
   if (!quiet) {
@@ -185,18 +195,43 @@ serverInfo <- function(name) {
   info
 }
 
+#' @rdname servers
+#' @export
+addServerCertificate <- function(name, certificate, quiet = FALSE) {
+  # read the existing server information (throws an error on failure)
+  info <- serverInfo(name)
+
+  # append the certificate and re-write the server information
+  info$certificate <- inferCertificateContents(certificate)
+  write.dcf(info, serverConfigFile(name))
+
+  if (!quiet)
+    message("Certificate added to server '" + name + "'")
+
+  invisible(NULL)
+}
+
 missingServerErrorMessage <- function(name) {
   paste0("server named '", name, "' does not exist")
 }
 
 clientForAccount <- function(account) {
+  authInfo <- account
 
-  if (account$server == shinyappsServerInfo()$name)
-    lucidClient(shinyappsServerInfo()$url, account)
-  else {
-    server <- serverInfo(account$server)
-    connectClient(server$url, account)
+  # determine appropriate server information for account
+  if (account$server == shinyappsServerInfo()$name) {
+    serverInfo <- shinyappsServerInfo()
+    constructor <- lucidClient
+  } else {
+    serverInfo <- serverInfo(account$server)
+    constructor <- connectClient
   }
+
+  # promote certificate into auth info
+  authInfo$certificate <- server$certificate
+
+  # invoke client constructor
+  constructor(serverInfo$url, authInfo)
 }
 
 ensureConnectServerUrl <- function(url) {
