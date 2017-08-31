@@ -1,33 +1,51 @@
 
 createCertificateFile <- function(certificate) {
   certificateFile <- NULL
-  
+
   # start by checking for a cert file specified in an environment variable
   envFile <- Sys.getenv("RSCONNECT_CA_BUNDLE")
   if (nzchar(envFile) && file.exists(envFile)) {
     certificateFile <- envFile
   }
-  
+
   # if no certificate contents specified, we're done
   if (is.null(certificate))
     return(certificateFile)
-  
+
   # if we don't have a certificate file yet, try to find the system store
   if (is.null(certificateFile)) {
-    certificateFile <- "" #TODO
+    stores <- c("/etc/ssl/certs/ca-certificates.crt",
+                "/etc/pki/tls/certs/ca-bundle.crt",
+                "/usr/share/ssl/certs/ca-bundle.crt",
+                "/usr/local/share/certs/ca-root.crt",
+                "/etc/ssl/cert.pem",
+                "/var/lib/ca-certificates/ca-bundle.pem")
+    for (store in stores) {
+      if (file.exists(store)) {
+        # if the bundle exists, stop here
+        certificateFile <- store
+        break
+      }
+    }
+
+    # if we didn't find the system store, it's okay; the fact that we're here
+    # means that we have a server-specific certificate so it's probably going
+    # to be all right to use only that cert.
   }
-  
+
   # create a temporary file to house the certificates
   certficateStore <- tempfile(pattern = "cacerts", fileext = "pem")
-  
-  # copy the certificate file into the store
-  file.copy(certificateFile, certificateStore)
-  
+
+  # copy the certificate file into the store, if we found one
+  if (!is.null(certificateFile)) {
+    file.copy(certificateFile, certificateStore)
+  }
+
   # append the server-specific certificate
   con <- file(certificateStore, open = "at")
   on.exit(close(con), add = TRUE)
   writeLines(con, certificate)
-  
+
   return(certificateStore)
 }
 
