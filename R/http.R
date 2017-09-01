@@ -751,7 +751,7 @@ httpRequestWithBody <- function(service,
   }
 
   # if this request is to be authenticated, sign it
-  if (length(authInfo) > 0) {
+  if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     sigHeaders <- signatureHeaders(authInfo, method, url, file)
     headers <- append(headers, sigHeaders)
   }
@@ -766,7 +766,7 @@ httpRequestWithBody <- function(service,
        headers,
        contentType,
        file,
-       certificate = certificateFile(authInfo$certificate))
+       certificate = createCertificateFile(authInfo$certificate))
 }
 
 httpRequest <- function(service,

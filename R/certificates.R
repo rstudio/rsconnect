@@ -34,7 +34,7 @@ createCertificateFile <- function(certificate) {
   }
 
   # create a temporary file to house the certificates
-  certficateStore <- tempfile(pattern = "cacerts", fileext = "pem")
+  certificateStore <- tempfile(pattern = "cacerts", fileext = "pem")
 
   # copy the certificate file into the store, if we found one
   if (!is.null(certificateFile)) {
@@ -44,7 +44,8 @@ createCertificateFile <- function(certificate) {
   # append the server-specific certificate
   con <- file(certificateStore, open = "at")
   on.exit(close(con), add = TRUE)
-  writeLines(con, certificate)
+  writeLines(text = "", con = con)
+  writeLines(text = certificate, con = con)
 
   return(certificateStore)
 }

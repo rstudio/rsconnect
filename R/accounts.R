@@ -255,7 +255,8 @@ getAuthToken <- function(server, userId = 0) {
 
   # generate a token and push it to the server
   token <- generateToken()
-  connect <- connectClient(service = target$url, authInfo = list())
+  connect <- connectClient(service = target$url,
+                           authInfo = list(certificate = target$certificate))
   response <- connect$addToken(list(token = token$token,
                                     public_key = token$public_key,
                                     user_id = as.integer(userId)))
