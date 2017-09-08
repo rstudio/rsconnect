@@ -2,10 +2,15 @@
 createCertificateFile <- function(certificate) {
   certificateFile <- NULL
 
+  # check the R option first, then fall back on the environment variable
+  systemStore <- getOption("rsconnect.ca.bundle")
+  if (is.null(systemStore) || nzchar(systemStore)) {
+    systemStore <- Sys.getenv("RSCONNECT_CA_BUNDLE")
+  }
+
   # start by checking for a cert file specified in an environment variable
-  envFile <- Sys.getenv("RSCONNECT_CA_BUNDLE")
-  if (nzchar(envFile) && file.exists(envFile)) {
-    certificateFile <- envFile
+  if (nzchar(systemStore) && file.exists(systemStore)) {
+    certificateFile <- systemStore
   }
 
   # if no certificate contents specified, we're done
@@ -41,11 +46,10 @@ createCertificateFile <- function(certificate) {
     file.copy(certificateFile, certificateStore)
   }
 
-  # append the server-specific certificate
+  # append the server-specific certificate (with a couple of blank lines)
   con <- file(certificateStore, open = "at")
   on.exit(close(con), add = TRUE)
-  writeLines(text = "", con = con)
-  writeLines(text = certificate, con = con)
+  writeLines(text = c("", "", certificate), con = con)
 
   return(certificateStore)
 }

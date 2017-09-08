@@ -42,7 +42,14 @@
 servers <- function(local = FALSE) {
   configFiles <- list.files(serverConfigDir(), pattern=glob2rx("*.dcf"),
                             full.names = TRUE)
-  parsed <- lapply(configFiles, read.dcf)
+  parsed <- lapply(configFiles, function(file) {
+    info <- read.dcf(file)
+    # provide empty certificate if not specified in DCF
+    if(!("certificate" %in% colnames(info))) {
+      info <- cbind(info, certificate = "")
+    }
+    info
+  })
   locals <- do.call(rbind, parsed)
   if (local) {
     locals

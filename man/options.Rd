@@ -10,6 +10,7 @@ The \pkg{rsconnect} package supports several options that control the method use
 \details{
 Supported global options include:
 \describe{
+   \item{\code{rsconnect.ca.bundle}}{Path to a custom bundle of Certificate Authority root certificates to use when connecting to servers via SSL. This option can also be specied in the environment variable `RSCONNECT_CA_BUNDLE`. Leave undefined to use your system's default certificate store.}
    \item{\code{rsconnect.http}}{Http implementation used for connections to the back-end service:
    \tabular{ll}{
      \code{rcurl} \tab Secure https using the \code{RCurl} package\cr
