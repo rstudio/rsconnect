@@ -162,7 +162,8 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
   write.dcf(list(name = name,
                  url = url,
                  certificate = certificate),
-            configFile)
+            configFile,
+            keep.white = "certificate")
 
   if (!quiet) {
     message("Server '", name,  "' added successfully: ", url)
