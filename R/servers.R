@@ -44,10 +44,17 @@ servers <- function(local = FALSE) {
                             full.names = TRUE)
   parsed <- lapply(configFiles, function(file) {
     info <- read.dcf(file)
-    # provide empty certificate if not specified in DCF
+
+    # empty if no contents
+    if(identical(nrow(info), 0L))
+      return(NULL)
+
+    # provide empty certificate if not specified in DCF (only if we also have a URL)
     if(!("certificate" %in% colnames(info))) {
       info <- cbind(info, certificate = "")
     }
+
+    # return parsed server info
     info
   })
   locals <- do.call(rbind, parsed)
@@ -159,11 +166,19 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
 
   # write the server info
   configFile <- serverConfigFile(name)
-  write.dcf(list(name = name,
-                 url = url,
-                 certificate = certificate),
-            configFile,
-            keep.white = "certificate")
+  if (is.null(certificate)) {
+    # no certificate, just write name and URL for brevity
+    write.dcf(list(name = name,
+                   url = url),
+              configFile)
+  } else {
+    # write all fields
+    write.dcf(list(name = name,
+                   url = url,
+                   certificate = certificate),
+              configFile,
+              keep.white = "certificate")
+  }
 
   if (!quiet) {
     message("Server '", name,  "' added successfully: ", url)
