@@ -39,7 +39,7 @@ createCertificateFile <- function(certificate) {
   }
 
   # create a temporary file to house the certificates
-  certificateStore <- tempfile(pattern = "cacerts", fileext = "pem")
+  certificateStore <- tempfile(pattern = "cacerts", fileext = ".pem")
 
   # copy the certificate file into the store, if we found one
   if (!is.null(certificateFile)) {
