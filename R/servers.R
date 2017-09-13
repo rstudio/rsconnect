@@ -235,7 +235,7 @@ clientForAccount <- function(account) {
   }
 
   # promote certificate into auth info
-  authInfo$certificate <- server$certificate
+  authInfo$certificate <- serverInfo$certificate
 
   # invoke client constructor
   constructor(serverInfo$url, authInfo)
