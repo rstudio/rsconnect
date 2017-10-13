@@ -19,12 +19,23 @@ createCertificateFile <- function(certificate) {
 
   # if we don't have a certificate file yet, try to find the system store
   if (is.null(certificateFile)) {
-    stores <- c("/etc/ssl/certs/ca-certificates.crt",
-                "/etc/pki/tls/certs/ca-bundle.crt",
-                "/usr/share/ssl/certs/ca-bundle.crt",
-                "/usr/local/share/certs/ca-root.crt",
-                "/etc/ssl/cert.pem",
-                "/var/lib/ca-certificates/ca-bundle.pem")
+    if (.Platform$OS.type == "unix") {
+      # search known locations on Unix-like
+      stores <- c("/etc/ssl/certs/ca-certificates.crt",
+                  "/etc/pki/tls/certs/ca-bundle.crt",
+                  "/usr/share/ssl/certs/ca-bundle.crt",
+                  "/usr/local/share/certs/ca-root.crt",
+                  "/etc/ssl/cert.pem",
+                  "/var/lib/ca-certificates/ca-bundle.pem")
+    } else {
+      # mirror behavior of curl on Windows, which looks in system folders,
+      # the working directory, and %PATH%
+      stores <- c("C:/Windows/System32/curl-ca-bundle.crt",
+                  "C:/Windows/curl-ca-bundle.crt",
+                  file.path(getwd(), "curl-ca-bundle.crt"),
+                  file.path(strsplit(Sys.getenv("PATH"), ";", fixed = TRUE),
+                            "curl-ca-bundle.crt"))
+    }
     for (store in stores) {
       if (file.exists(store)) {
         # if the bundle exists, stop here
