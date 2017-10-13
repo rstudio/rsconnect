@@ -428,9 +428,14 @@ httpCurl <- function(protocol,
   if (nzchar(port))
     port <- paste(":", port, sep="")
 
-  if (!is.null(certificate))
+  if (!isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
+    # suppressed certificate check
+    command <- paste(command, "--insecure")
+  } else if (!is.null(certificate)) {
+    # cert check not suppressed and we have a supplied cert
     command <- paste(command,
                      "--cacert", shQuote(certificate))
+  }
 
   command <- paste(command,
                    extraHeaders,
@@ -502,11 +507,16 @@ httpRCurl <- function(protocol,
   # establish options
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
-  options$ssl.verifypeer <- TRUE
+  if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
+    options$ssl.verifypeer <- TRUE
 
-  # apply certificate information if present
-  if (!is.null(certificate))
-    options$cainfo <- certificate
+    # apply certificate information if present
+    if (!is.null(certificate))
+      options$cainfo <- certificate
+  } else {
+    # don't verify peer (less secure but tolerant to self-signed cert issues)
+    options$ssl.verifypeer <- FALSE
+  }
 
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
