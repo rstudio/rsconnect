@@ -8,7 +8,7 @@
 #
 # the URL may be specified with or without the protocol and port; this function
 # will try both http and https and follow any redirects given by the server.
-validateServerUrl <- function(url) {
+validateServerUrl <- function(url, certificate = NULL) {
   tryAllProtocols <- TRUE
 
   if (!grepl("://", url, fixed = TRUE))
@@ -30,6 +30,9 @@ validateServerUrl <- function(url) {
   settingsEndpoint <- "/server_settings"
   url <- ensureConnectServerUrl(url)
 
+  # populate certificate if supplied
+  certificate <- inferCertificateContents(certificate)
+
   # begin trying URLs to discover the correct one
   response <- NULL
   errMessage <- ""
@@ -39,7 +42,9 @@ validateServerUrl <- function(url) {
       # this shouldn't take more than 5 seconds since it does no work (i.e we
       # should just be waiting for the network), so timeout quickly to avoid
       # hanging when the server doesn't accept the connection
-      httpResponse <- GET(parseHttpUrl(url), NULL, settingsEndpoint,
+      httpResponse <- GET(parseHttpUrl(url),
+                          list(certificate = certificate),
+                          settingsEndpoint,
                           timeout = 5)
 
       # check for redirect

@@ -798,8 +798,10 @@ httpRequest <- function(service,
     url <- paste(url, "?", query, sep="")
   }
 
-  # if this request is to be authenticated, sign it
-  if (length(authInfo) > 0) {
+  # the request should be authenticated if there's any auth specified
+  # other than the server certificate
+  if (length(authInfo) > 0 &&
+      !identical(names(authInfo), "certificate")) {
     sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
     headers <- append(headers, sigHeaders)
   }
@@ -813,7 +815,8 @@ httpRequest <- function(service,
        url,
        headers,
        writer = writer,
-       timeout = timeout)
+       timeout = timeout,
+       certificate = createCertificateFile(authInfo$certificate))
 }
 
 rfc2616Date <- function(time = Sys.time()) {
