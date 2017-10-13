@@ -4,7 +4,7 @@ createCertificateFile <- function(certificate) {
 
   # check the R option first, then fall back on the environment variable
   systemStore <- getOption("rsconnect.ca.bundle")
-  if (is.null(systemStore) || nzchar(systemStore)) {
+  if (is.null(systemStore) || !nzchar(systemStore)) {
     systemStore <- Sys.getenv("RSCONNECT_CA_BUNDLE")
   }
 
@@ -30,9 +30,9 @@ createCertificateFile <- function(certificate) {
     } else {
       # mirror behavior of curl on Windows, which looks in system folders,
       # the working directory, and %PATH%
-      stores <- c("C:/Windows/System32/curl-ca-bundle.crt",
+      stores <- c(file.path(getwd(), "curl-ca-bundle.crt"),
+                  "C:/Windows/System32/curl-ca-bundle.crt",
                   "C:/Windows/curl-ca-bundle.crt",
-                  file.path(getwd(), "curl-ca-bundle.crt"),
                   file.path(strsplit(Sys.getenv("PATH"), ";", fixed = TRUE),
                             "curl-ca-bundle.crt"))
     }

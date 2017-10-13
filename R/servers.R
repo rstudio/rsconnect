@@ -226,7 +226,7 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
 
   # append the certificate and re-write the server information
   info$certificate <- inferCertificateContents(certificate)
-  write.dcf(info, serverConfigFile(name))
+  write.dcf(info, serverConfigFile(name), keep.white = "certificate")
 
   if (!quiet)
     message("Certificate added to server '" + name + "'")
