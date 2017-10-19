@@ -286,6 +286,7 @@ httpInternal <- function(protocol,
                          headers,
                          contentType = NULL,
                          file = NULL,
+                         certificate = NULL,
                          writer = NULL,
                          timeout = NULL) {
 
@@ -380,6 +381,7 @@ httpCurl <- function(protocol,
                      headers,
                      contentType = NULL,
                      file = NULL,
+                     certificate = NULL,
                      writer = NULL,
                      timeout = NULL) {
 
@@ -425,6 +427,15 @@ httpCurl <- function(protocol,
   # add prefix to port if necessary
   if (nzchar(port))
     port <- paste(":", port, sep="")
+
+  if (!isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
+    # suppressed certificate check
+    command <- paste(command, "--insecure")
+  } else if (!is.null(certificate)) {
+    # cert check not suppressed and we have a supplied cert
+    command <- paste(command,
+                     "--cacert", shQuote(certificate))
+  }
 
   command <- paste(command,
                    extraHeaders,
@@ -472,6 +483,7 @@ httpRCurl <- function(protocol,
                       headers,
                       contentType = NULL,
                       file = NULL,
+                      certificate = NULL,
                       writer = NULL,
                       timeout = NULL) {
 
@@ -495,9 +507,17 @@ httpRCurl <- function(protocol,
   # establish options
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
-  options$ssl.verifypeer <- TRUE
-  # Cert from: https://curl.haxx.se/docs/caextract.html
-  options$cainfo <- system.file("cert/cacert.pem", package = "rsconnect")
+  if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
+    options$ssl.verifypeer <- TRUE
+
+    # apply certificate information if present
+    if (!is.null(certificate))
+      options$cainfo <- certificate
+  } else {
+    # don't verify peer (less secure but tolerant to self-signed cert issues)
+    options$ssl.verifypeer <- FALSE
+  }
+
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
 
@@ -741,7 +761,7 @@ httpRequestWithBody <- function(service,
   }
 
   # if this request is to be authenticated, sign it
-  if (length(authInfo) > 0) {
+  if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     sigHeaders <- signatureHeaders(authInfo, method, url, file)
     headers <- append(headers, sigHeaders)
   }
@@ -755,7 +775,8 @@ httpRequestWithBody <- function(service,
        url,
        headers,
        contentType,
-       file)
+       file,
+       certificate = createCertificateFile(authInfo$certificate))
 }
 
 httpRequest <- function(service,
@@ -777,8 +798,10 @@ httpRequest <- function(service,
     url <- paste(url, "?", query, sep="")
   }
 
-  # if this request is to be authenticated, sign it
-  if (length(authInfo) > 0) {
+  # the request should be authenticated if there's any auth specified
+  # other than the server certificate
+  if (length(authInfo) > 0 &&
+      !identical(names(authInfo), "certificate")) {
     sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
     headers <- append(headers, sigHeaders)
   }
@@ -792,7 +815,8 @@ httpRequest <- function(service,
        url,
        headers,
        writer = writer,
-       timeout = timeout)
+       timeout = timeout,
+       certificate = createCertificateFile(authInfo$certificate))
 }
 
 rfc2616Date <- function(time = Sys.time()) {
