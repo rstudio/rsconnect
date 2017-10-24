@@ -98,8 +98,8 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   # keep trying to authenticate until we're successful
   repeat {
     Sys.sleep(1)
-    user <- getUserFromRawToken(target$url, target$certificate,
-                                token$token, token$private_key)
+    user <- getUserFromRawToken(target$url, token$token, token$private_key,
+                                target$certificate)
     if (!is.null(user))
       break
   }
@@ -271,8 +271,11 @@ getAuthToken <- function(server, userId = 0) {
 # given a server URL and raw information about an auth token, return the user
 # who owns the token, if it's claimed, and NULL if the token is unclaimed.
 # raises an error on any other HTTP error.
-getUserFromRawToken <- function(serverUrl, serverCertificate,
-                                token, privateKey) {
+#
+# this function is used by the RStudio IDE as part of the workflow which
+# attaches a new Connect account.
+getUserFromRawToken <- function(serverUrl, token, privateKey,
+                                serverCertificate = NULL) {
   # form a temporary client from the raw token
   connect <- connectClient(service = serverUrl, authInfo =
                            list(token = token,
