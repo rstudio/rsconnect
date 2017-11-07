@@ -764,6 +764,8 @@ httpRequestWithBody <- function(service,
   if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     sigHeaders <- signatureHeaders(authInfo, method, url, file)
     headers <- append(headers, sigHeaders)
+  } else {
+    headers <- append(headers, bogusSignatureHeaders())
   }
 
   # perform request
@@ -804,6 +806,8 @@ httpRequest <- function(service,
       !identical(names(authInfo), "certificate")) {
     sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
     headers <- append(headers, sigHeaders)
+  } else {
+    headers <- append(headers, bogusSignatureHeaders())
   }
 
   # perform GET
@@ -857,6 +861,10 @@ queryString <- function (elements) {
     result <- ""
   }
   return(result)
+}
+
+bogusSignatureHeaders <- function() {
+  list(`X-Auth-Token` = 'anonymous-access') # The value doesn't actually matter here, but the header needs to be set.
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {
