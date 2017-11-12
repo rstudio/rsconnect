@@ -5,7 +5,7 @@
 \title{Add authorized user to application}
 \usage{
 addAuthorizedUser(email, appDir = getwd(), appName = NULL, account = NULL,
-  server = NULL, sendEmail = NULL)
+  server = NULL, sendEmail = NULL, emailMessage = NULL)
 }
 \arguments{
 \item{email}{Email address of user to add.}

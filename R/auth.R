@@ -46,7 +46,8 @@ cleanupPasswordFile <- function(appDir) {
 #' @note This function works only for ShinyApps servers.
 #' @export
 addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
-                              account = NULL, server=NULL, sendEmail=NULL) {
+                              account = NULL, server=NULL, sendEmail=NULL,
+                              emailMessage = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -61,7 +62,8 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 
   # fetch authoriztion list
   api <- clientForAccount(accountDetails)
-  api$inviteApplicationUser(application$id, validateEmail(email), sendEmail)
+  api$inviteApplicationUser(application$id, validateEmail(email), sendEmail,
+                            emailMessage)
 
   message(paste("Added:", email, "to application", sep=" "))
 
