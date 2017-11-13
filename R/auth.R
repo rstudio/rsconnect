@@ -42,6 +42,9 @@ cleanupPasswordFile <- function(appDir) {
 #'   multiple servers.
 #' @param sendEmail Send an email letting the user know the application
 #'   has been shared with them.
+#' @param emailMessage Optional character vector of length 1 containing a
+#'   custom message to send in email invitation. Defaults to NULL, which
+#'   will use default invitation message.
 #' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
 #' @note This function works only for ShinyApps servers.
 #' @export

@@ -23,6 +23,10 @@ multiple servers.}
 
 \item{sendEmail}{Send an email letting the user know the application
 has been shared with them.}
+
+\item{emailMessage}{Optional character vector of length 1 containing a
+custom message to send in email invitation. Defaults to NULL, which
+will use default invitation message.}
 }
 \description{
 Add authorized user to application
