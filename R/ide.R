@@ -113,7 +113,8 @@ findLocalServer <- function(url) {
   # name
   name <- findServerByUrl(url)
   if (is.null(name)) {
-    addConnectServer(url, NULL, TRUE)
+    addConnectServer(url = url, name = NULL, certificate = NULL,
+                     quiet = TRUE)
     findServerByUrl(url)
   } else {
     name
