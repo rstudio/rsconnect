@@ -70,7 +70,7 @@ inferCertificateContents <- function(certificate) {
   # infer which we're dealing with
 
   # tolerate NULL, which is a valid case representing no certificate
-  if (is.null(certificate))
+  if (is.null(certificate) || identical(certificate, ""))
     return(NULL)
 
   # collapse to a single string if we got a vector of lines
