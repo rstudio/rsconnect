@@ -35,7 +35,7 @@ test_that("Users API", {
   server <- getDefaultServer(local = TRUE)
 
   connect <- connectClient(server$url, list())
-  id <- createUniqueId(16)
+  id <- paste(as.hexmode(sample(256, bytes)-1), collapse="")
 
   # add a user
   record <- userRecord(
