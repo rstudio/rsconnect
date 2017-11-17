@@ -5,7 +5,7 @@
 \title{Add authorized user to application}
 \usage{
 addAuthorizedUser(email, appDir = getwd(), appName = NULL, account = NULL,
-  server = NULL, sendEmail = NULL)
+  server = NULL, sendEmail = NULL, emailMessage = NULL)
 }
 \arguments{
 \item{email}{Email address of user to add.}
@@ -23,6 +23,10 @@ multiple servers.}
 
 \item{sendEmail}{Send an email letting the user know the application
 has been shared with them.}
+
+\item{emailMessage}{Optional character vector of length 1 containing a
+custom message to send in email invitation. Defaults to NULL, which
+will use default invitation message.}
 }
 \description{
 Add authorized user to application
