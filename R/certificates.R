@@ -29,13 +29,18 @@ createCertificateFile <- function(certificate) {
                   "/var/lib/ca-certificates/ca-bundle.pem")
     } else {
       # mirror behavior of curl on Windows, which looks in system folders,
-      # the working directory, and %PATH%
+      # the working directory, and %PATH%.
       stores <- c(file.path(getwd(), "curl-ca-bundle.crt"),
                   "C:/Windows/System32/curl-ca-bundle.crt",
                   "C:/Windows/curl-ca-bundle.crt",
                   file.path(strsplit(Sys.getenv("PATH"), ";", fixed = TRUE),
                             "curl-ca-bundle.crt"))
+
     }
+
+    # use our own baked-in bundle as a last resort
+    stores <- c(stores, system.file(package="rsconnect", "cert", "cacert.pem"))
+
     for (store in stores) {
       if (file.exists(store)) {
         # if the bundle exists, stop here
