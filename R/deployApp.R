@@ -51,6 +51,7 @@
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
 #'   \code{\link{deployments}}.
+#' @param update If app already exists should the app be updated without a prompt in interactive mode? Either \code{"ask"} or \ask{"force"}, defaults to \code{"ask"}.
 #' @examples
 #' \dontrun{
 #'
@@ -92,7 +93,8 @@ deployApp <- function(appDir = getwd(),
                                                  interactive()),
                       logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
-                      metadata = list()) {
+                      metadata = list(),
+                      update = c("ask", "force")) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -101,6 +103,8 @@ deployApp <- function(appDir = getwd(),
   logLevel <- match.arg(logLevel)
   quiet <- identical(logLevel, "quiet")
   verbose <- identical(logLevel, "verbose")
+
+  update <- match.arg(update)
 
   # at verbose log level, turn on all tracing options implicitly for the
   # duration of the call
@@ -284,7 +288,7 @@ deployApp <- function(appDir = getwd(),
 
   # get the application to deploy (creates a new app on demand)
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
-    application <- applicationForTarget(client, accountDetails, target)
+    application <- applicationForTarget(client, accountDetails, target, update = update)
   })
 
   if (upload) {
@@ -594,7 +598,7 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
   client$getApplication(id)
 }
 
-applicationForTarget <- function(client, accountInfo, target) {
+applicationForTarget <- function(client, accountInfo, target, update) {
 
   if (is.null(target$appId)) {
     # list the existing applications for this account and see if we
@@ -608,11 +612,14 @@ applicationForTarget <- function(client, accountInfo, target) {
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
   if (!is.null(target$appId) && !is.null(app) && interactive()) {
-    prompt <- paste("Update application currently deployed at\n", app$url,
-                    "? [Y/n] ", sep="")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
-      stop("Application deployment cancelled", call. = FALSE)
+    if(update == "ask"){
+      prompt <- paste("Update application currently deployed at\n", app$url,
+                      "? [Y/n] ", sep="")
+      input <- readline(prompt)
+      if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+        stop("Application deployment cancelled", call. = FALSE)
+    }
+
   }
 
   # create the application if we need to
