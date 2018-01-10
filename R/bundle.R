@@ -301,6 +301,11 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
     return("rmd-static")
   }
 
+  # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
+  if(length(grep("(saved_model.pb|saved_model.pbtxt)$", files, ignore.case = TRUE, perl = TRUE)) > 0) {
+    return("tensorflow-saved-model")
+  }
+
   # no renderable content here; if there's at least one file, we can just serve
   # it as static content
   if (length(files) > 0) {

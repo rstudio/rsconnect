@@ -98,6 +98,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   # collect files
   appFilesBase <- tolower(list.files())
   wwwFiles <- tolower(list.files("www/"))
+  allFiles <- tolower(list.files(all.files = TRUE, recursive = TRUE))
 
   # check for single-file app collision
   if (!is.null(appPrimaryDoc) &&
@@ -116,7 +117,8 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
                 tolower(tools::file_ext(appPrimaryDoc)) == "r"),
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
     static = any(grepl("(?:html?|pdf)$", appFilesBase)),
-    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase)
+    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
+    tensorflow = any(grepl("(saved_model.pb|saved_model.pbtxt)$", allFiles))
   )
 
   if (!any(satisfiedLayouts)) {
@@ -126,7 +128,10 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
             2. 'shiny.R' and 'www/index.html' in the application base directory,
             3. 'app.R' or a single-file Shiny .R file,
             4. An R Markdown (.Rmd) document,
-            5. A static HTML (.html) or PDF (.pdf) document."
+            5. A static HTML (.html) or PDF (.pdf) document.
+            6. 'plumber.R' API description .R file
+            7. 'entrypoint.R' plumber startup script
+            8. A tensorflow saved model"
 
     # strip leading whitespace from the above
     msg <- paste(collapse = "\n",

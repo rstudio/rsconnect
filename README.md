@@ -1,7 +1,8 @@
 rsconnect
 =======================================================
 
-An R package used for deploying applications to the [ShinyApps](http://shinyapps.io/) hosted service.
+An R package used for deploying applications to the [ShinyApps](http://shinyapps.io/) hosted service, 
+or to [RStudio Connect](https://www.rstudio.com/products/connect/).
 
 ## Installation
 
@@ -15,4 +16,11 @@ devtools::install_github("rstudio/rsconnect")
 
 ## Usage
 
-To get started using ShinyApps checkout the [Getting Started Guide](http://shiny.rstudio.com/articles/shinyapps.html).
+To get started using ShinyApps check out the [Getting Started Guide](http://shiny.rstudio.com/articles/shinyapps.html).
+
+For more information using RStudio Connect, see the [RStudio Connect User Guide](http://docs.rstudio.com/connect/user/index.html).
+
+
+## Legal Stuff
+
+TensorFlow, the TensorFlow logo and any related marks are trademarks of Google Inc., and are not affiliated with RStudio, Inc.

@@ -39,7 +39,6 @@ test_that("badRelativePaths identifies bad paths correctly", {
 })
 
 test_that("The linter identifies invalid application structures", {
-  expect_error(lint("."))
   expect_error(lint("shiny-app-in-subdir"))
   lint("shiny-app-in-subdir/my-app")
 })
@@ -75,4 +74,10 @@ test_that("The linter believes that the Shiny example apps are okay", {
 test_that("The linter accepts a plumber API", {
   result <- lint("test-plumber")
   expect_false(is.null(result$plumber.R))
+})
+
+test_that("The linter accepts a TensorFlow Saved Model", {
+  lint("tf-saved-model")
+  lint("tf-human-readable-saved-model")
+
 })
