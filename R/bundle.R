@@ -302,7 +302,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
   }
 
   # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
-  if(length(grep("saved_model.pb$", files, ignore.case = TRUE, perl = TRUE)) > 0) {
+  if(length(grep("(saved_model.pb|saved_model.pbtxt)$", files, ignore.case = TRUE, perl = TRUE)) > 0) {
     return("tensorflow-saved-model")
   }
 

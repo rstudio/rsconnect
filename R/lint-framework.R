@@ -118,7 +118,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
     static = any(grepl("(?:html?|pdf)$", appFilesBase)),
     plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
-    tensorflow = any(grepl("saved_model.pb$", allFiles))
+    tensorflow = any(grepl("(saved_model.pb|saved_model.pbtxt)$", allFiles))
   )
 
   if (!any(satisfiedLayouts)) {
