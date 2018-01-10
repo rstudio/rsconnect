@@ -607,7 +607,7 @@ applicationForTarget <- function(client, accountInfo, target) {
 
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
-  if (!is.null(target$appId) && !is.null(app) && interactive()) {
+  if (!is.null(target$appId) && !is.null(app) && interactive() && !getOption("rsconnect.force.update.apps", FALSE)) {
     prompt <- paste("Update application currently deployed at\n", app$url,
                     "? [Y/n] ", sep="")
     input <- readline(prompt)
