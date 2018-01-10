@@ -18,7 +18,7 @@ devtools::install_github("rstudio/rsconnect")
 
 To get started using ShinyApps check out the [Getting Started Guide](http://shiny.rstudio.com/articles/shinyapps.html).
 
-For more information using RStudio Connect, see the [RStudio Connect User Gudie](http://docs.rstudio.com/connect/user/index.html).
+For more information using RStudio Connect, see the [RStudio Connect User Guide](http://docs.rstudio.com/connect/user/index.html).
 
 
 ## Legal Stuff
