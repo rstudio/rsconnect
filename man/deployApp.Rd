@@ -10,7 +10,7 @@ deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
-  metadata = list())
+  metadata = list(), update = c("ask", "force"))
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -76,6 +76,8 @@ potentially problematic code?}
 \item{metadata}{Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
 \code{\link{deployments}}.}
+
+\item{update}{If app already exists should the app be updated without a prompt in interactive mode? Either \code{"ask"} or \ask{"force"}, defaults to \code{"ask"}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
