@@ -79,5 +79,6 @@ test_that("The linter accepts a plumber API", {
 test_that("The linter accepts a TensorFlow Saved Model", {
   lint("tf-saved-model")
   lint("tf-human-readable-saved-model")
-
+  lint("tf-saved-model-rootdir")
+  expect_true(TRUE) # didn't stop()
 })
