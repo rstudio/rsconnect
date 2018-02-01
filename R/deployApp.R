@@ -51,7 +51,7 @@
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
 #'   \code{\link{deployments}}.
-#' @param update If \code{TRUE}, always update the previously-deployed app.
+#' @param forceUpdate If \code{TRUE}, update any previously-deployed app without asking.
 #'   If \code{FALSE}, ask to update. If unset, defaults to the value of
 #'   \code{getOption("rsconnect.force.update.apps", FALSE)}.
 #' @examples
@@ -96,7 +96,7 @@ deployApp <- function(appDir = getwd(),
                       logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
                       metadata = list(),
-                      update = getOption("rsconnect.force.update.apps", FALSE)) {
+                      forceUpdate = getOption("rsconnect.force.update.apps", FALSE)) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -288,7 +288,7 @@ deployApp <- function(appDir = getwd(),
 
   # get the application to deploy (creates a new app on demand)
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
-    application <- applicationForTarget(client, accountDetails, target, update)
+    application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
   if (upload) {
@@ -598,7 +598,7 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
   client$getApplication(id)
 }
 
-applicationForTarget <- function(client, accountInfo, target, update) {
+applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
 
   if (is.null(target$appId)) {
     # list the existing applications for this account and see if we
@@ -611,7 +611,7 @@ applicationForTarget <- function(client, accountInfo, target, update) {
 
   # if there is no record of deploying this application locally however there
   # is an application of that name already deployed then confirm
-  if (!is.null(target$appId) && !is.null(app) && interactive() && !update) {
+  if (!is.null(target$appId) && !is.null(app) && interactive() && !forceUpdate) {
     prompt <- paste("Update application currently deployed at\n", app$url,
                     "? [Y/n] ", sep="")
     input <- readline(prompt)

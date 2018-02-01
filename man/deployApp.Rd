@@ -10,7 +10,7 @@ deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   server = NULL, upload = TRUE,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
-  metadata = list(), update = getOption("rsconnect.force.update.apps",
+  metadata = list(), forceUpdate = getOption("rsconnect.force.update.apps",
   FALSE))
 }
 \arguments{
@@ -78,7 +78,7 @@ potentially problematic code?}
 record. These fields will be returned on subsequent calls to
 \code{\link{deployments}}.}
 
-\item{update}{If \code{TRUE}, always update the previously-deployed app.
+\item{forceUpdate}{If \code{TRUE}, update any previously-deployed app without asking.
 If \code{FALSE}, ask to update. If unset, defaults to the value of
 \code{getOption("rsconnect.force.update.apps", FALSE)}.}
 }
