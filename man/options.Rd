@@ -29,6 +29,7 @@ Supported global options include:
    \item{\code{rsconnect.locale}}{Override the detected locale. }
    \item{\code{rsconnect.max.bundle.size}}{The maximum size, in bytes, for deployed content. If not set, defaults to 3 GB.}
    \item{\code{rsconnect.max.bundle.files}}{The maximum number of files to deploy. If not set, defaults to 10,000.}
+   \item{\code{rsconnect.force.update.apps}}{When \code{TRUE}, bypasses the prompt to confirm whether you wish to update previously-deployed content}
 }
 }
 
