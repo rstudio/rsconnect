@@ -18,7 +18,6 @@ Imports:
     yaml (>= 2.1.5),
     rstudioapi (>= 0.5)
 Suggests:
-    scrypt,
     knitr,
     testthat,
     rmarkdown (>= 1.1),
