@@ -174,7 +174,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   # infer the mode of the application from its layout
   # unless we're an API, in which case, we're API mode.
   appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  hasParameters <- appHasParameters(appDir, appFiles, contentCategory)
+  hasParameters <- appHasParameters(appDir, appFiles, appMode, contentCategory)
 
   if (verbose)
     timestampedLog("Bundling app dir")
@@ -234,11 +234,20 @@ yamlFromRmd <- function(filename) {
   return(NULL)
 }
 
-appHasParameters <- function(appDir, files, contentCategory) {
+appHasParameters <- function(appDir, files, appMode, contentCategory) {
 
-  # sites don't ever have parameters
-  if (identical(contentCategory, "site"))
+  # Only Rmd deployments are marked as having parameters. Shiny applications
+  # may distribute an Rmd alongside app.R, but that does not cause the
+  # deployment to be considered parameterized.
+  #
+  # https://github.com/rstudio/rsconnect/issues/246
+  if (!(appMode %in% c("rmd-static", "rmd-shiny"))) {
     return(FALSE)
+  }
+  # Sites don't ever have parameters
+  if (!identical(contentCategory, "site")) {
+    return(FALSE)
+  }
 
   rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
                    value = TRUE)
