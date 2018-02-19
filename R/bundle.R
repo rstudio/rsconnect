@@ -235,7 +235,6 @@ yamlFromRmd <- function(filename) {
 }
 
 appHasParameters <- function(appDir, files, appMode, contentCategory) {
-
   # Only Rmd deployments are marked as having parameters. Shiny applications
   # may distribute an Rmd alongside app.R, but that does not cause the
   # deployment to be considered parameterized.
@@ -245,7 +244,7 @@ appHasParameters <- function(appDir, files, appMode, contentCategory) {
     return(FALSE)
   }
   # Sites don't ever have parameters
-  if (!identical(contentCategory, "site")) {
+  if (identical(contentCategory, "site")) {
     return(FALSE)
   }
 
