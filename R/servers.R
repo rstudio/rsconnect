@@ -19,8 +19,10 @@
 #' @param url Server's URL. Should look like \code{http://servername/} or
 #'  \code{http://servername:port/}.
 #' @param local Return only local servers (i.e. not \code{shinyapps.io})
-#' @param certificate A character vector containing a certificate to be used
-#'   when making SSL connections to the server.
+#' @param certificate Optional; a path a certificate file to be used when making
+#'   SSL connections to the server. The file's contents are copied and stored by
+#'   the \pkg{rsconnect} package. Can also be a character vector containing the
+#'   certificate's contents.
 #' @param quiet Suppress output and prompts where possible.
 #' @return
 #' \code{servers} returns a data frame with registered server names and URLs.
@@ -161,6 +163,13 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
     }
   }
 
+  if (!identical(serverUrl$protocol, "https") &&
+      !is.null(certificate) && nzchar(certificate)) {
+    stop("Certificates may only be attached to servers that use the ",
+         "HTTPS protocol. Sepecify an HTTPS URL for the server, or ",
+         "omit the certificate.")
+  }
+
   # resolve certificate argument
   certificate <- inferCertificateContents(certificate)
 
@@ -224,12 +233,18 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
   # read the existing server information (throws an error on failure)
   info <- serverInfo(name)
 
+  if (!identical(substr(info$url, 1, 5), "https")) {
+    stop("Certificates may only be attached to servers that use the ",
+         "HTTPS protocol. Sepecify an HTTPS URL for the server, or ",
+         "omit the certificate.")
+  }
+
   # append the certificate and re-write the server information
   info$certificate <- inferCertificateContents(certificate)
   write.dcf(info, serverConfigFile(name), keep.white = "certificate")
 
   if (!quiet)
-    message("Certificate added to server '" + name + "'")
+    message("Certificate added to server '", name, "'")
 
   invisible(NULL)
 }

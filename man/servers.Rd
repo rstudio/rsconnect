@@ -35,8 +35,10 @@ addServerCertificate(name, certificate, quiet = FALSE)
 \item{name}{Optional nickname for the server. If none is given, the nickname
 is inferred from the server's hostname.}
 
-\item{certificate}{A character vector containing a certificate to be used
-when making SSL connections to the server.}
+\item{certificate}{Optional; a path a certificate file to be used when making
+SSL connections to the server. The file's contents are copied and stored by
+the \pkg{rsconnect} package. Can also be a character vector containing the
+certificate's contents.}
 }
 \value{
 \code{servers} returns a data frame with registered server names and URLs.
