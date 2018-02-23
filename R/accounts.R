@@ -26,7 +26,7 @@ accounts <- function(server = NULL) {
     path <- file.path(path, server)
 
   # get a raw list of accounts
-  accountnames <- tools::file_path_sans_ext(list.files(path,
+  accountnames <- file_path_sans_ext(list.files(path,
     pattern=glob2rx("*.dcf"), recursive = TRUE))
 
   if (length(accountnames) == 0) {

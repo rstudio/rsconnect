@@ -89,6 +89,14 @@ readDcf <- function(...) {
   read.dcf(...)
 }
 
+# Replacement for tools::file_path_sans_ext to work around an issue where
+# filenames like "foo..ext" are not returned as "foo.".
+file_path_sans_ext <- function(x, compression = FALSE) {
+  if (compression) {
+    x <- sub("[.](gz|bz2|xz)$", "", x)
+  }
+  sub("(.+)\\.[[:alnum:]]+$", "\\1", x)
+}
 
 #' Generate a line with embedded message
 #'
