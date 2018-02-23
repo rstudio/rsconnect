@@ -148,7 +148,7 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
       next
 
     # apply optional name filter
-    name <- tools::file_path_sans_ext(basename(deploymentFile))
+    name <- file_path_sans_ext(basename(deploymentFile))
     if (!is.null(nameFilter) && !identical(nameFilter, name))
       next
 

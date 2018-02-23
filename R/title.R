@@ -57,7 +57,7 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = T
     # strip extension if present
     base <- basename(appPath)
     if (nzchar(tools::file_ext(base))) {
-      base <- tools::file_path_sans_ext(base)
+      base <- file_path_sans_ext(base)
 
       # if we stripped an extension and the name is now "index", use the parent
       # folder's name
