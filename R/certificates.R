@@ -9,8 +9,17 @@ createCertificateFile <- function(certificate) {
   }
 
   # start by checking for a cert file specified in an environment variable
-  if (nzchar(systemStore) && file.exists(systemStore)) {
-    certificateFile <- systemStore
+  if (!is.null(systemStore) && nzchar(systemStore)) {
+    if (file.exists(systemStore)) {
+      certificateFile <- systemStore
+    } else {
+      warning("The certificate store '", systemStore, "' specified in the ",
+              if (identical(systemStore, getOption("rsconnect.ca.bundle")))
+                "rsconnect.ca.bundle option "
+              else
+                "RSCONNECT_CA_BUNDLE environment variable ",
+              "does not exist. The system certificate store will be used instead.")
+    }
   }
 
   # if no certificate contents specified, we're done
@@ -56,6 +65,8 @@ createCertificateFile <- function(certificate) {
 
   # create a temporary file to house the certificates
   certificateStore <- tempfile(pattern = "cacerts", fileext = ".pem")
+  dir.create(dirname(certificateStore))
+  file.create(certificateStore)
 
   # open temporary cert store
   con <- file(certificateStore, open = "at")
@@ -96,9 +107,13 @@ inferCertificateContents <- function(certificate) {
     return(paste(readLines(con = certificate, warn = FALSE), collapse = "\n"))
   }
 
-  # doesn't look like something we can deal with
-  stop("Invalid certificate '", substr(certificate, 1, 100),
-    if(nchar(certificate) > 100) "..." else "", "'. Specify the certificate ",
-    "as either an ASCII armored string, beginning with -----BEGIN ",
-    "CERTIFICATE----, or a valid path to a file containing the certificate.")
+  # doesn't look like something we can deal with; guess error based on length
+  if (nchar(certificate) < 200) {
+    stop("The certificate file '", certificate, "' does not exist.")
+  } else {
+    stop("The certificate '", substr(certificate, 1, 10), "...' is not ",
+    "correctly formed. Specify the certificate as either an ASCII armored string, ",
+    "beginning with -----BEGIN CERTIFICATE----, or a valid path to a file ",
+    "containing the certificate.")
+  }
 }
