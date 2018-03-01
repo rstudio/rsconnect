@@ -1,4 +1,9 @@
 
+# sanity check to make sure we're looking at an ASCII armored cert
+validateCertificate <- function(certificate) {
+  return(identical(substr(certificate, 1, 27), "-----BEGIN CERTIFICATE-----"))
+}
+
 createCertificateFile <- function(certificate) {
   certificateFile <- NULL
 
@@ -99,12 +104,18 @@ inferCertificateContents <- function(certificate) {
     certificate <- paste(certificate, collapse = "\n")
 
   # looks like ASCII armored certificate data, return as-is
-  if (identical(substr(certificate, 1, 27), "-----BEGIN CERTIFICATE-----"))
+  if (validateCertificate(substr(certificate, 1, 27)))
     return(certificate)
 
   # looks like a file; return its contents
   if (file.exists(certificate)) {
-    return(paste(readLines(con = certificate, warn = FALSE), collapse = "\n"))
+    contents <- paste(readLines(con = certificate, warn = FALSE), collapse = "\n")
+    if (validateCertificate(contents))
+      return(contents)
+    else
+      stop("The file '", certificate, "' does not appear to be a certificate. ",
+           "Certificate files should be in ASCII armored PEM format, with a ",
+           "first line reading -----BEGIN CERTIFICATE-----.")
   }
 
   # doesn't look like something we can deal with; guess error based on length

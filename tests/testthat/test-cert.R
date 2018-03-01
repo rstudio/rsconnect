@@ -78,3 +78,11 @@ cert_test_that("system and server cert stores are concatenated", {
   expect_true(grepl("localhost", store, fixed = TRUE))
   expect_true(grepl("system", store, fixed = TRUE))
 })
+
+cert_test_that("invalid certificates cannot be added", {
+  expect_error(
+    addServer(url = "https://localhost:4567/",
+              name = "cert_test_e",
+              cert = "certs/invalid.crt",
+              quiet = FALSE))
+})
