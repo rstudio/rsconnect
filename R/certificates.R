@@ -1,7 +1,7 @@
 
 # sanity check to make sure we're looking at an ASCII armored cert
 validateCertificate <- function(certificate) {
-  return(identical(substr(certificate, 1, 27), "-----BEGIN CERTIFICATE-----"))
+  return(any(grepl("-----BEGIN CERTIFICATE-----", certificate, fixed = TRUE)))
 }
 
 createCertificateFile <- function(certificate) {
@@ -110,6 +110,10 @@ inferCertificateContents <- function(certificate) {
 
   # looks like a file; return its contents
   if (file.exists(certificate)) {
+    if (file.size(certificate) > 1048576) {
+      stop("The file '", certificate, "' is too large. Certificate files must ",
+           "be less than 1MB.")
+    }
     contents <- paste(readLines(con = certificate, warn = FALSE), collapse = "\n")
     if (validateCertificate(contents))
       return(contents)

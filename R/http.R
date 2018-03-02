@@ -653,6 +653,8 @@ httpFunction <- function() {
     httpCurl
   else if (identical("internal", httpType))
     httpInternal
+  else if (is.function(httpType))
+    httpType
   else
     stop(paste("Invalid http option specified:",httpType,
                ". Valid values are rcurl, curl, and internal"))
@@ -768,6 +770,11 @@ httpRequestWithBody <- function(service,
     headers <- append(headers, bogusSignatureHeaders())
   }
 
+  # set up certificate tempfile if using https
+  certificate <- NULL
+  if (identical(service$protocol, "https"))
+    certificate <- createCertificateFile(authInfo$certificate)
+
   # perform request
   http <- httpFunction()
   http(service$protocol,
@@ -778,7 +785,7 @@ httpRequestWithBody <- function(service,
        headers,
        contentType,
        file,
-       certificate = createCertificateFile(authInfo$certificate))
+       certificate = certificate)
 }
 
 httpRequest <- function(service,
@@ -810,6 +817,11 @@ httpRequest <- function(service,
     headers <- append(headers, bogusSignatureHeaders())
   }
 
+  # set up certificate tempfile if using https
+  certificate <- NULL
+  if (identical(service$protocol, "https"))
+    certificate <- createCertificateFile(authInfo$certificate)
+
   # perform GET
   http <- httpFunction()
   http(service$protocol,
@@ -820,7 +832,7 @@ httpRequest <- function(service,
        headers,
        writer = writer,
        timeout = timeout,
-       certificate = createCertificateFile(authInfo$certificate))
+       certificate = certificate)
 }
 
 rfc2616Date <- function(time = Sys.time()) {

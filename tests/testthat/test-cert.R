@@ -1,16 +1,29 @@
 context("certificates")
 
 cert_test_that <- function(test, expr) {
+  config_dir <- tempdir()
+
+  # preserve old values
+  home <- Sys.getenv("HOME")
+  http <- getOption("rsconnect.http")
+
+  on.exit({
+    # clean up temp folder
+    unlink(config_dir, recursive = TRUE)
+
+    # restore HOME
+    Sys.setenv(HOME = home, add = TRUE)
+
+    # clean up options
+    options(rsconnect.http = http)
+  }, add = TRUE)
+
   # temporarily change home to a temp folder so we don't litter the actual
   # config folder with test output
-  config_dir <- tempdir()
-  home <- Sys.getenv("HOME")
-  on.exit({
-    # clean up temp folder and restore HOME when done
-    unlink(config_dir, recursive = TRUE)
-    Sys.setenv(HOME = home, add = TRUE)
-  })
   Sys.setenv(HOME = config_dir)
+
+  # record HTTP calls rather than actually performing them
+  options(rsconnect.http = httpTestRecorder)
 
   test_that(test, expr)
 }
@@ -85,4 +98,51 @@ cert_test_that("invalid certificates cannot be added", {
               name = "cert_test_e",
               cert = "certs/invalid.crt",
               quiet = FALSE))
+})
+
+cert_test_that("multiple certificates can exist in the same file", {
+  addServer(url = "https://localhost:4567/",
+            name = "cert_test_f",
+            cert = "certs/two-cas.crt",
+            quiet = FALSE)
+
+  # read it back
+  info <- serverInfo("cert_test_f")
+
+  # compare with the contents of the cert we read
+  certLines <- paste(readLines("certs/two-cas.crt"), collapse = "\n")
+  expect_equal(certLines, info$certificate)
+})
+
+cert_test_that("certificates not used when making plain http connections", {
+  GET(list(
+        protocol  = "http",
+        host      = "localhost:4567",
+        port      = "80",
+        path      = "apps"
+      ),
+      authInfo = list(
+        certificate = "certs/localhost.crt"
+      ),
+      "apps")
+  expect_equal(httpLastRequest$certificate, NULL)
+})
+
+cert_test_that("certificates used when making https connections", {
+  GET(list(
+        protocol  = "https",
+        host      = "localhost:4567",
+        port      = "443",
+        path      = "apps"
+      ),
+      authInfo = list(
+        certificate = "certs/localhost.crt"
+      ),
+      "apps")
+
+  # we expect to get a cert file
+  expect_true(file.exists(httpLastRequest$certificate))
+
+  # clean up
+  unlink(httpLastRequest$certificate)
 })
