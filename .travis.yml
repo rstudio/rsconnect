@@ -2,5 +2,9 @@ language: r
 sudo: false
 cache:
   packages: yes
-r_packages: shiny
+r_packages: 
+  - shiny
+  - sourcetools
+  - xtable
+
 
