@@ -98,7 +98,6 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   # collect files
   appFilesBase <- tolower(list.files())
   wwwFiles <- tolower(list.files("www/"))
-  allFiles <- tolower(list.files(all.files = TRUE, recursive = TRUE))
 
   # check for single-file app collision
   if (!is.null(appPrimaryDoc) &&
@@ -118,7 +117,10 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
     static = any(grepl("(?:html?|pdf)$", appFilesBase)),
     plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
-    tensorflow = any(grepl("^(\\w+\\/)?saved_model.pb(txt)?$", allFiles))
+    tensorflow = length(c(
+      Sys.glob(file.path(getwd(),"*","saved_model.pb*")),
+      Sys.glob(file.path(getwd(),"saved_model.pb*"))
+      )) > 0
   )
 
   if (!any(satisfiedLayouts)) {
