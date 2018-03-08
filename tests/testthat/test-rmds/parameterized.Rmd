@@ -1,0 +1,7 @@
+---
+title: Parameterized R Markdown document
+params:
+  color: red
+---
+
+Parameters are `r params$color`.

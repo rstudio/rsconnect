@@ -174,7 +174,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   # infer the mode of the application from its layout
   # unless we're an API, in which case, we're API mode.
   appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  hasParameters <- appHasParameters(appDir, appFiles, appMode, contentCategory)
+  appPrimaryDoc <- inferAppPrimaryDoc(appPrimaryDoc, appFiles, appMode)
+  hasParameters <- appHasParameters(appDir, appPrimaryDoc, appMode, contentCategory)
 
   if (verbose)
     timestampedLog("Bundling app dir")
@@ -234,7 +235,7 @@ yamlFromRmd <- function(filename) {
   return(NULL)
 }
 
-appHasParameters <- function(appDir, files, appMode, contentCategory) {
+appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory) {
   # Only Rmd deployments are marked as having parameters. Shiny applications
   # may distribute an Rmd alongside app.R, but that does not cause the
   # deployment to be considered parameterized.
@@ -248,17 +249,14 @@ appHasParameters <- function(appDir, files, appMode, contentCategory) {
     return(FALSE)
   }
 
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
-                   value = TRUE)
-  if (length(rmdFiles) > 0) {
-    for (rmdFile in rmdFiles) {
-      filename <- file.path(appDir, rmdFile)
-      yaml <- yamlFromRmd(filename)
-      if (!is.null(yaml)) {
-        params <- yaml[["params"]]
-        # We don't care about deep parameter processing, only that they exist.
-        return(!is.null(params) && length(params) > 0)
-      }
+  # Only Rmd files have parameters.
+  if (tolower(tools::file_ext(appPrimaryDoc)) == "rmd") {
+    filename <- file.path(appDir, appPrimaryDoc)
+    yaml <- yamlFromRmd(filename)
+    if (!is.null(yaml)) {
+      params <- yaml[["params"]]
+      # We don't care about deep parameter processing, only that they exist.
+      return(!is.null(params) && length(params) > 0)
     }
   }
   FALSE
@@ -322,6 +320,33 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
 
   # there doesn't appear to be any content here we can use
   return(NA)
+}
+
+inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
+  # if deploying an R Markdown app or static content, infer a primary document
+  # if not already specified
+  if ((grepl("rmd", appMode, fixed = TRUE) || appMode == "static")
+      && is.null(appPrimaryDoc)) {
+    # determine expected primary document extension
+    ext <- ifelse(appMode == "static", "html?", "Rmd")
+
+    # use index file if it exists
+    primary <- which(grepl(paste0("^index\\.", ext, "$"), appFiles, fixed = FALSE,
+                           ignore.case = TRUE))
+    if (length(primary) == 0) {
+      # no index file found, so pick the first one we find
+      primary <- which(grepl(paste0("^.*\\.", ext, "$"), appFiles, fixed = FALSE,
+                             ignore.case = TRUE))
+      if (length(primary) == 0) {
+        stop("Application mode ", appMode, " requires at least one document.")
+      }
+    }
+    # if we have multiple matches, pick the first
+    if (length(primary) > 1)
+      primary <- primary[[1]]
+    appPrimaryDoc <- appFiles[[primary]]
+  }
+  appPrimaryDoc
 }
 
 ## check for extra dependencies congruent to application mode
@@ -399,30 +424,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     checksum <- list(checksum = digest::digest(file.path(appDir, file),
                                                algo = "md5", file = TRUE))
     filelist[[file]] <- I(checksum)
-  }
-
-  # if deploying an R Markdown app or static content, infer a primary document
-  # if not already specified
-  if ((grepl("rmd", appMode, fixed = TRUE) || appMode == "static")
-      && is.null(appPrimaryDoc)) {
-    # determine expected primary document extension
-    ext <- ifelse(appMode == "static", "html?", "Rmd")
-
-    # use index file if it exists
-    primary <- which(grepl(paste0("^index\\.", ext, "$"), files, fixed = FALSE,
-                           ignore.case = TRUE))
-    if (length(primary) == 0) {
-      # no index file found, so pick the first one we find
-      primary <- which(grepl(paste0("^.*\\.", ext, "$"), files, fixed = FALSE,
-                             ignore.case = TRUE))
-      if (length(primary) == 0) {
-        stop("Application mode ", appMode, " requires at least one document.")
-      }
-    }
-    # if we have multiple matches, pick the first
-    if (length(primary) > 1)
-      primary <- primary[[1]]
-    appPrimaryDoc <- files[[primary]]
   }
 
   # create userlist

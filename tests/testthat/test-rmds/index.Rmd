@@ -1,0 +1,5 @@
+---
+title: The index R Markdown document
+---
+
+For those times that you do not specify a primary.
