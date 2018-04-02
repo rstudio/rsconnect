@@ -105,7 +105,10 @@ storeCookies <- function(requestURL, cookieHeaders){
 #   header name omitted.
 parseCookie <- function(requestURL, cookieHeader){
   keyval <- regmatches(cookieHeader, regexec(
-    "^(\\w+)\\s*=\\s*([^;]*)(;|$)", cookieHeader, ignore.case=TRUE))[[1]]
+    # https://curl.haxx.se/rfc/cookie_spec.html
+    # "characters excluding semi-colon, comma and white space"
+    # white space is not excluded from values so we can capture `expires`
+    "^([^;=, ]+)\\s*=\\s*([^;,]*)(;|$)", cookieHeader, ignore.case=TRUE))[[1]]
   if (length(keyval) == 0){
     # Invalid cookie format.
     warning("Unable to parse set-cookie header: ", cookieHeader)

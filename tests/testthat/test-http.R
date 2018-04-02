@@ -78,6 +78,12 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "")
   expect_equal(cookie$path, "/")
+
+  # prove #229 is fixed
+  cookie <- parseCookie(parsedUrl, "my_cookie-which/uses%20strange?characters=foo_-%20+?1234bar; Path = /")
+  expect_equal(cookie$name, "my_cookie-which/uses%20strange?characters")
+  expect_equal(cookie$value, "foo_-%20+?1234bar")
+  expect_equal(cookie$path, "/")
 })
 
 test_that("Invalid cookies fail parsing", {
