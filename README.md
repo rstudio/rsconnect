@@ -1,7 +1,12 @@
-[![Build Status](https://travis-ci.org/rstudio/rsconnect.svg?branch=master)](https://travis-ci.org/rstudio/rsconnect)
 
 rsconnect
 =======================================================
+
+
+[![CRAN status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.org/package=rsconnect)
+[![Build Status](https://travis-ci.org/rstudio/rsconnect.svg?branch=master)](https://travis-ci.org/rstudio/rsconnect)
+[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+
 
 An R package used for deploying applications to the [ShinyApps](http://shinyapps.io/) hosted service, 
 or to [RStudio Connect](https://www.rstudio.com/products/connect/).
