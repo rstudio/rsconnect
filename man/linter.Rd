@@ -15,7 +15,7 @@ paths that this linter uses.}
 
 \item{message}{Function that, given content and lines, returns an
 informative message for the user. Typically generated with
-\code{\link{makeLinterMessage}}.}
+\code{\link[=makeLinterMessage]{makeLinterMessage()}}.}
 
 \item{suggestion}{String giving a prescribed fix for the linted problem.}
 }

@@ -47,7 +47,7 @@ potentially problematic code?}
 
 \item{metadata}{Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
-\code{\link{deployments}}.}
+\code{\link[=deployments]{deployments()}}.}
 }
 \description{
 Deploy an R Markdown website to a server.

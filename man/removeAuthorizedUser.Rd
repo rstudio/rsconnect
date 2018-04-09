@@ -28,5 +28,5 @@ Remove authorized user from an application
 This function works only for ShinyApps servers.
 }
 \seealso{
-\code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+\code{\link[=addAuthorizedUser]{addAuthorizedUser()}} and \code{\link[=showUsers]{showUsers()}}
 }

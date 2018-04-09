@@ -49,23 +49,23 @@ saveDeployment <- function(appPath, name, title, username, account, server,
 #'   (optional)
 #' @param serverFilter Return only deployments matching the given server
 #'   (optional)
-#' @param excludeOrphaned If \code{TRUE} (the default), return only deployments
+#' @param excludeOrphaned If `TRUE` (the default), return only deployments
 #'   made by a currently registered account. Deployments made from accounts that
-#'   are no longer registered (via e.g.\code{\link{removeAccount}}) will not be
+#'   are no longer registered (via e.g.[removeAccount()]) will not be
 #'   returned.
 #' @return
 #' Returns a data frame with at least following columns:
 #' \tabular{ll}{
-#' \code{name} \tab Name of deployed application\cr
-#' \code{account} \tab Account owning deployed application\cr
-#' \code{bundleId} \tab Identifier of deployed application's bundle\cr
-#' \code{url} \tab URL of deployed application\cr
-#' \code{when} \tab When the application was deployed (in seconds since the
+#' `name` \tab Name of deployed application\cr
+#' `account` \tab Account owning deployed application\cr
+#' `bundleId` \tab Identifier of deployed application's bundle\cr
+#' `url` \tab URL of deployed application\cr
+#' `when` \tab When the application was deployed (in seconds since the
 #'   epoch)\cr
 #' }
 #'
 #' If additional metadata has been saved with the deployment record using the
-#' \code{metadata} argument to \code{\link{deployApp}}, the frame will include
+#' `metadata` argument to [deployApp()], the frame will include
 #' additional columns.
 #'
 #' @examples
@@ -75,8 +75,8 @@ saveDeployment <- function(appPath, name, title, username, account, server,
 #' # account
 #' deployments("~/r/myapp", accountFilter="abc")
 #' }
-#' @seealso \code{\link{applications}} to get a list of deployments from the
-#'   server, and \code{\link{deployApp}} to create a new deployment.
+#' @seealso [applications()] to get a list of deployments from the
+#'   server, and [deployApp()] to create a new deployment.
 #' @export
 deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
                         serverFilter = NULL, excludeOrphaned = TRUE) {

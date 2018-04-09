@@ -17,10 +17,10 @@
 #' alphanumeric characters.
 #'
 #' The function is intended to be used to find a name for a new application.
-#' If \code{appPath} and \code{account} are both specified, then the returned
+#' If `appPath` and `account` are both specified, then the returned
 #' name will also be unique among locally known deployments of the directory
 #' (note that it is not guaranteed to be unique on the server). This behavior
-#' can be disabled by setting \code{unique = FALSE}.
+#' can be disabled by setting `unique = FALSE`.
 #'
 #' @examples
 #' # Generate a short name for a sample application

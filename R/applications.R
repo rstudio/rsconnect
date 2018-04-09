@@ -9,14 +9,14 @@
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
-#' \code{name} \tab Name of application \cr
-#' \code{url} \tab URL where application can be accessed\cr
-#' \code{config_url} \tab URL where application can be configured\cr
-#' \code{status} \tab Current status of application. Valid values are
-#' \code{pending}, \code{deploying}, \code{running}, \code{terminating}, and
-#' \code{terminated}.
+#' `name` \tab Name of application \cr
+#' `url` \tab URL where application can be accessed\cr
+#' `config_url` \tab URL where application can be configured\cr
+#' `status` \tab Current status of application. Valid values are
+#' `pending`, `deploying`, `running`, `terminating`, and
+#' `terminated`.
 #' }
-#' @note To register an account you call the \link{setAccountInfo} function.
+#' @note To register an account you call the [setAccountInfo()] function.
 #' @examples
 #' \dontrun{
 #'
@@ -29,7 +29,7 @@
 #' # view the list of applications in the data viewer
 #' View(applications())
 #' }
-#' @seealso \code{\link{deployApp}}, \code{\link{terminateApp}}
+#' @seealso [deployApp()], [terminateApp()]
 #' @export
 applications <- function(account = NULL, server = NULL) {
 
@@ -118,13 +118,13 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #' @param appFile The path to the R source file that contains the application
 #'   (for single file applications).
 #' @param appName The name of the application to show logs for. May be omitted
-#'   if only one application deployment was made from \code{appPath}.
+#'   if only one application deployment was made from `appPath`.
 #' @param account The account under which the application was deployed. May be
 #'   omitted if only one account is registered on the system.
 #' @param entries The number of log entries to show. Defaults to 50 entries.
-#' @param streaming Whether to stream the logs. If \code{TRUE}, then the
+#' @param streaming Whether to stream the logs. If `TRUE`, then the
 #'   function does not return; instead, log entries are written to the console
-#'   as they are made, until R is interrupted. Defaults to \code{FALSE}.
+#'   as they are made, until R is interrupted. Defaults to `FALSE`.
 #'
 #' @note This function works only for ShinyApps servers.
 #'

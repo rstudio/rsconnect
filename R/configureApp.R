@@ -10,7 +10,7 @@
 #' @param account Account name. If a single account is registered on the
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see \code{\link{servers}})
+#'   multiple servers (see [servers()])
 #' @param redeploy Re-deploy application after its been configured.
 #' @param size Configure application instance size
 #' @param instances Configure number of application instances
@@ -20,7 +20,7 @@
 #' # set instance size for an application
 #' configureApp("myapp", size="xlarge")
 #' }
-#' @seealso \code{\link{applications}}, \code{\link{deployApp}}
+#' @seealso [applications()], [deployApp()]
 #' @export
 configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
                          redeploy = TRUE, size = NULL,

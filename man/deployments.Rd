@@ -21,7 +21,7 @@ or an individual document.}
 
 \item{excludeOrphaned}{If \code{TRUE} (the default), return only deployments
 made by a currently registered account. Deployments made from accounts that
-are no longer registered (via e.g.\code{\link{removeAccount}}) will not be
+are no longer registered (via e.g.\code{\link[=removeAccount]{removeAccount()}}) will not be
 returned.}
 }
 \value{
@@ -32,11 +32,11 @@ Returns a data frame with at least following columns:
 \code{bundleId} \tab Identifier of deployed application's bundle\cr
 \code{url} \tab URL of deployed application\cr
 \code{when} \tab When the application was deployed (in seconds since the
-  epoch)\cr
+epoch)\cr
 }
 
 If additional metadata has been saved with the deployment record using the
-\code{metadata} argument to \code{\link{deployApp}}, the frame will include
+\code{metadata} argument to \code{\link[=deployApp]{deployApp()}}, the frame will include
 additional columns.
 }
 \description{
@@ -51,6 +51,6 @@ deployments("~/r/myapp", accountFilter="abc")
 }
 }
 \seealso{
-\code{\link{applications}} to get a list of deployments from the
-  server, and \code{\link{deployApp}} to create a new deployment.
+\code{\link[=applications]{applications()}} to get a list of deployments from the
+server, and \code{\link[=deployApp]{deployApp()}} to create a new deployment.
 }

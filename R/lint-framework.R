@@ -2,10 +2,10 @@
 
 ##' Add a Linter
 ##'
-##' Add a linter, to be used in subsequent calls to \code{\link{lint}}.
+##' Add a linter, to be used in subsequent calls to [lint()].
 ##'
 ##' @param name The name of the linter, as a string.
-##' @param linter A \code{\link{linter}}.
+##' @param linter A [linter()].
 ##' @export
 ##' @example examples/example-linter.R
 addLinter <- function(name, linter) {
@@ -24,7 +24,7 @@ addLinter <- function(name, linter) {
 ##'   paths that this linter uses.
 ##' @param message Function that, given content and lines, returns an
 ##'   informative message for the user. Typically generated with
-##'   \code{\link{makeLinterMessage}}.
+##'   [makeLinterMessage()].
 ##' @param suggestion String giving a prescribed fix for the linted problem.
 ##' @export
 ##' @example examples/example-linter.R
@@ -61,7 +61,7 @@ applyLinter <- function(linter, ...) {
 
 ##' Lint a Project
 ##'
-##' Takes the set of active linters (see \code{\link{addLinter}}), and applies
+##' Takes the set of active linters (see [addLinter()]), and applies
 ##' them to all files within a project.
 ##'
 ##' @param project Path to a project directory.

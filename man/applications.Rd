@@ -28,7 +28,7 @@ Returns a data frame with the following columns:
 List all applications currently deployed for a given account.
 }
 \note{
-To register an account you call the \link{setAccountInfo} function.
+To register an account you call the \code{\link[=setAccountInfo]{setAccountInfo()}} function.
 }
 \examples{
 \dontrun{
@@ -44,5 +44,5 @@ View(applications())
 }
 }
 \seealso{
-\code{\link{deployApp}}, \code{\link{terminateApp}}
+\code{\link[=deployApp]{deployApp()}}, \code{\link[=terminateApp]{terminateApp()}}
 }

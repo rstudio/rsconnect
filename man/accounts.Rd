@@ -14,7 +14,7 @@ removeAccount(name, server = NULL)
 }
 \arguments{
 \item{server}{Name of the server on which the account is registered
-(optional; see \code{\link{servers}})}
+(optional; see \code{\link[=servers]{servers()}})}
 
 \item{name}{Name of account}
 }
@@ -28,8 +28,8 @@ Functions to enumerate and remove accounts on the local system. Prior to
 deploying applications you need to register your account on the local system.
 }
 \details{
-You register an account using the \code{\link{setAccountInfo}} function (for
-ShinyApps) or \code{\link{connectUser}} function (for other servers). You can
+You register an account using the \code{\link[=setAccountInfo]{setAccountInfo()}} function (for
+ShinyApps) or \code{\link[=connectUser]{connectUser()}} function (for other servers). You can
 subsequently remove the account using the \code{removeAccount} function.
 
 The \code{accounts} and \code{accountInfo} functions are provided for viewing

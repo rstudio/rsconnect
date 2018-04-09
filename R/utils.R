@@ -100,11 +100,11 @@ file_path_sans_ext <- function(x, compression = FALSE) {
 
 #' Generate a line with embedded message
 #'
-#' Generates a message, surrounded with \code{#}, that extends
-#' up to length \code{n}.
+#' Generates a message, surrounded with `#`, that extends
+#' up to length `n`.
 #' @param message A string (single-line message).
 #' @param n The total number length of the generated string --
-#'   the message is padded with \code{#} up to length \code{n}.
+#'   the message is padded with `#` up to length `n`.
 #' @noRd
 hr <- function(message = "", n = 80) {
   if (nzchar(message)) {

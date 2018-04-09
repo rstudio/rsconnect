@@ -3,20 +3,20 @@
 #' Functions to enumerate and remove accounts on the local system. Prior to
 #' deploying applications you need to register your account on the local system.
 #'
-#' You register an account using the \code{\link{setAccountInfo}} function (for
-#' ShinyApps) or \code{\link{connectUser}} function (for other servers). You can
-#' subsequently remove the account using the \code{removeAccount} function.
+#' You register an account using the [setAccountInfo()] function (for
+#' ShinyApps) or [connectUser()] function (for other servers). You can
+#' subsequently remove the account using the `removeAccount` function.
 #'
-#' The \code{accounts} and \code{accountInfo} functions are provided for viewing
+#' The `accounts` and `accountInfo` functions are provided for viewing
 #' previously registered accounts.
 #'
 #' @param name Name of account
 #' @param server Name of the server on which the account is registered
-#'   (optional; see \code{\link{servers}})
+#'   (optional; see [servers()])
 #'
-#' @return \code{accounts} returns a data frame with the names of all accounts
+#' @return `accounts` returns a data frame with the names of all accounts
 #' registered on the system and the servers on which they reside.
-#' \code{accountInfo} returns a list with account details.
+#' `accountInfo` returns a list with account details.
 #'
 #' @rdname accounts
 #' @export

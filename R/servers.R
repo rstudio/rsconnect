@@ -3,30 +3,30 @@
 #' Functions to manage the list of known servers to which
 #' \pkg{rsconnect} can deploy and manage applications.
 #'
-#' Register a server with \code{addServer} or \code{discoverServers} (the latter
+#' Register a server with `addServer` or `discoverServers` (the latter
 #' is useful only if your administrator has configured server autodiscovery).
 #' Once a server is registered, you can connect to an account on the server
-#' using \code{\link{connectUser}}.
+#' using [connectUser()].
 #'
-#' The \code{servers} and \code{serverInfo} functions are provided for viewing
+#' The `servers` and `serverInfo` functions are provided for viewing
 #' previously registered servers.
 #'
-#' There is always at least one server registered (the \code{shinyapps.io}
+#' There is always at least one server registered (the `shinyapps.io`
 #' server)
 #'
 #' @param name Optional nickname for the server. If none is given, the nickname
 #'   is inferred from the server's hostname.
-#' @param url Server's URL. Should look like \code{http://servername/} or
-#'  \code{http://servername:port/}.
-#' @param local Return only local servers (i.e. not \code{shinyapps.io})
+#' @param url Server's URL. Should look like `http://servername/` or
+#'  `http://servername:port/`.
+#' @param local Return only local servers (i.e. not `shinyapps.io`)
 #' @param certificate Optional; a path a certificate file to be used when making
 #'   SSL connections to the server. The file's contents are copied and stored by
 #'   the \pkg{rsconnect} package. Can also be a character vector containing the
 #'   certificate's contents.
 #' @param quiet Suppress output and prompts where possible.
 #' @return
-#' \code{servers} returns a data frame with registered server names and URLs.
-#' \code{serverInfo} returns a list with details for a particular server.
+#' `servers` returns a data frame with registered server names and URLs.
+#' `serverInfo` returns a list with details for a particular server.
 #' @rdname servers
 #' @examples
 #' \dontrun{

@@ -28,3 +28,4 @@ Suggests:
 Enhances: BiocInstaller
 License: GPL-2
 RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE)

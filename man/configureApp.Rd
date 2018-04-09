@@ -18,7 +18,7 @@ current working directory.}
 system then this parameter can be omitted.}
 
 \item{server}{Server name. Required only if you use the same account name on
-multiple servers (see \code{\link{servers}})}
+multiple servers (see \code{\link[=servers]{servers()}})}
 
 \item{redeploy}{Re-deploy application after its been configured.}
 
@@ -42,5 +42,5 @@ configureApp("myapp", size="xlarge")
 }
 }
 \seealso{
-\code{\link{applications}}, \code{\link{deployApp}}
+\code{\link[=applications]{applications()}}, \code{\link[=deployApp]{deployApp()}}
 }

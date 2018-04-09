@@ -52,7 +52,7 @@ Functions to manage the list of known servers to which
 Register a server with \code{addServer} or \code{discoverServers} (the latter
 is useful only if your administrator has configured server autodiscovery).
 Once a server is registered, you can connect to an account on the server
-using \code{\link{connectUser}}.
+using \code{\link[=connectUser]{connectUser()}}.
 
 The \code{servers} and \code{serverInfo} functions are provided for viewing
 previously registered servers.
