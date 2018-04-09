@@ -1,59 +1,59 @@
 #' Deploy an Application
 #'
-#' Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
+#' Deploy a [shiny][shiny::shiny-package] application, an [RMarkdown][rmarkdown::rmarkdown-package]
 #' document, a plumber API, or HTML content to a server.
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @param appFiles The files and directories to bundle and deploy (only if
-#'   \code{upload = TRUE}). Can be \code{NULL}, in which case all the files in
+#'   `upload = TRUE`). Can be `NULL`, in which case all the files in
 #'   the directory containing the application are bundled. Takes precedence over
-#'   \code{appFileManifest} if both are supplied.
+#'   `appFileManifest` if both are supplied.
 #' @param appFileManifest An alternate way to specify the files to be deployed;
 #'   a file containing the names of the files, one per line, relative to the
-#'   \code{appDir}.
+#'   `appDir`.
 #' @param appPrimaryDoc If the application contains more than one document, this
-#'   parameter indicates the primary one, as a path relative to \code{appDir}.
-#'   Can be \code{NULL}, in which case the primary document is inferred from the
+#'   parameter indicates the primary one, as a path relative to `appDir`.
+#'   Can be `NULL`, in which case the primary document is inferred from the
 #'   contents being deployed.
 #' @param appSourceDoc If the application is composed of static files (e.g
 #'   HTML), this parameter indicates the source document, if any, as a fully
 #'   qualified path. Deployment information returned by
-#'   \code{\link{deployments}} is associated with the source document.
+#'   [deployments()] is associated with the source document.
 #' @param appName Name of application (names must be unique within an
-#'   account). Defaults to the base name of the specified \code{appDir}.
+#'   account). Defaults to the base name of the specified `appDir`.
 #' @param appTitle Free-form descriptive title of application. Optional; if
 #'   supplied, will often be displayed in favor of the name. When deploying a
-#'   new application, you may supply only the \code{appTitle} to receive an
-#'   auto-generated \code{appName}.
+#'   new application, you may supply only the `appTitle` to receive an
+#'   auto-generated `appName`.
 #' @param appId If updating an application, the ID of the application being
 #'   updated. Optional unless updating an app owned by another user.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
-#'   \code{"plot"}, \code{"document"}, or \code{"application"}).
+#'   `"plot"`, `"document"`, or `"application"`).
 #' @param account Account to deploy application to. This
 #'   parameter is only required for the initial deployment of an application
 #'   when there are multiple accounts configured on the system (see
-#'   \link{accounts}).
+#'   [accounts]).
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @param upload If \code{TRUE} (the default) then the application is uploaded
-#'   from the local system prior to deployment. If \code{FALSE} then it is
+#' @param upload If `TRUE` (the default) then the application is uploaded
+#'   from the local system prior to deployment. If `FALSE` then it is
 #'   re-deployed using the last version that was uploaded.
 #' @param launch.browser If true, the system's default web browser will be
-#'   launched automatically after the app is started. Defaults to \code{TRUE} in
+#'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only.
-#' @param logLevel One of \code{"quiet"}, \code{"normal"} or \code{"verbose"};
+#' @param logLevel One of `"quiet"`, `"normal"` or `"verbose"`;
 #'   indicates how much logging to the console is to be performed. At
-#'   \code{"quiet"} reports no information; at \code{"verbose"}, a full
+#'   `"quiet"` reports no information; at `"verbose"`, a full
 #'   diagnostic log is captured.
 #' @param lint Lint the project before initiating deployment, to identify
 #'   potentially problematic code?
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
-#'   \code{\link{deployments}}.
-#' @param forceUpdate If \code{TRUE}, update any previously-deployed app without asking.
-#'   If \code{FALSE}, ask to update. If unset, defaults to the value of
-#'   \code{getOption("rsconnect.force.update.apps", FALSE)}.
+#'   [deployments()].
+#' @param forceUpdate If `TRUE`, update any previously-deployed app without asking.
+#'   If `FALSE`, ask to update. If unset, defaults to the value of
+#'   `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @examples
 #' \dontrun{
 #'
@@ -76,8 +76,8 @@
 #' # deploy but don't launch a browser when completed
 #' deployApp(launch.browser = FALSE)
 #' }
-#' @seealso \code{\link{applications}}, \code{\link{terminateApp}}, and
-#'   \code{\link{restartApp}}
+#' @seealso [applications()], [terminateApp()], and
+#'   [restartApp()]
 #' @export
 deployApp <- function(appDir = getwd(),
                       appFiles = NULL,

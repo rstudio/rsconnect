@@ -123,15 +123,15 @@ maxDirectoryList <- function(dir, parent, totalSize) {
 #' @param appDir Directory containing the application.
 #'
 #' @details This function computes results similar to a recursive directory
-#' listing from \code{\link{list.files}}, with the following constraints:
+#' listing from [list.files()], with the following constraints:
 #'
 #' \enumerate{
 #' \item{If the total size of the files exceeds the maximum bundle size, no
 #'    more files are listed. The maximum bundle size is controlled by the
-#'    \code{rsconnect.max.bundle.size} option.}
+#'    `rsconnect.max.bundle.size` option.}
 #' \item{If the total size number of files exceeds the maximum number to be
 #'    bundled, no more files are listed. The maximum number of files in the
-#'    bundle is controlled by the \code{rsconnect.max.bundle.files} option.}
+#'    bundle is controlled by the `rsconnect.max.bundle.files` option.}
 #' \item{Certain files and folders that don't need to be bundled, such as
 #'    those containing internal version control and RStudio state, are
 #'    excluded.}
@@ -140,8 +140,8 @@ maxDirectoryList <- function(dir, parent, totalSize) {
 #' @return Returns a list containing the following elements:
 #'
 #' \tabular{ll}{
-#' \code{contents} \tab A list of the files to be bundled \cr
-#' \code{totalSize} \tab The total size of the files \cr
+#' `contents` \tab A list of the files to be bundled \cr
+#' `totalSize` \tab The total size of the files \cr
 #' }
 #'
 #' @export

@@ -13,7 +13,7 @@ taskLog(taskId, account = NULL, server = NULL, output = NULL)
 then this parameter can be omitted.}
 
 \item{server}{Server name. Required only if you use the same account name on
-multiple servers (see \code{\link{servers}})}
+multiple servers (see \code{\link[=servers]{servers()}})}
 
 \item{output}{Where to write output. Valid values are \code{NULL} or \code{stderr}}
 }
@@ -32,5 +32,5 @@ taskLog(12345, output="stderr")
 }
 }
 \seealso{
-\code{\link{tasks}}
+\code{\link[=tasks]{tasks()}}
 }

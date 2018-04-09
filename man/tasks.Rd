@@ -11,7 +11,7 @@ tasks(account = NULL, server = NULL)
 then this parameter can be omitted.}
 
 \item{server}{Server name. Required only if you use the same account name on
-multiple servers (see \code{\link{servers}})}
+multiple servers (see \code{\link[=servers]{servers()}})}
 }
 \value{
 Returns a data frame with the following columns:
@@ -35,5 +35,5 @@ tasks()
 }
 }
 \seealso{
-\code{\link{taskLog}}
+\code{\link[=taskLog]{taskLog()}}
 }

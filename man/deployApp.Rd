@@ -34,7 +34,7 @@ contents being deployed.}
 \item{appSourceDoc}{If the application is composed of static files (e.g
 HTML), this parameter indicates the source document, if any, as a fully
 qualified path. Deployment information returned by
-\code{\link{deployments}} is associated with the source document.}
+\code{\link[=deployments]{deployments()}} is associated with the source document.}
 
 \item{appName}{Name of application (names must be unique within an
 account). Defaults to the base name of the specified \code{appDir}.}
@@ -76,14 +76,14 @@ potentially problematic code?}
 
 \item{metadata}{Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
-\code{\link{deployments}}.}
+\code{\link[=deployments]{deployments()}}.}
 
 \item{forceUpdate}{If \code{TRUE}, update any previously-deployed app without asking.
 If \code{FALSE}, ask to update. If unset, defaults to the value of
 \code{getOption("rsconnect.force.update.apps", FALSE)}.}
 }
 \description{
-Deploy a \link[shiny:shiny-package]{shiny} application, an R Markdown
+Deploy a \link[shiny:shiny-package]{shiny} application, an \link[rmarkdown:rmarkdown-package]{RMarkdown}
 document, a plumber API, or HTML content to a server.
 }
 \examples{
@@ -110,6 +110,6 @@ deployApp(launch.browser = FALSE)
 }
 }
 \seealso{
-\code{\link{applications}}, \code{\link{terminateApp}}, and
-  \code{\link{restartApp}}
+\code{\link[=applications]{applications()}}, \code{\link[=terminateApp]{terminateApp()}}, and
+\code{\link[=restartApp]{restartApp()}}
 }

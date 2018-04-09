@@ -23,17 +23,17 @@ to be bundled in the application.
 }
 \details{
 This function computes results similar to a recursive directory
-listing from \code{\link{list.files}}, with the following constraints:
+listing from \code{\link[=list.files]{list.files()}}, with the following constraints:
 
 \enumerate{
 \item{If the total size of the files exceeds the maximum bundle size, no
-   more files are listed. The maximum bundle size is controlled by the
-   \code{rsconnect.max.bundle.size} option.}
+more files are listed. The maximum bundle size is controlled by the
+\code{rsconnect.max.bundle.size} option.}
 \item{If the total size number of files exceeds the maximum number to be
-   bundled, no more files are listed. The maximum number of files in the
-   bundle is controlled by the \code{rsconnect.max.bundle.files} option.}
+bundled, no more files are listed. The maximum number of files in the
+bundle is controlled by the \code{rsconnect.max.bundle.files} option.}
 \item{Certain files and folders that don't need to be bundled, such as
-   those containing internal version control and RStudio state, are
-   excluded.}
+those containing internal version control and RStudio state, are
+excluded.}
 }
 }

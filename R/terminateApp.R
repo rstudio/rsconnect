@@ -6,7 +6,7 @@
 #' @param account Account name. If a single account is registered on the system
 #'   then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see \code{\link{servers}})
+#'   multiple servers (see [servers()])
 #' @param quiet Request that no status information be printed to the console
 #'   during the termination.
 #'
@@ -18,8 +18,8 @@
 #' # terminate an application
 #' terminateApp("myapp")
 #' }
-#' @seealso \code{\link{applications}}, \code{\link{deployApp}}, and
-#'   \code{\link{restartApp}}
+#' @seealso [applications()], [deployApp()], and
+#'   [restartApp()]
 #' @export
 terminateApp <- function(appName, account = NULL, server = NULL,
                          quiet = FALSE) {

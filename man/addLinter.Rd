@@ -9,10 +9,10 @@ addLinter(name, linter)
 \arguments{
 \item{name}{The name of the linter, as a string.}
 
-\item{linter}{A \code{\link{linter}}.}
+\item{linter}{A \code{\link[=linter]{linter()}}.}
 }
 \description{
-Add a linter, to be used in subsequent calls to \code{\link{lint}}.
+Add a linter, to be used in subsequent calls to \code{\link[=lint]{lint()}}.
 }
 \examples{
 addLinter("no.capitals", linter(

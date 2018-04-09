@@ -3,15 +3,15 @@
 #' @param account Account name. If a single account is registered on the system
 #'   then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see \code{\link{servers}})
+#'   multiple servers (see [servers()])
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
-#' \code{id} \tab Task id \cr
-#' \code{action} \tab Task action\cr
-#' \code{status} \tab Current task status\cr
-#' \code{created_time} \tab Task creation time\cr
-#' \code{finished_time} \tab Task finished time\cr
+#' `id` \tab Task id \cr
+#' `action` \tab Task action\cr
+#' `status` \tab Current task status\cr
+#' `created_time` \tab Task creation time\cr
+#' `finished_time` \tab Task finished time\cr
 #' }
 #' @examples
 #' \dontrun{
@@ -20,7 +20,7 @@
 #' tasks()
 #'
 #' }
-#' @seealso \code{\link{taskLog}}
+#' @seealso [taskLog()]
 #' @export
 tasks <- function(account = NULL, server = NULL) {
 
@@ -48,8 +48,8 @@ tasks <- function(account = NULL, server = NULL) {
 #' @param account Account name. If a single account is registered on the system
 #'   then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see \code{\link{servers}})
-#' @param output Where to write output. Valid values are \code{NULL} or \code{stderr}
+#'   multiple servers (see [servers()])
+#' @param output Where to write output. Valid values are `NULL` or `stderr`
 #' @examples
 #' \dontrun{
 #'
@@ -60,7 +60,7 @@ tasks <- function(account = NULL, server = NULL) {
 #' taskLog(12345, output="stderr")
 #'
 #' }
-#' @seealso \code{\link{tasks}}
+#' @seealso [tasks()]
 #' @export
 taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 

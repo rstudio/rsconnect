@@ -45,7 +45,7 @@ cleanupPasswordFile <- function(appDir) {
 #' @param emailMessage Optional character vector of length 1 containing a
 #'   custom message to send in email invitation. Defaults to NULL, which
 #'   will use default invitation message.
-#' @seealso \code{\link{removeAuthorizedUser}} and \code{\link{showUsers}}
+#' @seealso [removeAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
@@ -83,7 +83,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+#' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
@@ -137,7 +137,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showInvited}}
+#' @seealso [addAuthorizedUser()] and [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
@@ -183,7 +183,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 #'   system then this parameter can be omitted.
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
-#' @seealso \code{\link{addAuthorizedUser}} and \code{\link{showUsers}}
+#' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
