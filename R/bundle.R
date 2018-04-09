@@ -152,12 +152,12 @@ listBundleFiles <- function(appDir) {
 bundleFiles <- function(appDir) {
   files <- listBundleFiles(appDir)
   if (files$totalSize > getOption("rsconnect.max.bundle.size")) {
-    stop("The directory", appDir, "cannot be deployed because it is too ",
-         "large (the maximum size is", getOption("rsconnect.max.bundle.size"),
-         "bytes). Remove some files or adjust the rsconnect.max.bundle.size ",
+    stop("The directory ", appDir, " cannot be deployed because it is too ",
+         "large (the maximum size is ", getOption("rsconnect.max.bundle.size"),
+         " bytes). Remove some files or adjust the rsconnect.max.bundle.size ",
          "option.")
   } else if (length(files$contents) > getOption("rsconnect.max.bundle.files")) {
-    stop("The directory", appDir, "cannot be deployed because it contains ",
+    stop("The directory ", appDir, " cannot be deployed because it contains ",
          "too many files (the maximum number of files is ",
          getOption("rsconnect.max.bundle.files"), "). Remove some files or ",
          "adjust the rsconnect.max.bundle.files option.")
