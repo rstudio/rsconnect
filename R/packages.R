@@ -5,7 +5,7 @@
 #'
 #' When an application is deployed it's source code is scanned for dependencies using the [appDependencies()] function. The list of dependencies is sent to the server along with the application source code and these dependencies are then installed alongside the application.
 #'
-#' Note that the `Suggests` dependencies of packages are not automatically included in the list of dependent packages. See the *Note* section of the documentation of the \link{appDependencies} function for details on how to force packages to be included in the dependency list.
+#' Note that the `Suggests` dependencies of packages are not automatically included in the list of dependent packages. See the *Note* section of the documentation of the [appDependencies()] function for details on how to force packages to be included in the dependency list.
 #'
 #' @section CRAN Packages:
 #'
@@ -15,16 +15,16 @@
 #'
 #' @section GitHub Packages:
 #'
-#' It's also possible to depend on packages hosted in public GitHub repositories, so long as they are installed via the `install_github` function from the \pkg{devtools} package.
+#' It's also possible to depend on packages hosted in public GitHub repositories, so long as they are installed via the [devtools::install_github()] function from the \pkg{devtools} package.
 #'
 #' This works because `install_github` records the exact Github commit that was installed locally, making it possible to download and install the same source code on the deployment server.
 #'
 #' Note that in order for this to work correctly you need to install the very latest version of `devtools` from Github. You can do this as follows:
 #'
-#'   \preformatted{
-#'       library(devtools)
-#'       install_github("devtools", "hadley")
-#'   }
+#' \preformatted{
+#'   library(devtools)
+#'   install_github("r-lib/devtools")
+#' }
 #'
 #' @seealso [appDependencies()]
 #' @name rsconnectPackages
