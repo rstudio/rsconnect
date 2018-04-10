@@ -35,3 +35,7 @@ subsequently remove the account using the \code{removeAccount} function.
 The \code{accounts} and \code{accountInfo} functions are provided for viewing
 previously registered accounts.
 }
+\seealso{
+Other Account functions: \code{\link{connectUser}},
+  \code{\link{setAccountInfo}}
+}

@@ -27,3 +27,7 @@ credentials. Upon successful authentication, your local installation of
 be able to deploy and manage applications using the package without further
 prompts for credentials.
 }
+\seealso{
+Other Account functions: \code{\link{accounts}},
+  \code{\link{setAccountInfo}}
+}
