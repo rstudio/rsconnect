@@ -1,14 +1,18 @@
 #' Deploy a Plumber API
 #'
-#' Deploys an application consisting of plumber API routes. The given directory must contain a script returning a `plumb` object or a plumber API definition.
+#' Deploys an application consisting of plumber API routes. The given directory
+#' must contain a script returning a `plumb` object or a plumber API definition.
 #'
-#' @param api Path to the API project directory. Must contain either `entrypoint.R` or `plumber.R`
+#' @param api Path to the API project directory. Must contain either
+#'   `entrypoint.R` or `plumber.R`
 #' @param ... Additional arguments to [deployApp()].
 #'
-#' @details Deploy a plumber API definition by either supplying a directory containing `plumber.R` (an API definition)
-#'     or `entrypoint.R` that returns a `plumb` object created by `plumber::plumb()`. See the plumber
-#'     documentation for more information.
+#' @details Deploy a plumber API definition by either supplying a directory
+#'   containing `plumber.R` (an API definition) or `entrypoint.R` that returns a
+#'   `plumb` object created by `plumber::plumb()`. See the plumber documentation
+#'   for more information.
 #'
+#' @family Deployment functions
 #' @export
 deployAPI <- function(api,
                       ...) {

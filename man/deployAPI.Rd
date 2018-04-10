@@ -7,15 +7,23 @@
 deployAPI(api, ...)
 }
 \arguments{
-\item{api}{Path to the API project directory. Must contain either \code{entrypoint.R} or \code{plumber.R}}
+\item{api}{Path to the API project directory. Must contain either
+\code{entrypoint.R} or \code{plumber.R}}
 
 \item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
 }
 \description{
-Deploys an application consisting of plumber API routes. The given directory must contain a script returning a \code{plumb} object or a plumber API definition.
+Deploys an application consisting of plumber API routes. The given directory
+must contain a script returning a \code{plumb} object or a plumber API definition.
 }
 \details{
-Deploy a plumber API definition by either supplying a directory containing \code{plumber.R} (an API definition)
-or \code{entrypoint.R} that returns a \code{plumb} object created by \code{plumber::plumb()}. See the plumber
-documentation for more information.
+Deploy a plumber API definition by either supplying a directory
+containing \code{plumber.R} (an API definition) or \code{entrypoint.R} that returns a
+\code{plumb} object created by \code{plumber::plumb()}. See the plumber documentation
+for more information.
+}
+\seealso{
+Other Deployment functions: \code{\link{deployApp}},
+  \code{\link{deployDoc}}, \code{\link{deploySite}},
+  \code{\link{deployTFModel}}
 }
