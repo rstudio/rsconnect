@@ -111,7 +111,7 @@ deployApp(launch.browser = FALSE)
 \seealso{
 \code{\link[=applications]{applications()}}, \code{\link[=terminateApp]{terminateApp()}}, and \code{\link[=restartApp]{restartApp()}}
 
-Other Deployment functions: \code{\link{deployAPI}},
-  \code{\link{deployDoc}}, \code{\link{deploySite}},
-  \code{\link{deployTFModel}}
+Other Deployment functions: \code{\link{applications}},
+  \code{\link{deployAPI}}, \code{\link{deployDoc}},
+  \code{\link{deploySite}}, \code{\link{deployTFModel}}
 }

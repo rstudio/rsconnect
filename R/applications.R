@@ -30,6 +30,7 @@
 #' View(applications())
 #' }
 #' @seealso [deployApp()], [terminateApp()]
+#' @family Deployment functions
 #' @export
 applications <- function(account = NULL, server = NULL) {
 

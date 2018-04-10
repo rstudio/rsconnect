@@ -51,7 +51,7 @@ record. These fields will be returned on subsequent calls to
 Deploy an R Markdown website to a server.
 }
 \seealso{
-Other Deployment functions: \code{\link{deployAPI}},
-  \code{\link{deployApp}}, \code{\link{deployDoc}},
-  \code{\link{deployTFModel}}
+Other Deployment functions: \code{\link{applications}},
+  \code{\link{deployAPI}}, \code{\link{deployApp}},
+  \code{\link{deployDoc}}, \code{\link{deployTFModel}}
 }
