@@ -45,4 +45,8 @@ View(applications())
 }
 \seealso{
 \code{\link[=deployApp]{deployApp()}}, \code{\link[=terminateApp]{terminateApp()}}
+
+Other Deployment functions: \code{\link{deployAPI}},
+  \code{\link{deployApp}}, \code{\link{deployDoc}},
+  \code{\link{deploySite}}, \code{\link{deployTFModel}}
 }

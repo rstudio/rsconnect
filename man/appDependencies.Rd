@@ -11,8 +11,8 @@ appDependencies(appDir = getwd(), appFiles = NULL)
 directory.}
 
 \item{appFiles}{The files and directories to bundle and deploy (only if
-\code{upload = TRUE}). Can be \code{NULL}, in which case all the files in
-the directory containing the application are bundled. Takes precedence over
+\code{upload = TRUE}). Can be \code{NULL}, in which case all the files in the
+directory containing the application are bundled. Takes precedence over
 \code{appFileManifest} if both are supplied.}
 }
 \value{

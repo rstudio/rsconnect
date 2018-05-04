@@ -58,6 +58,7 @@ accounts <- function(server = NULL) {
 #'   be able to deploy and manage applications using the package without further
 #'   prompts for credentials.
 #'
+#' @family Account functions
 #' @export
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   # if server isn't specified, look up the default
@@ -152,6 +153,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
 #' removeAccount("user")
 #' }
 #'
+#' @family Account functions
 #' @export
 setAccountInfo <- function(name, token, secret) {
 
@@ -205,6 +207,7 @@ setAccountInfo <- function(name, token, secret) {
 }
 
 #' @rdname accounts
+#' @family Account functions
 #' @export
 accountInfo <- function(name, server = NULL) {
 

@@ -18,10 +18,9 @@ working directory.}
 an account). Defaults to the base name of the specified siteDir,
 (or to a name provided by a custom site generation function).}
 
-\item{account}{Account to deploy application to. This
-parameter is only required for the initial deployment of an application
-when there are multiple accounts configured on the system (see
-\link{accounts}).}
+\item{account}{Account to deploy application to. This parameter is only
+required for the initial deployment of an application when there are
+multiple accounts configured on the system (see \link{accounts}).}
 
 \item{server}{Server name. Required only if you use the same account name on
 multiple servers.}
@@ -37,10 +36,9 @@ uploaded to the server.}
 launched automatically after the app is started. Defaults to \code{TRUE} in
 interactive sessions only.}
 
-\item{logLevel}{One of \code{"quiet"}, \code{"normal"} or \code{"verbose"};
-indicates how much logging to the console is to be performed. At
-\code{"quiet"} reports no information; at \code{"verbose"}, a full
-diagnostic log is captured.}
+\item{logLevel}{One of \code{"quiet"}, \code{"normal"} or \code{"verbose"}; indicates how
+much logging to the console is to be performed. At \code{"quiet"} reports no
+information; at \code{"verbose"}, a full diagnostic log is captured.}
 
 \item{lint}{Lint the project before initiating deployment, to identify
 potentially problematic code?}
@@ -51,4 +49,9 @@ record. These fields will be returned on subsequent calls to
 }
 \description{
 Deploy an R Markdown website to a server.
+}
+\seealso{
+Other Deployment functions: \code{\link{applications}},
+  \code{\link{deployAPI}}, \code{\link{deployApp}},
+  \code{\link{deployDoc}}, \code{\link{deployTFModel}}
 }

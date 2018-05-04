@@ -16,6 +16,7 @@
 #'   R scripts (.R) and markdown documents (.Rmd and .md) will not be
 #'   uploaded to the server.
 #'
+#' @family Deployment functions
 #' @export
 deploySite <- function(siteDir = getwd(),
                        siteName = NULL,
