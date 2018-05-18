@@ -59,8 +59,12 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
 #' Show Application Metrics
 #'
 #' Show application metrics of a currently deployed application
-#' @param metricSeries Metric series to query e.g. "container.cpu"
-#' @param metricNames Metric names in the series to query e.g. c("cpu.user", "cpu.system")
+#' @param metricSeries Metric series to query. Refer to the
+#'   [shinyapps.io documentation](http://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics)
+#'   for available series.
+#' @param metricNames Metric names in the series to query. Refer to the
+#'   [shinyapps.io documentation](http://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics)
+#'   for available metrics.
 #' @param appName Name of application
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.

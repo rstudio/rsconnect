@@ -9,9 +9,13 @@ showMetrics(metricSeries, metricNames, appDir = getwd(), appName = NULL,
   interval = NULL)
 }
 \arguments{
-\item{metricSeries}{Metric series to query e.g. "container.cpu"}
+\item{metricSeries}{Metric series to query. Refer to the
+\href{http://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics}{shinyapps.io documentation}
+for available series.}
 
-\item{metricNames}{Metric names in the series to query e.g. c("cpu.user", "cpu.system")}
+\item{metricNames}{Metric names in the series to query. Refer to the
+\href{http://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics}{shinyapps.io documentation}
+for available metrics.}
 
 \item{appDir}{Directory containing application. Defaults to
 current working directory.}
