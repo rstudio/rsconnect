@@ -35,7 +35,7 @@ delta such as "2d" or "3w").}
 delta such as "2d" or "3w").}
 
 \item{interval}{Summarization interval. Data points at intervals less then this
-will be grouped. (Number of seconds or relative time delta e.g. "1h").}
+will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").}
 }
 \description{
 Show application metrics of a currently deployed application

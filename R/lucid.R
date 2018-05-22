@@ -27,9 +27,9 @@ lucidClient <- function(service, authInfo) {
         query$application=applicationId
       if (!is.null(from))
         query$from = from
-      if (is.null(until))
+      if (!is.null(until))
         query$until = until
-      if (is.null(interval))
+      if (!is.null(interval))
         query$interval = interval
       handleResponse(GET(service, authInfo, path, queryString(query)))
     },
@@ -75,9 +75,9 @@ lucidClient <- function(service, authInfo) {
       m <- paste(lapply(metrics, function(x){paste("metric", urlEncode(x), sep="=")}), collapse = "&")
       if (!is.null(from))
         query$from = from
-      if (is.null(until))
+      if (!is.null(until))
         query$until = until
-      if (is.null(interval))
+      if (!is.null(interval))
         query$interval = interval
       handleResponse(GET(service, authInfo, path, paste(m, queryString(query), sep="&")))
     },

@@ -14,7 +14,7 @@
 #' @param until Date range ending timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
 #' @param interval Summarization interval. Data points at intervals less then this
-#'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
+#'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @note This function only works for ShinyApps servers.
 #' @export
 showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
@@ -77,7 +77,7 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
 #' @param until Date range ending timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
 #' @param interval Summarization interval. Data points at intervals less then this
-#'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
+#'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @note This function only works for ShinyApps servers.
 #' @export
 showMetrics <- function(metricSeries, metricNames, appDir=getwd(), appName=NULL, account = NULL, server=NULL,
