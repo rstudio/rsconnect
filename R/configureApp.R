@@ -46,16 +46,18 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
 
   # set application properties
   serverDetails <- serverInfo(accountDetails$server)
-  lucid <- lucidClient(serverDetails$url, accountDetails)
-
   client <- clientForAccount(accountDetails)
   for (i in names(properties)) {
     propertyName <- i
     propertyValue <- properties[[i]]
-    if (identical(client, lucid))
-      lucid$setApplicationProperty(application$id, propertyName, propertyValue)
-    else
+
+    # dispatch to the appropriate client implementation
+    if (is.function(client$configureApplication))
       client$configureApplication(application$id, propertyName, propertyValue)
+    else if (is.function(client$setApplicationProperty))
+      client$setApplicationProperty(application$id, propertyName, propertyValue)
+    else
+      stop("Server ", accountDetails$server, " has no appropriate configuration method.")
   }
 
   # redeploy application if requested
