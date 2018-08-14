@@ -1,0 +1,5 @@
+---
+title: Simple R Markdown document
+---
+
+R Markdown is so simple.

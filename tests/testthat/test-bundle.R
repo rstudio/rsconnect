@@ -50,7 +50,51 @@ test_that("single-file Shiny app bundle is runnable", {
 test_that("recommended packages are snapshotted", {
   skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir("MASS", "project-MASS", "MASS.R")
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
   deps <- packrat:::readLockFilePackages(lockfile)
   expect_true("MASS" %in% names(deps))
+})
+
+test_that("simple Rmd as primary not identified as parameterized when parameterized Rmd in bundle", {
+  skip_on_cran()
+  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
+                                          "simple.Rmd")
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
+  expect_equal(manifest$metadata$has_parameters, FALSE)
+})
+
+test_that("parameterized Rmd identified as parameterized when other Rmd in bundle", {
+  skip_on_cran()
+  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
+                                          "parameterized.Rmd")
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "parameterized.Rmd")
+  expect_equal(manifest$metadata$has_parameters, TRUE)
+})
+
+test_that("primary doc can be inferred (and non-parameterized dispite an included parameterized", {
+  skip_on_cran()
+  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
+                                          NULL)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
+  expect_equal(manifest$metadata$has_parameters, FALSE)
+})
+
+test_that("multiple shiny Rmd without index file have a generated one", {
+  skip_on_cran()
+  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "shiny-rmds",
+                                          NULL)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-shiny")
+  expect_true(file.exists(file.path(bundleTempDir, "index.htm")))
 })
