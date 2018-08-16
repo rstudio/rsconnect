@@ -649,7 +649,7 @@ httpTrace <- function(method, path, time) {
 }
 
 httpFunction <- function() {
-  httpType <- getOption("rsconnect.http", "rcurl")
+  httpType <- getOption("rsconnect.http", "curl")
   if (identical("rcurl", httpType))
     httpRCurl
   else if (identical("curl",  httpType))
