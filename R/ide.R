@@ -39,13 +39,10 @@ validateServerUrl <- function(url, certificate = NULL) {
   retry <- TRUE
   while (retry) {
     tryCatch({
-      # this shouldn't take more than 5 seconds since it does no work (i.e we
-      # should just be waiting for the network), so timeout quickly to avoid
-      # hanging when the server doesn't accept the connection
       httpResponse <- GET(parseHttpUrl(url),
                           list(certificate = certificate),
                           settingsEndpoint,
-                          timeout = 5)
+                          timeout = getOption("rsconnect.http.timeout", 10))
 
       # check for redirect
       if (httpResponse$status == 307 &&
