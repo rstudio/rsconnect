@@ -185,7 +185,7 @@ deployApp <- function(appDir = getwd(),
     recordDir <- appPath
   } else {
     # custom recordDir only supported for directory-level publish
-    if (!file.info(appDir)$isdir) {
+    if (!file.info(appPath)$isdir) {
       stop("Cannot specify recordDir when deploying a single file")
     }
     if (!file.exists(recordDir)) {
