@@ -39,6 +39,10 @@
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded.
+#' @param recordDir Directory where publish record is written. Can be `NULL`
+#'   in which case record will be written to the location specified with `appDir`.
+#'   Only for use in conjunction with publishing an entire directory, not a single
+#'   file.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only.
@@ -90,6 +94,7 @@ deployApp <- function(appDir = getwd(),
                       account = NULL,
                       server = NULL,
                       upload = TRUE,
+                      recordDir = NULL,
                       launch.browser = getOption("rsconnect.launch.browser",
                                                  interactive()),
                       logLevel = c("normal", "quiet", "verbose"),
@@ -167,11 +172,27 @@ deployApp <- function(appDir = getwd(),
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, appTitle = appTitle,
                        account = account, server = server, upload = upload,
-                       launch.browser = launch.browser, logLevel = logLevel,
-                       lint = lint))
+                       recordDir = recordDir, launch.browser = launch.browser,
+                       logLevel = logLevel, lint = lint))
     } else {
       stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
            "document.")
+    }
+  }
+
+  # directory for recording deployment
+  if (is.null(recordDir)) {
+    recordDir <- appPath
+  } else {
+    # custom recordDir only supported for directory-level publish
+    if (!file.info(appDir)$isdir) {
+      stop("Cannot specify recordDir when deploying a single file")
+    }
+    if (!file.exists(recordDir)) {
+      stop(recordDir, " does not exist")
+    }
+    if (!file.info(recordDir)$isdir) {
+      stop(recordDir, " must be a directory")
     }
   }
 
@@ -340,7 +361,7 @@ deployApp <- function(appDir = getwd(),
     # attempting the deployment itself to make retry easy on failure.
     if (verbose)
       timestampedLog("Saving deployment record for", target$appName, "-", target$username)
-    saveDeployment(appPath,
+    saveDeployment(recordDir,
                    target$appName,
                    target$appTitle,
                    target$username,
