@@ -41,8 +41,6 @@
 #'   using the last version that was uploaded.
 #' @param recordDir Directory where publish record is written. Can be `NULL`
 #'   in which case record will be written to the location specified with `appDir`.
-#'   Only for use in conjunction with publishing an entire directory, not a single
-#'   file.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only.
@@ -184,10 +182,6 @@ deployApp <- function(appDir = getwd(),
   if (is.null(recordDir)) {
     recordDir <- appPath
   } else {
-    # custom recordDir only supported for directory-level publish
-    if (!file.info(appPath)$isdir) {
-      stop("Cannot specify recordDir when deploying a single file")
-    }
     if (!file.exists(recordDir)) {
       stop(recordDir, " does not exist")
     }

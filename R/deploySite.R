@@ -9,8 +9,6 @@
 #' @param siteName Name for the site (names must be unique within
 #'   an account). Defaults to the base name of the specified siteDir,
 #'   (or to a name provided by a custom site generation function).
-#' @param recordDir Directory where publish record is written. Can be `NULL`
-#'   in which case record will be written to the location specified with `siteDir`.
 #' @param render Rendering behavior for site: "none" to upload a
 #'   static version of the current contents of the site directory;
 #'   "local" to render the site locally then upload it; "server" to
@@ -24,7 +22,6 @@ deploySite <- function(siteDir = getwd(),
                        siteName = NULL,
                        account = NULL,
                        server = NULL,
-                       recordDir = NULL,
                        render = c("none", "local", "server"),
                        launch.browser = getOption("rsconnect.launch.browser", interactive()),
                        logLevel = c("normal", "quiet", "verbose"),
@@ -72,6 +69,10 @@ deploySite <- function(siteDir = getwd(),
   appName <- siteName
   if (is.null(appName))
     appName <- siteGenerator$name
+
+  # publish record written to site directory for local or
+  # server-based rendering
+  recordDir <- siteDir
 
   # determine appDir based on whether we are rendering on the server
   if (render == "server") {
