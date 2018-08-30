@@ -70,6 +70,10 @@ deploySite <- function(siteDir = getwd(),
   if (is.null(appName))
     appName <- siteGenerator$name
 
+  # publish record written to site directory for local or
+  # server-based rendering
+  recordDir <- siteDir
+
   # determine appDir based on whether we are rendering on the server
   if (render == "server") {
     appDir <- '.'
@@ -94,6 +98,7 @@ deploySite <- function(siteDir = getwd(),
             contentCategory = "site",
             account = account,
             server = server,
+            recordDir = recordDir,
             launch.browser = launch.browser,
             logLevel = logLevel,
             lint = lint,
