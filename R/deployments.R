@@ -184,7 +184,7 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
     }
 
     # check to see if the title has changed for RSC deploys
-    if (!is.null(server) && server != "rpubs.com" && server != "shinyapps.io")
+    if (length(server) > 0 && server != "rpubs.com" && server != "shinyapps.io")
       deployment$title <- confirmTitle(deployment)
 
     # append to record set to return
@@ -203,7 +203,7 @@ confirmTitle <- function(deploymentRecord) {
   accountDetails <- accountInfo(deploymentRecord$account, deploymentRecord$server)
   client <- clientForAccount(accountDetails)
   title <- tryCatch(
-            {client$getApplication(deploymentRecord$appId)},
+            {client$getApplication(deploymentRecord$appId)$title},
             error = function(e){warning(
                 sprintf("Could not confirm title for app %s on server %s, defaulting to latest title %s",
                         deploymentRecord$appId,
@@ -249,10 +249,6 @@ deploymentRecord <- function(name, title, username, account, server, hostUrl,
     if (!is.null(serverinfo$url))
       hostUrl <- serverinfo$url
   }
-
-  # check to see if the title has changed for RSC deploys
-  if (server != "rpubs.com" && server != "shinyapps.io")
-    deployment$title <- confirmTitle(deployment)
 
   # compose the standard set of fields and append any requested
   as.data.frame(c(
