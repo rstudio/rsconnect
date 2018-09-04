@@ -183,11 +183,42 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
       deploymentRecs[,extraCols] <- NA
     }
 
+    # check to see if the title has changed for RSC deploys
+    if (!is.null(server) && server != "rpubs.com" && server != "shinyapps.io")
+      deployment$title <- confirmTitle(deployment)
+
     # append to record set to return
     deploymentRecs <- rbind(deploymentRecs, deployment)
   }
 
   deploymentRecs
+}
+
+# Deployment titles can be changed on RSC
+# This function asks the server for the latest
+# application title
+confirmTitle <- function(deploymentRecord) {
+
+  # create a client for this deployment record
+  accountDetails <- accountInfo(deploymentRecord$account, deploymentRecord$server)
+  client <- clientForAccount(accountDetails)
+  title <- tryCatch(
+            {client$getApplication(deploymentRecord$appId)},
+            error = function(e){warning(
+                sprintf("Could not confirm title for app %s on server %s, defaulting to latest title %s",
+                        deploymentRecord$appId,
+                        deploymentRecord$server,
+                        deploymentRecord$title
+                )
+              );
+              return(NULL)
+            }
+  )
+  if (!is.null(title)) {
+    return(title)
+  } else {
+    return(deploymentRecord$title)
+  }
 }
 
 deploymentFile <- function(appPath, name, account, server) {
@@ -218,6 +249,10 @@ deploymentRecord <- function(name, title, username, account, server, hostUrl,
     if (!is.null(serverinfo$url))
       hostUrl <- serverinfo$url
   }
+
+  # check to see if the title has changed for RSC deploys
+  if (server != "rpubs.com" && server != "shinyapps.io")
+    deployment$title <- confirmTitle(deployment)
 
   # compose the standard set of fields and append any requested
   as.data.frame(c(
