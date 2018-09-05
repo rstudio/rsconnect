@@ -4,7 +4,8 @@
 \alias{rpubsUpload}
 \title{Upload a file to RPubs}
 \usage{
-rpubsUpload(title, contentFile, originalDoc, id = NULL, properties = list())
+rpubsUpload(title, contentFile, originalDoc, id = NULL,
+  properties = list())
 }
 \arguments{
 \item{title}{The title of the document.}

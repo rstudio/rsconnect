@@ -27,3 +27,4 @@ Other Deployment functions: \code{\link{applications}},
   \code{\link{deployApp}}, \code{\link{deployDoc}},
   \code{\link{deploySite}}, \code{\link{deployTFModel}}
 }
+\concept{Deployment functions}

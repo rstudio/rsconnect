@@ -35,3 +35,4 @@ Other Deployment functions: \code{\link{applications}},
   \code{\link{deployAPI}}, \code{\link{deployApp}},
   \code{\link{deploySite}}, \code{\link{deployTFModel}}
 }
+\concept{Deployment functions}

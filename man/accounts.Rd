@@ -39,3 +39,4 @@ previously registered accounts.
 Other Account functions: \code{\link{connectUser}},
   \code{\link{setAccountInfo}}
 }
+\concept{Account functions}

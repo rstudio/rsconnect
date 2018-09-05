@@ -6,12 +6,12 @@
 \usage{
 deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   appPrimaryDoc = NULL, appSourceDoc = NULL, appName = NULL,
-  appTitle = NULL, appId = NULL, contentCategory = NULL, account = NULL,
-  server = NULL, upload = TRUE,
+  appTitle = NULL, appId = NULL, contentCategory = NULL,
+  account = NULL, server = NULL, upload = TRUE, recordDir = NULL,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
-  metadata = list(), forceUpdate = getOption("rsconnect.force.update.apps",
-  FALSE))
+  metadata = list(),
+  forceUpdate = getOption("rsconnect.force.update.apps", FALSE))
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -60,6 +60,9 @@ multiple servers.}
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
 using the last version that was uploaded.}
+
+\item{recordDir}{Directory where publish record is written. Can be \code{NULL}
+in which case record will be written to the location specified with \code{appDir}.}
 
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in
@@ -115,3 +118,4 @@ Other Deployment functions: \code{\link{applications}},
   \code{\link{deployAPI}}, \code{\link{deployDoc}},
   \code{\link{deploySite}}, \code{\link{deployTFModel}}
 }
+\concept{Deployment functions}
