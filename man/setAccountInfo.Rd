@@ -31,3 +31,4 @@ removeAccount("user")
 Other Account functions: \code{\link{accounts}},
   \code{\link{connectUser}}
 }
+\concept{Account functions}

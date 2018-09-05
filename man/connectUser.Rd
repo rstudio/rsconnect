@@ -31,3 +31,4 @@ prompts for credentials.
 Other Account functions: \code{\link{accounts}},
   \code{\link{setAccountInfo}}
 }
+\concept{Account functions}

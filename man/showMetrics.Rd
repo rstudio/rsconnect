@@ -4,9 +4,9 @@
 \alias{showMetrics}
 \title{Show Application Metrics}
 \usage{
-showMetrics(metricSeries, metricNames, appDir = getwd(), appName = NULL,
-  account = NULL, server = NULL, from = NULL, until = NULL,
-  interval = NULL)
+showMetrics(metricSeries, metricNames, appDir = getwd(),
+  appName = NULL, account = NULL, server = NULL, from = NULL,
+  until = NULL, interval = NULL)
 }
 \arguments{
 \item{metricSeries}{Metric series to query. Refer to the
