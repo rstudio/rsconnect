@@ -1,5 +1,4 @@
 
-
 saveDeployment <- function(appPath, name, title, username, account, server,
                            hostUrl, appId, bundleId, url, metadata) {
 
@@ -259,6 +258,54 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 
   # overwrite with new history
   file.rename(newHistory, history)
+}
+
+#' Forget Application Deployment
+#'
+#' Forgets about an application deployment. This is useful if the application
+#' has been deleted on the server, or the local deployment information needs to
+#' be reset.
+#'
+#' @param appPath The path to the content that was deployed, either a directory
+#'   or an individual document.
+#' @param name The name of the content that was deployed (optional)
+#' @param account The name of the account to which the content was deployed
+#'   (optional)
+#' @param server The name of the server to which the content was deployed
+#'   (optional)
+#' @param dryRun Set to TRUE to preview the files/directories to be removed
+#'   instead of actually removing them.
+#' @return NULL, invisibly.
+#'
+#' @details This method removes from disk the file containing deployment
+#'   metadata. If "name", "account", and "server" are all NULL, then all of the
+#'   deployments for the application are forgotten; otherwise, only the
+#'   specified deployment is forgotten.
+#'
+#' @export
+forgetDeployment <- function(appPath = getwd(), name = NULL,
+                             account = NULL, server = NULL,
+                             dryRun = FALSE) {
+  if (is.null(name) && is.null(account) && is.null(server)) {
+    dcfDir <- rsconnectRootPath(appPath)
+    if (dryRun)
+      message("Would remove the directory ", dcfDir)
+    else
+      unlink(dcfDir, recursive = TRUE)
+  } else {
+    if (is.null(name) || is.null(account) || is.null(server)) {
+      stop("Invalid argument. ",
+           "Supply the name, account, and server of the deployment record to delete. ",
+           "Supply NULL for all three to delete all deployment records.")
+    }
+    dcf <- deploymentFile(appPath, name, account, server)
+    if (dryRun)
+      message("Would remove the file ", dcf)
+    else
+      unlink(dcf)
+  }
+
+  invisible(NULL)
 }
 
 
