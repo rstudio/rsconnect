@@ -648,8 +648,24 @@ httpTrace <- function(method, path, time) {
   }
 }
 
+defaultHttpFunction <- function() {
+
+  # on Windows, prefer 'curl' if it's available on the PATH
+  # as 'RCurl' bundles a version of OpenSSL that's too old.
+  # note that newer versions of Windows 10 supply a 'curl' binary
+  # by default
+  if (identical(Sys.info()[["sysname"]], "Windows")) {
+    curl <- Sys.which("curl")
+    if (nzchar(curl))
+      return("curl")
+  }
+
+  # otherwise, default to RCurl for now (pending update to use httr)
+  "rcurl"
+}
+
 httpFunction <- function() {
-  httpType <- getOption("rsconnect.http", "curl")
+  httpType <- getOption("rsconnect.http", defaultHttpFunction())
   if (identical("rcurl", httpType))
     httpRCurl
   else if (identical("curl",  httpType))
