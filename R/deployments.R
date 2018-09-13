@@ -274,7 +274,9 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 #' @param server The name of the server to which the content was deployed
 #'   (optional)
 #' @param dryRun Set to TRUE to preview the files/directories to be removed
-#'   instead of actually removing them.
+#'   instead of actually removing them. Defaults to FALSE.
+#' @param force Set to TRUE to remove files and directories without prompting.
+#'   Defaults to FALSE in interactive sessions.
 #' @return NULL, invisibly.
 #'
 #' @details This method removes from disk the file containing deployment
@@ -285,13 +287,22 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 #' @export
 forgetDeployment <- function(appPath = getwd(), name = NULL,
                              account = NULL, server = NULL,
-                             dryRun = FALSE) {
+                             dryRun = FALSE, force = !interactive()) {
   if (is.null(name) && is.null(account) && is.null(server)) {
     dcfDir <- rsconnectRootPath(appPath)
     if (dryRun)
       message("Would remove the directory ", dcfDir)
-    else
+    else if (file.exists(dcfDir)) {
+      if (!force) {
+        prompt <- paste("Forget all deployment records for ", appPath, "? [Y/n] ", sep="")
+        input <- readline(prompt)
+        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+          stop("No deployment records removed.", call. = FALSE)
+      }
       unlink(dcfDir, recursive = TRUE)
+    } else {
+      message("No deployments found for the application at ", appPath)
+    }
   } else {
     if (is.null(name) || is.null(account) || is.null(server)) {
       stop("Invalid argument. ",
@@ -301,8 +312,19 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
     dcf <- deploymentFile(appPath, name, account, server)
     if (dryRun)
       message("Would remove the file ", dcf)
-    else
+    else if (file.exists(dcf)) {
+      if (!force) {
+        prompt <- paste("Forget deployment of ", appPath, " to '", name, "' on ",
+                        server, "? [Y/n] ", sep="")
+        input <- readline(prompt)
+        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+          stop("Cancelled. No deployment records removed.", call. = FALSE)
+      }
       unlink(dcf)
+    } else {
+      message("No deployment of ", appPath, " to '", name, "' on ", server,
+              " found.")
+    }
   }
 
   invisible(NULL)

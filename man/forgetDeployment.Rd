@@ -5,7 +5,7 @@
 \title{Forget Application Deployment}
 \usage{
 forgetDeployment(appPath = getwd(), name = NULL, account = NULL,
-  server = NULL, dryRun = FALSE)
+  server = NULL, dryRun = FALSE, force = !interactive())
 }
 \arguments{
 \item{appPath}{The path to the content that was deployed, either a directory
@@ -20,7 +20,10 @@ or an individual document.}
 (optional)}
 
 \item{dryRun}{Set to TRUE to preview the files/directories to be removed
-instead of actually removing them.}
+instead of actually removing them. Defaults to FALSE.}
+
+\item{force}{Set to TRUE to remove files and directories without prompting.
+Defaults to FALSE in interactive sessions.}
 }
 \value{
 NULL, invisibly.
