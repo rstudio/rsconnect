@@ -911,39 +911,35 @@ signatureHeaders <- function(authInfo, method, path, file) {
   if (!is.null(authInfo$secret)) {
     # generate contents hash
     if (!is.null(file))
-      md5 <- digest::digest(file, algo="md5", file=TRUE)
+      md5 <- as.character(openssl::md5(base::file(file)))
     else
-      md5 <- digest::digest("", algo="md5", serialize=FALSE)
+      md5 <- openssl::md5("")
 
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep="\n")
 
     # sign request using shared secret
-    decodedSecret <- RCurl::base64Decode(authInfo$secret, mode="raw")
-    hmac <- digest::hmac(decodedSecret, canonicalRequest, algo="sha256")
-    signature <- paste(RCurl::base64Encode(hmac), "; version=1", sep="")
+    decodedSecret <- openssl::base64_decode(authInfo$secret)
+    hmac <- openssl::sha256(canonicalRequest, key = decodedSecret)
+    signature <- paste(openssl::base64_encode(hmac), "; version=1", sep="")
   } else if (!is.null(authInfo$private_key)) {
     # generate contents hash (this is done slightly differently for private key
     # auth since we use base64 throughout)
     if (!is.null(file))
-      md5 <- digest::digest(file, algo="md5", file = TRUE, raw = TRUE)
+      md5 <- openssl::md5(base::file(file))
     else
-      md5 <- digest::digest("", algo="md5", serialize = FALSE, raw = TRUE)
-    md5 <- RCurl::base64Encode(md5)
+      md5 <- openssl::md5(raw(0))
+    md5 <- openssl::base64_encode(md5)
 
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep="\n")
 
     # sign request using local private key
-    private_key <- structure(
-      RCurl::base64Decode(authInfo$private_key, mode="raw"),
-      class="private.key.DER")
-    private_key <- PKI::PKI.load.key(what = private_key, format = "DER",
-                                     private = TRUE)
-    hashed <- digest::digest(object = canonicalRequest, algo = "sha1",
-                             serialize = FALSE, raw = TRUE)
-    signature <- RCurl::base64Encode(
-      PKI::PKI.sign(key = private_key, digest = hashed))
+    private_key <- openssl::read_key(authInfo$private_key, der = TRUE)
+
+    # OpenSSL defaults to sha1 hash function (which is what we need)
+    rawsig <- openssl::signature_create(charToRaw(canonicalRequest), key = private_key)
+    signature <- openssl::base64_encode(rawsig)
   } else {
     stop("can't sign request: no shared secret or private key")
   }

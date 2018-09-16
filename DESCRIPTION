@@ -10,8 +10,7 @@ Description: Programmatic deployment interface for 'RPubs', 'shinyapps.io', and
 Depends:
     R (>= 3.0.0)
 Imports:
-    digest,
-    PKI,
+    openssl,
     RCurl,
     RJSONIO,
     packrat (>= 0.4.8-1),
