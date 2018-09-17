@@ -320,7 +320,7 @@ deployApp <- function(appDir = getwd(),
         bundleSize <- file.info(bundlePath)$size
 
         # Generate a hex-encoded md5 hash.
-        checkSum <- digest::digest(bundlePath, 'md5', file=TRUE)
+        checkSum <- as.character(openssl::md5(bundlePath))
         bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
 
         if (verbose)
