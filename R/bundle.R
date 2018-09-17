@@ -421,7 +421,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # provide checksums for all files
   filelist <- list()
   for (file in files) {
-    checksum <- list(checksum = as.character(openssl::md5(base::file(file.path(appDir, file)))))
+    checksum <- list(checksum = md5sum(file.path(appDir, file)))
     filelist[[file]] <- I(checksum)
   }
 

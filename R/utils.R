@@ -199,3 +199,13 @@ activeEncoding <- function(project = getwd()) {
 
   sub("^Encoding:\\s*", "", encodingLine)
 }
+
+md5sum <- function(path) {
+  # open the file for reading in binary mode (to ensure we treat newlines
+  # literally when computing the md5)
+  con <- base::file(path, open = "rb")
+  on.exit(close(con), add = TRUE)
+
+  # compute md5 sum of contents
+  as.character(openssl::md5(con))
+}
