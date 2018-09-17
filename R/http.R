@@ -935,7 +935,8 @@ signatureHeaders <- function(authInfo, method, path, file) {
     canonicalRequest <- paste(method, path, date, md5, sep="\n")
 
     # sign request using local private key
-    private_key <- openssl::read_key(authInfo$private_key, der = TRUE)
+    private_key <- openssl::read_key(
+        openssl::base64_decode(authInfo$private_key), der = TRUE)
 
     # OpenSSL defaults to sha1 hash function (which is what we need)
     rawsig <- openssl::signature_create(charToRaw(canonicalRequest), key = private_key)
