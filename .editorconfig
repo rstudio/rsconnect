@@ -1,0 +1,6 @@
+[*.R]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+max_line_length = 100
+insert_final_newline = true

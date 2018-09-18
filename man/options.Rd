@@ -30,6 +30,8 @@ Supported global options include:
    \item{\code{rsconnect.max.bundle.size}}{The maximum size, in bytes, for deployed content. If not set, defaults to 3 GB.}
    \item{\code{rsconnect.max.bundle.files}}{The maximum number of files to deploy. If not set, defaults to 10,000.}
    \item{\code{rsconnect.force.update.apps}}{When \code{TRUE}, bypasses the prompt to confirm whether you wish to update previously-deployed content}
+   \item{\code{rsconnect.pre.deploy}}{A function to run prior to deploying content; it receives as an argument the path to the content that's about to be deployed.}
+   \item{\code{rsconnect.post.deploy}}{A function to run after successfully deploying content; it receives as an argument the path to the content that was just deployed.}
 }
 }
 

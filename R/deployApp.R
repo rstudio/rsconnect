@@ -108,6 +108,9 @@ deployApp <- function(appDir = getwd(),
   quiet <- identical(logLevel, "quiet")
   verbose <- identical(logLevel, "verbose")
 
+  # run startup scripts to pick up any user options and establish pre/post deploy hooks
+  runStartupScripts(appDir, logLevel)
+
   # at verbose log level, turn on all tracing options implicitly for the
   # duration of the call
   if (verbose) {
@@ -196,6 +199,15 @@ deployApp <- function(appDir = getwd(),
     cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
     cat("Session information: \n")
     print(utils::sessionInfo())
+  }
+
+  # invoke pre-deploy hook if we have one
+  preDeploy <- getOption("rsconnect.pre.deploy")
+  if (is.function(preDeploy)) {
+    if (verbose) {
+      cat("Invoking pre-deploy hook rsconnect.pre.deploy\n")
+    }
+    preDeploy(appPath)
   }
 
   # figure out what kind of thing we're deploying
@@ -399,6 +411,17 @@ deployApp <- function(appDir = getwd(),
 
   if (!quiet)
     openURL(client, application, launch.browser, deploymentSucceeded)
+
+  # invoke post-deploy hook if we have one
+  if (deploymentSucceeded) {
+    postDeploy <- getOption("rsconnect.post.deploy")
+    if (is.function(postDeploy)) {
+      if (verbose) {
+        cat("Invoking post-deploy hook rsconnect.post.deploy\n")
+      }
+      postDeploy(appPath)
+    }
+  }
 
   if (verbose) {
     cat("----- Deployment log finished at ", as.character(Sys.time()), " -----\n")
@@ -675,5 +698,25 @@ openURL <- function(client, application, launch.browser, deploymentSucceeded) {
     showURL(application$url)
   }
     # or open no url if things failed
+}
+
+runStartupScripts <- function(appDir, logLevel) {
+  scripts <- c(
+    # the site-wide startup script
+    file.path(R.home("etc"), "rsconnect.site"),
+    # the user startup script
+    path.expand("~/.rsconnect_profile"),
+    # a startup script specific to this application
+    file.path(appDir, ".rsconnect_profile"))
+
+  # iterate over the startup scripts
+  for (script in scripts) {
+    if (file.exists(script)) {
+      if (logLevel == "verbose") {
+        cat("----- Sourcing startup script ", script, " -----\n")
+      }
+      source(file = global, verbose = (logLevel == "verbose"))
+    }
+  }
 }
 
