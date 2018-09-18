@@ -33,6 +33,13 @@ Supported global options include:
    \item{\code{rsconnect.pre.deploy}}{A function to run prior to deploying content; it receives as an argument the path to the content that's about to be deployed.}
    \item{\code{rsconnect.post.deploy}}{A function to run after successfully deploying content; it receives as an argument the path to the content that was just deployed.}
 }
+When deploying content from the RStudio IDE, the rsconnect package's deployment methods are executed in a vanilla R session that doesn't execute startup scripts. This can make it challenging to ensure options are set properly prior to push-button deployment, so the rsconnect package has a parallel set of ``startup'' scripts it runs prior to deploying. The follow are run in order, if they exist, prior to deployment:
+\describe{
+    \item{\code{$R_HOME/etc/rsconnect.site}}{Like \code{Rprofile.site}; for site-wide pre-flight and options.}
+    \item{\code{~/.rsconnect_profile}}{Like \code{.Rprofile}; for user-specific content.}
+    \item{\code{$PROJECT/.rsconnect_profile}}{Like \code{.Rprofile} for projects; \code{$PROJECT} here refers to the root directory of the content being deployed.}
+}
+Note that, unlike \code{.Rprofile}, these files don't replace each other; \emph{all three} will be run if they exist.
 }
 
 \examples{
