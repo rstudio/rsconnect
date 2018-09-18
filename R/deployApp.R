@@ -713,9 +713,9 @@ runStartupScripts <- function(appDir, logLevel) {
   for (script in scripts) {
     if (file.exists(script)) {
       if (logLevel == "verbose") {
-        cat("----- Sourcing startup script ", script, " -----\n")
+        cat("----- Sourcing startup script", script, "-----\n")
       }
-      source(file = global, verbose = (logLevel == "verbose"))
+      source(file = script, verbose = (logLevel == "verbose"))
     }
   }
 }
