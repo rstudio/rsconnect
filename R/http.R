@@ -925,8 +925,11 @@ signatureHeaders <- function(authInfo, method, path, file) {
   } else if (!is.null(authInfo$private_key)) {
     # generate contents hash (this is done slightly differently for private key
     # auth since we use base64 throughout)
-    if (!is.null(file))
-      md5 <- openssl::md5(base::file(file, open = "rb"))
+    if (!is.null(file)) {
+      con <- base::file(file, open = "rb")
+      on.exit(close(con), add = TRUE)
+      md5 <- openssl::md5(con)
+    }
     else
       md5 <- openssl::md5(raw(0))
     md5 <- openssl::base64_encode(md5)
