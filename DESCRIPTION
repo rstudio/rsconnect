@@ -12,7 +12,7 @@ Depends:
 Imports:
     openssl,
     RCurl,
-    RJSONIO,
+    jsonlite,
     packrat (>= 0.4.8-1),
     yaml (>= 2.1.5),
     rstudioapi (>= 0.5)
