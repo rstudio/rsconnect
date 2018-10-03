@@ -393,9 +393,11 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       # include github package info
       info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
 
-      # get package description
+      # get package description; note that we need to remove the
+      # packageDescription S3 class from the object or jsonlite will refuse to
+      # serialize it when building the manifest JSON
       # TODO: should we get description from packrat/desc folder?
-      info$description = suppressWarnings(utils::packageDescription(name))
+      info$description = suppressWarnings(unclass(utils::packageDescription(name)))
 
       # if description is NA, application dependency may not be installed
       if (is.na(info$description[1])) {
@@ -480,7 +482,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   }
 
   # return it as json
-  RJSONIO::toJSON(manifest, pretty = TRUE)
+  jsonlite::toJSON(manifest, pretty = TRUE)
 }
 
 validatePackageSource <- function(pkg) {

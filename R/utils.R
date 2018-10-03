@@ -206,6 +206,6 @@ md5sum <- function(path) {
   con <- base::file(path, open = "rb")
   on.exit(close(con), add = TRUE)
 
-  # compute md5 sum of contents
-  as.character(openssl::md5(con))
+  # compute md5 sum of contents and return as ordinary characters
+  unclass(as.character(openssl::md5(con)))
 }

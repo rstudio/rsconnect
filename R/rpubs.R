@@ -71,7 +71,7 @@ rpubsUpload <- function(title,
 
     # build package.json
     properties$title = title
-    packageJson <- RJSONIO::toJSON(properties)
+    packageJson <- jsonlite::toJSON(properties)
 
     # create a tempdir to build the package in and copy the files to it
     fileSep <- .Platform$file.sep
@@ -138,7 +138,7 @@ rpubsUpload <- function(title,
 
   # return either id & continueUrl or error
   if (succeeded) {
-    parsedContent <- RJSONIO::fromJSON(content)
+    parsedContent <- jsonlite::fromJSON(content)
     id <- ifelse(isUpdate, id, result$location)
     url <- as.character(parsedContent["continueUrl"])
 

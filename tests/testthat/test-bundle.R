@@ -61,7 +61,7 @@ test_that("simple Rmd as primary not identified as parameterized when parameteri
   bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
                                           "simple.Rmd")
   on.exit(unlink(bundleTempDir, recursive = TRUE))
-  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_equal(manifest$metadata$has_parameters, FALSE)
@@ -72,7 +72,7 @@ test_that("parameterized Rmd identified as parameterized when other Rmd in bundl
   bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
                                           "parameterized.Rmd")
   on.exit(unlink(bundleTempDir, recursive = TRUE))
-  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "parameterized.Rmd")
   expect_equal(manifest$metadata$has_parameters, TRUE)
@@ -83,7 +83,7 @@ test_that("primary doc can be inferred (and non-parameterized dispite an include
   bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
-  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
   expect_equal(manifest$metadata$has_parameters, FALSE)
@@ -94,7 +94,7 @@ test_that("multiple shiny Rmd without index file have a generated one", {
   bundleTempDir <- makeShinyBundleTempDir("rmd primary", "shiny-rmds",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
-  manifest <- RJSONIO::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-shiny")
   expect_true(file.exists(file.path(bundleTempDir, "index.htm")))
 })
