@@ -690,7 +690,7 @@ POST_JSON <- function(service,
        path,
        query,
        "application/json",
-       content = jsonlite::toJSON(json, pretty = TRUE, digits = 30),
+       content = toJSON(json, pretty = TRUE, digits = 30),
        headers = headers)
 }
 
@@ -705,7 +705,7 @@ PUT_JSON <- function(service,
       path,
       query,
       "application/json",
-      content = jsonlite::toJSON(json, pretty = TRUE, digits = 30),
+      content = toJSON(json, pretty = TRUE, digits = 30),
       headers = headers)
 }
 
@@ -955,3 +955,4 @@ signatureHeaders <- function(authInfo, method, path, file) {
   headers$`X-Content-Checksum` <- md5
   headers
 }
+

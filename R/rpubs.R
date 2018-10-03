@@ -71,7 +71,7 @@ rpubsUpload <- function(title,
 
     # build package.json
     properties$title = title
-    packageJson <- jsonlite::toJSON(properties)
+    packageJson <- toJSON(properties)
 
     # create a tempdir to build the package in and copy the files to it
     fileSep <- .Platform$file.sep

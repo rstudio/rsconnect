@@ -482,7 +482,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   }
 
   # return it as json
-  jsonlite::toJSON(manifest, pretty = TRUE)
+  toJSON(manifest, pretty = TRUE)
 }
 
 validatePackageSource <- function(pkg) {
