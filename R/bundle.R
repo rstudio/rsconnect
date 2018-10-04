@@ -639,7 +639,8 @@ performPackratSnapshot <- function(bundleDir) {
     packrat::.snapshotImpl(project = bundleDir,
                            snapshot.sources = FALSE,
                            fallback.ok = TRUE,
-                           verbose = FALSE)
+                           verbose = FALSE,
+                           implicit.packrat.dependency = FALSE)
   )
 
   # TRUE just to indicate success
