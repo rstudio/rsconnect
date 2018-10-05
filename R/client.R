@@ -11,7 +11,11 @@ handleResponse <- function(response, jsonFilter = NULL) {
   # json responses
   if (isContentType(response, "application/json")) {
 
-    json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
+    if (nzchar(response$content)) {
+      json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
+    } else {
+      json <- list()
+    }
 
     if (response$status %in% 200:399)
       if (!is.null(jsonFilter))
