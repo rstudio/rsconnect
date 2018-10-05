@@ -161,7 +161,7 @@ connectClient <- function(service, authInfo) {
           lapply(response$status, message)
           start <- response$last_status
         }
-        if (response$finished) {
+        if (length(response$finished) > 0 && response$finished) {
           return(response)
         }
         Sys.sleep(1)
