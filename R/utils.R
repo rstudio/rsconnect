@@ -8,6 +8,15 @@ timestampedLog <- function(...) {
   cat(paste(logTimestamper(), ..., "\n"))
 }
 
+# Returns a logging function when enabled, a noop function otherwise.
+verboseLogger <- function(verbose) {
+  if (verbose) {
+    timestampedLog
+  } else {
+    function(...) {}
+  }
+}
+
 isStringParam <- function(param) {
   is.character(param) && (length(param) == 1)
 }
