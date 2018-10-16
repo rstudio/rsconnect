@@ -21,6 +21,7 @@
 #' configureApp("myapp", size="xlarge")
 #' }
 #' @seealso [applications()], [deployApp()]
+#' @note This function works only for ShinyApps servers.
 #' @export
 configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
                          redeploy = TRUE, size = NULL,
