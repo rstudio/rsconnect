@@ -43,7 +43,5 @@ deployTFModel <- function(modelDir,
     stop("The modelDir at '", modelDir, "' is not a directory.")
   }
   # Checking for saved_model.pb is done in `lint-framework.R`
-  deployApp(appDir = modelDir,
-            contentCategory = 'tensorflow-saved-model',
-            ...)
+  deployApp(appDir = modelDir, ...)
 }
