@@ -30,7 +30,7 @@
 #' @param appId If updating an application, the ID of the application being
 #'   updated. Optional unless updating an app owned by another user.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
-#'   `"plot"`, `"document"`, or `"application"`).
+#'   `"plot"` or `"site"`).
 #' @param account Account to deploy application to. This parameter is only
 #'   required for the initial deployment of an application when there are
 #'   multiple accounts configured on the system (see [accounts]).

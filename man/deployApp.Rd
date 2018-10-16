@@ -48,7 +48,7 @@ auto-generated \code{appName}.}
 updated. Optional unless updating an app owned by another user.}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
-\code{"plot"}, \code{"document"}, or \code{"application"}).}
+\code{"plot"} or \code{"site"}).}
 
 \item{account}{Account to deploy application to. This parameter is only
 required for the initial deployment of an application when there are
