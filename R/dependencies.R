@@ -47,6 +47,7 @@ appDependencies <- function(appDir = getwd(), appFiles=NULL) {
     appFiles <- bundleFiles(appDir)
   }
   bundleDir <- bundleAppDir(appDir, appFiles)
+  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
   deps <- snapshotDependencies(bundleDir)
   data.frame(package = deps[,"Package"],
              version = deps[,"Version"],
