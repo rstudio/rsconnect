@@ -21,6 +21,9 @@ during the operation.}
 \description{
 Restart an application currently running on a remote server.
 }
+\note{
+This function works only for ShinyApps servers.
+}
 \examples{
 \dontrun{
 

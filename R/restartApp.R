@@ -17,6 +17,7 @@
 #' }
 #' @seealso [applications()], [deployApp()], and
 #'   [terminateApp()]
+#' @note This function works only for ShinyApps servers.
 #' @export
 restartApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
 
