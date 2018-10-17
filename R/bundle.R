@@ -171,9 +171,19 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
-  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  appPrimaryDoc <- inferAppPrimaryDoc(appPrimaryDoc, appFiles, appMode)
-  hasParameters <- appHasParameters(appDir, appPrimaryDoc, appMode, contentCategory)
+  appMode <- inferAppMode(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      files = appFiles)
+  appPrimaryDoc <- inferAppPrimaryDoc(
+      appPrimaryDoc = appPrimaryDoc,
+      appFiles = appFiles,
+      appMode = appMode)
+  hasParameters <- appHasParameters(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      appMode = appMode,
+      contentCategory = contentCategory)
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -183,15 +193,22 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # copy files to bundle dir to stage
   logger("Bundling app dir")
-  bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
+  bundleDir <- bundleAppDir(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
-                                             contentCategory, hasParameters,
-                                             appPrimaryDoc,
-                                             assetTypeName, users))
+  manifestJson <- enc2utf8(createAppManifest(
+      appDir = bundleDir,
+      appMode = appMode,
+      contentCategory = contentCategory,
+      hasParameters = hasParameters,
+      appPrimaryDoc = appPrimaryDoc,
+      assetTypeName = assetTypeName,
+      users = users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
 
@@ -241,22 +258,37 @@ writeManifest <- function(appDir = getwd(),
     appFiles <- explodeFiles(appDir, appFiles)
   }
 
-  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  appPrimaryDoc <- inferAppPrimaryDoc(appPrimaryDoc, appFiles, appMode)
-  hasParameters <- appHasParameters(appDir, appPrimaryDoc, appMode, contentCategory)
+  appMode <- inferAppMode(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      files = appFiles)
+  appPrimaryDoc <- inferAppPrimaryDoc(
+      appPrimaryDoc = appPrimaryDoc,
+      appFiles = appFiles,
+      appMode = appMode)
+  hasParameters <- appHasParameters(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      appMode = appMode,
+      contentCategory = contentCategory)
 
   # copy files to bundle dir to stage
-  bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
+  bundleDir <- bundleAppDir(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir,
-                                             appMode,
-                                             contentCategory,
-                                             hasParameters,
-                                             appPrimaryDoc,
-                                             "content",
-                                             users = NULL))
+  manifestJson <- enc2utf8(createAppManifest(
+      appDir = bundleDir,
+      appMode = appMode,
+      contentCategory = contentCategory,
+      hasParameters = hasParameters,
+      appPrimaryDoc = appPrimaryDoc,
+      assetTypeName = "content",
+      users = NULL))
+
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
