@@ -168,19 +168,22 @@ bundleFiles <- function(appDir) {
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE) {
-  if (verbose)
-    timestampedLog("Inferring App mode and parameters")
+  logger <- verboseLogger(verbose)
 
-  # infer the mode of the application from its layout
-  # unless we're an API, in which case, we're API mode.
-  appMode <- inferAppMode(appDir, appPrimaryDoc, appFiles)
-  appPrimaryDoc <- inferAppPrimaryDoc(appPrimaryDoc, appFiles, appMode)
-  hasParameters <- appHasParameters(appDir, appPrimaryDoc, appMode, contentCategory)
-
-  if (verbose)
-    timestampedLog("Bundling app dir")
-  # copy files to bundle dir to stage
-  bundleDir <- bundleAppDir(appDir, appFiles, appPrimaryDoc)
+  logger("Inferring App mode and parameters")
+  appMode <- inferAppMode(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      files = appFiles)
+  appPrimaryDoc <- inferAppPrimaryDoc(
+      appPrimaryDoc = appPrimaryDoc,
+      appFiles = appFiles,
+      appMode = appMode)
+  hasParameters <- appHasParameters(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      appMode = appMode,
+      contentCategory = contentCategory)
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -188,30 +191,108 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
     users <- suppressWarnings(authorizedUsers(appDir))
   }
 
-  if (verbose)
-    timestampedLog("Generate manifest.json")
+  # copy files to bundle dir to stage
+  logger("Bundling app dir")
+  bundleDir <- bundleAppDir(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc)
+  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(bundleDir, appMode,
-                                             contentCategory, hasParameters,
-                                             appPrimaryDoc,
-                                             assetTypeName, users))
+  logger("Generate manifest.json")
+  manifestJson <- enc2utf8(createAppManifest(
+      appDir = bundleDir,
+      appMode = appMode,
+      contentCategory = contentCategory,
+      hasParameters = hasParameters,
+      appPrimaryDoc = appPrimaryDoc,
+      assetTypeName = assetTypeName,
+      users = users))
   writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
              useBytes = TRUE)
 
-  if (verbose)
-    timestampedLog("Writing Rmd index if necessary")
   # if necessary write an index.htm for shinydoc deployments
+  logger("Writing Rmd index if necessary")
   indexFiles <- writeRmdIndex(appName, bundleDir)
-  on.exit(unlink(indexFiles), add = TRUE)
 
-  if (verbose)
-    timestampedLog("Compressing the bundle")
   # create the bundle and return its path
+  logger("Compressing the bundle")
   prevDir <- setwd(bundleDir)
+
   on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
   utils::tar(bundlePath, files = ".", compression = "gzip", tar = "internal")
   bundlePath
+}
+
+#' Create a manifest.json describing deployment requirements.
+#'
+#' Given a directory content targeted for deployment, write a manifest.json
+#' into that directory describing the deployment requirements for that
+#' content.
+#'
+#' @param appDir Directory containing the content (Shiny application, R
+#'   Markdown document, etc).
+#'
+#' @param appFiles Optional. The full set of files and directories to be
+#'   included in future deployments of this content. Used when computing
+#'   dependency requirements. When `NULL`, all files in `appDir` are
+#'   considered.
+#'
+#' @param appPrimaryDoc Optional. Specifies the primary document in a content
+#'   directory containing more than one. If `NULL`, the primary document is
+#'   inferred from the file list.
+#'
+#' @param contentCategory Optional. Specifies the kind of content being
+#'   deployed (e.g. `"plot"` or `"site"`).
+#'
+#' @export
+writeManifest <- function(appDir = getwd(),
+                          appFiles = NULL,
+                          appPrimaryDoc = NULL,
+                          contentCategory = NULL) {
+  if (is.null(appFiles)) {
+    appFiles <- bundleFiles(appDir)
+  } else {
+    appFiles <- explodeFiles(appDir, appFiles)
+  }
+
+  appMode <- inferAppMode(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      files = appFiles)
+  appPrimaryDoc <- inferAppPrimaryDoc(
+      appPrimaryDoc = appPrimaryDoc,
+      appFiles = appFiles,
+      appMode = appMode)
+  hasParameters <- appHasParameters(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      appMode = appMode,
+      contentCategory = contentCategory)
+
+  # copy files to bundle dir to stage
+  bundleDir <- bundleAppDir(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc)
+  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+
+  # generate the manifest and write it into the bundle dir
+  manifestJson <- enc2utf8(createAppManifest(
+      appDir = bundleDir,
+      appMode = appMode,
+      contentCategory = contentCategory,
+      hasParameters = hasParameters,
+      appPrimaryDoc = appPrimaryDoc,
+      assetTypeName = "content",
+      users = NULL))
+
+  manifestPath <- file.path(appDir, "manifest.json")
+  writeLines(manifestJson, manifestPath, useBytes = TRUE)
+
+  invisible()
 }
 
 yamlFromRmd <- function(filename) {
@@ -274,6 +355,8 @@ isShinyRmd <- function(filename) {
   return(FALSE)
 }
 
+# infer the mode of the application from its layout
+# unless we're an API, in which case, we're API mode.
 inferAppMode <- function(appDir, appPrimaryDoc, files) {
   # plumber API
   plumberFiles <- grep("^(plumber|entrypoint).r$", files, ignore.case = TRUE, perl = TRUE)
