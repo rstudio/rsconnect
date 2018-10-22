@@ -80,12 +80,19 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   } else {
     biocPackages = c()
   }
+  repo.packages <- available.packages(contriburl = contrib.url(repos), type = "source")
+  named.repos <- name.all.repos(repos)
+  repo.lookup <- data.frame(
+    name = names(named.repos),
+    url = as.character(named.repos),
+    contrib.url = contrib.url(named.repos),
+    stringsAsFactors = FALSE)
 
   # get packages records defined in the lockfile
   records <- utils::tail(df, -1)
 
   # if the package is in a named CRAN-like repository capture it
-  tmp <- sapply(seq.int(nrow(records)), function(i) {
+  tmp <- lapply(seq.int(nrow(records)), function(i) {
     pkg <- records[i, "Package"]
     source <- records[i, "Source"]
     repository <- NA
@@ -94,14 +101,61 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       if (pkg %in% biocPackages) {
         repository <- biocPackages[pkg, 'Repository']
       }
-    } else {
+    } else if (tolower(source) %in% c("github", "bitbucket", "source")) {
+      # leave source+SCM packages alone.
+    } else if (pkg %in% repo.packages) {
       # capture CRAN-like repository
-      repository <- if (source %in% names(repos)) repos[[source]] else NA
+
+      # Find this package in the set of available packages then use its
+      # contrib.url to map back to the configured repositories.
+      package.contrib <- repo.packages[pkg, 'Repository']
+      package.repo <- repo.lookup[repo.lookup$contrib.url == package.contrib,]
+      # If the incoming package comes from CRAN, keep the CRAN name in place
+      # even if that means using a different name than the repos list.
+      #
+      # The "cran" source is a well-known location for shinyapps.io.
+      #
+      # shinyapps.io isn't going to use the manifest-provided CRAN URL,
+      # but other consumers (Connect) will.
+      if (tolower(source) != "cran") {
+        source <- package.repo$name
+      }
+      repository <- package.repo$url
+    } else {
+      warning(sprintf("Unable to find repository URL for package %s", pkg),
+              immediate. = TRUE)
     }
-    repository
+    data.frame(Source = source, Repository = repository)
   })
-  records[, "Repository"] <- tmp
+  records[, c("Source","Repository")] <- do.call("rbind", tmp)
   return(records)
+}
+
+# generate a random name prefixed with "repo_".
+random.repo.name <- function() {
+  paste("repo_", paste(sample(LETTERS, 8, replace = TRUE), collapse = ""), sep = "")
+}
+
+# Given a list of optionally named repository URLs, return a list of
+# repository URLs where each element is named. Incoming names are preserved.
+# Un-named repositories are given random names.
+name.all.repos <- function(repos) {
+  repo.names <- names(repos)
+  if (is.null(repo.names)) {
+    # names(X) return NULL when nothing is named. Build a same-sized vector of
+    # empty-string names, which is the "no name here" placeholder value
+    # produced when its input has a mix of named and un-named items.
+    repo.names <- rep("", length(repos))
+  }
+  names(repos) <- sapply(repo.names, function(name) {
+    if (name == "") {
+      # Assumption: Random names are not repeated across a repo list.
+      random.repo.name()
+    } else {
+      name
+    }
+  }, USE.NAMES = FALSE)
+  repos
 }
 
 # get source packages from CRAN
