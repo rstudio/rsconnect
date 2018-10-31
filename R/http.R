@@ -223,21 +223,23 @@ parseHttpHeader <- function(header) {
 }
 
 parseHttpStatusCode <- function(statusLine) {
-  statusCode <- regexExtract("HTTP/[0-9]+\\.[0-9]+ ([0-9]+).*", statusLine)
+  # extract status code; needs to deal with HTTP/1.0, HTTP/1.1, and HTTP/2
+  statusCode <- regexExtract("HTTP/[0-9]+\\.?[0-9]* ([0-9]+).*", statusLine)
   if (is.null(statusCode))
     return (-1)
   else
     return (as.integer(statusCode))
 }
 
-# @param request a list containing protocol, host, port, method, and path fields
+# @param request A list containing protocol, host, port, method, and path fields
+# @param conn The connection to read the response from.
 readHttpResponse <- function(request, conn) {
   # read status code
   resp <- readLines(conn, 1)
   statusCode <- parseHttpStatusCode(resp[1])
 
   # read response headers
-  contentLength <- 0
+  contentLength <- NULL
   contentType <- NULL
   location <- NULL
   setCookies <- NULL
@@ -265,7 +267,14 @@ readHttpResponse <- function(request, conn) {
   storeCookies(request, setCookies)
 
   # read the response content
-  content <- rawToChar(readBin(conn, what = 'raw', n=contentLength))
+  if (is.null(contentLength)) {
+    # content length is unknown, so stream remaining text
+    content <- paste(readLines(con = conn), collapse = "\n")
+  } else {
+    # we know the content length, so read exactly that many bytes
+    content <- rawToChar(readBin(con = conn, what = "raw",
+                                 n = contentLength))
+  }
 
   # emit JSON trace if requested
   if (httpTraceJson() && identical(contentType, "application/json"))
@@ -356,11 +365,12 @@ httpInternal <- function(protocol,
 
     # read the response
     response <- readHttpResponse(list(
-                    protocol = protocol,
-                    host     = host,
-                    port     = port,
-                    method   = method,
-                    path     = path), conn)
+        protocol = protocol,
+        host     = host,
+        port     = port,
+        method   = method,
+        path     = path),
+      conn)
   })
   httpTrace(method, path, time)
 
@@ -468,11 +478,12 @@ httpCurl <- function(protocol,
     fileConn <- file(outputFile, "rb")
     on.exit(close(fileConn))
     readHttpResponse(list(
-                    protocol = protocol,
-                    host     = host,
-                    port     = port,
-                    method   = method,
-                    path     = path), fileConn)
+        protocol = protocol,
+        host     = host,
+        port     = port,
+        method   = method,
+        path     = path),
+      fileConn)
   } else {
     stop(paste("Curl request failed (curl error", result, "occurred)"))
   }
