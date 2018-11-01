@@ -201,16 +201,17 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
-  manifestJson <- enc2utf8(createAppManifest(
+  manifest <- createAppManifest(
       appDir = bundleDir,
       appMode = appMode,
       contentCategory = contentCategory,
       hasParameters = hasParameters,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
-      users = users))
-  writeLines(manifestJson, file.path(bundleDir, "manifest.json"),
-             useBytes = TRUE)
+      users = users)
+  manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
+  manifestPath <- file.path(bundleDir, "manifest.json")
+  writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
   # if necessary write an index.htm for shinydoc deployments
   logger("Writing Rmd index if necessary")
@@ -280,15 +281,15 @@ writeManifest <- function(appDir = getwd(),
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # generate the manifest and write it into the bundle dir
-  manifestJson <- enc2utf8(createAppManifest(
+  manifest <- createAppManifest(
       appDir = bundleDir,
       appMode = appMode,
       contentCategory = contentCategory,
       hasParameters = hasParameters,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
-      users = NULL))
-
+      users = NULL)
+  manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
@@ -563,9 +564,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   } else {
     manifest$users <- NA
   }
-
-  # return it as json
-  toJSON(manifest, pretty = TRUE)
+  manifest
 }
 
 validatePackageSource <- function(pkg) {
