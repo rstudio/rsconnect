@@ -710,10 +710,11 @@ performPackratSnapshot <- function(bundleDir) {
   on.exit(packrat::opts$snapshot.recommended.packages(srp, persist = FALSE),
           add = TRUE)
 
-  # attempt to eagerly load the BiocInstaller package if installed, to work
-  # around an issue where attempts to load the package could fail within a
-  # 'suppressMessages()' context
-  if (length(find.package("BiocInstaller", quiet = TRUE)))
+  # attempt to eagerly load the BiocInstaller or BiocManaager package if installed, to work around
+  # an issue where attempts to load the package could fail within a 'suppressMessages()' context
+  if (length(find.package("BiocManager", quiet = TRUE)))
+    requireNamespace("BiocManager", quietly = TRUE)
+  else if (length(find.package("BiocInstaller", quiet = TRUE)))
     requireNamespace("BiocInstaller", quietly = TRUE)
 
   # generate a snapshot

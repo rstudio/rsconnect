@@ -17,6 +17,8 @@ Imports:
     yaml (>= 2.1.5),
     rstudioapi (>= 0.5)
 Suggests:
+    BiocInstaller,
+    BiocManager,
     knitr,
     testthat,
     rmarkdown (>= 1.1),
@@ -24,7 +26,6 @@ Suggests:
     shiny,
     sourcetools,
     xtable
-Enhances: BiocInstaller
 License: GPL-2
 RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
