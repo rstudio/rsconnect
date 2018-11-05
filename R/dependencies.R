@@ -80,7 +80,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   } else {
     biocPackages = c()
   }
-  repo.packages <- available.packages(contriburl = contrib.url(repos), type = "source")
+  repo.packages <- available.packages(contriburl = contrib.url(repos, type = "source"), type = "source")
   named.repos <- name.all.repos(repos)
   repo.lookup <- data.frame(
     name = names(named.repos),
@@ -103,7 +103,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       }
     } else if (tolower(source) %in% c("github", "bitbucket", "source")) {
       # leave source+SCM packages alone.
-    } else if (pkg %in% repo.packages) {
+    } else if (pkg %in% rownames(repo.packages)) {
       # capture CRAN-like repository
 
       # Find this package in the set of available packages then use its
