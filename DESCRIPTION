@@ -17,8 +17,6 @@ Imports:
     yaml (>= 2.1.5),
     rstudioapi (>= 0.5)
 Suggests:
-    BiocInstaller,
-    BiocManager,
     knitr,
     testthat,
     rmarkdown (>= 1.1),

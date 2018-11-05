@@ -712,10 +712,13 @@ performPackratSnapshot <- function(bundleDir) {
 
   # attempt to eagerly load the BiocInstaller or BiocManaager package if installed, to work around
   # an issue where attempts to load the package could fail within a 'suppressMessages()' context
-  if (length(find.package("BiocManager", quiet = TRUE)))
-    requireNamespace("BiocManager", quietly = TRUE)
-  else if (length(find.package("BiocInstaller", quiet = TRUE)))
-    requireNamespace("BiocInstaller", quietly = TRUE)
+  packages <- c("BiocManager", "BiocInstaller")
+  for (package in packages) {
+    if (length(find.package(package, quiet = TRUE))) {
+      requireNamespace(package, quietly = TRUE)
+      break
+    }
+  }
 
   # generate a snapshot
   suppressMessages(
