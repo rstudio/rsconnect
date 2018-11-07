@@ -24,7 +24,6 @@ Suggests:
     shiny,
     sourcetools,
     xtable
-Enhances: BiocInstaller
 License: GPL-2
 RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
