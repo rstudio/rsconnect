@@ -134,7 +134,10 @@ lucidClient <- function(service, authInfo) {
     deployApplication = function(applicationId, bundleId=NULL) {
       path <- paste("/applications/", applicationId, "/deploy", sep="")
       json <- list()
-      json$bundle <- as.numeric(bundleId)
+      if (length(bundleId) > 0 && nzchar(bundleId))
+        json$bundle <- as.numeric(bundleId)
+      else
+        json$rebuild = FALSE
       handleResponse(POST_JSON(service, authInfo, path, json))
     },
 
