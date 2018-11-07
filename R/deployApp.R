@@ -383,14 +383,16 @@ deployApp <- function(appDir = getwd(),
         ", from account", accountDetails$username)
   }
 
-  # wait for the deployment to complete (will raise an error if it can't)
-  displayStatus(paste0("Deploying bundle: ", bundle$id,
-                       " for ", assetTypeName, ": ", application$id,
-                       " ...\n", sep=""))
+  if (length(bundle$id) > 0 && nzchar(bundle$id)) {
+    displayStatus(paste0("Deploying bundle: ", bundle$id,
+                         " for ", assetTypeName, ": ", application$id,
+                         " ...\n", sep=""))
+  }
   if (verbose) {
     cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
   }
 
+  # wait for the deployment to complete (will raise an error if it can't)
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
