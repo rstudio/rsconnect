@@ -23,6 +23,7 @@ Supported global options include:
    \item{\code{rsconnect.http.trace}}{When \code{TRUE}, trace http calls (prints the method, path, and total milliseconds for each http request)}
    \item{\code{rsconnect.http.trace.json}}{When \code{TRUE}, trace JSON content (shows JSON payloads sent to and received from the server))}
    \item{\code{rsconnect.http.verbose}}{When \code{TRUE}, print verbose output for http connections (useful only for debugging SSL certificate or http connection problems)}
+   \item{\code{rsconnect.rcurl.options}}{A named list of additional cURL options to use when using the RCurl HTTP implementation. Run \code{RCurl::getCurlOptionTypes()} to see available options.}
    \item{\code{rsconnect.error.trace}}{{When \code{TRUE}, print detailed stack traces for errors occurring during deployment.}}
    \item{\code{rsconnect.launch.browser}}{When \code{TRUE}, automatically launch a browser to view applications after they are deployed}
    \item{\code{rsconnect.locale.cache}}{When \code{FALSE}, disable the detected locale cache (Windows only). }
