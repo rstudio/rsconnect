@@ -461,7 +461,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   msg      <- NULL
 
   # get package dependencies for non-static content deployment
-  if (!identical(appMode, "static")) {
+  if (!identical(appMode, "static") &&
+      !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters))
