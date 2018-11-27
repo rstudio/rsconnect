@@ -237,7 +237,9 @@ removeAccount <- function(name, server = NULL) {
     stop(stringParamErrorMessage("name"))
 
   configFile <- accountConfigFile(name, server)
-  if (!file.exists(configFile))
+  if (length(configFile) > 1)
+    stopWithMultipleAccounts(name)
+  if (length(configFile) == 0 || !file.exists(configFile))
     stop(missingAccountErrorMessage(name))
 
   file.remove(configFile)
