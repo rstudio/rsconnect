@@ -521,6 +521,15 @@ httpRCurl <- function(protocol,
   # establish options
   options <- RCurl::curlOptions(url)
   options$useragent <- userAgent()
+
+  # overlay user-supplied options
+  userOptions <- getOption("rsconnect.rcurl.options")
+  if (is.list(userOptions)) {
+    for (option in names(userOptions)) {
+      options[option] = userOptions[option]
+    }
+  }
+
   if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
     options$ssl.verifypeer <- TRUE
 
