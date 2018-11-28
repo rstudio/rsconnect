@@ -614,26 +614,32 @@ httpRCurl <- function(protocol,
     }))
   httpTrace(method, path, time)
 
+  # get list of HTTP response headers
+  headers <- headerGatherer$value()
+
+  # lowercase all header names for normalization; HTTP/2 uses lowercase headers
+  # by default but they're typically capitalized in HTTP/1
+  names(headers) <- tolower(names(headers))
+
+  if ("location" %in% names(headers))
+    location <- headers[["location"]]
+  else
+    location <- NULL
+
+  # presume a plain text response unless specified otherwise
+  contentType <- if ("content-type" %in% names(headers)) {
+    headers[["content-type"]]
+  } else {
+    "text/plain"
+  }
+
   # emit JSON trace if requested
   if (!is.null(file) && httpTraceJson() &&
       identical(contentType, "application/json"))
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
 
-  # return list
-  headers <- headerGatherer$value()
-  if ("Location" %in% names(headers))
-    location <- headers[["Location"]]
-  else
-    location <- NULL
-  # presume a plain text response unless specified otherwise
-  contentType <- if ("Content-Type" %in% names(headers)) {
-    headers[["Content-Type"]]
-  } else {
-    "text/plain"
-  }
-
   # Parse cookies from header; bear in mind that there may be multiple headers
-  cookieHeaders <- headers[names(headers) == "Set-Cookie"]
+  cookieHeaders <- headers[names(headers) == "set-cookie"]
   storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
 
   contentValue <- textGatherer$value()
