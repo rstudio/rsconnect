@@ -98,7 +98,8 @@ deployApp <- function(appDir = getwd(),
                       logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
                       metadata = list(),
-                      forceUpdate = getOption("rsconnect.force.update.apps", FALSE)) {
+                      forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
+                      python = NULL) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -324,7 +325,7 @@ deployApp <- function(appDir = getwd(),
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory, verbose)
+                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python)
 
       if (isShinyapps(accountDetails)) {
 

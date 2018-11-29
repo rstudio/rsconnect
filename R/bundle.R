@@ -167,7 +167,7 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, verbose = FALSE) {
+                      contentCategory, verbose = FALSE, python = NULL) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -208,7 +208,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       hasParameters = hasParameters,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
-      users = users)
+      users = users,
+      python = python)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -252,7 +253,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
                           appPrimaryDoc = NULL,
-                          contentCategory = NULL) {
+                          contentCategory = NULL,
+                          python = NULL) {
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
   } else {
@@ -288,7 +290,8 @@ writeManifest <- function(appDir = getwd(),
       hasParameters = hasParameters,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
-      users = NULL)
+      users = NULL,
+      python = python)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -453,7 +456,7 @@ inferDependencies <- function(appMode, hasParameters) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users) {
+                              appPrimaryDoc, assetTypeName, users, python = NULL) {
 
   # provide package entries for all dependencies
   packages <- list()
