@@ -464,7 +464,7 @@ inferPythonEnv <- function(workdir, python = NULL) {
   else {
     # run the specific python binary, and ensure that it's on the path
     # so that pip etc. are available.
-    env <- paste("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"), sep='')
+    env <- paste0("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"))
   }
 
   # run the python introspection script
