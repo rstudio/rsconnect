@@ -455,6 +455,30 @@ inferDependencies <- function(appMode, hasParameters) {
   unique(deps)
 }
 
+inferPythonEnv <- function(workdir, python = NULL) {
+  # run specified python, or rely on path if none was specified
+  if (is.null(python)) {
+    python <- "python"
+    env <- NULL
+  }
+  else {
+    # run the specific python binary, and ensure that it's on the path
+    # so that pip etc. are available.
+    env <- paste("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"), sep='')
+  }
+
+  # run the python introspection script
+  sourceDir <- getSrcDirectory(function() {})
+  args <- c(file.path(sourceDir, "environment.py"), workdir)
+
+  tryCatch({
+    output <- system2(command = python, args = args, env = env, stdout = TRUE, stderr = NULL, wait = TRUE)
+    jsonlite::fromJSON(output)
+  }, error = function(e) {
+    list(error = e$message)
+  })
+}
+
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, python = NULL) {
 
