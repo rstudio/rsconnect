@@ -593,6 +593,11 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # add metadata
   manifest$metadata <- metadata
 
+  # if there is python info for reticulate, attach it
+  if (!is.null(pyInfo)) {
+    manifest$python <- pyInfo
+    files <- c(files, pyInfo$filename)
+  }
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
     manifest$packages <- I(packages)
@@ -610,10 +615,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     manifest$users <- I(userlist)
   } else {
     manifest$users <- NA
-  }
-  # if there is python info for reticulate, attach it
-  if (!is.null(pyInfo)) {
-    manifest$python <- pyInfo
   }
   manifest
 }
