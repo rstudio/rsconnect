@@ -455,17 +455,10 @@ inferDependencies <- function(appMode, hasParameters) {
   unique(deps)
 }
 
-inferPythonEnv <- function(workdir, python = NULL) {
-  # run specified python, or rely on path if none was specified
-  if (is.null(python)) {
-    python <- "python"
-    env <- NULL
-  }
-  else {
-    # run the specific python binary, and ensure that it's on the path
-    # so that pip etc. are available.
-    env <- paste0("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"))
-  }
+inferPythonEnv <- function(workdir, python) {
+  # run the specific python binary, and ensure that it's on the path
+  # so that pip etc. are available.
+  env <- paste0("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"))
 
   # run the python introspection script
   sourceDir <- getSrcDirectory(function() {})
@@ -473,7 +466,19 @@ inferPythonEnv <- function(workdir, python = NULL) {
 
   tryCatch({
     output <- system2(command = python, args = args, env = env, stdout = TRUE, stderr = NULL, wait = TRUE)
-    jsonlite::fromJSON(output)
+    environment <- jsonlite::fromJSON(output)
+    if (is.null(environment$error)) {
+      list(
+          version = environment$python,
+          package_manager = list(
+              name = environment$package_manager,
+              version = environment[[environment$package_manager]],
+              package_file = environment$filename))
+    }
+    else {
+      # return the error
+      environment
+    }
   }, error = function(e) {
     list(error = e$message)
   })
