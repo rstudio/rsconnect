@@ -486,6 +486,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   packages <- list()
   # potential error messages
   msg      <- NULL
+  pyInfo   <- NULL
 
   # get package dependencies for non-static content deployment
   if (!identical(appMode, "static") &&
@@ -497,6 +498,13 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     # construct package list from dependencies
     for (i in seq.int(nrow(deps))) {
       name <- deps[i, "Package"]
+
+      if (name == "reticulate") {
+        pyInfo <- inferPythonEnv(appDir, python)
+        if (!is.null(pyInfo$error)) {
+          msg <- c(msg, paste("Error detecting python for reticulate:", pyInfo$error))
+        }
+      }
 
       # get package info
       info <- as.list(deps[i, c('Source',
@@ -591,6 +599,10 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     manifest$users <- I(userlist)
   } else {
     manifest$users <- NA
+  }
+  # if there is python info for reticulate, attach it
+  if (!is.null(pyInfo)) {
+    manifest$python <- pyInfo
   }
   manifest
 }
