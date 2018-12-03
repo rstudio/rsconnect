@@ -478,7 +478,8 @@ inferPythonEnv <- function(workdir, python) {
           package_manager = list(
               name = environment$package_manager,
               version = environment[[environment$package_manager]],
-              package_file = environment$filename))
+              package_file = environment$filename,
+              contents = environment$contents))
     }
     else {
       # return the error
@@ -516,7 +517,13 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
         }
         else {
           pyInfo <- inferPythonEnv(appDir, python)
-          if (!is.null(pyInfo$error)) {
+          if (is.null(pyInfo$error)) {
+            # write the package list into requirements.txt file in the bundle dir
+            packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
+            cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
+            pyInfo$package_manager$contents <- NULL
+          }
+          else {
             msg <- c(msg, paste("Error detecting python for reticulate:", pyInfo$error))
           }
         }
@@ -601,7 +608,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # if there is python info for reticulate, attach it
   if (!is.null(pyInfo)) {
     manifest$python <- pyInfo
-    files <- c(files, pyInfo$filename)
   }
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
