@@ -25,5 +25,5 @@ Suggests:
     sourcetools,
     xtable
 License: GPL-2
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)

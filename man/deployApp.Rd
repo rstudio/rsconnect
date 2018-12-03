@@ -11,7 +11,8 @@ deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
   metadata = list(),
-  forceUpdate = getOption("rsconnect.force.update.apps", FALSE))
+  forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
+  python = NULL)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -82,6 +83,11 @@ record. These fields will be returned on subsequent calls to
 \item{forceUpdate}{If \code{TRUE}, update any previously-deployed app without
 asking. If \code{FALSE}, ask to update. If unset, defaults to the value of
 \code{getOption("rsconnect.force.update.apps", FALSE)}.}
+
+\item{python}{Full path to a python binary for use by \code{reticulate}.
+Required if \code{reticulate} is a dependency of the app being deployed.
+The specified python binary will be invoked to determine its version
+and to list the python packages installed in the environment.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

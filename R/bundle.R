@@ -249,6 +249,11 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #' @param contentCategory Optional. Specifies the kind of content being
 #'   deployed (e.g. `"plot"` or `"site"`).
 #'
+#' @param python Full path to a python binary for use by `reticulate`.
+#'   Required if `reticulate` is a dependency of the app being deployed.
+#'   The specified python binary will be invoked to determine its version
+#'   and to list the python packages installed in the environment.
+#'
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
