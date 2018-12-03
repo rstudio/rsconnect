@@ -2,7 +2,7 @@
 title: An example R Markdown document that uses reticulate to run python content
 ---
 
-```
+```{r}
 library(reticulate)
 ```
 

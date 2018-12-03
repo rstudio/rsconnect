@@ -1,8 +1,8 @@
 context("bundle")
 
-makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc) {
+makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       "application", NULL)
+                       "application", NULL, python = python)
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)
@@ -97,4 +97,24 @@ test_that("multiple shiny Rmd without index file have a generated one", {
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-shiny")
   expect_true(file.exists(file.path(bundleTempDir, "index.htm")))
+})
+
+test_that("Rmd with reticulate includes python in the manifest", {
+  skip_on_cran()
+  python <- Sys.which("python")
+  skip_if(python == "", "python is not installed")
+
+  bundleTempDir <- makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds",
+                                          NULL, python = python)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+
+  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
+  deps <- packrat:::readLockFilePackages(lockfile)
+  expect_true("reticulate" %in% names(deps))
+
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  print(manifest$python)
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
+  expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
 })
