@@ -2,10 +2,6 @@
 title: An example R Markdown document that uses reticulate to run python content
 ---
 
-```{r}
-library(reticulate)
-```
-
 ```{python}
 from pprint import pprint
 xs = range(10)
