@@ -99,7 +99,7 @@ test_that("multiple shiny Rmd without index file have a generated one", {
   expect_true(file.exists(file.path(bundleTempDir, "index.htm")))
 })
 
-test_that("Rmd with reticulate includes python in the manifest", {
+test_that("Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
@@ -113,8 +113,36 @@ test_that("Rmd with reticulate includes python in the manifest", {
   expect_true("reticulate" %in% names(deps))
 
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
-  print(manifest$python)
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
   expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
+})
+
+test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
+  skip_on_cran()
+  python <- Sys.which("python")
+  skip_if(python == "", "python is not installed")
+
+  bundleTempDir <- makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds",
+                                          "implicit.Rmd", python = python)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+
+  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
+  deps <- packrat:::readLockFilePackages(lockfile)
+  expect_true("reticulate" %in% names(deps))
+
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "implicit.Rmd")
+  expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
+})
+
+test_that("Rmd with reticulate but no python is an error", {
+  skip_on_cran()
+  expect_error(makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds", NULL), "*python was not specified")
+})
+
+test_that("Rmd with reticulate but no python is an error", {
+  skip_on_cran()
+  expect_error(makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds", "implicit.Rmd"), "*python was not specified")
 })
