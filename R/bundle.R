@@ -250,7 +250,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   deployed (e.g. `"plot"` or `"site"`).
 #'
 #' @param python Full path to a python binary for use by `reticulate`.
-#'   Required if `reticulate` is a dependency of the app being deployed.
 #'   The specified python binary will be invoked to determine its version
 #'   and to list the python packages installed in the environment.
 #'
@@ -442,7 +441,7 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
 }
 
 ## check for extra dependencies congruent to application mode
-inferDependencies <- function(appMode, hasParameters) {
+inferDependencies <- function(appMode, hasParameters, python) {
   deps <- c()
   if (grepl("\\brmd\\b", appMode)) {
     if (hasParameters) {
@@ -456,6 +455,9 @@ inferDependencies <- function(appMode, hasParameters) {
   }
   if (appMode == 'api') {
     deps <- c(deps, "plumber")
+  }
+  if (!is.null(python)) {
+    deps <- c(deps, "reticulate")
   }
   unique(deps)
 }
@@ -504,7 +506,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
-    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters))
+    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
 
     # construct package list from dependencies
     for (i in seq.int(nrow(deps))) {
