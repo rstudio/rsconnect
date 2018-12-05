@@ -45,24 +45,19 @@ def get_default_locale():
     return '.'.join(locale.getdefaultlocale())
 
 
-def get_version(binary):
-    # use os.path.realpath to traverse any symlinks
+def get_version(module):
     try:
-        binary_path = os.path.realpath(os.path.join(exec_dir, binary))
-        if not os.path.isfile(binary_path):
-            raise EnvironmentException("File not found: %s" % binary_path)
-
-        args = [binary_path, "--version"]
+        args = [sys.executable, '-m', module, '--version']
         proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         stdout, stderr = proc.communicate()
         match = version_re.search(stdout)
         if match:
             return match.group()
 
-        msg = "Failed to get version of '%s' from the output of: %s --version" % (binary, binary_path)
+        msg = "Failed to get version of '%s' from the output of: %s" % (module, ' '.join(args))
         raise EnvironmentException(msg)
     except Exception as exc:
-        raise EnvironmentException("Error getting '%s' version: %s" % (binary, str(exc)))
+        raise EnvironmentException("Error getting '%s' version: %s" % (module, str(exc)))
 
 
 def output_file(dirname, filename, package_manager):
