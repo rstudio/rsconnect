@@ -101,6 +101,8 @@ test_that("multiple shiny Rmd without index file have a generated one", {
 
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
+  skip_if_not_installed("reticulate")
+
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
 
@@ -120,6 +122,8 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
 
 test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
   skip_on_cran()
+  skip_if_not_installed("reticulate")
+
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
 
