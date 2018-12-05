@@ -468,8 +468,8 @@ inferPythonEnv <- function(workdir, python) {
   env <- paste0("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"))
 
   # run the python introspection script
-  sourceDir <- getSrcDirectory(function() {})
-  args <- c(file.path(sourceDir, "environment.py"), workdir)
+  env_py <- system.file("resources/environment.py", package = "rsconnect")
+  args <- c(env_py, workdir)
 
   tryCatch({
     output <- system2(command = python, args = args, env = env, stdout = TRUE, stderr = NULL, wait = TRUE)
