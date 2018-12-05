@@ -102,7 +102,7 @@ def pip_freeze(dirname):
     """
     try:
         proc = subprocess.Popen(
-            ['pip', 'freeze'],
+            [sys.executable, '-m', 'pip', 'freeze'],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
         pip_stdout, pip_stderr = proc.communicate()
