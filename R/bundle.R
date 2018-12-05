@@ -463,16 +463,12 @@ inferDependencies <- function(appMode, hasParameters, python) {
 }
 
 inferPythonEnv <- function(workdir, python) {
-  # run the specific python binary, and ensure that it's on the path
-  # so that pip etc. are available.
-  env <- paste0("PATH=", dirname(python), .Platform$path.sep, Sys.getenv("PATH"))
-
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
   args <- c(env_py, workdir)
 
   tryCatch({
-    output <- system2(command = python, args = args, env = env, stdout = TRUE, stderr = NULL, wait = TRUE)
+    output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
     environment <- jsonlite::fromJSON(output)
     if (is.null(environment$error)) {
       list(
