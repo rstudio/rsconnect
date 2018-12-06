@@ -465,7 +465,7 @@ inferDependencies <- function(appMode, hasParameters, python) {
 inferPythonEnv <- function(workdir, python) {
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
-  args <- c(env_py, workdir)
+  args <- c(shQuote(env_py), shQuote(workdir))
 
   tryCatch({
     output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
