@@ -24,7 +24,6 @@ inferred from the file list.}
 deployed (e.g. \code{"plot"} or \code{"site"}).}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
-Required if \code{reticulate} is a dependency of the app being deployed.
 The specified python binary will be invoked to determine its version
 and to list the python packages installed in the environment.}
 }
