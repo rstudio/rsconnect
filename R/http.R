@@ -644,6 +644,17 @@ httpRCurl <- function(protocol,
 
   contentValue <- textGatherer$value()
 
+  # deduce status -- the "status" header can be present multiple times; we want
+  # to select the copy of the header that contains just the status code itself.
+  # if no header present, presume 200 (OK).
+  status <- 200
+  statuses <- headers[names(headers) == "status"]   # select all "status" headers
+  statuses <- statuses[grepl("^\\d+$", statuses)]   # select fully numeric values
+  if (length(statuses) > 0) {
+    # we found a numeric status header
+    status <- as.integer(statuses[[1]])
+  }
+
   # emit JSON trace if requested
   if (httpTraceJson() && identical(contentType, "application/json"))
     cat(paste0(">> ", contentValue, "\n"))
@@ -653,7 +664,7 @@ httpRCurl <- function(protocol,
                   port     = port,
                   method   = method,
                   path     = path),
-       status = as.integer(headers[["status"]]),
+       status = status,
        location = location,
        contentType = contentType,
        content = contentValue)
