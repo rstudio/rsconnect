@@ -617,6 +617,16 @@ httpRCurl <- function(protocol,
   # get list of HTTP response headers
   headers <- headerGatherer$value()
 
+  # deduce status. we do this *before* lowercase conversion, as it is possible
+  # for both "Status" and "status" headers to exist
+  status <- 200
+  statuses <- headers[names(headers) == "status"]   # find status header
+  statuses <- statuses[grepl("^\\d+$", statuses)]   # ensure fully numeric
+  if (length(statuses) > 0) {
+    # we found a numeric status header
+    status <- as.integer(statuses[[1]])
+  }
+
   # lowercase all header names for normalization; HTTP/2 uses lowercase headers
   # by default but they're typically capitalized in HTTP/1
   names(headers) <- tolower(names(headers))
@@ -643,17 +653,6 @@ httpRCurl <- function(protocol,
   storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
 
   contentValue <- textGatherer$value()
-
-  # deduce status -- the "status" header can be present multiple times; we want
-  # to select the copy of the header that contains just the status code itself.
-  # if no header present, presume 200 (OK).
-  status <- 200
-  statuses <- headers[names(headers) == "status"]   # select all "status" headers
-  statuses <- statuses[grepl("^\\d+$", statuses)]   # select fully numeric values
-  if (length(statuses) > 0) {
-    # we found a numeric status header
-    status <- as.integer(statuses[[1]])
-  }
 
   # emit JSON trace if requested
   if (httpTraceJson() && identical(contentType, "application/json"))
