@@ -488,6 +488,13 @@ inferPythonEnv <- function(workdir, python) {
   })
 }
 
+getPython <- function(path) {
+    if (is.null(path)) {
+      path <- Sys.getenv("RETICULATE_PYTHON")
+    }
+    path.expand(path)
+}
+
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, python = NULL) {
 
@@ -502,11 +509,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
-    if (is.null(python)) {
-      python <- Sys.getenv("RETICULATE_PYTHON")
-    }
-    python <- path.expand(python)
-
+    python <- getPython(python)
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
 
     # construct package list from dependencies
