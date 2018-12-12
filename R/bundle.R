@@ -503,8 +503,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
     # detect dependencies including inferred dependences
     if (is.null(python)) {
-      python = Sys.getenv("RETICULATE_PYTHON")
+      python <- Sys.getenv("RETICULATE_PYTHON")
     }
+    python <- path.expand(python)
 
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
 
