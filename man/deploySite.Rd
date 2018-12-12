@@ -8,7 +8,7 @@ deploySite(siteDir = getwd(), siteName = NULL, account = NULL,
   server = NULL, render = c("none", "local", "server"),
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
   logLevel = c("normal", "quiet", "verbose"), lint = FALSE,
-  metadata = list())
+  metadata = list(), python = NULL)
 }
 \arguments{
 \item{siteDir}{Directory containing website. Defaults to current
@@ -46,6 +46,11 @@ potentially problematic code?}
 \item{metadata}{Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
 \code{\link[=deployments]{deployments()}}.}
+
+\item{python}{Full path to a python binary for use by \code{reticulate}.
+Required if \code{reticulate} is a dependency of the app being deployed.
+The specified python binary will be invoked to determine its version
+and to list the python packages installed in the environment.}
 }
 \description{
 Deploy an R Markdown website to a server.

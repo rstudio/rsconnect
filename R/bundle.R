@@ -167,7 +167,7 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, verbose = FALSE) {
+                      contentCategory, verbose = FALSE, python = NULL) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -208,7 +208,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       hasParameters = hasParameters,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
-      users = users)
+      users = users,
+      python = python)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -248,11 +249,16 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #' @param contentCategory Optional. Specifies the kind of content being
 #'   deployed (e.g. `"plot"` or `"site"`).
 #'
+#' @param python Full path to a python binary for use by `reticulate`.
+#'   The specified python binary will be invoked to determine its version
+#'   and to list the python packages installed in the environment.
+#'
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
                           appPrimaryDoc = NULL,
-                          contentCategory = NULL) {
+                          contentCategory = NULL,
+                          python = NULL) {
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
   } else {
@@ -288,7 +294,8 @@ writeManifest <- function(appDir = getwd(),
       hasParameters = hasParameters,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
-      users = NULL)
+      users = NULL,
+      python = python)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -434,7 +441,7 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
 }
 
 ## check for extra dependencies congruent to application mode
-inferDependencies <- function(appMode, hasParameters) {
+inferDependencies <- function(appMode, hasParameters, python) {
   deps <- c()
   if (grepl("\\brmd\\b", appMode)) {
     if (hasParameters) {
@@ -449,27 +456,76 @@ inferDependencies <- function(appMode, hasParameters) {
   if (appMode == 'api') {
     deps <- c(deps, "plumber")
   }
+  if (!is.null(python)) {
+    deps <- c(deps, "reticulate")
+  }
   unique(deps)
 }
 
+inferPythonEnv <- function(workdir, python) {
+  # run the python introspection script
+  env_py <- system.file("resources/environment.py", package = "rsconnect")
+  args <- c(shQuote(env_py), shQuote(workdir))
+
+  tryCatch({
+    output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
+    environment <- jsonlite::fromJSON(output)
+    if (is.null(environment$error)) {
+      list(
+          version = environment$python,
+          package_manager = list(
+              name = environment$package_manager,
+              version = environment[[environment$package_manager]],
+              package_file = environment$filename,
+              contents = environment$contents))
+    }
+    else {
+      # return the error
+      environment
+    }
+  }, error = function(e) {
+    list(error = e$message)
+  })
+}
+
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users) {
+                              appPrimaryDoc, assetTypeName, users, python = NULL) {
 
   # provide package entries for all dependencies
   packages <- list()
   # potential error messages
   msg      <- NULL
+  pyInfo   <- NULL
 
   # get package dependencies for non-static content deployment
   if (!identical(appMode, "static") &&
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
-    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters))
+    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
 
     # construct package list from dependencies
     for (i in seq.int(nrow(deps))) {
       name <- deps[i, "Package"]
+
+      if (name == "reticulate") {
+        if (is.null(python)) {
+          # TODO, should this be a warning for backward compatibility?
+          msg <- c(msg, "reticulate is in use, but python was not specified")
+        }
+        else {
+          pyInfo <- inferPythonEnv(appDir, python)
+          if (is.null(pyInfo$error)) {
+            # write the package list into requirements.txt file in the bundle dir
+            packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
+            cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
+            pyInfo$package_manager$contents <- NULL
+          }
+          else {
+            msg <- c(msg, paste("Error detecting python for reticulate:", pyInfo$error))
+          }
+        }
+      }
 
       # get package info
       info <- as.list(deps[i, c('Source',
@@ -547,6 +603,10 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # add metadata
   manifest$metadata <- metadata
 
+  # if there is python info for reticulate, attach it
+  if (!is.null(pyInfo)) {
+    manifest$python <- pyInfo
+  }
   # if there are no packages set manifes$packages to NA (json null)
   if (length(packages) > 0) {
     manifest$packages <- I(packages)

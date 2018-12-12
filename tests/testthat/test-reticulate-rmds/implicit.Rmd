@@ -1,0 +1,9 @@
+---
+title: An example R Markdown document that uses reticulate to run python content
+---
+
+```{python}
+from pprint import pprint
+xs = range(10)
+pprint([(x, x**2, x**3) for x in xs])
+```

@@ -5,7 +5,7 @@
 \title{Create a manifest.json describing deployment requirements.}
 \usage{
 writeManifest(appDir = getwd(), appFiles = NULL,
-  appPrimaryDoc = NULL, contentCategory = NULL)
+  appPrimaryDoc = NULL, contentCategory = NULL, python = NULL)
 }
 \arguments{
 \item{appDir}{Directory containing the content (Shiny application, R
@@ -22,6 +22,10 @@ inferred from the file list.}
 
 \item{contentCategory}{Optional. Specifies the kind of content being
 deployed (e.g. \code{"plot"} or \code{"site"}).}
+
+\item{python}{Full path to a python binary for use by \code{reticulate}.
+The specified python binary will be invoked to determine its version
+and to list the python packages installed in the environment.}
 }
 \description{
 Given a directory content targeted for deployment, write a manifest.json

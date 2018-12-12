@@ -55,6 +55,10 @@
 #' @param forceUpdate If `TRUE`, update any previously-deployed app without
 #'   asking. If `FALSE`, ask to update. If unset, defaults to the value of
 #'   `getOption("rsconnect.force.update.apps", FALSE)`.
+#' @param python Full path to a python binary for use by `reticulate`.
+#'   Required if `reticulate` is a dependency of the app being deployed.
+#'   The specified python binary will be invoked to determine its version
+#'   and to list the python packages installed in the environment.
 #' @examples
 #' \dontrun{
 #'
@@ -98,7 +102,8 @@ deployApp <- function(appDir = getwd(),
                       logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
                       metadata = list(),
-                      forceUpdate = getOption("rsconnect.force.update.apps", FALSE)) {
+                      forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
+                      python = NULL) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -324,7 +329,7 @@ deployApp <- function(appDir = getwd(),
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory, verbose)
+                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python)
 
       if (isShinyapps(accountDetails)) {
 

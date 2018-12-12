@@ -26,7 +26,8 @@ deploySite <- function(siteDir = getwd(),
                        launch.browser = getOption("rsconnect.launch.browser", interactive()),
                        logLevel = c("normal", "quiet", "verbose"),
                        lint = FALSE,
-                       metadata = list()) {
+                       metadata = list(),
+                       python = NULL) {
 
   # switch to siteDir for duration of this function
   oldwd <- setwd(siteDir)
@@ -97,5 +98,6 @@ deploySite <- function(siteDir = getwd(),
             launch.browser = launch.browser,
             logLevel = logLevel,
             lint = lint,
-            metadata = metadata)
+            metadata = metadata,
+            python = python)
 }

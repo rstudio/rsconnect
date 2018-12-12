@@ -21,9 +21,10 @@ Suggests:
     testthat,
     rmarkdown (>= 1.1),
     plumber (>= 0.3.2),
+    reticulate,
     shiny,
     sourcetools,
     xtable
 License: GPL-2
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
