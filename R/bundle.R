@@ -456,7 +456,7 @@ inferDependencies <- function(appMode, hasParameters, python) {
   if (appMode == 'api') {
     deps <- c(deps, "plumber")
   }
-  if (!is.null(python)) {
+  if (python != "") {
     deps <- c(deps, "reticulate")
   }
   unique(deps)
@@ -488,6 +488,13 @@ inferPythonEnv <- function(workdir, python) {
   })
 }
 
+getPython <- function(path) {
+    if (is.null(path)) {
+      path <- Sys.getenv("RETICULATE_PYTHON")
+    }
+    path.expand(path)
+}
+
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, python = NULL) {
 
@@ -502,6 +509,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
+    python <- getPython(python)
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
 
     # construct package list from dependencies
@@ -509,7 +517,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       name <- deps[i, "Package"]
 
       if (name == "reticulate") {
-        if (is.null(python)) {
+        if (python == "") {
           # TODO, should this be a warning for backward compatibility?
           msg <- c(msg, "reticulate is in use, but python was not specified")
         }
