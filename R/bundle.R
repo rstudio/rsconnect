@@ -488,13 +488,6 @@ inferPythonEnv <- function(workdir, python) {
   })
 }
 
-getPython <- function(path) {
-    if (is.null(path)) {
-      path <- Sys.getenv("RETICULATE_PYTHON")
-    }
-    path.expand(path)
-}
-
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, python = NULL) {
 

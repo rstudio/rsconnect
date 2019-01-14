@@ -447,6 +447,18 @@ deployApp <- function(appDir = getwd(),
   invisible(deploymentSucceeded)
 }
 
+
+getPython <- function(path) {
+  if (is.null(path)) {
+    path <- Sys.getenv("RETICULATE_PYTHON")
+    if (path == "") {
+      NULL
+    }
+  }
+  path.expand(path)
+}
+
+
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
 deploymentTarget <- function(appPath, appName, appTitle, appId, account,
