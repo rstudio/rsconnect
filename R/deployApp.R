@@ -328,10 +328,20 @@ deployApp <- function(appDir = getwd(),
       cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
+
+      # python is enabled on Connect but not on Shinyapps
+      targetIsShinyapps <- isShinyapps(accountDetails)
+      pythonEnabled = getOption("rsconnect.python.enabled", default=!targetIsShinyapps)
+      if (pythonEnabled) {
+        python <- getPython(python)
+      }
+      else {
+        python <- NULL
+      }
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python)
 
-      if (isShinyapps(accountDetails)) {
+      if (targetIsShinyapps) {
 
         # Step 1. Create presigned URL and register pending bundle.
         bundleSize <- file.info(bundlePath)$size
