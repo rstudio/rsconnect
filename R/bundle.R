@@ -518,8 +518,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
       if (name == "reticulate") {
         if (python == "") {
-          # TODO, should this be a warning for backward compatibility?
-          msg <- c(msg, "reticulate is in use, but python was not specified")
+          warning("reticulate is in use, but python was not specified")
         }
         else {
           pyInfo <- inferPythonEnv(appDir, python)
