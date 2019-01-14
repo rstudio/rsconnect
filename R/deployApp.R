@@ -452,7 +452,7 @@ getPython <- function(path) {
   if (is.null(path)) {
     path <- Sys.getenv("RETICULATE_PYTHON")
     if (path == "") {
-      NULL
+      return(NULL)
     }
   }
   path.expand(path)
