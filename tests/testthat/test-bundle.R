@@ -163,3 +163,35 @@ test_that("getPython expands paths", {
   expect_true(result != "~/bin/python")
   expect_match(result, "*/bin/python")
 })
+
+test_that("getPythonForTarget honors rsconnect.python.enabled = FALSE", {
+  skip_on_cran()
+
+  options(rsconnect.python.enabled = FALSE)
+  result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
+  expect_equal(result, NULL)
+  options(rsconnect.python.enabled = NULL)
+})
+
+test_that("getPythonForTarget honors rsconnect.python.enabled = TRUE", {
+  skip_on_cran()
+
+  options(rsconnect.python.enabled = TRUE)
+  result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
+  expect_equal(result, "/usr/bin/python")
+  options(rsconnect.python.enabled = NULL)
+})
+
+test_that("getPythonForTarget defaults to enabled for Connect", {
+  skip_on_cran()
+
+  result <- getPythonForTarget("/usr/bin/python", list(server="connect.example.com"))
+  expect_equal(result, "/usr/bin/python")
+})
+
+test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
+  skip_on_cran()
+
+  result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
+  expect_equal(result, NULL)
+})
