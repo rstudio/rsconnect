@@ -140,3 +140,26 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   expect_equal(manifest$metadata$primary_rmd, "implicit.Rmd")
   expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
 })
+
+test_that("getPython handles null python by checking RETICULATE_PYTHON", {
+  skip_on_cran()
+
+  Sys.setenv(RETICULATE_PYTHON="/usr/local/bin/python")
+  expect_equal(getPython(NULL), "/usr/local/bin/python")
+  Sys.unsetenv("RETICULATE_PYTHON")
+})
+
+test_that("getPython handles null python and empty RETICULATE_PYTHON", {
+  skip_on_cran()
+
+  Sys.unsetenv("RETICULATE_PYTHON")
+  expect_equal(getPython(NULL), NULL)
+})
+
+test_that("getPython expands paths", {
+  skip_on_cran()
+
+  result <- getPython("~/bin/python")
+  expect_true(result != "~/bin/python")
+  expect_match(result, "*/bin/python")
+})
