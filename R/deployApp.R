@@ -334,7 +334,7 @@ deployApp <- function(appDir = getwd(),
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python)
 
-      if (targetIsShinyapps) {
+      if (isShinyapps(accountDetails)) {
 
         # Step 1. Create presigned URL and register pending bundle.
         bundleSize <- file.info(bundlePath)$size
