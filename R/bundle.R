@@ -456,7 +456,7 @@ inferDependencies <- function(appMode, hasParameters, python) {
   if (appMode == 'api') {
     deps <- c(deps, "plumber")
   }
-  if (python != "") {
+  if (!is.null(python)) {
     deps <- c(deps, "reticulate")
   }
   unique(deps)
@@ -488,13 +488,6 @@ inferPythonEnv <- function(workdir, python) {
   })
 }
 
-getPython <- function(path) {
-    if (is.null(path)) {
-      path <- Sys.getenv("RETICULATE_PYTHON")
-    }
-    path.expand(path)
-}
-
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, python = NULL) {
 
@@ -509,29 +502,22 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
-    python <- getPython(python)
     deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
 
     # construct package list from dependencies
     for (i in seq.int(nrow(deps))) {
       name <- deps[i, "Package"]
 
-      if (name == "reticulate") {
-        if (python == "") {
-          # TODO, should this be a warning for backward compatibility?
-          msg <- c(msg, "reticulate is in use, but python was not specified")
+      if (name == "reticulate" && !is.null(python)) {
+        pyInfo <- inferPythonEnv(appDir, python)
+        if (is.null(pyInfo$error)) {
+          # write the package list into requirements.txt file in the bundle dir
+          packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
+          cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
+          pyInfo$package_manager$contents <- NULL
         }
         else {
-          pyInfo <- inferPythonEnv(appDir, python)
-          if (is.null(pyInfo$error)) {
-            # write the package list into requirements.txt file in the bundle dir
-            packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
-            cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
-            pyInfo$package_manager$contents <- NULL
-          }
-          else {
-            msg <- c(msg, paste("Error detecting python for reticulate:", pyInfo$error))
-          }
+          msg <- c(msg, paste("Error detecting python for reticulate:", pyInfo$error))
         }
       }
 

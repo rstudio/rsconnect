@@ -328,6 +328,9 @@ deployApp <- function(appDir = getwd(),
       cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
+
+      # python is enabled on Connect but not on Shinyapps
+      python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python)
 
@@ -435,6 +438,30 @@ deployApp <- function(appDir = getwd(),
   }
 
   invisible(deploymentSucceeded)
+}
+
+
+getPython <- function(path) {
+  if (is.null(path)) {
+    path <- Sys.getenv("RETICULATE_PYTHON")
+    if (path == "") {
+      return(NULL)
+    }
+  }
+  path.expand(path)
+}
+
+
+getPythonForTarget <- function(path, accountDetails) {
+  # python is enabled on Connect but not on Shinyapps
+  targetIsShinyapps <- isShinyapps(accountDetails)
+  pythonEnabled = getOption("rsconnect.python.enabled", default=!targetIsShinyapps)
+  if (pythonEnabled) {
+    getPython(path)
+  }
+  else {
+    NULL
+  }
 }
 
 # calculate the deployment target based on the passed parameters and
