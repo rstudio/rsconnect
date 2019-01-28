@@ -18,9 +18,7 @@ class EnvironmentException(Exception):
 def detect_environment():
     """Determine the python dependencies in the environment.
 
-    If requirements.txt exists in the notebook directory,
-    its contents will be used. Otherwise, the results
-    of `pip freeze` will be used.
+    `pip freeze` will be used to introspect the environment.
 
     Returns a dictionary containing the package spec filename
     and contents if successful, or a dictionary containing 'error'
