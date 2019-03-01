@@ -63,6 +63,7 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     contents <- contents[!grepl(glob2rx(".DS_Store"), contents)]
     contents <- contents[!grepl(glob2rx(".gitignore"), contents)]
     contents <- contents[!grepl(glob2rx(".Rhistory"), contents)]
+    contents <- contents[!grepl(glob2rx("manifest.json"), contents)]
   }
 
   # sum the size of the files in the directory
