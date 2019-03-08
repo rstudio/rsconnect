@@ -19,8 +19,11 @@ test_that("simple Shiny app bundle includes correct files", {
   bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
+  # listBundleFiles only includes "user" files and ignores
+  # generated files like the packrat and manifest data.
   files <- listBundleFiles(bundleTempDir)
-  expect_identical(files$contents, c("manifest.json", "server.R", "ui.R"))
+  expect_identical(files$contents, c("server.R", "ui.R"))
+  expect_identical(list.files(bundleTempDir), c("manifest.json", "packrat", "server.R", "ui.R"))
 })
 
 test_that("simple Shiny app bundle is runnable", {
