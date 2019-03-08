@@ -27,7 +27,7 @@ accounts <- function(server = NULL) {
 
   # get a raw list of accounts
   accountnames <- file_path_sans_ext(list.files(path,
-    pattern=glob2rx("*.dcf"), recursive = TRUE))
+    pattern=glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE))
 
   if (length(accountnames) == 0) {
     return(NULL)
@@ -36,6 +36,7 @@ accounts <- function(server = NULL) {
   # convert to a data frame
   servers <- dirname(accountnames)
   servers[servers == "."] <- "shinyapps.io"
+  servers <- fileLeaf(servers)
   names <- fileLeaf(accountnames)
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
