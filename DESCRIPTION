@@ -11,7 +11,7 @@ Depends:
     R (>= 3.0.0)
 Imports:
     openssl,
-    RCurl,
+    curl,
     jsonlite,
     packrat (>= 0.4.8-1),
     yaml (>= 2.1.5),

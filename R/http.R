@@ -509,100 +509,68 @@ httpRCurl <- function(protocol,
     port <- paste(":", port, sep="")
 
   # build url
-  url <- paste(protocol, "://", host, port, path, sep="")
+  url <- paste0(protocol, "://", host, port, path)
 
-  # read file in binary mode
+  # create a new curl handle
+  handle <- curl::new_handle()
+
+  # read file in binary mode, if supplied
   if (!is.null(file)) {
     fileLength <- file.info(file)$size
     fileContents <- readBin(file, what="raw", n=fileLength)
     headers$`Content-Type` <- contentType
+    # headers$`Content-Length` <- as.character(fileLength)
+    curl::handle_setform(handle, body =
+                           curl::form_data(fileContents, type = contentType))
   }
 
   # establish options
-  options <- RCurl::curlOptions(url)
-  options$useragent <- userAgent()
+  curl::handle_setopt(handle, useragent = userAgent())
 
   # overlay user-supplied options
   userOptions <- getOption("rsconnect.rcurl.options")
   if (is.list(userOptions)) {
-    for (option in names(userOptions)) {
-      options[option] = userOptions[option]
-    }
+    curl::handle_setopt(handle, .list = userOptions)
   }
 
   if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
-    options$ssl.verifypeer <- TRUE
+    curl::handle_setopt(handle, ssl_verifypeer = TRUE)
 
     # apply certificate information if present
     if (!is.null(certificate))
-      options$cainfo <- certificate
+      curl::handle_setopt(handle, cainfo = certificate)
   } else {
     # don't verify peer (less secure but tolerant to self-signed cert issues)
-    options$ssl.verifypeer <- FALSE
+    curl::handle_setopt(handle, ssl_verifypeer = FALSE)
   }
 
-  headerGatherer <- RCurl::basicHeaderGatherer()
-  options$headerfunction <- headerGatherer$update
-
-  # the text processing done by .mapUnicode has the unfortunate side effect
-  # of turning escaped backslashes into ordinary backslashes but leaving
-  # ordinary backslashes alone, which can create malformed JSON.
-  textGatherer <- if (is.null(writer))
-      RCurl::basicTextGatherer(.mapUnicode = FALSE)
-    else
-      writer
-
-  # when using a custom output writer, add a progress check so we can
-  # propagate interrupts, and wait a long time (for streaming)
   if (!is.null(writer)) {
-    options$noprogress <- FALSE
-    options$progressfunction <- writer$progress
-    options$timeout <- 9999999
+    stop("Custom writers not currently supported.")
   }
 
   # use timeout if supplied
   if (!is.null(timeout)) {
-    options$timeout <- timeout
+    curl::handle_setopt(handle, timeout = timeout)
   }
 
   # verbose if requested
   if (httpVerbose())
-    options$verbose <- TRUE
+    curl::handle_setopt(handle, verbose = TRUE)
 
-  # add extra headers
+  # add cookie headers
   headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
-  extraHeaders <- as.character(headers)
-  names(extraHeaders) <- names(headers)
-  options$httpheader <- extraHeaders
+    list(protocol = protocol, host = host, port = port, path = path),
+    headers)
+
+  # apply method and headers
+  curl::handle_setopt(handle, customrequest = method)
+  curl::handle_setheaders(handle, .list = headers)
 
   # make the request
+  response <- NULL
   time <- system.time(gcFirst = FALSE, tryCatch({
-    if (!is.null(file)) {
-      RCurl::curlPerform(url = url,
-                         .opts = options,
-                         customrequest = method,
-                         readfunction = fileContents,
-                         infilesize = fileLength,
-                         writefunction = textGatherer$update,
-                         upload = TRUE)
-    } else if (method == "DELETE") {
-      RCurl::curlPerform(url = url,
-                         .opts = options,
-                         customrequest = method)
-
-    } else {
-      if (identical(method, "GET")) {
-        RCurl::getURL(url,
-                      .opts = options,
-                      write = textGatherer)
-      } else {
-        RCurl::curlPerform(url = url,
-                           .opts = options,
-                           customrequest = method,
-                           writefunction = textGatherer$update)
-      }
-    }},
+      response <- curl::curl_fetch_memory(url, handle = handle)
+    },
     error = function(e, ...) {
       # ignore errors resulting from timeout or user abort
       if (identical(e$message, "Callback aborted") ||
@@ -615,21 +583,7 @@ httpRCurl <- function(protocol,
   httpTrace(method, path, time)
 
   # get list of HTTP response headers
-  headers <- headerGatherer$value()
-
-  # deduce status. we do this *before* lowercase conversion, as it is possible
-  # for both "Status" and "status" headers to exist
-  status <- 200
-  statuses <- headers[names(headers) == "status"]   # find status header
-  statuses <- statuses[grepl("^\\d+$", statuses)]   # ensure fully numeric
-  if (length(statuses) > 0) {
-    # we found a numeric status header
-    status <- as.integer(statuses[[1]])
-  }
-
-  # lowercase all header names for normalization; HTTP/2 uses lowercase headers
-  # by default but they're typically capitalized in HTTP/1
-  names(headers) <- tolower(names(headers))
+  headers <- curl::parse_headers_list(rawToChar(response$headers))
 
   if ("location" %in% names(headers))
     location <- headers[["location"]]
@@ -652,7 +606,7 @@ httpRCurl <- function(protocol,
   cookieHeaders <- headers[names(headers) == "set-cookie"]
   storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
 
-  contentValue <- textGatherer$value()
+  contentValue <- rawToChar(response$content)
 
   # emit JSON trace if requested
   if (httpTraceJson() && identical(contentType, "application/json"))
@@ -663,7 +617,7 @@ httpRCurl <- function(protocol,
                   port     = port,
                   method   = method,
                   path     = path),
-       status = status,
+       status = response$status_code,
        location = location,
        contentType = contentType,
        content = contentValue)
@@ -685,18 +639,6 @@ httpTrace <- function(method, path, time) {
 }
 
 defaultHttpFunction <- function() {
-
-  # on Windows, prefer 'curl' if it's available on the PATH
-  # as 'RCurl' bundles a version of OpenSSL that's too old.
-  # note that newer versions of Windows 10 supply a 'curl' binary
-  # by default
-  if (identical(Sys.info()[["sysname"]], "Windows")) {
-    curl <- Sys.which("curl")
-    if (nzchar(curl))
-      return("curl")
-  }
-
-  # otherwise, default to RCurl for now (pending update to use httr)
   "rcurl"
 }
 
@@ -908,7 +850,7 @@ rfc2616Date <- function(time = Sys.time()) {
 }
 
 urlDecode <- function(x) {
-  RCurl::curlUnescape(x)
+  curl::curl_unescape(x)
 }
 
 urlEncode <- function(x) {
@@ -920,7 +862,7 @@ queryString <- function (elements) {
   stopifnot(is.list(elements))
   elements <- elements[!sapply(elements, is.null)]
 
-  names <- RCurl::curlEscape(names(elements))
+  names <- curl::curl_escape(names(elements))
   values <- vapply(elements, urlEncode, character(1))
   if (length(elements) > 0) {
     result <- paste0(names, "=", values, collapse = "&")

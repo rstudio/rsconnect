@@ -146,8 +146,8 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   if (streaming) {
     httpType <- getOption("rsconnect.http", "rcurl")
     if (!identical("rcurl", httpType)) {
-      stop("RCurl is required to show streaming logs. Install RCurl and set ",
-            "rsconnect.http to 'rcurl', or call showLogs with streaming = ",
+      stop("The curl R package is required to show streaming logs. Install the ",
+            "curl package and set rsconnect.http to 'rcurl', or call showLogs with streaming = ",
             "FALSE to show a log snapshot.")
     }
   }
