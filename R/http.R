@@ -676,12 +676,12 @@ httpLibCurl <- function(protocol,
                       path,
                       headers,
                       contentType = NULL,
-                      file = NULL,
+                      contentFile = NULL,
                       certificate = NULL,
                       writer = NULL,
                       timeout = NULL) {
 
-  if (!is.null(file) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
   # add prefix to port if necessary
@@ -695,20 +695,32 @@ httpLibCurl <- function(protocol,
   handle <- curl::new_handle()
 
   # read file in binary mode, if supplied
-  if (!is.null(file)) {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
+  if (!is.null(contentFile)) {
+    fileLength <- file.info(contentFile)$size
     headers$`Content-Type` <- contentType
-    # headers$`Content-Length` <- as.character(fileLength)
-    curl::handle_setform(handle, body =
-                           curl::form_data(fileContents, type = contentType))
+    headers$`Content-Length` <- as.character(fileLength)
+    con <- file(contentFile, "rb")
+    curl::handle_setopt(handle, 
+      post = TRUE,
+      postfieldsize_large = fileLength,
+      readfunction = function(nbytes, ...) {
+        if (is.null(con)) {
+          return(raw())
+        }
+        bin <- readBin(con, "raw", nbytes)
+        if (length(bin) < nbytes) {
+          close(con)
+          con <<- NULL
+        }
+        bin
+      })
   }
 
   # establish options
   curl::handle_setopt(handle, useragent = userAgent())
 
   # overlay user-supplied options
-  userOptions <- getOption("rsconnect.rcurl.options")
+  userOptions <- getOption("rsconnect.libcurl.options")
   if (is.list(userOptions)) {
     curl::handle_setopt(handle, .list = userOptions)
   }
@@ -780,7 +792,7 @@ httpLibCurl <- function(protocol,
   # emit JSON trace if requested
   if (!is.null(file) && httpTraceJson() &&
       identical(contentType, "application/json"))
-    cat(paste0("<< ", rawToChar(fileContents), "\n"))
+    cat(paste0("<< ", paste(readLines(contentFile), collapse="\n"), "\n"))
 
   # Parse cookies from header; bear in mind that there may be multiple headers
   cookieHeaders <- headers[names(headers) == "set-cookie"]
@@ -822,7 +834,7 @@ httpFunction <- function() {
   httpType <- getOption("rsconnect.http", "libcurl")
   if (identical("libcurl", httpType))
     httpLibCurl
-  if (identical("rcurl", httpType))
+  else if (identical("rcurl", httpType))
     httpRCurl
   else if (identical("curl",  httpType))
     httpCurl

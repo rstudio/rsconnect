@@ -111,7 +111,7 @@ rpubsUpload <- function(title,
     method <- "PUT"
   }
 
-  # use https if using the curl R package, and vanilla HTTP otherwise
+  # use https if using a curl R package, and vanilla HTTP otherwise
   http <- httpFunction()
   if (identical(http, httpRCurl) || identical(http, httpLibCurl)) {
     protocol <- "https"
