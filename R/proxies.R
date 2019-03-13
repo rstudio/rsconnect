@@ -7,7 +7,7 @@
 #' varies depending on what type of HTTP connection you are making to the
 #' server.
 #'
-#' The default HTTP connection type is `rcurl` however addition connection types
+#' The default HTTP connection type is `libcurl` however addition connection types
 #' `curl` and `internal` are also supported. The HTTP connection type is
 #' configured using the [rsconnectOptions](rsconnect.http()] global option.
 #'
@@ -21,7 +21,8 @@
 #' Sys.setenv(http_proxy = "http://proxy.example.com")
 #' }
 #'
-#' Proxy settings can include a host-name, port, and username/password if necessary. The following are all valid values for the `http_proxy` environment variable:
+#' Proxy settings can include a host-name, port, and username/password if necessary. The following
+#' are all valid values for the `http_proxy` environment variable:
 #'
 #' \preformatted{
 #' http://proxy.example.com/
@@ -29,15 +30,15 @@
 #' http://username:password@proxy.example.com:1080/
 #' }
 #'
-#' @section Setting RCurl Proxy Options:
+#' @section Setting Curl Proxy Options:
 #'
-#' The default HTTP connection type is `rcurl`. If you need more configurability
-#' than affored by the `http_proxy` environment variable you can specify RCurl
-#' proxy options explicity using `rsconnect.rcurl.options`. For example, you
+#' The default HTTP connection type is `libcurl`. If you need more configurability
+#' than affored by the `http_proxy` environment variable you can specify 
+#' proxy options explicity using `rsconnect.libcurl.options`. For example, you
 #' could add the following code to your `.rsconnect_profile`:
 #'
 #' preformatted{
-#' options(rsconnect.rcurl.options = list(proxy = "http://proxy.example.com")
+#' options(rsconnect.libcurl.options = list(proxy = "http://proxy.example.com")
 #' }
 #'
 #' You can set any underlying curl option using this mechanism. Run

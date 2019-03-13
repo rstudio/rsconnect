@@ -113,7 +113,7 @@ rpubsUpload <- function(title,
 
   # use https if using the curl R package, and vanilla HTTP otherwise
   http <- httpFunction()
-  if (identical(http, httpRCurl)) {
+  if (identical(http, httpRCurl) || identical(http, httpLibCurl)) {
     protocol <- "https"
     port <- 443
   } else {
