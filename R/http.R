@@ -694,28 +694,6 @@ httpLibCurl <- function(protocol,
   # create a new curl handle
   handle <- curl::new_handle()
 
-  # read file in binary mode, if supplied
-  if (!is.null(contentFile)) {
-    fileLength <- file.info(contentFile)$size
-    headers$`Content-Type` <- contentType
-    headers$`Content-Length` <- as.character(fileLength)
-    con <- file(contentFile, "rb")
-    curl::handle_setopt(handle, 
-      post = TRUE,
-      postfieldsize_large = fileLength,
-      readfunction = function(nbytes, ...) {
-        if (is.null(con)) {
-          return(raw())
-        }
-        bin <- readBin(con, "raw", nbytes)
-        if (length(bin) < nbytes) {
-          close(con)
-          con <<- NULL
-        }
-        bin
-      })
-  }
-
   # establish options
   curl::handle_setopt(handle, useragent = userAgent())
 
@@ -754,9 +732,39 @@ httpLibCurl <- function(protocol,
     list(protocol = protocol, host = host, port = port, path = path),
     headers)
 
-  # apply method and headers
+  if (!is.null(contentFile)) {
+    fileLength <- file.info(contentFile)$size
+    headers$`Content-Type` <- contentType
+    headers$`Content-Length` <- as.character(fileLength)
+  }
+
   curl::handle_setopt(handle, customrequest = method)
   curl::handle_setheaders(handle, .list = headers)
+
+  if (!is.null(contentFile)) {
+    con <- file(contentFile, "rb")
+    if (identical(method, "POST")) {
+      curl::handle_setopt(handle,
+                          post = TRUE,
+                          postfieldsize_large = fileLength)
+    } else if (identical(method, "PUT")) {
+      curl::handle_setopt(handle,
+                          upload = TRUE,
+                          infilesize_large = fileLength)
+    }
+    curl::handle_setopt(handle,
+      readfunction = function(nbytes, ...) {
+         if (is.null(con)) {
+           return(raw())
+         }
+         bin <- readBin(con, "raw", nbytes)
+         if (length(bin) < nbytes) {
+           close(con)
+           con <<- NULL
+         }
+         bin
+      })
+  }
 
   # make the request
   response <- NULL
