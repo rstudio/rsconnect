@@ -746,24 +746,27 @@ httpLibCurl <- function(protocol,
     if (identical(method, "POST")) {
       curl::handle_setopt(handle,
                           post = TRUE,
+                          postfields = readBin(con,
+                                               what = "raw",
+                                               n = fileLength),
                           postfieldsize_large = fileLength)
     } else if (identical(method, "PUT")) {
       curl::handle_setopt(handle,
                           upload = TRUE,
                           infilesize_large = fileLength)
+      curl::handle_setopt(handle,
+        readfunction = function(nbytes, ...) {
+           if (is.null(con)) {
+             return(raw())
+           }
+           bin <- readBin(con, "raw", nbytes)
+           if (length(bin) < nbytes) {
+             close(con)
+             con <<- NULL
+           }
+           bin
+        })
     }
-    curl::handle_setopt(handle,
-      readfunction = function(nbytes, ...) {
-         if (is.null(con)) {
-           return(raw())
-         }
-         bin <- readBin(con, "raw", nbytes)
-         if (length(bin) < nbytes) {
-           close(con)
-           con <<- NULL
-         }
-         bin
-      })
   }
 
   # make the request
