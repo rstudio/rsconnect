@@ -13,7 +13,7 @@
 #'
 #' @section HTTP Proxy Environment Variable:
 #'
-#' The most straightforward way to specify a proxy for `rcurl` and `curl`
+#' The most straightforward way to specify a proxy for `libcurl` and `curl`
 #' connections is to set the \env{http_proxy} environment variable. For example,
 #' you could add the following code to your `.rsconnect_profile`:
 #'
@@ -33,7 +33,7 @@
 #' @section Setting Curl Proxy Options:
 #'
 #' The default HTTP connection type is `libcurl`. If you need more configurability
-#' than affored by the `http_proxy` environment variable you can specify 
+#' than afforded by the `http_proxy` environment variable you can specify 
 #' proxy options explicity using `rsconnect.libcurl.options`. For example, you
 #' could add the following code to your `.rsconnect_profile`:
 #'
@@ -47,7 +47,7 @@
 #' @section Using Internet Explorer Proxy Settings:
 #'
 #' If you are running on Windows and have difficulty configuring proxy settings
-#' for `rcurl` or `curl` connections, it's possible to re-use your Internet
+#' for `libcurl` or `curl` connections, it's possible to re-use your Internet
 #' Explorer proxy settings for connections to the server. To do this you set the
 #' http connection type to `internal` as follows:
 #'
@@ -57,7 +57,7 @@
 #'
 #' The `internal` connection type uses an insecure (non-encrypted) http
 #' connection to the server. If you require an encrypted https connection it's
-#' recommended that you use an `rcurl` or `curl` connection.
+#' recommended that you use an `libcurl` or `curl` connection.
 #'
 #'
 #' @name rsconnectProxies

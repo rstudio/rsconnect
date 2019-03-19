@@ -1,4 +1,7 @@
-# internal sockets implementation of upload
+# Internal sockets HTTP transport. Not recommended since it does not support HTTPS, but useful as a
+# last resort if other methods don't work since it can piggyback on IE proxy settings via R's own
+# internet configuration.
+
 httpInternal <- function(protocol,
                          host,
                          port,

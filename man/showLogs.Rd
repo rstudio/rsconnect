@@ -29,5 +29,6 @@ as they are made, until R is interrupted. Defaults to \code{FALSE}.}
 Show the logs for a deployed ShinyApps application.
 }
 \note{
-This function works only for ShinyApps servers.
+This function only uses the \code{libcurl} transport, and works only for
+ShinyApps servers.
 }

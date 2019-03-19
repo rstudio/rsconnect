@@ -1,3 +1,6 @@
+# HTTP transport using the curl command-line utility. Useful on systems that have a working curl but
+# not necessarily a working curl library, such as Windows 10.
+
 httpCurl <- function(protocol,
                      host,
                      port,

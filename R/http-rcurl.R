@@ -1,3 +1,7 @@
+# HTTP transport using the RCurl package. DEPRECATED; exists only for backwards compatibility (it
+# was the default transport for many years). In a future release of rsconnect, the RCurl transport
+# will be removed entirely, and the "rcurl" option will be interpreted as "libcurl".
+
 httpRCurl <- function(protocol,
                       host,
                       port,
