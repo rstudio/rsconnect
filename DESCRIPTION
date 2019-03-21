@@ -10,21 +10,23 @@ Description: Programmatic deployment interface for 'RPubs', 'shinyapps.io', and
 Depends:
     R (>= 3.0.0)
 Imports:
-    openssl,
     RCurl,
     curl,
     jsonlite,
+    openssl,
     packrat (>= 0.4.8-1),
-    yaml (>= 2.1.5),
-    rstudioapi (>= 0.5)
+    rstudioapi (>= 0.5),
+    yaml (>= 2.1.5)
 Suggests:
+    callr,
+    httpuv,
     knitr,
-    testthat,
-    rmarkdown (>= 1.1),
     plumber (>= 0.3.2),
     reticulate,
+    rmarkdown (>= 1.1),
     shiny,
     sourcetools,
+    testthat,
     xtable
 License: GPL-2
 RoxygenNote: 6.1.1
