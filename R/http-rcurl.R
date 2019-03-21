@@ -56,6 +56,11 @@ httpRCurl <- function(protocol,
   headerGatherer <- RCurl::basicHeaderGatherer()
   options$headerfunction <- headerGatherer$update
 
+  # the text processing done by .mapUnicode has the unfortunate side effect
+  # of turning escaped backslashes into ordinary backslashes but leaving
+  # ordinary backslashes alone, which can create malformed JSON.
+  textGatherer <- RCurl::basicTextGatherer(.mapUnicode = FALSE)
+
   # use timeout if supplied
   if (!is.null(timeout)) {
     options$timeout <- timeout
@@ -164,5 +169,3 @@ httpRCurl <- function(protocol,
        contentType = contentType,
        content = contentValue)
 }
-
-
