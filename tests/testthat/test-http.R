@@ -26,10 +26,14 @@ setup({
     httpuv::runServer(host = "127.0.0.1", port = port,
       app = list(
         call = function(req) {
-          # save the request to a file for examination
+          # Eagerly fetch the body
+          body <- paste(req[["rook.input"]]$read_lines(), collapse = "\n")
+          req[["body"]] <- body
+
+          # Save the request to a file for examination
           saveRDS(object = req, file = output)
 
-          # parse and return the input file
+          # Parse and return the input file
           readRDS(file = input)
         }))
       },
@@ -50,7 +54,10 @@ teardown({
 
 test_that("simple http GET works", {
   for(transport in transports) {
+    # Set the transport for this instance of the test
     options("rsconnect.http" = transport)
+
+    # Save the response the server will return
     saveRDS(file = input, object = list(
       status = 200L,
       headers = list(
@@ -58,10 +65,14 @@ test_that("simple http GET works", {
       ),
       body = "GET successful"
     ))
+
+    # Perform the request
     GET(service = service,
         authInfo = NULL,
         query = NULL,
         path = "test")
+
+    # Validate that we performed a GET on the requested path
     request <- readRDS(output)
     expect_equal(request$REQUEST_METHOD, "GET")
     expect_equal(request$PATH_INFO, "/test")
@@ -79,19 +90,21 @@ test_that("posting JSON works", {
       body = "POST successful"
     ))
 
+    # Perform the request
     body <- list(a = 1, b = 2, c = 3)
-
     POST_JSON(service = service,
         authInfo = NULL,
         json = body,
         query = NULL,
         path = "test")
-    request <- readRDS(output)
 
+    # Validate HTTP method
+    request <- readRDS(output)
     expect_equal(request$REQUEST_METHOD, "POST")
 
-    # TODO: validate request
-    # req <- request[["rook.input"]]$read_lines()
-    # expect_equal(req, toJSON(body, pretty = TRUE))
+    # Validate body contents
+    expect(request$body == toJSON(body, pretty = TRUE),
+           failure_message =
+             paste0("Unexpected request body '", request$body, "', with transport ", transport))
   }
 })
