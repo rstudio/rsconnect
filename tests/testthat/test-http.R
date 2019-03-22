@@ -21,6 +21,19 @@ service <- list(
 server <- NULL
 
 setup({
+  # Ensure temp directory exists
+  if (!dir.exists(dirname(input)))
+    dir.create(dirname(input), recursive = TRUE)
+
+  # Seed input with sample data
+  saveRDS(file = input, object = list(
+    status = 200L,
+    headers = list(
+      "Content-Type" = "text/plain"
+    ),
+    body = "Request successful"
+  ))
+
   # Create a new server and run it in a background R process
   server <<- callr::r_bg(func = function(output, input, port) {
     httpuv::runServer(host = "127.0.0.1", port = port,
