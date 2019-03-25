@@ -1,202 +1,5 @@
-# Environment in which cookies will be stored. Cookies are expected to survive
-# the duration of the R session, but are not persisted outside of the R
-# session.
-.cookieStore <- new.env(parent=emptyenv())
-
-# Returns the cookies associated with a particular host/port
-# If no hostname is specified, returns all cookies
-getCookies <- function(hostname, port=NULL){
-  if (missing(hostname)){
-    hosts <- ls(envir=.cookieStore)
-    cookies <- lapply(hosts, function(h){
-      getCookiesHostname(h)
-    })
-    do.call("rbind", cookies)
-  } else {
-    host <- getCookieHost(list(host=hostname, port=port))
-    getCookiesHostname(host)
-  }
-}
-
-# Get cookies for a particular hostname(:port)
-getCookiesHostname <- function(host){
-  if (!exists(host, .cookieStore)){
-    NULL
-  } else {
-    cookies <- get(host, envir=.cookieStore)
-    cookies$host <- host
-    cookies
-  }
-}
-
-# Clears the cookies associated with a particular hostname/port combination.
-# If hostname and port are omitted, clears all the cookies
-clearCookies <- function(hostname, port=NULL){
-  if (missing(hostname)){
-    rm(list=ls(envir=.cookieStore), envir=.cookieStore)
-  } else {
-    host <- getCookieHost(list(host=hostname, port=port))
-    rm(list=host, envir=.cookieStore)
-  }
-}
-
 userAgent <- function() {
   paste("rsconnect", packageVersion("rsconnect"), sep="/")
-}
-
-getCookieHost <- function(requestURL){
-  host <- requestURL$host
-  port <- requestURL$port
-  if (!is.null(port) && nchar(port) > 0){
-    port <- sub("^:", "", port)
-    # By my reading of the RFC, we technically only need to include the port #
-    # in the index if the host is an IP address. But here we're including the
-    # port number as a part of the host whether using a domain name or IP.
-    # Erring on the side of not sending the cookies to the wrong services
-    host <- paste(host, port, sep=":")
-  }
-  host
-}
-
-# Parse out the raw headers provided and insert them into the cookieStore
-# NOTE: Domain attribute is currently ignored
-# @param requestURL the parsed URL as returned from `parseHttpUrl`
-# @param cookieHeaders a list of characters strings representing the raw
-#   Set-Cookie header value with the "Set-Cookie: " prefix omitted
-storeCookies <- function(requestURL, cookieHeaders){
-  cookies <- lapply(cookieHeaders, function(co){ parseCookie(requestURL, co) })
-
-  # Filter out invalid cookies (which would return as NULL)
-  cookies <- Filter(Negate(is.null), cookies)
-
-  host <- getCookieHost(requestURL)
-
-  hostCookies <- NULL
-  if (!exists(host, .cookieStore)){
-    # Create a new data frame for this host
-    hostCookies <- data.frame(
-      path=character(0),
-      name=character(0),
-      value=character(0),
-      secure=logical(0),
-      expires=character(0),
-      stringsAsFactors = FALSE
-    )
-  } else {
-    hostCookies <- get(host, envir=.cookieStore)
-  }
-
-  lapply(cookies, function(co){
-    # Remove any duplicates
-    # RFC says duplicate cookies are ones that have the same domain, name, and path
-    hostCookies <<- hostCookies[!(co$name == hostCookies$name & co$path == hostCookies$path),]
-
-    # append this new cookie on
-    hostCookies <<- rbind(as.data.frame(co, stringsAsFactors=FALSE), hostCookies)
-  })
-
-  # Save this host's cookies into the cookies store.
-  assign(host, hostCookies, envir=.cookieStore)
-}
-
-# Parse out an individual cookie
-# @param requestURL the parsed URL as returned from `parseHttpUrl`
-# @param cookieHeader the raw text contents of the Set-Cookie header with the
-#   header name omitted.
-parseCookie <- function(requestURL, cookieHeader){
-  keyval <- regmatches(cookieHeader, regexec(
-    # https://curl.haxx.se/rfc/cookie_spec.html
-    # "characters excluding semi-colon, comma and white space"
-    # white space is not excluded from values so we can capture `expires`
-    "^([^;=, ]+)\\s*=\\s*([^;,]*)(;|$)", cookieHeader, ignore.case=TRUE))[[1]]
-  if (length(keyval) == 0){
-    # Invalid cookie format.
-    warning("Unable to parse set-cookie header: ", cookieHeader)
-    return(NULL)
-  }
-  key <- keyval[2]
-  val <- keyval[3]
-
-  # Path
-  path <- regmatches(cookieHeader, regexec(
-    "^.*\\sPath\\s*=\\s*([^;]+)(;|$).*$", cookieHeader, ignore.case=TRUE))[[1]]
-  if (length(path) == 0){
-    path <- "/"
-  } else {
-    path <- path[2]
-  }
-  if (!substring(requestURL$path, 1, nchar(path)) == path){
-    # Per the RFC, the cookie's path must be a prefix of the request URL
-    warning("Invalid path set for cookie on request for '", requestURL$path, "': ", cookieHeader)
-    return(NULL)
-  }
-
-  # MaxAge
-  maxage <- regmatches(cookieHeader, regexec(
-    "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|$).*$", cookieHeader, ignore.case=TRUE))[[1]]
-  # If no maxage specified, then this is a session cookie, which means that
-  # (since our cookies only survive for a single session anyways...) we should
-  # keep this cookie around as long as we're alive.
-  expires <- Sys.time() + 10^10
-  if (length(maxage) > 0){
-    # Compute time maxage seconds from now
-    expires <- Sys.time() + as.numeric(maxage[2])
-  }
-
-  # Secure
-  secure <- grepl(";\\s+Secure(;|$)", cookieHeader, ignore.case=TRUE)
-
-  list(name=key,
-       value=val,
-       expires=expires,
-       path=path,
-       secure=secure)
-}
-
-# Appends a cookie header from the .cookieStore to the existing set of headers
-# @param requestURL the parsed URL as returned from `parseHttpUrl`
-# @param headers a named character vector containing the set of headers to be extended
-appendCookieHeaders <- function(requestURL, headers){
-  host <- getCookieHost(requestURL)
-
-  if (!exists(host, .cookieStore)){
-    # Nothing to do
-    return(headers)
-  }
-
-  cookies <- get(host, envir=.cookieStore)
-
-  # If any cookies are expired, remove them from the cookie store
-  if (any(cookies$expires < as.integer(Sys.time()))){
-    cookies <- cookies[cookies$expires >= as.integer(Sys.time()),]
-    # Update the store, removing the expired cookies
-    assign(host, cookies, envir=.cookieStore)
-  }
-
-  if (nrow(cookies) == 0){
-    # Short-circuit, return unmodified headers.
-    return(headers)
-  }
-
-  # Filter to only include cookies that match the path prefix
-  cookies <- cookies[substring(requestURL$path, 1, nchar(cookies$path)) == cookies$path,]
-
-  # If insecure channel, filter out secure cookies
-  if(tolower(requestURL$protocol) != "https"){
-    cookies <- cookies[!cookies$secure,]
-  }
-
-  # TODO: Technically per the RFC we're supposed to order these cookies by which
-  # paths most specifically match the request.
-  cookieHeader <- paste(apply(cookies, 1,
-                              function(x){ paste0(x["name"], "=", x["value"]) }), collapse="; ")
-
-  if (nrow(cookies) > 0){
-    return(c(headers, cookie=cookieHeader))
-  } else {
-    # Return unmodified headers
-    return(headers)
-  }
 }
 
 parseHttpUrl <- function(urlText) {
@@ -289,386 +92,6 @@ readHttpResponse <- function(request, conn) {
 }
 
 
-# internal sockets implementation of upload
-httpInternal <- function(protocol,
-                         host,
-                         port,
-                         method,
-                         path,
-                         headers,
-                         contentType = NULL,
-                         file = NULL,
-                         certificate = NULL,
-                         writer = NULL,
-                         timeout = NULL) {
-
-  if (!is.null(file) && is.null(contentType))
-    stop("You must specify a contentType for the specified file")
-
-  # default port to 80 if necessary
-  if (!nzchar(port))
-    port <- "80"
-
-  # read file in binary mode
-  if (!is.null(file)) {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
-  }
-
-  # build http request
-  request <- NULL
-  request <- c(request, paste(method, " ", path, " HTTP/1.1\r\n", sep=""))
-  request <- c(request, "User-Agent: ", userAgent(), "\r\n")
-  request <- c(request, "Host: ", host, "\r\n", sep="")
-  request <- c(request, "Accept: */*\r\n")
-  if (!is.null(file)) {
-    request <- c(request, paste("Content-Type: ",
-                                contentType,
-                                "\r\n",
-                                sep=""))
-    request <- c(request, paste("Content-Length: ",
-                                fileLength,
-                                "\r\n",
-                                sep=""))
-  }
-  headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
-  for (name in names(headers))
-  {
-    request <- c(request,
-                 paste(name, ": ", headers[[name]], "\r\n", sep=""))
-  }
-  request <- c(request, "\r\n")
-
-  # output request if in verbose mode
-  if (httpVerbose())
-    cat(request)
-
-  # use timeout if supplied, default timeout if not (matches parameter behavior
-  # for socketConnection)
-  timeout <- if (is.null(timeout)) getOption("timeout") else timeout
-
-  # open socket connection
-  time <- system.time(gcFirst=FALSE, {
-    conn <- socketConnection(host = host,
-                             port = as.integer(port),
-                             open = "w+b",
-                             blocking = TRUE,
-                             timeout = timeout)
-    on.exit(close(conn))
-
-    # write the request header and file payload
-    writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
-    if (!is.null(file)) {
-      writeBin(fileContents, conn, size=1)
-    }
-
-    # read the response
-    response <- readHttpResponse(list(
-        protocol = protocol,
-        host     = host,
-        port     = port,
-        method   = method,
-        path     = path),
-      conn)
-  })
-  httpTrace(method, path, time)
-
-  # print if in verbose mode
-  if (httpVerbose())
-    print(response)
-
-  # output JSON if requested
-  if (httpTraceJson() && identical(contentType, "application/json"))
-    cat(paste0("<< ", rawToChar(fileContents), "\n"))
-
-  # return it
-  response
-}
-
-httpCurl <- function(protocol,
-                     host,
-                     port,
-                     method,
-                     path,
-                     headers,
-                     contentType = NULL,
-                     file = NULL,
-                     certificate = NULL,
-                     writer = NULL,
-                     timeout = NULL) {
-
-  if (!is.null(file) && is.null(contentType))
-    stop("You must specify a contentType for the specified file")
-
-  if (!is.null(file))
-    fileLength <- file.info(file)$size
-
-  headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
-  extraHeaders <- character()
-  for (header in names(headers))
-  {
-    if(!identical(header, "Content-Type") && !identical(header, "Content-Length")){
-      extraHeaders <- paste(extraHeaders, "--header")
-      extraHeaders <- paste(extraHeaders,
-                            paste('"', header,": ",headers[[header]], '"', sep=""))
-    }
-  }
-
-  outputFile <- tempfile()
-
-  command <- paste("curl",
-                   "-i",
-                   "-X",
-                   method);
-
-  if (httpVerbose())
-    command <- paste(command, "-v")
-
-  if (!is.null(timeout))
-    command <- paste(command, "--connect-timeout", timeout)
-
-  if (!is.null(file)) {
-    command <- paste(command,
-                     "--data-binary",
-                     shQuote(paste("@", file, sep="")),
-                     "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
-                     "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
-  }
-
-  # add prefix to port if necessary
-  if (nzchar(port))
-    port <- paste(":", port, sep="")
-
-  if (!isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
-    # suppressed certificate check
-    command <- paste(command, "--insecure")
-  } else if (!is.null(certificate)) {
-    # cert check not suppressed and we have a supplied cert
-    command <- paste(command,
-                     "--cacert", shQuote(certificate))
-  }
-
-  command <- paste(command,
-                   extraHeaders,
-                   "--header", "Expect:",
-                   "--user-agent", userAgent(),
-                   "--silent",
-                   "--show-error",
-                   "-o", shQuote(outputFile),
-                   paste('"', protocol, "://", host, port, path, '"', sep=""))
-
-  result <- NULL
-  time <- system.time(gcFirst = FALSE, {
-    result <- system(command)
-  })
-  httpTrace(method, path, time)
-
-  # emit JSON trace if requested
-  if (!is.null(file) && httpTraceJson() &&
-      identical(contentType, "application/json"))
-  {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
-    cat(paste0("<< ", rawToChar(fileContents), "\n"))
-  }
-
-  if (result == 0) {
-    fileConn <- file(outputFile, "rb")
-    on.exit(close(fileConn))
-    readHttpResponse(list(
-        protocol = protocol,
-        host     = host,
-        port     = port,
-        method   = method,
-        path     = path),
-      fileConn)
-  } else {
-    stop(paste("Curl request failed (curl error", result, "occurred)"))
-  }
-}
-
-httpRCurl <- function(protocol,
-                      host,
-                      port,
-                      method,
-                      path,
-                      headers,
-                      contentType = NULL,
-                      file = NULL,
-                      certificate = NULL,
-                      writer = NULL,
-                      timeout = NULL) {
-
-  if (!is.null(file) && is.null(contentType))
-    stop("You must specify a contentType for the specified file")
-
-  # add prefix to port if necessary
-  if (!is.null(port) && nzchar(port))
-    port <- paste(":", port, sep="")
-
-  # build url
-  url <- paste(protocol, "://", host, port, path, sep="")
-
-  # read file in binary mode
-  if (!is.null(file)) {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
-    headers$`Content-Type` <- contentType
-  }
-
-  # establish options
-  options <- RCurl::curlOptions(url)
-  options$useragent <- userAgent()
-
-  # overlay user-supplied options
-  userOptions <- getOption("rsconnect.rcurl.options")
-  if (is.list(userOptions)) {
-    for (option in names(userOptions)) {
-      options[option] = userOptions[option]
-    }
-  }
-
-  if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
-    options$ssl.verifypeer <- TRUE
-
-    # apply certificate information if present
-    if (!is.null(certificate))
-      options$cainfo <- certificate
-  } else {
-    # don't verify peer (less secure but tolerant to self-signed cert issues)
-    options$ssl.verifypeer <- FALSE
-  }
-
-  headerGatherer <- RCurl::basicHeaderGatherer()
-  options$headerfunction <- headerGatherer$update
-
-  # the text processing done by .mapUnicode has the unfortunate side effect
-  # of turning escaped backslashes into ordinary backslashes but leaving
-  # ordinary backslashes alone, which can create malformed JSON.
-  textGatherer <- if (is.null(writer))
-      RCurl::basicTextGatherer(.mapUnicode = FALSE)
-    else
-      writer
-
-  # when using a custom output writer, add a progress check so we can
-  # propagate interrupts, and wait a long time (for streaming)
-  if (!is.null(writer)) {
-    options$noprogress <- FALSE
-    options$progressfunction <- writer$progress
-    options$timeout <- 9999999
-  }
-
-  # use timeout if supplied
-  if (!is.null(timeout)) {
-    options$timeout <- timeout
-  }
-
-  # verbose if requested
-  if (httpVerbose())
-    options$verbose <- TRUE
-
-  # add extra headers
-  headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
-  extraHeaders <- as.character(headers)
-  names(extraHeaders) <- names(headers)
-  options$httpheader <- extraHeaders
-
-  # make the request
-  time <- system.time(gcFirst = FALSE, tryCatch({
-    if (!is.null(file)) {
-      RCurl::curlPerform(url = url,
-                         .opts = options,
-                         customrequest = method,
-                         readfunction = fileContents,
-                         infilesize = fileLength,
-                         writefunction = textGatherer$update,
-                         upload = TRUE)
-    } else if (method == "DELETE") {
-      RCurl::curlPerform(url = url,
-                         .opts = options,
-                         customrequest = method)
-
-    } else {
-      if (identical(method, "GET")) {
-        RCurl::getURL(url,
-                      .opts = options,
-                      write = textGatherer)
-      } else {
-        RCurl::curlPerform(url = url,
-                           .opts = options,
-                           customrequest = method,
-                           writefunction = textGatherer$update)
-      }
-    }},
-    error = function(e, ...) {
-      # ignore errors resulting from timeout or user abort
-      if (identical(e$message, "Callback aborted") ||
-          identical(e$message, "transfer closed with outstanding read data remaining"))
-        return(NULL)
-      # bubble remaining errors through
-      else
-        stop(e)
-    }))
-  httpTrace(method, path, time)
-
-  # get list of HTTP response headers
-  headers <- headerGatherer$value()
-
-  # deduce status. we do this *before* lowercase conversion, as it is possible
-  # for both "Status" and "status" headers to exist
-  status <- 200
-  statuses <- headers[names(headers) == "status"]   # find status header
-  statuses <- statuses[grepl("^\\d+$", statuses)]   # ensure fully numeric
-  if (length(statuses) > 0) {
-    # we found a numeric status header
-    status <- as.integer(statuses[[1]])
-  }
-
-  # lowercase all header names for normalization; HTTP/2 uses lowercase headers
-  # by default but they're typically capitalized in HTTP/1
-  names(headers) <- tolower(names(headers))
-
-  if ("location" %in% names(headers))
-    location <- headers[["location"]]
-  else
-    location <- NULL
-
-  # presume a plain text response unless specified otherwise
-  contentType <- if ("content-type" %in% names(headers)) {
-    headers[["content-type"]]
-  } else {
-    "text/plain"
-  }
-
-  # emit JSON trace if requested
-  if (!is.null(file) && httpTraceJson() &&
-      identical(contentType, "application/json"))
-    cat(paste0("<< ", rawToChar(fileContents), "\n"))
-
-  # Parse cookies from header; bear in mind that there may be multiple headers
-  cookieHeaders <- headers[names(headers) == "set-cookie"]
-  storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
-
-  contentValue <- textGatherer$value()
-
-  # emit JSON trace if requested
-  if (httpTraceJson() && identical(contentType, "application/json"))
-    cat(paste0(">> ", contentValue, "\n"))
-
-  list(req = list(protocol = protocol,
-                  host     = host,
-                  port     = port,
-                  method   = method,
-                  path     = path),
-       status = status,
-       location = location,
-       contentType = contentType,
-       content = contentValue)
-}
-
 httpVerbose <- function() {
   getOption("rsconnect.http.verbose", FALSE)
 }
@@ -684,25 +107,11 @@ httpTrace <- function(method, path, time) {
   }
 }
 
-defaultHttpFunction <- function() {
-
-  # on Windows, prefer 'curl' if it's available on the PATH
-  # as 'RCurl' bundles a version of OpenSSL that's too old.
-  # note that newer versions of Windows 10 supply a 'curl' binary
-  # by default
-  if (identical(Sys.info()[["sysname"]], "Windows")) {
-    curl <- Sys.which("curl")
-    if (nzchar(curl))
-      return("curl")
-  }
-
-  # otherwise, default to RCurl for now (pending update to use httr)
-  "rcurl"
-}
-
 httpFunction <- function() {
-  httpType <- getOption("rsconnect.http", defaultHttpFunction())
-  if (identical("rcurl", httpType))
+  httpType <- getOption("rsconnect.http", "libcurl")
+  if (identical("libcurl", httpType))
+    httpLibCurl
+  else if (identical("rcurl", httpType))
     httpRCurl
   else if (identical("curl",  httpType))
     httpCurl
@@ -712,7 +121,7 @@ httpFunction <- function() {
     httpType
   else
     stop(paste("Invalid http option specified:",httpType,
-               ". Valid values are rcurl, curl, and internal"))
+               ". Valid values are libcurl, rcurl, curl, and internal"))
 }
 
 POST_JSON <- function(service,
@@ -772,18 +181,16 @@ GET <- function(service,
                 path,
                 query = NULL,
                 headers = list(),
-                writer = NULL,
                 timeout = NULL) {
-  httpRequest(service, authInfo, "GET", path, query, headers, writer, timeout)
+  httpRequest(service, authInfo, "GET", path, query, headers, timeout)
 }
 
 DELETE <- function(service,
                    authInfo,
                    path,
                    query = NULL,
-                   headers = list(),
-                   writer = NULL) {
-  httpRequest(service, authInfo, "DELETE", path, query, headers, writer)
+                   headers = list()) {
+  httpRequest(service, authInfo, "DELETE", path, query, headers)
 }
 
 httpRequestWithBody <- function(service,
@@ -843,14 +250,18 @@ httpRequestWithBody <- function(service,
        certificate = certificate)
 }
 
-httpRequest <- function(service,
-                        authInfo,
-                        method,
-                        path,
-                        query,
-                        headers = list(),
-                        writer = NULL,
-                        timeout = NULL) {
+httpRequest <- function(...) {
+  httpInvokeRequest(..., http = httpFunction())
+}
+
+httpInvokeRequest <- function(service,
+                              authInfo,
+                              method,
+                              path,
+                              query,
+                              headers = list(),
+                              timeout = NULL, 
+                              http) {
 
   # prepend the service path
   url <- paste(service$path, path, sep="")
@@ -877,15 +288,13 @@ httpRequest <- function(service,
   if (identical(service$protocol, "https"))
     certificate <- createCertificateFile(authInfo$certificate)
 
-  # perform GET
-  http <- httpFunction()
+  # perform method
   http(service$protocol,
        service$host,
        service$port,
        method,
        url,
        headers,
-       writer = writer,
        timeout = timeout,
        certificate = certificate)
 }
@@ -908,7 +317,7 @@ rfc2616Date <- function(time = Sys.time()) {
 }
 
 urlDecode <- function(x) {
-  RCurl::curlUnescape(x)
+  curl::curl_unescape(x)
 }
 
 urlEncode <- function(x) {
@@ -920,7 +329,7 @@ queryString <- function (elements) {
   stopifnot(is.list(elements))
   elements <- elements[!sapply(elements, is.null)]
 
-  names <- RCurl::curlEscape(names(elements))
+  names <- curl::curl_escape(names(elements))
   values <- vapply(elements, urlEncode, character(1))
   if (length(elements) > 0) {
     result <- paste0(names, "=", values, collapse = "&")

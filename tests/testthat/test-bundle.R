@@ -108,6 +108,8 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
 
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
+  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
+  skip_if(pipMissing != 0, "pip module is not installed")
 
   bundleTempDir <- makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds",
                                           NULL, python = python)
@@ -129,6 +131,8 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
 
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
+  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
+  skip_if(pipMissing != 0, "pip module is not installed")
 
   bundleTempDir <- makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds",
                                           "implicit.Rmd", python = python)

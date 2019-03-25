@@ -111,6 +111,31 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
   invisible(NULL)
 }
 
+# streams application logs from ShinyApps
+streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
+  # build the URL
+  url <- paste0(shinyappsServerInfo()$url, "/applications/", applicationId,
+                "/logs?", "count=", entries, "&tail=1")
+  parsed <- parseHttpUrl(url)
+
+  # create the curl handle and perform the minimum necessary to create an
+  # authenticated request. we ignore the rsconnect.http option here because only
+  # curl supports the kind of streaming connection that we need.
+  handle <- createCurlHandle(NULL, NULL)
+  curl::handle_setopt(handle, customrequest = "GET")
+  curl::handle_setheaders(handle,
+    .list = signatureHeaders(authInfo, "GET", parsed$path, NULL))
+
+  # begin the stream
+  curl::curl_fetch_stream(url = url,
+    fun = function(data) {
+      if (skip > 0)
+        skip <<- skip - 1
+      else
+        cat(rawToChar(data))
+    }, handle = handle)
+}
+
 #' Show Application Logs
 #'
 #' Show the logs for a deployed ShinyApps application.
@@ -127,7 +152,8 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 #'   function does not return; instead, log entries are written to the console
 #'   as they are made, until R is interrupted. Defaults to `FALSE`.
 #'
-#' @note This function works only for ShinyApps servers.
+#' @note This function only uses the \code{libcurl} transport, and works only for
+#'   ShinyApps servers.
 #'
 #' @export
 showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
@@ -142,165 +168,30 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
 
-  # check for streaming log compatibility
   if (streaming) {
-    httpType <- getOption("rsconnect.http", "rcurl")
-    if (!identical("rcurl", httpType)) {
-      stop("RCurl is required to show streaming logs. Install RCurl and set ",
-            "rsconnect.http to 'rcurl', or call showLogs with streaming = ",
-            "FALSE to show a log snapshot.")
-    }
-  }
-  if (streaming) {
-    # if streaming, fork a new R process to do the blocking operation
-    rPath <- file.path(R.home("bin"), "R")
-    killfile <- tempfile()
-    outfile <- tempfile()
-
-    # remove the output filewhen done. don't remove the killfile; wait for the
-    # forked process to do that when it's finished (happens async after we
-    # exit)
-    on.exit(unlink(outfile), add = TRUE)
-
-    # form the command. we need to double-escape backslashes in file names, as
-    # they will get collapsed twice before being resolved.
-    cmd <- paste0("rsconnect:::showStreamingLogs(",
-                  "account = '", target$account, "', ",
-                  "applicationId = '", application$id, "', ",
-                  "entries = ", entries, ", ",
-                  "outfile = '", gsub("\\", "\\\\", outfile, fixed = TRUE), "', ",
-                  "killfile = '", gsub("\\", "\\\\", killfile, fixed = TRUE), "')")
-    args <- paste("--vanilla", "--slave", paste0("-e \"", cmd, "\""))
-
-    # execute the command, then wait for the file to which output will be
-    # written to exist
-    system2(command = rPath, args = args, stdout = NULL, stderr = NULL,
-            wait = FALSE)
-    tries <- 0
+    # streaming; poll for the entries directly
+    skip <- 0
     repeat {
       tryCatch({
-        Sys.sleep(0.1)
-        tries <- tries + 1
-        logReader <- file(outfile, open = "rt", blocking = FALSE)
-        break
-      },
-      error = function(e, ...) {
-        # if we can't open the file, keep trying until we can, or until we've
-        # exhausted our maximum retries (~5s).
-        if (tries > 500) {
-          stop("Failed to start log listener.")
-        }
-      },
-      warning = function (...) {})
-    }
-
-    # once the file is open, close it when finished
-    on.exit(close(logReader), add = TRUE)
-
-    # read from the output file until interrupted
-    repeat {
-      tryCatch({
-        if (file.exists(killfile))
-          break
-        writeLines(readLines(con = logReader, warn = FALSE))
-        Sys.sleep(0.1)
-      },
-      interrupt = function(...) {
-        # when R is interrupted, write out the killfile so the async process
-        # won't hang around listening for logs
-        close(file(killfile, open="wt"))
-      },
-      error = function(e, ...) {
-        print(e$message)
-      })
+         streamApplicationLogs(accountDetails, application$id, entries, skip)
+         # after the first fetch, we've seen all recent entries, so show
+         # only new entries. unfortunately /logs/ doesn't support getting 0
+         # entries, so get one and don't log it.
+         entries <- 1
+         skip <- 1
+       },
+       error = function(e) {
+         # if the server times out, ignore the error; otherwise, let it
+         # bubble through
+         if (!identical(e$message,
+                  "transfer closed with outstanding read data remaining")) {
+           stop(e)
+         }
+       })
     }
   } else {
     # if not streaming, poll for the entries directly
-    logs <- client$getLogs(application$id, entries, FALSE, NULL)
+    logs <- client$getLogs(application$id, entries, FALSE)
     cat(logs)
   }
 }
-
-# blocks for network traffic--should be run in a child process
-showStreamingLogs <- function(account, applicationId, entries, outfile,
-                              killfile) {
-  # get account information
-  accountInfo <- accountInfo(account)
-  client <- clientForAccount(accountInfo)
-
-  # remove the killfile when we're done
-  on.exit(unlink(killfile), add = TRUE)
-
-  conn <- file(outfile, open = "wt", blocking = FALSE)
-
-  # the server may time out the request after a few minutes--keep asking for it
-  # until interrupted by the presence of the killfile
-  skip <- 0
-  repeat {
-  tryCatch({
-             client$getLogs(applicationId, entries, TRUE,
-                           writeLogMessage(conn, killfile, skip))
-             if (file.exists(killfile))
-               break
-             # after the first fetch, we've seen all recent entries, so show
-             # only new entries. unfortunately /logs/ doesn't support getting 0
-             # entries, so get one and don't log it.
-             entries <- 1
-             skip <- 1
-           },
-           error = function(e) {
-             # if the server times out, ignore the error; otherwise, let it
-             # bubble through
-             if (!identical(e$message,
-                      "transfer closed with outstanding read data remaining")) {
-               stop(e)
-             }
-           })
-  }
-}
-
-writeLogMessage <- function(conn, killfile, skip) {
-  update = function(data) {
-    # write incoming log data to the console
-    if (skip > 0) {
-      skip <<- skip - 1
-    } else {
-      cat(data, file = conn)
-    }
-    nchar(data, "bytes")
-  }
-  value = function() {
-    # log data is written to the console, but not returned
-    return("")
-  }
-  reset = function() {}
-  # dummy progress meter--exists to allow us to cancel requests when R is
-  # interrupted
-  progress <- function(down, up) {
-    tryCatch((function() {
-      # leave event loop for a moment to give interrupt a chance to arrive
-      Sys.sleep(0.01); cat("")
-      # check for the existance of the killfile--if it exists, abort the process
-      if (file.exists(killfile))
-        1L
-      else
-        0L
-    })(),
-    # when an error or interrupt occurs, write the killfile and tell RCurl to
-    # abort the request
-    error = function(e, ...) {
-      close(file(killfile, open="wt"))
-      1L
-    },
-    interrupt = function(...) {
-      close(file(killfile, open="wt"))
-      1L
-    }
-    )
-  }
-  writer = list(update = update, value = value, reset = reset,
-                progress = progress)
-  class(writer) <- c("RCurlTextHandler", "RCurlCallbackFunction")
-  return(writer)
-}
-
