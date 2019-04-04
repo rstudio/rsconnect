@@ -3,3 +3,6 @@
 language: R
 sudo: false
 cache: packages
+
+after_script:
+- git ls-files -o | sed 's,/.*,,g' | sort | uniq
