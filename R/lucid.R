@@ -141,7 +141,12 @@ lucidClient <- function(service, authInfo) {
 
     terminateApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/terminate", sep="")
-      handleResponse(POST_JSON(service, authInfo, path, list()))
+      handleResponse(POST(service, authInfo, path))
+    },
+
+    purgeApplication = function(applicationId) {
+      path <- paste("/applications/", applicationId, "/purge", sep="")
+      handleResponse(POST(service, authInfo, path))
     },
 
     inviteApplicationUser = function(applicationId, email,

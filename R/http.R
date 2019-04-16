@@ -162,7 +162,15 @@ POST <- function(service,
                  file = NULL,
                  content = NULL,
                  headers = list()) {
-  httpRequestWithBody(service, authInfo, "POST", path, query, contentType, file, content, headers)
+
+  # check if the request needs a body
+  if ((is.null(file) && is.null(content))) {
+      # no file or content, don't include a body with the request
+      httpRequest(service, authInfo, "POST", path, query, headers)
+  } else {
+      # include the request's data in the body
+      httpRequestWithBody(service, authInfo, "POST", path, query, contentType, file, content, headers)
+  }
 }
 
 PUT <- function(service,
