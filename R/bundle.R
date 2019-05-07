@@ -360,6 +360,10 @@ isShinyRmd <- function(filename) {
       # ...and "runtime: shiny", then it's a dynamic Rmd.
       return(TRUE)
     }
+    if (any(grepl('^shiny', unlist(yaml)))) {
+      # if shiny appears somewhere, but not in runtime, may be indentation error
+      warning("'shiny' appears in YAML, but not as runtime. Check indentation?")
+    }
   }
   return(FALSE)
 }
