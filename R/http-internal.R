@@ -9,11 +9,11 @@ httpInternal <- function(protocol,
                          path,
                          headers,
                          contentType = NULL,
-                         file = NULL,
+                         contentFile = NULL,
                          certificate = NULL,
                          timeout = NULL) {
 
-  if (!is.null(file) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
   # default port to 80 if necessary
@@ -21,9 +21,9 @@ httpInternal <- function(protocol,
     port <- "80"
 
   # read file in binary mode
-  if (!is.null(file)) {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
+  if (!is.null(contentFile)) {
+    fileLength <- file.info(contentFile)$size
+    fileContents <- readBin(contentFile, what="raw", n=fileLength)
   }
 
   # build http request
@@ -32,7 +32,7 @@ httpInternal <- function(protocol,
   request <- c(request, "User-Agent: ", userAgent(), "\r\n")
   request <- c(request, "Host: ", host, "\r\n", sep="")
   request <- c(request, "Accept: */*\r\n")
-  if (!is.null(file)) {
+  if (!is.null(contentFile)) {
     request <- c(request, paste("Content-Type: ",
                                 contentType,
                                 "\r\n",
@@ -70,7 +70,7 @@ httpInternal <- function(protocol,
 
     # write the request header and file payload
     writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
-    if (!is.null(file)) {
+    if (!is.null(contentFile)) {
       writeBin(fileContents, conn, size=1)
     }
 

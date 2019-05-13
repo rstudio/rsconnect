@@ -9,11 +9,11 @@ httpRCurl <- function(protocol,
                       path,
                       headers,
                       contentType = NULL,
-                      file = NULL,
+                      contentFile = NULL,
                       certificate = NULL,
                       timeout = NULL) {
 
-  if (!is.null(file) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
   # add prefix to port if necessary
@@ -24,9 +24,9 @@ httpRCurl <- function(protocol,
   url <- paste(protocol, "://", host, port, path, sep="")
 
   # read file in binary mode
-  if (!is.null(file)) {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
+  if (!is.null(contentFile)) {
+    fileLength <- file.info(contentFile)$size
+    fileContents <- readBin(contentFile, what="raw", n=fileLength)
     headers$`Content-Type` <- contentType
   }
 
@@ -79,7 +79,7 @@ httpRCurl <- function(protocol,
 
   # make the request
   time <- system.time(gcFirst = FALSE, tryCatch({
-    if (!is.null(file)) {
+    if (!is.null(contentFile)) {
       RCurl::curlPerform(url = url,
                          .opts = options,
                          customrequest = method,
@@ -145,7 +145,7 @@ httpRCurl <- function(protocol,
   }
 
   # emit JSON trace if requested
-  if (!is.null(file) && httpTraceJson() &&
+  if (!is.null(contentFile) && httpTraceJson() &&
       identical(contentType, "application/json"))
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
 

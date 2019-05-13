@@ -8,15 +8,15 @@ httpCurl <- function(protocol,
                      path,
                      headers,
                      contentType = NULL,
-                     file = NULL,
+                     contentFile = NULL,
                      certificate = NULL,
                      timeout = NULL) {
 
-  if (!is.null(file) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
-  if (!is.null(file))
-    fileLength <- file.info(file)$size
+  if (!is.null(contentFile))
+    fileLength <- file.info(contentFile)$size
 
   headers <- appendCookieHeaders(
     list(protocol=protocol, host=host, port=port, path=path), headers)
@@ -43,10 +43,10 @@ httpCurl <- function(protocol,
   if (!is.null(timeout))
     command <- paste(command, "--connect-timeout", timeout)
 
-  if (!is.null(file)) {
+  if (!is.null(contentFile)) {
     command <- paste(command,
                      "--data-binary",
-                     shQuote(paste("@", file, sep="")),
+                     shQuote(paste("@", contentFile, sep="")),
                      "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
                      "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
@@ -80,11 +80,11 @@ httpCurl <- function(protocol,
   httpTrace(method, path, time)
 
   # emit JSON trace if requested
-  if (!is.null(file) && httpTraceJson() &&
+  if (!is.null(contentFile) && httpTraceJson() &&
       identical(contentType, "application/json"))
   {
-    fileLength <- file.info(file)$size
-    fileContents <- readBin(file, what="raw", n=fileLength)
+    fileLength <- file.info(contentFile)$size
+    fileContents <- readBin(contentFile, what="raw", n=fileLength)
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
   }
 
