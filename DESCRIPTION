@@ -10,7 +10,6 @@ Description: Programmatic deployment interface for 'RPubs', 'shinyapps.io', and
 Depends:
     R (>= 3.0.0)
 Imports:
-    RCurl,
     curl,
     jsonlite,
     openssl,
@@ -18,6 +17,7 @@ Imports:
     rstudioapi (>= 0.5),
     yaml (>= 2.1.5)
 Suggests:
+    RCurl,
     callr,
     httpuv,
     knitr,
