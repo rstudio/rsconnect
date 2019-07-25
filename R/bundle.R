@@ -66,6 +66,9 @@ maxDirectoryList <- function(dir, parent, totalSize) {
     contents <- contents[!grepl(glob2rx("manifest.json"), contents)]
   }
 
+  # exclude renv files
+  contents <- setdiff(contents, c("renv", "renv.lock"))
+
   # sum the size of the files in the directory
   info <- file.info(file.path(dir, contents))
   size <- sum(info$size)
