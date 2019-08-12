@@ -76,7 +76,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   # get Bioconductor repos if any
   biocRepos = repos[grep('BioC', names(repos), perl=TRUE, value=TRUE)]
   if (length(biocRepos) > 0) {
-    biocPackages = available.packages(contriburl=contrib.url(biocRepos, type="source"))
+    biocPackages = available.packages(contriburl = contrib.url(biocRepos, type = "source"), type = "source")
   } else {
     biocPackages = c()
   }
@@ -85,7 +85,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   repo.lookup <- data.frame(
     name = names(named.repos),
     url = as.character(named.repos),
-    contrib.url = contrib.url(named.repos),
+    contrib.url = contrib.url(named.repos, type = "source"),
     stringsAsFactors = FALSE)
 
   # get packages records defined in the lockfile
