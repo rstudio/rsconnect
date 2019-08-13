@@ -70,6 +70,9 @@ teardown({
 })
 
 test_that("simple http GET works", {
+  # Test HTTP server doesn't work on Solaris
+  skip_on_os("solaris")
+
   for(transport in transports) {
     # Set the transport for this instance of the test
     options("rsconnect.http" = transport)
@@ -97,6 +100,9 @@ test_that("simple http GET works", {
 })
 
 test_that("posting JSON works", {
+  # Test HTTP server doesn't work on Solaris
+  skip_on_os("solaris")
+
   for(transport in transports) {
     options("rsconnect.http" = transport)
     saveRDS(file = input, object = list(
@@ -127,6 +133,9 @@ test_that("posting JSON works", {
 })
 
 test_that("posting with no data works", {
+  # Test HTTP server doesn't work on Solaris
+  skip_on_os("solaris")
+
   for(transport in transports) {
     options("rsconnect.http" = transport)
 
@@ -158,6 +167,9 @@ test_that("posting with no data works", {
 })
 
 test_that("posting file works", {
+  # Test HTTP server doesn't work on Solaris
+  skip_on_os("solaris")
+
   for(transport in transports) {
     options("rsconnect.http" = transport)
 
