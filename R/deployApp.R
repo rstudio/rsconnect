@@ -43,7 +43,9 @@
 #'   in which case record will be written to the location specified with `appDir`.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
-#'   interactive sessions only.
+#'   interactive sessions only. If a function is passed, it will be called
+#'   after the app is started, with the app URL as a paramter.
+#' @param on.failure Function to be called if the deployment fails.
 #' @param logLevel One of `"quiet"`, `"normal"` or `"verbose"`; indicates how
 #'   much logging to the console is to be performed. At `"quiet"` reports no
 #'   information; at `"verbose"`, a full diagnostic log is captured.
@@ -103,7 +105,8 @@ deployApp <- function(appDir = getwd(),
                       lint = TRUE,
                       metadata = list(),
                       forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
-                      python = NULL) {
+                      python = NULL,
+                      on.failure = NULL) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -420,7 +423,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (!quiet)
-    openURL(client, application, launch.browser, deploymentSucceeded)
+    openURL(client, application, launch.browser, on.failure, deploymentSucceeded)
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
@@ -704,7 +707,7 @@ validURL <- function(url) {
   !(is.null(url) || url == '')
 }
 
-openURL <- function(client, application, launch.browser, deploymentSucceeded) {
+openURL <- function(client, application, launch.browser, on.failure, deploymentSucceeded) {
 
   # function to browse to a URL using user-supplied browser (config or final)
   showURL <- function(url) {
@@ -725,11 +728,17 @@ openURL <- function(client, application, launch.browser, deploymentSucceeded) {
     }
     if (validURL(url)) {
       # Connect should always end up here, even on deployment failures
-      showURL(url)
+      if (deploymentSucceeded) {
+        showURL(url)
+      } else {
+        on.failure(url)
+      }
     }
   } else if (deploymentSucceeded) {
     # shinyapps.io should land here if things succeeded
     showURL(application$url)
+  } else {
+      on.failure(application$url)
   }
     # or open no url if things failed
 }
