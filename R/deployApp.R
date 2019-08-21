@@ -730,14 +730,14 @@ openURL <- function(client, application, launch.browser, on.failure, deploymentS
       # Connect should always end up here, even on deployment failures
       if (deploymentSucceeded) {
         showURL(url)
-      } else {
+      } else if (is.function(on.failure)) {
         on.failure(url)
       }
     }
   } else if (deploymentSucceeded) {
     # shinyapps.io should land here if things succeeded
     showURL(application$url)
-  } else {
+  } else if (is.function(on.failure)) {
       on.failure(application$url)
   }
     # or open no url if things failed
