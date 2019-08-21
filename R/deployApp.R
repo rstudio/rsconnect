@@ -45,7 +45,8 @@
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called
 #'   after the app is started, with the app URL as a paramter.
-#' @param on.failure Function to be called if the deployment fails.
+#' @param on.failure Function to be called if the deployment fails, with the
+#'   application as a parameter.
 #' @param logLevel One of `"quiet"`, `"normal"` or `"verbose"`; indicates how
 #'   much logging to the console is to be performed. At `"quiet"` reports no
 #'   information; at `"verbose"`, a full diagnostic log is captured.
@@ -731,14 +732,14 @@ openURL <- function(client, application, launch.browser, on.failure, deploymentS
       if (deploymentSucceeded) {
         showURL(url)
       } else if (is.function(on.failure)) {
-        on.failure(url)
+        on.failure(application)
       }
     }
   } else if (deploymentSucceeded) {
     # shinyapps.io should land here if things succeeded
     showURL(application$url)
   } else if (is.function(on.failure)) {
-      on.failure(application$url)
+    on.failure(application)
   }
     # or open no url if things failed
 }
