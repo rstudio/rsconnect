@@ -91,7 +91,7 @@ The specified python binary will be invoked to determine its version
 and to list the python packages installed in the environment.}
 
 \item{on.failure}{Function to be called if the deployment fails. If a
-deployemnt log URL is available, it's passed as a parameter.}
+deployment log URL is available, it's passed as a parameter.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

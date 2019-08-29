@@ -46,7 +46,7 @@
 #'   interactive sessions only. If a function is passed, it will be called
 #'   after the app is started, with the app URL as a paramter.
 #' @param on.failure Function to be called if the deployment fails. If a
-#'   deployemnt log URL is available, it's passed as a parameter.
+#'   deployment log URL is available, it's passed as a parameter.
 #' @param logLevel One of `"quiet"`, `"normal"` or `"verbose"`; indicates how
 #'   much logging to the console is to be performed. At `"quiet"` reports no
 #'   information; at `"verbose"`, a full diagnostic log is captured.
