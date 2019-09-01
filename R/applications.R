@@ -8,13 +8,15 @@
 #'   multiple servers.
 #' @return
 #' Returns a data frame with the following columns:
-#' \tabular{ll}{
-#' `name` \tab Name of application \cr
-#' `url` \tab URL where application can be accessed\cr
-#' `config_url` \tab URL where application can be configured\cr
-#' `status` \tab Current status of application. Valid values are
-#' `pending`, `deploying`, `running`, `terminating`, and
-#' `terminated`.
+#' \describe{
+#' \item{`id`}{Application unique id}
+#' \item{`name`}{Name of application}
+#' \item{`url`}{URL where application can be accessed}
+#' \item{`status`}{Current status of application. Valid values are `pending`,
+#' `deploying`, `running`, `terminating`, and `terminated`}
+#' \item{size}{Instance size (small, medium, large, etc.) on ShinyApps.io}
+#' \item{instances}{Number of instances on ShinyApps.io}
+#' \item{`config_url`}{URL where application can be configured}
 #' }
 #' @note To register an account you call the [setAccountInfo()] function.
 #' @examples
@@ -39,41 +41,76 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
+  isConnect <- !isShinyapps(accountDetails)
+
   # retreive applications
   apps <- client$listApplications(accountDetails$accountId)
 
+
+  keep <- if (isConnect) {
+    c(
+      'id',
+      'name',
+      'url',
+      'build_status',       # RStudio Connect
+      'created_time',
+      'last_deployed_time' # RStudio Connect
+    )
+  } else {
+    c(
+      'id',
+      'name',
+      'url',
+      'status',             # ShinyApps.io
+      'created_time',
+      'updated_time',       # ShinyApps.io
+      'deployment'
+    )
+  }
   # extract the subset of fields we're interested in
-  res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time',
-                             'updated_time', 'deployment'))
+  res <- lapply(apps, `[`, keep)
 
   # promote the size and instance data to first-level fields
-  res <- lapply(res, function(x) {
-    if (! is.null(x$deployment)) {
+  res <- if (isConnect) {
+    lapply(res, function(x){
+      x$size <- NA
+      x$instances <- NA
+      x
+      # x$deployment <- NULL
+
+    })
+  } else {
+    lapply(res, function(x) {
       x$size <- x$deployment$properties$application.instances.template
       x$instances <- x$deployment$properties$application.instances.count
       if (is.null(x$instances))
         x$instances <- NA
-    } else {
-      x$size <- NA
-      x$instances <- NA
-    }
-    x$deployment <- NULL
-
-    # this may be provided by the server at some point, but for now infer it
-    # from the account type
-    x$config_url <- if (isShinyapps(accountDetails))
-      paste("https://www.shinyapps.io/admin/#/application", x$id, sep = "/")
-    else
-      sub("/__api__", paste("/connect/#/apps", x$id, sep = "/"),
-          serverDetails$url)
-
-    return(x)
-  })
+      x$deployment <- NULL
+      x
+    })
+  }
 
   # convert to data frame
-  res <- do.call(rbind, res)
+  res <- do.call(rbind.data.frame, res)
+  res <- as.data.frame(res, stringsAsFactors = FALSE)
 
-  as.data.frame(res, stringsAsFactors = FALSE)
+  # this may be provided by the server at some point, but for now infer it
+  # from the account type
+  res$config_url <- if (!isConnect){
+    paste("https://www.shinyapps.io/admin/#/application", res$id, sep = "/")
+  } else {
+    prefix <- sub("/__api__", "", serverDetails$url)
+    paste(prefix, "connect/#/apps", res$id, sep = "/")
+  }
+
+  # Ensure the Connect and ShinyApps.io dataframes have same names
+  idx <- match("last_deployed_time", names(res))
+  if(!is.na(idx)) names(res)[idx] <- "updated_time"
+
+  idx <- match("build_status", names(res))
+  if (!is.na(idx)) names(res)[idx] <- "status"
+  res
+
 }
 
 resolveApplication <- function(accountDetails, appName) {
