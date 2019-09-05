@@ -16,12 +16,16 @@ multiple servers.}
 \value{
 Returns a data frame with the following columns:
 \tabular{ll}{
-\code{name} \tab Name of application \cr
-\code{url} \tab URL where application can be accessed\cr
-\code{config_url} \tab URL where application can be configured\cr
-\code{status} \tab Current status of application. Valid values are
-\code{pending}, \code{deploying}, \code{running}, \code{terminating}, and
-\code{terminated}.
+\code{id}         \tab Application unique id \cr
+\code{name}       \tab Name of application \cr
+\code{url}        \tab URL where application can be accessed \cr
+
+\code{status}     \tab Current status of application. Valid values are \code{pending},
+\code{deploying}, \code{running}, \code{terminating}, and \code{terminated} \cr
+\code{size}       \tab Instance size (small, medium, large, etc.) (on
+ShinyApps.io) \cr
+\code{instances}  \tab Number of instances (on ShinyApps.io) \cr
+\code{config_url} \tab URL where application can be configured \cr
 }
 }
 \description{

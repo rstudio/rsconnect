@@ -9,12 +9,16 @@
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
-#' `name` \tab Name of application \cr
-#' `url` \tab URL where application can be accessed\cr
-#' `config_url` \tab URL where application can be configured\cr
-#' `status` \tab Current status of application. Valid values are
-#' `pending`, `deploying`, `running`, `terminating`, and
-#' `terminated`.
+#' `id`         \tab Application unique id \cr
+#' `name`       \tab Name of application \cr
+#' `url`        \tab URL where application can be accessed \cr
+#'
+#' `status`     \tab Current status of application. Valid values are `pending`,
+#'                   `deploying`, `running`, `terminating`, and `terminated` \cr
+#' `size`       \tab Instance size (small, medium, large, etc.) (on
+#'                   ShinyApps.io) \cr
+#' `instances`  \tab Number of instances (on ShinyApps.io) \cr
+#' `config_url` \tab URL where application can be configured \cr
 #' }
 #' @note To register an account you call the [setAccountInfo()] function.
 #' @examples
@@ -39,41 +43,79 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
-  # retreive applications
+  isConnect <- !isShinyapps(accountDetails)
+
+  # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
 
+  keep <- if (isConnect) {
+    c(
+      'id',
+      'name',
+      'url',
+      'build_status',
+      'created_time',
+      'last_deployed_time',
+      'guid'
+    )
+  } else {
+    c(
+      'id',
+      'name',
+      'url',
+      'status',
+      'created_time',
+      'updated_time',
+      'deployment'
+    )
+  }
   # extract the subset of fields we're interested in
-  res <- lapply(apps, `[`, c('id', 'name', 'url', 'status', 'created_time',
-                             'updated_time', 'deployment'))
+  res <- lapply(apps, `[`, keep)
 
-  # promote the size and instance data to first-level fields
-  res <- lapply(res, function(x) {
-    if (! is.null(x$deployment)) {
+  res <- if (isConnect) {
+    lapply(res, function(x){
+      # set size and instance to NA since Connect doesn't return this info
+      x$size <- NA
+      x$instances <- NA
+      x
+    })
+  } else {
+    lapply(res, function(x) {
+      # promote the size and instance data to first-level fields
       x$size <- x$deployment$properties$application.instances.template
       x$instances <- x$deployment$properties$application.instances.count
       if (is.null(x$instances))
         x$instances <- NA
-    } else {
-      x$size <- NA
-      x$instances <- NA
-    }
-    x$deployment <- NULL
-
-    # this may be provided by the server at some point, but for now infer it
-    # from the account type
-    x$config_url <- if (isShinyapps(accountDetails))
-      paste("https://www.shinyapps.io/admin/#/application", x$id, sep = "/")
-    else
-      sub("/__api__", paste("/connect/#/apps", x$id, sep = "/"),
-          serverDetails$url)
-
-    return(x)
-  })
+      x$deployment <- NULL
+      x$guid <- NA
+      x
+    })
+  }
 
   # convert to data frame
-  res <- do.call(rbind, res)
 
-  as.data.frame(res, stringsAsFactors = FALSE)
+  rbindWithoutFactors <- function(...){
+    rbind.data.frame(..., stringsAsFactors = FALSE)
+  }
+  res <- do.call(rbindWithoutFactors, res)
+
+  # this may be provided by the server at some point, but for now infer it
+  # from the account type
+  res$config_url <- if (!isConnect){
+    paste("https://www.shinyapps.io/admin/#/application", res$id, sep = "/")
+  } else {
+    prefix <- sub("/__api__", "", serverDetails$url)
+    paste(prefix, "connect/#/apps", res$id, sep = "/")
+  }
+
+  # Ensure the Connect and ShinyApps.io data frames have same column names
+  idx <- match("last_deployed_time", names(res))
+  if(!is.na(idx)) names(res)[idx] <- "updated_time"
+
+  idx <- match("build_status", names(res))
+  if (!is.na(idx)) names(res)[idx] <- "status"
+
+  return(res)
 }
 
 resolveApplication <- function(accountDetails, appName) {
