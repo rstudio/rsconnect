@@ -29,7 +29,7 @@ createUniqueId <- function(bytes) {
   )
 
   set.seed(NULL)
-  paste(as.hexmode(sample(256, bytes)-1), collapse="")
+  paste0(as.hexmode(sample(256, bytes)-1), collapse="")
 }
 
 # generateToken generates a token for signing requests sent to the RStudio
