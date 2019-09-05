@@ -24,7 +24,8 @@ createUniqueId <- function(bytes) {
       .GlobalEnv$.Random.seed <- oldseed
     } else {
       rm(".Random.seed", envir = .GlobalEnv)
-    }
+    },
+    add = TRUE
   )
 
   set.seed(NULL)
