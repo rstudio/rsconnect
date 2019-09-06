@@ -148,6 +148,41 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
 })
 
+test_that("Rmd without a python block doesn't include reticulate or python in the manifest", {
+  skip_on_cran()
+
+  bundleTempDir <- makeShinyBundleTempDir("plain rmd", "test-rmds",
+                                          "simple.Rmd", python = NULL)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+
+  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
+  deps <- packrat:::readLockFilePackages(lockfile)
+  expect_false("reticulate" %in% names(deps))
+
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
+  expect_equal(manifest$python, NULL)
+})
+
+test_that("Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
+  skip_on_cran()
+  python <- Sys.which("python")
+  skip_if(python == "", "python is not installed")
+
+  bundleTempDir <- makeShinyBundleTempDir("plain rmd", "test-rmds",
+                                          "simple.Rmd", python = python)
+  on.exit(unlink(bundleTempDir, recursive = TRUE))
+
+  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
+  deps <- packrat:::readLockFilePackages(lockfile)
+  expect_false("reticulate" %in% names(deps))
+
+  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
+  expect_equal(manifest$python, NULL)
+})
 test_that("getPython handles null python by checking RETICULATE_PYTHON", {
   skip_on_cran()
 
