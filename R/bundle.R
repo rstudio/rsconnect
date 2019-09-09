@@ -260,6 +260,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   The specified python binary will be invoked to determine its version
 #'   and to list the python packages installed in the environment.
+#'   If python = NULL, and RETICULATE_PYTHON is set in the environment,
+#'   its value will be used.
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
@@ -296,6 +298,8 @@ writeManifest <- function(appDir = getwd(),
       appFiles = appFiles,
       appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+
+  python <- getPython(python)
 
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(

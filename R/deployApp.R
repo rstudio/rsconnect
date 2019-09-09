@@ -60,8 +60,9 @@
 #'   `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
-#'   The specified python binary will be invoked to determine its version
-#'   and to list the python packages installed in the environment.
+#'   If python = NULL, and RETICULATE_PYTHON is set in the environment, its
+#'   value will be used. The specified python binary will be invoked to determine
+#'   its version and to list the python packages installed in the environment.
 #' @examples
 #' \dontrun{
 #'
