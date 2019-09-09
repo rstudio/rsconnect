@@ -1,0 +1,57 @@
+url: https://rstudio.github.io/rstudioapi
+
+template:
+  params:
+    bootswatch: cerulean
+
+reference:
+
+  - title: Package options
+    desc : ~
+    contents :
+    - matches("rsconnect")
+
+  - title: Accounts
+    desc : ~
+    contents :
+    - matches("[Aa]ccount")
+
+  - title: Users
+    desc : ~
+    contents :
+    - matches("[Uu]ser")
+
+
+  - title: Deployments
+    desc : ~
+    contents :
+    - writeManifest
+    - listBundleFiles
+    - matches("[Dd]eploy")
+
+  - title: Servers
+    desc : ~
+    contents :
+    - matches("[Ss]erver")
+
+  - title: Properties and Metrics
+    desc : ~
+    contents :
+    - matches("[Pp]ropert")
+    - matches("show")
+
+  - title: Applications
+    desc : ~
+    contents :
+    - matches("[Aa]pp")
+
+  - title: Other functions
+    desc : ~
+    contents :
+    - addLinter
+    - lint
+    - linter
+    - makeLinterMessage
+    - rpubsUpload
+    - taskLog
+    - tasks
