@@ -316,6 +316,11 @@ writeManifest <- function(appDir = getwd(),
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
+  srcRequirementsFile <- file.path(bundleDir, "requirements.txt")
+  dstRequirementsFile <- file.path(appDir, "requirements.txt")
+  if(file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
+    file.copy(srcRequirementsFile, dstRequirementsFile)
+  }
   invisible()
 }
 
@@ -525,7 +530,7 @@ inferPythonEnv <- function(workdir, python) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, python = NULL, 
+                              appPrimaryDoc, assetTypeName, users, python = NULL,
                               hasPythonRmd = FALSE) {
 
   # provide package entries for all dependencies
