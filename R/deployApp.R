@@ -740,7 +740,7 @@ openURL <- function(client, application, launch.browser, on.failure, deploymentS
     # shinyapps.io should land here if things succeeded
     showURL(application$url)
   } else if (is.function(on.failure)) {
-    on.failure(null)
+    on.failure(NULL)
   }
     # or open no url if things failed
 }
