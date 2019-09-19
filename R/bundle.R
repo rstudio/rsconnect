@@ -188,6 +188,9 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       appMode = appMode,
       contentCategory = contentCategory)
+  hasPythonRmd <- appHasPythonRmd(
+      appDir = appDir,
+      files = appFiles)
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -213,7 +216,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
       users = users,
-      python = python)
+      python = python,
+      hasPythonRmd = hasPythonRmd)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -256,6 +260,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   The specified python binary will be invoked to determine its version
 #'   and to list the python packages installed in the environment.
+#'   If python = NULL, and RETICULATE_PYTHON is set in the environment,
+#'   its value will be used.
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
@@ -282,6 +288,9 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       appMode = appMode,
       contentCategory = contentCategory)
+  hasPythonRmd <- appHasPythonRmd(
+      appDir = appDir,
+      files = appFiles)
 
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(
@@ -289,6 +298,8 @@ writeManifest <- function(appDir = getwd(),
       appFiles = appFiles,
       appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+
+  python <- getPython(python)
 
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
@@ -299,11 +310,17 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
       users = NULL,
-      python = python)
+      python = python,
+      hasPythonRmd = hasPythonRmd)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
+  srcRequirementsFile <- file.path(bundleDir, "requirements.txt")
+  dstRequirementsFile <- file.path(appDir, "requirements.txt")
+  if(file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
+    file.copy(srcRequirementsFile, dstRequirementsFile)
+  }
   invisible()
 }
 
@@ -326,6 +343,26 @@ yamlFromRmd <- function(filename) {
     }
   }
   return(NULL)
+}
+
+rmdHasPythonBlock <- function(filename) {
+  lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
+  matches <- grep("`{python", lines, fixed = TRUE)
+  return (length(matches) > 0)
+}
+
+appHasPythonRmd <- function(appDir, files) {
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
+                   value = TRUE)
+
+  if (length(rmdFiles) > 0) {
+    for (rmdFile in rmdFiles) {
+      if (rmdHasPythonBlock(file.path(appDir, rmdFile))) {
+        return(TRUE)
+      }
+    }
+  }
+  return(FALSE)
 }
 
 appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory) {
@@ -445,7 +482,7 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
 }
 
 ## check for extra dependencies congruent to application mode
-inferDependencies <- function(appMode, hasParameters, python) {
+inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd) {
   deps <- c()
   if (grepl("\\brmd\\b", appMode)) {
     if (hasParameters) {
@@ -460,7 +497,7 @@ inferDependencies <- function(appMode, hasParameters, python) {
   if (appMode == 'api') {
     deps <- c(deps, "plumber")
   }
-  if (!is.null(python)) {
+  if (hasPythonRmd) {
     deps <- c(deps, "reticulate")
   }
   unique(deps)
@@ -493,7 +530,8 @@ inferPythonEnv <- function(workdir, python) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, python = NULL) {
+                              appPrimaryDoc, assetTypeName, users, python = NULL,
+                              hasPythonRmd = FALSE) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -506,7 +544,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependences
-    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python))
+    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python, hasPythonRmd))
 
     # construct package list from dependencies
     for (i in seq.int(nrow(deps))) {

@@ -25,7 +25,9 @@ deployed (e.g. \code{"plot"} or \code{"site"}).}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 The specified python binary will be invoked to determine its version
-and to list the python packages installed in the environment.}
+and to list the python packages installed in the environment.
+If python = NULL, and RETICULATE_PYTHON is set in the environment,
+its value will be used.}
 }
 \description{
 Given a directory content targeted for deployment, write a manifest.json
