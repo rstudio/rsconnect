@@ -211,16 +211,15 @@ activeEncoding <- function(project = getwd()) {
 
 # Returns the MD5 for path as a raw sequence of 16 hexadecimal pairs.
 fileMD5 <- function(path) {
-  if (is.null(path)) {
-    # Use raw(0) rather than the empty string so openssl::md5 returns the has as hex values and not
-    # a concatenated string of hex characters.
-    return(openssl::md5(raw(0)))
-  }
-
   # Use digest::digest to compute file MD5. FIPS mode disables openssl::md5. Workaround until we can
   # migrate away from MD5 for file content checks.
   #
   # See: https://github.com/rstudio/rsconnect/issues/363
+
+  if (is.null(path)) {
+    return(digest::digest("", algo = "md5", serialize = FALSE, raw = TRUE))
+  }
+
   digest::digest(path, algo = "md5", file = TRUE, raw = TRUE)
 }
 
