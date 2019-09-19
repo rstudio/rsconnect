@@ -11,6 +11,7 @@ Depends:
     R (>= 3.0.0)
 Imports:
     curl,
+    digest,
     jsonlite,
     openssl,
     packrat (>= 0.4.8-1),
