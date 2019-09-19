@@ -190,8 +190,9 @@ record. These fields will be returned on subsequent calls to
       <th>python</th>
       <td><p>Full path to a python binary for use by <code>reticulate</code>.
 Required if <code>reticulate</code> is a dependency of the app being deployed.
-The specified python binary will be invoked to determine its version
-and to list the python packages installed in the environment.</p></td>
+If python = NULL, and RETICULATE_PYTHON is set in the environment, its
+value will be used. The specified python binary will be invoked to determine
+its version and to list the python packages installed in the environment.</p></td>
     </tr>
     </table>
 
@@ -219,7 +220,7 @@ and to list the python packages installed in the environment.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>
