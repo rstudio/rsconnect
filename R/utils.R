@@ -209,12 +209,28 @@ activeEncoding <- function(project = getwd()) {
   sub("^Encoding:\\s*", "", encodingLine)
 }
 
-md5sum <- function(path) {
+# Returns the MD5 for path as a sequence of 16 hexadecimal pairs with class md5 hash.
+fileMD5 <- function(path) {
+  if (is.null(path)) {
+    # Use raw(0) rather than the empty string so openssl::md5 returns the has as hex values and not
+    # a concatenated string of hex characters.
+    return(openssl::md5(raw(0)))
+  }
+  
   # open the file for reading in binary mode (to ensure we treat newlines
   # literally when computing the md5)
   con <- base::file(path, open = "rb")
   on.exit(close(con), add = TRUE)
 
-  # compute md5 sum of contents and return as ordinary characters
-  unclass(as.character(openssl::md5(con)))
+  openssl::md5(con)
+}
+
+# Returns the MD5 for path as a 32-character concatenated string of hexadecimal characters.
+fileMD5.as.string <- function(path) {
+  md5.as.string(fileMD5(path))
+}
+
+# Returns the input md5 as a 32-character concatenated string of hexadecimal characters.
+md5.as.string <- function(md5) {
+  unclass(as.character(md5))
 }

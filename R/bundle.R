@@ -562,7 +562,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # provide checksums for all files
   filelist <- list()
   for (file in files) {
-    checksum <- list(checksum = md5sum(file.path(appDir, file)))
+    filepath <- file.path(appDir, file)
+    checksum <- list(checksum = fileMD5.as.string(filepath))
     filelist[[file]] <- I(checksum)
   }
 

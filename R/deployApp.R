@@ -344,8 +344,8 @@ deployApp <- function(appDir = getwd(),
         bundleSize <- file.info(bundlePath)$size
 
         # Generate a hex-encoded md5 hash.
-        checkSum <- md5sum(bundlePath)
-        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checkSum)
+        checksum <- fileMD5.as.string(bundlePath)
+        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checksum)
 
         if (verbose)
           timestampedLog("Starting upload now")
