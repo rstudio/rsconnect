@@ -157,8 +157,13 @@ connectClient <- function(service, authInfo) {
       while (TRUE) {
         path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
         response <- handleResponse(GET(service, authInfo, path))
+
+        labeledMessage = function(msg) {
+          message(paste('[Connect]', msg))
+        }
+
         if (length(response$status) > 0) {
-          lapply(response$status, message)
+          lapply(response$status, labeledMessage)
           start <- response$last_status
         }
         if (length(response$finished) > 0 && response$finished) {
