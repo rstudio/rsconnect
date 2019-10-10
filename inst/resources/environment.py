@@ -15,7 +15,7 @@ class EnvironmentException(Exception):
     pass
 
 
-def detect_environment():
+def detect_environment(dirname):
     """Determine the python dependencies in the environment.
 
     `pip freeze` will be used to introspect the environment.
@@ -24,7 +24,8 @@ def detect_environment():
     and contents if successful, or a dictionary containing 'error'
     on failure.
     """
-    result = pip_freeze()
+    result = (output_file(dirname, 'requirements.txt', 'pip') or
+              pip_freeze(dirname))
 
     if result is not None:
         result['python'] = get_python_version()
@@ -86,7 +87,7 @@ def output_file(dirname, filename, package_manager):
         raise EnvironmentException('Error reading %s: %s' % (filename, str(exc)))
 
 
-def pip_freeze():
+def pip_freeze(dirname):
     """Inspect the environment using `pip freeze`.
 
     Returns a dictionary containing the filename
@@ -120,7 +121,10 @@ def pip_freeze():
 
 if __name__ == '__main__':
     try:
-        result = detect_environment()
+        if len(sys.argv) < 2:
+            raise EnvironmentException('Usage: %s DIRECTORY' % sys.argv[0])
+
+        result = detect_environment(sys.argv[1])
     except EnvironmentException as exc:
         result = dict(error=str(exc))
 
