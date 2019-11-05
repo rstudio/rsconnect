@@ -233,7 +233,7 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
     }
   } else {
     # if not streaming, poll for the entries directly
-    logs <- client$getLogs(application$id, entries, FALSE)
+    logs <- client$getLogs(application$id, entries)
     cat(logs)
   }
 }
