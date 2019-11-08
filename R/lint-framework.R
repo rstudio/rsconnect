@@ -159,10 +159,8 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
     on.exit(options(encoding = enc), add = TRUE)
 
     # read content with requested encoding
-    contents <- readLines(file, encoding = encoding, warn = FALSE)
-
-    # force UTF-8
-    enc2utf8(contents)
+    # TODO: may consider converting from native encoding to UTF-8 if appropriate
+    readLines(file, encoding = encoding, warn = FALSE)
 
   })
 
