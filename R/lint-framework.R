@@ -151,7 +151,21 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 
   # Read in the files
   encoding <- activeEncoding(project)
-  projectContent <- suppressWarnings(lapply(projectFilesToLint, readLines, encoding = encoding))
+  projectContent <- lapply(projectFilesToLint, function(file) {
+
+    # force native encoding (disable any potential internal conversion)
+    enc <- getOption("encoding")
+    options(encoding = "native.enc")
+    on.exit(options(encoding = enc), add = TRUE)
+
+    # read content with requested encoding
+    contents <- readLines(file, encoding = encoding, warn = FALSE)
+
+    # force UTF-8
+    enc2utf8(contents)
+
+  })
+
   names(projectContent) <- projectFilesToLint
   lintResults <- vector("list", length(linters))
   names(lintResults) <- names(linters)
