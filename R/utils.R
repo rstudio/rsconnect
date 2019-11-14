@@ -192,7 +192,10 @@ capitalize <- function(x) {
 }
 
 activeEncoding <- function(project = getwd()) {
+
   defaultEncoding <- getOption("encoding")
+  if (identical(defaultEncoding, "native.enc"))
+    defaultEncoding <- "unknown"
 
   # attempt to locate .Rproj file
   files <- list.files(project, full.names = TRUE)
@@ -206,7 +209,9 @@ activeEncoding <- function(project = getwd()) {
   if (length(encodingLine) != 1)
     return(defaultEncoding)
 
+  # remove 'Encoding:' prefix
   sub("^Encoding:\\s*", "", encodingLine)
+
 }
 
 # Returns the MD5 for path as a raw sequence of 16 hexadecimal pairs.
