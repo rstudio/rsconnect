@@ -2,6 +2,7 @@
 
 ## 0.8.16 (in development)
 
+* Allow `appId` and other global deployment parameters to `deploySite` (#231)
 * Omit `renv` files from deployment bundle (#367)
 * Fix failure to deploy in Packrat projects (#370)
 * Fix issue deploying when a package exists in multiple repos (#372)
