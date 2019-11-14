@@ -117,9 +117,6 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
       unlink(shinyappsDir, recursive = TRUE)
   }
 
-  # get list of active accounts
-  activeAccounts <- accounts()
-
   # build list of deployment records
   deploymentRecs <- deploymentRecord(name = character(),
                                      title = character(),
@@ -131,6 +128,10 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
                                      bundleId = character(),
                                      url = character(),
                                      when = numeric())
+
+  # get list of active accounts
+  activeAccounts <- accounts()
+
   for (deploymentFile in list.files(rsconnectDir, glob2rx("*.dcf"),
                                     recursive = TRUE)) {
 
@@ -154,6 +155,10 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
     # exclude orphaned if requested (note that the virtual server "rpubs.com"
     # is always considered to be registered)
     if (excludeOrphaned && server != "rpubs.com") {
+      # orphaned by definition if we have no accounts registered
+      if (is.null(activeAccounts) || identical(nrow(activeAccounts), 0))
+        next
+
       # filter by account name and then by server
       matchingAccounts <- activeAccounts[activeAccounts[["name"]] == account,]
       matchingAccounts <-
