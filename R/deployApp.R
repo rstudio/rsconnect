@@ -308,8 +308,15 @@ deployApp <- function(appDir = getwd(),
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
   accountDetails <- accountInfo(target$account, target$server)
-  client <- clientForAccount(accountDetails)
 
+  # ensure we aren't trying to publish an API to shinyapps.io; this will not
+  # currently end well
+  if (isShinyapps(accountDetails) && identical(contentCategory, "api")) {
+    stop("Plumber APIs are not currently supported on shinyapps.io; they ",
+         "can only be published to RStudio Connect.")
+  }
+
+  client <- clientForAccount(accountDetails)
   if(verbose){
     urlstr <- serverInfo(accountDetails$server)$url
     url <- parseHttpUrl(urlstr)
