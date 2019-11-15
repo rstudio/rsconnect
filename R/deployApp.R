@@ -38,7 +38,8 @@
 #'   multiple servers.
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
-#'   using the last version that was uploaded.
+#'   using the last version that was uploaded. `FALSE` is only supported on
+#'   shinyapps.io; `TRUE` is required on RStudio Connect.
 #' @param recordDir Directory where publish record is written. Can be `NULL`
 #'   in which case record will be written to the location specified with `appDir`.
 #' @param launch.browser If true, the system's default web browser will be
@@ -309,11 +310,20 @@ deployApp <- function(appDir = getwd(),
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
   accountDetails <- accountInfo(target$account, target$server)
 
-  # ensure we aren't trying to publish an API to shinyapps.io; this will not
-  # currently end well
-  if (isShinyapps(accountDetails) && identical(contentCategory, "api")) {
-    stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-         "can only be published to RStudio Connect.")
+  # test for compatibility between account type and publish intent
+  if (isShinyapps(accountDetails)) {
+    # ensure we aren't trying to publish an API to shinyapps.io; this will not
+    # currently end well
+    if (identical(contentCategory, "api")) {
+      stop("Plumber APIs are not currently supported on shinyapps.io; they ",
+           "can only be published to RStudio Connect.")
+    }
+  } else {
+    if (isFALSE(upload)) {
+      # it is not possible to deploy to Connect without uploading
+      stop("RStudio Connect does not support deploying without uploading. ",
+           "Specify upload=TRUE to upload and re-deploy your application.")
+    }
   }
 
   client <- clientForAccount(accountDetails)

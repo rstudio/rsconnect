@@ -60,7 +60,8 @@ multiple servers.}
 
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
-using the last version that was uploaded.}
+using the last version that was uploaded. \code{FALSE} is only supported on
+shinyapps.io; \code{TRUE} is required on RStudio Connect.}
 
 \item{recordDir}{Directory where publish record is written. Can be \code{NULL}
 in which case record will be written to the location specified with \code{appDir}.}
