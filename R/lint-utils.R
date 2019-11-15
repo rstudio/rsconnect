@@ -3,6 +3,11 @@ stripComments <- function(content) {
   gsub("#.*", "", content, perl = TRUE)
 }
 
+hasBrowserCalls <- function(content) {
+  # look for calls to browser()
+  grepl("browser\\([^)]*\\)", content, perl = TRUE)
+}
+
 hasAbsolutePaths <- function(content) {
 
   regex <- c(
