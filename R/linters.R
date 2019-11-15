@@ -153,4 +153,20 @@ addLinter("browser", linter (
   suggestion = "The browser() debugging function should be removed."
 ))
 
+addLinter("browseURL", linter (
+  apply = function(content, ...) {
+    content <- stripComments(content)
+    which(hasBrowseURLCalls(content))
+  },
+
+  takes = isRCodeFile,
+
+  message = function(content, lines) {
+    makeLinterMessage("The following lines contain calls to the browseURL function",
+                      content,
+                      lines)
+  },
+
+  suggestion = "Remove browseURL calls; browseURL does not work in deployed applications."
+))
 

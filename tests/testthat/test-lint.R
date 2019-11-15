@@ -72,7 +72,14 @@ test_that("The linter identifies browser() statements correctly", {
   result <- lint("shinyapp-with-browser")
   server.R <- result[["server.R"]]
   browseLines <- server.R[["browser"]]
-  expect_true(browseLines$indices == 7)
+  expect_true(browseLines$indices == 9)
+})
+
+test_that("The linter identifies browseURL() statements correctly", {
+  result <- lint("shinyapp-with-browser")
+  server.R <- result[["server.R"]]
+  browseLines <- server.R[["browseURL"]]
+  expect_true(browseLines$indices == 5)
 })
 
 test_that("The linter accepts a plumber API", {
