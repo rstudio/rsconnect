@@ -14,7 +14,23 @@ addLinter("absolute.paths", linter(
   },
 
   suggestion = "Paths should be to files within the project directory."
+))
 
+addLinter("browser", linter (
+  apply = function(content, ...) {
+    content <- stripComments(content)
+    logical(0)
+  },
+
+  takes = isRCodeFile,
+
+  message = function(content, lines) {
+    makeLinterMessage("The following lines contain the browser() debugging function",
+                      content,
+                      lines)
+  },
+
+  suggestion = "The browser() debugging function should be removed."
 ))
 
 addLinter("invalid.relative.paths", linter(

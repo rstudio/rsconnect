@@ -65,10 +65,14 @@ test_that("The linter believes that the Shiny example apps are okay", {
         })
       })
     })
-
   }
+})
 
-
+test_that("The linter identifies browser() statements correctly", {
+  result <- lint("shinyapp-with-browser")
+  server.R <- result[["server.R"]]
+  browseLines <- server.R[["browser"]]
+  expect_true(browseLines$indices == 7)
 })
 
 test_that("The linter accepts a plumber API", {

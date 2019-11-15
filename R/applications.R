@@ -202,7 +202,8 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
                      account = NULL, entries = 50, streaming = FALSE) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appPath, appName, NULL, NULL, account)
+  target <- deploymentTarget(appPath, appName, NULL, NULL, account,
+                             "shinyapps.io")
   accountDetails <- accountInfo(target$account)
   client <- lucidClient(shinyappsServerInfo()$url, accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
