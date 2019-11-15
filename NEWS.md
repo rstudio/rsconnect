@@ -10,6 +10,7 @@
 * Fix failure to deploy in Packrat projects (#370)
 * Fix issue deploying when a package exists in multiple repos (#372)
 * Honor `RETICULATE_PYTHON` when writing manifests (#374)
+* Add `on.failure` user hook to run a function when `deployApp()` fails (#375)
 * Fix error when showing non-streaming logs (#377)
 * Use internally computed MD5 sums when MD5 is disabled in FIPS mode (#378, #382)
 * Make it clearer which log entries are emitted by RStudio Connect (#385)
