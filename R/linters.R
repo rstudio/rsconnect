@@ -14,7 +14,6 @@ addLinter("absolute.paths", linter(
   },
 
   suggestion = "Paths should be to files within the project directory."
-
 ))
 
 addLinter("invalid.relative.paths", linter(
@@ -136,3 +135,38 @@ addLinter("filepath.capitalization", linter(
   suggestion = "Filepaths are case-sensitive on deployment server."
 
 ))
+
+addLinter("browser", linter (
+  apply = function(content, ...) {
+    content <- stripComments(content)
+    which(hasBrowserCalls(content))
+  },
+
+  takes = isRCodeFile,
+
+  message = function(content, lines) {
+    makeLinterMessage("The following lines contain the browser() debugging function",
+                      content,
+                      lines)
+  },
+
+  suggestion = "The browser() debugging function should be removed."
+))
+
+addLinter("browseURL", linter (
+  apply = function(content, ...) {
+    content <- stripComments(content)
+    which(hasBrowseURLCalls(content))
+  },
+
+  takes = isRCodeFile,
+
+  message = function(content, lines) {
+    makeLinterMessage("The following lines contain calls to the browseURL function",
+                      content,
+                      lines)
+  },
+
+  suggestion = "Remove browseURL calls; browseURL does not work in deployed applications."
+))
+

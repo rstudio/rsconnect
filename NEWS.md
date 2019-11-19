@@ -3,6 +3,7 @@
 ## 0.8.16 (in development)
 
 * Prevent attempts to deploy Connect applications without uploading (#145)
+* Flag usage of `browser()` debugging calls when deploying (#196)
 * Prevent accidental deployment of Plumber APIs to shinyapps.io (#204)
 * Allow `appId` and other global deployment parameters to `deploySite` (#231)
 * Fix error when running `deployments()` without any registered accounts (#261)

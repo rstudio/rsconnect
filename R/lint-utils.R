@@ -3,6 +3,18 @@ stripComments <- function(content) {
   gsub("#.*", "", content, perl = TRUE)
 }
 
+hasBrowserCalls <- function(content) {
+  # look for calls to browser(); they will cause a debug halt, which is almost
+  # never wanted in a production application
+  grepl("browser\\([^)]*\\)", content, perl = TRUE)
+}
+
+hasBrowseURLCalls <- function(content) {
+  # look for calls to browseURL(); browsers can't be opened on the server in
+  # deployed applications
+  grepl("browseURL\\([^)]*\\)", content, perl = TRUE)
+}
+
 hasAbsolutePaths <- function(content) {
 
   regex <- c(
