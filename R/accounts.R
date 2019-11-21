@@ -41,6 +41,64 @@ accounts <- function(server = NULL) {
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
+#' Connect Api User Account
+#'
+#' Connect a user account to the package using an API key for authentication
+#' so that it can be used to deploy and manage
+#' applications on behalf of the account.
+#'
+#' @param account A name for the account to connect. Optional.
+#' @param server The server to connect to. Optional if there is only one server
+#'   registered.
+#' @param apiKey The API key used to authenticate the user
+#' @param quiet Whether or not to show messages and prompts while connecting the
+#'   account.
+#'
+#' @details This function configures the user to connect using an apiKey in
+#' the http auth headers instead of a token. This is less secure but may
+#' be necessary when the client is behind a proxy or otherwise unable to
+#' authenticate using a token.
+#'
+#' @family Account functions
+#' @export
+connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE) {
+  # if server isn't specified, look up the default
+  if (is.null(server)) {
+    target <- getDefaultServer(local = TRUE)
+  } else {
+    target <- serverInfo(server)
+  }
+
+  if (is.null(target)) {
+    stop("You must specify a server to connect to.")
+  }
+
+  # if account is specified and we already know about the account, get the User
+  # ID so we can prefill authentication fields
+  userId <- 0
+  userAccounts <- accounts(target$name)
+  if (!is.null(account) && !is.null(userAccounts)) {
+    if (account %in% userAccounts[,"name"]) {
+      accountDetails <- accountInfo(account, target$name)
+      userId <- accountDetails$accountId
+      if (!quiet) {
+        message("The account '",  account, "' is already registered; ",
+                "attempting to reconnect it.")
+      }
+    }
+  }
+
+  # write the user info
+  registerUserApiKey(serverName = target$name,
+                    accountName = account,
+                    userId = userId,
+                    apiKey = apiKey)
+
+  if (!quiet) {
+    message("\nAccount registered successfully: ", account)
+  }
+}
+
 #' Connect User Account
 #'
 #' Connect a user account to the package so that it can be used to deploy and
@@ -300,6 +358,21 @@ getUserFromRawToken <- function(serverUrl, token, privateKey,
 
   # return the user we found
   user
+}
+
+registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
+  # write the user info
+  configFile <- accountConfigFile(accountName, serverName)
+  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
+  write.dcf(list(username = accountName,
+                 accountId = userId,
+                 apiKey = apiKey,
+                 server = serverName),
+            configFile)
+
+  # set restrictive permissions on it if possible
+  if (identical(.Platform$OS.type, "unix"))
+    Sys.chmod(configFile, mode="0600")
 }
 
 registerUserToken <- function(serverName, accountName, userId, token,
