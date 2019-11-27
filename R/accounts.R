@@ -168,7 +168,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
     user <- getAuthedUser(serverUrl = target$url,
                           token = token$token,
                           privateKey = token$private_key,
-                          certificate = target$certificate)
+                          serverCertificate = target$certificate)
     if (!is.null(user))
       break
   }
