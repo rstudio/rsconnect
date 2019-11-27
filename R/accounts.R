@@ -88,6 +88,20 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
     }
   }
 
+  # form a temporary client from the API key
+  connect <- connectClient(service = ensureConnectServerUrl(target$url),
+                           authInfo = list(apiKey = apiKey))
+
+  # attempt to fetch the server settings to verify auth
+  tryCatch({
+    connect$serverSettings()
+  }, error = function(e) {
+    if (length(grep("HTTP 200", e$message)) == 0) {
+      message("Unable to authenticate on server with provided API key")
+      stop(e)
+    }
+  })
+
   # write the user info
   registerUserApiKey(serverName = target$name,
                     accountName = account,
