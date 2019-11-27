@@ -88,19 +88,12 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
     }
   }
 
-  # form a temporary client from the API key
-  connect <- connectClient(service = ensureConnectServerUrl(target$url),
-                           authInfo = list(apiKey = apiKey))
+  user <- getAuthedUser(serverUrl = target$url,
+                        apiKey = apiKey)
 
-  # attempt to fetch the server settings to verify auth
-  tryCatch({
-    connect$serverSettings()
-  }, error = function(e) {
-    if (length(grep("HTTP 200", e$message)) == 0) {
-      message("Unable to authenticate on server with provided API key")
-      stop(e)
-    }
-  })
+  if (is.null(user)) {
+    stop("Unable to fetch user data for provided API key")
+  }
 
   # write the user info
   registerUserApiKey(serverName = target$name,
@@ -172,8 +165,10 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
   # keep trying to authenticate until we're successful
   repeat {
     Sys.sleep(1)
-    user <- getUserFromRawToken(target$url, token$token, token$private_key,
-                                target$certificate)
+    user <- getAuthedUser(serverUrl = target$url,
+                          token = token$token,
+                          privateKey = token$private_key,
+                          certificate = target$certificate)
     if (!is.null(user))
       break
   }
@@ -346,19 +341,28 @@ getAuthToken <- function(server, userId = 0) {
     claim_url = response$token_claim_url)
 }
 
-# given a server URL and raw information about an auth token, return the user
-# who owns the token, if it's claimed, and NULL if the token is unclaimed.
+# given a server URL and auth parameters, return the user
+# who owns the auth if it's valid/claimed, and NULL if invalid/unclaimed.
 # raises an error on any other HTTP error.
 #
 # this function is used by the RStudio IDE as part of the workflow which
 # attaches a new Connect account.
-getUserFromRawToken <- function(serverUrl, token, privateKey,
-                                serverCertificate = NULL) {
-  # form a temporary client from the raw token
-  connect <- connectClient(service = serverUrl, authInfo =
-                           list(token = token,
-                                private_key = as.character(privateKey),
-                                certificate = serverCertificate))
+getAuthedUser <- function(serverUrl,
+                          token = NULL,
+                          privateKey = NULL,
+                          serverCertificate = NULL,
+                          apiKey = NULL) {
+  authInfo <- NULL
+  if (!is.null(apiKey)) {
+    authInfo <- list(apiKey = apiKey)
+  } else {
+    authInfo <- list(token = token,
+                     private_key = as.character(privateKey),
+                     certificate = serverCertificate)
+  }
+
+  # form a temporary client from the authInfo
+  connect <- connectClient(service = ensureConnectServerUrl(serverUrl), authInfo)
 
   # attempt to fetch the user
   user <- NULL
@@ -372,6 +376,11 @@ getUserFromRawToken <- function(serverUrl, token, privateKey,
 
   # return the user we found
   user
+}
+
+# passthrough function for compatibility with old IDE versions
+getUserFromRawToken <- function(serverUrl, token, privateKey) {
+  getAuthedUser(serverUrl = serverUrl, token = token, privateKey = privateKey)
 }
 
 registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
