@@ -379,8 +379,14 @@ getAuthedUser <- function(serverUrl,
 }
 
 # passthrough function for compatibility with old IDE versions
-getUserFromRawToken <- function(serverUrl, token, privateKey) {
-  getAuthedUser(serverUrl = serverUrl, token = token, privateKey = privateKey)
+getUserFromRawToken <- function(serverUrl,
+                                token,
+                                privateKey,
+                                serverCertificate = NULL) {
+  getAuthedUser(serverUrl = serverUrl,
+                token = token,
+                privateKey = privateKey,
+                serverCertificate = serverCertificate)
 }
 
 registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
