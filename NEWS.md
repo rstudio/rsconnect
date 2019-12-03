@@ -16,6 +16,7 @@
 * Use internally computed MD5 sums when MD5 is disabled in FIPS mode (#378, #382)
 * Make it clearer which log entries are emitted by RStudio Connect (#385)
 * Add support for `requirements.txt` for Python, if it exists (#386)
+* Restore compatibility with R < 3.5 (#394)
 
 ## 0.8.15 
 
