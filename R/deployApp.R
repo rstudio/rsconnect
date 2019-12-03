@@ -319,7 +319,7 @@ deployApp <- function(appDir = getwd(),
            "can only be published to RStudio Connect.")
     }
   } else {
-    if (isFALSE(upload)) {
+    if (identical(upload, FALSE)) {
       # it is not possible to deploy to Connect without uploading
       stop("RStudio Connect does not support deploying without uploading. ",
            "Specify upload=TRUE to upload and re-deploy your application.")
