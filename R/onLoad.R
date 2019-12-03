@@ -15,4 +15,6 @@
     options(rsconnect.http.timeout = ifelse(windows, 20, 5))
   }
 
+  backports::import(pkgname)
 }
+
