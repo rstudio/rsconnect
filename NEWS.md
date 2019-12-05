@@ -17,6 +17,7 @@
 * Make it clearer which log entries are emitted by RStudio Connect (#385)
 * Add support for `requirements.txt` for Python, if it exists (#386)
 * Restore compatibility with R < 3.5 (#394)
+* Add support for authenticating with Connect via an API key rather than a token (#393)
 
 ## 0.8.15 
 
