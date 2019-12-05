@@ -43,6 +43,12 @@ connectClient <- function(service, authInfo) {
 
   list(
 
+    ## Server settings API
+
+    serverSettings = function() {
+      handleResponse(GET(service, authInfo, file.path("/server_settings")))
+    },
+
     ## User API
 
     addUser = function(userRecord) {

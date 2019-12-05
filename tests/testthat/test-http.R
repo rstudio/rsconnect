@@ -201,3 +201,33 @@ test_that("posting file works", {
              paste0("Unexpected request body '", request$body, "', with transport ", transport))
   }
 })
+
+test_that("api key authinfo sets headers", {
+  # Test HTTP server doesn't work on Solaris
+  skip_on_os("solaris")
+  for(transport in transports) {
+    options("rsconnect.http" = transport)
+    # Save the response the server will return
+    saveRDS(file = input, object = list(
+      status = 200L,
+      headers = list(
+        "Content-Type" = "text/plain"
+      ),
+      body = "GET successful"
+    ))
+    apiKey = "abc123"
+    # Perform the request
+    GET(service = service,
+        authInfo = list(apiKey = apiKey),
+        query = NULL,
+        path = "test")
+    # Validate that we performed a GET on the requested path
+    request <- readRDS(output)
+
+    # Validate header contents
+    expect(request$HEADERS["authorization"] == paste("Key", apiKey),
+           failure_message =
+             paste0("Correct api key request header missing in '",
+                    request$HEADERS, "', with transport ", transport))
+  }
+})

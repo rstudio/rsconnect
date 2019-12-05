@@ -236,6 +236,8 @@ httpRequestWithBody <- function(service,
   if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     sigHeaders <- signatureHeaders(authInfo, method, url, file)
     headers <- append(headers, sigHeaders)
+  } else if (!is.null(authInfo$apiKey)) {
+    headers <- append(headers, apiKeyAuthHeaders(authInfo$apiKey))
   } else {
     headers <- append(headers, bogusSignatureHeaders())
   }
@@ -268,7 +270,7 @@ httpInvokeRequest <- function(service,
                               path,
                               query,
                               headers = list(),
-                              timeout = NULL, 
+                              timeout = NULL,
                               http) {
 
   # prepend the service path
@@ -283,10 +285,15 @@ httpInvokeRequest <- function(service,
 
   # the request should be authenticated if there's any auth specified
   # other than the server certificate
-  if (length(authInfo) > 0 &&
-      !identical(names(authInfo), "certificate")) {
-    sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
-    headers <- append(headers, sigHeaders)
+  if (length(authInfo) > 0 && !identical(names(authInfo), "certificate")) {
+    if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
+      sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
+      headers <- append(headers, sigHeaders)
+    } else if (!is.null(authInfo$apiKey)) {
+      headers <- append(headers, apiKeyAuthHeaders(authInfo$apiKey))
+    } else {
+      headers <- append(headers, bogusSignatureHeaders())
+    }
   } else {
     headers <- append(headers, bogusSignatureHeaders())
   }
@@ -347,6 +354,10 @@ queryString <- function (elements) {
   return(result)
 }
 
+apiKeyAuthHeaders <- function(apiKey) {
+  list(`Authorization` = paste("Key", apiKey))
+}
+
 bogusSignatureHeaders <- function() {
   list(`X-Auth-Token` = 'anonymous-access') # The value doesn't actually matter here, but the header needs to be set.
 }
@@ -363,11 +374,11 @@ signatureHeaders <- function(authInfo, method, path, file) {
 
   # generate contents hash as hex values.
   md5 <- fileMD5(file)
-  
+
   if (!is.null(authInfo$secret)) {
     # the content hash is a string of hex characters when using secret.
     md5 <- md5.as.string(md5)
-    
+
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep="\n")
 
