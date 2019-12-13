@@ -21,7 +21,13 @@ setup({
   if (!dir.exists(dirname(contentsFile))) {
     dir.create(dirname(contentsFile), recursive = TRUE)
   }
-  writeLines("go bananas!", contentsFile)
+
+  # Open in binary mode so the contents are identical on all platforms
+  # (otherwise the file contains a \n on Unix and \r\n on Windows, which
+  # hash differently)
+  con <- file(contentsFile, open = "wb")
+  writeLines("go bananas!", con)
+  close(con)
 })
 
 teardown({
