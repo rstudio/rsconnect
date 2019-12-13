@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.16 (in development)
+## 0.8.16
+
+Released to CRAN on 2019-12-13
 
 * Prevent attempts to deploy Connect applications without uploading (#145)
 * Flag usage of `browser()` debugging calls when deploying (#196)
