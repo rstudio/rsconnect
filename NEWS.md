@@ -2,6 +2,8 @@
 
 ## 0.8.17 (in development)
 
+* Add support for syncing the deployment metadata with the server
+
 ## 0.8.16
 
 Released to CRAN on 2019-12-13
