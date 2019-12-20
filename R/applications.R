@@ -277,11 +277,11 @@ syncAppMetadata <- function(appPath) {
     account <- rsconnect::accountInfo(deploys[i, "account"],
                                       server = deploys[i, "server"])
 
-    connect <- rsconnect::clientForAccount(account)
+    connect <- clientForAccount(account)
 
     # if the app does not exist, delete the file
     tryCatch({
-      application <- client$getApplication(deploys[i, "appId"])
+      application <- connect$getApplication(deploys[i, "appId"])
 
       # update the record and save out a new config file
       write.dcf(list(

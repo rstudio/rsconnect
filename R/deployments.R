@@ -26,7 +26,7 @@ saveDeployment <- function(appPath, name, title, username, account, server,
   # create the record to write to disk
   deployment <- deploymentRecord(name, title, username, account, server, hostUrl,
                                  appId, bundleId, url, when = as.numeric(Sys.time()),
-                                 lastSynctime = as.numeric(Sys.time()), metadata)
+                                 lastSyncTime = as.numeric(Sys.time()), metadata)
 
   # use a long width so URLs don't line-wrap
   write.dcf(deployment, deploymentFile(appPath, name, account, server),
