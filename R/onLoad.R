@@ -15,4 +15,7 @@
     options(rsconnect.http.timeout = ifelse(windows, 20, 5))
   }
 
+  if (is.null(getOption("rsconnect.metadata.sync.hours"))) {
+    options(rsconnect.metadata.sync.hours = 24)
+  }
 }
