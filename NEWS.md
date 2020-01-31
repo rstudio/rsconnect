@@ -2,6 +2,9 @@
 
 ## 0.8.17 (in development)
 
+- improve the regex used for the browser and browseURL lints to
+  include a word boundary (#400)
+
 ## 0.8.16
 
 Released to CRAN on 2019-12-13
