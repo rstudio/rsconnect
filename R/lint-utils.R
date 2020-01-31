@@ -12,7 +12,7 @@ hasBrowserCalls <- function(content) {
 hasBrowseURLCalls <- function(content) {
   # look for calls to browseURL(); browsers can't be opened on the server in
   # deployed applications
-  grepl("browseURL\\([^)]*\\)", content, perl = TRUE)
+  grepl("\\bbrowseURL\\([^)]*\\)", content, perl = TRUE)
 }
 
 hasAbsolutePaths <- function(content) {
