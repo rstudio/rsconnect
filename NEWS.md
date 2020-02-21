@@ -2,6 +2,8 @@
 
 ## 0.8.17 (in development)
 
+* Fixed bug where `connectApiUser()` did not set a user id (#407)
+
 ## 0.8.16
 
 Released to CRAN on 2019-12-13
@@ -23,10 +25,9 @@ Released to CRAN on 2019-12-13
 * Restore compatibility with R < 3.5 (#394)
 * Add support for authenticating with Connect via an API key rather than a token (#393)
 
-## 0.8.15 
+## 0.8.15
 
 Released to CRAN on 2019-07-22
 
 * Switch from **RCurl** to **curl** as the default HTTP backend (#325)
 * Add `purgeApp()` function to purge previously deployed shinyapps.io applications (#352)
-
