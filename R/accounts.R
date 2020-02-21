@@ -98,7 +98,7 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
   # write the user info
   registerUserApiKey(serverName = target$name,
                     accountName = account,
-                    userId = userId,
+                    userId = user$id,
                     apiKey = apiKey)
 
   if (!quiet) {
