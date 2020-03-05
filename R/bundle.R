@@ -171,7 +171,8 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, verbose = FALSE, python = NULL) {
+                      contentCategory, verbose = FALSE, python = NULL,
+                      compatibilityMode = F, forceGenerate = F) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -216,6 +217,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
       users = users,
+      compatibilityMode = compatibilityMode,
+      forceGenerate = forceGenerate,
       python = python,
       hasPythonRmd = hasPythonRmd)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -263,12 +266,23 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   If python = NULL, and RETICULATE_PYTHON is set in the environment,
 #'   its value will be used.
 #'
+#' @param forceGeneratePythonEnvironment Optional. If an existing
+#'   `requirements.txt` or `environment.yml` file is found, it will
+#'   be overwritten when this argument is `TRUE`.
+#'
+#' @param forceRequirementsTxtEnvironment Optional. If rsconnect
+#'   detects you are running in a conda environment, it will write
+#'   `requirements.txt` instead of `environment.yml` when this
+#'   argument is `TRUE`.
+#'
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
-                          python = NULL) {
+                          python = NULL,
+                          forceGeneratePythonEnvironment = F,
+                          forceRequirementsTxtEnvironment = F) {
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
   } else {
@@ -310,6 +324,8 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
       users = NULL,
+      compatibilityMode = forceRequirementsTxtEnvironment,
+      forceGenerate = forceGeneratePythonEnvironment,
       python = python,
       hasPythonRmd = hasPythonRmd)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -503,10 +519,15 @@ inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd) {
   unique(deps)
 }
 
-inferPythonEnv <- function(workdir, python) {
+inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
-  args <- c(shQuote(env_py), shQuote(workdir))
+  args <- c(shQuote(env_py))
+  if (compatibilityMode || forceGenerate) {
+    flags <- paste('-', ifelse(compatibilityMode, 'c', ''), ifelse(forceGenerate, 'f', ''), sep = '')
+    args <- c(args, flags)
+  }
+  args <- c(args, shQuote(workdir))
 
   tryCatch({
     output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
@@ -530,8 +551,8 @@ inferPythonEnv <- function(workdir, python) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, python = NULL,
-                              hasPythonRmd = FALSE) {
+                              appPrimaryDoc, assetTypeName, users, compatibilityMode,
+                              forceGenerate, python = NULL, hasPythonRmd = FALSE) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -551,9 +572,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       name <- deps[i, "Package"]
 
       if (name == "reticulate" && !is.null(python)) {
-        pyInfo <- inferPythonEnv(appDir, python)
+        pyInfo <- inferPythonEnv(appDir, python, compatibilityMode, forceGenerate)
         if (is.null(pyInfo$error)) {
-          # write the package list into requirements.txt file in the bundle dir
+          # write the package list into requirements.txt/environment.yml file in the bundle dir
           packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
           cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
           pyInfo$package_manager$contents <- NULL
