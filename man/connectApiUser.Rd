@@ -4,8 +4,7 @@
 \alias{connectApiUser}
 \title{Connect Api User Account}
 \usage{
-connectApiUser(account = NULL, server = NULL, apiKey = NULL,
-  quiet = FALSE)
+connectApiUser(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE)
 }
 \arguments{
 \item{account}{A name for the account to connect. Optional.}
@@ -30,7 +29,9 @@ be necessary when the client is behind a proxy or otherwise unable to
 authenticate using a token.
 }
 \seealso{
-Other Account functions: \code{\link{accounts}},
-  \code{\link{connectUser}}, \code{\link{setAccountInfo}}
+Other Account functions: 
+\code{\link{accounts}()},
+\code{\link{connectUser}()},
+\code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

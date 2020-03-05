@@ -4,8 +4,14 @@
 \alias{forgetDeployment}
 \title{Forget Application Deployment}
 \usage{
-forgetDeployment(appPath = getwd(), name = NULL, account = NULL,
-  server = NULL, dryRun = FALSE, force = !interactive())
+forgetDeployment(
+  appPath = getwd(),
+  name = NULL,
+  account = NULL,
+  server = NULL,
+  dryRun = FALSE,
+  force = !interactive()
+)
 }
 \arguments{
 \item{appPath}{The path to the content that was deployed, either a directory

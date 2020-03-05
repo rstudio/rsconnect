@@ -4,8 +4,14 @@
 \alias{accountUsage}
 \title{Show Account Usage}
 \usage{
-accountUsage(account = NULL, server = NULL, usageType = "hours",
-  from = NULL, until = NULL, interval = NULL)
+accountUsage(
+  account = NULL,
+  server = NULL,
+  usageType = "hours",
+  from = NULL,
+  until = NULL,
+  interval = NULL
+)
 }
 \arguments{
 \item{account}{Account name. If a single account is registered on the
