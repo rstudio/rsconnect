@@ -4,9 +4,16 @@
 \alias{showUsage}
 \title{Show Application Usage}
 \usage{
-showUsage(appDir = getwd(), appName = NULL, account = NULL,
-  server = NULL, usageType = "hours", from = NULL, until = NULL,
-  interval = NULL)
+showUsage(
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  usageType = "hours",
+  from = NULL,
+  until = NULL,
+  interval = NULL
+)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to

@@ -4,8 +4,13 @@
 \alias{writeManifest}
 \title{Create a manifest.json describing deployment requirements.}
 \usage{
-writeManifest(appDir = getwd(), appFiles = NULL,
-  appPrimaryDoc = NULL, contentCategory = NULL, python = NULL)
+writeManifest(
+  appDir = getwd(),
+  appFiles = NULL,
+  appPrimaryDoc = NULL,
+  contentCategory = NULL,
+  python = NULL
+)
 }
 \arguments{
 \item{appDir}{Directory containing the content (Shiny application, R

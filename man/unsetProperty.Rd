@@ -4,8 +4,13 @@
 \alias{unsetProperty}
 \title{Unset Application property}
 \usage{
-unsetProperty(propertyName, appPath = getwd(), appName = NULL,
-  account = NULL, force = FALSE)
+unsetProperty(
+  propertyName,
+  appPath = getwd(),
+  appName = NULL,
+  account = NULL,
+  force = FALSE
+)
 }
 \arguments{
 \item{propertyName}{Name of property to unset}

@@ -4,8 +4,13 @@
 \alias{removeAuthorizedUser}
 \title{Remove authorized user from an application}
 \usage{
-removeAuthorizedUser(user, appDir = getwd(), appName = NULL,
-  account = NULL, server = NULL)
+removeAuthorizedUser(
+  user,
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL
+)
 }
 \arguments{
 \item{user}{The user to remove. Can be id or email address.}

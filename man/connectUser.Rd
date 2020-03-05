@@ -28,8 +28,9 @@ be able to deploy and manage applications using the package without further
 prompts for credentials.
 }
 \seealso{
-Other Account functions: \code{\link{accounts}},
-  \code{\link{connectApiUser}},
-  \code{\link{setAccountInfo}}
+Other Account functions: 
+\code{\link{accounts}()},
+\code{\link{connectApiUser}()},
+\code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

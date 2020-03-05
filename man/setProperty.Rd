@@ -4,8 +4,14 @@
 \alias{setProperty}
 \title{Set Application property}
 \usage{
-setProperty(propertyName, propertyValue, appPath = getwd(),
-  appName = NULL, account = NULL, force = FALSE)
+setProperty(
+  propertyName,
+  propertyValue,
+  appPath = getwd(),
+  appName = NULL,
+  account = NULL,
+  force = FALSE
+)
 }
 \arguments{
 \item{propertyName}{Name of property to set}

@@ -37,8 +37,11 @@ may be useful.
 \url{https://www.tensorflow.org/programmers_guide/saved_model#overview_of_saving_and_restoring_models}
 }
 \seealso{
-Other Deployment functions: \code{\link{applications}},
-  \code{\link{deployAPI}}, \code{\link{deployApp}},
-  \code{\link{deployDoc}}, \code{\link{deploySite}}
+Other Deployment functions: 
+\code{\link{applications}()},
+\code{\link{deployAPI}()},
+\code{\link{deployApp}()},
+\code{\link{deployDoc}()},
+\code{\link{deploySite}()}
 }
 \concept{Deployment functions}

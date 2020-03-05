@@ -4,8 +4,14 @@
 \alias{showLogs}
 \title{Show Application Logs}
 \usage{
-showLogs(appPath = getwd(), appFile = NULL, appName = NULL,
-  account = NULL, entries = 50, streaming = FALSE)
+showLogs(
+  appPath = getwd(),
+  appFile = NULL,
+  appName = NULL,
+  account = NULL,
+  entries = 50,
+  streaming = FALSE
+)
 }
 \arguments{
 \item{appPath}{The path to the directory or file that was deployed.}
