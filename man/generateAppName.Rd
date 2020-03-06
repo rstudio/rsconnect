@@ -4,8 +4,7 @@
 \alias{generateAppName}
 \title{Generate Application Name}
 \usage{
-generateAppName(appTitle, appPath = NULL, account = NULL,
-  unique = TRUE)
+generateAppName(appTitle, appPath = NULL, account = NULL, unique = TRUE)
 }
 \arguments{
 \item{appTitle}{A descriptive title for the application.}

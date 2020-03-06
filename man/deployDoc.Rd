@@ -31,8 +31,11 @@ dependencies explicitly in the document (the documentation for
 parameter.
 }
 \seealso{
-Other Deployment functions: \code{\link{applications}},
-  \code{\link{deployAPI}}, \code{\link{deployApp}},
-  \code{\link{deploySite}}, \code{\link{deployTFModel}}
+Other Deployment functions: 
+\code{\link{applications}()},
+\code{\link{deployAPI}()},
+\code{\link{deployApp}()},
+\code{\link{deploySite}()},
+\code{\link{deployTFModel}()}
 }
 \concept{Deployment functions}

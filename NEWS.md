@@ -3,6 +3,7 @@
 ## 0.8.17 (in development)
 
 * Fixed bug where `connectApiUser()` did not set a user id (#407)
+* Improve the regex used for the browser and browseURL lints to include a word boundary (#400)
 
 ## 0.8.16
 
