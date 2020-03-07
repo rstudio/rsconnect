@@ -146,6 +146,10 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
+  if (!isShinyapps(accountDetails)) {
+    stop("This method only works for ShinyApps servers.")
+  }
+
   # resolve application
   if (is.null(appName))
     appName = basename(appDir)
@@ -153,7 +157,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 
   # fetch authoriztion list
   api <- clientForAccount(accountDetails)
-  res <- api$listApplicationAuthoization(application$id)
+  res <- api$listApplicationAuthorization(application$id)
 
   # get interesting fields
   users <- lapply(res, function(x) {
