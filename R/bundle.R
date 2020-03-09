@@ -333,6 +333,7 @@ writeManifest <- function(appDir = getwd(),
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
   requirementsFilename <- manifest$python$package_manager$package_file
+  if (is.null(requirementsFilename)) { requirementsFilename <- "requirements.txt" }
   srcRequirementsFile <- file.path(bundleDir, requirementsFilename)
   dstRequirementsFile <- file.path(appDir, requirementsFilename)
   if(file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
@@ -557,7 +558,7 @@ inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
   tryCatch({
     # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
     # and verify that the user hasn't specified that they don't want their conda environment captured.
-    if(requireNamespace('reticulate', quietly = TRUE) && reticulate::py_available(initialize = FALSE) &&
+    if('reticulate' %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
        reticulate::py_config()$anaconda && !compatibilityMode) {
       prefix <- getCondaEnvPrefix(python)
       conda <- getCondaExeForPrefix(prefix)
