@@ -117,7 +117,7 @@ deployApp <- function(appDir = getwd(),
                       forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
                       python = NULL,
                       on.failure = NULL,
-                      forceGeneratePythonEnvironment = F,
+                      forceGeneratePythonEnvironment = FALSE,
                       forceRequirementsTxtEnvironment = F) {
 
   if (!isStringParam(appDir))
@@ -791,4 +791,3 @@ runStartupScripts <- function(appDir, logLevel) {
     }
   }
 }
-
