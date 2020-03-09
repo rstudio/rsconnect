@@ -134,7 +134,9 @@ content.</p>
   <span class='kw'>appFiles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>appPrimaryDoc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>contentCategory</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>python</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>python</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>forceGeneratePythonEnvironment</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>forceRequirementsTxtEnvironment</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -170,6 +172,19 @@ The specified python binary will be invoked to determine its version
 and to list the python packages installed in the environment.
 If python = NULL, and RETICULATE_PYTHON is set in the environment,
 its value will be used.</p></td>
+    </tr>
+    <tr>
+      <th>forceGeneratePythonEnvironment</th>
+      <td><p>Optional. If an existing
+<code>requirements.txt</code> or <code>environment.yml</code> file is found, it will
+be overwritten when this argument is <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>forceRequirementsTxtEnvironment</th>
+      <td><p>Optional. If rsconnect
+detects you are running in a conda environment, it will write
+<code>requirements.txt</code> instead of <code>environment.yml</code> when this
+argument is <code>TRUE</code>.</p></td>
     </tr>
     </table>
 
