@@ -9,7 +9,9 @@ writeManifest(
   appFiles = NULL,
   appPrimaryDoc = NULL,
   contentCategory = NULL,
-  python = NULL
+  python = NULL,
+  forceGeneratePythonEnvironment = FALSE,
+  forceRequirementsTxtEnvironment = FALSE
 )
 }
 \arguments{
@@ -33,6 +35,15 @@ The specified python binary will be invoked to determine its version
 and to list the python packages installed in the environment.
 If python = NULL, and RETICULATE_PYTHON is set in the environment,
 its value will be used.}
+
+\item{forceGeneratePythonEnvironment}{Optional. If an existing
+\code{requirements.txt} or \code{environment.yml} file is found, it will
+be overwritten when this argument is \code{TRUE}.}
+
+\item{forceRequirementsTxtEnvironment}{Optional. If rsconnect
+detects you are running in a conda environment, it will write
+\code{requirements.txt} instead of \code{environment.yml} when this
+argument is \code{TRUE}.}
 }
 \description{
 Given a directory content targeted for deployment, write a manifest.json
