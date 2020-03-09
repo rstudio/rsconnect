@@ -172,7 +172,7 @@ bundleFiles <- function(appDir) {
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
-                      compatibilityMode = F, forceGenerate = F) {
+                      compatibilityMode = FALSE, forceGenerate = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
