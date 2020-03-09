@@ -592,10 +592,12 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE) {
 
   # provide package entries for all dependencies
-  packages <- list()
+  packages     <- list()
   # potential error messages
-  msg      <- NULL
-  pyInfo   <- NULL
+  msg          <- NULL
+  # repo sources without URLs
+  missing_urls <- NULL
+  pyInfo       <- NULL
 
   # get package dependencies for non-static content deployment
   if (!identical(appMode, "static") &&
@@ -624,6 +626,14 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       # get package info
       info <- as.list(deps[i, c('Source',
                                 'Repository')])
+
+      # If we don't have a repo URL, that's a problem.
+      if (is.na(info$Repository)) {
+        if (!(info$Source %in% missing_urls)) {
+          msg <- c(msg, paste("The source", info$Source, "does not have a repository URL defined."))
+          missing_urls <- c(missing_urls, paste(info$Source))
+        }
+      }
 
       # include github package info
       info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
