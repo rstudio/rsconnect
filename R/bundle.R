@@ -555,7 +555,10 @@ inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
   args <- c(args, shQuote(workdir))
 
   tryCatch({
-    if(require('reticulate') && reticulate::py_config()$anaconda && !compatibilityMode) {
+    # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
+    # and verify that the user hasn't specified that they don't want their conda environment captured.
+    if(requireNamespace('reticulate', quietly = TRUE) && reticulate::py_available(initialize = FALSE) &&
+       reticulate::py_config()$anaconda && !compatibilityMode) {
       prefix <- getCondaEnvPrefix(python)
       conda <- getCondaExeForPrefix(prefix)
       args <- c("run", "-p", prefix, python, args)
