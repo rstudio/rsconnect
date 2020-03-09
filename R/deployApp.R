@@ -118,7 +118,7 @@ deployApp <- function(appDir = getwd(),
                       python = NULL,
                       on.failure = NULL,
                       forceGeneratePythonEnvironment = FALSE,
-                      forceRequirementsTxtEnvironment = F) {
+                      forceRequirementsTxtEnvironment = FALSE) {
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
