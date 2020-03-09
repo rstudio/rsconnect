@@ -10,8 +10,8 @@ writeManifest(
   appPrimaryDoc = NULL,
   contentCategory = NULL,
   python = NULL,
-  forceGeneratePythonEnvironment = F,
-  forceRequirementsTxtEnvironment = F
+  forceGeneratePythonEnvironment = FALSE,
+  forceRequirementsTxtEnvironment = FALSE
 )
 }
 \arguments{

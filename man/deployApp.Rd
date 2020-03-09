@@ -25,8 +25,8 @@ deployApp(
   forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
   python = NULL,
   on.failure = NULL,
-  forceGeneratePythonEnvironment = F,
-  forceRequirementsTxtEnvironment = F
+  forceGeneratePythonEnvironment = FALSE,
+  forceRequirementsTxtEnvironment = FALSE
 )
 }
 \arguments{
