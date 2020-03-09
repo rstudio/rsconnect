@@ -281,7 +281,7 @@ writeManifest <- function(appDir = getwd(),
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
                           python = NULL,
-                          forceGeneratePythonEnvironment = F,
+                          forceGeneratePythonEnvironment = FALSE,
                           forceRequirementsTxtEnvironment = F) {
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
