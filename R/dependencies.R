@@ -101,7 +101,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       if (pkg %in% biocPackages) {
         repository <- biocPackages[pkg, 'Repository']
       }
-    } else if (tolower(source) %in% c("github", "bitbucket", "source")) {
+    } else if (is.scm.source(source)) {
       # leave source+SCM packages alone.
     } else if (pkg %in% rownames(repo.packages)) {
       # capture CRAN-like repository
@@ -129,6 +129,11 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   })
   records[, c("Source","Repository")] <- do.call("rbind", tmp)
   return(records)
+}
+
+# Return TRUE when the source indicates that a package comes from a source control system.
+is.scm.source <- function(source) {
+  tolower(source) %in% c("github", "bitbucket", "source")
 }
 
 # generate a random name prefixed with "repo_".

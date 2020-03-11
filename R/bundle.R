@@ -628,7 +628,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                                 'Repository')])
 
       if (is.na(info$Repository)) {
-        if (tolower(info$Source) %in% c("github", "bitbucket", "source")) {
+        if (is.scm.source(info$Source)) {
           # ignore source+SCM packages
         } else {
           missing_url_sources <- unique(c(missing_url_sources, info$Source))
