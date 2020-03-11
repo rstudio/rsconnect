@@ -666,7 +666,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     # It's possible we cannot find a repository URL for other reasons, including when folks locally
     # build and install packages from source. An incorrectly configured "repos" option is almost
     # always the cause.
-    msg <- c(msg, sprintf("Unable to determine the location for some packages. Packages must come from a package repository like CRAN or a source control system. Check that options(“repos”) refers to a package repository containing the needed package versions."))
+    msg <- c(msg, sprintf("Unable to determine the location for some packages. Packages must come from a package repository like CRAN or a source control system. Check that options('repos') refers to a package repository containing the needed package versions."))
   }
 
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
