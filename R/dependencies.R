@@ -122,8 +122,8 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       }
       repository <- package.repo$url
     } else {
-      warning(sprintf("Unable to find repository URL for package %s", pkg),
-              immediate. = TRUE)
+      warning(sprintf("Unable to determine the repository for package %s", pkg),
+              call. = FALSE, immediate. = TRUE)
     }
     data.frame(Source = source, Repository = repository)
   })
