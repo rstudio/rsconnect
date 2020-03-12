@@ -593,6 +593,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
   # provide package entries for all dependencies
   packages <- list()
+  # non-SCM repository sources without URLs
+  missing_url_sources <- NULL
   # potential error messages
   msg      <- NULL
   pyInfo   <- NULL
@@ -625,6 +627,14 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       info <- as.list(deps[i, c('Source',
                                 'Repository')])
 
+      if (is.na(info$Repository)) {
+        if (isSCMSource(info$Source)) {
+          # ignore source+SCM packages
+        } else {
+          missing_url_sources <- unique(c(missing_url_sources, info$Source))
+        }
+      }
+
       # include github package info
       info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
 
@@ -649,6 +659,16 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       packages[[name]] <- info
     }
   }
+  if (length(missing_url_sources)) {
+    # Err when packages lack repository URL. We emit a warning about each package (see
+    # snapshotDependencies) before issuing an error with this resolution advice.
+    #
+    # It's possible we cannot find a repository URL for other reasons, including when folks locally
+    # build and install packages from source. An incorrectly configured "repos" option is almost
+    # always the cause.
+    msg <- c(msg, sprintf("Unable to determine the location for some packages. Packages must come from a package repository like CRAN or a source control system. Check that options('repos') refers to a package repository containing the needed package versions."))
+  }
+
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
 
   # build the list of files to checksum

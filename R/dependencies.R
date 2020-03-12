@@ -101,7 +101,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       if (pkg %in% biocPackages) {
         repository <- biocPackages[pkg, 'Repository']
       }
-    } else if (tolower(source) %in% c("github", "bitbucket", "source")) {
+    } else if (isSCMSource(source)) {
       # leave source+SCM packages alone.
     } else if (pkg %in% rownames(repo.packages)) {
       # capture CRAN-like repository
@@ -122,13 +122,20 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       }
       repository <- package.repo$url
     } else {
-      warning(sprintf("Unable to find repository URL for package %s", pkg),
-              immediate. = TRUE)
+      warning(sprintf("Unable to determine the repository for package %s", pkg),
+              call. = FALSE, immediate. = TRUE)
     }
     data.frame(Source = source, Repository = repository)
   })
   records[, c("Source","Repository")] <- do.call("rbind", tmp)
   return(records)
+}
+
+# Return TRUE when the source indicates that a package was installed from
+# source or comes from a source control system. This indicates that we will
+# not have a repostory URL; location is recorded elsewhere.
+isSCMSource <- function(source) {
+  tolower(source) %in% c("github", "bitbucket", "source")
 }
 
 # generate a random name prefixed with "repo_".
