@@ -131,7 +131,9 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   return(records)
 }
 
-# Return TRUE when the source indicates that a package comes from a source control system.
+# Return TRUE when the source indicates that a package was installed from
+# source or comes from a source control system. This indicates that we will
+# not have a repostory URL; location is recorded elsewhere.
 isSCMSource <- function(source) {
   tolower(source) %in% c("github", "bitbucket", "source")
 }
