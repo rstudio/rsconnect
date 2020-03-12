@@ -10,8 +10,7 @@ writeManifest(
   appPrimaryDoc = NULL,
   contentCategory = NULL,
   python = NULL,
-  forceGeneratePythonEnvironment = FALSE,
-  forceRequirementsTxtEnvironment = FALSE
+  forceGeneratePythonEnvironment = FALSE
 )
 }
 \arguments{
@@ -39,11 +38,6 @@ its value will be used.}
 \item{forceGeneratePythonEnvironment}{Optional. If an existing
 \code{requirements.txt} or \code{environment.yml} file is found, it will
 be overwritten when this argument is \code{TRUE}.}
-
-\item{forceRequirementsTxtEnvironment}{Optional. If rsconnect
-detects you are running in a conda environment, it will write
-\code{requirements.txt} instead of \code{environment.yml} when this
-argument is \code{TRUE}.}
 }
 \description{
 Given a directory content targeted for deployment, write a manifest.json
