@@ -150,8 +150,7 @@ content to a server.</p>
   <span class='kw'>forceUpdate</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.force.update.apps"</span>, <span class='fl'>FALSE</span>),
   <span class='kw'>python</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>on.failure</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>forceGeneratePythonEnvironment</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>forceRequirementsTxtEnvironment</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>forceGeneratePythonEnvironment</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -282,13 +281,6 @@ deployment log URL is available, it's passed as a parameter.</p></td>
       <td><p>Optional. If an existing
 <code>requirements.txt</code> or <code>environment.yml</code> file is found, it will
 be overwritten when this argument is <code>TRUE</code>.</p></td>
-    </tr>
-    <tr>
-      <th>forceRequirementsTxtEnvironment</th>
-      <td><p>Optional. If rsconnect
-detects you are running in a conda environment, it will write
-<code>requirements.txt</code> instead of <code>environment.yml</code> when this
-argument is <code>TRUE</code>.</p></td>
     </tr>
     </table>
 
