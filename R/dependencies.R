@@ -101,7 +101,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       if (pkg %in% biocPackages) {
         repository <- biocPackages[pkg, 'Repository']
       }
-    } else if (is.scm.source(source)) {
+    } else if (isSCMSource(source)) {
       # leave source+SCM packages alone.
     } else if (pkg %in% rownames(repo.packages)) {
       # capture CRAN-like repository
@@ -132,7 +132,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
 }
 
 # Return TRUE when the source indicates that a package comes from a source control system.
-is.scm.source <- function(source) {
+isSCMSource <- function(source) {
   tolower(source) %in% c("github", "bitbucket", "source")
 }
 
