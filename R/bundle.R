@@ -270,10 +270,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   `requirements.txt` or `environment.yml` file is found, it will
 #'   be overwritten when this argument is `TRUE`.
 #'
-#' @param forceRequirementsTxtEnvironment Optional. If rsconnect
-#'   detects you are running in a conda environment, it will write
-#'   `requirements.txt` instead of `environment.yml` when this
-#'   argument is `TRUE`.
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
@@ -281,8 +277,10 @@ writeManifest <- function(appDir = getwd(),
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
                           python = NULL,
-                          forceGeneratePythonEnvironment = FALSE,
-                          forceRequirementsTxtEnvironment = FALSE) {
+                          forceGeneratePythonEnvironment = FALSE) {
+  # TODO: Temporarily disable conda environment capture until it is supported.
+  forceRequirementsTxtEnvironment <- TRUE
+
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
   } else {

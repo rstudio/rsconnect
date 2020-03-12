@@ -25,8 +25,7 @@ deployApp(
   forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
   python = NULL,
   on.failure = NULL,
-  forceGeneratePythonEnvironment = FALSE,
-  forceRequirementsTxtEnvironment = FALSE
+  forceGeneratePythonEnvironment = FALSE
 )
 }
 \arguments{
@@ -113,11 +112,6 @@ deployment log URL is available, it's passed as a parameter.}
 \item{forceGeneratePythonEnvironment}{Optional. If an existing
 \code{requirements.txt} or \code{environment.yml} file is found, it will
 be overwritten when this argument is \code{TRUE}.}
-
-\item{forceRequirementsTxtEnvironment}{Optional. If rsconnect
-detects you are running in a conda environment, it will write
-\code{requirements.txt} instead of \code{environment.yml} when this
-argument is \code{TRUE}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
