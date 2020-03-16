@@ -110,7 +110,7 @@ its version and to list the python packages installed in the environment.}
 deployment log URL is available, it's passed as a parameter.}
 
 \item{forceGeneratePythonEnvironment}{Optional. If an existing
-\code{requirements.txt} file is found, it will  be overwritten when this argument
+\code{requirements.txt} file is found, it will be overwritten when this argument
 is \code{TRUE}.}
 }
 \description{
