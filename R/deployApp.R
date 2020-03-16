@@ -65,8 +65,8 @@
 #'   value will be used. The specified python binary will be invoked to determine
 #'   its version and to list the python packages installed in the environment.
 #' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` or `environment.yml` file is found, it will
-#'   be overwritten when this argument is `TRUE`.
+#'   `requirements.txt` file is found, it will be overwritten when this argument
+#'   is `TRUE`.
 #' @examples
 #' \dontrun{
 #'
