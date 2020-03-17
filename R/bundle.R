@@ -267,8 +267,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   its value will be used.
 #'
 #' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` or `environment.yml` file is found, it will
-#'   be overwritten when this argument is `TRUE`.
+#'   `requirements.txt` file is found, it will be overwritten when 
+#'   this argument is `TRUE`.
 #'
 #'
 #' @export
