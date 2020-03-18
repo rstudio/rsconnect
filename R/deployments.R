@@ -3,7 +3,7 @@ saveDeployment <- function(appPath, name, title, username, account, server,
                            hostUrl, appId, bundleId, url, metadata) {
 
   # if there's no new title specified, load the existing deployment record, if
-  # any, to to preserve the old title
+  # any, to preserve the old title
   if (is.null(title) || is.na(title) || length(title) == 0 ||
       nchar(title) == 0) {
     tryCatch({
@@ -28,14 +28,17 @@ saveDeployment <- function(appPath, name, title, username, account, server,
                                  appId, bundleId, url, when = as.numeric(Sys.time()),
                                  lastSyncTime = as.numeric(Sys.time()), metadata)
 
-  # use a long width so URLs don't line-wrap
-  write.dcf(deployment, deploymentFile(appPath, name, account, server),
-            width = 4096)
+  writeDeploymentRecord(deployment, deploymentFile(appPath, name, account, server))
 
   # also save to global history
   addToDeploymentHistory(appPath, deployment)
 
   invisible(NULL)
+}
+
+writeDeploymentRecord <- function(record, filePath) {
+  # use a long width so URLs don't line-wrap
+  write.dcf(record, filePath, width = 4096)
 }
 
 #' List Application Deployments

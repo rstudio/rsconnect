@@ -43,7 +43,7 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
-  isConnect <- !isShinyapps(accountDetails)
+  isConnect <- !isConnectApp(accountDetails$server)
 
   # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
@@ -266,42 +266,51 @@ syncAppMetadata <- function(appPath) {
       lastSyncTime <- deploys[i, "when"]
 
     # don't sync if within the configured time window
-    if (as.numeric(lastSyncTime) + syncWindow > now)
+    if (as.numeric(lastSyncTime) + syncWindow > now) {
       next
+    }
 
     # don't sync non-connect apps
-    if (grepl("shinyapps.io", deploys[i, "hostUrl"], fixed = TRUE) ||
-        grepl("rpubs.com", deploys[i, "hostUrl"], fixed = TRUE))
+    if (!isConnectApp(server = deploys[i, "hostUrl"])) {
       next
+    }
 
     account <- rsconnect::accountInfo(deploys[i, "account"],
                                       server = deploys[i, "server"])
 
     connect <- clientForAccount(account)
 
+    application <- NULL
+
     # if the app does not exist, delete the file
     tryCatch({
       application <- connect$getApplication(deploys[i, "appId"])
-
-      # update the record and save out a new config file
-      write.dcf(list(
-        name = deploys[i, "name"],
-        title = application$title,
-        username = deploys[i, "username"],
-        account = deploys[i, "account"],
-        server = deploys[i, "server"],
-        hostUrl = deploys[i, "hostUrl"],
-        appId = deploys[i, "appId"],
-        bundleId = deploys[i, "bundleId"],
-        url = deploys[i, "url"],
-        when = deploys[i, "when"],
-        lastSyncTime = now,
-        asMultiple = deploys[i, "asMultiple"],
-        asStatic = deploys[i, "asStatic"]
-      ), deploys[i, "deploymentFile"])
     }, error = function(c) {
       message(paste("appId", deploys[i, "appId"], "no longer exists, deleting config file"))
       file.remove(deploys[i, "deploymentFile"])
+      stop("Removed config file ", deploys[i, "deploymentFile"])
     })
+
+    record <- deploymentRecord(
+      name = deploys[i, "name"],
+      title = application$title,
+      username = deploys[i, "username"],
+      account = deploys[i, "account"],
+      server = deploys[i, "server"],
+      hostUrl = deploys[i, "hostUrl"],
+      appId = deploys[i, "appId"],
+      bundleId = deploys[i, "bundleId"],
+      url = application$url,
+      when = deploys[i, "when"],
+      lastSyncTime = now,
+      metadata = list(
+        asMultiple = deploys[i, "asMultiple"],
+        asStatic = deploys[i, "asStatic"],
+        vanity_url = application$vanity_url
+      )
+    )
+
+    # update the record and save out a new config file
+    writeDeploymentRecord(record, deploys[i, "deploymentFile"])
   }
 }
