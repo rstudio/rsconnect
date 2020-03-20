@@ -475,7 +475,7 @@ isRPubs <- function(server) {
   identical(server, "rpubs.com")
 }
 
-isConnectApp <- function(accountInfo = NULL, server = NULL) {
+isConnectInfo <- function(accountInfo = NULL, server = NULL) {
   host <- if (is.null(accountInfo)) server else accountInfo$server
   !isShinyapps(host) && !isRPubs(host)
 }
