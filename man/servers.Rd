@@ -29,8 +29,8 @@ addServerCertificate(name, certificate, quiet = FALSE)
 
 \item{quiet}{Suppress output and prompts where possible.}
 
-\item{url}{Server's URL. Should look like \code{http://servername/} or
-\code{http://servername:port/}.}
+\item{url}{Server's URL. Should look like \verb{http://servername/} or
+\verb{http://servername:port/}.}
 
 \item{name}{Optional nickname for the server. If none is given, the nickname
 is inferred from the server's hostname.}

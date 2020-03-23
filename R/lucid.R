@@ -174,7 +174,7 @@ lucidClient <- function(service, authInfo) {
       handleResponse(DELETE(service, authInfo, path, NULL))
     },
 
-    listApplicationAuthoization = function(applicationId) {
+    listApplicationAuthorization = function(applicationId) {
       path <- paste("/applications/", applicationId, "/authorization",
                     sep="")
       listRequest(service, authInfo, path, NULL, "authorization")

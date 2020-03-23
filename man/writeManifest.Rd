@@ -4,8 +4,14 @@
 \alias{writeManifest}
 \title{Create a manifest.json describing deployment requirements.}
 \usage{
-writeManifest(appDir = getwd(), appFiles = NULL,
-  appPrimaryDoc = NULL, contentCategory = NULL, python = NULL)
+writeManifest(
+  appDir = getwd(),
+  appFiles = NULL,
+  appPrimaryDoc = NULL,
+  contentCategory = NULL,
+  python = NULL,
+  forceGeneratePythonEnvironment = FALSE
+)
 }
 \arguments{
 \item{appDir}{Directory containing the content (Shiny application, R
@@ -28,6 +34,10 @@ The specified python binary will be invoked to determine its version
 and to list the python packages installed in the environment.
 If python = NULL, and RETICULATE_PYTHON is set in the environment,
 its value will be used.}
+
+\item{forceGeneratePythonEnvironment}{Optional. If an existing
+\code{requirements.txt} file is found, it will be overwritten when 
+this argument is \code{TRUE}.}
 }
 \description{
 Given a directory content targeted for deployment, write a manifest.json

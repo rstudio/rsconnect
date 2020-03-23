@@ -4,8 +4,7 @@
 \alias{showInvited}
 \title{List invited users for an application}
 \usage{
-showInvited(appDir = getwd(), appName = NULL, account = NULL,
-  server = NULL)
+showInvited(appDir = getwd(), appName = NULL, account = NULL, server = NULL)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to

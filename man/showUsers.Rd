@@ -4,8 +4,7 @@
 \alias{showUsers}
 \title{List authorized users for an application}
 \usage{
-showUsers(appDir = getwd(), appName = NULL, account = NULL,
-  server = NULL)
+showUsers(appDir = getwd(), appName = NULL, account = NULL, server = NULL)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to

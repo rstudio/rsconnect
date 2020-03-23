@@ -28,7 +28,9 @@ removeAccount("user")
 
 }
 \seealso{
-Other Account functions: \code{\link{accounts}},
-  \code{\link{connectApiUser}}, \code{\link{connectUser}}
+Other Account functions: 
+\code{\link{accounts}()},
+\code{\link{connectApiUser}()},
+\code{\link{connectUser}()}
 }
 \concept{Account functions}

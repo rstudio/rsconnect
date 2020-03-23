@@ -171,7 +171,8 @@ bundleFiles <- function(appDir) {
 }
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, verbose = FALSE, python = NULL) {
+                      contentCategory, verbose = FALSE, python = NULL,
+                      compatibilityMode = FALSE, forceGenerate = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -216,6 +217,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
       users = users,
+      compatibilityMode = compatibilityMode,
+      forceGenerate = forceGenerate,
       python = python,
       hasPythonRmd = hasPythonRmd)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -263,12 +266,21 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   If python = NULL, and RETICULATE_PYTHON is set in the environment,
 #'   its value will be used.
 #'
+#' @param forceGeneratePythonEnvironment Optional. If an existing
+#'   `requirements.txt` file is found, it will be overwritten when 
+#'   this argument is `TRUE`.
+#'
+#'
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
-                          python = NULL) {
+                          python = NULL,
+                          forceGeneratePythonEnvironment = FALSE) {
+  # TODO: Temporarily disable conda environment capture until it is supported.
+  forceRequirementsTxtEnvironment <- TRUE
+
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
   } else {
@@ -310,14 +322,18 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
       users = NULL,
+      compatibilityMode = forceRequirementsTxtEnvironment,
+      forceGenerate = forceGeneratePythonEnvironment,
       python = python,
       hasPythonRmd = hasPythonRmd)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
-  srcRequirementsFile <- file.path(bundleDir, "requirements.txt")
-  dstRequirementsFile <- file.path(appDir, "requirements.txt")
+  requirementsFilename <- manifest$python$package_manager$package_file
+  if (is.null(requirementsFilename)) { requirementsFilename <- "requirements.txt" }
+  srcRequirementsFile <- file.path(bundleDir, requirementsFilename)
+  dstRequirementsFile <- file.path(appDir, requirementsFilename)
   if(file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
     file.copy(srcRequirementsFile, dstRequirementsFile)
   }
@@ -503,13 +519,53 @@ inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd) {
   unique(deps)
 }
 
-inferPythonEnv <- function(workdir, python) {
+isWindows <- function() {
+  Sys.info()[["sysname"]] == "Windows"
+}
+
+getCondaEnvPrefix <- function(python) {
+  prefix <- dirname(dirname(python))
+  if (!file.exists(file.path(prefix, "conda-meta"))) {
+    stop(paste("Python from", python, "does not look like a conda environment: cannot find `conda-meta`"))
+  }
+  prefix
+}
+
+getCondaExeForPrefix <- function(prefix) {
+  miniconda <- dirname(dirname(prefix))
+  conda <- file.path(miniconda, 'bin', 'conda')
+  if (isWindows()) {
+    conda <- paste(conda, ".exe", sep = "")
+  }
+  if (!file.exists(conda)) {
+    stop(paste("Conda env prefix", prefix, "does not have the `conda` command line interface."))
+  }
+  conda
+}
+
+inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
-  args <- c(shQuote(env_py), shQuote(workdir))
+  args <- c(shQuote(env_py))
+  if (compatibilityMode || forceGenerate) {
+    flags <- paste('-', ifelse(compatibilityMode, 'c', ''), ifelse(forceGenerate, 'f', ''), sep = '')
+    args <- c(args, flags)
+  }
+  args <- c(args, shQuote(workdir))
 
   tryCatch({
-    output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
+    # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
+    # and verify that the user hasn't specified that they don't want their conda environment captured.
+    if('reticulate' %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
+       reticulate::py_config()$anaconda && !compatibilityMode) {
+      prefix <- getCondaEnvPrefix(python)
+      conda <- getCondaExeForPrefix(prefix)
+      args <- c("run", "-p", prefix, python, args)
+      # conda run -p <prefix> python inst/resources/environment.py <flags> <dir>
+      output <- system2(command = conda, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
+    } else {
+      output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
+    }
     environment <- jsonlite::fromJSON(output)
     if (is.null(environment$error)) {
       list(
@@ -530,11 +586,13 @@ inferPythonEnv <- function(workdir, python) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, python = NULL,
-                              hasPythonRmd = FALSE) {
+                              appPrimaryDoc, assetTypeName, users, compatibilityMode,
+                              forceGenerate, python = NULL, hasPythonRmd = FALSE) {
 
   # provide package entries for all dependencies
   packages <- list()
+  # non-SCM repository sources without URLs
+  missing_url_sources <- NULL
   # potential error messages
   msg      <- NULL
   pyInfo   <- NULL
@@ -551,9 +609,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       name <- deps[i, "Package"]
 
       if (name == "reticulate" && !is.null(python)) {
-        pyInfo <- inferPythonEnv(appDir, python)
+        pyInfo <- inferPythonEnv(appDir, python, compatibilityMode, forceGenerate)
         if (is.null(pyInfo$error)) {
-          # write the package list into requirements.txt file in the bundle dir
+          # write the package list into requirements.txt/environment.yml file in the bundle dir
           packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
           cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
           pyInfo$package_manager$contents <- NULL
@@ -566,6 +624,14 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       # get package info
       info <- as.list(deps[i, c('Source',
                                 'Repository')])
+
+      if (is.na(info$Repository)) {
+        if (isSCMSource(info$Source)) {
+          # ignore source+SCM packages
+        } else {
+          missing_url_sources <- unique(c(missing_url_sources, info$Source))
+        }
+      }
 
       # include github package info
       info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
@@ -591,6 +657,16 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       packages[[name]] <- info
     }
   }
+  if (length(missing_url_sources)) {
+    # Err when packages lack repository URL. We emit a warning about each package (see
+    # snapshotDependencies) before issuing an error with this resolution advice.
+    #
+    # It's possible we cannot find a repository URL for other reasons, including when folks locally
+    # build and install packages from source. An incorrectly configured "repos" option is almost
+    # always the cause.
+    msg <- c(msg, sprintf("Unable to determine the location for some packages. Packages must come from a package repository like CRAN or a source control system. Check that options('repos') refers to a package repository containing the needed package versions."))
+  }
+
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
 
   # build the list of files to checksum

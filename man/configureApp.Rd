@@ -4,9 +4,16 @@
 \alias{configureApp}
 \title{Configure an Application}
 \usage{
-configureApp(appName, appDir = getwd(), account = NULL,
-  server = NULL, redeploy = TRUE, size = NULL, instances = NULL,
-  logLevel = c("normal", "quiet", "verbose"))
+configureApp(
+  appName,
+  appDir = getwd(),
+  account = NULL,
+  server = NULL,
+  redeploy = TRUE,
+  size = NULL,
+  instances = NULL,
+  logLevel = c("normal", "quiet", "verbose")
+)
 }
 \arguments{
 \item{appName}{Name of application to configure}

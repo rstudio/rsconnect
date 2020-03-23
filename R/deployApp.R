@@ -64,6 +64,9 @@
 #'   If python = NULL, and RETICULATE_PYTHON is set in the environment, its
 #'   value will be used. The specified python binary will be invoked to determine
 #'   its version and to list the python packages installed in the environment.
+#' @param forceGeneratePythonEnvironment Optional. If an existing
+#'   `requirements.txt` file is found, it will be overwritten when this argument
+#'   is `TRUE`.
 #' @examples
 #' \dontrun{
 #'
@@ -109,7 +112,10 @@ deployApp <- function(appDir = getwd(),
                       metadata = list(),
                       forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
                       python = NULL,
-                      on.failure = NULL) {
+                      on.failure = NULL,
+                      forceGeneratePythonEnvironment = FALSE) {
+  # TODO: Temporarily disable conda environment capture until it is supported.
+  forceRequirementsTxtEnvironment <- TRUE
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -354,7 +360,8 @@ deployApp <- function(appDir = getwd(),
       # python is enabled on Connect but not on Shinyapps
       python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python)
+                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
+                              forceRequirementsTxtEnvironment, forceGeneratePythonEnvironment)
 
       if (isShinyapps(accountDetails$server)) {
 
@@ -781,4 +788,3 @@ runStartupScripts <- function(appDir, logLevel) {
     }
   }
 }
-

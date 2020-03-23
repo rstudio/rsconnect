@@ -23,8 +23,11 @@ containing \code{plumber.R} (an API definition) or \code{entrypoint.R} that retu
 for more information.
 }
 \seealso{
-Other Deployment functions: \code{\link{applications}},
-  \code{\link{deployApp}}, \code{\link{deployDoc}},
-  \code{\link{deploySite}}, \code{\link{deployTFModel}}
+Other Deployment functions: 
+\code{\link{applications}()},
+\code{\link{deployApp}()},
+\code{\link{deployDoc}()},
+\code{\link{deploySite}()},
+\code{\link{deployTFModel}()}
 }
 \concept{Deployment functions}

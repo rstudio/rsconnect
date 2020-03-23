@@ -4,8 +4,13 @@
 \alias{deployments}
 \title{List Application Deployments}
 \usage{
-deployments(appPath, nameFilter = NULL, accountFilter = NULL,
-  serverFilter = NULL, excludeOrphaned = TRUE)
+deployments(
+  appPath,
+  nameFilter = NULL,
+  accountFilter = NULL,
+  serverFilter = NULL,
+  excludeOrphaned = TRUE
+)
 }
 \arguments{
 \item{appPath}{The path to the content that was deployed, either a directory

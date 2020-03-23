@@ -3,6 +3,9 @@
 ## 0.8.17 (in development)
 
 * Add support for syncing the deployment metadata with the server
+* Insist on ShinyApps accounts in `showUsers()` (#398)
+* Improve the regex used for the browser and browseURL lints to include a word boundary (#400)
+* Fixed bug where `connectApiUser()` did not set a user id (#407)
 
 ## 0.8.16
 
@@ -25,10 +28,9 @@ Released to CRAN on 2019-12-13
 * Restore compatibility with R < 3.5 (#394)
 * Add support for authenticating with Connect via an API key rather than a token (#393)
 
-## 0.8.15 
+## 0.8.15
 
 Released to CRAN on 2019-07-22
 
 * Switch from **RCurl** to **curl** as the default HTTP backend (#325)
 * Add `purgeApp()` function to purge previously deployed shinyapps.io applications (#352)
-

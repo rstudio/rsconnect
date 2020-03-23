@@ -4,15 +4,29 @@
 \alias{deployApp}
 \title{Deploy an Application}
 \usage{
-deployApp(appDir = getwd(), appFiles = NULL, appFileManifest = NULL,
-  appPrimaryDoc = NULL, appSourceDoc = NULL, appName = NULL,
-  appTitle = NULL, appId = NULL, contentCategory = NULL,
-  account = NULL, server = NULL, upload = TRUE, recordDir = NULL,
+deployApp(
+  appDir = getwd(),
+  appFiles = NULL,
+  appFileManifest = NULL,
+  appPrimaryDoc = NULL,
+  appSourceDoc = NULL,
+  appName = NULL,
+  appTitle = NULL,
+  appId = NULL,
+  contentCategory = NULL,
+  account = NULL,
+  server = NULL,
+  upload = TRUE,
+  recordDir = NULL,
   launch.browser = getOption("rsconnect.launch.browser", interactive()),
-  logLevel = c("normal", "quiet", "verbose"), lint = TRUE,
+  logLevel = c("normal", "quiet", "verbose"),
+  lint = TRUE,
   metadata = list(),
   forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
-  python = NULL, on.failure = NULL)
+  python = NULL,
+  on.failure = NULL,
+  forceGeneratePythonEnvironment = FALSE
+)
 }
 \arguments{
 \item{appDir}{Directory containing application. Defaults to current working
@@ -94,6 +108,10 @@ its version and to list the python packages installed in the environment.}
 
 \item{on.failure}{Function to be called if the deployment fails. If a
 deployment log URL is available, it's passed as a parameter.}
+
+\item{forceGeneratePythonEnvironment}{Optional. If an existing
+\code{requirements.txt} file is found, it will be overwritten when this argument
+is \code{TRUE}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
@@ -126,8 +144,11 @@ deployApp(launch.browser = FALSE)
 \seealso{
 \code{\link[=applications]{applications()}}, \code{\link[=terminateApp]{terminateApp()}}, and \code{\link[=restartApp]{restartApp()}}
 
-Other Deployment functions: \code{\link{applications}},
-  \code{\link{deployAPI}}, \code{\link{deployDoc}},
-  \code{\link{deploySite}}, \code{\link{deployTFModel}}
+Other Deployment functions: 
+\code{\link{applications}()},
+\code{\link{deployAPI}()},
+\code{\link{deployDoc}()},
+\code{\link{deploySite}()},
+\code{\link{deployTFModel}()}
 }
 \concept{Deployment functions}
