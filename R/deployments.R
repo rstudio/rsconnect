@@ -3,7 +3,7 @@ saveDeployment <- function(appPath, name, title, username, account, server,
                            hostUrl, appId, bundleId, url, metadata) {
 
   # if there's no new title specified, load the existing deployment record, if
-  # any, to to preserve the old title
+  # any, to preserve the old title
   if (is.null(title) || is.na(title) || length(title) == 0 ||
       nchar(title) == 0) {
     tryCatch({
@@ -26,16 +26,19 @@ saveDeployment <- function(appPath, name, title, username, account, server,
   # create the record to write to disk
   deployment <- deploymentRecord(name, title, username, account, server, hostUrl,
                                  appId, bundleId, url, when = as.numeric(Sys.time()),
-                                 metadata)
+                                 lastSyncTime = as.numeric(Sys.time()), metadata)
 
-  # use a long width so URLs don't line-wrap
-  write.dcf(deployment, deploymentFile(appPath, name, account, server),
-            width = 4096)
+  writeDeploymentRecord(deployment, deploymentFile(appPath, name, account, server))
 
   # also save to global history
   addToDeploymentHistory(appPath, deployment)
 
   invisible(NULL)
+}
+
+writeDeploymentRecord <- function(record, filePath) {
+  # use a long width so URLs don't line-wrap
+  write.dcf(record, filePath, width = 4096)
 }
 
 #' List Application Deployments
@@ -61,6 +64,9 @@ saveDeployment <- function(appPath, name, title, username, account, server,
 #' `url` \tab URL of deployed application\cr
 #' `when` \tab When the application was deployed (in seconds since the
 #'   epoch)\cr
+#' `lastSyncTime` \tab When the application was last synced (in seconds since the
+#'   epoch)\cr
+#' `deploymentFile` \tab Name of configuration file\cr
 #' }
 #'
 #' If additional metadata has been saved with the deployment record using the
@@ -127,7 +133,8 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
                                      appId = character(),
                                      bundleId = character(),
                                      url = character(),
-                                     when = numeric())
+                                     when = numeric(),
+                                     lastSyncTime = numeric())
 
   # get list of active accounts
   activeAccounts <- accounts()
@@ -187,6 +194,9 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
       deploymentRecs[,extraCols] <- NA
     }
 
+    # record the deployment file for metadata management
+    deployment$deploymentFile = file.path(rsconnectDir, deploymentFile)
+
     # append to record set to return
     deploymentRecs <- rbind(deploymentRecs, deployment)
   }
@@ -202,7 +212,7 @@ deploymentFile <- function(appPath, name, account, server) {
 }
 
 deploymentRecord <- function(name, title, username, account, server, hostUrl,
-                             appId, bundleId, url, when, metadata = list()) {
+                             appId, bundleId, url, when, lastSyncTime, metadata = list()) {
 
   # find the username if not already supplied (may differ from account nickname)
   if (is.null(username) && length(account) > 0) {
@@ -234,7 +244,8 @@ deploymentRecord <- function(name, title, username, account, server, hostUrl,
            appId = appId,
            bundleId = if (is.null(bundleId)) "" else bundleId,
            url = url,
-           when = when),
+           when = when,
+           lastSyncTime = lastSyncTime),
       metadata),
     stringsAsFactors = FALSE)
 }

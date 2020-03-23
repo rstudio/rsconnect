@@ -467,8 +467,17 @@ resolveAccount <- function(account, server = NULL) {
   }
 }
 
-isShinyapps <- function(accountInfo) {
-  identical(accountInfo$server, "shinyapps.io")
+isShinyapps <- function(server) {
+  identical(server, "shinyapps.io")
+}
+
+isRPubs <- function(server) {
+  identical(server, "rpubs.com")
+}
+
+isConnectInfo <- function(accountInfo = NULL, server = NULL) {
+  host <- if (is.null(accountInfo)) server else accountInfo$server
+  !isShinyapps(host) && !isRPubs(host)
 }
 
 stopWithNoAccount <- function() {

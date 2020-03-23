@@ -2,6 +2,7 @@
 
 ## 0.8.17 (in development)
 
+* Add support for syncing the deployment metadata with the server
 * Insist on ShinyApps accounts in `showUsers()` (#398)
 * Improve the regex used for the browser and browseURL lints to include a word boundary (#400)
 * Fixed bug where `connectApiUser()` did not set a user id (#407)

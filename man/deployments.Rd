@@ -38,6 +38,9 @@ Returns a data frame with at least following columns:
 \code{url} \tab URL of deployed application\cr
 \code{when} \tab When the application was deployed (in seconds since the
 epoch)\cr
+\code{lastSyncTime} \tab When the application was last synced (in seconds since the
+epoch)\cr
+\code{deploymentFile} \tab Name of configuration file\cr
 }
 
 If additional metadata has been saved with the deployment record using the
