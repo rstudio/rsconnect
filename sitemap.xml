@@ -118,6 +118,9 @@
     <loc>https://rstudio.github.io/rstudioapi/reference/showUsers.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rstudioapi/reference/syncAppMetadata.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rstudioapi/reference/taskLog.html</loc>
   </url>
   <url>

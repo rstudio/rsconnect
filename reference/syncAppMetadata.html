@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>List Application Deployments — deployments • rsconnect</title>
+<title>Sync Application Metadata — syncAppMetadata • rsconnect</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="List Application Deployments — deployments" />
-<meta property="og:description" content="List deployment records for a given application." />
+<meta property="og:title" content="Sync Application Metadata — syncAppMetadata" />
+<meta property="og:description" content="Update the metadata for requested application across all deployments" />
 <meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -116,92 +116,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>List Application Deployments</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/rsconnect/blob/master/R/deployments.R'><code>R/deployments.R</code></a></small>
-    <div class="hidden name"><code>deployments.Rd</code></div>
+    <h1>Sync Application Metadata</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/rsconnect/blob/master/R/applications.R'><code>R/applications.R</code></a></small>
+    <div class="hidden name"><code>syncAppMetadata.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>List deployment records for a given application.</p>
+    <p>Update the metadata for requested application across all deployments</p>
     </div>
 
-    <pre class="usage"><span class='fu'>deployments</span>(
-  <span class='no'>appPath</span>,
-  <span class='kw'>nameFilter</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>accountFilter</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>serverFilter</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>excludeOrphaned</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>syncAppMetadata</span>(<span class='no'>appPath</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>appPath</th>
-      <td><p>The path to the content that was deployed, either a directory
-or an individual document.</p></td>
-    </tr>
-    <tr>
-      <th>nameFilter</th>
-      <td><p>Return only deployments matching the given name (optional)</p></td>
-    </tr>
-    <tr>
-      <th>accountFilter</th>
-      <td><p>Return only deployments matching the given account
-(optional)</p></td>
-    </tr>
-    <tr>
-      <th>serverFilter</th>
-      <td><p>Return only deployments matching the given server
-(optional)</p></td>
-    </tr>
-    <tr>
-      <th>excludeOrphaned</th>
-      <td><p>If <code>TRUE</code> (the default), return only deployments
-made by a currently registered account. Deployments made from accounts that
-are no longer registered (via e.g.<code><a href='accounts.html'>removeAccount()</a></code>) will not be
-returned.</p></td>
+      <td><p>The path to the directory or file that was deployed.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p>Returns a data frame with at least following columns:</p><table class='table'>
-<tr><td><code>name</code></td><td>Name of deployed application</td></tr>
-<tr><td><code>account</code></td><td>Account owning deployed application</td></tr>
-<tr><td><code>bundleId</code></td><td>Identifier of deployed application's bundle</td></tr>
-<tr><td><code>url</code></td><td>URL of deployed application</td></tr>
-<tr><td><code>when</code></td><td>When the application was deployed (in seconds since the
-epoch)</td></tr>
-<tr><td><code>lastSyncTime</code></td><td>When the application was last synced (in seconds since the
-epoch)</td></tr>
-<tr><td><code>deploymentFile</code></td><td>Name of configuration file</td></tr>
-</table>
+    <p>This function does not update metadata for Shiny and rpubs apps</p>
 
-
-<p>If additional metadata has been saved with the deployment record using the
-<code>metadata</code> argument to <code><a href='deployApp.html'>deployApp()</a></code>, the frame will include
-additional columns.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='applications.html'>applications()</a></code> to get a list of deployments from the
-server, and <code><a href='deployApp.html'>deployApp()</a></code> to create a new deployment.</p></div>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># Return all deployments of the ~/r/myapp directory made with the 'abc'</span>
-<span class='co'># account</span>
-<span class='fu'>deployments</span>(<span class='st'>"~/r/myapp"</span>, <span class='kw'>accountFilter</span><span class='kw'>=</span><span class='st'>"abc"</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#note">Note</a></li>
     </ul>
 
   </div>
