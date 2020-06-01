@@ -76,11 +76,11 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   # get Bioconductor repos if any
   biocRepos = repos[grep('BioC', names(repos), perl=TRUE, value=TRUE)]
   if (length(biocRepos) > 0) {
-    biocPackages = available.packages(contriburl = contrib.url(biocRepos, type = "source"), type = "source")
+    biocPackages = available.packages(contriburl = contrib.url(biocRepos, type = "source"), type = "source", filters = c("duplicates"))
   } else {
     biocPackages = c()
   }
-  repo.packages <- available.packages(contriburl = contrib.url(repos, type = "source"), type = "source")
+  repo.packages <- available.packages(contriburl = contrib.url(repos, type = "source"), type = "source", filters = c("duplicates"))
   named.repos <- name.all.repos(repos)
   repo.lookup <- data.frame(
     name = names(named.repos),
