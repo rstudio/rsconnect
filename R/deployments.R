@@ -212,7 +212,8 @@ deploymentFile <- function(appPath, name, account, server) {
 }
 
 deploymentRecord <- function(name, title, username, account, server, hostUrl,
-                             appId, bundleId, url, when, lastSyncTime, metadata = list()) {
+                             appId, bundleId, url, when, 
+                             lastSyncTime = as.numeric(Sys.time()), metadata = list()) {
 
   # find the username if not already supplied (may differ from account nickname)
   if (is.null(username) && length(account) > 0) {
