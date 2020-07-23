@@ -43,7 +43,7 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
-  isConnect <- isConnectInfo(accountDetails$server)
+  isConnect <- isConnectInfo(accountInfo = accountDetails)
 
   # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
