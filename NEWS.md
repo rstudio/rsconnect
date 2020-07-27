@@ -6,8 +6,9 @@
 * Insist on ShinyApps accounts in `showUsers()` (#398)
 * Improve the regex used for the browser and browseURL lints to include a word boundary (#400)
 * Fixed bug where `connectApiUser()` did not set a user id (#407)
-* New arguments to `deployApp` to force the generation of a Python environment file or a `reuqirements.txt` file (#409)
+* New arguments to `deployApp` to force the generation of a Python environment file or a `requirements.txt` file (#409)
 * Fail when no repository URL is available for a dependent package (#410)
+* Fix error when an old version of a package is installed and a current version isn't available (#431, #436)
 
 ## 0.8.16
 
