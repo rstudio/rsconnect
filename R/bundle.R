@@ -236,7 +236,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
   tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
-  logger(sprintf("Using tar: %s",tarImplementation))
+  logger(sprintf("Using tar: %s", tarImplementation))
   utils::tar(bundlePath, files = ".", compression = "gzip", tar = tarImplementation)
   bundlePath
 }
