@@ -235,7 +235,9 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
-  utils::tar(bundlePath, files = ".", compression = "gzip", tar = "internal")
+  tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
+  logger(sprintf("Using tar: %s",tarImplementation))
+  utils::tar(bundlePath, files = ".", compression = "gzip", tar = tarImplementation)
   bundlePath
 }
 
@@ -267,7 +269,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   its value will be used.
 #'
 #' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` file is found, it will be overwritten when 
+#'   `requirements.txt` file is found, it will be overwritten when
 #'   this argument is `TRUE`.
 #'
 #'

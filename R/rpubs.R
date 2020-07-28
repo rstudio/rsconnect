@@ -90,7 +90,8 @@ rpubsUpload <- function(title,
 
     # create the tarball
     tarfile <- tempfile("package", fileext = ".tar.gz")
-    utils::tar(tarfile, files = ".", compression = "gzip", tar = "internal")
+    tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
+    utils::tar(bundlePath, files = ".", compression = "gzip", tar = tarImplementation)
 
     # return the full path to the tarball
     return(tarfile)
