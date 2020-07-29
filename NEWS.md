@@ -2,7 +2,7 @@
 
 ## 0.8.17 (in development)
 
-* The `RSCONNECT_TAR` environment variable can be used to customize the tar implementation used to create bundles (#446)
+* The `RSCONNECT_TAR` environment variable can be used to select the tar implementation used to create bundles (#446)
 * Add support for syncing the deployment metadata with the server (#396)
 * Insist on ShinyApps accounts in `showUsers()` (#398)
 * Improve the regex used for the browser and browseURL lints to include a word boundary (#400)
