@@ -231,12 +231,21 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # create the bundle and return its path
   logger("Compressing the bundle")
-  prevDir <- setwd(bundleDir)
-
-  on.exit(setwd(prevDir), add = TRUE)
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
-  utils::tar(bundlePath, files = ".", compression = "gzip", tar = "internal")
+  writeBundle(bundleDir, bundlePath)
   bundlePath
+}
+
+# Writes a tar.gz file located at bundlePath containing all files in bundleDir.
+writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
+  logger <- verboseLogger(verbose)
+
+  prevDir <- setwd(bundleDir)
+  on.exit(setwd(prevDir), add = TRUE)
+
+  tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
+  logger(sprintf("Using tar: %s", tarImplementation))
+  utils::tar(bundlePath, files = NULL, compression = "gzip", tar = tarImplementation)
 }
 
 #' Create a manifest.json describing deployment requirements.
@@ -267,7 +276,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 #'   its value will be used.
 #'
 #' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` file is found, it will be overwritten when 
+#'   `requirements.txt` file is found, it will be overwritten when
 #'   this argument is `TRUE`.
 #'
 #'
