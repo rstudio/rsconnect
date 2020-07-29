@@ -83,15 +83,9 @@ rpubsUpload <- function(title,
     writeLines(packageJson, packageFile("package.json"))
     file.copy(contentFile, packageFile("index.html"))
 
-    # switch to the package dir for building
-    oldWd <- getwd()
-    setwd(packageDir)
-    on.exit(setwd(oldWd))
-
     # create the tarball
     tarfile <- tempfile("package", fileext = ".tar.gz")
-    tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
-    utils::tar(bundlePath, files = ".", compression = "gzip", tar = tarImplementation)
+    writeBundle(packageDir, tarfile)
 
     # return the full path to the tarball
     return(tarfile)
