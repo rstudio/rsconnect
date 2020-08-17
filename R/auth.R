@@ -146,7 +146,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
-  if (!isShinyapps(accountDetails)) {
+  if (!isShinyapps(accountDetails$server)) {
     stop("This method only works for ShinyApps servers.")
   }
 
