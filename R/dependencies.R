@@ -109,7 +109,8 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       # Find this package in the set of available packages then use its
       # contrib.url to map back to the configured repositories.
       package.contrib <- repo.packages[pkg, 'Repository']
-      package.repo <- repo.lookup[repo.lookup$contrib.url == package.contrib, ][1, ]
+      package.repo.index <- vapply(repo.lookup$contrib.url, function(url) grepl(url, package.contrib), logical(1))
+      package.repo <- repo.lookup[package.repo.index, ][1, ]
       # If the incoming package comes from CRAN, keep the CRAN name in place
       # even if that means using a different name than the repos list.
       #
