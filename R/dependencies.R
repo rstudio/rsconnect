@@ -80,7 +80,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   } else {
     biocPackages = c()
   }
-  repo.packages <- available.packages(contriburl = contrib.url(repos, type = "source"), type = "source", filters = c("duplicates"))
+  repo.packages <- available.packages(contriburl = contrib.url(repos, type = "source"), type = "source", filters = c("R_version", "duplicates"))
   named.repos <- name.all.repos(repos)
   repo.lookup <- data.frame(
     name = names(named.repos),
