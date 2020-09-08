@@ -76,11 +76,19 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
   # get Bioconductor repos if any
   biocRepos = repos[grep('BioC', names(repos), perl=TRUE, value=TRUE)]
   if (length(biocRepos) > 0) {
-    biocPackages = available.packages(contriburl = contrib.url(biocRepos, type = "source"), type = "source", filters = c("duplicates"))
+    biocPackages = available.packages(
+      contriburl = contrib.url(biocRepos, type = "source"),
+      type = "source",
+      filters = c("R_version", "duplicates")
+      )
   } else {
     biocPackages = c()
   }
-  repo.packages <- available.packages(contriburl = contrib.url(repos, type = "source"), type = "source", filters = c("R_version", "duplicates"))
+  repo.packages <- available.packages(
+    contriburl = contrib.url(repos, type = "source"),
+    type = "source",
+    filters = c("R_version", "duplicates")
+  )
   named.repos <- name.all.repos(repos)
   repo.lookup <- data.frame(
     name = names(named.repos),
@@ -109,7 +117,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
       # Find this package in the set of available packages then use its
       # contrib.url to map back to the configured repositories.
       package.contrib <- repo.packages[pkg, 'Repository']
-      package.repo.index <- vapply(repo.lookup$contrib.url, 
+      package.repo.index <- vapply(repo.lookup$contrib.url,
                                    function(url) grepl(url, package.contrib, fixed = TRUE), logical(1))
       package.repo <- repo.lookup[package.repo.index, ][1, ]
       # If the incoming package comes from CRAN, keep the CRAN name in place
