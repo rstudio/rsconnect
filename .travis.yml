@@ -4,6 +4,11 @@ language: R
 sudo: false
 cache: packages
 
+# Needed for plumber tests to run
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install libsodium-dev
+
 before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
 deploy:
   provider: script
