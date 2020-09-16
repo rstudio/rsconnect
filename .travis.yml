@@ -4,6 +4,7 @@ language: R
 sudo: false
 cache: packages
 
+# Needed for plumber tests
 before_install:
   - sudo apt-get update
   - sudo apt-get -y install libsodium-dev
