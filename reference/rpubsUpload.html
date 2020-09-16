@@ -84,7 +84,7 @@ error element of the list." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -136,7 +136,7 @@ document. If an error occurs then a diagnostic message is returned in the
 <code>error</code> element of the list.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rpubsUpload</span>(<span class='no'>title</span>, <span class='no'>contentFile</span>, <span class='no'>originalDoc</span>, <span class='kw'>id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>properties</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>())</pre>
+    <pre class="usage"><span class='fu'>rpubsUpload</span>(<span class='kw'>title</span>, <span class='kw'>contentFile</span>, <span class='kw'>originalDoc</span>, id = <span class='kw'>NULL</span>, properties = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>())</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -179,18 +179,19 @@ upload fails then the list contains an <code>error</code> element which contains
 an explanation of the error that occurred.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'># upload a document</span>
-<span class='no'>result</span> <span class='kw'>&lt;-</span> <span class='fu'>rpubsUpload</span>(<span class='st'>"My document title"</span>, <span class='st'>"Document.html"</span>)
-<span class='kw'>if</span> (!<span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span>(<span class='no'>result</span>$<span class='no'>continueUrl</span>))
-   <span class='fu'><a href='https://rdrr.io/r/utils/browseURL.html'>browseURL</a></span>(<span class='no'>result</span>$<span class='no'>continueUrl</span>)
-<span class='kw'>else</span>
-   <span class='fu'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span>(<span class='no'>result</span>$<span class='no'>error</span>)
+<span class='kw'>result</span> <span class='op'>&lt;-</span> <span class='fu'>rpubsUpload</span>(<span class='st'>"My document title"</span>, <span class='st'>"Document.html"</span>)
+<span class='co'>if</span> (<span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span>(<span class='kw'>result</span><span class='op'>$</span><span class='kw'>continueUrl</span>))
+   <span class='fu'><a href='https://rdrr.io/r/utils/browseURL.html'>browseURL</a></span>(<span class='kw'>result</span><span class='op'>$</span><span class='kw'>continueUrl</span>)
+<span class='co'>else</span>
+   <span class='fu'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span>(<span class='kw'>result</span><span class='op'>$</span><span class='kw'>error</span>)
 
 <span class='co'># update the same document with a new title</span>
-<span class='no'>updateResult</span> <span class='kw'>&lt;-</span> <span class='fu'>rpubsUpload</span>(<span class='st'>"My updated title"</span>, <span class='st'>"Document.html"</span>,
-                            <span class='kw'>id</span> <span class='kw'>=</span> <span class='no'>result</span>$<span class='no'>id</span>)
-}</div></pre>
+<span class='kw'>updateResult</span> <span class='op'>&lt;-</span> <span class='fu'>rpubsUpload</span>(<span class='st'>"My updated title"</span>, <span class='st'>"Document.html"</span>,
+                            id = <span class='kw'>result</span><span class='op'>$</span><span class='kw'>id</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -206,7 +207,7 @@ an explanation of the error that occurred.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

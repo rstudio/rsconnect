@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -128,7 +128,7 @@
     <p>Writes the task log for the given task</p>
     </div>
 
-    <pre class="usage"><span class='fu'>taskLog</span>(<span class='no'>taskId</span>, <span class='kw'>account</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>server</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>output</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>taskLog</span>(<span class='kw'>taskId</span>, account = <span class='kw'>NULL</span>, server = <span class='kw'>NULL</span>, output = <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,15 +158,16 @@ multiple servers (see <code><a href='servers.html'>servers()</a></code>)</p></td
     <div class='dont-index'><p><code><a href='tasks.html'>tasks()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># write task log to stdout</span>
 <span class='fu'>taskLog</span>(<span class='fl'>12345</span>)
 
 <span class='co'># write task log to stderr</span>
-<span class='fu'>taskLog</span>(<span class='fl'>12345</span>, <span class='kw'>output</span><span class='kw'>=</span><span class='st'>"stderr"</span>)
+<span class='fu'>taskLog</span>(<span class='fl'>12345</span>, output=<span class='st'>"stderr"</span>)
 
-}</div></pre>
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -182,7 +183,7 @@ multiple servers (see <code><a href='servers.html'>servers()</a></code>)</p></td
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -129,14 +129,14 @@
     </div>
 
     <pre class="usage"><span class='fu'>configureApp</span>(
-  <span class='no'>appName</span>,
-  <span class='kw'>appDir</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  <span class='kw'>account</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>server</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>redeploy</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>instances</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>logLevel</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span>)
+  <span class='kw'>appName</span>,
+  appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
+  account = <span class='kw'>NULL</span>,
+  server = <span class='kw'>NULL</span>,
+  redeploy = <span class='fl'>TRUE</span>,
+  size = <span class='kw'>NULL</span>,
+  instances = <span class='kw'>NULL</span>,
+  logLevel = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -189,11 +189,12 @@ information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></
     <div class='dont-index'><p><code><a href='applications.html'>applications()</a></code>, <code><a href='deployApp.html'>deployApp()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># set instance size for an application</span>
-<span class='fu'>configureApp</span>(<span class='st'>"myapp"</span>, <span class='kw'>size</span><span class='kw'>=</span><span class='st'>"xlarge"</span>)
-}</div></pre>
+<span class='fu'>configureApp</span>(<span class='st'>"myapp"</span>, size=<span class='st'>"xlarge"</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -209,7 +210,7 @@ information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

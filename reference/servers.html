@@ -81,7 +81,7 @@ rsconnect can deploy and manage applications." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -130,19 +130,19 @@ rsconnect can deploy and manage applications." />
 <span class="pkg">rsconnect</span> can deploy and manage applications.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>servers</span>(<span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>servers</span>(local = <span class='fl'>FALSE</span>)
 
-<span class='fu'>discoverServers</span>(<span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>discoverServers</span>(quiet = <span class='fl'>FALSE</span>)
 
-<span class='fu'>addConnectServer</span>(<span class='no'>url</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>certificate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>addConnectServer</span>(<span class='kw'>url</span>, name = <span class='kw'>NULL</span>, certificate = <span class='kw'>NULL</span>, quiet = <span class='fl'>FALSE</span>)
 
-<span class='fu'>addServer</span>(<span class='no'>url</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>certificate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>addServer</span>(<span class='kw'>url</span>, name = <span class='kw'>NULL</span>, certificate = <span class='kw'>NULL</span>, quiet = <span class='fl'>FALSE</span>)
 
-<span class='fu'>removeServer</span>(<span class='no'>name</span>)
+<span class='fu'>removeServer</span>(<span class='kw'>name</span>)
 
-<span class='fu'>serverInfo</span>(<span class='no'>name</span>)
+<span class='fu'>serverInfo</span>(<span class='kw'>name</span>)
 
-<span class='fu'>addServerCertificate</span>(<span class='no'>name</span>, <span class='no'>certificate</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>addServerCertificate</span>(<span class='kw'>name</span>, <span class='kw'>certificate</span>, quiet = <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -190,17 +190,18 @@ previously registered servers.</p>
 server)</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># register a local server</span>
 <span class='fu'>addServer</span>(<span class='st'>"http://myrsconnect/"</span>, <span class='st'>"myserver"</span>)
 
 <span class='co'># list servers</span>
-<span class='fu'>servers</span>(<span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>servers</span>(local = <span class='fl'>TRUE</span>)
 
 <span class='co'># connect to an account on the server</span>
-<span class='fu'><a href='connectUser.html'>connectUser</a></span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"myserver"</span>)
-}</div></pre>
+<span class='fu'><a href='connectUser.html'>connectUser</a></span>(server = <span class='st'>"myserver"</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -216,7 +217,7 @@ server)</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

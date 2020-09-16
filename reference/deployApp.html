@@ -82,7 +82,7 @@ content to a server." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -133,27 +133,27 @@ content to a server.</p>
     </div>
 
     <pre class="usage"><span class='fu'>deployApp</span>(
-  <span class='kw'>appDir</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  <span class='kw'>appFiles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>appFileManifest</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>appPrimaryDoc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>appSourceDoc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>appName</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>appTitle</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>appId</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>contentCategory</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>account</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>server</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>upload</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>recordDir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>launch.browser</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.launch.browser"</span>, <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()),
-  <span class='kw'>logLevel</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span>),
-  <span class='kw'>lint</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>metadata</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>forceUpdate</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.force.update.apps"</span>, <span class='fl'>FALSE</span>),
-  <span class='kw'>python</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>on.failure</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>forceGeneratePythonEnvironment</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
+  appFiles = <span class='kw'>NULL</span>,
+  appFileManifest = <span class='kw'>NULL</span>,
+  appPrimaryDoc = <span class='kw'>NULL</span>,
+  appSourceDoc = <span class='kw'>NULL</span>,
+  appName = <span class='kw'>NULL</span>,
+  appTitle = <span class='kw'>NULL</span>,
+  appId = <span class='kw'>NULL</span>,
+  contentCategory = <span class='kw'>NULL</span>,
+  account = <span class='kw'>NULL</span>,
+  server = <span class='kw'>NULL</span>,
+  upload = <span class='fl'>TRUE</span>,
+  recordDir = <span class='kw'>NULL</span>,
+  launch.browser = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.launch.browser"</span>, <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()),
+  logLevel = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span>),
+  lint = <span class='fl'>TRUE</span>,
+  metadata = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  forceUpdate = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.force.update.apps"</span>, <span class='fl'>FALSE</span>),
+  python = <span class='kw'>NULL</span>,
+  on.failure = <span class='kw'>NULL</span>,
+  forceGeneratePythonEnvironment = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -298,7 +298,7 @@ is <code>TRUE</code>.</p></td>
 <code><a href='deployTFModel.html'>deployTFModel</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># deploy the application in the current working dir</span>
 <span class='fu'>deployApp</span>()
@@ -307,18 +307,19 @@ is <code>TRUE</code>.</p></td>
 <span class='fu'>deployApp</span>(<span class='st'>"~/projects/shiny/app1"</span>)
 
 <span class='co'># deploy using an alternative application name and title</span>
-<span class='fu'>deployApp</span>(<span class='st'>"~/projects/shiny/app1"</span>, <span class='kw'>appName</span> <span class='kw'>=</span> <span class='st'>"myapp"</span>,
-          <span class='kw'>appTitle</span> <span class='kw'>=</span> <span class='st'>"My Application"</span>)
+<span class='fu'>deployApp</span>(<span class='st'>"~/projects/shiny/app1"</span>, appName = <span class='st'>"myapp"</span>,
+          appTitle = <span class='st'>"My Application"</span>)
 
 <span class='co'># deploy specifying an explicit account name, then</span>
 <span class='co'># redeploy with no arguments (will automatically use</span>
 <span class='co'># the previously specified account)</span>
-<span class='fu'>deployApp</span>(<span class='kw'>account</span> <span class='kw'>=</span> <span class='st'>"jsmith"</span>)
+<span class='fu'>deployApp</span>(account = <span class='st'>"jsmith"</span>)
 <span class='fu'>deployApp</span>()
 
 <span class='co'># deploy but don't launch a browser when completed</span>
-<span class='fu'>deployApp</span>(<span class='kw'>launch.browser</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-}</div></pre>
+<span class='fu'>deployApp</span>(launch.browser = <span class='fl'>FALSE</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -334,7 +335,7 @@ is <code>TRUE</code>.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

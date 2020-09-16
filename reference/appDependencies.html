@@ -83,7 +83,7 @@ packages they depend on." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -134,7 +134,7 @@ the application depends on; and for each of those packages what other
 packages they depend on.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>appDependencies</span>(<span class='kw'>appDir</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), <span class='kw'>appFiles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>appDependencies</span>(appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), appFiles = <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,8 +165,8 @@ dependencies detected for the application:</p><table class='table'>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Dependencies are determined by parsing application source code and
-looking for calls to <code>library</code>, <code>require</code>, <code>::</code>, and
-<code>:::</code>.</p>
+looking for calls to <code>library</code>, <code>require</code>, <code><a href='https://rdrr.io/r/base/ns-dblcolon.html'>::</a></code>, and
+<code><a href='https://rdrr.io/r/base/ns-dblcolon.html'>:::</a></code>.</p>
 <p>Recursive dependencies are detected by examining the <code>Depends</code>,
 <code>Imports</code>, and <code>LinkingTo</code> fields of the packages immediately
 dependend on by the application.</p>
@@ -179,7 +179,7 @@ required to run your application will be detected.</p>
 inserting call(s) to <code>require</code> within your source directory. This code
 need not actually execute, for example you could create a standalone file
 named <code>dependencies.R</code> with the following code: <br /> <br />
-<code><a href='https://rdrr.io/pkg/xts/man'>require(xts)</a></code> <br /> <code><a href='https://rdrr.io/pkg/colorspace/man'>require(colorspace)</a></code> <br /></p>
+<code>require(xts)</code> <br /> <code>require(colorspace)</code> <br /></p>
 <p>This will force the <code>xts</code> and <code>colorspace</code> packages to be
 installed along with the rest of your application when it is deployed.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -187,14 +187,15 @@ installed along with the rest of your application when it is deployed.</p>
     <div class='dont-index'><p><a href='rsconnectPackages.html'>rsconnectPackages</a>(Using Packages with rsconnect)</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># dependencies for the app in the current working dir</span>
 <span class='fu'>appDependencies</span>()
 
 <span class='co'># dependencies for an app in another directory</span>
 <span class='fu'>appDependencies</span>(<span class='st'>"~/projects/shiny/app1"</span>)
-}</div></pre>
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -210,7 +211,7 @@ installed along with the rest of your application when it is deployed.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

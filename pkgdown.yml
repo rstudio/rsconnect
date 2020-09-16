@@ -1,8 +1,8 @@
 pandoc: '2.2'
-pkgdown: 1.5.1
+pkgdown: 1.6.1
 pkgdown_sha: ~
-articles: []
-last_built: 2020-08-17T16:51Z
+articles: {}
+last_built: 2020-09-16T23:29Z
 urls:
   reference: https://rstudio.github.io/rstudioapi/reference
   article: https://rstudio.github.io/rstudioapi/articles

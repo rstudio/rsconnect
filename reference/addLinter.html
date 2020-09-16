@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -128,7 +128,7 @@
     <p>Add a linter, to be used in subsequent calls to <code><a href='lint.html'>lint()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>addLinter</span>(<span class='no'>name</span>, <span class='no'>linter</span>)</pre>
+    <pre class="usage"><span class='fu'>addLinter</span>(<span class='kw'>name</span>, <span class='kw'>linter</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,23 +148,24 @@
     <pre class="examples"><div class='input'><span class='fu'>addLinter</span>(<span class='st'>"no.capitals"</span>, <span class='fu'><a href='linter.html'>linter</a></span>(
 
   <span class='co'>## Identify lines containing capital letters -- either by name or by index</span>
-  <span class='kw'>apply</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>content</span>, <span class='no'>...</span>) {
-    <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grep</a></span>(<span class='st'>"[A-Z]"</span>, <span class='no'>content</span>)
+  apply = <span class='fu'>function</span>(<span class='kw'>content</span>, <span class='kw'>...</span>) {
+    <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grep</a></span>(<span class='st'>"[A-Z]"</span>, <span class='kw'>content</span>)
   },
 
   <span class='co'>## Only use this linter on R files (paths ending with .r or .R)</span>
-  <span class='kw'>takes</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>paths</span>) {
-    <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grep</a></span>(<span class='st'>"[rR]$"</span>, <span class='no'>paths</span>)
+  takes = <span class='fu'>function</span>(<span class='kw'>paths</span>) {
+    <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grep</a></span>(<span class='st'>"[rR]$"</span>, <span class='kw'>paths</span>)
   },
 
   <span class='co'># Use the default message constructor</span>
-  <span class='kw'>message</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>content</span>, <span class='no'>lines</span>, <span class='no'>...</span>) {
-    <span class='fu'><a href='makeLinterMessage.html'>makeLinterMessage</a></span>(<span class='st'>"Capital letters found on the following lines"</span>, <span class='no'>content</span>, <span class='no'>lines</span>)
+  message = <span class='fu'>function</span>(<span class='kw'>content</span>, <span class='kw'>lines</span>, <span class='kw'>...</span>) {
+    <span class='fu'><a href='makeLinterMessage.html'>makeLinterMessage</a></span>(<span class='st'>"Capital letters found on the following lines"</span>, <span class='kw'>content</span>, <span class='kw'>lines</span>)
   },
 
   <span class='co'># Give a suggested prescription</span>
-  <span class='kw'>suggest</span> <span class='kw'>=</span> <span class='st'>"Do not use capital letters in these documents."</span>
-))</div></pre>
+  suggest = <span class='st'>"Do not use capital letters in these documents."</span>
+))
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -180,7 +181,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

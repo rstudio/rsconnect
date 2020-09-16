@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -129,11 +129,11 @@
     </div>
 
     <pre class="usage"><span class='fu'>deployments</span>(
-  <span class='no'>appPath</span>,
-  <span class='kw'>nameFilter</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>accountFilter</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>serverFilter</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>excludeOrphaned</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>appPath</span>,
+  nameFilter = <span class='kw'>NULL</span>,
+  accountFilter = <span class='kw'>NULL</span>,
+  serverFilter = <span class='kw'>NULL</span>,
+  excludeOrphaned = <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -191,12 +191,13 @@ additional columns.</p>
 server, and <code><a href='deployApp.html'>deployApp()</a></code> to create a new deployment.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># Return all deployments of the ~/r/myapp directory made with the 'abc'</span>
 <span class='co'># account</span>
-<span class='fu'>deployments</span>(<span class='st'>"~/r/myapp"</span>, <span class='kw'>accountFilter</span><span class='kw'>=</span><span class='st'>"abc"</span>)
-}</div></pre>
+<span class='fu'>deployments</span>(<span class='st'>"~/r/myapp"</span>, accountFilter=<span class='st'>"abc"</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -212,7 +213,7 @@ server, and <code><a href='deployApp.html'>deployApp()</a></code> to create a ne
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16-9002</span>
       </span>
     </div>
 
@@ -129,12 +129,12 @@
     </div>
 
     <pre class="usage"><span class='fu'>setProperty</span>(
-  <span class='no'>propertyName</span>,
-  <span class='no'>propertyValue</span>,
-  <span class='kw'>appPath</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  <span class='kw'>appName</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>account</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>propertyName</span>,
+  <span class='kw'>propertyValue</span>,
+  appPath = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
+  appName = <span class='kw'>NULL</span>,
+  account = <span class='kw'>NULL</span>,
+  force = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -173,7 +173,7 @@ then this parameter can be omitted.</p></td>
     <p>This function only works for ShinyApps servers.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'># set instance size for an application</span>
 <span class='fu'>setProperty</span>(<span class='st'>"application.instances.count"</span>, <span class='fl'>1</span>)
@@ -181,7 +181,8 @@ then this parameter can be omitted.</p></td>
 <span class='co'># disable application package cache</span>
 <span class='fu'>setProperty</span>(<span class='st'>"application.package.cache"</span>, <span class='fl'>FALSE</span>)
 
-}</div></pre>
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -197,7 +198,7 @@ then this parameter can be omitted.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
