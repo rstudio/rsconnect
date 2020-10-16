@@ -25,16 +25,24 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
 
-    # ensure .Rprofile doesn't call packrat/init.R
+    # ensure .Rprofile doesn't call packrat/init.R or renv/activate.R
     if (basename(to) == ".Rprofile") {
       origRprofile <- readLines(to)
       msg <- paste0("# Modified by rsconnect package ", packageVersion("rsconnect"), " on ", Sys.time(), ":")
-      replacement <- paste(msg,
-                           "# Packrat initialization disabled in published application",
-                           '# source(\"packrat/init.R\")', sep="\n")
-      newRprofile <- gsub( 'source(\"packrat/init.R\")',
-                           replacement,
-                           origRprofile, fixed = TRUE)
+
+      packratReplacement <- paste(msg,
+                                  "# Packrat initialization disabled in published application",
+                                  '# source(\"packrat/init.R\")', sep="\n")
+      renvReplacement <- paste(msg,
+                               "# renv initialization disabled in published application",
+                               '# source(\"renv/activate.R\")', sep="\n")
+      newRprofile <- origRprofile
+      newRprofile <- gsub('source(\"packrat/init.R\")',
+                          packratReplacement,
+                          newRprofile, fixed = TRUE)
+      newRprofile <- gsub('source(\"renv/activate.R\")',
+                          renvReplacement,
+                          newRprofile, fixed = TRUE)
       cat(newRprofile, file=to, sep="\n")
     }
 
