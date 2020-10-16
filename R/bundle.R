@@ -25,20 +25,35 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE
       dir.create(dirname(to), recursive = TRUE)
     file.copy(from, to)
 
-    # ensure .Rprofile doesn't call packrat/init.R
+    # remove autoloaders from the .Rprofile
     if (basename(to) == ".Rprofile") {
-      origRprofile <- readLines(to)
-      msg <- paste0("# Modified by rsconnect package ", packageVersion("rsconnect"), " on ", Sys.time(), ":")
-      replacement <- paste(msg,
-                           "# Packrat initialization disabled in published application",
-                           '# source(\"packrat/init.R\")', sep="\n")
-      newRprofile <- gsub( 'source(\"packrat/init.R\")',
-                           replacement,
-                           origRprofile, fixed = TRUE)
-      cat(newRprofile, file=to, sep="\n")
+
+      # read existing .Rprofile
+      old <- readLines(to, warn = FALSE)
+      new <- old
+
+      # prepend a header to the file
+      fmt <- "# Modified by rsconnect %s on %s."
+      header <- sprintf(fmt, packageVersion("rsconnect"), Sys.time())
+      new <- c(header, old)
+
+      # comment out any auto-loaders
+      loaders <- c(
+        "^\\s*source(\"packrat/init.R\")\\s*$",
+        "^\\s*source(\"renv/activate.R\")\\s*$"
+      )
+
+      for (loader in loaders) {
+        lines <- grep(loader, new)
+        new[lines] <- paste("# Autoloader disabled for published application\n#", new[lines])
+      }
+
+      writeLines(new, con = to)
+
     }
 
   }
+
   bundleDir
 }
 
