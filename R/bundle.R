@@ -29,13 +29,12 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE
     if (basename(to) == ".Rprofile") {
 
       # read existing .Rprofile
-      old <- readLines(to, warn = FALSE)
-      new <- old
+      profile <- readLines(to, warn = FALSE)
 
       # prepend a header to the file
       fmt <- "# Modified by rsconnect %s on %s."
       header <- sprintf(fmt, packageVersion("rsconnect"), Sys.time())
-      new <- c(header, old)
+      profile <- c(header, profile)
 
       # comment out any auto-loaders
       loaders <- c(
@@ -44,11 +43,14 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE
       )
 
       for (loader in loaders) {
-        lines <- grep(loader, new)
-        new[lines] <- paste("# Autoloader disabled for published application\n#", new[lines])
+        lines <- grep(loader, profile)
+        if (length(lines)) {
+          replacement <- paste("# Autoloader disabled for published application.\n#", profile[lines])
+          profile[lines] <- replacement
+        }
       }
 
-      writeLines(new, con = to)
+      writeLines(profile, con = to)
 
     }
 
