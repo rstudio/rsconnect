@@ -444,9 +444,21 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
     return("shiny")
   }
 
-  # shiny directory
-  shinyFiles <- grep("^(server|app).r$", files, ignore.case = TRUE, perl = TRUE)
-  if (length(shinyFiles) > 0) {
+  # Shiny application or ShinyRmd using server.R
+  serverR <- grep("^server.r$", files, ignore.case = TRUE, perl = TRUE)
+  if (length(serverR) > 0) {
+    # Shiny server.R and UI.Rmd
+    uiRmd <- grep("^ui.rmd$", files, ignore.case = TRUE, perl = TRUE)
+    if (length(uiRmd) > 0) {
+      return("rmd-shiny")
+    }
+    # Simple Shiny app
+    return("shiny")
+  }
+
+  # Shiny application using single-file app.R style.
+  appR <- grep("^app.r$", files, ignore.case = TRUE, perl = TRUE)
+  if (length(appR) > 0) {
     return("shiny")
   }
 
