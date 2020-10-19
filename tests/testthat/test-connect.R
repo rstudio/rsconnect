@@ -27,7 +27,7 @@ test_that("Users API", {
   skip_on_os("windows")
 
   if (!isConnectRunning()) {
-    cat("No running 'connect' instance detected -- tests skipped.")
+    cat("No running 'connect' instance detected -- tests skipped.\n")
     return()
   }
 
