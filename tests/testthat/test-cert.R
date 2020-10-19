@@ -1,7 +1,8 @@
 context("certificates")
 
 cert_test_that <- function(test, expr) {
-  config_dir <- tempdir()
+  config_dir <- tempfile()
+  dir.create(config_dir)
 
   # preserve old values
   home <- Sys.getenv("HOME")
