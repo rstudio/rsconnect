@@ -452,23 +452,31 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
     return("shiny")
   }
 
-  # shiny directory
-  shinyFiles <- grep("^(server|app).r$", files, ignore.case = TRUE, perl = TRUE)
-  if (length(shinyFiles) > 0) {
+  # Shiny application using single-file app.R style.
+  appR <- grep("^app.r$", files, ignore.case = TRUE, perl = TRUE)
+  if (length(appR) > 0) {
     return("shiny")
   }
 
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
-                   value = TRUE)
+  # Determine if we have Rmd and if they are (optionally) need the Shiny runtime.
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  shinyRmdFiles <- sapply(file.path(appDir, rmdFiles), isShinyRmd)
 
-  # if there are one or more R Markdown documents, use the Shiny app mode if any
-  # are Shiny documents
+  # An Rmd file with a Shiny runtime uses rmarkdown::run.
+  if (any(shinyRmdFiles)) {
+    return("rmd-shiny")
+  }
+
+  # Shiny application using server.R; checked later than Rmd with shiny runtime
+  # because server.R may contain the server code paired with a ShinyRmd and needs
+  # to be run by rmarkdown::run (rmd-shiny).
+  serverR <- grep("^server.r$", files, ignore.case = TRUE, perl = TRUE)
+  if (length(serverR) > 0) {
+    return("shiny")
+  }
+
+  # Any non-Shiny R Markdown documents are rendered content (rmd-static).
   if (length(rmdFiles) > 0) {
-    for (rmdFile in rmdFiles) {
-      if (isShinyRmd(file.path(appDir, rmdFile))) {
-        return("rmd-shiny")
-      }
-    }
     return("rmd-static")
   }
 
