@@ -93,7 +93,7 @@ maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
   subdirContents <- NULL
 
   # Info for each file lets us know to recurse (directories) or aggregate (files).
-  infos <- file.info(file.path(dir, contents))
+  infos <- file.info(file.path(dir, contents), extra_cols = FALSE)
   row.names(infos) <- contents
 
   for (name in contents) {
@@ -101,7 +101,7 @@ maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
 
     if (info$isdir) {
       # Directories do not include their self-size in our counts.
-      
+
       # ignore knitr _cache directories
       if (isKnitrCacheDir(name, contents)) {
         next
@@ -116,7 +116,7 @@ maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
 
       # Directories are not included, only their files.
       subdirContents <- append(subdirContents, file.path(name, dirList$contents))
-      
+
     } else {
       # This is a file. It counts and is included in our listing.
 
@@ -128,11 +128,11 @@ maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
     # abort if we've reached the maximum size
     if (totalSize > getOption("rsconnect.max.bundle.size"))
       break
-    
+
     # abort if we've reached the maximum number of files
     if (totalFiles > getOption("rsconnect.max.bundle.files"))
       break
-  }    
+  }
 
   # totalSize - incoming size summed with all file sizes beneath this directory.
   # totalFiles - incoming count summed with file count beneath this directory.
