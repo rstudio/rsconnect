@@ -68,8 +68,8 @@ test_that("bundle directories are recursively enumerated", {
   # Files are included in the list, count, and sizes, not directories.
   # Paths are enumerated relative to the target directory, not absolute paths.
   expect_identical(result$contents, files)
-  expect_identical(result$totalSize, totalSize)
-  expect_identical(result$totalFiles, totalFiles)
+  expect_equal(result$totalSize, totalSize)
+  expect_equal(result$totalFiles, totalFiles)
 })
 
 test_that("simple Shiny app bundle is runnable", {
