@@ -60,15 +60,17 @@ isKnitrCacheDir <- function(subdir, contents) {
   }
 }
 
+# dir is the path for this step on our recursive walk.
+# topLevel is TRUE only for the outermost directory of our walk.
 # totalSize is a running total of our encountered file sizes.
 # totalFiles is a running count of our encountered files.
-maxDirectoryList <- function(dir, parent, totalFiles, totalSize) {
+maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
   # generate a list of files at this level
   contents <- list.files(dir, recursive = FALSE, all.files = TRUE,
                          include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
 
   # At the root, some well-known files and directories are not included in the bundle.
-  if (nchar(parent) == 0) {
+  if (topLevel) {
     contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
     contents <- setdiff(contents, c(
                                       ".DS_Store",
@@ -87,39 +89,40 @@ maxDirectoryList <- function(dir, parent, totalFiles, totalSize) {
   contents <- setdiff(contents, c("renv", "renv.lock"))
 
   # subdirContents contains all files encountered beneath this directory.
+  # Returned paths are relative to this directory.
   subdirContents <- NULL
 
-  # sum the size of the files in this directory
-  paths <- file.path(dir, contents)
-  infos <- file.info(paths)
+  # Info for each file lets us know to recurse (directories) or aggregate (files).
+  infos <- file.info(file.path(dir, contents))
+  row.names(infos) <- contents
 
-  for (path in paths) {
-    info <- infos[path,]
+  for (name in contents) {
+    info <- infos[name,]
 
     if (info$isdir) {
       # Directories do not include their self-size in our counts.
       
       # ignore knitr _cache directories
-      if (isKnitrCacheDir(basename(path), contents)) {
+      if (isKnitrCacheDir(name, contents)) {
         next
       }
 
       # Recursively enumerate this directory.
-      dirList <- maxDirectoryList(path, dir, totalFiles, totalSize)
+      dirList <- maxDirectoryList(file.path(dir, name), FALSE, totalFiles, totalSize)
 
       # Inherit the running totals from our child.
       totalSize <- dirList$totalSize
       totalFiles <- dirList$totalFiles
 
       # Directories are not included, only their files.
-      subdirContents <- append(subdirContents, dirList$contents)
+      subdirContents <- append(subdirContents, file.path(name, dirList$contents))
       
     } else {
       # This is a file. It counts and is included in our listing.
 
       totalSize <- totalSize + info$size
       totalFiles <- totalFiles + 1
-      subdirContents <- append(subdirContents, path)
+      subdirContents <- append(subdirContents, name)
     }
 
     # abort if we've reached the maximum size
@@ -131,7 +134,9 @@ maxDirectoryList <- function(dir, parent, totalFiles, totalSize) {
       break
   }    
 
-  # return the new size and accumulated contents
+  # totalSize - incoming size summed with all file sizes beneath this directory.
+  # totalFiles - incoming count summed with file count beneath this directory.
+  # contents - all files beneath this directory; paths relative to this directory.
   list(
       totalSize = totalSize,
       totalFiles = totalFiles,
@@ -170,7 +175,7 @@ maxDirectoryList <- function(dir, parent, totalFiles, totalSize) {
 #'
 #' @export
 listBundleFiles <- function(appDir) {
-  maxDirectoryList(appDir, "", 0, 0)
+  maxDirectoryList(appDir, TRUE, 0, 0)
 }
 
 bundleFiles <- function(appDir) {
