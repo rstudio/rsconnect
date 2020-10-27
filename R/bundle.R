@@ -61,16 +61,16 @@ isKnitrCacheDir <- function(subdir, contents) {
 }
 
 # dir is the path for this step on our recursive walk.
-# topLevel is TRUE only for the outermost directory of our walk.
+# depth is tracks the number of directories we have descended. depth==0 at the root.
 # totalSize is a running total of our encountered file sizes.
 # totalFiles is a running count of our encountered files.
-maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
+maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
   # generate a list of files at this level
   contents <- list.files(dir, recursive = FALSE, all.files = TRUE,
                          include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
 
   # At the root, some well-known files and directories are not included in the bundle.
-  if (topLevel) {
+  if (depth==0) {
     contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
     contents <- setdiff(contents, c(
                                       ".DS_Store",
@@ -108,7 +108,7 @@ maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
       }
 
       # Recursively enumerate this directory.
-      dirList <- maxDirectoryList(file.path(dir, name), FALSE, totalFiles, totalSize)
+      dirList <- maxDirectoryList(file.path(dir, name), depth+1, totalFiles, totalSize)
 
       # Inherit the running totals from our child.
       totalSize <- dirList$totalSize
@@ -175,7 +175,7 @@ maxDirectoryList <- function(dir, topLevel, totalFiles, totalSize) {
 #'
 #' @export
 listBundleFiles <- function(appDir) {
-  maxDirectoryList(appDir, TRUE, 0, 0)
+  maxDirectoryList(appDir, 0, 0, 0)
 }
 
 bundleFiles <- function(appDir) {
