@@ -2,6 +2,7 @@
 
 ## 0.8.17 (in development)
 
+* Improve how large bundles (file size and count) are detected (#464)
 * The `RSCONNECT_TAR` environment variable can be used to select the tar implementation used to create bundles (#446)
 * Add support for syncing the deployment metadata with the server (#396)
 * Insist on ShinyApps accounts in `showUsers()` (#398)
