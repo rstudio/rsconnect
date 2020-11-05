@@ -12,6 +12,7 @@
 * Fail when no repository URL is available for a dependent package (#410)
 * Fix error when an old version of a package is installed and a current version isn't available (#431, #436)
 * Fix error where packages couldn't be found with nonstandard contrib URLs. (#451, #457)
+* Improve detection of Shiny R Markdown files when `server.R` is present (#461)
 
 ## 0.8.16
 
