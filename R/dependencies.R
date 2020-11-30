@@ -73,22 +73,36 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
     sapply(repos, "[[", 1)
   )
 
+  # read available.packages filters (allow user to override if necessary;
+  # this is primarily to allow debugging)
+  #
+  # note that we explicitly exclude the 'R_version' filter as we want to ensure
+  # that packages which require newer versions of R than the one currently
+  # in use can still be marked as available on CRAN -- for example, currently
+  # the package 'foreign' requires 'R (>= 4.0.0)' but older versions of R
+  # can still successfully install older versions from the CRAN archive
+  filters <- getOption(
+    "available_packages_filters",
+    default = c("duplicates")
+  )
+
   # get Bioconductor repos if any
-  biocRepos = repos[grep('BioC', names(repos), perl=TRUE, value=TRUE)]
-  if (length(biocRepos) > 0) {
-    biocPackages = available.packages(
+  biocRepos <- repos[grep('BioC', names(repos), perl = TRUE, value = TRUE)]
+  biocPackages <- if (length(biocRepos) > 0) {
+    available.packages(
       contriburl = contrib.url(biocRepos, type = "source"),
       type = "source",
-      filters = c("R_version", "duplicates")
-      )
-  } else {
-    biocPackages = c()
+      filters = filters
+    )
   }
+
+  # read available packages
   repo.packages <- available.packages(
     contriburl = contrib.url(repos, type = "source"),
     type = "source",
-    filters = c("R_version", "duplicates")
+    filters = filters
   )
+
   named.repos <- name.all.repos(repos)
   repo.lookup <- data.frame(
     name = names(named.repos),
