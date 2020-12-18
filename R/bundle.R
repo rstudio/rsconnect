@@ -197,7 +197,7 @@ bundleFiles <- function(appDir) {
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
-                      compatibilityMode = FALSE, forceGenerate = FALSE) {
+                      condaMode = FALSE, forceGenerate = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -242,7 +242,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = assetTypeName,
       users = users,
-      compatibilityMode = compatibilityMode,
+      condaMode = condaMode,
       forceGenerate = forceGenerate,
       python = python,
       hasPythonRmd = hasPythonRmd)
@@ -312,8 +312,8 @@ writeManifest <- function(appDir = getwd(),
                           contentCategory = NULL,
                           python = NULL,
                           forceGeneratePythonEnvironment = FALSE) {
-  # TODO: Temporarily disable conda environment capture until it is supported.
-  forceRequirementsTxtEnvironment <- TRUE
+
+  condaMode <- FALSE
 
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
@@ -356,7 +356,7 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       assetTypeName = "content",
       users = NULL,
-      compatibilityMode = forceRequirementsTxtEnvironment,
+      condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
       hasPythonRmd = hasPythonRmd)
@@ -585,12 +585,12 @@ getCondaExeForPrefix <- function(prefix) {
   conda
 }
 
-inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
+inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
   args <- c(shQuote(env_py))
-  if (compatibilityMode || forceGenerate) {
-    flags <- paste('-', ifelse(compatibilityMode, 'c', ''), ifelse(forceGenerate, 'f', ''), sep = '')
+  if (condaMode || forceGenerate) {
+    flags <- paste('-', ifelse(condaMode, 'c', ''), ifelse(forceGenerate, 'f', ''), sep = '')
     args <- c(args, flags)
   }
   args <- c(args, shQuote(workdir))
@@ -599,7 +599,7 @@ inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
     # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
     # and verify that the user hasn't specified that they don't want their conda environment captured.
     if('reticulate' %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
-       reticulate::py_config()$anaconda && !compatibilityMode) {
+       reticulate::py_config()$anaconda && !condaMode) {
       prefix <- getCondaEnvPrefix(python)
       conda <- getCondaExeForPrefix(prefix)
       args <- c("run", "-p", prefix, python, args)
@@ -628,7 +628,7 @@ inferPythonEnv <- function(workdir, python, compatibilityMode, forceGenerate) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, compatibilityMode,
+                              appPrimaryDoc, assetTypeName, users, condaMode,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE) {
 
   # provide package entries for all dependencies
@@ -651,7 +651,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       name <- deps[i, "Package"]
 
       if (name == "reticulate" && !is.null(python)) {
-        pyInfo <- inferPythonEnv(appDir, python, compatibilityMode, forceGenerate)
+        pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
         if (is.null(pyInfo$error)) {
           # write the package list into requirements.txt/environment.yml file in the bundle dir
           packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
