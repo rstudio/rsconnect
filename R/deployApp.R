@@ -114,8 +114,8 @@ deployApp <- function(appDir = getwd(),
                       python = NULL,
                       on.failure = NULL,
                       forceGeneratePythonEnvironment = FALSE) {
-  # TODO: Temporarily disable conda environment capture until it is supported.
-  forceRequirementsTxtEnvironment <- TRUE
+
+  condaMode <- FALSE
 
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
@@ -361,7 +361,7 @@ deployApp <- function(appDir = getwd(),
       python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
-                              forceRequirementsTxtEnvironment, forceGeneratePythonEnvironment)
+                              condaMode, forceGeneratePythonEnvironment)
 
       if (isShinyapps(accountDetails$server)) {
 
