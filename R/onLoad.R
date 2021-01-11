@@ -12,7 +12,7 @@
   # by default (primarily used by the IDE when validating server URLs)
   if (is.null(getOption("rsconnect.http.timeout"))) {
     windows <- identical(.Platform$OS.type, "windows")
-    options(rsconnect.http.timeout = ifelse(windows, 20, 5))
+    options(rsconnect.http.timeout = ifelse(windows, 20, 10))
   }
 
   if (is.null(getOption("rsconnect.metadata.sync.hours"))) {
