@@ -14,6 +14,7 @@
 * Fix error where packages couldn't be found with nonstandard contrib URLs. (#451, #457)
 * Improve detection of Shiny R Markdown files when `server.R` is present (#461)
 * Fix failure to write manifest when package requires a newer R version than the active version (#467)
+* Increase default HTTP timeout on non-Windows platforms (#476)
 
 ## 0.8.16
 
