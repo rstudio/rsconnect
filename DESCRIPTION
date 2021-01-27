@@ -14,7 +14,7 @@ Imports:
     digest,
     jsonlite,
     openssl,
-    packrat (>= 0.4.8-1),
+    packrat (>= 0.5),
     rstudioapi (>= 0.5),
     yaml (>= 2.1.5)
 Suggests:
