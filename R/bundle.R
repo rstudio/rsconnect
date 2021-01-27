@@ -288,7 +288,6 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
                       include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
   for (f in files) {
     info <- file.info(file.path(bundleDir,f))
-    cat(sprintf("f=%s; u=%s (%d); g=%s, (%d)\n", f, info$uname, nchar(info$uname), info$grname, nchar(info$grname)))
     if (nchar(info$uname) > lengthLimit || nchar(info$grname) > lengthLimit) {
       warning("The bundle contains files with user/group names having more than ", lengthLimit,
               " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
