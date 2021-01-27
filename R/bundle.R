@@ -293,10 +293,10 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
               " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
               "Long user and group names cause the internal R tar implementation to produce invalid archives. ",
               "Set the RSCONNECT_TAR environment variable to use an external tar command.")
-      return(TRUE)
+      return(invisible(TRUE))
     }
   }
-  return(FALSE)
+  return(invisible(FALSE))
 }
 
 
