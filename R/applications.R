@@ -92,21 +92,23 @@ applications <- function(account = NULL, server = NULL) {
     })
   }
 
-  # convert to data frame
+  # The config URL may be provided by the server at some point, but for now
+  # infer it from the account type
+  res <- lapply(res, function(row) {
+    if (isConnect) {
+      prefix <- sub("/__api__", "", serverDetails$url)
+      row$config_url <- paste(prefix, "connect/#/apps", row$id, sep = "/")
+    } else {
+      row$config_url <- paste("https://www.shinyapps.io/admin/#/application", row$id, sep = "/")
+    }
+    row
+  })
 
+  # convert to data frame
   rbindWithoutFactors <- function(...){
     rbind.data.frame(..., stringsAsFactors = FALSE)
   }
   res <- do.call(rbindWithoutFactors, res)
-
-  # this may be provided by the server at some point, but for now infer it
-  # from the account type
-  res$config_url <- if (!isConnect){
-    paste("https://www.shinyapps.io/admin/#/application", res$id, sep = "/")
-  } else {
-    prefix <- sub("/__api__", "", serverDetails$url)
-    paste(prefix, "connect/#/apps", res$id, sep = "/")
-  }
 
   # Ensure the Connect and ShinyApps.io data frames have same column names
   idx <- match("last_deployed_time", names(res))
