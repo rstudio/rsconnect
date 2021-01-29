@@ -79,6 +79,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
                                       "manifest.json",
                                       "rsconnect",
                                       "packrat",
+                                      "app_cache",
                                       ".svn",
                                       ".git",
                                       ".Rproj.user"
