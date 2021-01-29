@@ -290,8 +290,9 @@ test_that("writeManifest: Rmd without a python block doesn't include reticulate 
   expect_equal(manifest$python, NULL)
   # Confirm that we have removed packrat entries from our file listing but
   # retain entries for other files.
-  expect_false(any(grepl("^packrat/", manifest$files)))
-  expect_true(any(grepl("simple.Rmd", manifest$files)))
+  filenames <- names(manifest$files)
+  expect_false(any(grepl("^packrat/", filenames, perl = TRUE)), filenames)
+  expect_true(any(grepl("simple.Rmd", filenames, fixed = TRUE)), filenames)
 })
 
 test_that("getPython handles null python by checking RETICULATE_PYTHON", {
