@@ -16,6 +16,7 @@
 * Fix failure to write manifest when package requires a newer R version than the active version (#467)
 * Increase default HTTP timeout on non-Windows platforms (#476)
 * Require `packrat` 0.5 or later (#434)
+* Fix error when handling empty application / content lists (#417, #395)
 
 ## 0.8.16
 
