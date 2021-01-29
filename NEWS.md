@@ -4,6 +4,7 @@
 
 * Improve how large bundles (file size and count) are detected (#464)
 * The `RSCONNECT_TAR` environment variable can be used to select the tar implementation used to create bundles (#446)
+* Warn when files are owned by users or groups with long names, as this can cause the internal R tar implementation to produce invalid archives (#446)
 * Add support for syncing the deployment metadata with the server (#396)
 * Insist on ShinyApps accounts in `showUsers()` (#398)
 * Improve the regex used for the browser and browseURL lints to include a word boundary (#400)

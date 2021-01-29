@@ -271,8 +271,35 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
 
   tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
   logger(sprintf("Using tar: %s", tarImplementation))
+
+  if (tarImplementation == "internal") {
+    detectLongNames(bundleDir)
+  }
+
   utils::tar(bundlePath, files = NULL, compression = "gzip", tar = tarImplementation)
 }
+
+# Scan the bundle directory looking for long user/group names.
+#
+# Warn that the internal tar implementation may produce invalid archives.
+# https://github.com/rstudio/rsconnect/issues/446
+# https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17871
+detectLongNames <- function(bundleDir, lengthLimit = 32) {
+  files <- list.files(bundleDir, recursive = TRUE, all.files = TRUE,
+                      include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
+  for (f in files) {
+    info <- file.info(file.path(bundleDir,f))
+    if (nchar(info$uname) > lengthLimit || nchar(info$grname) > lengthLimit) {
+      warning("The bundle contains files with user/group names having more than ", lengthLimit,
+              " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
+              "Long user and group names cause the internal R tar implementation to produce invalid archives. ",
+              "Set the RSCONNECT_TAR environment variable to use an external tar command.")
+      return(invisible(TRUE))
+    }
+  }
+  return(invisible(FALSE))
+}
+
 
 #' Create a manifest.json describing deployment requirements.
 #'
