@@ -246,7 +246,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       condaMode = condaMode,
       forceGenerate = forceGenerate,
       python = python,
-      hasPythonRmd = hasPythonRmd)
+      hasPythonRmd = hasPythonRmd,
+      retainPackratDirectory = TRUE)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -387,7 +388,9 @@ writeManifest <- function(appDir = getwd(),
       condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
-      hasPythonRmd = hasPythonRmd)
+      hasPythonRmd = hasPythonRmd,
+      retainPackratDirectory = FALSE)
+
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -657,7 +660,8 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
-                              forceGenerate, python = NULL, hasPythonRmd = FALSE) {
+                              forceGenerate, python = NULL, hasPythonRmd = FALSE,
+                              retainPackratDirectory = TRUE) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -738,6 +742,12 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   }
 
   if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
+
+  if (!retainPackratDirectory) {
+    # Optionally remove the packrat directory when it will not be included in
+    # deployments, such as manifest-only deployments.
+    unlink(file.path(appDir, "packrat"), recursive = TRUE)
+  }
 
   # build the list of files to checksum
   files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
