@@ -18,6 +18,7 @@
 * Increase default HTTP timeout on non-Windows platforms (#476)
 * Require `packrat` 0.5 or later (#434)
 * Fix error when handling empty application / content lists (#417, #395)
+* Calls to `writeManifest()` no longer reference `packrat` files in the generated `manifest.json`. The `packrat` entries were transient and only existed while computing dependencies. (#472)
 
 ## 0.8.16
 
