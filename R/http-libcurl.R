@@ -154,8 +154,12 @@ httpLibCurl <- function(protocol,
   }
 
   # emit JSON trace if requested
-  if (!is.null(file) && httpTraceJson() &&
-      identical(contentType, "application/json"))
+  jsonTracingEnabling <-
+    httpTraceJson() &&
+    !is.null(contentFile) &&
+    identical(contentType, "application/json")
+
+  if (jsonTracingEnabled)
     cat(paste0("<< ", paste(readLines(contentFile), collapse="\n"), "\n"))
 
   # Parse cookies from header; bear in mind that there may be multiple headers
