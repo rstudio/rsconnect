@@ -2,6 +2,7 @@
 
 ## 0.8.17 (in development)
 
+* Fixed issue where setting `options(rsconnect.http.trace.json = TRUE)` could cause deployment errors with some HTTP transports (#490)
 * Improve how large bundles (file size and count) are detected (#464)
 * The `RSCONNECT_TAR` environment variable can be used to select the tar implementation used to create bundles (#446)
 * Warn when files are owned by users or groups with long names, as this can cause the internal R tar implementation to produce invalid archives (#446)
