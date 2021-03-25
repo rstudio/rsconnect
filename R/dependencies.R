@@ -159,7 +159,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
 # source or comes from a source control system. This indicates that we will
 # not have a repostory URL; location is recorded elsewhere.
 isSCMSource <- function(source) {
-  tolower(source) %in% c("github", "bitbucket", "source")
+  tolower(source) %in% c("github", "gitlab", "bitbucket", "source")
 }
 
 # generate a random name prefixed with "repo_".
