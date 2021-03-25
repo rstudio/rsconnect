@@ -834,7 +834,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
 validatePackageSource <- function(pkg) {
   msg <- NULL
-  if (!(pkg$Source %in% c("CRAN", "Bioconductor", "github"))) {
+  if (!(pkg$Source %in% c("CRAN", "Bioconductor", "github", "gitlab"))) {
     if (is.null(pkg$Repository)) {
       msg <- paste("The package was installed from an unsupported ",
                    "source '", pkg$Source, "'.", sep = "")
