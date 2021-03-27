@@ -154,7 +154,7 @@ httpLibCurl <- function(protocol,
   }
 
   # emit JSON trace if requested
-  jsonTracingEnabling <-
+  jsonTracingEnabled <-
     httpTraceJson() &&
     !is.null(contentFile) &&
     identical(contentType, "application/json")
