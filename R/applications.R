@@ -83,6 +83,8 @@ applications <- function(account = NULL, server = NULL) {
     lapply(res, function(x) {
       # promote the size and instance data to first-level fields
       x$size <- x$deployment$properties$application.instances.template
+      if (is.null(x$size))
+        x$size <- NA
       x$instances <- x$deployment$properties$application.instances.count
       if (is.null(x$instances))
         x$instances <- NA
