@@ -21,6 +21,7 @@
 * Fix error when handling empty application / content lists (#417, #395)
 * Calls to `writeManifest()` no longer reference `packrat` files in the generated `manifest.json`. The `packrat` entries were transient and only existed while computing dependencies. (#472)
 * Fix `applications` when ShinyApps does not return `size` details (#496)
+* GitLab is seen as a valid SCM source (#491)
 
 ## 0.8.16
 
