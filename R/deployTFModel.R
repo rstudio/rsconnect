@@ -20,14 +20,14 @@
 #' [keras::export_savedmodel.keras.engine.training.Model()] or the TensorFlow
 #' method [tensorflow::export_savedmodel()]. If using the TensorFlow package for
 #' R, the official [TensorFlow guide for saving and restoring models](
-#' <https://www.tensorflow.org/programmers_guide/saved_model#overview_of_saving_and_restoring_models>)
+#' <https://www.tensorflow.org/guide/saved_model>)
 #' may be useful.
 #'
 #' @param modelDir Path to the saved model directory. MUST contain
 #'   *saved_model.pb* or *saved_model.pbtxt*
 #' @param ... Additional arguments to [deployApp()].
 #'
-#' @references <https://www.tensorflow.org/programmers_guide/saved_model#overview_of_saving_and_restoring_models>
+#' @references <https://www.tensorflow.org/guide/saved_model>
 #'
 #'
 #' @details

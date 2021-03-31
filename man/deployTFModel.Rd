@@ -30,11 +30,11 @@ A saved model directory might look like this:\preformatted{./1/
 For information on creating saved models, see the Keras method
 \code{\link[keras:export_savedmodel.keras.engine.training.Model]{keras::export_savedmodel.keras.engine.training.Model()}} or the TensorFlow
 method \code{\link[tensorflow:export_savedmodel]{tensorflow::export_savedmodel()}}. If using the TensorFlow package for
-R, the official \href{https://www.tensorflow.org/programmers_guide/saved_model#overview_of_saving_and_restoring_models}{TensorFlow guide for saving and restoring models}
+R, the official \href{https://www.tensorflow.org/guide/saved_model}{TensorFlow guide for saving and restoring models}
 may be useful.
 }
 \references{
-\url{https://www.tensorflow.org/programmers_guide/saved_model#overview_of_saving_and_restoring_models}
+\url{https://www.tensorflow.org/guide/saved_model}
 }
 \seealso{
 Other Deployment functions: 

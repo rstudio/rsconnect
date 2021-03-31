@@ -1,7 +1,7 @@
 #' Using Packages with rsconnect
 #'
 #' @description
-#' Deployed applications can depend on any package available on CRAN as well as any package hosted in a public \href{https://www.github.com}{GitHub} repository.
+#' Deployed applications can depend on any package available on CRAN as well as any package hosted in a public \href{https://github.com/}{GitHub} repository.
 #'
 #' When an application is deployed it's source code is scanned for dependencies using the [appDependencies()] function. The list of dependencies is sent to the server along with the application source code and these dependencies are then installed alongside the application.
 #'
