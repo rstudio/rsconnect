@@ -36,7 +36,7 @@ If python = NULL, and RETICULATE_PYTHON is set in the environment,
 its value will be used.}
 
 \item{forceGeneratePythonEnvironment}{Optional. If an existing
-\code{requirements.txt} file is found, it will be overwritten when 
+\code{requirements.txt} file is found, it will be overwritten when
 this argument is \code{TRUE}.}
 }
 \description{

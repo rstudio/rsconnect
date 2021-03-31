@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^examples/
-
+^examples$
+^R/\.editorconfig$
 ^\.travis\.yml$
 ^README\.Rmd$
 ^_pkgdown\.yml$
