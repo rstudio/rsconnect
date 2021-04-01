@@ -4,10 +4,10 @@ language: R
 sudo: false
 cache: packages
 
-# Needed for plumber tests to run
+# Needed for plumber tests & pkgdown
 before_install:
   - sudo apt-get update
-  - sudo apt-get -y install libsodium-dev
+  - sudo apt-get -y install libsodium-dev libharfbuzz-dev libfribidi-dev
 
 before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
 deploy:
