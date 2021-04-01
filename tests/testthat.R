@@ -1,4 +1,13 @@
 library(testthat)
 library(rsconnect)
 
+# record whether the configuration directory exists
+configDir <- rsconnectConfigDir()
+configDirExists <- file.exists(rsconnectConfigDir)
+
 test_check("rsconnect")
+
+# if the configuration directory did not exist before running the tests, clean it up.
+if (!configDirExists) {
+  unlink(configDir, recursive = TRUE)
+}
