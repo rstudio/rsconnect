@@ -24,17 +24,24 @@ applicationConfigDir <- function(appName, subDir = NULL, create = TRUE) {
   # to ~ if there is no HOME variable defined
   homeDir <- Sys.getenv("HOME", unset="~")
 
-  # determine application config dir (platform specific)
-  sysName <- Sys.info()[['sysname']]
-  if (identical(sysName, "Windows"))
-    configDir <- Sys.getenv("APPDATA")
-  else if (identical(sysName, "Darwin"))
-    configDir <- file.path(homeDir, "Library/Application Support")
-  else
-    configDir <- Sys.getenv("XDG_CONFIG_HOME", file.path(homeDir, ".config"))
+  # check for R specific config dir
+  configDir <- Sys.getenv("R_USER_CONFIG_DIR")
 
-  # append the application name and optional subdir
-  configDir <- file.path(configDir, "R", appName)
+  if (nchar(configDir) < 1) {
+    # no R specific config dir; determine application config dir (platform specific)
+    sysName <- Sys.info()[['sysname']]
+    if (identical(sysName, "Windows"))
+      configDir <- Sys.getenv("APPDATA")
+    else if (identical(sysName, "Darwin"))
+      configDir <- file.path(homeDir, "Library/Application Support")
+    else
+      configDir <- Sys.getenv("XDG_CONFIG_HOME", file.path(homeDir, ".config"))
+
+    # append the application name
+    configDir <- file.path(configDir, "R", appName)
+  }
+
+  # append optional subdirectory
   if (!is.null(subDir))
     configDir <- file.path(configDir, subDir)
 
