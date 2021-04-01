@@ -50,7 +50,7 @@
 <meta property="og:description" content="Forgets about an application deployment. This is useful if the application
 has been deleted on the server, or the local deployment information needs to
 be reset." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -90,7 +90,7 @@ be reset." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -104,7 +104,7 @@ be reset." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -132,14 +132,14 @@ has been deleted on the server, or the local deployment information needs to
 be reset.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>forgetDeployment</span>(
-  appPath = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  name = <span class='kw'>NULL</span>,
-  account = <span class='kw'>NULL</span>,
-  server = <span class='kw'>NULL</span>,
-  dryRun = <span class='fl'>FALSE</span>,
-  force = <span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()
-)</pre>
+    <pre class="usage"><span class='fu'>forgetDeployment</span><span class='op'>(</span>
+  appPath <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  account <span class='op'>=</span> <span class='cn'>NULL</span>,
+  server <span class='op'>=</span> <span class='cn'>NULL</span>,
+  dryRun <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  force <span class='op'>=</span> <span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

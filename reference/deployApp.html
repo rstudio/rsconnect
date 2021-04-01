@@ -50,7 +50,7 @@
 <meta property="og:description" content="Deploy a shiny application, an
 RMarkdown document, a plumber API, or HTML
 content to a server." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -90,7 +90,7 @@ content to a server." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -104,7 +104,7 @@ content to a server." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -127,34 +127,34 @@ content to a server." />
     </div>
 
     <div class="ref-description">
-    <p>Deploy a <a href='https://shiny.rstudio.com/reference/shiny/latest/shiny-package.html'>shiny</a> application, an
-<a href='https://rdrr.io/pkg/rmarkdown/man/rmarkdown-package.html'>RMarkdown</a> document, a plumber API, or HTML
+    <p>Deploy a <a href='https://rdrr.io/pkg/shiny/man/shiny-package.html'>shiny</a> application, an
+<a href='https://pkgs.rstudio.com/rmarkdown/reference/rmarkdown-package.html'>RMarkdown</a> document, a plumber API, or HTML
 content to a server.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>deployApp</span>(
-  appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  appFiles = <span class='kw'>NULL</span>,
-  appFileManifest = <span class='kw'>NULL</span>,
-  appPrimaryDoc = <span class='kw'>NULL</span>,
-  appSourceDoc = <span class='kw'>NULL</span>,
-  appName = <span class='kw'>NULL</span>,
-  appTitle = <span class='kw'>NULL</span>,
-  appId = <span class='kw'>NULL</span>,
-  contentCategory = <span class='kw'>NULL</span>,
-  account = <span class='kw'>NULL</span>,
-  server = <span class='kw'>NULL</span>,
-  upload = <span class='fl'>TRUE</span>,
-  recordDir = <span class='kw'>NULL</span>,
-  launch.browser = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.launch.browser"</span>, <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()),
-  logLevel = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span>),
-  lint = <span class='fl'>TRUE</span>,
-  metadata = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  forceUpdate = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.force.update.apps"</span>, <span class='fl'>FALSE</span>),
-  python = <span class='kw'>NULL</span>,
-  on.failure = <span class='kw'>NULL</span>,
-  forceGeneratePythonEnvironment = <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>deployApp</span><span class='op'>(</span>
+  appDir <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
+  appFiles <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appFileManifest <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appPrimaryDoc <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appSourceDoc <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appName <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appTitle <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appId <span class='op'>=</span> <span class='cn'>NULL</span>,
+  contentCategory <span class='op'>=</span> <span class='cn'>NULL</span>,
+  account <span class='op'>=</span> <span class='cn'>NULL</span>,
+  server <span class='op'>=</span> <span class='cn'>NULL</span>,
+  upload <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  recordDir <span class='op'>=</span> <span class='cn'>NULL</span>,
+  launch.browser <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"rsconnect.launch.browser"</span>, <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>,
+  logLevel <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span><span class='op'>)</span>,
+  lint <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  metadata <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  forceUpdate <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"rsconnect.force.update.apps"</span>, <span class='cn'>FALSE</span><span class='op'>)</span>,
+  python <span class='op'>=</span> <span class='cn'>NULL</span>,
+  on.failure <span class='op'>=</span> <span class='cn'>NULL</span>,
+  forceGeneratePythonEnvironment <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -298,27 +298,27 @@ is <code>TRUE</code>.</p></td>
 <code><a href='deployTFModel.html'>deployTFModel</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># deploy the application in the current working dir</span>
-<span class='fu'>deployApp</span>()
+<span class='fu'>deployApp</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># deploy an application in another directory</span>
-<span class='fu'>deployApp</span>(<span class='st'>"~/projects/shiny/app1"</span>)
+<span class='fu'>deployApp</span><span class='op'>(</span><span class='st'>"~/projects/shiny/app1"</span><span class='op'>)</span>
 
 <span class='co'># deploy using an alternative application name and title</span>
-<span class='fu'>deployApp</span>(<span class='st'>"~/projects/shiny/app1"</span>, appName = <span class='st'>"myapp"</span>,
-          appTitle = <span class='st'>"My Application"</span>)
+<span class='fu'>deployApp</span><span class='op'>(</span><span class='st'>"~/projects/shiny/app1"</span>, appName <span class='op'>=</span> <span class='st'>"myapp"</span>,
+          appTitle <span class='op'>=</span> <span class='st'>"My Application"</span><span class='op'>)</span>
 
 <span class='co'># deploy specifying an explicit account name, then</span>
 <span class='co'># redeploy with no arguments (will automatically use</span>
 <span class='co'># the previously specified account)</span>
-<span class='fu'>deployApp</span>(account = <span class='st'>"jsmith"</span>)
-<span class='fu'>deployApp</span>()
+<span class='fu'>deployApp</span><span class='op'>(</span>account <span class='op'>=</span> <span class='st'>"jsmith"</span><span class='op'>)</span>
+<span class='fu'>deployApp</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># deploy but don't launch a browser when completed</span>
-<span class='fu'>deployApp</span>(launch.browser = <span class='fl'>FALSE</span>)
-}
+<span class='fu'>deployApp</span><span class='op'>(</span>launch.browser <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

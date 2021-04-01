@@ -1,138 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/index.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/index.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/accountUsage.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/accountUsage.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/accounts.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/accounts.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/addAuthorizedUser.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/addAuthorizedUser.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/addLinter.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/addLinter.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/appDependencies.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/appDependencies.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/applications.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/applications.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/authorizedUsers.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/authorizedUsers.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/configureApp.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/configureApp.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/connectApiUser.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/connectApiUser.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/connectUser.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/connectUser.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/deployAPI.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/deployAPI.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/deployApp.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/deployApp.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/deployDoc.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/deployDoc.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/deploySite.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/deploySite.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/deployTFModel.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/deployTFModel.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/deployments.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/deployments.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/forgetDeployment.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/forgetDeployment.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/generateAppName.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/generateAppName.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/lint.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/lint.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/linter.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/linter.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/listBundleFiles.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/listBundleFiles.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/makeLinterMessage.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/makeLinterMessage.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/options.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/options.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/purgeApp.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/purgeApp.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/removeAuthorizedUser.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/removeAuthorizedUser.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/restartApp.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/restartApp.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/rpubsUpload.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/rpubsUpload.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/rsconnect-package.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/rsconnect-package.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/rsconnectPackages.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/rsconnectPackages.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/servers.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/servers.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/setAccountInfo.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/setAccountInfo.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/setProperty.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/setProperty.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/showInvited.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/showInvited.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/showLogs.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/showLogs.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/showMetrics.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/showMetrics.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/showProperties.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/showProperties.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/showUsage.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/showUsage.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/showUsers.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/showUsers.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/syncAppMetadata.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/syncAppMetadata.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/taskLog.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/taskLog.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/tasks.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/tasks.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/terminateApp.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/terminateApp.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/unsetProperty.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/unsetProperty.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rstudioapi/reference/writeManifest.html</loc>
+    <loc>https://rstudio.github.io/rsconnect/reference/writeManifest.html</loc>
   </url>
 </urlset>

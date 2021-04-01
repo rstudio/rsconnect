@@ -50,7 +50,7 @@
 <meta property="og:description" content="Given a directory content targeted for deployment, write a manifest.json
 into that directory describing the deployment requirements for that
 content." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -90,7 +90,7 @@ content." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -104,7 +104,7 @@ content." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -132,14 +132,14 @@ into that directory describing the deployment requirements for that
 content.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>writeManifest</span>(
-  appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  appFiles = <span class='kw'>NULL</span>,
-  appPrimaryDoc = <span class='kw'>NULL</span>,
-  contentCategory = <span class='kw'>NULL</span>,
-  python = <span class='kw'>NULL</span>,
-  forceGeneratePythonEnvironment = <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>writeManifest</span><span class='op'>(</span>
+  appDir <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
+  appFiles <span class='op'>=</span> <span class='cn'>NULL</span>,
+  appPrimaryDoc <span class='op'>=</span> <span class='cn'>NULL</span>,
+  contentCategory <span class='op'>=</span> <span class='cn'>NULL</span>,
+  python <span class='op'>=</span> <span class='cn'>NULL</span>,
+  forceGeneratePythonEnvironment <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,7 +178,7 @@ its value will be used.</p></td>
     <tr>
       <th>forceGeneratePythonEnvironment</th>
       <td><p>Optional. If an existing
-<code>requirements.txt</code> file is found, it will be overwritten when 
+<code>requirements.txt</code> file is found, it will be overwritten when
 this argument is <code>TRUE</code>.</p></td>
     </tr>
     </table>

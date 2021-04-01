@@ -48,7 +48,7 @@
 
 <meta property="og:title" content="List Application Deployments — deployments" />
 <meta property="og:description" content="List deployment records for a given application." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -88,7 +88,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -102,7 +102,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -128,13 +128,13 @@
     <p>List deployment records for a given application.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>deployments</span>(
-  <span class='kw'>appPath</span>,
-  nameFilter = <span class='kw'>NULL</span>,
-  accountFilter = <span class='kw'>NULL</span>,
-  serverFilter = <span class='kw'>NULL</span>,
-  excludeOrphaned = <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>deployments</span><span class='op'>(</span>
+  <span class='va'>appPath</span>,
+  nameFilter <span class='op'>=</span> <span class='cn'>NULL</span>,
+  accountFilter <span class='op'>=</span> <span class='cn'>NULL</span>,
+  serverFilter <span class='op'>=</span> <span class='cn'>NULL</span>,
+  excludeOrphaned <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -191,12 +191,12 @@ additional columns.</p>
 server, and <code><a href='deployApp.html'>deployApp()</a></code> to create a new deployment.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># Return all deployments of the ~/r/myapp directory made with the 'abc'</span>
 <span class='co'># account</span>
-<span class='fu'>deployments</span>(<span class='st'>"~/r/myapp"</span>, accountFilter=<span class='st'>"abc"</span>)
-}
+<span class='fu'>deployments</span><span class='op'>(</span><span class='st'>"~/r/myapp"</span>, accountFilter<span class='op'>=</span><span class='st'>"abc"</span><span class='op'>)</span>
+<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

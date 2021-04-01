@@ -49,7 +49,7 @@
 <meta property="og:title" content="Server Management Functions — servers" />
 <meta property="og:description" content="Functions to manage the list of known servers to which
 rsconnect can deploy and manage applications." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -89,7 +89,7 @@ rsconnect can deploy and manage applications." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -103,7 +103,7 @@ rsconnect can deploy and manage applications." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -130,19 +130,19 @@ rsconnect can deploy and manage applications." />
 <span class="pkg">rsconnect</span> can deploy and manage applications.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>servers</span>(local = <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>servers</span><span class='op'>(</span>local <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>discoverServers</span>(quiet = <span class='fl'>FALSE</span>)
+<span class='fu'>discoverServers</span><span class='op'>(</span>quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>addConnectServer</span>(<span class='kw'>url</span>, name = <span class='kw'>NULL</span>, certificate = <span class='kw'>NULL</span>, quiet = <span class='fl'>FALSE</span>)
+<span class='fu'>addConnectServer</span><span class='op'>(</span><span class='va'>url</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, certificate <span class='op'>=</span> <span class='cn'>NULL</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>addServer</span>(<span class='kw'>url</span>, name = <span class='kw'>NULL</span>, certificate = <span class='kw'>NULL</span>, quiet = <span class='fl'>FALSE</span>)
+<span class='fu'>addServer</span><span class='op'>(</span><span class='va'>url</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, certificate <span class='op'>=</span> <span class='cn'>NULL</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>removeServer</span>(<span class='kw'>name</span>)
+<span class='fu'>removeServer</span><span class='op'>(</span><span class='va'>name</span><span class='op'>)</span>
 
-<span class='fu'>serverInfo</span>(<span class='kw'>name</span>)
+<span class='fu'>serverInfo</span><span class='op'>(</span><span class='va'>name</span><span class='op'>)</span>
 
-<span class='fu'>addServerCertificate</span>(<span class='kw'>name</span>, <span class='kw'>certificate</span>, quiet = <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>addServerCertificate</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>certificate</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -190,17 +190,17 @@ previously registered servers.</p>
 server)</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># register a local server</span>
-<span class='fu'>addServer</span>(<span class='st'>"http://myrsconnect/"</span>, <span class='st'>"myserver"</span>)
+<span class='fu'>addServer</span><span class='op'>(</span><span class='st'>"http://myrsconnect/"</span>, <span class='st'>"myserver"</span><span class='op'>)</span>
 
 <span class='co'># list servers</span>
-<span class='fu'>servers</span>(local = <span class='fl'>TRUE</span>)
+<span class='fu'>servers</span><span class='op'>(</span>local <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># connect to an account on the server</span>
-<span class='fu'><a href='connectUser.html'>connectUser</a></span>(server = <span class='st'>"myserver"</span>)
-}
+<span class='fu'><a href='connectUser.html'>connectUser</a></span><span class='op'>(</span>server <span class='op'>=</span> <span class='st'>"myserver"</span><span class='op'>)</span>
+<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -51,7 +51,7 @@
 parses all .R files in the application directory to determine what packages
 the application depends on; and for each of those packages what other
 packages they depend on." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -91,7 +91,7 @@ packages they depend on." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,7 +105,7 @@ packages they depend on." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -134,7 +134,7 @@ the application depends on; and for each of those packages what other
 packages they depend on.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>appDependencies</span>(appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), appFiles = <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>appDependencies</span><span class='op'>(</span>appDir <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>, appFiles <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -179,7 +179,7 @@ required to run your application will be detected.</p>
 inserting call(s) to <code>require</code> within your source directory. This code
 need not actually execute, for example you could create a standalone file
 named <code>dependencies.R</code> with the following code: <br /> <br />
-<code>require(xts)</code> <br /> <code>require(colorspace)</code> <br /></p>
+<code><a href='https://rdrr.io/r/base/library.html'>require(xts)</a></code> <br /> <code><a href='https://rdrr.io/r/base/library.html'>require(colorspace)</a></code> <br /></p>
 <p>This will force the <code>xts</code> and <code>colorspace</code> packages to be
 installed along with the rest of your application when it is deployed.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -187,14 +187,14 @@ installed along with the rest of your application when it is deployed.</p>
     <div class='dont-index'><p><a href='rsconnectPackages.html'>rsconnectPackages</a>(Using Packages with rsconnect)</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># dependencies for the app in the current working dir</span>
-<span class='fu'>appDependencies</span>()
+<span class='fu'>appDependencies</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># dependencies for an app in another directory</span>
-<span class='fu'>appDependencies</span>(<span class='st'>"~/projects/shiny/app1"</span>)
-}
+<span class='fu'>appDependencies</span><span class='op'>(</span><span class='st'>"~/projects/shiny/app1"</span><span class='op'>)</span>
+<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

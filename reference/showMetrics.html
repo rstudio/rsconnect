@@ -48,7 +48,7 @@
 
 <meta property="og:title" content="Show Application Metrics — showMetrics" />
 <meta property="og:description" content="Show application metrics of a currently deployed application" />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -88,7 +88,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -102,7 +102,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -128,17 +128,17 @@
     <p>Show application metrics of a currently deployed application</p>
     </div>
 
-    <pre class="usage"><span class='fu'>showMetrics</span>(
-  <span class='kw'>metricSeries</span>,
-  <span class='kw'>metricNames</span>,
-  appDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  appName = <span class='kw'>NULL</span>,
-  account = <span class='kw'>NULL</span>,
-  server = <span class='kw'>NULL</span>,
-  from = <span class='kw'>NULL</span>,
-  until = <span class='kw'>NULL</span>,
-  interval = <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>showMetrics</span><span class='op'>(</span>
+  <span class='va'>metricSeries</span>,
+  <span class='va'>metricNames</span>,
+  appDir <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
+  appName <span class='op'>=</span> <span class='cn'>NULL</span>,
+  account <span class='op'>=</span> <span class='cn'>NULL</span>,
+  server <span class='op'>=</span> <span class='cn'>NULL</span>,
+  from <span class='op'>=</span> <span class='cn'>NULL</span>,
+  until <span class='op'>=</span> <span class='cn'>NULL</span>,
+  interval <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,13 +146,13 @@
     <tr>
       <th>metricSeries</th>
       <td><p>Metric series to query. Refer to the
-<a href='http://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics'>shinyapps.io documentation</a>
+<a href='https://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics'>shinyapps.io documentation</a>
 for available series.</p></td>
     </tr>
     <tr>
       <th>metricNames</th>
       <td><p>Metric names in the series to query. Refer to the
-<a href='http://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics'>shinyapps.io documentation</a>
+<a href='https://docs.rstudio.com/shinyapps.io/metrics.html#ApplicationMetrics'>shinyapps.io documentation</a>
 for available metrics.</p></td>
     </tr>
     <tr>

@@ -48,7 +48,7 @@
 
 <meta property="og:title" content="Deploy a Website — deploySite" />
 <meta property="og:description" content="Deploy an R Markdown website to a server." />
-<meta property="og:image" content="https://rstudio.github.io/rstudioapi/logo.svg" />
+<meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg" />
 
 
 
@@ -88,7 +88,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -102,7 +102,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/rstudio/rsconnect/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -128,19 +128,19 @@
     <p>Deploy an R Markdown website to a server.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>deploySite</span>(
-  siteDir = <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  siteName = <span class='kw'>NULL</span>,
-  account = <span class='kw'>NULL</span>,
-  server = <span class='kw'>NULL</span>,
-  render = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"local"</span>, <span class='st'>"server"</span>),
-  launch.browser = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"rsconnect.launch.browser"</span>, <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()),
-  logLevel = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span>),
-  lint = <span class='fl'>FALSE</span>,
-  metadata = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  python = <span class='kw'>NULL</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>deploySite</span><span class='op'>(</span>
+  siteDir <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
+  siteName <span class='op'>=</span> <span class='cn'>NULL</span>,
+  account <span class='op'>=</span> <span class='cn'>NULL</span>,
+  server <span class='op'>=</span> <span class='cn'>NULL</span>,
+  render <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"none"</span>, <span class='st'>"local"</span>, <span class='st'>"server"</span><span class='op'>)</span>,
+  launch.browser <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"rsconnect.launch.browser"</span>, <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>,
+  logLevel <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"normal"</span>, <span class='st'>"quiet"</span>, <span class='st'>"verbose"</span><span class='op'>)</span>,
+  lint <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  metadata <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  python <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
