@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.17 (in development)
+## 0.8.17
+
+Released to CRAN on 2020-04-02
 
 * Fixed issue where setting `options(rsconnect.http.trace.json = TRUE)` could cause deployment errors with some HTTP transports (#490)
 * Improve how large bundles (file size and count) are detected (#464)
