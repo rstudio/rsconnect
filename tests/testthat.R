@@ -3,7 +3,7 @@ library(rsconnect)
 
 # record whether the configuration directory exists
 configDir <- rsconnectConfigDir()
-configDirExists <- file.exists(rsconnectConfigDir)
+configDirExists <- file.exists(configDir)
 
 test_check("rsconnect")
 
