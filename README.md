@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rsconnect <a href='https://rstudio.github.io/rstudioapi'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# rsconnect <a href='https://rstudio.github.io/rstudioapi/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 
@@ -13,7 +13,7 @@ Status](https://travis-ci.org/rstudio/rsconnect.svg?branch=master)](https://trav
 <!-- badges: end -->
 
 An R package used for deploying applications to the
-[ShinyApps](https://shinyapps.io/) hosted service, or to [RStudio
+[ShinyApps](https://www.shinyapps.io/) hosted service, or to [RStudio
 Connect](https://www.rstudio.com/products/connect/).
 
 ## Installation
