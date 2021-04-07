@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rsconnect <a href='https:/rstudio.github.io/rstudioapi'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# rsconnect <a href='https://rstudio.github.io/rstudioapi'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 
@@ -9,11 +9,11 @@
 status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.org/package=rsconnect)
 [![Build
 Status](https://travis-ci.org/rstudio/rsconnect.svg?branch=master)](https://travis-ci.org/rstudio/rsconnect)
-[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
 An R package used for deploying applications to the
-[ShinyApps](http://shinyapps.io/) hosted service, or to [RStudio
+[ShinyApps](https://shinyapps.io/) hosted service, or to [RStudio
 Connect](https://www.rstudio.com/products/connect/).
 
 ## Installation
@@ -35,10 +35,10 @@ devtools::install_github("rstudio/rsconnect")
 ## Example
 
 To get started using ShinyApps check out the [Getting Started
-Guide](http://shiny.rstudio.com/articles/shinyapps.html).
+Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
 For more information using RStudio Connect, see the [RStudio Connect
-User Guide](http://docs.rstudio.com/connect/user/index.html).
+User Guide](https://docs.rstudio.com/connect/user/index.html).
 
 ## Legal Stuff
 
