@@ -89,6 +89,16 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
   # exclude renv files
   contents <- setdiff(contents, c("renv", "renv.lock"))
 
+
+  # checks for .rscignore file and excludes the files and directories listed
+  if (".rscignore" %in% contents) {
+    ignoreContents <- readLines(".rscignore")
+    contents <- setdiff(
+      x = contents,
+      y = ignoreContents
+    )
+  }
+
   # subdirContents contains all files encountered beneath this directory.
   # Returned paths are relative to this directory.
   subdirContents <- NULL
