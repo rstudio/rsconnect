@@ -1,5 +1,10 @@
 # NEWS
 
+## 0.8.18 (in development)
+
+* Fixed issue causing configuration directory to be left behind after `R CMD CHECK`
+* Fixed incorrect subdirectory nesting when storing configuration in `R_USER_CONFIG_DIR`
+
 ## 0.8.17
 
 Released to CRAN on 2020-04-02
