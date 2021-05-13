@@ -126,8 +126,8 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   if (!any(satisfiedLayouts)) {
     msg <- "Cancelling deployment: invalid project layout.
             The project should have one of the following layouts:
-            1. 'shiny.R' and 'ui.R' in the application base directory,
-            2. 'shiny.R' and 'www/index.html' in the application base directory,
+            1. 'server.R' and 'ui.R' in the application base directory,
+            2. 'server.R' and 'www/index.html' in the application base directory,
             3. 'app.R' or a single-file Shiny .R file,
             4. An R Markdown (.Rmd) document,
             5. A static HTML (.html) or PDF (.pdf) document.
