@@ -4,6 +4,8 @@
 
 * Fixed issue causing configuration directory to be left behind after `R CMD CHECK`
 * Fixed incorrect subdirectory nesting when storing configuration in `R_USER_CONFIG_DIR`
+* Added linter for different-case Markdown links (#388)
+* Use new Packrat release on CRAN, 0.6.0 (#501)
 
 ## 0.8.17
 
