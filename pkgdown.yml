@@ -2,7 +2,7 @@ pandoc: '2.2'
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles: {}
-last_built: 2021-05-14T22:24Z
+last_built: 2021-05-14T23:14Z
 urls:
   reference: https://rstudio.github.io/rsconnect/reference
   article: https://rstudio.github.io/rsconnect/articles
