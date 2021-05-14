@@ -6,6 +6,7 @@
 * Fixed incorrect subdirectory nesting when storing configuration in `R_USER_CONFIG_DIR`
 * Added linter for different-case Markdown links (#388)
 * Use new Packrat release on CRAN, 0.6.0 (#501)
+* Fix incorrect linter messages referring to `shiny.R` instead of `server.R` (#509)
 
 ## 0.8.17
 
