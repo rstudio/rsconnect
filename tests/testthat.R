@@ -1,12 +1,18 @@
 library(testthat)
 library(rsconnect)
 
-# set temp config dir so the tests don't pollute it
-temp_config_dir <- file.path(tempdir(), "rsconnect-test-config")
-Sys.setenv(R_USER_CONFIG_DIR = temp_config_dir)
+run_tests <- function() {
+  # set temp config dir so the tests don't pollute it
+  temp_config_dir <- file.path(tempdir(), "rsconnect-test-config")
+  Sys.setenv(R_USER_CONFIG_DIR = temp_config_dir)
 
-# perform tests
-test_check("rsconnect")
+  # clean up temp dir after tests are run
+  on.exit({
+    unlink(temp_config_dir, recursive = TRUE)
+  }, add = TRUE)
 
-# clean up temporary configuration
-unlink(temp_config_dir, recursive = TRUE)
+  # perform tests
+  test_check("rsconnect")
+}
+
+run_tests()
