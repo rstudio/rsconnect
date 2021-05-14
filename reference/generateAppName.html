@@ -169,9 +169,10 @@ name will also be unique among locally known deployments of the directory
 can be disabled by setting <code>unique = FALSE</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Generate a short name for a sample application</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'># Generate a short name for a sample application</span>
 <span class='fu'>generateAppName</span><span class='op'>(</span><span class='st'>"My Father's Country"</span>, <span class='st'>"~/fathers-country"</span>, <span class='st'>"myacct"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "my_fathers_country"</div><div class='input'>
+<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
