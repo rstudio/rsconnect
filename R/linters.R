@@ -41,10 +41,8 @@ addLinter("filepath.capitalization", linter(
 
     content <- stripComments(content)
 
-    # Inferred files within source documents (really, we just
-    # extract everything between two quotes)
-    regexes <- c("(?!\\\\)\'", "(?!\\\\)\"")
-    inferredFiles <- lapply(regexes, function(regex) {
+    # Extract references between bounding (unescaped) quotes.
+    extractQuoted <- function(regex) {
       matches <- gregexpr(regex, content, perl = TRUE)
       results <- vector("list", length(content))
       for (i in seq_along(matches)) {
@@ -58,8 +56,37 @@ addLinter("filepath.capitalization", linter(
         }
       }
       results
-    })
-    names(inferredFiles) <- c("single.quotes", "double.quotes")
+    }
+
+    # Extract targets from Markdown links.
+    extractLinked <- function() {
+      regex <- "\\]\\(.*?\\)"
+      matches <- gregexpr(regex, content, perl = TRUE)
+      results <- vector("list", length(content))
+      for (i in seq_along(matches)) {
+        x <- matches[[i]]
+        if (x[[1]] == -1L) next
+        results[[i]] <- character(length(x))
+        attr <- attributes(x)
+        for (j in seq_along(x)) {
+          raw <- x[[j]]
+          raw.length <- attr$match.length[[j]]
+          # skip past "](" and discard ")"
+          start <- as.integer(raw) + 2
+          end <- as.integer(raw) + raw.length - 2
+          results[[i]][[j]] <- substring(content[i], start, end)
+        }
+      }
+      results
+    }
+
+    # Inferred files within source documents; between matching quotes or in
+    # something that looks like a Markdown link.
+    inferredFiles <- list(
+      "single.quotes" = extractQuoted("(?!\\\\)\'"),
+      "double.quotes" = extractQuoted("(?!\\\\)\""),
+      "markdown.links" = extractLinked()
+    )
 
     ## Replace '\' with '/' in filepaths for consistency in comparisons
     inferredFiles <- lapply(inferredFiles, function(x) {
@@ -136,7 +163,7 @@ addLinter("filepath.capitalization", linter(
 
 ))
 
-addLinter("browser", linter (
+addLinter("browser", linter(
   apply = function(content, ...) {
     content <- stripComments(content)
     which(hasBrowserCalls(content))
@@ -153,7 +180,7 @@ addLinter("browser", linter (
   suggestion = "The browser() debugging function should be removed."
 ))
 
-addLinter("browseURL", linter (
+addLinter("browseURL", linter(
   apply = function(content, ...) {
     content <- stripComments(content)
     which(hasBrowseURLCalls(content))

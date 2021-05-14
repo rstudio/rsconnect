@@ -1,0 +1,34 @@
+---
+title: "rmarkdown with bad link case"
+---
+
+One of the embedded images uses `rstudio.svg` even though the on-disk filename
+is `RStudio.svg`. This will render fine on a Mac, for example, but will err
+when rendered on Linux.
+
+The Mac filesystem is case-preserving, but case-insensitive. The Linux
+filesystem is case-sensitive.
+
+The IDE and `rsconnect::deployDoc` attempt to deploy the as-linked filenames.
+With both `rstudio.svg` and `RStudio.svg` links, the bundle has two copies of
+the SVG!
+
+You can use `rsconnect::deployApp` directly to see the lint error in the R
+console:
+
+```r
+rsconnect::deployApp(
+  appDir = getwd(), 
+  appFiles = c("index.Rmd", "RStudio.svg"))
+```
+
+And now, the links!
+
+This one (line 29) is all lower-case and should trigger the error.
+
+![](rstudio.svg)
+
+This one is mixed-case and matches the on-disk filename.
+
+![](RStudio.svg)
+
