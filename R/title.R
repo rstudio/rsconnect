@@ -23,9 +23,10 @@
 #' can be disabled by setting `unique = FALSE`.
 #'
 #' @examples
+#' \dontrun{
 #' # Generate a short name for a sample application
 #' generateAppName("My Father's Country", "~/fathers-country", "myacct")
-#'
+#' }
 #' @export
 
 generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = TRUE) {

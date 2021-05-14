@@ -1,13 +1,18 @@
 library(testthat)
 library(rsconnect)
 
-# record whether the configuration directory exists
-configDir <- rsconnect:::rsconnectConfigDir()
-configDirExists <- file.exists(configDir)
+run_tests <- function() {
+  # set temp config dir so the tests don't pollute it
+  temp_config_dir <- file.path(tempdir(), "rsconnect-test-config")
+  Sys.setenv(R_USER_CONFIG_DIR = temp_config_dir)
 
-test_check("rsconnect")
+  # clean up temp dir after tests are run
+  on.exit({
+    unlink(temp_config_dir, recursive = TRUE)
+  }, add = TRUE)
 
-# if the configuration directory did not exist before running the tests, clean it up.
-if (!configDirExists) {
-  unlink(configDir, recursive = TRUE)
+  # perform tests
+  test_check("rsconnect")
 }
+
+run_tests()
