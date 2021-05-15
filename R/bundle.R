@@ -247,7 +247,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       forceGenerate = forceGenerate,
       python = python,
       hasPythonRmd = hasPythonRmd,
-      retainPackratDirectory = TRUE)
+      retainPackratDirectory = TRUE,
+      verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -344,6 +345,8 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #'   `requirements.txt` file is found, it will be overwritten when
 #'   this argument is `TRUE`.
 #'
+#' @param verbose If TRUE, prints progress messages to the console
+#'
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
@@ -351,7 +354,8 @@ writeManifest <- function(appDir = getwd(),
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
                           python = NULL,
-                          forceGeneratePythonEnvironment = FALSE) {
+                          forceGeneratePythonEnvironment = FALSE,
+                          verbose = FALSE) {
 
   condaMode <- FALSE
 
@@ -399,9 +403,8 @@ writeManifest <- function(appDir = getwd(),
       condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
-      hasPythonRmd = hasPythonRmd,
-      retainPackratDirectory = FALSE)
-
+      retainPackratDirectory = FALSE,
+      verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -672,7 +675,8 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE,
-                              retainPackratDirectory = TRUE) {
+                              retainPackratDirectory = TRUE,
+                              verbose = FALSE) {
 
   # provide package entries for all dependencies
   packages <- list()
@@ -686,10 +690,13 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   if (!identical(appMode, "static") &&
       !identical(appMode, "tensorflow-saved-model")) {
 
-    # detect dependencies including inferred dependences
-    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python, hasPythonRmd))
+    # detect dependencies including inferred dependencies
+    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python, hasPythonRmd),
+                                verbose = verbose)
 
     # construct package list from dependencies
+
+    logger <- verboseLogger(verbose)
     for (i in seq.int(nrow(deps))) {
       name <- deps[i, "Package"]
 
@@ -855,9 +862,15 @@ snapshotLockFile <- function(appDir) {
   file.path(appDir, "packrat", "packrat.lock")
 }
 
-addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
+addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
+
+  # logger <- verboseLogger(verbose)
+
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
+
+  # if (verbose) logger(" - starting to add packrat snapshot")
+
   tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
   if (length(implicit_dependencies) > 0) {
     extraPkgDeps <- paste0(lapply(implicit_dependencies,
@@ -886,8 +899,9 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
   }
 
   # generate the packrat snapshot
+  # if (verbose) logger(" - starting to perform packrat snapshot")
   tryCatch({
-    performPackratSnapshot(bundleDir)
+    performPackratSnapshot(bundleDir, verbose = verbose)
   }, error = function(e) {
     # if an error occurs while generating the snapshot, add a header to the
     # message for improved attribution
@@ -902,6 +916,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
     # rethrow error so we still halt deployment
     stop(e)
   })
+  # if (verbose) logger(" - done performing packrat snapshot")
 
   # if we emitted a temporary dependency file for packrat's benefit, remove it
   # now so it isn't included in the bundle sent to the server
@@ -962,7 +977,10 @@ explodeFiles <- function(dir, files) {
   exploded
 }
 
-performPackratSnapshot <- function(bundleDir) {
+performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
+
+  # logger <- verboseLogger(verbose)
+  # if (verbose) logger (" - performing packrat snapshot")
 
   # move to the bundle directory
   owd <- getwd()
@@ -986,13 +1004,15 @@ performPackratSnapshot <- function(bundleDir) {
   }
 
   # generate a snapshot
-  suppressMessages(
+  # suppressMessages(
     packrat::.snapshotImpl(project = bundleDir,
                            snapshot.sources = FALSE,
                            fallback.ok = TRUE,
-                           verbose = FALSE,
-                           implicit.packrat.dependency = FALSE)
-  )
+                           verbose = verbose,
+                           implicit.packrat.dependency = FALSE,
+                           infer.dependencies = TRUE
+                           )
+  # )
 
   # TRUE just to indicate success
   TRUE

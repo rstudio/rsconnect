@@ -56,10 +56,11 @@ appDependencies <- function(appDir = getwd(), appFiles=NULL) {
              stringsAsFactors=FALSE)
 }
 
-snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
+snapshotDependencies <- function(appDir, implicit_dependencies=c(), verbose = FALSE) {
 
   # create a packrat "snapshot"
-  addPackratSnapshot(appDir, implicit_dependencies)
+
+  addPackratSnapshot(appDir, implicit_dependencies, verbose = verbose)
 
   # TODO: should we care about lockfile version or packrat version?
   lockFilePath <- snapshotLockFile(appDir)
@@ -115,6 +116,8 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
 
   # if the package is in a named CRAN-like repository capture it
   tmp <- lapply(seq.int(nrow(records)), function(i) {
+
+
     pkg <- records[i, "Package"]
     source <- records[i, "Source"]
     repository <- NA
