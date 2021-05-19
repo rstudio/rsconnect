@@ -145,10 +145,8 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c()) {
         source <- package.repo$name
       }
       repository <- package.repo$url
-    } else {
-      warning(sprintf("Unable to determine the repository for package %s", pkg),
-              call. = FALSE, immediate. = TRUE)
     }
+    # validatePackageSource will emit a warning for packages with NA repository.
     data.frame(Source = source, Repository = repository)
   })
   records[, c("Source","Repository")] <- do.call("rbind", tmp)
