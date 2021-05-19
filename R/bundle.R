@@ -745,7 +745,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     #
     # That said, an incorrectly configured "repos" option is almost always the cause.
     packageMessages <- c(packageMessages,
-                         "Unable to determine the location for some packages. Packages should be installed from a package repository like CRAN or a source control system. Check that options('repos') refers to a package repository containing the needed package versions.")
+                         "Unable to determine the source location for some packages. Packages should be installed from a package repository like CRAN or a version control system. Check that options('repos') refers to a package repository containing the needed package versions.")
     warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
   }
 
