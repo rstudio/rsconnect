@@ -138,7 +138,8 @@ content.</p>
   appPrimaryDoc <span class='op'>=</span> <span class='cn'>NULL</span>,
   contentCategory <span class='op'>=</span> <span class='cn'>NULL</span>,
   python <span class='op'>=</span> <span class='cn'>NULL</span>,
-  forceGeneratePythonEnvironment <span class='op'>=</span> <span class='cn'>FALSE</span>
+  forceGeneratePythonEnvironment <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -180,6 +181,10 @@ its value will be used.</p></td>
       <td><p>Optional. If an existing
 <code>requirements.txt</code> file is found, it will be overwritten when
 this argument is <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>If TRUE, prints progress messages to the console</p></td>
     </tr>
     </table>
 
