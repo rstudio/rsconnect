@@ -403,6 +403,7 @@ writeManifest <- function(appDir = getwd(),
       condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
+      hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = FALSE,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -864,12 +865,10 @@ snapshotLockFile <- function(appDir) {
 
 addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
 
-  # logger <- verboseLogger(verbose)
+  logger <- verboseLogger(verbose)
 
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
-
-  # if (verbose) logger(" - starting to add packrat snapshot")
 
   tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
   if (length(implicit_dependencies) > 0) {
@@ -899,7 +898,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
   }
 
   # generate the packrat snapshot
-  # if (verbose) logger(" - starting to perform packrat snapshot")
+  if (verbose) logger("Starting to perform packrat snapshot")
   tryCatch({
     performPackratSnapshot(bundleDir, verbose = verbose)
   }, error = function(e) {
@@ -916,7 +915,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
     # rethrow error so we still halt deployment
     stop(e)
   })
-  # if (verbose) logger(" - done performing packrat snapshot")
+  if (verbose) logger("Completed performing packrat snapshot")
 
   # if we emitted a temporary dependency file for packrat's benefit, remove it
   # now so it isn't included in the bundle sent to the server
@@ -978,9 +977,6 @@ explodeFiles <- function(dir, files) {
 }
 
 performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
-
-  # logger <- verboseLogger(verbose)
-  # if (verbose) logger (" - performing packrat snapshot")
 
   # move to the bundle directory
   owd <- getwd()
