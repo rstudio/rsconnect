@@ -12,6 +12,7 @@
   packages, or when using packages installed from source that are available on
   the server. (#508)
 * Err when the app-mode cannot be inferred; seen with empty directories/file-sets (#512)
+* Add `verbose` option to `writeManifest` utility (#468)
 
 ## 0.8.17
 
