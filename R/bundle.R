@@ -551,7 +551,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
   }
 
   # there doesn't appear to be any content here we can use
-  return(NA)
+  stop("No content to deploy; cannot detect content type.")
 }
 
 inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
