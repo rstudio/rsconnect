@@ -1000,12 +1000,14 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   }
 
   # generate a snapshot
-  packrat::.snapshotImpl(project = bundleDir,
-                         snapshot.sources = FALSE,
-                         fallback.ok = TRUE,
-                         verbose = verbose,
-                         implicit.packrat.dependency = FALSE,
-                         infer.dependencies = TRUE
+  suppressMessages(
+    packrat::.snapshotImpl(project = bundleDir,
+                           snapshot.sources = FALSE,
+                           fallback.ok = TRUE,
+                           verbose = verbose,
+                           implicit.packrat.dependency = FALSE,
+                           infer.dependencies = TRUE
+                           )
   )
 
   # TRUE just to indicate success
