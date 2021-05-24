@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.18 (in development)
+## 0.8.18
+
+Released to CRAN on 2021-05-24
 
 * Fixed issue causing configuration directory to be left behind after `R CMD CHECK`
 * Fixed incorrect subdirectory nesting when storing configuration in `R_USER_CONFIG_DIR`
@@ -16,7 +18,7 @@
 
 ## 0.8.17
 
-Released to CRAN on 2020-04-02
+Released to CRAN on 2021-04-09
 
 * Fixed issue where setting `options(rsconnect.http.trace.json = TRUE)` could cause deployment errors with some HTTP transports (#490)
 * Improve how large bundles (file size and count) are detected (#464)
