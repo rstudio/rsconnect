@@ -100,7 +100,10 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
   for (name in contents) {
     info <- infos[name,]
 
-    if (info$isdir) {
+    if (is.na(info$isdir)) {
+      cat(sprintf("Cannot determine file information for %s; skipping\n", file.path(dir, name)))
+      next
+    } else if (info$isdir) {
       # Directories do not include their self-size in our counts.
 
       # ignore knitr _cache directories
