@@ -100,10 +100,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
   for (name in contents) {
     info <- infos[name,]
 
-    if (is.na(info$isdir)) {
-      cat(sprintf("Cannot determine file information for %s; skipping\n", file.path(dir, name)))
-      next
-    } else if (info$isdir) {
+    if (isTRUE(info$isdir)) {
       # Directories do not include their self-size in our counts.
 
       # ignore knitr _cache directories
@@ -124,7 +121,8 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
     } else {
       # This is a file. It counts and is included in our listing.
 
-      totalSize <- totalSize + info$size
+      ourSize <- if (is.numeric(info$size)) { info$size } else { 0 }
+      totalSize <- totalSize + ourSize
       totalFiles <- totalFiles + 1
       subdirContents <- append(subdirContents, name)
     }
