@@ -121,7 +121,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
     } else {
       # This is a file. It counts and is included in our listing.
 
-      ourSize <- if (is.numeric(info$size)) { info$size } else { 0 }
+      ourSize <- if (is.na(info$size)) { 0 } else { info$size }
       totalSize <- totalSize + ourSize
       totalFiles <- totalFiles + 1
       subdirContents <- append(subdirContents, name)
