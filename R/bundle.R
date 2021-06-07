@@ -120,6 +120,10 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
 
     } else {
       # This is a file. It counts and is included in our listing.
+      if (is.na(info$isdir)) {
+        cat(sprintf("File information for %s is not available; listing as a normal file.\n",
+                    file.path(dir, name)))
+      }
 
       ourSize <- if (is.na(info$size)) { 0 } else { info$size }
       totalSize <- totalSize + ourSize
