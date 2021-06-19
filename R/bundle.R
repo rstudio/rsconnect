@@ -175,6 +175,10 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
 #' \item{Certain files and folders that don't need to be bundled, such as
 #'    those containing internal version control and RStudio state, are
 #'    excluded.}
+#' \item{In order to stop specific files in the working directory from being
+#'    listed in the bundle, the files must be listed in the .rscignore file.
+#'    This file must have one file or directory per line with no support for
+#'    wildcards.}
 #' }
 #'
 #' @return Returns a list containing the following elements:
