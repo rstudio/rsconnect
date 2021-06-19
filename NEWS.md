@@ -1,8 +1,28 @@
 # NEWS
 
+## 0.8.19
+
+In development.
+
+## 0.8.18
+
+Released to CRAN on 2021-05-24
+
+* Fixed issue causing configuration directory to be left behind after `R CMD CHECK`
+* Fixed incorrect subdirectory nesting when storing configuration in `R_USER_CONFIG_DIR`
+* Added linter for different-case Markdown links (#388)
+* Use new Packrat release on CRAN, 0.6.0 (#501)
+* Fix incorrect linter messages referring to `shiny.R` instead of `server.R` (#509)
+* Warn, rather than err, when the repository URL for a package dependency
+  cannot be validated. This allows deployment when using archived CRAN
+  packages, or when using packages installed from source that are available on
+  the server. (#508)
+* Err when the app-mode cannot be inferred; seen with empty directories/file-sets (#512)
+* Add `verbose` option to `writeManifest` utility (#468)
+
 ## 0.8.17
 
-Released to CRAN on 2020-04-02
+Released to CRAN on 2021-04-09
 
 * Fixed issue where setting `options(rsconnect.http.trace.json = TRUE)` could cause deployment errors with some HTTP transports (#490)
 * Improve how large bundles (file size and count) are detected (#464)

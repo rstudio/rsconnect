@@ -35,7 +35,8 @@ name will also be unique among locally known deployments of the directory
 can be disabled by setting \code{unique = FALSE}.
 }
 \examples{
+\dontrun{
 # Generate a short name for a sample application
 generateAppName("My Father's Country", "~/fathers-country", "myacct")
-
+}
 }

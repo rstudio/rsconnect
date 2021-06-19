@@ -27,7 +27,10 @@ applicationConfigDir <- function(appName, subDir = NULL, create = TRUE) {
   # check for R specific config dir
   configDir <- Sys.getenv("R_USER_CONFIG_DIR")
 
-  if (nchar(configDir) < 1) {
+  if (nzchar(configDir)) {
+    # R specific config dir, append app name only
+    configDir <- file.path(configDir, appName)
+  } else {
     # no R specific config dir; determine application config dir (platform specific)
     sysName <- Sys.info()[['sysname']]
     if (identical(sysName, "Windows"))

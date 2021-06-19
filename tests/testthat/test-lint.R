@@ -47,7 +47,14 @@ test_that("The linter identifies files not matching in case sensitivity", {
   result <- lint("shinyapp-with-absolute-paths")
   server.R <- result[["server.R"]]
   filepath.capitalization <- server.R[["filepath.capitalization"]]
-  expect_true(filepath.capitalization$indices == 31)
+  expect_equal(as.integer(filepath.capitalization$indices), 31)
+})
+
+test_that("The linter identifies files with Markdown links not matching in case sensitivity", {
+  result <- lint("test-rmd-bad-case")
+  index.Rmd <- result[["index.Rmd"]]
+  filepath.capitalization <- index.Rmd[["filepath.capitalization"]]
+  expect_equal(as.integer(filepath.capitalization$indices), 29)
 })
 
 test_that("The linter believes that the Shiny example apps are okay", {

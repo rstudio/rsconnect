@@ -257,7 +257,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       forceGenerate = forceGenerate,
       python = python,
       hasPythonRmd = hasPythonRmd,
-      retainPackratDirectory = TRUE)
+      retainPackratDirectory = TRUE,
+      verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -354,6 +355,8 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #'   `requirements.txt` file is found, it will be overwritten when
 #'   this argument is `TRUE`.
 #'
+#' @param verbose If TRUE, prints progress messages to the console
+#'
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
@@ -361,7 +364,8 @@ writeManifest <- function(appDir = getwd(),
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
                           python = NULL,
-                          forceGeneratePythonEnvironment = FALSE) {
+                          forceGeneratePythonEnvironment = FALSE,
+                          verbose = FALSE) {
 
   condaMode <- FALSE
 
@@ -410,8 +414,8 @@ writeManifest <- function(appDir = getwd(),
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
       hasPythonRmd = hasPythonRmd,
-      retainPackratDirectory = FALSE)
-
+      retainPackratDirectory = FALSE,
+      verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -561,7 +565,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
   }
 
   # there doesn't appear to be any content here we can use
-  return(NA)
+  stop("No content to deploy; cannot detect content type.")
 }
 
 inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
@@ -682,24 +686,29 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE,
-                              retainPackratDirectory = TRUE) {
+                              retainPackratDirectory = TRUE,
+                              verbose = FALSE) {
 
   # provide package entries for all dependencies
   packages <- list()
-  # non-SCM repository sources without URLs
-  missing_url_sources <- NULL
-  # potential error messages
-  msg      <- NULL
+
+  # potential problems with the bundled content.
+  errorMessages <- NULL
+  packageMessages <- NULL
+
   pyInfo   <- NULL
 
   # get package dependencies for non-static content deployment
   if (!identical(appMode, "static") &&
       !identical(appMode, "tensorflow-saved-model")) {
 
-    # detect dependencies including inferred dependences
-    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python, hasPythonRmd))
+    # detect dependencies including inferred dependencies
+    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python, hasPythonRmd),
+                                verbose = verbose)
 
     # construct package list from dependencies
+
+    logger <- verboseLogger(verbose)
     for (i in seq.int(nrow(deps))) {
       name <- deps[i, "Package"]
 
@@ -712,21 +721,12 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
           pyInfo$package_manager$contents <- NULL
         }
         else {
-          msg <- c(msg, paste("Error detecting python for reticulate:", pyInfo$error))
+          errorMessages <- c(errorMessages, paste("Error detecting python for reticulate:", pyInfo$error))
         }
       }
 
       # get package info
-      info <- as.list(deps[i, c('Source',
-                                'Repository')])
-
-      if (is.na(info$Repository)) {
-        if (isSCMSource(info$Source)) {
-          # ignore source+SCM packages
-        } else {
-          missing_url_sources <- unique(c(missing_url_sources, info$Source))
-        }
-      }
+      info <- as.list(deps[i, c('Source', 'Repository')])
 
       # include github package info
       info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
@@ -739,30 +739,37 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
       # if description is NA, application dependency may not be installed
       if (is.na(info$description[1])) {
-        msg <- c(msg, paste0(capitalize(assetTypeName), " depends on package \"",
+        errorMessages <- c(errorMessages, paste0(capitalize(assetTypeName), " depends on package \"",
                              name, "\" but it is not installed. Please resolve ",
                              "before continuing."))
         next
       }
 
-      # validate package source (returns an error message if there is a problem)
-      msg <- c(msg, validatePackageSource(deps[i, ]))
+      # validate package source (returns a message if there is a problem)
+      packageMessages <- c(packageMessages, validatePackageSource(deps[i, ]))
 
       # good to go
       packages[[name]] <- info
     }
   }
-  if (length(missing_url_sources)) {
-    # Err when packages lack repository URL. We emit a warning about each package (see
-    # snapshotDependencies) before issuing an error with this resolution advice.
+  if (length(packageMessages)) {
+    # Advice to help resolve installed packages that are not available using the current set of
+    # configured repositories. Each package with a missing repository has already been printed (see
+    # snapshotDependencies).
     #
-    # It's possible we cannot find a repository URL for other reasons, including when folks locally
-    # build and install packages from source. An incorrectly configured "repos" option is almost
-    # always the cause.
-    msg <- c(msg, sprintf("Unable to determine the location for some packages. Packages must come from a package repository like CRAN or a source control system. Check that options('repos') refers to a package repository containing the needed package versions."))
+    # This situation used to trigger an error (halting deployment), but was softened because:
+    #   * CRAN-archived packages are not visible to our available.packages scanning.
+    #   * Source-installed packages may be available after a manual server-side installation.
+    #
+    # That said, an incorrectly configured "repos" option is almost always the cause.
+    packageMessages <- c(packageMessages,
+                         "Unable to determine the source location for some packages. Packages should be installed from a package repository like CRAN or a version control system. Check that options('repos') refers to a package repository containing the needed package versions.")
+    warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
   }
 
-  if (length(msg)) stop(paste(formatUL(msg, '\n*'), collapse = '\n'), call. = FALSE)
+  if (length(errorMessages)) {
+    stop(paste(formatUL(errorMessages, '\n*'), collapse = '\n'), call. = FALSE)
+  }
 
   if (!retainPackratDirectory) {
     # Optionally remove the packrat directory when it will not be included in
@@ -843,17 +850,16 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 }
 
 validatePackageSource <- function(pkg) {
-  msg <- NULL
-  if (!(pkg$Source %in% c("CRAN", "Bioconductor", "github", "gitlab", "bitbucket"))) {
-    if (is.null(pkg$Repository)) {
-      msg <- paste("The package was installed from an unsupported ",
-                   "source '", pkg$Source, "'.", sep = "")
-    }
+  if (isSCMSource(pkg$Source)) {
+    return()
   }
-  if (is.null(msg)) return()
-  msg <- paste("Unable to deploy package dependency '", pkg$Package,
-               "'\n\n", msg, " ", sep = "")
-  msg
+
+  if (is.null(pkg$Repository) || is.na(pkg$Repository)) {
+    return(sprintf("May be unable to deploy package dependency '%s'; could not determine a repository URL for the source '%s'.",
+                   pkg$Package, pkg$Source))
+  }
+
+  return()
 }
 
 hasRequiredDevtools <- function() {
@@ -865,9 +871,13 @@ snapshotLockFile <- function(appDir) {
   file.path(appDir, "packrat", "packrat.lock")
 }
 
-addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
+addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
+
+  logger <- verboseLogger(verbose)
+
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
+
   tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
   if (length(implicit_dependencies) > 0) {
     extraPkgDeps <- paste0(lapply(implicit_dependencies,
@@ -896,8 +906,9 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
   }
 
   # generate the packrat snapshot
+  if (verbose) logger("Starting to perform packrat snapshot")
   tryCatch({
-    performPackratSnapshot(bundleDir)
+    performPackratSnapshot(bundleDir, verbose = verbose)
   }, error = function(e) {
     # if an error occurs while generating the snapshot, add a header to the
     # message for improved attribution
@@ -912,6 +923,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c()) {
     # rethrow error so we still halt deployment
     stop(e)
   })
+  if (verbose) logger("Completed performing packrat snapshot")
 
   # if we emitted a temporary dependency file for packrat's benefit, remove it
   # now so it isn't included in the bundle sent to the server
@@ -972,7 +984,7 @@ explodeFiles <- function(dir, files) {
   exploded
 }
 
-performPackratSnapshot <- function(bundleDir) {
+performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 
   # move to the bundle directory
   owd <- getwd()
@@ -1000,8 +1012,10 @@ performPackratSnapshot <- function(bundleDir) {
     packrat::.snapshotImpl(project = bundleDir,
                            snapshot.sources = FALSE,
                            fallback.ok = TRUE,
-                           verbose = FALSE,
-                           implicit.packrat.dependency = FALSE)
+                           verbose = verbose,
+                           implicit.packrat.dependency = FALSE,
+                           infer.dependencies = TRUE
+                           )
   )
 
   # TRUE just to indicate success
