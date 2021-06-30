@@ -361,7 +361,8 @@ deployApp <- function(appDir = getwd(),
       python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
-                              condaMode, forceGeneratePythonEnvironment)
+                              condaMode, forceGeneratePythonEnvironment,
+                              isTRUE(metadata$isQuarto))
 
       if (isShinyapps(accountDetails$server)) {
 

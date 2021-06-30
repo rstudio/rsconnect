@@ -82,6 +82,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
                                       "app_cache",
                                       ".svn",
                                       ".git",
+                                      ".quarto",
                                       ".Rproj.user"
                                   ))
   }
@@ -198,7 +199,7 @@ bundleFiles <- function(appDir) {
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
-                      condaMode = FALSE, forceGenerate = FALSE) {
+                      condaMode = FALSE, forceGenerate = FALSE, isQuarto = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -248,6 +249,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = TRUE,
+      isQuarto,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
@@ -677,6 +679,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE,
                               retainPackratDirectory = TRUE,
+                              isQuarto = FALSE,
                               verbose = FALSE) {
 
   # provide package entries for all dependencies
@@ -811,6 +814,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                                       contentCategory, NA)
   metadata$has_parameters <- hasParameters
 
+  # indicate whether this is a quarto app/doc
+  metadata$is_quarto <- isQuarto
+
   # add metadata
   manifest$metadata <- metadata
 
@@ -818,7 +824,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   if (!is.null(pyInfo)) {
     manifest$python <- pyInfo
   }
-  # if there are no packages set manifes$packages to NA (json null)
+  # if there are no packages set manifest$packages to NA (json null)
   if (length(packages) > 0) {
     manifest$packages <- I(packages)
   } else {
