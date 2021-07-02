@@ -115,6 +115,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
               !is.null(appPrimaryDoc) &&
                 tolower(tools::file_ext(appPrimaryDoc)) == "r"),
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
+    Qmd = any(grepl(glob2rx("*.qmd"), appFilesBase)),
     static = any(grepl("(?:html?|pdf)$", appFilesBase)),
     plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
     tensorflow = length(c(
@@ -129,7 +130,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
             1. 'server.R' and 'ui.R' in the application base directory,
             2. 'server.R' and 'www/index.html' in the application base directory,
             3. 'app.R' or a single-file Shiny .R file,
-            4. An R Markdown (.Rmd) document,
+            4. An R Markdown (.Rmd) or Quarto (.qmd) document,
             5. A static HTML (.html) or PDF (.pdf) document.
             6. 'plumber.R' API description .R file
             7. 'entrypoint.R' plumber startup script
