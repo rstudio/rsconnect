@@ -4,6 +4,10 @@
 #' [RMarkdown][rmarkdown::rmarkdown-package] document, a plumber API, or HTML
 #' content to a server.
 #'
+#' In order to ignore specific files in the working directory while deploying,
+#' the files must be listed in the .rscignore file. This file must have one
+#' file or directory per line with no support for wildcards.'
+#'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @param appFiles The files and directories to bundle and deploy (only if

@@ -6,4 +6,5 @@ README.html
 *.Rcheck/
 *.tar.gz
 docs/
+.rscignore
 tags
