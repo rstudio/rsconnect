@@ -81,7 +81,7 @@ to be bundled in the application." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.19</span>
       </span>
     </div>
 
@@ -164,6 +164,10 @@ bundle is controlled by the <code>rsconnect.max.bundle.files</code> option.</p><
 <li><p>Certain files and folders that don't need to be bundled, such as
 those containing internal version control and RStudio state, are
 excluded.</p></li>
+<li><p>In order to stop specific files in the working directory from being
+listed in the bundle, the files must be listed in the .rscignore file.
+This file must have one file or directory per line with no support for
+wildcards.</p></li>
 </ol>
 
 
