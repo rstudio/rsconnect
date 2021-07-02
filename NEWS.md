@@ -1,8 +1,14 @@
 # NEWS
 
+## 0.8.20
+
+* Added support for publishing Quarto documents and websites
+* Added support for `.rcsignore` file to exclude files or directories from publishing (#502)
+* Fixed issue causing missing value errors when publishing content containing filenames with extended characters (#514)
+
 ## 0.8.19
 
-In development.
+(Not released)
 
 ## 0.8.18
 
