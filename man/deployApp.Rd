@@ -34,7 +34,8 @@ directory.}
 
 \item{appFiles}{The files and directories to bundle and deploy (only if
 \code{upload = TRUE}). Can be \code{NULL}, in which case all the files in the
-directory containing the application are bundled. Takes precedence over
+directory containing the application are bundled, with the exception of
+any listed in an \code{.rcsignore} file. Takes precedence over
 \code{appFileManifest} if both are supplied.}
 
 \item{appFileManifest}{An alternate way to specify the files to be deployed;
@@ -117,11 +118,6 @@ is \code{TRUE}.}
 Deploy a \link[shiny:shiny-package]{shiny} application, an
 \link[rmarkdown:rmarkdown-package]{RMarkdown} document, a plumber API, or HTML
 content to a server.
-}
-\details{
-In order to ignore specific files in the working directory while deploying,
-the files must be listed in the .rscignore file. This file must have one
-file or directory per line with no support for wildcards.'
 }
 \examples{
 \dontrun{
