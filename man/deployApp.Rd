@@ -118,6 +118,11 @@ Deploy a \link[shiny:shiny-package]{shiny} application, an
 \link[rmarkdown:rmarkdown-package]{RMarkdown} document, a plumber API, or HTML
 content to a server.
 }
+\details{
+In order to ignore specific files in the working directory while deploying,
+the files must be listed in the .rscignore file. This file must have one
+file or directory per line with no support for wildcards.'
+}
 \examples{
 \dontrun{
 
