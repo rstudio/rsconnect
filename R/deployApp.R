@@ -160,7 +160,7 @@ deployApp <- function(appDir = getwd(),
       cat("----- Deployment error -----\n")
       cat(geterrmessage(), "\n")
       cat("----- Error stack trace -----\n")
-      traceback(3, sys.calls())
+      traceback(x = sys.calls(), max.lines = 3)
     })
     on.exit(options(error = errOption), add = TRUE)
   }

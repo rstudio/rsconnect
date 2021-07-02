@@ -932,7 +932,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
 
     # print a traceback if enabled
     if (isTRUE(getOption("rsconnect.error.trace"))) {
-      traceback(3, sys.calls())
+      traceback(x = sys.calls(), max.lines = 3)
     }
 
     # rethrow error so we still halt deployment
