@@ -218,7 +218,8 @@ bundleFiles <- function(appDir) {
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
-                      condaMode = FALSE, forceGenerate = FALSE, isQuarto = FALSE) {
+                      condaMode = FALSE, forceGenerate = FALSE, isQuarto = FALSE,
+                      isShinyapps = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -252,6 +253,23 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appFiles = appFiles,
       appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+
+  # if this is quarto going to shinyapps then make sure we disable
+  # prerendering (as shinyapps.io doesn't know how to quarto render yet)
+  if (isQuarto) {
+    logger("Disabling prerender for Quarto interactive document")
+    disablePrerender <- c(
+      '### QUARTO: Disable Prerender',
+      'Sys.setenv(RMARKDOWN_RUN_PRERENDER = "0")',
+      '###'
+    )
+    rProfile <- file.path(bundleDir, ".Rprofile")
+    if (file.exists(rProfile)) {
+      write(disablePrerender, file = rProfile, sep = "\n", append = TRUE)
+    } else {
+      writeLines(disablePrerender, rProfile, useBytes = TRUE)
+    }
+  }
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
@@ -469,7 +487,7 @@ rmdHasPythonBlock <- function(filename) {
 }
 
 appHasPythonRmd <- function(appDir, files) {
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE,
+  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE,
                    value = TRUE)
 
   if (length(rmdFiles) > 0) {
@@ -543,7 +561,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
   }
 
   # Determine if we have Rmd and if they are (optionally) need the Shiny runtime.
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
   shinyRmdFiles <- sapply(file.path(appDir, rmdFiles), isShinyRmd)
 
   # An Rmd file with a Shiny runtime uses rmarkdown::run.
@@ -579,13 +597,13 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
   stop("No content to deploy; cannot detect content type.")
 }
 
-inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
+inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode, isQuarto = FALSE) {
   # if deploying an R Markdown app or static content, infer a primary document
   # if not already specified
   if ((grepl("rmd", appMode, fixed = TRUE) || appMode == "static")
       && is.null(appPrimaryDoc)) {
     # determine expected primary document extension
-    ext <- ifelse(appMode == "static", "html?", "Rmd")
+    ext <- ifelse(appMode == "static", "html?", "[Rq]md")
 
     # use index file if it exists
     primary <- which(grepl(paste0("^index\\.", ext, "$"), appFiles, fixed = FALSE,

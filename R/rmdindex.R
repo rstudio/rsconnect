@@ -10,10 +10,11 @@ writeRmdIndex <- function(appName, appDir) {
   if (!file.exists(file.path(appDir, "ui.R")) &&
         !file.exists(file.path(appDir, "server.R")) &&
         !file.exists(file.path(appDir, "index.htm")) &&
-        !file.exists(file.path(appDir, "index.Rmd")))
+        !file.exists(file.path(appDir, "index.Rmd")) &&
+        !file.exists(file.path(appDir, "index.qmd")))
   {
     # otherwise enumerate the Rmd files as the basis for the index
-    appFiles <- list.files(path = appDir, pattern = "\\.(rmd|html)$",
+    appFiles <- list.files(path = appDir, pattern = "\\.([rq]md|html)$",
                            recursive = FALSE, ignore.case = TRUE)
 
     if (length(appFiles) == 1)

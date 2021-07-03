@@ -187,7 +187,7 @@ deployApp <- function(appDir = getwd(),
   # of supporting documents)
   rmdFile <- ""
   if (!file.info(appDir)$isdir) {
-    if (grepl("\\.Rmd$", appDir, ignore.case = TRUE) ||
+    if (grepl("\\.[Rq]md$", appDir, ignore.case = TRUE) ||
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, appTitle = appTitle,
                        account = account, server = server, upload = upload,
@@ -363,7 +363,7 @@ deployApp <- function(appDir = getwd(),
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment,
-                              isTRUE(metadata$isQuarto))
+                              isTRUE(metadata$isQuarto), isShinyapps(accountDetails$server))
 
       if (isShinyapps(accountDetails$server)) {
 
