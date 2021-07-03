@@ -48,7 +48,7 @@ deployDoc <- function(doc, ...) {
     # if this document's type supports automated resource discovery, do that now,
     # and add the discovered files to the deployment list
     ext <- tolower(tools::file_ext(doc))
-    if (ext %in% c("rmd", "html", "htm")) {
+    if (ext %in% c("rmd", "qmd", "html", "htm")) {
       message("Discovering document dependencies... ", appendLF = FALSE)
       res <- rmarkdown::find_external_resources(qualified_doc)
       message("OK")
