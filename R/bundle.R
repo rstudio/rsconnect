@@ -219,7 +219,7 @@ bundleFiles <- function(appDir) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, isQuarto = FALSE,
-                      isShinyapps = FALSE) {
+                      serverRender = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -256,10 +256,10 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # if this is quarto going to shinyapps then make sure we disable
   # prerendering (as shinyapps.io doesn't know how to quarto render yet)
-  if (isQuarto) {
-    logger("Disabling prerender for Quarto interactive document")
+  if (isQuarto && !serverRender) {
+    logger("Disabling server render for Quarto interactive document")
     disablePrerender <- c(
-      '### QUARTO: Disable Prerender',
+      '### QUARTO: Disable Server Render',
       'Sys.setenv(RMARKDOWN_RUN_PRERENDER = "0")',
       '###'
     )
