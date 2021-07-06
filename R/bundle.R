@@ -531,9 +531,16 @@ isShinyRmd <- function(filename) {
   yaml <- yamlFromRmd(filename)
   if (!is.null(yaml)) {
     runtime <- yaml[["runtime"]]
+    server <- yaml[["server"]]
     if (!is.null(runtime) && grepl('^shiny', runtime)) {
       # ...and "runtime: shiny", then it's a dynamic Rmd.
       return(TRUE)
+    } else if (!is.null(server)) {
+      if (identical(server, "shiny")) {
+        return(TRUE)
+      } else if (is.list(server) && identical(server[["type"]], "shiny")) {
+        return(TRUE)
+      }
     }
   }
   return(FALSE)

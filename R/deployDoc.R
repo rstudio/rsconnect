@@ -38,8 +38,7 @@ deployDoc <- function(doc, ...) {
 
   # see if this doc has runtime: shiny_prerendered, if it does then
   # appFiles will be NULL (bundle the entire directory)
-  yaml <- yamlFromRmd(doc)
-  if (is.list(yaml) && (identical(yaml$runtime, "shiny_prerendered") || identical(yaml$runtime, "shinyrmd"))) {
+  if (isShinyRmd(doc)) {
     app_files <- NULL
   } else {
     # default to deploying just the single file specified
