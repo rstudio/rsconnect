@@ -254,8 +254,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
-  # if this is quarto going to shinyapps then make sure we disable
-  # prerendering (as shinyapps.io doesn't know how to quarto render yet)
+  # if this is quarto then disable server rendering if requested
   if (isQuarto && !serverRender) {
     logger("Disabling server render for Quarto interactive document")
     disablePrerender <- c(
@@ -268,6 +267,33 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       write(disablePrerender, file = rProfile, sep = "\n", append = TRUE)
     } else {
       writeLines(disablePrerender, rProfile, useBytes = TRUE)
+    }
+  }
+
+  # if this is rmd-shiny and there is no "runtime" yaml then inject it
+  # (provides compatibility w/ server: shiny)
+  if (appMode == "rmd-shiny" && getOption("rsconnect.qmd.compatibility", TRUE)) {
+    # rename appPrimaryDoc to use .Rmd extension
+    if (tolower(tools::file_ext(appPrimaryDoc)) == "qmd") {
+      renamedAppPrimaryDoc <- paste0(file_path_sans_ext(appPrimaryDoc), ".Rmd")
+      file.rename(
+        file.path(bundleDir, appPrimaryDoc),
+        file.path(bundleDir, renamedAppPrimaryDoc)
+      )
+      appPrimaryDoc <- renamedAppPrimaryDoc
+    }
+  }
+
+  # provide runtime: shinyrmd if necessary
+  if (appMode == "rmd-shiny" && getOption("rsconnect.server.yaml.compatibility", TRUE)) {
+    srcPath <- file.path(bundleDir, appPrimaryDoc)
+    yaml <- rmarkdown::yaml_front_matter(srcPath)
+    if (is.null(yaml$runtime)) {
+      opts = options(encoding = "native.enc")
+      on.exit(options(opts), add = TRUE)
+      src <- readLines(srcPath, encoding = "UTF-8", warn = FALSE)
+      src <- c("---", "runtime: shinyrmd", src[-1])
+      writeLines(enc2utf8(src), srcPath, useBytes = TRUE)
     }
   }
 
