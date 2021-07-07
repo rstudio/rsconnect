@@ -1,7 +1,7 @@
 Package: rsconnect
 Type: Package
 Title: Deployment Interface for R Markdown Documents and Shiny Applications
-Version: 0.8.22
+Version: 0.8.23
 Authors@R: c(
     person("Jonathan", "McPherson", role = c("aut", "cre"), email = "jonathan@rstudio.com"),
     person("JJ", "Allaire", role = "aut"),
