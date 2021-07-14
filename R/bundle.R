@@ -255,7 +255,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # if this is quarto then disable server rendering if requested
-  if (isQuarto && !serverRender) {
+  if (isQuarto && !serverRender && getOption("rsconnect.server.noprerender", TRUE)) {
     logger("Disabling server render for Quarto interactive document")
     disablePrerender <- c(
       '### QUARTO: Disable Server Render',
@@ -272,7 +272,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # if this is rmd-shiny and there is no "runtime" yaml then inject it
   # (provides compatibility w/ server: shiny)
-  if (appMode == "rmd-shiny" && getOption("rsconnect.qmd.compatibility", TRUE)) {
+  if (appMode == "rmd-shiny" && getOption("rsconnect.server.qmd.compatibility", TRUE)) {
     # rename appPrimaryDoc to use .Rmd extension
     if (tolower(tools::file_ext(appPrimaryDoc)) == "qmd") {
       renamedAppPrimaryDoc <- paste0(file_path_sans_ext(appPrimaryDoc), ".Rmd")
