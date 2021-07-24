@@ -218,7 +218,7 @@ bundleFiles <- function(appDir) {
 
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
-                      condaMode = FALSE, forceGenerate = FALSE, isQuarto = FALSE,
+                      condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
                       serverRender = FALSE) {
   logger <- verboseLogger(verbose)
 
@@ -255,7 +255,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # if this is quarto then disable server rendering if requested
-  if (isQuarto && !serverRender && getOption("rsconnect.server.noprerender", TRUE)) {
+  if (!is.null(quarto) && !serverRender && getOption("rsconnect.server.noprerender", TRUE)) {
     logger("Disabling server render for Quarto interactive document")
     disablePrerender <- c(
       '### QUARTO: Disable Server Render',
@@ -312,7 +312,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = TRUE,
-      isQuarto,
+      quarto,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
@@ -749,7 +749,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE,
                               retainPackratDirectory = TRUE,
-                              isQuarto = FALSE,
+                              quarto = NULL,
                               verbose = FALSE) {
 
   # provide package entries for all dependencies
@@ -885,7 +885,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   metadata$has_parameters <- hasParameters
 
   # indicate whether this is a quarto app/doc
-  metadata$is_quarto <- isQuarto
+  metadata$quarto <- quarto
 
   # add metadata
   manifest$metadata <- metadata
