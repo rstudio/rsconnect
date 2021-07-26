@@ -884,12 +884,13 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                                       contentCategory, NA)
   metadata$has_parameters <- hasParameters
 
-  # indicate whether this is a quarto app/doc
-  metadata$quarto <- quarto
-
   # add metadata
   manifest$metadata <- metadata
 
+  # indicate whether this is a quarto app/doc
+  if (!is.null(quarto)) {
+    manifest$quarto <- quarto
+  }
   # if there is python info for reticulate, attach it
   if (!is.null(pyInfo)) {
     manifest$python <- pyInfo
