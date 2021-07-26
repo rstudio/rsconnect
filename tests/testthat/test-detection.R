@@ -28,7 +28,7 @@ inferAppModeFromFiles <- function(fileContent) {
   }
 
   files <- list.files(targetDir, recursive = FALSE, all.files = FALSE, include.dirs = FALSE, no.. = TRUE, full.names = FALSE)
-  appMode <- inferAppMode(targetDir, NULL, files)
+  appMode <- inferAppMode(targetDir, NULL, files, quarto = NULL)
   return(appMode)
 }
 

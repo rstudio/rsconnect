@@ -115,8 +115,7 @@ snapshotDependencies <- function(appDir, implicit_dependencies=c(), verbose = FA
   records <- utils::tail(df, -1)
 
   # if the package is in a named CRAN-like repository capture it
-  tmp <- lapply(seq.int(nrow(records)), function(i) {
-
+  tmp <- lapply(seq_len(nrow(records)), function(i) {
 
     pkg <- records[i, "Package"]
     source <- records[i, "Source"]
