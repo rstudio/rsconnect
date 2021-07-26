@@ -360,10 +360,11 @@ deployApp <- function(appDir = getwd(),
 
       # python is enabled on Connect but not on Shinyapps
       python <- getPythonForTarget(python, accountDetails)
+      quarto <- getQuartoManifestDetails(metadata)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment,
-                              metadata[["quarto"]],
+                              quarto,
                               isTRUE(metadata$serverRender))
 
       if (isShinyapps(accountDetails$server)) {
@@ -494,6 +495,16 @@ getPythonForTarget <- function(path, accountDetails) {
   else {
     NULL
   }
+}
+
+getQuartoManifestDetails <- function(metadata = list()) {
+  if (!is.null(metadata[["quarto_version"]])) {
+    return(list(
+        "version" = metadata[["quarto_version"]],
+        "engines" = metadata[["quarto_engines"]]
+    ))
+  }
+  return(NULL)
 }
 
 # calculate the deployment target based on the passed parameters and
