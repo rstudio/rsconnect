@@ -1037,6 +1037,12 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
     unlink(tempDependencyFile)
   }
 
+  preservePackageDescriptions(bundleDir)
+
+  invisible()
+}
+
+preservePackageDescriptions <- function(bundleDir) {
   # Copy all the DESCRIPTION files we're relying on into packrat/desc.
   # That directory will contain one file for each package, e.g.
   # packrat/desc/shiny will be the shiny package's DESCRIPTION.
@@ -1048,8 +1054,9 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
   descDir <- file.path(bundleDir, "packrat", "desc")
   tryCatch({
     dir.create(descDir)
-    packages <- na.omit(read.dcf(lockFilePath)[,"Package"])
-    lapply(packages, function(pkgName) {
+    records <- utils::tail(read.dcf(lockFilePath), -1)
+    lapply(seq_len(nrow(records)), function(i) {
+      pkgName <- records[i, "Package"]
       descFile <- system.file("DESCRIPTION", package = pkgName)
       if (!file.exists(descFile)) {
         stop("Couldn't find DESCRIPTION file for ", pkgName)
@@ -1062,10 +1069,8 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
       unlink(descDir, recursive = TRUE)
     }
   })
-
   invisible()
 }
-
 
 # given a list of mixed files and directories, explodes the directories
 # recursively into their constituent files, and returns just a list of files
