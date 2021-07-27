@@ -219,7 +219,7 @@ bundleFiles <- function(appDir) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      serverRender = FALSE) {
+                      serverRender = FALSE, isShinyApps = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -313,6 +313,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = TRUE,
       quarto,
+      isShinyApps = isShinyApps,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
@@ -470,6 +471,8 @@ writeManifest <- function(appDir = getwd(),
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = FALSE,
+      quarto = NULL,
+      isShinyApps = FALSE,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
@@ -750,6 +753,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE,
                               retainPackratDirectory = TRUE,
                               quarto = NULL,
+                              isShinyApps = FALSE,
                               verbose = FALSE) {
 
   # provide package entries for all dependencies
@@ -888,7 +892,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   manifest$metadata <- metadata
 
   # indicate whether this is a quarto app/doc
-  if (!is.null(quarto)) {
+  if (!is.null(quarto) && !isShinyApps) {
     manifest$quarto <- quarto
   }
   # if there is python info for reticulate, attach it

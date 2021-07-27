@@ -365,7 +365,8 @@ deployApp <- function(appDir = getwd(),
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment,
                               quarto,
-                              isTRUE(metadata$serverRender))
+                              isTRUE(metadata$serverRender),
+                              isShinyapps(accountDetails$server))
 
       if (isShinyapps(accountDetails$server)) {
 
