@@ -226,7 +226,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   appMode <- inferAppMode(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
-      files = appFiles)
+      files = appFiles,
+      quarto = quarto)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -270,9 +271,9 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
     }
   }
 
-  # if this is rmd-shiny and there is no "runtime" yaml then inject it
+  # if this is quarto-shiny and there is no "runtime" yaml then inject it
   # (provides compatibility w/ server: shiny)
-  if (appMode == "rmd-shiny" && getOption("rsconnect.server.qmd.compatibility", TRUE)) {
+  if (appMode == "quarto-shiny" && getOption("rsconnect.server.qmd.compatibility", TRUE)) {
     # rename appPrimaryDoc to use .Rmd extension
     if (tolower(tools::file_ext(appPrimaryDoc)) == "qmd") {
       renamedAppPrimaryDoc <- paste0(file_path_sans_ext(appPrimaryDoc), ".Rmd")
@@ -285,7 +286,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   }
 
   # provide runtime: shinyrmd if necessary
-  if (appMode == "rmd-shiny" && getOption("rsconnect.server.yaml.compatibility", TRUE)) {
+  if (appMode == "quarto-shiny" && getOption("rsconnect.server.yaml.compatibility", TRUE)) {
     srcPath <- file.path(bundleDir, appPrimaryDoc)
     yaml <- rmarkdown::yaml_front_matter(srcPath)
     if (is.null(yaml$runtime)) {
@@ -434,7 +435,8 @@ writeManifest <- function(appDir = getwd(),
   appMode <- inferAppMode(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
-      files = appFiles)
+      files = appFiles,
+      quarto = NULL)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -535,7 +537,13 @@ appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory) {
   # deployment to be considered parameterized.
   #
   # https://github.com/rstudio/rsconnect/issues/246
-  if (!(appMode %in% c("rmd-static", "rmd-shiny"))) {
+  parameterAppModes <- c(
+      "rmd-static",
+      "rmd-shiny",
+      "quarto-static",
+      "quarto-shiny"
+  )
+  if (!(appMode %in% parameterAppModes)) {
     return(FALSE)
   }
   # Sites don't ever have parameters
@@ -577,7 +585,7 @@ isShinyRmd <- function(filename) {
 
 # infer the mode of the application from its layout
 # unless we're an API, in which case, we're API mode.
-inferAppMode <- function(appDir, appPrimaryDoc, files) {
+inferAppMode <- function(appDir, appPrimaryDoc, files, quarto) {
   # plumber API
   plumberFiles <- grep("^(plumber|entrypoint).r$", files, ignore.case = TRUE, perl = TRUE)
   if (length(plumberFiles) > 0) {
@@ -602,7 +610,11 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
 
   # An Rmd file with a Shiny runtime uses rmarkdown::run.
   if (any(shinyRmdFiles)) {
-    return("rmd-shiny")
+    if (is.null(quarto)) {
+      return("rmd-shiny")
+    } else {
+      return("quarto-shiny")
+    }
   }
 
   # Shiny application using server.R; checked later than Rmd with shiny runtime
@@ -615,7 +627,11 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
 
   # Any non-Shiny R Markdown documents are rendered content (rmd-static).
   if (length(rmdFiles) > 0) {
-    return("rmd-static")
+    if (is.null(quarto)) {
+      return("rmd-static")
+    } else {
+      return("quarto-static")
+    }
   }
 
   # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
@@ -633,11 +649,17 @@ inferAppMode <- function(appDir, appPrimaryDoc, files) {
   stop("No content to deploy; cannot detect content type.")
 }
 
-inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode, isQuarto = FALSE) {
+inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
   # if deploying an R Markdown app or static content, infer a primary document
   # if not already specified
-  if ((grepl("rmd", appMode, fixed = TRUE) || appMode == "static")
-      && is.null(appPrimaryDoc)) {
+  docAppModes <- c(
+      "static",
+      "rmd-shiny",
+      "rmd-static",
+      "quarto-shiny",
+      "quarto-static"
+  )
+  if ((appMode %in% docAppModes) && is.null(appPrimaryDoc)) {
     # determine expected primary document extension
     ext <- ifelse(appMode == "static", "html?", "[Rq]md")
 
@@ -661,19 +683,32 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode, isQuarto = FALS
 }
 
 ## check for extra dependencies congruent to application mode
-inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd) {
+inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quarto) {
   deps <- c()
-  if (grepl("\\brmd\\b", appMode)) {
+  if (appMode == "rmd-static") {
     if (hasParameters) {
       # An Rmd with parameters needs shiny to run the customization app.
       deps <- c(deps, "shiny")
     }
     deps <- c(deps, "rmarkdown")
   }
-  if (grepl("\\bshiny\\b", appMode)) {
+  if (appMode == "quarto-static") {
+    # Quarto documents need R when the knitr execution engine is used, not always.
+    if (!is.null(quarto) && "knitr" %in% quarto[["engines"]]) {
+        deps <- c(deps, "rmarkdown")
+    }
+  }
+  if (appMode == "quarto-shiny") {
+    # Quarto Shiny documents are executed with rmarkdown::run
+    deps <- c(deps, "rmarkdown", "shiny")
+  }
+  if (appMode == "rmd-shiny") {
+    deps <- c(deps, "rmarkdown", "shiny")
+  }
+  if (appMode == "shiny") {
     deps <- c(deps, "shiny")
   }
-  if (appMode == 'api') {
+  if (appMode == "api") {
     deps <- c(deps, "plumber")
   }
   if (hasPythonRmd) {
@@ -770,13 +805,13 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependencies
-    deps = snapshotDependencies(appDir, inferDependencies(appMode, hasParameters, python, hasPythonRmd),
-                                verbose = verbose)
+    inferredDependencies <- inferDependencies(appMode, hasParameters, python, hasPythonRmd, quarto)
+    deps = snapshotDependencies(appDir, inferredDependencies, verbose = verbose)
 
     # construct package list from dependencies
 
     logger <- verboseLogger(verbose)
-    for (i in seq.int(nrow(deps))) {
+    for (i in seq_len(nrow(deps))) {
       name <- deps[i, "Package"]
 
       if (name == "reticulate" && !is.null(python)) {
@@ -880,7 +915,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   primaryDoc <- ifelse(is.null(appPrimaryDoc) ||
                          tolower(tools::file_ext(appPrimaryDoc)) == "r",
                        NA, appPrimaryDoc)
-  metadata$primary_rmd <- ifelse(grepl("\\brmd\\b", appMode), primaryDoc, NA)
+  metadata$primary_rmd <- ifelse(appMode %in% c("rmd-shiny","rmd-static","quarto-shiny","quarto-static"), primaryDoc, NA)
   metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
   # emit content category (plots, etc)
@@ -1002,6 +1037,12 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
     unlink(tempDependencyFile)
   }
 
+  preservePackageDescriptions(bundleDir)
+
+  invisible()
+}
+
+preservePackageDescriptions <- function(bundleDir) {
   # Copy all the DESCRIPTION files we're relying on into packrat/desc.
   # That directory will contain one file for each package, e.g.
   # packrat/desc/shiny will be the shiny package's DESCRIPTION.
@@ -1013,8 +1054,9 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
   descDir <- file.path(bundleDir, "packrat", "desc")
   tryCatch({
     dir.create(descDir)
-    packages <- na.omit(read.dcf(lockFilePath)[,"Package"])
-    lapply(packages, function(pkgName) {
+    records <- utils::tail(read.dcf(lockFilePath), -1)
+    lapply(seq_len(nrow(records)), function(i) {
+      pkgName <- records[i, "Package"]
       descFile <- system.file("DESCRIPTION", package = pkgName)
       if (!file.exists(descFile)) {
         stop("Couldn't find DESCRIPTION file for ", pkgName)
@@ -1027,10 +1069,8 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
       unlink(descDir, recursive = TRUE)
     }
   })
-
   invisible()
 }
-
 
 # given a list of mixed files and directories, explodes the directories
 # recursively into their constituent files, and returns just a list of files
