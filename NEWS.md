@@ -1,4 +1,6 @@
-[#](#) NEWS
+# NEWS
+
+## 0.8.25 (in development)
 
 ## 0.8.24
 
