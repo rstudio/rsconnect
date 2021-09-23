@@ -23,7 +23,7 @@ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE
     }
     if (!file.exists(dirname(to)))
       dir.create(dirname(to), recursive = TRUE)
-    file.copy(from, to)
+    file.copy(from, to, copy.date = TRUE)
 
     # ensure .Rprofile doesn't call packrat/init.R or renv/activate.R
     if (basename(to) == ".Rprofile") {
