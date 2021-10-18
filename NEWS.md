@@ -2,6 +2,8 @@
 
 ## 0.8.25 (in development)
 
+* Changed curl to use -T flag for uploading to avoid out of memory errors
+
 ## 0.8.24
 
 Released to CRAN on 2021-08-04
