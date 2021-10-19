@@ -210,12 +210,12 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
     stop("The directory ", appDir, " cannot be deployed because it is too ",
          "large (the maximum size is ", getOption("rsconnect.max.bundle.size"),
          " bytes). Remove some files or adjust the rsconnect.max.bundle.size ",
-         "option.")
+         "option.", call. = FALSE)
   } else if (totalFiles > getOption("rsconnect.max.bundle.files")) {
     stop("The directory ", appDir, " cannot be deployed because it contains ",
          "too many files (the maximum number of files is ",
          getOption("rsconnect.max.bundle.files"), "). Remove some files or ",
-         "adjust the rsconnect.max.bundle.files option.")
+         "adjust the rsconnect.max.bundle.files option.", call. = TRUE)
   }
 }
 
