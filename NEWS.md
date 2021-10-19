@@ -2,7 +2,7 @@
 
 ## 0.8.25 (in development)
 
-* Changed curl to use -T flag for uploading to avoid out of memory errors
+* Use the `curl` option `-T` when uploading files to avoid out of memory errors with large files. (#544)
 
 ## 0.8.24
 

@@ -47,7 +47,6 @@ httpCurl <- function(protocol,
     command <- paste(command,
                      "-T",
                      shQuote(contentFile),
-                     "-X", "POST",
                      "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
                      "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
