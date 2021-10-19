@@ -7,7 +7,8 @@
 * The `rsconnect.max.bundle.size` and `rsconnect.max.bundle.files` options are
   enforced when processing an enumerated set of files. Previously, these
   limits were enforced only when bundling an entire content directory. (#542)
-
+* Preserve file time stamps when copying files into the bundle staging
+  directory, which then propagates into the created tar file. (#540)
 
 ## 0.8.24
 
