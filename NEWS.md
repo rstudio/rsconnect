@@ -2,7 +2,12 @@
 
 ## 0.8.25 (in development)
 
-* Use the `curl` option `-T` when uploading files to avoid out of memory errors with large files. (#544)
+* Use the `curl` option `-T` when uploading files to avoid out of memory
+  errors with large files. (#544)
+* The `rsconnect.max.bundle.size` and `rsconnect.max.bundle.files` options are
+  enforced when processing an enumerated set of files. Previously, these
+  limits were enforced only when bundling an entire content directory. (#542)
+
 
 ## 0.8.24
 
