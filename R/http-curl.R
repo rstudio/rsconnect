@@ -45,8 +45,8 @@ httpCurl <- function(protocol,
 
   if (!is.null(contentFile)) {
     command <- paste(command,
-                     "--data-binary",
-                     shQuote(paste("@", contentFile, sep="")),
+                     "-T",
+                     shQuote(contentFile),
                      "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
                      "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
   }
