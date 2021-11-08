@@ -1130,6 +1130,10 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   on.exit(packrat::opts$snapshot.recommended.packages(srp, persist = FALSE),
           add = TRUE)
 
+  # use renv dependency scanning within packrat.
+  old <- options("packrat.dependency.discovery.renv" = TRUE)
+  on.exit(options(old), add = TRUE)
+
   # attempt to eagerly load the BiocInstaller or BiocManaager package if installed, to work around
   # an issue where attempts to load the package could fail within a 'suppressMessages()' context
   packages <- c("BiocManager", "BiocInstaller")
