@@ -34,7 +34,8 @@ Suggests:
     testthat,
     xtable
 License: GPL-2
-RoxygenNote: 7.1.1
+Encoding: UTF-8
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues
