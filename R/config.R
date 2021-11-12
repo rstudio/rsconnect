@@ -1,23 +1,70 @@
-
-
+#' rsconnect Configuration Directory
+#'
+#' Forms the path to a location on disk where user-level configuration data for
+#' the package is stored.
+#'
+#' @param subDir An optional subdirectory to be included as the last element of
+#'   the path.
+#'
+#' @return The path to the configuration directory.
+#'
+#' @keywords internal
 rsconnectConfigDir <- function(subDir = NULL) {
 
-  # first check whether the main rsconnect directory exists
-  config_dir <- applicationConfigDir("rsconnect", create = FALSE)
+  # Compute the name of the configuration directory using the standard R method
+  configDir <- applicationConfigDir()
 
-  # if it doesn't exist then see whether there is a main "connect" directory to migrate
-  if (!file_test("-d", config_dir)) {
-    old_config_dir <- applicationConfigDir("connect", create = FALSE)
-    if (file_test("-d", old_config_dir))
-      if (!file.rename(old_config_dir, config_dir))
-        return(old_config_dir)
+  # If the configuration directory doesn't exist, see if there's an old one to
+  # migrate
+  if (!file_test("-d", configDir)) {
+
+    # For historical reasons too painful to enumerate here, there are not one
+    # but *two* old locations for configuration files to check. If we find
+    # one, we need to move its contents to the new folder.
+    oldConfigDir <- oldApplicationConfigDir("rsconnect")
+    if (!file_test("-d", oldConfigDir)) {
+      oldConfigDir <- oldApplicationConfigDir("connect")
+    }
+
+    # We have no configuration directory but we do have an old one; migrate it.
+    if (file_test("-d", oldConfigDir)) {
+
+      # Create the parent folder if necessary
+      dir.create(dirname(configDir), recursive = TRUE, showWarnings = FALSE)
+
+      # Migrate the old directory to the new one
+      file.rename(oldConfigDir, configDir)
+    }
   }
 
-  # return the directory
-  applicationConfigDir("rsconnect", subDir)
+  # Form the target and append the optional subdirectory if given
+  target <- configDir
+  if (!is.null(subDir)) {
+    target <- file.path(target, subDir)
+  }
+
+  # Create the path if it doesn't exist
+  dir.create(target, recursive = TRUE, showWarnings = FALSE)
+
+  # Return completed path
+  target
 }
 
-applicationConfigDir <- function(appName, subDir = NULL, create = TRUE) {
+#' Old Application Config Directory
+#'
+#' Returns the old application configuration directory used by rsconnect
+#' 0.8.24 and prior. These versions wrote configuration data to XDG compliant
+#' locations, but CRAN policy has since further restricted the disk locations
+#' that are permitted. See:
+#'
+#' https://cran.r-project.org/web/packages/policies.html
+#'
+#' @param appName The application's name (connect or rsconnect)
+#'
+#' @return The old application configuration directory.
+#'
+#' @keywords internal
+oldApplicationConfigDir <- function(appName) {
 
   # get the home directory from the operating system (in case
   # the user has redefined the meaning of ~) but fault back
@@ -44,17 +91,40 @@ applicationConfigDir <- function(appName, subDir = NULL, create = TRUE) {
     configDir <- file.path(configDir, "R", appName)
   }
 
-  # append optional subdirectory
-  if (!is.null(subDir))
-    configDir <- file.path(configDir, subDir)
-
   # normalize path
-  configDir <- normalizePath(configDir, mustWork=FALSE)
+  normalizePath(configDir, mustWork = FALSE)
+}
 
-  # ensure that it exists
-  if (!file.exists(configDir) && create)
-    dir.create(configDir, recursive=TRUE)
+#' Application Configuration Directory
+#'
+#' Returns the root path used to store per user configuration data. Does not
+#' check old locations or create the path; use \code{rsconnectConfigDir} for
+#' most cases.
+#'
+#' @return A string containing the path of the configuration folder.
+#'
+#' @keywords internal
+applicationConfigDir <- function()  {
 
-  # return it
-  configDir
+  if (getRversion() >= "4.0.0") {
+    # In newer versions of R, we can ask R itself where configuration should be
+    # stored.
+    tools::R_user_dir("rsconnect", "config")
+  } else {
+    # In older versions of R, use an implementation derived from R_user_dir
+    home <- Sys.getenv("HOME", unset = normalizePath("~"))
+    path <-
+      if(nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR")))
+        p
+      else if(nzchar(p <- Sys.getenv("XDG_CONFIG_HOME")))
+        p
+      else if(.Platform$OS.type == "windows")
+        file.path(Sys.getenv("APPDATA"), "R", "config")
+      else if(Sys.info()["sysname"] == "Darwin")
+        file.path(home, "Library", "Preferences", "org.R-project.R")
+      else
+        file.path(home, ".config")
+
+    file.path(path, "R", "rsconnect")
+  }
 }
