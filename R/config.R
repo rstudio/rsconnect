@@ -106,10 +106,11 @@ oldApplicationConfigDir <- function(appName) {
 #' @keywords internal
 applicationConfigDir <- function()  {
 
-  if (getRversion() >= "4.0.0") {
-    # In newer versions of R, we can ask R itself where configuration should be
-    # stored.
-    tools::R_user_dir("rsconnect", "config")
+  if (exists("R_user_dir", envir = asNamespace("tools"))) {
+    # In newer versions of R (>=4.0), we can ask R itself where configuration should be stored.
+    # Load from the namespace to avoid check warnings with old R.
+    f <- get("R_user_dir", envir = asNamespace("tools"))
+    f("rsconnect", "config")
   } else {
     # In older versions of R, use an implementation derived from R_user_dir
     home <- Sys.getenv("HOME", unset = normalizePath("~"))
