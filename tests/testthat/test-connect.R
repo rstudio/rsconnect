@@ -25,11 +25,7 @@ test_that("Users API", {
 
   skip_on_cran()
   skip_on_os("windows")
-
-  if (!isConnectRunning()) {
-    cat("No running 'connect' instance detected -- tests skipped.\n")
-    return()
-  }
+  skip_if(!isConnectRunning())
 
   ## rm db/*.db
   server <- getDefaultServer(local = TRUE)
