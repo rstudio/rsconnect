@@ -9,6 +9,9 @@
   limits were enforced only when bundling an entire content directory. (#542)
 * Preserve file time stamps when copying files into the bundle staging
   directory, which then propagates into the created tar file. (#540)
+* Configuration directories align with CRAN policy and use the location named
+  by `tools::R_user_dir`. Configuration created by earlier versions of this
+  package is automatically migrated to the new location. (#550)
 
 ## 0.8.24
 
