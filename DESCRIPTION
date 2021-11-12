@@ -20,6 +20,7 @@ Imports:
     openssl,
     packrat (>= 0.6),
     rstudioapi (>= 0.5),
+    tools,
     yaml (>= 2.1.5)
 Suggests:
     RCurl,
