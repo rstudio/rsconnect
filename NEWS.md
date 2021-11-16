@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.25 (in development)
+## 0.8.25
+
+Released to CRAN on 2021-11-16
 
 * Use the `curl` option `-T` when uploading files to avoid out of memory
   errors with large files. (#544)
