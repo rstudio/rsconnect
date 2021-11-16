@@ -41,3 +41,5 @@ jobs:
             tensorflow
 
       - uses: r-lib/actions/check-r-package@v1
+        with:
+          error-on: '"note"'
