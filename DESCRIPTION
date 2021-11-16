@@ -40,3 +40,4 @@ RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues
+Config/rcmdcheck/ignore-inconsequential-notes: true
