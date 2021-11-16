@@ -42,6 +42,7 @@ jobs:
       - name: Check
         env:
           _R_CHECK_CRAN_INCOMING_: false
+          _R_CHECK_THINGS_IN_OTHER_DIRS_: true
           LOGNAME: ${{ env.GITHUB_ACTOR }}
         run: |
           # Hack to get _R_CHECK_THINGS_IN_OTHER_DIRS_ to work
