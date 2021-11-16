@@ -13,11 +13,13 @@ jobs:
     strategy:
       matrix:
         config:
+          - { os: ubuntu-latest,  r: 'devel' }
           - { os: ubuntu-latest,  r: 'release' }
           - { os: ubuntu-latest,  r: 'oldrel-1' }
           - { os: ubuntu-latest,  r: 'oldrel-2' }
           - { os: ubuntu-latest,  r: 'oldrel-3' }
           - { os: ubuntu-latest,  r: 'oldrel-4' }
+          - { os: macOS-latest,   r: 'devel' }
           - { os: macOS-latest,   r: 'release' }
           - { os: windows-latest, r: 'release' }
     runs-on: ${{ matrix.config.os }}
