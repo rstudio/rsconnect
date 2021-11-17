@@ -50,10 +50,17 @@ jobs:
           Sys.setenv("LOGNAME" = Sys.info()[["user"]])
           Sys.getenv("LOGNAME")
           Sys.getenv("HOME")
+          Sys.getenv("R_USER_CONFIG_DIR")
           
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "note", check_dir = "check")
 
           rsconnect:::rsconnectConfigDir()
+          cat(configdir:\n")
           list.files(rsconnect:::rsconnectConfigDir(), recursive = TRUE)
+          cat(home:\n")
+          list.files("~/, recursive = TRUE)
+          cat("oldpath:\n")
+          list.files(file.path(Sys.getenv("HOME", unset="~"), "Library/Application Support", "rsconnect"), recursive = TRUE)
+
         shell: Rscript {0}
