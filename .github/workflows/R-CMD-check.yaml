@@ -60,7 +60,11 @@ jobs:
           list.files(rsconnect:::rsconnectConfigDir(), recursive = TRUE)
           cat("home:\n")
           list.files("~/", recursive = FALSE)
+          oldConfigDir <- file.path(Sys.getenv("HOME", unset="~"), "Library/Application Support")
           cat("oldpath:\n")
-          list.files(file.path(Sys.getenv("HOME", unset="~"), "Library/Application Support", "rsconnect"), recursive = TRUE)
+          oldConfigDir
+          list.files(oldConfigDir), recursive = FALSE)
+          list.files(file.path(oldConfigDir, "connect"), recursive = TRUE)
+          list.files(file.path(oldConfigDir, "rsconnect"), recursive = TRUE)
 
         shell: Rscript {0}
