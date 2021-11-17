@@ -64,7 +64,9 @@ jobs:
           cat("oldpath:\n")
           oldConfigDir
           list.files(oldConfigDir, recursive = FALSE)
-          list.files(file.path(oldConfigDir, "connect"), recursive = TRUE)
-          list.files(file.path(oldConfigDir, "rsconnect"), recursive = TRUE)
+          oldConfigRDir <- file.path(oldConfigDir, "R")
+          list.files(oldConfigRDir, recursive = FALSE)
+          list.files(file.path(oldConfigRDir, "connect"), recursive = TRUE)
+          list.files(file.path(oldConfigRDir, "rsconnect"), recursive = TRUE)
 
         shell: Rscript {0}
