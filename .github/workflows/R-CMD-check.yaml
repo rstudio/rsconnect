@@ -63,7 +63,7 @@ jobs:
           oldConfigDir <- file.path(Sys.getenv("HOME", unset="~"), "Library/Application Support")
           cat("oldpath:\n")
           oldConfigDir
-          list.files(oldConfigDir), recursive = FALSE)
+          list.files(oldConfigDir, recursive = FALSE)
           list.files(file.path(oldConfigDir, "connect"), recursive = TRUE)
           list.files(file.path(oldConfigDir, "rsconnect"), recursive = TRUE)
 
