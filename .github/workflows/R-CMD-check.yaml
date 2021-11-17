@@ -49,7 +49,11 @@ jobs:
           # Hack to get _R_CHECK_THINGS_IN_OTHER_DIRS_ to work
           Sys.setenv("LOGNAME" = Sys.info()[["user"]])
           Sys.getenv("LOGNAME")
+          Sys.getenv("HOME")
           
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "note", check_dir = "check")
+
+          rsconnect:::rsconnectConfigDir()
+          list.files(rsconnect:::rsconnectConfigDir(), recursive = TRUE)
         shell: Rscript {0}
