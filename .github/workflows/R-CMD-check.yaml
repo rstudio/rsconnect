@@ -56,10 +56,10 @@ jobs:
           rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "note", check_dir = "check")
 
           rsconnect:::rsconnectConfigDir()
-          cat(configdir:\n")
+          cat("configdir:\n")
           list.files(rsconnect:::rsconnectConfigDir(), recursive = TRUE)
-          cat(home:\n")
-          list.files("~/, recursive = TRUE)
+          cat("home:\n")
+          list.files("~/", recursive = FALSE)
           cat("oldpath:\n")
           list.files(file.path(Sys.getenv("HOME", unset="~"), "Library/Application Support", "rsconnect"), recursive = TRUE)
 
