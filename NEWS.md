@@ -1,5 +1,7 @@
 # NEWS
 
+## 0.8.26 (in development)
+
 ## 0.8.25
 
 Released to CRAN on 2021-11-16
