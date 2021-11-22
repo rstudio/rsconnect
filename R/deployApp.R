@@ -115,7 +115,7 @@ deployApp <- function(appDir = getwd(),
                       python = NULL,
                       on.failure = NULL,
                       forceGeneratePythonEnvironment = FALSE,
-                      shinyAppsVisibility = "public"
+                      appVisibility= "public"
                       ) {
 
   condaMode <- FALSE
@@ -353,18 +353,21 @@ deployApp <- function(appDir = getwd(),
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
-  # Shinyapps defaults to public visibility.
-  # Other values should be set before data is deployed.
-  currentVisibility <- application$deployment$properties$application.visibility
-  if (identical(currentVisibility, NULL)) {
-    currentVisibility <- "public"
-  }
-  if (isShinyapps(accountDetails$server) && !identical(shinyAppsVisibility, currentVisibility)) {
-    withStatus(paste0("Setting visibility to ", shinyAppsVisibility), {
-      client$setApplicationProperty(application$id,
-                                 "application.visibility",
-                                 shinyAppsVisibility)
-    })
+  if (isShinyapps(accountDetails$server)) {
+    # Shinyapps defaults to public visibility.
+    # Other values should be set before data is deployed.
+    currentVisibility <- application$deployment$properties$application.visibility
+    if (is.null(currentVisibility)) {
+      currentVisibility <- "public"
+    }
+
+    if(!identical(appVisibility, currentVisibility)) {
+      withStatus(paste0("Setting visibility to ", appVisibility), {
+        client$setApplicationProperty(application$id,
+                                   "application.visibility",
+                                   appVisibility)
+      })
+    }
   }
 
   if (upload) {
