@@ -68,6 +68,9 @@
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
+#' @param appVisibility One of `"private"`, `"public"`, or `"hidden"`; indicates
+#'   the initial visibility of the deployment. Currently has an effect only on
+#'   deployments to shinyapps.io.
 #' @examples
 #' \dontrun{
 #'
