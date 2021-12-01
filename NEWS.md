@@ -2,6 +2,8 @@
 
 ## 0.8.26 (in development)
 
+* Allow ShinyApps deployments to be private at creation time (#403)
+
 ## 0.8.25
 
 Released to CRAN on 2021-11-16

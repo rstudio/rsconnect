@@ -68,6 +68,9 @@
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
+#' @param appVisibility One of `"private"` or `"public"`; indicates the initial
+#'   visibility of the deployment. Currently has an effect only on deployments
+#'   to shinyapps.io.
 #' @examples
 #' \dontrun{
 #'
@@ -114,7 +117,9 @@ deployApp <- function(appDir = getwd(),
                       forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
                       python = NULL,
                       on.failure = NULL,
-                      forceGeneratePythonEnvironment = FALSE) {
+                      forceGeneratePythonEnvironment = FALSE,
+                      appVisibility= "public"
+                      ) {
 
   condaMode <- FALSE
 
@@ -350,6 +355,23 @@ deployApp <- function(appDir = getwd(),
   withStatus(paste0("Preparing to deploy ", assetTypeName), {
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
+
+  if (isShinyapps(accountDetails$server)) {
+    # Shinyapps defaults to public visibility.
+    # Other values should be set before data is deployed.
+    currentVisibility <- application$deployment$properties$application.visibility
+    if (is.null(currentVisibility)) {
+      currentVisibility <- "public"
+    }
+
+    if(!identical(appVisibility, currentVisibility)) {
+      withStatus(paste0("Setting visibility to ", appVisibility), {
+        client$setApplicationProperty(application$id,
+                                   "application.visibility",
+                                   appVisibility)
+      })
+    }
+  }
 
   if (upload) {
     # create, and upload the bundle

@@ -25,7 +25,8 @@ deployApp(
   forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
   python = NULL,
   on.failure = NULL,
-  forceGeneratePythonEnvironment = FALSE
+  forceGeneratePythonEnvironment = FALSE,
+  appVisibility = "public"
 )
 }
 \arguments{
@@ -113,6 +114,10 @@ deployment log URL is available, it's passed as a parameter.}
 \item{forceGeneratePythonEnvironment}{Optional. If an existing
 \code{requirements.txt} file is found, it will be overwritten when this argument
 is \code{TRUE}.}
+
+\item{appVisibility}{One of \code{"private"} or \code{"public"}; indicates the initial
+visibility of the deployment. Currently has an effect only on deployments
+to shinyapps.io.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
