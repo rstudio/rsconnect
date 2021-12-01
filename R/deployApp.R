@@ -68,9 +68,9 @@
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
-#' @param appVisibility One of `"private"` or `"public"`; indicates the initial
-#'   visibility of the deployment. Currently has an effect only on deployments
-#'   to shinyapps.io.
+#' @param appVisibility One of `NULL`, "private"`, or `"public"`; the
+#'   visibility of the deployment. When `NULL`, no change to visibility is
+#'   made. Currently has an effect only on deployments to shinyapps.io.
 #' @examples
 #' \dontrun{
 #'
@@ -118,7 +118,7 @@ deployApp <- function(appDir = getwd(),
                       python = NULL,
                       on.failure = NULL,
                       forceGeneratePythonEnvironment = FALSE,
-                      appVisibility= "public"
+                      appVisibility = NULL
                       ) {
 
   condaMode <- FALSE
@@ -356,7 +356,7 @@ deployApp <- function(appDir = getwd(),
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
-  if (isShinyapps(accountDetails$server)) {
+  if (isShinyapps(accountDetails$server) && !is.null(appVisibility)) {
     # Shinyapps defaults to public visibility.
     # Other values should be set before data is deployed.
     currentVisibility <- application$deployment$properties$application.visibility
@@ -364,7 +364,7 @@ deployApp <- function(appDir = getwd(),
       currentVisibility <- "public"
     }
 
-    if(!identical(appVisibility, currentVisibility)) {
+    if (!identical(appVisibility, currentVisibility)) {
       withStatus(paste0("Setting visibility to ", appVisibility), {
         client$setApplicationProperty(application$id,
                                    "application.visibility",

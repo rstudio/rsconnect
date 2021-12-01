@@ -26,7 +26,7 @@ deployApp(
   python = NULL,
   on.failure = NULL,
   forceGeneratePythonEnvironment = FALSE,
-  appVisibility = "public"
+  appVisibility = NULL
 )
 }
 \arguments{
@@ -115,9 +115,8 @@ deployment log URL is available, it's passed as a parameter.}
 \code{requirements.txt} file is found, it will be overwritten when this argument
 is \code{TRUE}.}
 
-\item{appVisibility}{One of \code{"private"} or \code{"public"}; indicates the initial
-visibility of the deployment. Currently has an effect only on deployments
-to shinyapps.io.}
+\item{appVisibility}{One of \code{NULL}, "private"\verb{, or }"public"\verb{; the visibility of the deployment. When }NULL`, no change to visibility is
+made. Currently has an effect only on deployments to shinyapps.io.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
