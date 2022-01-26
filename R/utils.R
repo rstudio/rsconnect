@@ -237,3 +237,20 @@ fileMD5.as.string <- function(path) {
 md5.as.string <- function(md5) {
   paste(md5, collapse = "")
 }
+
+# Returns a valid RFC3230 "Digest" header with an SHA-256 checksum for the given
+# path. Note that the digest output is base64-encoded in the header, as per RFC
+# 3230.
+#
+# SHA-256 has the advantage of working on FIPS-compliant systems, while MD5
+# does not.
+#
+# If path is NULL, this returns the equivalent of the header for an empty file.
+fileDigestHeader <- function(path) {
+  if (is.null(path)) {
+    # Generated with openssl::base64_encode(openssl::sha256(charToRaw(""))).
+    return("sha-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=")
+  }
+  hash <- openssl::sha256(file(path))
+  sprintf("sha-256=%s", openssl::base64_encode(hash))
+}

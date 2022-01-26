@@ -409,6 +409,7 @@ signatureHeaders <- function(authInfo, method, path, file) {
   headers$`X-Auth-Token` <- authInfo$token
   headers$`X-Auth-Signature` <- signature
   headers$`X-Content-Checksum` <- md5
+  headers$Digest <- fileDigestHeader(file)
   headers
 }
 

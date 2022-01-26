@@ -74,3 +74,19 @@ test_that("we can hash when not supplied a filename", {
   expect_equal(missingMD5, expectedMissingMD5)
   expect_type(missingMD5, "character")
 })
+
+test_that("fileDigestHeader works as expected", {
+  empty <- "sha-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+  content <- "sha-256=Vv1RHeQlO2HoA0QIQlOk2PRSWS+0JUAcr7G6XmaAVD4="
+
+  # No content should have a well-known output.
+  header <- fileDigestHeader(emptyFile)
+  expect_equal(header, empty)
+
+  # Well-known content should have a well-known output.
+  header <- fileDigestHeader(contentsFile)
+  expect_equal(header, content)
+
+  # No filename should be like no content.
+  expect_equal(fileDigestHeader(NULL), fileDigestHeader(emptyFile))
+})
