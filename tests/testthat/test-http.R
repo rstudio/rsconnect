@@ -1,7 +1,17 @@
 context("http")
 
+skip_if_not_installed("callr")
+skip_if_not_installed("httpuv")
+
 # The list of HTTP transports to check
-transports <- c("libcurl", "rcurl", "curl", "internal")
+transports <- c("libcurl", "internal")
+
+if (requireNamespace("RCurl", quietly = TRUE)) {
+  transports <- c(transports, "rcurl")
+}
+if (Sys.which("curl") != "") {
+  transports <- c(transports, "curl")
+}
 
 # Temporary file to cache the output (request) to HTTP methods
 output <- tempfile(fileext = ".rds")
@@ -231,3 +241,7 @@ test_that("api key authinfo sets headers", {
                     request$HEADERS, "', with transport ", transport))
   }
 })
+
+# These are purely to alert users that some tests have been skipped.
+skip_if(Sys.which("curl") == "", "curl is not installed")
+skip_if_not_installed("RCurl")
