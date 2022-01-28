@@ -74,6 +74,7 @@ test_that("bundle directories are recursively enumerated", {
 
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
+  skip_if_not_installed("shiny")
   bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
@@ -82,6 +83,7 @@ test_that("simple Shiny app bundle is runnable", {
 
 test_that("app.R Shiny app bundle is runnable", {
   skip_on_cran()
+  skip_if_not_installed("shiny")
   bundleTempDir <- makeShinyBundleTempDir("app_r_shiny", "shinyapp-appR",
                                           NULL)
   on.exit(unlink(bundleTempDir, recursive = TRUE))
@@ -90,6 +92,7 @@ test_that("app.R Shiny app bundle is runnable", {
 
 test_that("single-file Shiny app bundle is runnable", {
   skip_on_cran()
+  skip_if_not_installed("shiny")
   bundleTempDir <- makeShinyBundleTempDir("app_r_shiny", "shinyapp-singleR",
                                           "single.R")
   on.exit(unlink(bundleTempDir, recursive = TRUE))
