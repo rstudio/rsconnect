@@ -17,7 +17,7 @@ Imports:
     curl,
     digest,
     jsonlite,
-    openssl,
+    openssl (>= 2.0.0),
     packrat (>= 0.6),
     rstudioapi (>= 0.5),
     tools,
