@@ -62,9 +62,10 @@
 #'   `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
-#'   If python = NULL, and RETICULATE_PYTHON is set in the environment, its
-#'   value will be used. The specified python binary will be invoked to determine
-#'   its version and to list the python packages installed in the environment.
+#'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is 
+#'   set in the environment, its value will be used. The specified python binary 
+#'   will be invoked to determine its version and to list the python packages 
+#'   installed in the environment.
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
@@ -499,7 +500,8 @@ deployApp <- function(appDir = getwd(),
 
 getPython <- function(path) {
   if (is.null(path)) {
-    path <- Sys.getenv("RETICULATE_PYTHON")
+    path <- Sys.getenv("RETICULATE_PYTHON", 
+                       unset=Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
     if (path == "") {
       return(NULL)
     }
