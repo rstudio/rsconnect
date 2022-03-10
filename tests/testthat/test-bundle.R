@@ -306,10 +306,19 @@ test_that("getPython handles null python by checking RETICULATE_PYTHON", {
   Sys.unsetenv("RETICULATE_PYTHON")
 })
 
-test_that("getPython handles null python and empty RETICULATE_PYTHON", {
+test_that("getPython handles null python and empty RETICULATE_PYTHON by checking RETICULATE_PYTHON_FALLBACK", {
   skip_on_cran()
 
   Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.setenv(RETICULATE_PYTHON_FALLBACK="/usr/local/bin/python")
+  expect_equal(getPython(NULL), "/usr/local/bin/python")
+})
+
+test_that("getPython handles null python, empty RETICULATE_PYTHON, and empty RETICULATE_PYTHON_FALLBACK", {
+  skip_on_cran()
+
+  Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
   expect_equal(getPython(NULL), NULL)
 })
 
