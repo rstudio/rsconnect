@@ -501,6 +501,9 @@ getPython <- function(path) {
   if (is.null(path)) {
     path <- Sys.getenv("RETICULATE_PYTHON")
     if (path == "") {
+      path <- Sys.getenv("RETICULATE_PYTHON_FALLBACK")
+    }
+    if (path == "") {
       return(NULL)
     }
   }
