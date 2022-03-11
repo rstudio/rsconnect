@@ -58,9 +58,10 @@ record. These fields will be returned on subsequent calls to
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 Required if \code{reticulate} is a dependency of the app being deployed.
-If python = NULL, and RETICULATE_PYTHON is set in the environment, its
-value will be used. The specified python binary will be invoked to determine
-its version and to list the python packages installed in the environment.}
+If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
+set in the environment, its value will be used. The specified python binary
+will be invoked to determine its version and to list the python packages
+installed in the environment.}
 
 \item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}. Do not supply \code{appDir},
 \code{appFiles}, or \code{appSourceDoc}; these three parameters are automatically
