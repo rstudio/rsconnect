@@ -501,7 +501,7 @@ deployApp <- function(appDir = getwd(),
 getPython <- function(path) {
   if (is.null(path)) {
     path <- Sys.getenv("RETICULATE_PYTHON", 
-                       unset=Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
+                       unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
     if (path == "") {
       return(NULL)
     }
