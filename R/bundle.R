@@ -377,6 +377,10 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #'
 #' @param contentCategory Optional. Specifies the kind of content being
 #'   deployed (e.g. `"plot"` or `"site"`).
+#' 
+#' @param metadata Additional metadata fields to save with the deployment
+#'   record. These fields will be returned on subsequent calls to
+#'   [deployments()].
 #'
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   The specified python binary will be invoked to determine its version
@@ -387,6 +391,9 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when
 #'   this argument is `TRUE`.
+#' 
+#' @param quarto Optional. A list containing a "version" string and a
+#'   character [TODO: IS THIS A LIST?] of "engines" used by the content.
 #'
 #' @param verbose If TRUE, prints progress messages to the console
 #'
@@ -396,8 +403,10 @@ writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
+                          metadata = list(),
                           python = NULL,
                           forceGeneratePythonEnvironment = FALSE,
+                          quarto = NULL,
                           verbose = FALSE) {
 
   condaMode <- FALSE
@@ -435,6 +444,12 @@ writeManifest <- function(appDir = getwd(),
 
   python <- getPython(python)
 
+  if (is.null(quarto)) {
+    quarto <- getQuartoManifestDetails(metadata)
+  }
+
+  # TODO: Evaluate "batteries-included" mode, calling `quarto inspect` ourselves
+
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
       appDir = bundleDir,
@@ -449,7 +464,7 @@ writeManifest <- function(appDir = getwd(),
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = FALSE,
-      quarto = NULL,
+      quarto = quarto,
       isShinyApps = FALSE,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
