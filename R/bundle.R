@@ -380,7 +380,7 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #' 
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
-#'   [deployments()].
+#'   [deployments()]. TODO: This description is wrong.
 #'
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   The specified python binary will be invoked to determine its version
