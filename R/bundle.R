@@ -222,7 +222,7 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      serverRender = NULL, isShinyApps = FALSE) {
+                      isShinyApps = FALSE) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -257,22 +257,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appFiles = appFiles,
       appPrimaryDoc = appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
-
-  # disable server rendering if requested
-  if (isFALSE(serverRender)) {
-    logger("Disabling server rendering for interactive document")
-    disablePrerender <- c(
-      '### QUARTO: Disable Server Render',
-      'Sys.setenv(RMARKDOWN_RUN_PRERENDER = "0")',
-      '###'
-    )
-    rProfile <- file.path(bundleDir, ".Rprofile")
-    if (file.exists(rProfile)) {
-      write(disablePrerender, file = rProfile, sep = "\n", append = TRUE)
-    } else {
-      writeLines(disablePrerender, rProfile, useBytes = TRUE)
-    }
-  }
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
