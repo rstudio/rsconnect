@@ -425,7 +425,7 @@ writeManifest <- function(appDir = getwd(),
   if (is.null(quartoManifestDetails)) {
     # If we don't yet have metadata, attempt to use quarto inspect
     # TODO: Do we want to even run Quarto Inspect if we don't explicitly have Quarto passed in?
-    inspect <- quartoInspect(target <- appDir, quarto = whichQuarto(quarto))
+    inspect <- quartoInspect(target = appDir, quarto = whichQuarto(quarto))
     quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
   }
 

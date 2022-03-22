@@ -543,7 +543,7 @@ getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
 # Identify a valid Quarto executable. When a location is not provided,
 # attempts to discover Quarto from the PATH and other well-known locations.
 whichQuarto <- function(quarto = NULL) {
-  if (isTRUE(Sys.getenv("RSCONNECT_QUARTO_MUST_BE_EXPLICIT"))) {
+  if (isTRUE(as.logical(Sys.getenv("RSCONNECT_QUARTO_MUST_BE_EXPLICIT")))) {
     if (is.null(quarto)) return(NULL)
   }
 
