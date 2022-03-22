@@ -405,8 +405,8 @@ writeManifest <- function(appDir = getwd(),
                           contentCategory = NULL,
                           metadata = list(),
                           python = NULL,
-                          forceGeneratePythonEnvironment = FALSE,
                           quarto = NULL,
+                          forceGeneratePythonEnvironment = FALSE,
                           verbose = FALSE) {
 
   condaMode <- FALSE
@@ -417,11 +417,23 @@ writeManifest <- function(appDir = getwd(),
     appFiles <- explodeFiles(appDir, appFiles)
   }
 
+  quartoManifestDetails <- NULL
+  if (is.null(quarto)) {
+    # Only use `metadata` if no quarto provided
+    quartoManifestDetails <- getQuartoManifestDetails(metadata = metadata)
+  }
+  if (is.null(quartoManifestDetails)) {
+    # If we don't yet have metadata, attempt to use quarto inspect
+    # TODO: Do we want to even run Quarto Inspect if we don't explicitly have Quarto passed in?
+    inspect <- quartoInspect(target <- appDir, quarto = whichQuarto(quarto))
+    quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
+  }
+
   appMode <- inferAppMode(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quarto = NULL)
+      quarto = quartoManifestDetails)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -444,12 +456,6 @@ writeManifest <- function(appDir = getwd(),
 
   python <- getPython(python)
 
-  if (is.null(quarto)) {
-    quarto <- getQuartoManifestDetails(metadata)
-  }
-
-  # TODO: Evaluate "batteries-included" mode, calling `quarto inspect` ourselves
-
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
       appDir = bundleDir,
@@ -464,7 +470,7 @@ writeManifest <- function(appDir = getwd(),
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = FALSE,
-      quarto = quarto,
+      quarto = quartoManifestDetails,
       isShinyApps = FALSE,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
