@@ -403,9 +403,9 @@ writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
-                          metadata = list(),
                           python = NULL,
                           quarto = NULL,
+                          metadata = list(),
                           forceGeneratePythonEnvironment = FALSE,
                           verbose = FALSE) {
 
