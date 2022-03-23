@@ -69,6 +69,9 @@
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
+#' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
+#'   content. The provided Quarto binary will be used to run `quarto inspect`
+#'   to gather information about the content.
 #' @param appVisibility One of `NULL`, "private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
@@ -93,6 +96,10 @@
 #'
 #' # deploy but don't launch a browser when completed
 #' deployApp(launch.browser = FALSE)
+#' 
+#' # deploy a Quarto website, using the quarto package to
+#' # find the Quarto binary
+#' deployApp("~/projects/quarto/site1", quarto = quarto::find_quarto())
 #' }
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
@@ -118,8 +125,8 @@ deployApp <- function(appDir = getwd(),
                       metadata = list(),
                       forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
                       python = NULL,
-                      quarto = NULL,
                       forceGeneratePythonEnvironment = FALSE,
+                      quarto = NULL,
                       appVisibility = NULL
                       ) {
 
@@ -387,8 +394,7 @@ deployApp <- function(appDir = getwd(),
       quarto <- getQuartoManifestDetails(metadata)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
-                              condaMode, forceGeneratePythonEnvironment,
-                              quarto,
+                              condaMode, forceGeneratePythonEnvironment, quarto,
                               isTRUE(metadata$serverRender),
                               isShinyapps(accountDetails$server))
 
