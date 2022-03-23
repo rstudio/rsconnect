@@ -222,19 +222,28 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      isShinyApps = FALSE) {
+                      isShinyApps = FALSE, metadata = list()) {
   logger <- verboseLogger(verbose)
 
   quartoManifestDetails <- NULL
-  if (is.null(quarto)) {
-    # Only use `metadata` if no quarto provided
-    quartoManifestDetails <- getQuartoManifestDetails(metadata = metadata)
+  if (!is.null(quarto)) {
+    # Prefer user-provided Quarto path over metadata
+    inspect <- quartoInspect(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto
+    )
+    quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
   }
   if (is.null(quartoManifestDetails)) {
-    # If we don't yet have metadata, attempt to use quarto inspect
-    # TODO: Do we want to even run Quarto Inspect if we don't explicitly have Quarto passed in?
-    inspect <- quartoInspect(target = appDir, quarto = whichQuarto(quarto))
-    quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
+    # If we don't yet have Quarto details, attempt to extract from metadata
+    quartoManifestDetails <- getQuartoManifestDetails(metadata = metadata)
+  }
+  if (is.null(contentCategory) && !is.null(quartoManifestDetails)) {
+    # Connect doesn't distinguish between Quarto projects and single
+    # documents, so neither will we. Quarto content are always deployed in
+    # "site" mode.
+    contentCategory = "site"
   }
 
   logger("Inferring App mode and parameters")
@@ -242,7 +251,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quarto = quarto)
+      quarto = quartoManifestDetails)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -408,7 +417,7 @@ writeManifest <- function(appDir = getwd(),
 
   quartoManifestDetails <- NULL
   if (!is.null(quarto)) {
-    # quartoManifestDetails is NULL unless quarto is provided and we
+    # quartoManifestDetails will be NULL unless quarto is provided and we
     # successfully extract the details from a quarto inspect.
     inspect <- quartoInspect(
       appDir = appDir,
