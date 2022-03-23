@@ -523,61 +523,6 @@ getPythonForTarget <- function(path, accountDetails) {
   }
 }
 
-getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
-  # TODO: Alternative would be to give it the args quarto = NULL, metadata = list()
-  if (length(inspect) != 0) {
-    return(list(
-      version = inspect[["quarto"]][["version"]],
-      engines = I(inspect[["engines"]])
-    ))
-  }
-  if (!is.null(metadata[["quarto_version"]])) {
-    return(list(
-        "version" = metadata[["quarto_version"]],
-        "engines" = metadata[["quarto_engines"]]
-    ))
-  }
-  return(NULL)
-}
-
-# Identify a valid Quarto executable. When a location is not provided,
-# attempts to discover Quarto from the PATH and other well-known locations.
-whichQuarto <- function(quarto = NULL) {
-  if (isTRUE(as.logical(Sys.getenv("RSCONNECT_QUARTO_MUST_BE_EXPLICIT")))) {
-    if (is.null(quarto)) return(NULL)
-  }
-
-  if (!is.null(quarto)) {
-    found <- Sys.which(quarto)
-    if (found != "") return(found)
-  }
-
-  # Fallback -- try to find Quarto when none supplied
-  locations <- c(
-    "quarto", # Use PATH
-    "/usr/local/bin/quarto", # Location used by some installers
-    "/opt/quarto/bin/quarto", # Location used by some installers
-    "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # IDE embedded
-  )
-  for (each in locations) {
-    found <- Sys.which(each)
-    if (found != "") return(unname(found))
-  }
-  return(NULL)
-}
-
-# Runs "quarto inspect" on the target and returns its output as a parsed object
-quartoInspect <- function(target = ".", quarto = NULL) {
-
-  command <- whichQuarto(quarto)
-  if (!is.null(command)) {
-    args <- c("inspect", normalizePath(target))
-    inspect <- suppressWarnings(system2(command, args, stdout = TRUE, stderr = FALSE))
-    if (is.null(attr(inspect, "status"))) return(jsonlite::fromJSON(inspect))
-  }
-  return(NULL)
-}
-
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
 deploymentTarget <- function(appPath, appName, appTitle, appId, account,

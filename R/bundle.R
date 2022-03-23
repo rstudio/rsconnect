@@ -225,6 +225,18 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       serverRender = NULL, isShinyApps = FALSE) {
   logger <- verboseLogger(verbose)
 
+  quartoManifestDetails <- NULL
+  if (is.null(quarto)) {
+    # Only use `metadata` if no quarto provided
+    quartoManifestDetails <- getQuartoManifestDetails(metadata = metadata)
+  }
+  if (is.null(quartoManifestDetails)) {
+    # If we don't yet have metadata, attempt to use quarto inspect
+    # TODO: Do we want to even run Quarto Inspect if we don't explicitly have Quarto passed in?
+    inspect <- quartoInspect(target = appDir, quarto = whichQuarto(quarto))
+    quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
+  }
+
   logger("Inferring App mode and parameters")
   appMode <- inferAppMode(
       appDir = appDir,
@@ -359,41 +371,35 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 
 #' Create a manifest.json describing deployment requirements.
 #'
-#' Given a directory content targeted for deployment, write a manifest.json
-#' into that directory describing the deployment requirements for that
-#' content.
+#' Given a directory content targeted for deployment, write a manifest.json into
+#' that directory describing the deployment requirements for that content.
 #'
-#' @param appDir Directory containing the content (Shiny application, R
-#'   Markdown document, etc).
+#' @param appDir Directory containing the content (Shiny application, R Markdown
+#'   document, etc).
 #'
 #' @param appFiles Optional. The full set of files and directories to be
 #'   included in future deployments of this content. Used when computing
-#'   dependency requirements. When `NULL`, all files in `appDir` are
-#'   considered.
+#'   dependency requirements. When `NULL`, all files in `appDir` are considered.
 #'
 #' @param appPrimaryDoc Optional. Specifies the primary document in a content
 #'   directory containing more than one. If `NULL`, the primary document is
 #'   inferred from the file list.
 #'
-#' @param contentCategory Optional. Specifies the kind of content being
-#'   deployed (e.g. `"plot"` or `"site"`).
-#' 
-#' @param metadata Additional metadata fields to save with the deployment
-#'   record. These fields will be returned on subsequent calls to
-#'   [deployments()]. TODO: This description is wrong.
+#' @param contentCategory Optional. Specifies the kind of content being deployed
+#'   (e.g. `"plot"` or `"site"`).
 #'
-#' @param python Full path to a python binary for use by `reticulate`.
-#'   The specified python binary will be invoked to determine its version
-#'   and to list the python packages installed in the environment.
-#'   If python = NULL, and RETICULATE_PYTHON is set in the environment,
-#'   its value will be used.
+#' @param python Optional. Full path to a Python binary for use by `reticulate`.
+#'   The specified Python binary will be invoked to determine its version and to
+#'   list the Python packages installed in the environment. If `python = NULL`,
+#'   and `RETICULATE_PYTHON` is set in the environment, its value will be used.
 #'
 #' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` file is found, it will be overwritten when
-#'   this argument is `TRUE`.
-#' 
-#' @param quarto Optional. A list containing a "version" string and a
-#'   character [TODO: IS THIS A LIST?] of "engines" used by the content.
+#'   `requirements.txt` file is found, it will be overwritten when this argument
+#'   is `TRUE`.
+#'
+#' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
+#'   content. The provided Quarto binary will be used to run `quarto inspect`
+#'   to gather information about the content.
 #'
 #' @param verbose If TRUE, prints progress messages to the console
 #'
@@ -404,9 +410,8 @@ writeManifest <- function(appDir = getwd(),
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
                           python = NULL,
-                          quarto = NULL,
-                          metadata = list(),
                           forceGeneratePythonEnvironment = FALSE,
+                          quarto = NULL,
                           verbose = FALSE) {
 
   condaMode <- FALSE
@@ -418,15 +423,22 @@ writeManifest <- function(appDir = getwd(),
   }
 
   quartoManifestDetails <- NULL
-  if (is.null(quarto)) {
-    # Only use `metadata` if no quarto provided
-    quartoManifestDetails <- getQuartoManifestDetails(metadata = metadata)
-  }
-  if (is.null(quartoManifestDetails)) {
-    # If we don't yet have metadata, attempt to use quarto inspect
-    # TODO: Do we want to even run Quarto Inspect if we don't explicitly have Quarto passed in?
-    inspect <- quartoInspect(target = appDir, quarto = whichQuarto(quarto))
+  if (!is.null(quarto)) {
+    # quartoManifestDetails is NULL unless quarto is provided and we
+    # successfully extract the details from a quarto inspect.
+    inspect <- quartoInspect(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto
+    )
     quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
+  }
+    if (is.null(contentCategory) && !is.null(quartoManifestDetails)) {
+      # Connect doesn't distinguish between Quarto projects and single
+      # documents, so neither will we. Quarto content are always deployed in
+      # "site" mode.
+      contentCategory = "site"
+    }
   }
 
   appMode <- inferAppMode(
@@ -1155,4 +1167,41 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 
   # TRUE just to indicate success
   TRUE
+}
+
+# Run "quarto inspect" on the target and returns its output as a parsed object.
+quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
+  if (!is.null(quarto)) {
+    inspect <- NULL
+    # This function should work for single docs as well as projects, so we will
+    # attempt to run this on both the appDir and the appPrimaryDoc if they're
+    # passed in.
+    for (path in c(appDir, appPrimaryDoc)) {
+      if (is.null(path)) next
+      args <- c("inspect", normalizePath(path))
+      inspect <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = FALSE))
+      if (is.null(attr(inspect, "status"))) {
+        return(jsonlite::fromJSON(inspect))
+      }
+    }
+  }
+  return(NULL)
+}
+
+# Extract the Quarto version and engines, either from a parsed "quarto inspect"
+# result or from metadata provided by the quarto-r package.
+getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
+  if (length(inspect) != 0) {
+    return(list(
+      version = inspect[["quarto"]][["version"]],
+      engines = I(inspect[["engines"]])
+    ))
+  }
+  if (!is.null(metadata[["quarto_version"]])) {
+    return(list(
+      "version" = metadata[["quarto_version"]],
+      "engines" = metadata[["quarto_engines"]]
+    ))
+  }
+  return(NULL)
 }
