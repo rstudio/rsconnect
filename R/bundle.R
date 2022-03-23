@@ -1154,10 +1154,10 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
     inspect <- NULL
     # This function should work for single docs as well as projects, so we will
     # attempt to run this on both the appDir and the appPrimaryDoc if they're
-    # passed in.
-    for (path in c(appDir, appPrimaryDoc)) {
-      if (is.null(path)) next
-      args <- c("inspect", normalizePath(path))
+    # passed in. If appPrimaryDoc is NULL, this will only operate on appDir.
+    primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
+    for (path in c(appDir, primaryDocPath)) {
+      args <- c("inspect", path.expand(path))
       inspect <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = FALSE))
       if (is.null(attr(inspect, "status"))) {
         return(jsonlite::fromJSON(inspect))
@@ -1187,7 +1187,7 @@ getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
 # quarto executable is provided, and then from metadata.
-inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
+inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
   quartoInfo <- NULL
   if (!is.null(quarto)) {
     # Prefer user-provided Quarto path over metadata

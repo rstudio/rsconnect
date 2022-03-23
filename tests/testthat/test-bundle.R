@@ -361,3 +361,108 @@ test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
   result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
   expect_equal(result, NULL)
 })
+
+# Quarto Tests
+
+# quartoInspect
+# everything null
+# quarto appdir and file, everything else null
+# test_that("quartoInspect")
+
+test_that("quartoInspect runs on Quarto projects", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
+  expect_true(all(c("quarto", "engines") %in% names(inspect)))
+})
+
+test_that("quartoInspect runs on Quarto documents", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  inspect <- quartoInspect(
+    appDir = "quarto-doc-none",
+    appPrimaryDoc = "quarto-doc-none.qmd",
+    quarto = quarto
+  )
+  expect_true(all(c("quarto", "engines") %in% names(inspect)))
+})
+
+test_that("quartoInspect returns null when no quarto is provided", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
+})
+
+fakeQuartoMetadata <- function(version, engines) {
+  # See quarto-r/R/publish.R lines 396 and 113.
+  metadata <- list()
+  metadata$quarto_version <- version
+  metadata$quarto_engines <- I(engines)
+  return(metadata)
+}
+
+test_that("inferQuartoInfo correctly detects info when quarto is provided", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-doc-none",
+    appPrimaryDoc = "quarto-doc-none.qmd",
+    quarto = quarto
+  )
+  expect_named(quartoInfo, c("version", "engines"))
+  expect_equal(quartoInfo$engines, I(c("markdown")))
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-website-r",
+    appPrimaryDoc = NULL,
+    quarto = quarto
+  )
+  expect_named(quartoInfo, c("version", "engines"))
+  expect_equal(quartoInfo$engines, I(c("knitr")))
+})
+
+test_that("inferQuartoInfo extracts info from metadata if no quarto provided", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-website-r",
+    appPrimaryDoc = NULL,
+    quarto = NULL,
+    metadata = metadata
+  )
+  expect_named(quartoInfo, c("version", "engines"))
+  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
+})
+
+test_that("inferQuartoInfo prefers to run quarto inspect itself", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-website-r",
+    appPrimaryDoc = NULL,
+    quarto = quarto
+  )
+  expect_equal(quartoInfo$engines, I(c("knitr")))
+})

@@ -99,7 +99,7 @@
 #' 
 #' # deploy a Quarto website, using the quarto package to
 #' # find the Quarto binary
-#' deployApp("~/projects/quarto/site1", quarto = quarto::find_quarto())
+#' deployApp("~/projects/quarto/site1", quarto = quarto::quarto_path())
 #' }
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
