@@ -225,25 +225,17 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       isShinyApps = FALSE, metadata = list()) {
   logger <- verboseLogger(verbose)
 
-  quartoManifestDetails <- NULL
-  if (!is.null(quarto)) {
-    # Prefer user-provided Quarto path over metadata
-    inspect <- quartoInspect(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      quarto = quarto
-    )
-    quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
-  }
-  if (is.null(quartoManifestDetails)) {
-    # If we don't yet have Quarto details, attempt to extract from metadata
-    quartoManifestDetails <- getQuartoManifestDetails(metadata = metadata)
-  }
-  if (is.null(contentCategory) && !is.null(quartoManifestDetails)) {
+  quartoInfo <- inferQuartoInfo(
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc,
+    quarto = quarto,
+    metadata = NULL
+  )
+  if (is.null(contentCategory) && !is.null(quartoInfo)) {
     # Connect doesn't distinguish between Quarto projects and single
     # documents, so neither will we. Quarto content are always deployed in
-    # "site" mode.
-    contentCategory = "site"
+    # "site" mode when using quarto::quarto_publish_app.
+    contentCategory <- "site"
   }
 
   logger("Inferring App mode and parameters")
@@ -251,7 +243,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quarto = quartoManifestDetails)
+      quarto = quartoInfo)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -294,7 +286,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = TRUE,
-      quarto,
+      quartoInfo,
       isShinyApps = isShinyApps,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -415,30 +407,24 @@ writeManifest <- function(appDir = getwd(),
     appFiles <- explodeFiles(appDir, appFiles)
   }
 
-  quartoManifestDetails <- NULL
-  if (!is.null(quarto)) {
-    # quartoManifestDetails will be NULL unless quarto is provided and we
-    # successfully extract the details from a quarto inspect.
-    inspect <- quartoInspect(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      quarto = quarto
-    )
-    quartoManifestDetails <- getQuartoManifestDetails(inspect = inspect)
-  }
-    if (is.null(contentCategory) && !is.null(quartoManifestDetails)) {
-      # Connect doesn't distinguish between Quarto projects and single
-      # documents, so neither will we. Quarto content are always deployed in
-      # "site" mode.
-      contentCategory = "site"
-    }
+  quartoInfo <- inferQuartoInfo(
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc,
+    quarto = quarto,
+    metadata = NULL
+  )
+  if (is.null(contentCategory) && !is.null(quartoInfo)) {
+    # Connect doesn't distinguish between Quarto projects and single
+    # documents, so neither will we. Quarto content are always deployed in
+    # "site" mode when using quarto::quarto_publish_app.
+    contentCategory <- "site"
   }
 
   appMode <- inferAppMode(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quarto = quartoManifestDetails)
+      quarto = quartoInfo)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -475,7 +461,7 @@ writeManifest <- function(appDir = getwd(),
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = FALSE,
-      quarto = quartoManifestDetails,
+      quarto = quartoInfo,
       isShinyApps = FALSE,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -685,7 +671,7 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
 }
 
 ## check for extra dependencies congruent to application mode
-inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quarto) {
+inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quartoInfo) {
   deps <- c()
   if (appMode == "rmd-static") {
     if (hasParameters) {
@@ -696,7 +682,7 @@ inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quar
   }
   if (appMode == "quarto-static") {
     # Quarto documents need R when the knitr execution engine is used, not always.
-    if (!is.null(quarto) && "knitr" %in% quarto[["engines"]]) {
+    if (!is.null(quartoInfo) && "knitr" %in% quartoInfo[["engines"]]) {
         deps <- c(deps, "rmarkdown")
     }
   }
@@ -789,7 +775,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
                               forceGenerate, python = NULL, hasPythonRmd = FALSE,
                               retainPackratDirectory = TRUE,
-                              quarto = NULL,
+                              quartoInfo = NULL,
                               isShinyApps = FALSE,
                               verbose = FALSE) {
 
@@ -807,7 +793,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependencies
-    inferredDependencies <- inferDependencies(appMode, hasParameters, python, hasPythonRmd, quarto)
+    inferredDependencies <- inferDependencies(appMode, hasParameters, python, hasPythonRmd, quartoInfo)
     deps = snapshotDependencies(appDir, inferredDependencies, verbose = verbose)
 
     # construct package list from dependencies
@@ -929,8 +915,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   manifest$metadata <- metadata
 
   # indicate whether this is a quarto app/doc
-  if (!is.null(quarto) && !isShinyApps) {
-    manifest$quarto <- quarto
+  if (!is.null(quartoInfo) && !isShinyApps) {
+    manifest$quarto <- quartoInfo
   }
   # if there is python info for reticulate, attach it
   if (!is.null(pyInfo)) {
@@ -1197,4 +1183,24 @@ getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
     ))
   }
   return(NULL)
+}
+
+# Attempt to gather Quarto version and engines, first from quarto inspect if a
+# quarto executable is provided, and then from metadata.
+inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
+  quartoInfo <- NULL
+  if (!is.null(quarto)) {
+    # Prefer user-provided Quarto path over metadata
+    inspect <- quartoInspect(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto
+    )
+    quartoInfo <- getQuartoManifestDetails(inspect = inspect)
+  }
+  if (is.null(quartoInfo) && !is.null(metadata)) {
+    # If we don't yet have Quarto details, attempt to extract from metadata
+    quartoInfo <- getQuartoManifestDetails(metadata = metadata)
+  }
+  return(quartoInfo)
 }
