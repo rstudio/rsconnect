@@ -26,6 +26,14 @@ fakeQuartoMetadata <- function(version, engines) {
   return(metadata)
 }
 
+quartoPathOrSkip <- function() {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+  return(quarto)
+}
+
 # avoid 'trying to use CRAN without setting a mirror' errors
 repos <- getOption("repos")
 options(repos = c(CRAN = "https://cran.rstudio.com"))
@@ -378,10 +386,7 @@ test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
 # test_that("quartoInspect")
 
 test_that("quartoInspect runs on Quarto projects", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
@@ -392,10 +397,7 @@ test_that("quartoInspect runs on Quarto projects", {
 })
 
 test_that("quartoInspect runs on Quarto documents", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   inspect <- quartoInspect(
     appDir = "quarto-doc-none",
@@ -406,19 +408,13 @@ test_that("quartoInspect runs on Quarto documents", {
 })
 
 test_that("quartoInspect returns null when no quarto is provided", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
 })
 
 test_that("inferQuartoInfo correctly detects info when quarto is provided", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-doc-none",
@@ -438,10 +434,7 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided", {
 })
 
 test_that("inferQuartoInfo extracts info from metadata if no quarto provided", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
 
@@ -456,10 +449,7 @@ test_that("inferQuartoInfo extracts info from metadata if no quarto provided", {
 })
 
 test_that("inferQuartoInfo prefers to run quarto inspect itself", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
 
@@ -472,10 +462,7 @@ test_that("inferQuartoInfo prefers to run quarto inspect itself", {
 })
 
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   appDir <- "quarto-website-r"
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
@@ -486,10 +473,7 @@ test_that("writeManifest: Quarto website includes quarto in the manifest", {
 })
 
 test_that("writeManifest: Quarto document includes quarto in the manifest", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   appDir <- "quarto-doc-none"
   appPrimaryDoc = "quarto-doc-none.qmd"
@@ -501,10 +485,7 @@ test_that("writeManifest: Quarto document includes quarto in the manifest", {
 })
 
 test_that("writeManifest: Quarto shiny project includes quarto in the manifest", {
-  skip_on_cran()
-  skip_if_not_installed("quarto")
-  quarto <- quarto::quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
+  quarto <- quartoPathOrSkip()
 
   appDir <- "quarto-proj-r-shiny"
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
