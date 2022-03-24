@@ -1,0 +1,15 @@
+---
+title: "About"
+---
+
+About this site
+
+```{r}
+# This is an R chunk
+1 + 1
+```
+
+```{python}
+# This is a Python chunk
+1 + 1
+```

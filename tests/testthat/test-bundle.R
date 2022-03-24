@@ -494,3 +494,35 @@ test_that("writeManifest: Quarto shiny project includes quarto in the manifest",
   expect_equal(manifest$quarto$engines, "knitr")
   expect_equal(manifest$metadata$primary_rmd, "quarto-proj-r-shiny.qmd")
 })
+
+test_that("writeManifest: Quarto R + Python website includes quarto and python in the manifest", {
+  quarto <- quartoPathOrSkip()
+  python <- Sys.which("python")
+  skip_if(python == "", "python is not installed")
+
+  appDir <- "quarto-website-r-py"
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "index.qmd")
+
+  expect_true(all(c("quarto", "python") %in% names(manifest)))
+  expect_true("reticulate" %in% names(manifest$packages))
+})
+
+test_that("writeManifest: Quarto Python-only website lists jupyter as its engine", {
+  quarto <- quartoPathOrSkip()
+  python <- Sys.which("python")
+  skip_if(python == "", "python is not installed")
+
+  appDir <- "quarto-website-py"
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "jupyter")
+  expect_equal(manifest$metadata$primary_rmd, "index.qmd")
+
+  expect_true(all(c("quarto", "python") %in% names(manifest)))
+  # Once implemented, we should check for manifest$packages being null
+})
