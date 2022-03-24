@@ -1152,9 +1152,8 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
   if (!is.null(quarto)) {
     inspect <- NULL
-    # This function should work for single docs as well as projects, so we will
-    # attempt to run this on both the appDir and the appPrimaryDoc if they're
-    # passed in. If appPrimaryDoc is NULL, this will only operate on appDir.
+    # If "quarto inspect appDir" fails, we will try "quarto inspect
+    # appPrimaryDoc", so that we can support single files as well as projects.
     primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
     for (path in c(appDir, primaryDocPath)) {
       args <- c("inspect", path.expand(path))
