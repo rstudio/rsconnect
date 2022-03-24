@@ -286,7 +286,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = TRUE,
-      quartoInfo,
+      quartoInfo = quartoInfo,
       isShinyApps = isShinyApps,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -461,7 +461,7 @@ writeManifest <- function(appDir = getwd(),
       python = python,
       hasPythonRmd = hasPythonRmd,
       retainPackratDirectory = FALSE,
-      quarto = quartoInfo,
+      quartoInfo = quartoInfo,
       isShinyApps = FALSE,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
