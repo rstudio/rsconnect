@@ -380,11 +380,6 @@ test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
 
 # Quarto Tests
 
-# quartoInspect
-# everything null
-# quarto appdir and file, everything else null
-# test_that("quartoInspect")
-
 test_that("quartoInspect runs on Quarto projects", {
   quarto <- quartoPathOrSkip()
 
