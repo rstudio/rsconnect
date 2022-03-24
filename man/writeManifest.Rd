@@ -11,39 +11,41 @@ writeManifest(
   contentCategory = NULL,
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
+  quarto = NULL,
   verbose = FALSE
 )
 }
 \arguments{
-\item{appDir}{Directory containing the content (Shiny application, R
-Markdown document, etc).}
+\item{appDir}{Directory containing the content (Shiny application, R Markdown
+document, etc).}
 
 \item{appFiles}{Optional. The full set of files and directories to be
 included in future deployments of this content. Used when computing
-dependency requirements. When \code{NULL}, all files in \code{appDir} are
-considered.}
+dependency requirements. When \code{NULL}, all files in \code{appDir} are considered.}
 
 \item{appPrimaryDoc}{Optional. Specifies the primary document in a content
 directory containing more than one. If \code{NULL}, the primary document is
 inferred from the file list.}
 
-\item{contentCategory}{Optional. Specifies the kind of content being
-deployed (e.g. \code{"plot"} or \code{"site"}).}
+\item{contentCategory}{Optional. Specifies the kind of content being deployed
+(e.g. \code{"plot"} or \code{"site"}).}
 
-\item{python}{Full path to a python binary for use by \code{reticulate}.
-The specified python binary will be invoked to determine its version
-and to list the python packages installed in the environment.
-If python = NULL, and RETICULATE_PYTHON is set in the environment,
-its value will be used.}
+\item{python}{Optional. Full path to a Python binary for use by \code{reticulate}.
+The specified Python binary will be invoked to determine its version and to
+list the Python packages installed in the environment. If \code{python = NULL},
+and \code{RETICULATE_PYTHON} is set in the environment, its value will be used.}
 
 \item{forceGeneratePythonEnvironment}{Optional. If an existing
-\code{requirements.txt} file is found, it will be overwritten when
-this argument is \code{TRUE}.}
+\code{requirements.txt} file is found, it will be overwritten when this argument
+is \code{TRUE}.}
+
+\item{quarto}{Optional. Full path to a Quarto binary for use deploying Quarto
+content. The provided Quarto binary will be used to run \verb{quarto inspect}
+to gather information about the content.}
 
 \item{verbose}{If TRUE, prints progress messages to the console}
 }
 \description{
-Given a directory content targeted for deployment, write a manifest.json
-into that directory describing the deployment requirements for that
-content.
+Given a directory content targeted for deployment, write a manifest.json into
+that directory describing the deployment requirements for that content.
 }
