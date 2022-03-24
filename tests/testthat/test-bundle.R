@@ -9,13 +9,21 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL
   bundleTempDir
 }
 
-makeManifest <- function(appDir, appPrimaryDoc, python = NULL) {
-  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python)
+makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL) {
+  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto)
   manifestFile <-file.path(appDir, "manifest.json")
   data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
   manifestJson <- jsonlite::fromJSON(data)
   unlink(manifestFile)
   manifestJson
+}
+
+fakeQuartoMetadata <- function(version, engines) {
+  # See quarto-r/R/publish.R lines 396 and 113.
+  metadata <- list()
+  metadata$quarto_version <- version
+  metadata$quarto_engines <- I(engines)
+  return(metadata)
 }
 
 # avoid 'trying to use CRAN without setting a mirror' errors
@@ -377,6 +385,10 @@ test_that("quartoInspect runs on Quarto projects", {
 
   inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
+
+  inspect <- NULL
+  inspect <- quartoInspect(appDir = "quarto-proj-r-shiny", quarto = quarto)
+  expect_true(all(c("quarto", "engines") %in% names(inspect)))
 })
 
 test_that("quartoInspect runs on Quarto documents", {
@@ -401,14 +413,6 @@ test_that("quartoInspect returns null when no quarto is provided", {
 
   expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
 })
-
-fakeQuartoMetadata <- function(version, engines) {
-  # See quarto-r/R/publish.R lines 396 and 113.
-  metadata <- list()
-  metadata$quarto_version <- version
-  metadata$quarto_engines <- I(engines)
-  return(metadata)
-}
 
 test_that("inferQuartoInfo correctly detects info when quarto is provided", {
   skip_on_cran()
@@ -465,4 +469,47 @@ test_that("inferQuartoInfo prefers to run quarto inspect itself", {
     quarto = quarto
   )
   expect_equal(quartoInfo$engines, I(c("knitr")))
+})
+
+test_that("writeManifest: Quarto website includes quarto in the manifest", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  appDir <- "quarto-website-r"
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "index.qmd")
+})
+
+test_that("writeManifest: Quarto document includes quarto in the manifest", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  appDir <- "quarto-doc-none"
+  appPrimaryDoc = "quarto-doc-none.qmd"
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "markdown")
+  expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+})
+
+test_that("writeManifest: Quarto shiny project includes quarto in the manifest", {
+  skip_on_cran()
+  skip_if_not_installed("quarto")
+  quarto <- quarto::quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+
+  appDir <- "quarto-proj-r-shiny"
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-shiny")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "quarto-proj-r-shiny.qmd")
 })
