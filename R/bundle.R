@@ -1154,31 +1154,16 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
   return(NULL)
 }
 
-# Extract the Quarto version and engines, either from a parsed "quarto inspect"
-# result or from metadata provided by the quarto-r package.
-getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
-  if (length(inspect) != 0) {
-    return(list(
-      version = inspect[["quarto"]][["version"]],
-      engines = I(inspect[["engines"]])
-    ))
-  }
-  if (!is.null(metadata[["quarto_version"]])) {
-    return(list(
-      "version" = metadata[["quarto_version"]],
-      "engines" = metadata[["quarto_engines"]]
-    ))
-  }
-  return(NULL)
-}
-
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
 # quarto executable is provided, and then from metadata.
 inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
   quartoInfo <- NULL
   if (!is.null(metadata)) {
     # Prefer metadata, because that means someone already ran quarto inspect
-    quartoInfo <- getQuartoManifestDetails(metadata = metadata)
+    quartoInfo <- list(
+      "version" = metadata[["quarto_version"]],
+      "engines" = metadata[["quarto_engines"]]
+    )
   }
   if (is.null(quartoInfo) && !is.null(quarto)) {
     # If we don't yet have Quarto details, run quarto inspect ourselves
@@ -1187,7 +1172,10 @@ inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
       appPrimaryDoc = appPrimaryDoc,
       quarto = quarto
     )
-    quartoInfo <- getQuartoManifestDetails(inspect = inspect)
+    quartoInfo <- list(
+      version = inspect[["quarto"]][["version"]],
+      engines = I(inspect[["engines"]])
+    )
   }
   return(quartoInfo)
 }
