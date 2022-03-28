@@ -231,19 +231,13 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
     quarto = quarto,
     metadata = NULL
   )
-  if (is.null(contentCategory) && !is.null(quartoInfo)) {
-    # Connect doesn't distinguish between Quarto projects and single
-    # documents, so neither will we. Quarto content are always deployed in
-    # "site" mode when using quarto::quarto_publish_app.
-    contentCategory <- "site"
-  }
 
   logger("Inferring App mode and parameters")
   appMode <- inferAppMode(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quarto = quartoInfo)
+      quartoInfo = quartoInfo)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -413,18 +407,12 @@ writeManifest <- function(appDir = getwd(),
     quarto = quarto,
     metadata = NULL
   )
-  if (is.null(contentCategory) && !is.null(quartoInfo)) {
-    # Connect doesn't distinguish between Quarto projects and single
-    # documents, so neither will we. Quarto content are always deployed in
-    # "site" mode when using quarto::quarto_publish_app.
-    contentCategory <- "site"
-  }
 
   appMode <- inferAppMode(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quarto = quartoInfo)
+      quartoInfo = quartoInfo)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -573,7 +561,7 @@ isShinyRmd <- function(filename) {
 
 # infer the mode of the application from its layout
 # unless we're an API, in which case, we're API mode.
-inferAppMode <- function(appDir, appPrimaryDoc, files, quarto) {
+inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
   # plumber API
   plumberFiles <- grep("^(plumber|entrypoint).r$", files, ignore.case = TRUE, perl = TRUE)
   if (length(plumberFiles) > 0) {
@@ -598,7 +586,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quarto) {
 
   # An Rmd file with a Shiny runtime uses rmarkdown::run.
   if (any(shinyRmdFiles)) {
-    if (is.null(quarto)) {
+    if (is.null(quartoInfo)) {
       return("rmd-shiny")
     } else {
       return("quarto-shiny")
@@ -615,7 +603,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quarto) {
 
   # Any non-Shiny R Markdown documents are rendered content (rmd-static).
   if (length(rmdFiles) > 0) {
-    if (is.null(quarto)) {
+    if (is.null(quartoInfo)) {
       return("rmd-static")
     } else {
       return("quarto-static")

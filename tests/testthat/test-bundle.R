@@ -35,7 +35,7 @@ quarto_path <- function() {
       "quarto", # Use PATH
       "/usr/local/bin/quarto", # Location used by some installers
       "/opt/quarto/bin/quarto", # Location used by some installers
-      "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # IDE embedded
+      "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # macOS IDE 
     )
     for (location in locations) {
       path <- unname(Sys.which(location))
