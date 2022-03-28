@@ -1176,18 +1176,18 @@ getQuartoManifestDetails <- function(inspect = list(), metadata = list()) {
 # quarto executable is provided, and then from metadata.
 inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
   quartoInfo <- NULL
-  if (!is.null(quarto)) {
-    # Prefer user-provided Quarto path over metadata
+  if (!is.null(metadata)) {
+    # Prefer metadata, because that means someone already ran quarto inspect
+    quartoInfo <- getQuartoManifestDetails(metadata = metadata)
+  }
+  if (is.null(quartoInfo) && !is.null(quarto)) {
+    # If we don't yet have Quarto details, run quarto inspect ourselves
     inspect <- quartoInspect(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       quarto = quarto
     )
     quartoInfo <- getQuartoManifestDetails(inspect = inspect)
-  }
-  if (is.null(quartoInfo) && !is.null(metadata)) {
-    # If we don't yet have Quarto details, attempt to extract from metadata
-    quartoInfo <- getQuartoManifestDetails(metadata = metadata)
   }
   return(quartoInfo)
 }

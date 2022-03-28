@@ -35,7 +35,7 @@ quarto_path <- function() {
       "quarto", # Use PATH
       "/usr/local/bin/quarto", # Location used by some installers
       "/opt/quarto/bin/quarto", # Location used by some installers
-      "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # macOS IDE 
+      "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # macOS IDE
     )
     for (location in locations) {
       path <- unname(Sys.which(location))
@@ -426,7 +426,7 @@ test_that("quartoInspect returns null when no quarto is provided", {
   expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
 })
 
-test_that("inferQuartoInfo correctly detects info when quarto is provided", {
+test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
   quarto <- quartoPathOrSkip()
 
   quartoInfo <- inferQuartoInfo(
@@ -446,7 +446,7 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided", {
   expect_equal(quartoInfo$engines, I(c("knitr")))
 })
 
-test_that("inferQuartoInfo extracts info from metadata if no quarto provided", {
+test_that("inferQuartoInfo extracts info from metadata when it is provided alone", {
   quarto <- quartoPathOrSkip()
 
   metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
@@ -461,7 +461,7 @@ test_that("inferQuartoInfo extracts info from metadata if no quarto provided", {
   expect_equal(quartoInfo$engines, I(c("internal-combustion")))
 })
 
-test_that("inferQuartoInfo prefers to run quarto inspect itself", {
+test_that("inferQuartoInfo prefers using metadata over running quarto inspect itself when both are provided", {
   quarto <- quartoPathOrSkip()
 
   metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
@@ -469,9 +469,10 @@ test_that("inferQuartoInfo prefers to run quarto inspect itself", {
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    quarto = quarto,
+    metadata = metadata
   )
-  expect_equal(quartoInfo$engines, I(c("knitr")))
+  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
 })
 
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
