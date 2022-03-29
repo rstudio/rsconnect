@@ -249,7 +249,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       contentCategory = contentCategory)
   hasPythonRmd <- appHasPythonRmd(
       appDir = appDir,
-      files = appFiles)
+      files = appFiles,
+      quartoInfo = quartoInfo)
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -424,7 +425,8 @@ writeManifest <- function(appDir = getwd(),
       contentCategory = contentCategory)
   hasPythonRmd <- appHasPythonRmd(
       appDir = appDir,
-      files = appFiles)
+      files = appFiles,
+      quartoInfo = quartoInfo)
 
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(
@@ -493,7 +495,25 @@ rmdHasPythonBlock <- function(filename) {
   return (length(matches) > 0)
 }
 
-appHasPythonRmd <- function(appDir, files) {
+appHasPythonRmd <- function(appDir, files, quartoInfo = NULL) {
+  # Quarto documents only need R dependencies for Python chunks if those files
+  # will be executed by the Knitr engine. Quarto determines this on a
+  # document-by-document basis. A document will run Python through R if it has
+  # both R and Python chunks, or if it specifies "knitr" in its YAML front
+  # matter.
+  
+  # We only have app-level Quarto info here. To avoid adding a lot of complexity
+  # for all documents, we will only skip adding `reticulate` dependencies if
+  # Jupyter is the only execution engine in use.
+  if (
+    !is.null(quartoInfo) &&
+    !"knitr" %in% quartoInfo[["engines"]] &&
+    "jupyter" %in% quartoInfo[["engines"]]
+  ) {
+    return(FALSE)
+  }
+
+  # Otherwise, check files as before.
   rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE,
                    value = TRUE)
 
