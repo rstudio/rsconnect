@@ -501,7 +501,7 @@ appHasPythonRmd <- function(appDir, files, quartoInfo = NULL) {
   # document-by-document basis. A document will run Python through R if it has
   # both R and Python chunks, or if it specifies "knitr" in its YAML front
   # matter.
-  
+
   # We only have app-level Quarto info here. To avoid adding a lot of complexity
   # for all documents, we will only skip adding `reticulate` dependencies if
   # Jupyter is the only execution engine in use.
@@ -810,19 +810,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     for (i in seq_len(nrow(deps))) {
       name <- deps[i, "Package"]
 
-      if (name == "reticulate" && !is.null(python)) {
-        pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
-        if (is.null(pyInfo$error)) {
-          # write the package list into requirements.txt/environment.yml file in the bundle dir
-          packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
-          cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
-          pyInfo$package_manager$contents <- NULL
-        }
-        else {
-          errorMessages <- c(errorMessages, paste("Error detecting python for reticulate:", pyInfo$error))
-        }
-      }
-
       # get package info
       info <- as.list(deps[i, c('Source', 'Repository')])
 
@@ -863,6 +850,22 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     packageMessages <- c(packageMessages,
                          "Unable to determine the source location for some packages. Packages should be installed from a package repository like CRAN or a version control system. Check that options('repos') refers to a package repository containing the needed package versions.")
     warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
+  }
+
+  if (
+    ("reticulate" %in% names(packages) || "jupyter" %in% quartoInfo[["engines"]]) &&
+    !is.null(python)
+  ) {
+    pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
+    if (is.null(pyInfo$error)) {
+      # write the package list into requirements.txt/environment.yml file in the bundle dir
+      packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
+      cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
+      pyInfo$package_manager$contents <- NULL
+    }
+    else {
+      errorMessages <- c(errorMessages, paste("Error detecting python for reticulate:", pyInfo$error))
+    }
   }
 
   if (length(errorMessages)) {
