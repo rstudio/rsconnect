@@ -838,17 +838,27 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     }
   }
   if (length(packageMessages)) {
-    # Advice to help resolve installed packages that are not available using the current set of
-    # configured repositories. Each package with a missing repository has already been printed (see
-    # snapshotDependencies).
+    # Advice to help resolve installed packages that are not available using the
+    # current set of configured repositories. Each package with a missing
+    # repository has already been printed (see snapshotDependencizes).
     #
-    # This situation used to trigger an error (halting deployment), but was softened because:
-    #   * CRAN-archived packages are not visible to our available.packages scanning.
-    #   * Source-installed packages may be available after a manual server-side installation.
+    # This situation used to trigger an error (halting deployment), but was
+    # softened because:
+    #   * CRAN-archived packages are not visible to our available.packages
+    #     scanning.
+    #   * Source-installed packages may be available after a manual server-side
+    #     installation.
     #
-    # That said, an incorrectly configured "repos" option is almost always the cause.
+    # That said, an incorrectly configured "repos" option is almost always the
+    # cause.
     packageMessages <- c(packageMessages,
-                         "Unable to determine the source location for some packages. Packages should be installed from a package repository like CRAN or a version control system. Check that options('repos') refers to a package repository containing the needed package versions.")
+                         paste0(
+                           "Unable to determine the source location for some packages. ",
+                           "Packages should be installed from a package repository like ",
+                           "CRAN or a version control system. Check that ",
+                           "options('repos') refers to a package repository containing ",
+                           "the needed package versions."
+                         ))
     warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
   }
 
