@@ -247,7 +247,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       appMode = appMode,
       contentCategory = contentCategory)
-  documentsHavePython <- anyDocumentsHavePythonChunks(
+  documentsHavePython <- detectPythonInDocuments(
       appDir = appDir,
       files = appFiles)
 
@@ -422,7 +422,7 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       appMode = appMode,
       contentCategory = contentCategory)
-  documentsHavePython <- anyDocumentsHavePythonChunks(
+  documentsHavePython <- detectPythonInDocuments(
       appDir = appDir,
       files = appFiles)
 
@@ -493,7 +493,7 @@ documentHasPythonChunk <- function(filename) {
   return (length(matches) > 0)
 }
 
-anyDocumentsHavePythonChunks <- function(appDir, files) {
+detectPythonInDocuments <- function(appDir, files) {
   rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE,
                    value = TRUE)
 
