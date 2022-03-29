@@ -855,7 +855,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       pyInfo$package_manager$contents <- NULL
     }
     else {
-      errorMessages <- c(errorMessages, paste("Error detecting python for reticulate:", pyInfo$error))
+      errorMessages <- c(errorMessages, paste("Error detecting python environment:", pyInfo$error))
     }
   }
 
