@@ -398,7 +398,7 @@ test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
 
 # Quarto Tests
 
-test_that("quartoInspect runs on Quarto projects", {
+test_that("quartoInspect identifies on Quarto projects", {
   quarto <- quartoPathOrSkip()
 
   inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
@@ -409,7 +409,7 @@ test_that("quartoInspect runs on Quarto projects", {
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
 })
 
-test_that("quartoInspect runs on Quarto documents", {
+test_that("quartoInspect identifies Quarto documents", {
   quarto <- quartoPathOrSkip()
 
   inspect <- quartoInspect(
@@ -418,6 +418,13 @@ test_that("quartoInspect runs on Quarto documents", {
     quarto = quarto
   )
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
+})
+
+test_that("quartoInspect returns NULL on non-quarto Quarto content", {
+  quarto <- quartoPathOrSkip()
+
+  inspect <- quartoInspect(appDir = "shinyapp-simple", quarto = quarto)
+  expect_null(inspect)
 })
 
 test_that("quartoInspect returns null when no quarto is provided", {
@@ -473,6 +480,17 @@ test_that("inferQuartoInfo prefers using metadata over running quarto inspect it
     metadata = metadata
   )
   expect_equal(quartoInfo$engines, I(c("internal-combustion")))
+})
+
+test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quarto", {
+  quarto <- quartoPathOrSkip()
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "shinyapp-simple",
+    appPrimaryDoc = NULL,
+    quarto = quarto
+  )
+  expect_null(quartoInfo)
 })
 
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
