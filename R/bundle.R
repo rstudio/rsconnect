@@ -229,7 +229,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
-    metadata = NULL
+    metadata = metadata
   )
 
   logger("Inferring App mode and parameters")
