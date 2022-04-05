@@ -1172,10 +1172,12 @@ inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
       appPrimaryDoc = appPrimaryDoc,
       quarto = quarto
     )
-    quartoInfo <- list(
-      version = inspect[["quarto"]][["version"]],
-      engines = I(inspect[["engines"]])
-    )
+    if (!is.null(inspect)) {
+      quartoInfo <- list(
+        version = inspect[["quarto"]][["version"]],
+        engines = I(inspect[["engines"]])
+      )
+    }
   }
   return(quartoInfo)
 }
