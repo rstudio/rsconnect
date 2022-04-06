@@ -405,7 +405,7 @@ writeManifest <- function(appDir = getwd(),
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
-    metadata = NULL
+    metadata = list()
   )
 
   appMode <- inferAppMode(
@@ -1170,9 +1170,9 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
 # quarto executable is provided, and then from metadata.
-inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
+inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = list()) {
   quartoInfo <- NULL
-  if (!is.null(metadata)) {
+  if (!is.null(metadata$quarto_version)) {
     # Prefer metadata, because that means someone already ran quarto inspect
     quartoInfo <- list(
       "version" = metadata[["quarto_version"]],
