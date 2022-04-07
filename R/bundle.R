@@ -1170,7 +1170,7 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
 # quarto executable is provided, and then from metadata.
-inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = list()) {
+inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
   quartoInfo <- NULL
   if (!is.null(metadata$quarto_version)) {
     # Prefer metadata, because that means someone already ran quarto inspect
