@@ -786,13 +786,13 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       quartoInfo = quartoInfo
     )
 
-    # Skip snapshotting R dependencies if an app only uses Python and does not use R.
-    if (appUsesPython(quartoInfo) && !appUsesR(quartoInfo)) {
-      deps <- data.frame()
-    } else {
-      # Some dependencies seem to be found based on the presence of Bioconductor
-      # packages in the user's environment.
+    # Skip snapshotting R dependencies if an app does not use R. Some
+    # dependencies seem to be found based on the presence of Bioconductor
+    # packages in the user's environment.
+    if (appUsesR(quartoInfo)) {
       deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
+    } else {
+      deps <- data.frame()
     }
 
     # construct package list from dependencies
