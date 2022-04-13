@@ -779,13 +779,21 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependencies
-    inferredDependencies <- inferRPackageDependencies(
+    inferredRDependencies <- inferRPackageDependencies(
       appMode = appMode,
       hasParameters = hasParameters,
       documentsHavePython = documentsHavePython,
       quartoInfo = quartoInfo
     )
-    deps = snapshotDependencies(appDir, inferredDependencies, verbose = verbose)
+
+    # Skip snapshotting R dependencies if an app does not use R. Some
+    # dependencies seem to be found based on the presence of Bioconductor
+    # packages in the user's environment.
+    if (appUsesR(quartoInfo)) {
+      deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
+    } else {
+      deps <- data.frame()
+    }
 
     # construct package list from dependencies
 
