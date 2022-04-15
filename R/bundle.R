@@ -247,7 +247,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appPrimaryDoc = appPrimaryDoc,
       appMode = appMode,
       contentCategory = contentCategory)
-  hasPythonRmd <- appHasPythonRmd(
+  documentsHavePython <- detectPythonInDocuments(
       appDir = appDir,
       files = appFiles)
 
@@ -278,7 +278,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       condaMode = condaMode,
       forceGenerate = forceGenerate,
       python = python,
-      hasPythonRmd = hasPythonRmd,
+      documentsHavePython = documentsHavePython,
       retainPackratDirectory = TRUE,
       quartoInfo = quartoInfo,
       isShinyApps = isShinyApps,
@@ -422,7 +422,7 @@ writeManifest <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       appMode = appMode,
       contentCategory = contentCategory)
-  hasPythonRmd <- appHasPythonRmd(
+  documentsHavePython <- detectPythonInDocuments(
       appDir = appDir,
       files = appFiles)
 
@@ -447,7 +447,7 @@ writeManifest <- function(appDir = getwd(),
       condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
-      hasPythonRmd = hasPythonRmd,
+      documentsHavePython = documentsHavePython,
       retainPackratDirectory = FALSE,
       quartoInfo = quartoInfo,
       isShinyApps = FALSE,
@@ -487,19 +487,19 @@ yamlFromRmd <- function(filename) {
   return(NULL)
 }
 
-rmdHasPythonBlock <- function(filename) {
+documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
   return (length(matches) > 0)
 }
 
-appHasPythonRmd <- function(appDir, files) {
+detectPythonInDocuments <- function(appDir, files) {
   rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE,
                    value = TRUE)
 
   if (length(rmdFiles) > 0) {
     for (rmdFile in rmdFiles) {
-      if (rmdHasPythonBlock(file.path(appDir, rmdFile))) {
+      if (documentHasPythonChunk(file.path(appDir, rmdFile))) {
         return(TRUE)
       }
     }
@@ -659,7 +659,7 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
 }
 
 ## check for extra dependencies congruent to application mode
-inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quartoInfo) {
+inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePython, quartoInfo) {
   deps <- c()
   if (appMode == "rmd-static") {
     if (hasParameters) {
@@ -668,11 +668,9 @@ inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quar
     }
     deps <- c(deps, "rmarkdown")
   }
-  if (appMode == "quarto-static") {
+  if (appMode == "quarto-static" && appUsesR(quartoInfo)) {
     # Quarto documents need R when the knitr execution engine is used, not always.
-    if (!is.null(quartoInfo) && "knitr" %in% quartoInfo[["engines"]]) {
-        deps <- c(deps, "rmarkdown")
-    }
+    deps <- c(deps, "rmarkdown")
   }
   if (appMode == "quarto-shiny") {
     # Quarto Shiny documents are executed with rmarkdown::run
@@ -687,7 +685,7 @@ inferDependencies <- function(appMode, hasParameters, python, hasPythonRmd, quar
   if (appMode == "api") {
     deps <- c(deps, "plumber")
   }
-  if (hasPythonRmd) {
+  if (documentsHavePython && appUsesR(quartoInfo)) {
     deps <- c(deps, "reticulate")
   }
   unique(deps)
@@ -761,7 +759,7 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               appPrimaryDoc, assetTypeName, users, condaMode,
-                              forceGenerate, python = NULL, hasPythonRmd = FALSE,
+                              forceGenerate, python = NULL, documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
                               isShinyApps = FALSE,
@@ -781,27 +779,27 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       !identical(appMode, "tensorflow-saved-model")) {
 
     # detect dependencies including inferred dependencies
-    inferredDependencies <- inferDependencies(appMode, hasParameters, python, hasPythonRmd, quartoInfo)
-    deps = snapshotDependencies(appDir, inferredDependencies, verbose = verbose)
+    inferredRDependencies <- inferRPackageDependencies(
+      appMode = appMode,
+      hasParameters = hasParameters,
+      documentsHavePython = documentsHavePython,
+      quartoInfo = quartoInfo
+    )
+
+    # Skip snapshotting R dependencies if an app does not use R. Some
+    # dependencies seem to be found based on the presence of Bioconductor
+    # packages in the user's environment.
+    if (appUsesR(quartoInfo)) {
+      deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
+    } else {
+      deps <- data.frame()
+    }
 
     # construct package list from dependencies
 
     logger <- verboseLogger(verbose)
     for (i in seq_len(nrow(deps))) {
       name <- deps[i, "Package"]
-
-      if (name == "reticulate" && !is.null(python)) {
-        pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
-        if (is.null(pyInfo$error)) {
-          # write the package list into requirements.txt/environment.yml file in the bundle dir
-          packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
-          cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
-          pyInfo$package_manager$contents <- NULL
-        }
-        else {
-          errorMessages <- c(errorMessages, paste("Error detecting python for reticulate:", pyInfo$error))
-        }
-      }
 
       # get package info
       info <- as.list(deps[i, c('Source', 'Repository')])
@@ -831,18 +829,42 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     }
   }
   if (length(packageMessages)) {
-    # Advice to help resolve installed packages that are not available using the current set of
-    # configured repositories. Each package with a missing repository has already been printed (see
-    # snapshotDependencies).
+    # Advice to help resolve installed packages that are not available using the
+    # current set of configured repositories. Each package with a missing
+    # repository has already been printed (see snapshotDependencizes).
     #
-    # This situation used to trigger an error (halting deployment), but was softened because:
-    #   * CRAN-archived packages are not visible to our available.packages scanning.
-    #   * Source-installed packages may be available after a manual server-side installation.
+    # This situation used to trigger an error (halting deployment), but was
+    # softened because:
+    #   * CRAN-archived packages are not visible to our available.packages
+    #     scanning.
+    #   * Source-installed packages may be available after a manual server-side
+    #     installation.
     #
-    # That said, an incorrectly configured "repos" option is almost always the cause.
+    # That said, an incorrectly configured "repos" option is almost always the
+    # cause.
     packageMessages <- c(packageMessages,
-                         "Unable to determine the source location for some packages. Packages should be installed from a package repository like CRAN or a version control system. Check that options('repos') refers to a package repository containing the needed package versions.")
+                         paste0(
+                           "Unable to determine the source location for some packages. ",
+                           "Packages should be installed from a package repository like ",
+                           "CRAN or a version control system. Check that ",
+                           "options('repos') refers to a package repository containing ",
+                           "the needed package versions."
+                         ))
     warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
+  }
+
+  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages) 
+  if (needsPyInfo && !is.null(python)) {
+    pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
+    if (is.null(pyInfo$error)) {
+      # write the package list into requirements.txt/environment.yml file in the bundle dir
+      packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
+      cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
+      pyInfo$package_manager$contents <- NULL
+    }
+    else {
+      errorMessages <- c(errorMessages, paste("Error detecting python environment:", pyInfo$error))
+    }
   }
 
   if (length(errorMessages)) {
@@ -906,7 +928,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   if (!is.null(quartoInfo) && !isShinyApps) {
     manifest$quarto <- quartoInfo
   }
-  # if there is python info for reticulate, attach it
+  # if there is python info for reticulate or Quarto, attach it
   if (!is.null(pyInfo)) {
     manifest$python <- pyInfo
   }
@@ -1181,3 +1203,25 @@ inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata = NULL) {
   }
   return(quartoInfo)
 }
+
+appUsesR <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # All non-Quarto content currently uses R by default.
+    # To support non-R content in rsconnect, we could inspect appmode here.
+    return(TRUE)
+  }
+  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
+  # Technically, "jupyter" content could support R.
+  return("knitr" %in% quartoInfo[["engines"]])
+}
+
+appUsesPython <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # No R-based, non-Quarto content uses Python by default.
+    # Looking for Python chunks in Rmd needs to happen separately.
+    return(FALSE)
+  }
+  # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
+  return("jupyter" %in% quartoInfo[["engines"]])
+}
+

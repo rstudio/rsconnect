@@ -48,7 +48,7 @@ appDependencies <- function(appDir = getwd(), appFiles=NULL) {
   }
   bundleDir <- bundleAppDir(appDir, appFiles)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
-  deps <- snapshotDependencies(bundleDir)
+  deps <- snapshotRDependencies(bundleDir)
   data.frame(package = deps[,"Package"],
              version = deps[,"Version"],
              source = deps[,"Source"],
@@ -56,7 +56,7 @@ appDependencies <- function(appDir = getwd(), appFiles=NULL) {
              stringsAsFactors=FALSE)
 }
 
-snapshotDependencies <- function(appDir, implicit_dependencies=c(), verbose = FALSE) {
+snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = FALSE) {
 
   # create a packrat "snapshot"
 

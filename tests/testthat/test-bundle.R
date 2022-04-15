@@ -543,7 +543,7 @@ test_that("writeManifest: Quarto R + Python website includes quarto and python i
   expect_true("reticulate" %in% names(manifest$packages))
 })
 
-test_that("writeManifest: Quarto Python-only website lists jupyter as its engine", {
+test_that("writeManifest: Quarto Python-only website gets correct manifest data", {
   quarto <- quartoPathOrSkip()
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
@@ -555,6 +555,7 @@ test_that("writeManifest: Quarto Python-only website lists jupyter as its engine
   expect_equal(manifest$quarto$engines, "jupyter")
   expect_equal(manifest$metadata$primary_rmd, "index.qmd")
 
+  # We expect Quarto and Python metadata, but no R packages.
   expect_true(all(c("quarto", "python") %in% names(manifest)))
-  # Once implemented, we should check for manifest$packages being null
+  expect_null(manifest$packages)
 })
