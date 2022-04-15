@@ -5,6 +5,11 @@
 * Allow ShinyApps deployments to be private at creation time (#403)
 * Update the minimum `openssl` version to 2.0.0 to enable publishing for users
   on FIPS-compliant systems without the need for API keys. (#452)
+* Added Quarto support to `writeManifest`, which requires passing the absolute
+  path to a Quarto executable to its new `quarto` parameter
+* Added `quarto` parameter to `deployApp` to enable deploying Quarto documents
+  and websites by supplying the path to a Quarto executable
+* Added support for deploying Quarto content that uses only the `jupyter` runtime
 
 ## 0.8.25
 
