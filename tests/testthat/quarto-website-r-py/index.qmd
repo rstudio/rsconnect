@@ -1,0 +1,17 @@
+---
+title: "quarto-website-r-py"
+---
+
+This is a Quarto website.
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+
+```{r}
+# This is an R chunk
+1 + 1
+```
+
+```{python}
+# This is a Python chunk
+1 + 1
+```
