@@ -1,0 +1,4 @@
+Name: Deploy an Application
+Description: Deploy a shiny application, an RMarkdown document, a plumber API, or HTML content to a server.
+Binding: deployApp
+Interactive: true
