@@ -243,7 +243,7 @@ resendInvitation <- function(invite, regenerate=FALSE,
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
-  # get users
+  # get invitations
   invited <- showInvited(appDir, appName, account, server)
 
   if (is.numeric(invite)) {
