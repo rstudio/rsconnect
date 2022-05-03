@@ -224,7 +224,7 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' Resend invitation for invited users of an application
 #'
 #' @param invite The invitation to resend. Can be id or email address.
-#' @param regenereate Regenerate the invite code. Can be helpful is the
+#' @param regenerate Regenerate the invite code. Can be helpful is the
 #' invitation has expired.
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.

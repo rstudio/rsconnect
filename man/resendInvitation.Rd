@@ -16,6 +16,9 @@ resendInvitation(
 \arguments{
 \item{invite}{The invitation to resend. Can be id or email address.}
 
+\item{regenerate}{Regenerate the invite code. Can be helpful is the
+invitation has expired.}
+
 \item{appDir}{Directory containing application. Defaults to
 current working directory.}
 
@@ -26,9 +29,6 @@ system then this parameter can be omitted.}
 
 \item{server}{Server name. Required only if you use the same account name on
 multiple servers.}
-
-\item{regenereate}{Regenerate the invite code. Can be helpful is the
-invitation has expired.}
 }
 \description{
 Resend invitation for invited users of an application
