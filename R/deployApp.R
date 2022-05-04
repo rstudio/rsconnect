@@ -62,9 +62,9 @@
 #'   `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
-#'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is 
-#'   set in the environment, its value will be used. The specified python binary 
-#'   will be invoked to determine its version and to list the python packages 
+#'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
+#'   set in the environment, its value will be used. The specified python binary
+#'   will be invoked to determine its version and to list the python packages
 #'   installed in the environment.
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
@@ -75,6 +75,9 @@
 #' @param appVisibility One of `NULL`, "private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
+#' @param image Optional. The name of the image to use when building and
+#'   executing this content. If none is provided, RStudio Connect will
+#'   attempt to choose an image based on the content requirements.
 #' @examples
 #' \dontrun{
 #'
@@ -96,7 +99,7 @@
 #'
 #' # deploy but don't launch a browser when completed
 #' deployApp(launch.browser = FALSE)
-#' 
+#'
 #' # deploy a Quarto website, using the quarto package to
 #' # find the Quarto binary
 #' deployApp("~/projects/quarto/site1", quarto = quarto::quarto_path())
@@ -127,7 +130,8 @@ deployApp <- function(appDir = getwd(),
                       python = NULL,
                       forceGeneratePythonEnvironment = FALSE,
                       quarto = NULL,
-                      appVisibility = NULL
+                      appVisibility = NULL,
+                      image = NULL
                       ) {
 
   condaMode <- FALSE
@@ -394,7 +398,7 @@ deployApp <- function(appDir = getwd(),
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment, quarto,
-                              isShinyapps(accountDetails$server), metadata)
+                              isShinyapps(accountDetails$server), metadata, image)
 
       if (isShinyapps(accountDetails$server)) {
 
@@ -505,7 +509,7 @@ deployApp <- function(appDir = getwd(),
 
 getPython <- function(path) {
   if (is.null(path)) {
-    path <- Sys.getenv("RETICULATE_PYTHON", 
+    path <- Sys.getenv("RETICULATE_PYTHON",
                        unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
     if (path == "") {
       return(NULL)
