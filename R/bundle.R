@@ -934,7 +934,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
   # if there is a target image, attach it to the environment
   if (!is.null(image)) {
-    manifest$environment$image <- image
+    manifest$environment <- list(image = image)
   }
 
   # indicate whether this is a quarto app/doc
