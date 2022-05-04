@@ -12,6 +12,7 @@ writeManifest(
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
   quarto = NULL,
+  image = NULL,
   verbose = FALSE
 )
 }
@@ -42,6 +43,10 @@ is \code{TRUE}.}
 \item{quarto}{Optional. Full path to a Quarto binary for use deploying Quarto
 content. The provided Quarto binary will be used to run \verb{quarto inspect}
 to gather information about the content.}
+
+\item{image}{Optional. The name of the image to use when building and
+executing this content. If none is provided, RStudio Connect will
+attempt to choose an image based on the content requirements.}
 
 \item{verbose}{If TRUE, prints progress messages to the console}
 }
