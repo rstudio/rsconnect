@@ -4,7 +4,12 @@
 \alias{connectUser}
 \title{Connect User Account}
 \usage{
-connectUser(account = NULL, server = NULL, quiet = FALSE)
+connectUser(
+  account = NULL,
+  server = NULL,
+  quiet = FALSE,
+  launch.browser = getOption("rsconnect.launch.browser", interactive())
+)
 }
 \arguments{
 \item{account}{A name for the account to connect. Optional.}
@@ -14,6 +19,11 @@ registered.}
 
 \item{quiet}{Whether or not to show messages and prompts while connecting the
 account.}
+
+\item{launch.browser}{If true, the system's default web browser will be
+launched automatically after the app is started. Defaults to \code{TRUE} in
+interactive sessions only. If a function is passed, it will be called
+after the app is started, with the app URL as a paramter.}
 }
 \description{
 Connect a user account to the package so that it can be used to deploy and
