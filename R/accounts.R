@@ -223,7 +223,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
 #'
 #' @family Account functions
 #' @export
-setAccountInfo <- function(name, token, secret) {
+setAccountInfo <- function(name, token, secret, cloud = TRUE) {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
@@ -235,7 +235,11 @@ setAccountInfo <- function(name, token, secret) {
     stop(stringParamErrorMessage("secret"))
 
   # create connect client
-  serverInfo <- shinyappsServerInfo()
+  if (cloud) {
+    serverInfo <- cloudServerInfo()
+  } else {
+    serverInfo <- shinyappsServerInfo()
+  }
   authInfo <- list(token = token, secret = secret,
                    certificate = serverInfo$certificate)
   lucid <- lucidClient(serverInfo$url, authInfo)
@@ -468,7 +472,7 @@ resolveAccount <- function(account, server = NULL) {
 }
 
 isShinyapps <- function(server) {
-  identical(server, "shinyapps.io")
+  identical(server, "shinyapps.io") | identical(server, "rstudio.cloud")
 }
 
 isRPubs <- function(server) {
