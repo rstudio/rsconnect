@@ -168,6 +168,8 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 
   if (isTRUE(launch.browser))
     utils::browseURL(token$claim_url)
+  else if (is.function(launch.browser))
+    launch.browser(token$claim_url)
 
   # keep trying to authenticate until we're successful
   repeat {
