@@ -9,8 +9,8 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL
   bundleTempDir
 }
 
-makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL) {
-  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto)
+makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, image = NULL) {
+  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto, image = image)
   manifestFile <-file.path(appDir, "manifest.json")
   data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
   manifestJson <- jsonlite::fromJSON(data)
@@ -558,4 +558,14 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
   # We expect Quarto and Python metadata, but no R packages.
   expect_true(all(c("quarto", "python") %in% names(manifest)))
   expect_null(manifest$packages)
+})
+
+test_that("writeManifest: Sets environment.image in the manifest if one is provided", {
+  appDir <- "quarto-proj-r-shiny"
+
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, image = "rstudio/content-base:latest")
+  expect_equal(manifest$environment$image, "rstudio/content-base:latest")
+
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL)
+  expect_null(manifest$environment)
 })

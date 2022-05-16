@@ -222,7 +222,7 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      isShinyApps = FALSE, metadata = list()) {
+                      isShinyApps = FALSE, metadata = list(), image = NULL) {
   logger <- verboseLogger(verbose)
 
   quartoInfo <- inferQuartoInfo(
@@ -282,6 +282,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       retainPackratDirectory = TRUE,
       quartoInfo = quartoInfo,
       isShinyApps = isShinyApps,
+      image = image,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
@@ -380,6 +381,10 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #'   content. The provided Quarto binary will be used to run `quarto inspect`
 #'   to gather information about the content.
 #'
+#' @param image Optional. The name of the image to use when building and
+#'   executing this content. If none is provided, RStudio Connect will
+#'   attempt to choose an image based on the content requirements.
+#'
 #' @param verbose If TRUE, prints progress messages to the console
 #'
 #'
@@ -391,6 +396,7 @@ writeManifest <- function(appDir = getwd(),
                           python = NULL,
                           forceGeneratePythonEnvironment = FALSE,
                           quarto = NULL,
+                          image = NULL,
                           verbose = FALSE) {
 
   condaMode <- FALSE
@@ -451,6 +457,7 @@ writeManifest <- function(appDir = getwd(),
       retainPackratDirectory = FALSE,
       quartoInfo = quartoInfo,
       isShinyApps = FALSE,
+      image = image,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
@@ -763,6 +770,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
                               isShinyApps = FALSE,
+                              image = NULL,
                               verbose = FALSE) {
 
   # provide package entries for all dependencies
@@ -853,7 +861,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
   }
 
-  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages) 
+  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
   if (needsPyInfo && !is.null(python)) {
     pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
     if (is.null(pyInfo$error)) {
@@ -923,6 +931,11 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
 
   # add metadata
   manifest$metadata <- metadata
+
+  # if there is a target image, attach it to the environment
+  if (!is.null(image)) {
+    manifest$environment <- list(image = image)
+  }
 
   # indicate whether this is a quarto app/doc
   if (!is.null(quartoInfo) && !isShinyApps) {

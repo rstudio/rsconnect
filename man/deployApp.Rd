@@ -27,7 +27,8 @@ deployApp(
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
   quarto = NULL,
-  appVisibility = NULL
+  appVisibility = NULL,
+  image = NULL
 )
 }
 \arguments{
@@ -123,6 +124,10 @@ to gather information about the content.}
 
 \item{appVisibility}{One of \code{NULL}, "private"\verb{, or }"public"\verb{; the visibility of the deployment. When }NULL`, no change to visibility is
 made. Currently has an effect only on deployments to shinyapps.io.}
+
+\item{image}{Optional. The name of the image to use when building and
+executing this content. If none is provided, RStudio Connect will
+attempt to choose an image based on the content requirements.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
