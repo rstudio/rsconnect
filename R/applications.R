@@ -193,6 +193,8 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #'   if only one application deployment was made from `appPath`.
 #' @param account The account under which the application was deployed. May be
 #'   omitted if only one account is registered on the system.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
 #' @param entries The number of log entries to show. Defaults to 50 entries.
 #' @param streaming Whether to stream the logs. If `TRUE`, then the
 #'   function does not return; instead, log entries are written to the console
@@ -203,11 +205,11 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #'
 #' @export
 showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
-                     account = NULL, entries = 50, streaming = FALSE) {
+                     account = NULL, server = NULL, entries = 50, streaming = FALSE) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appPath, appName, NULL, NULL, account)
-  accountDetails <- accountInfo(target$account)
+  target <- deploymentTarget(appPath, appName, NULL, NULL, account, server)
+  accountDetails <- accountInfo(target$account, target$server)
   client <- lucidClient(shinyappsServerInfo()$url, accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
   if (is.null(application))
