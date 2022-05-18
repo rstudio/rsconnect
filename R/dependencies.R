@@ -87,17 +87,20 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
     default = c("duplicates")
   )
 
-  # get Bioconductor repos if any
-  biocRepos <- repos[grep('BioC', names(repos), perl = TRUE, value = TRUE)]
-  biocPackages <- if (length(biocRepos) > 0) {
-    available.packages(
-      contriburl = contrib.url(biocRepos, type = "source"),
-      type = "source",
-      filters = filters
-    )
-  }
+  # get Bioconductor repos if aniy
+  # We detect the presence of Bioconductor reopos by 
+  #   * existence of BiocManager amongst the installed packages
+  #   * the non-existence of any bioconductor repo in the CRAN like 
+  #            repo definitions 
+  if ("BiocManager" %in% installed.packages() && 
+    paste0("x",grep('BioC', names(options("repos")), perl = TRUE, value = TRUE)) == "x" ) {
+    
+    repos <- BiocManager::repositories() 
+    } 
 
-  # read available packages
+#    biocRepos <- biocRepos[startsWith(names(biocRepos),"BioC")]    
+  
+
   repo.packages <- available.packages(
     contriburl = contrib.url(repos, type = "source"),
     type = "source",
@@ -120,14 +123,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
     pkg <- records[i, "Package"]
     source <- records[i, "Source"]
     repository <- NA
-    # capture Bioconcutor repository
-    if (identical(source, "Bioconductor")) {
-      if (pkg %in% biocPackages) {
-        repository <- biocPackages[pkg, 'Repository']
-      }
-    } else if (isSCMSource(source)) {
-      # leave source+SCM packages alone.
-    } else if (pkg %in% rownames(repo.packages)) {
+    if (pkg %in% rownames(repo.packages)) {
       # capture CRAN-like repository
 
       # Find this package in the set of available packages then use its
