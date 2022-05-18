@@ -96,10 +96,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
     paste0("x",grep('BioC', names(options("repos")), perl = TRUE, value = TRUE)) == "x" ) {
     
     repos <- BiocManager::repositories() 
-    } 
-
-#    biocRepos <- biocRepos[startsWith(names(biocRepos),"BioC")]    
-  
+  } 
 
   repo.packages <- available.packages(
     contriburl = contrib.url(repos, type = "source"),
