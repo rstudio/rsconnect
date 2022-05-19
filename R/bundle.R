@@ -1,3 +1,8 @@
+# Given a path to an directory and a list of files in that directory, copies
+# those files to a new temporary directory. Performes some small modifications
+# in this process, including renaming single-file Shiny apps to "app.R" and
+# stripping packrat and renv commands from .Rprofile. Returns the path to the
+# temporary directory.
 bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
   if (verbose)
     timestampedLog("Creating tempfile for appdir")
@@ -89,7 +94,6 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
 
   # exclude renv files
   contents <- setdiff(contents, c("renv", "renv.lock"))
-
 
   # checks for .rscignore file and excludes the files and directories listed
   if (".rscignore" %in% contents) {

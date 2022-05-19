@@ -507,6 +507,8 @@ deployApp <- function(appDir = getwd(),
 }
 
 
+# Does almost exactly the same work as writeManifest(), with slight
+# modifications to work within deployApp()
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
