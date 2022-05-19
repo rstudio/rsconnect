@@ -356,8 +356,8 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
       warning("The bundle contains files with user/group names having more than ", lengthLimit,
               " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
               "Long user and group names cause the internal R tar implementation to produce invalid archives. ",
-              "Set the rsconnect.tar option or the RSCONNECT_TAR environment variable ",
-              "to use an external tar command.")
+              "Set the rsconnect.tar option or the RSCONNECT_TAR environment variable to the path to ",
+              "a tar executable to use that implementation.")
       return(invisible(TRUE))
     }
   }
