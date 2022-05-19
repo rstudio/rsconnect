@@ -569,3 +569,29 @@ test_that("writeManifest: Sets environment.image in the manifest if one is provi
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL)
   expect_null(manifest$environment)
 })
+
+test_that("tarImplementation: checks environment variable and option before using default", {
+  # Environment variable only set should use environment varaible
+  Sys.setenv("RSCONNECT_TAR" = "envvar")
+  options("rsconnect.tar" = NULL)
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "envvar")
+
+  # Option only set should use option
+  Sys.unsetenv("RSCONNECT_TAR")
+  options("rsconnect.tar" = "option")
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "option")
+
+  # Both environment variable and option set should use environment variable
+  Sys.setenv("RSCONNECT_TAR" = "envvar")
+  options("rsconnect.tar" = "option")
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "envvar")
+
+  # Neither set should use "internal"
+  Sys.unsetenv("RSCONNECT_TAR")
+  options("rsconnect.tar" = NULL)
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "internal")
+})
