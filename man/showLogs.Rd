@@ -9,6 +9,7 @@ showLogs(
   appFile = NULL,
   appName = NULL,
   account = NULL,
+  server = NULL,
   entries = 50,
   streaming = FALSE
 )
@@ -24,6 +25,9 @@ if only one application deployment was made from \code{appPath}.}
 
 \item{account}{The account under which the application was deployed. May be
 omitted if only one account is registered on the system.}
+
+\item{server}{Server name. Required only if you use the same account name on
+multiple servers.}
 
 \item{entries}{The number of log entries to show. Defaults to 50 entries.}
 
