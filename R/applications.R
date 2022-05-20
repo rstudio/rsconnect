@@ -136,9 +136,7 @@ resolveApplication <- function(accountDetails, appName) {
 
 stopWithApplicationNotFound <- function(appName) {
   stop(paste("No application named '", appName, "' is currently deployed",
-    sep = ""
-  ), call. = FALSE)
-}
+             sep=""), call. = FALSE)}
 
 applicationTask <- function(taskDef, appName, account, server, quiet) {
 
