@@ -24,7 +24,7 @@ Supported global options include:
    \item{\code{rsconnect.http.trace}}{When \code{TRUE}, trace http calls (prints the method, path, and total milliseconds for each http request)}
    \item{\code{rsconnect.http.trace.json}}{When \code{TRUE}, trace JSON content (shows JSON payloads sent to and received from the server))}
    \item{\code{rsconnect.http.verbose}}{When \code{TRUE}, print verbose output for http connections (useful only for debugging SSL certificate or http connection problems)}
-   \item{\code{rsconnect.tar}}{Path to a \{tar} executable used to compress bundles for upload. If the environment variable \code{RSCONNECT_TAR} is specified, it will will be used instead of this option. Leave undefined to use R's internal \{tar} implementation.}
+   \item{\code{rsconnect.tar}}{Path to a \code{tar} executable used to compress bundles for upload. If the environment variable \code{RSCONNECT_TAR} is specified, it will will be used instead of this option. Leave undefined to use R's internal \code{tar} implementation.}
    \item{\code{rsconnect.rcurl.options}}{A named list of additional cURL options to use when using the RCurl HTTP implementation in R. Run \code{RCurl::curlOptions()} to see available options.}
    \item{\code{rsconnect.libcurl.options}}{A named list of additional cURL options to use when using the curl HTTP implementation in R. Run \code{curl::curl_options()} to see available options.}
    \item{\code{rsconnect.error.trace}}{{When \code{TRUE}, print detailed stack traces for errors occurring during deployment.}}
