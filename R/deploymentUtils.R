@@ -527,6 +527,18 @@ isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
 
+getPython <- function(path) {
+  if (is.null(path)) {
+    path <- Sys.getenv("RETICULATE_PYTHON",
+      unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK")
+    )
+    if (path == "") {
+      return(NULL)
+    }
+  }
+  path.expand(path)
+}
+
 getCondaEnvPrefix <- function(python) {
   prefix <- dirname(dirname(python))
   if (!file.exists(file.path(prefix, "conda-meta"))) {
