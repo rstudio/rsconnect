@@ -11,6 +11,7 @@
   and websites by supplying the path to a Quarto executable
 * Added support for deploying Quarto content that uses only the `jupyter` runtime
 * Added support for selecting a target `image` in the bundle manifest
+* The `showLogs` function takes a `server` parameter. (#57)
 * Added the `rsconnect.tar` option, which can be used to specify the path to a
   `tar` implementation instead of R's internal implementation. The previous
   method, using the `RSCONNECT_TAR` environment variable, still works, and will
