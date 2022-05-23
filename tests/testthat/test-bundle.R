@@ -490,7 +490,8 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
   quartoInfo <- inferQuartoInfo(
     appDir = "shinyapp-simple",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    quarto = quarto,
+    metadata = list()
   )
   expect_null(quartoInfo)
 })
@@ -573,6 +574,13 @@ test_that("writeManifest: Sets environment.image in the manifest if one is provi
 })
 
 test_that("tarImplementation: checks environment variable and option before using default", {
+  option_value <- getOption("rsconnect.tar")
+  envvar_value <- Sys.getenv("RSCONNECT_TAR", unset = NA)
+  on.exit({
+    options("rsconnect.tar" = option_value)
+    Sys.setenv("RSCONNECT_TAR" = envvar_value)
+  }, add = TRUE, after = FALSE)
+
   # Environment variable only set should use environment varaible
   Sys.setenv("RSCONNECT_TAR" = "envvar")
   options("rsconnect.tar" = NULL)

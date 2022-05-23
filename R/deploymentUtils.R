@@ -245,8 +245,8 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
 
 
 getTarImplementation <- function() {
-  # Check the RSCONNECT_TAR environment variable first. If that is unset, check
-  # the rsconnect.tar option. If neither are set, use "internal"
+  # Check the rsconnect.tar option first. If that is unset, check the
+  # RSCONNECT_TAR environment var. If neither are set, use "internal".
   tarImplementation <- getOption("rsconnect.tar", default = NA)
   if (is.na(tarImplementation) || !nzchar(tarImplementation)) {
     tarImplementation <- Sys.getenv("RSCONNECT_TAR", unset = NA)
