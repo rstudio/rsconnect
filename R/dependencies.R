@@ -92,7 +92,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
   #   * existence of BiocManager amongst the installed packages
   #   * the non-existence of any bioconductor repo in the CRAN like 
   #            repo definitions 
-  if ("BiocManager" %in% installed.packages() && 
+  if (requireNamespace("BiocManager", quietly = TRUE) &&
     !any(grepl("BioC", names(getOption("repos"))) {
     
     repos <- BiocManager::repositories() 
