@@ -583,11 +583,11 @@ test_that("tarImplementation: checks environment variable and option before usin
   tarImplementation <- getTarImplementation()
   expect_equal(tarImplementation, "option")
 
-  # Both environment variable and option set should use environment variable
+  # Both environment variable and option set should use option
   Sys.setenv("RSCONNECT_TAR" = "envvar")
   options("rsconnect.tar" = "option")
   tarImplementation <- getTarImplementation()
-  expect_equal(tarImplementation, "envvar")
+  expect_equal(tarImplementation, "option")
 
   # Neither set should use "internal"
   Sys.unsetenv("RSCONNECT_TAR")

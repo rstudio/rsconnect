@@ -14,8 +14,8 @@
 * The `showLogs` function takes a `server` parameter. (#57)
 * Added the `rsconnect.tar` option, which can be used to specify the path to a
   `tar` implementation instead of R's internal implementation. The previous
-  method, using the `RSCONNECT_TAR` environment variable, still works, and will
-  take precedence over the `rsconnect.tar` option.
+  method, using the `RSCONNECT_TAR` environment variable, still works, but the
+  new option will take precedence if both are set.
 
 ## 0.8.25
 
