@@ -439,7 +439,8 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-doc-none",
     appPrimaryDoc = "quarto-doc-none.qmd",
-    quarto = quarto
+    quarto = quarto,
+    metadata = list()
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("markdown")))
@@ -447,7 +448,8 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    quarto = quarto,
+    metadata = list()
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("knitr")))
