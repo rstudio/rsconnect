@@ -93,7 +93,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
   #   * the non-existence of any bioconductor repo in the CRAN like 
   #            repo definitions 
   if (requireNamespace("BiocManager", quietly = TRUE) &&
-    !any(grepl("BioC", names(getOption("repos"))) 
+    !any(grepl("BioC", names(getOption("repos"))))) 
   {
     repos <- BiocManager::repositories() 
   } 
