@@ -306,7 +306,7 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
 
-  tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
+  tarImplementation <- getTarImplementation()
   logger(sprintf("Using tar: %s", tarImplementation))
 
   if (tarImplementation == "internal") {
@@ -315,6 +315,21 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
 
   utils::tar(bundlePath, files = NULL, compression = "gzip", tar = tarImplementation)
 }
+
+
+getTarImplementation <- function() {
+  # Check the rsconnect.tar option first. If that is unset, check the
+  # RSCONNECT_TAR environment var. If neither are set, use "internal".
+  tarImplementation <- getOption("rsconnect.tar", default = NA)
+  if (is.na(tarImplementation) || !nzchar(tarImplementation)) {
+    tarImplementation <- Sys.getenv("RSCONNECT_TAR", unset = NA)
+  }
+  if (is.na(tarImplementation) || !nzchar(tarImplementation)) {
+    tarImplementation <- "internal"
+  }
+  return(tarImplementation)
+}
+
 
 # uname/grname is not always available.
 # https://github.com/wch/r-source/blob/8cf68878a1361d00ff2125db2e1ac7dc8f6c8009/src/library/utils/R/tar.R#L539-L549
@@ -341,7 +356,8 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
       warning("The bundle contains files with user/group names having more than ", lengthLimit,
               " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
               "Long user and group names cause the internal R tar implementation to produce invalid archives. ",
-              "Set the RSCONNECT_TAR environment variable to use an external tar command.")
+              "Set the rsconnect.tar option or the RSCONNECT_TAR environment variable to the path to ",
+              "a tar executable to use that implementation.")
       return(invisible(TRUE))
     }
   }

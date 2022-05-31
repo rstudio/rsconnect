@@ -439,7 +439,8 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-doc-none",
     appPrimaryDoc = "quarto-doc-none.qmd",
-    quarto = quarto
+    quarto = quarto,
+    metadata = list()
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("markdown")))
@@ -447,7 +448,8 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    quarto = quarto,
+    metadata = list()
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("knitr")))
@@ -488,7 +490,8 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
   quartoInfo <- inferQuartoInfo(
     appDir = "shinyapp-simple",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    quarto = quarto,
+    metadata = list()
   )
   expect_null(quartoInfo)
 })
@@ -568,4 +571,37 @@ test_that("writeManifest: Sets environment.image in the manifest if one is provi
 
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL)
   expect_null(manifest$environment)
+})
+
+test_that("tarImplementation: checks environment variable and option before using default", {
+  option_value <- getOption("rsconnect.tar")
+  envvar_value <- Sys.getenv("RSCONNECT_TAR", unset = NA)
+  on.exit({
+    options("rsconnect.tar" = option_value)
+    Sys.setenv("RSCONNECT_TAR" = envvar_value)
+  }, add = TRUE, after = FALSE)
+
+  # Environment variable only set should use environment varaible
+  Sys.setenv("RSCONNECT_TAR" = "envvar")
+  options("rsconnect.tar" = NULL)
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "envvar")
+
+  # Option only set should use option
+  Sys.unsetenv("RSCONNECT_TAR")
+  options("rsconnect.tar" = "option")
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "option")
+
+  # Both environment variable and option set should use option
+  Sys.setenv("RSCONNECT_TAR" = "envvar")
+  options("rsconnect.tar" = "option")
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "option")
+
+  # Neither set should use "internal"
+  Sys.unsetenv("RSCONNECT_TAR")
+  options("rsconnect.tar" = NULL)
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "internal")
 })
