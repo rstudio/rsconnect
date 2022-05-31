@@ -10,6 +10,7 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 [![Build
 Status](https://travis-ci.org/rstudio/rsconnect.svg?branch=master)](https://travis-ci.org/rstudio/rsconnect)
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![R-CMD-check](https://github.com/rstudio/rsconnect/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/rsconnect/actions)
 <!-- badges: end -->
 
 An R package used for deploying applications to the
