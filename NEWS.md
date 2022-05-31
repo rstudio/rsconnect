@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.26 (in development)
+## 0.8.26
+
+Released to CRAN on 2022-05-31
 
 * Add ability to resend shinyapps.io application invitations (#543)
 * Show expiration status in shinyapps.io for invitations (#543)
