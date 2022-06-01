@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://rstudio.github.io/rsconnect/404.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/RELEASE.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/authors.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/index.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/news/index.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/accountUsage.html</loc>
@@ -17,6 +29,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/appDependencies.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/applicationConfigDir.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/applications.html</loc>
@@ -58,6 +73,9 @@
     <loc>https://rstudio.github.io/rsconnect/reference/generateAppName.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/lint.html</loc>
   </url>
   <url>
@@ -70,6 +88,9 @@
     <loc>https://rstudio.github.io/rsconnect/reference/makeLinterMessage.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/oldApplicationConfigDir.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/options.html</loc>
   </url>
   <url>
@@ -79,6 +100,9 @@
     <loc>https://rstudio.github.io/rsconnect/reference/removeAuthorizedUser.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/resendInvitation.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/restartApp.html</loc>
   </url>
   <url>
@@ -86,6 +110,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/rsconnect-package.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/rsconnectConfigDir.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/rsconnectPackages.html</loc>
