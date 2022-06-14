@@ -2,6 +2,10 @@
 
 ## 0.8.27 (in development)
 
+* Quarto content will no longer silently deploy as R Markdown content when
+  Quarto metadata is missing or cannot be gathered. Functions will error,
+  requesting the path to a Quarto binary in the `quarto` argument. (#594)
+
 
 ## 0.8.26
 
