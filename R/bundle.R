@@ -421,7 +421,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
 
   # To deploy Quarto content, we need to have received or inferred Quarto metadata.
   missingQuartoInfoErrorText <- paste(
-    "Attempting to deploy Quarto project without successfully running 'quarto inspect'.",
+    "Attempting to deploy Quarto project without Quarto metadata.",
     "Please provide the path to a quarto binary to the 'quarto' argument."
   )
 
