@@ -1,8 +1,15 @@
 # NEWS
 
-## 0.8.26 (in development)
+## 0.8.27 (in development)
 
-* Allow ShinyApps deployments to be private at creation time (#403)
+
+## 0.8.26
+
+Released to CRAN on 2022-05-31
+
+* Add ability to resend shinyapps.io application invitations (#543)
+* Show expiration status in shinyapps.io for invitations (#543)
+* Allow shinyapps.io deployments to be private at creation time (#403)
 * Update the minimum `openssl` version to 2.0.0 to enable publishing for users
   on FIPS-compliant systems without the need for API keys. (#452)
 * Added Quarto support to `writeManifest`, which requires passing the absolute
