@@ -566,7 +566,7 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
 test_that("writeManifest: Deploying Quarto content without Quarto info in an error", {
   missingQuartoInfoErrorText <- paste(
     "Attempting to deploy Quarto project without successfully running 'quarto inspect'.",
-    "Please provide the path to a quarto binary to the 'quarto'."
+    "Please provide the path to a quarto binary to the 'quarto' argument."
   )
 
   appDir <- "quarto-website-r"

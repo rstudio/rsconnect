@@ -422,7 +422,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
   # To deploy Quarto content, we need to have received or inferred Quarto metadata.
   missingQuartoInfoErrorText <- paste(
     "Attempting to deploy Quarto project without successfully running 'quarto inspect'.",
-    "Please provide the path to a quarto binary to the 'quarto'."
+    "Please provide the path to a quarto binary to the 'quarto' argument."
   )
 
   # Shiny or Quarto documents with "server: shiny" in their YAML front matter
