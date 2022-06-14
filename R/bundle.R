@@ -406,14 +406,32 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     return("shiny")
   }
 
-  # Determine if we have Rmd and if they are (optionally) need the Shiny runtime.
-  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  # Determine if we have Rmd files, and if they use the Shiny runtime.
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
   shinyRmdFiles <- sapply(file.path(appDir, rmdFiles), isShinyRmd)
 
-  # An Rmd file with a Shiny runtime uses rmarkdown::run.
+  # Determine if we have qmd files, and if they use the Shiny runtime
+  qmdFiles <- grep("^[^/\\\\]+\\.qmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  shinyQmdFiles <- sapply(file.path(appDir, qmdFiles), isShinyRmd)
+
+  # Trying to deploy Quarto and R Markdown files simultaneously is an error.
+  if (length(rmdFiles) > 0 && length(qmdFiles) > 0) {
+    stop("Cannot infer app mode because there are both .qmd and .Rmd files in deployment files.")
+  }
+
+  # To deploy Quarto content, we need to have received or inferred Quarto metadata.
+  missingQuartoInfoErrorText <- paste(
+    "Attempting to deploy Quarto project without successfully running 'quarto inspect'.",
+    "Please provide the path to a quarto binary to the 'quarto'."
+  )
+
+  # Shiny or Quarto documents with "server: shiny" in their YAML front matter
+  # are rmd-shiny or quarto-shiny.
   if (any(shinyRmdFiles)) {
+    return("rmd-shiny")
+  } else if (any(shinyQmdFiles)) {
     if (is.null(quartoInfo)) {
-      return("rmd-shiny")
+      stop(missingQuartoInfoErrorText)
     } else {
       return("quarto-shiny")
     }
@@ -427,10 +445,13 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     return("shiny")
   }
 
-  # Any non-Shiny R Markdown documents are rendered content (rmd-static).
+  # Any non-Shiny R Markdown or Quarto documents are rendered content and get
+  # rmd-static or quarto-static.
   if (length(rmdFiles) > 0) {
+    return("rmd-static")
+  } else if (length(qmdFiles) > 0) {
     if (is.null(quartoInfo)) {
-      return("rmd-static")
+      stop(missingQuartoInfoErrorText)
     } else {
       return("quarto-static")
     }

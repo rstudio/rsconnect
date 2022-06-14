@@ -563,8 +563,31 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
   expect_null(manifest$packages)
 })
 
+test_that("writeManifest: Deploying Quarto content without Quarto info in an error", {
+  missingQuartoInfoErrorText <- paste(
+    "Attempting to deploy Quarto project without successfully running 'quarto inspect'.",
+    "Please provide the path to a quarto binary to the 'quarto'."
+  )
+
+  appDir <- "quarto-website-r"
+  expect_error(
+    makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
+    missingQuartoInfoErrorText
+  )
+})
+
+test_that("writeManifest: Attempting to deploy a directory with Rmd and qmd files is an error", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "qmd-and-rmd"
+  expect_error(
+    makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto),
+    "Cannot infer app mode because there are both .qmd and .Rmd files in deployment files."
+  )
+})
+
 test_that("writeManifest: Sets environment.image in the manifest if one is provided", {
-  appDir <- "quarto-proj-r-shiny"
+  appDir <- "shinyapp-simple"
 
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, image = "rstudio/content-base:latest")
   expect_equal(manifest$environment$image, "rstudio/content-base:latest")
