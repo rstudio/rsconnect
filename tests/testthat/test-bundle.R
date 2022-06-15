@@ -565,7 +565,7 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
 
 test_that("writeManifest: Deploying Quarto content without Quarto info in an error", {
   missingQuartoInfoErrorText <- paste(
-    "Attempting to deploy Quarto project without Quarto metadata.",
+    "Attempting to deploy Quarto content without Quarto metadata.",
     "Please provide the path to a quarto binary to the 'quarto' argument."
   )
 
@@ -576,14 +576,14 @@ test_that("writeManifest: Deploying Quarto content without Quarto info in an err
   )
 })
 
-test_that("writeManifest: Attempting to deploy a directory with Rmd and qmd files is an error", {
+test_that("writeManifest: Deploying R Markdown content with Quarto gives a Quarto app mode", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "qmd-and-rmd"
-  expect_error(
-    makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto),
-    "Cannot infer app mode because there are both .qmd and .Rmd files in deployment files."
-  )
+  manifest <- makeManifest("test-rmds", "simple.Rmd", quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
 })
 
 test_that("writeManifest: Sets environment.image in the manifest if one is provided", {
