@@ -413,9 +413,14 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
   # Determine if we have qmd files, and if they use the Shiny runtime
   qmdFiles <- grep("^[^/\\\\]+\\.qmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
   shinyQmdFiles <- sapply(file.path(appDir, qmdFiles), isShinyRmd)
-  hasQuartoYaml <- any(grepl("^_quarto.y(a)?ml$", x = files, ignore.case = TRUE, perl = TRUE))
 
-  requiresQuarto <- any(length(qmdFiles > 0), hasQuartoYaml)
+  # We make Quarto requirement conditional on the presence of files that Quarto
+  # can render and _quarto.yml, because keying off the presence of qmds
+  # *or* _quarto.yml was causing deployment failures in static content.
+  # https://github.com/rstudio/rstudio/issues/11444
+  hasQuartoYaml <- any(grepl("^_quarto.y(a)?ml$", x = files, ignore.case = TRUE, perl = TRUE))
+  hasQuartoSupportedFiles <- any(length(qmdFiles) > 0, length(rmdFiles > 0))
+  requiresQuarto <- (hasQuartoSupportedFiles && hasQuartoYaml) || length(qmdFiles) > 0
 
   # We gate the deployment of content that appears to be Quarto behind the
   # presence of Quarto metadata. Rmd files can still be deployed as Quarto
