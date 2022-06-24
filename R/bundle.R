@@ -500,13 +500,13 @@ inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePytho
   }
   if (appMode == "quarto-shiny") {
     # Quarto Shiny documents are executed with rmarkdown::run
-    deps <- c(deps, "rmarkdown", "shiny")
+    deps <- c(deps, "rmarkdown", shinyDeps())
   }
   if (appMode == "rmd-shiny") {
-    deps <- c(deps, "rmarkdown", "shiny")
+    deps <- c(deps, "rmarkdown", shinyDeps())
   }
   if (appMode == "shiny") {
-    deps <- c(deps, "shiny")
+    deps <- c(deps, shinyDeps())
   }
   if (appMode == "api") {
     deps <- c(deps, "plumber")
@@ -515,6 +515,14 @@ inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePytho
     deps <- c(deps, "reticulate")
   }
   unique(deps)
+}
+
+# shiny::renderPlot() now uses ragg for png rendering if it's installed,
+# so include it if it's installed locally (this way users will get consistent
+# PNG results without needing to add library(ragg) to the app).
+# https://github.com/rstudio/shiny/pull/3654
+shinyDeps <- function() {
+  c("shiny", if (system.file(package = "ragg") != "") "ragg")
 }
 
 isWindows <- function() {
