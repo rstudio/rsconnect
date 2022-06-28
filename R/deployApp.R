@@ -9,7 +9,7 @@
 #' @param appFiles The files and directories to bundle and deploy (only if
 #'   `upload = TRUE`). Can be `NULL`, in which case all the files in the
 #'   directory containing the application are bundled, with the exception of
-#'   any listed in an `.rcsignore` file. Takes precedence over
+#'   any listed in an `.rscignore` file. Takes precedence over
 #'   `appFileManifest` if both are supplied.
 #' @param appFileManifest An alternate way to specify the files to be deployed;
 #'   a file containing the names of the files, one per line, relative to the
