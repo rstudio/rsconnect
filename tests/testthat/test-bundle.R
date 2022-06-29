@@ -563,8 +563,52 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
   expect_null(manifest$packages)
 })
 
+test_that("writeManifest: Deploying a Quarto project without Quarto info in an error", {
+  missingQuartoInfoErrorText <- paste(
+    "Attempting to deploy Quarto content without Quarto metadata.",
+    "Please provide the path to a quarto binary to the 'quarto' argument."
+  )
+
+  appDir <- "quarto-website-r"
+  expect_error(
+    makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
+    missingQuartoInfoErrorText
+  )
+})
+
+test_that("writeManifest: Deploying a Quarto doc without Quarto info in an error", {
+  missingQuartoInfoErrorText <- paste(
+    "Attempting to deploy Quarto content without Quarto metadata.",
+    "Please provide the path to a quarto binary to the 'quarto' argument."
+  )
+
+  appDir <- "quarto-doc-none"
+  appPrimaryDoc <- "quarto-doc-none.qmd"
+  expect_error(
+    makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL),
+    missingQuartoInfoErrorText
+  )
+})
+
+test_that("writeManifest: Deploying R Markdown content with Quarto gives a Quarto app mode", {
+  quarto <- quartoPathOrSkip()
+
+  manifest <- makeManifest("test-rmds", "simple.Rmd", quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
+})
+
+test_that("writeManifest: Deploying static content with _quarto.yaml succeeds without quartoInfo", {
+
+  manifest <- makeManifest("static-with-quarto-yaml", NULL, quarto = NULL)
+
+  expect_equal(manifest$metadata$appmode, "static")
+})
+
 test_that("writeManifest: Sets environment.image in the manifest if one is provided", {
-  appDir <- "quarto-proj-r-shiny"
+  appDir <- "shinyapp-simple"
 
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, image = "rstudio/content-base:latest")
   expect_equal(manifest$environment$image, "rstudio/content-base:latest")

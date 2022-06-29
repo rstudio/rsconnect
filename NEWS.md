@@ -2,7 +2,14 @@
 
 ## 0.8.27 (in development)
 
-* If the `ragg` package is installed locally, it is now added as an implicit dependency to `shiny` apps since `shiny::renderPlot()` now uses it by default (when available). This way, `shiny` apps won't have to add `library(ragg)` to get consistent (higher-quality) PNG images when deployed. (#598)  
+* Quarto content will no longer silently deploy as R Markdown content when
+  Quarto metadata is missing or cannot be gathered. Functions will error,
+  requesting the path to a Quarto binary in the `quarto` argument. (#594)
+* fix typo for `.rscignore` (#599)
+* If the `ragg` package is installed locally, it is now added as an implicit
+  dependency to `shiny` apps since `shiny::renderPlot()` now uses it by default 
+  (when available). This way, `shiny` apps won't have to add `library(ragg)` to 
+  get consistent (higher-quality) PNG images when deployed. (#598)  
 
 ## 0.8.26
 
@@ -45,7 +52,7 @@ Released to CRAN on 2021-11-16
 Released to CRAN on 2021-08-04
 
 * Added support for publishing Quarto documents and websites
-* Added support for `.rcsignore` file to exclude files or directories from publishing (#368)
+* Added support for `.rscignore` file to exclude files or directories from publishing (#368)
 * Fixed issue causing missing value errors when publishing content containing filenames with extended characters (#514)
 * Fixed issue preventing error tracebacks from displaying (#518)
 
