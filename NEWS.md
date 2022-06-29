@@ -2,6 +2,7 @@
 
 ## 0.8.27 (in development)
 
+- fix typo for `.rscignore` (#599)
 
 ## 0.8.26
 
@@ -44,7 +45,7 @@ Released to CRAN on 2021-11-16
 Released to CRAN on 2021-08-04
 
 * Added support for publishing Quarto documents and websites
-* Added support for `.rcsignore` file to exclude files or directories from publishing (#368)
+* Added support for `.rscignore` file to exclude files or directories from publishing (#368)
 * Fixed issue causing missing value errors when publishing content containing filenames with extended characters (#514)
 * Fixed issue preventing error tracebacks from displaying (#518)
 
