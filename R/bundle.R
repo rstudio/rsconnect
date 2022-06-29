@@ -406,16 +406,39 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     return("shiny")
   }
 
-  # Determine if we have Rmd and if they are (optionally) need the Shiny runtime.
-  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  # Determine if we have Rmd files, and if they use the Shiny runtime.
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
   shinyRmdFiles <- sapply(file.path(appDir, rmdFiles), isShinyRmd)
 
-  # An Rmd file with a Shiny runtime uses rmarkdown::run.
-  if (any(shinyRmdFiles)) {
-    if (is.null(quartoInfo)) {
-      return("rmd-shiny")
-    } else {
+  # Determine if we have qmd files, and if they use the Shiny runtime
+  qmdFiles <- grep("^[^/\\\\]+\\.qmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  shinyQmdFiles <- sapply(file.path(appDir, qmdFiles), isShinyRmd)
+
+  # We make Quarto requirement conditional on the presence of files that Quarto
+  # can render and _quarto.yml, because keying off the presence of qmds
+  # *or* _quarto.yml was causing deployment failures in static content.
+  # https://github.com/rstudio/rstudio/issues/11444
+  hasQuartoYaml <- any(grepl("^_quarto.y(a)?ml$", x = files, ignore.case = TRUE, perl = TRUE))
+  hasQuartoSupportedFiles <- any(length(qmdFiles) > 0, length(rmdFiles > 0))
+  requiresQuarto <- (hasQuartoSupportedFiles && hasQuartoYaml) || length(qmdFiles) > 0
+
+  # We gate the deployment of content that appears to be Quarto behind the
+  # presence of Quarto metadata. Rmd files can still be deployed as Quarto
+  # content.
+  if (requiresQuarto && is.null(quartoInfo)) {
+    stop(paste(
+      "Attempting to deploy Quarto content without Quarto metadata.",
+      "Please provide the path to a quarto binary to the 'quarto' argument."
+    ))
+  }
+
+  # Shiny or Quarto documents with "server: shiny" in their YAML front matter
+  # are rmd-shiny or quarto-shiny.
+  if (any(shinyRmdFiles) || any(shinyQmdFiles)) {
+    if (!is.null(quartoInfo)) {
       return("quarto-shiny")
+    } else {
+      return("rmd-shiny")
     }
   }
 
@@ -427,12 +450,13 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     return("shiny")
   }
 
-  # Any non-Shiny R Markdown documents are rendered content (rmd-static).
-  if (length(rmdFiles) > 0) {
-    if (is.null(quartoInfo)) {
-      return("rmd-static")
-    } else {
+  # Any non-Shiny R Markdown or Quarto documents are rendered content and get
+  # rmd-static or quarto-static.
+  if (length(rmdFiles) > 0 || length(qmdFiles) > 0) {
+    if (!is.null(quartoInfo)) {
       return("quarto-static")
+    } else {
+      return("rmd-static")
     }
   }
 
