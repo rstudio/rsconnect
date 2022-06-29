@@ -517,12 +517,14 @@ inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePytho
   unique(deps)
 }
 
-# With shiny v1.7.2 or higher, renderPlot() will default to ragg for png
-# rendering (if it's installed), so include it if it's installed locally (this
-# way users will get consistent PNG results without needing to add library(ragg)
-# to the app). https://github.com/rstudio/shiny/pull/3654
+# With shiny v1.7.2 or higher, renderPlot() defaults to ragg for png rendering
+# (if it's installed), so include it if it's installed locally (this way users
+# will get consistent PNG results without needing to add library(ragg) to the
+# app). https://github.com/rstudio/shiny/pull/3654
 shinyDeps <- function() {
-  c("shiny", if (system.file(package = "ragg") != "") "ragg")
+  has_ragg <- system.file(package = "ragg") != ""
+  new_shiny <- packageVersion("shiny") >= "1.7.2"
+  c("shiny", if (has_ragg && new_shiny) "ragg")
 }
 
 isWindows <- function() {
