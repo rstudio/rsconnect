@@ -2,6 +2,7 @@
 
 ## 0.8.27 (in development)
 
+* If the `ragg` package is installed locally, it is now added as an implicit dependency to `shiny` apps since `shiny::renderPlot()` now uses it by default (when available). This way, `shiny` apps won't have to add `library(ragg)` to get consistent (higher-quality) PNG images when deployed. (#598)  
 
 ## 0.8.26
 
