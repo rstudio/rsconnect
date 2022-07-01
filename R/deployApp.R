@@ -520,6 +520,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   quartoInfo <- inferQuartoInfo(
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
+    appFiles = appFiles,
     quarto = quarto,
     metadata = metadata
   )
