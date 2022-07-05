@@ -23,6 +23,7 @@ Imports:
     tools,
     yaml (>= 2.1.5)
 Suggests:
+    BiocManager,
     RCurl,
     callr,
     httpuv,

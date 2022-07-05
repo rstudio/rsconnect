@@ -1015,8 +1015,27 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
     default = c("duplicates")
   )
 
+  # get Bioconductor version if specified
+  biocVersion <- getOption("rsconnect.biocVersion")
   # get Bioconductor repos if any
-  biocRepos <- repos[grep('BioC', names(repos), perl = TRUE, value = TRUE)]
+  biocRepos <- if (any(startsWith(names(repos),"BioC"))) {
+        # User already has specified BioConductor repositories
+        # ==> only need to extract the BioConductor repos from the repo list
+	repos[grep('BioC', names(repos), perl = TRUE, value = TRUE)]
+  } else if (requireNamespace("BiocManager", quietly = TRUE)) {
+        # User has used BiocManager::install() only
+        # ==> need to set/define repositories 
+        tmpRepos <- if (is.null(biocVersion)) {
+                 # Use default Bioconductor version
+		 tmpRepos=BiocManager::repositories() 
+        } else if (!is.na(as.numeric(biocVersion))) {
+		 # Use specified Bioconductor version 
+	         tmpRepos=BiocManager::repositories(version=biocVersion) 
+        } else {
+  	         cat(sprintf("BioConductor Version %s specified but not a number.\n", biocVersion)) 
+        }
+        tmpRepos[startsWith(names(tmpRepos),"BioC")] 
+  }
   biocPackages <- if (length(biocRepos) > 0) {
     available.packages(
       contriburl = contrib.url(biocRepos, type = "source"),
