@@ -546,7 +546,7 @@ inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePytho
 # will get consistent PNG results without needing to add library(ragg) to the
 # app). https://github.com/rstudio/shiny/pull/3654
 shinyDeps <- function() {
-  include_ragg <- isAvailable("ragg") && isAvailable("shiny", "1.7.2")
+  include_ragg <- isAvailable("ragg") && isAvailable("shiny", "1.7.1.9000")
   c("shiny", if (include_ragg) "ragg")
 }
 
