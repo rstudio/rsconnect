@@ -6,6 +6,11 @@
   Quarto metadata is missing or cannot be gathered. Functions will error,
   requesting the path to a Quarto binary in the `quarto` argument. (#594)
 * fix typo for `.rscignore` (#599)
+* Quarto deployments specifying only an `appDir` and `quarto` binary but not an
+  `appPrimaryDoc` work more consistently. A directory containing a `.qmd` file
+  will deploy as Quarto content instead of failing, and a directory containing
+  an `.Rmd` file will successfully deploy as Quarto content instead of falling
+  back to R Markdown.
 
 ## 0.8.26
 

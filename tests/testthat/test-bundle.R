@@ -439,6 +439,7 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-doc-none",
     appPrimaryDoc = "quarto-doc-none.qmd",
+    appFiles = bundleFiles("quarto-doc-none"),
     quarto = quarto,
     metadata = list()
   )
@@ -448,6 +449,7 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
     quarto = quarto,
     metadata = list()
   )
@@ -463,6 +465,7 @@ test_that("inferQuartoInfo extracts info from metadata when it is provided alone
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
     quarto = NULL,
     metadata = metadata
   )
@@ -478,6 +481,7 @@ test_that("inferQuartoInfo prefers using metadata over running quarto inspect it
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
     quarto = quarto,
     metadata = metadata
   )
@@ -490,6 +494,7 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
   quartoInfo <- inferQuartoInfo(
     appDir = "shinyapp-simple",
     appPrimaryDoc = NULL,
+    appFiles = bundleFiles("shinyapp-simple"),
     quarto = quarto,
     metadata = list()
   )
@@ -517,6 +522,40 @@ test_that("writeManifest: Quarto document includes quarto in the manifest", {
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "markdown")
   expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+})
+
+test_that("writeManifest: Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.qmd)", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "quarto-doc-none"
+  appPrimaryDoc = NULL
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "markdown")
+  expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+})
+
+test_that("writeManifest: Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.Rmd)", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "shiny-rmds"
+  appPrimaryDoc = NULL
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-shiny")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "non-shiny-rmd.Rmd")
+})
+
+test_that("writeManifest: specifying quarto arg with non-quarto app does not include quarto in the manifest", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "shinyapp-singleR"
+  appPrimaryDoc = "single.R"
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_null(manifest$quarto)
 })
 
 test_that("writeManifest: Quarto shiny project includes quarto in the manifest", {
