@@ -5,12 +5,16 @@
 * Quarto content will no longer silently deploy as R Markdown content when
   Quarto metadata is missing or cannot be gathered. Functions will error,
   requesting the path to a Quarto binary in the `quarto` argument. (#594)
-* fix typo for `.rscignore` (#599)
+* Fix typo for `.rscignore`. (#599)
 * Quarto deployments specifying only an `appDir` and `quarto` binary but not an
   `appPrimaryDoc` work more consistently. A directory containing a `.qmd` file
   will deploy as Quarto content instead of failing, and a directory containing
   an `.Rmd` file will successfully deploy as Quarto content instead of falling
-  back to R Markdown.
+  back to R Markdown. (#601)
+* If the `ragg` package is installed locally, it is now added as an implicit
+  dependency to `shiny` apps since `shiny::renderPlot()` now uses it by default 
+  (when available). This way, `shiny` apps won't have to add `library(ragg)` to 
+  get consistent (higher-quality) PNG images when deployed. (#598)  
 
 ## 0.8.26
 
