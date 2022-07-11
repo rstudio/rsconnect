@@ -8,9 +8,9 @@
 * fix typo for `.rscignore` (#599)
 * Quarto deployments specifying only an `appDir` and `quarto` binary but not an
   `appPrimaryDoc` work more consistently. A directory containing a `.qmd` file
-  will deploy as Quarto content instead of faling, and a directory containing an
-  `.Rmd` file will successfully deploy as Quarto content instead of falling back
-  to R Markdown.
+  will deploy as Quarto content instead of failing, and a directory containing
+  an `.Rmd` file will successfully deploy as Quarto content instead of falling
+  back to R Markdown.
 
 ## 0.8.26
 
