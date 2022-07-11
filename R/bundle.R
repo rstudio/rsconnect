@@ -419,8 +419,8 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
   # *or* _quarto.yml was causing deployment failures in static content.
   # https://github.com/rstudio/rstudio/issues/11444
   hasQuartoYaml <- any(grepl("^_quarto.y(a)?ml$", x = files, ignore.case = TRUE, perl = TRUE))
-  hasQuartoSupportedFiles <- any(length(qmdFiles) > 0, length(rmdFiles > 0))
-  requiresQuarto <- (hasQuartoSupportedFiles && hasQuartoYaml) || length(qmdFiles) > 0
+  hasQuartoCompatibleFiles <- any(length(qmdFiles) > 0, length(rmdFiles > 0))
+  requiresQuarto <- (hasQuartoCompatibleFiles && hasQuartoYaml) || length(qmdFiles) > 0
 
   # We gate the deployment of content that appears to be Quarto behind the
   # presence of Quarto metadata. Rmd files can still be deployed as Quarto
@@ -476,8 +476,10 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
 }
 
 inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
-  # if deploying an R Markdown app or static content, infer a primary document
-  # if not already specified
+  # If deploying an R Markdown, Quarto, or static content, infer a primary
+  # document if one is not already specified.
+  # Note: functionality in inferQuartoInfo() depends on primary doc inference
+  # working the same across app modes.
   docAppModes <- c(
       "static",
       "rmd-shiny",
@@ -939,7 +941,7 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
 # quarto executable is provided, and then from metadata.
-inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
+inferQuartoInfo <- function(appDir, appPrimaryDoc, appFiles, quarto, metadata) {
   quartoInfo <- NULL
   if (!is.null(metadata$quarto_version)) {
     # Prefer metadata, because that means someone already ran quarto inspect
@@ -950,6 +952,22 @@ inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
   }
   if (is.null(quartoInfo) && !is.null(quarto)) {
     # If we don't yet have Quarto details, run quarto inspect ourselves
+
+    # If no appPrimaryDoc has been provided, we will use the file that will be
+    # chosen if this deployment ends up with an R Markdown or Quarto app mode.
+    # This works because:
+
+    # - App modes are only used to gate primary doc inference; the behavior does
+    #   not differ between app modes.
+    # - inferAppPrimaryDoc() returns appPrimaryDoc() if it is not null.
+    tryCatch({
+      appPrimaryDoc <- inferAppPrimaryDoc(
+        appPrimaryDoc = appPrimaryDoc,
+        appFiles = appFiles,
+        appMode = "quarto-static"
+      )
+    }, error = function(e) {}
+    )
     inspect <- quartoInspect(
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,

@@ -59,6 +59,7 @@ writeManifest <- function(appDir = getwd(),
   quartoInfo <- inferQuartoInfo(
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
+    appFiles = appFiles,
     quarto = quarto,
     metadata = list()
   )
