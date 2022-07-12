@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.27 (in development)
+## 0.8.27
+
+Released to CRAN on 2022-07-12
 
 * Quarto content will no longer silently deploy as R Markdown content when
   Quarto metadata is missing or cannot be gathered. Functions will error,
