@@ -41,6 +41,8 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+      
+      - uses: quarto-dev/quarto-actions/setup@v2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

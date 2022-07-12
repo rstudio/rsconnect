@@ -925,17 +925,23 @@ explodeFiles <- function(dir, files) {
 quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
   if (!is.null(quarto)) {
     inspect <- NULL
+    print("Running quarto inspect")
+    print(paste("appDir:", appDir))
+    print(paste("appPrimaryDoc:", appPrimaryDoc))
     # If "quarto inspect appDir" fails, we will try "quarto inspect
     # appPrimaryDoc", so that we can support single files as well as projects.
     primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
     for (path in c(appDir, primaryDocPath)) {
       args <- c("inspect", path.expand(path))
       inspect <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = FALSE))
+      cat(inspect)
       if (is.null(attr(inspect, "status"))) {
+        print("Returning inspect")
         return(jsonlite::fromJSON(inspect))
       }
     }
   }
+  print("Returning NULL")
   return(NULL)
 }
 
