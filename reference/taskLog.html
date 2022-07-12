@@ -53,21 +53,28 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">taskLog</span><span class="op">(</span><span class="va">taskId</span>, account <span class="op">=</span> <span class="cn">NULL</span>, server <span class="op">=</span> <span class="cn">NULL</span>, output <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">taskLog</span><span class="op">(</span><span class="va">taskId</span>, account <span class="op">=</span> <span class="cn">NULL</span>, server <span class="op">=</span> <span class="cn">NULL</span>, output <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>taskId</dt>
 <dd><p>Task Id</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account name. If a single account is registered on the system
 then this parameter can be omitted.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers (see <code><a href="servers.html">servers()</a></code>)</p></dd>
+
+
 <dt>output</dt>
 <dd><p>Where to write output. Valid values are <code>NULL</code> or <code>stderr</code></p></dd>
+
 </dl></div>
     <div id="see-also">
     <h2>See also</h2>
@@ -76,15 +83,15 @@ multiple servers (see <code><a href="servers.html">servers()</a></code>)</p></dd
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># write task log to stdout</span></span>
-<span class="r-in"><span class="fu">taskLog</span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># write task log to stderr</span></span>
-<span class="r-in"><span class="fu">taskLog</span><span class="op">(</span><span class="fl">12345</span>, output<span class="op">=</span><span class="st">"stderr"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># write task log to stdout</span></span></span>
+<span class="r-in"><span><span class="fu">taskLog</span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># write task log to stderr</span></span></span>
+<span class="r-in"><span><span class="fu">taskLog</span><span class="op">(</span><span class="fl">12345</span>, output<span class="op">=</span><span class="st">"stderr"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -99,7 +106,7 @@ multiple servers (see <code><a href="servers.html">servers()</a></code>)</p></dd
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

@@ -55,42 +55,53 @@ rsconnect can deploy and manage applications."><meta property="og:image" content
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">servers</span><span class="op">(</span>local <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">discoverServers</span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">addConnectServer</span><span class="op">(</span><span class="va">url</span>, name <span class="op">=</span> <span class="cn">NULL</span>, certificate <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">addServer</span><span class="op">(</span><span class="va">url</span>, name <span class="op">=</span> <span class="cn">NULL</span>, certificate <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">removeServer</span><span class="op">(</span><span class="va">name</span><span class="op">)</span>
-
-<span class="fu">serverInfo</span><span class="op">(</span><span class="va">name</span><span class="op">)</span>
-
-<span class="fu">addServerCertificate</span><span class="op">(</span><span class="va">name</span>, <span class="va">certificate</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">servers</span><span class="op">(</span>local <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">discoverServers</span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">addConnectServer</span><span class="op">(</span><span class="va">url</span>, name <span class="op">=</span> <span class="cn">NULL</span>, certificate <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">addServer</span><span class="op">(</span><span class="va">url</span>, name <span class="op">=</span> <span class="cn">NULL</span>, certificate <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">removeServer</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">serverInfo</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">addServerCertificate</span><span class="op">(</span><span class="va">name</span>, <span class="va">certificate</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>local</dt>
 <dd><p>Return only local servers (i.e. not <code>shinyapps.io</code>)</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>Suppress output and prompts where possible.</p></dd>
+
+
 <dt>url</dt>
 <dd><p>Server's URL. Should look like <code>http://servername/</code> or
 <code>http://servername:port/</code>.</p></dd>
+
+
 <dt>name</dt>
 <dd><p>Optional nickname for the server. If none is given, the nickname
 is inferred from the server's hostname.</p></dd>
+
+
 <dt>certificate</dt>
 <dd><p>Optional; a path a certificate file to be used when making
 SSL connections to the server. The file's contents are copied and stored by
 the <span class="pkg">rsconnect</span> package. Can also be a character vector containing the
 certificate's contents.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>servers</code> returns a data frame with registered server names and URLs.
+    
+
+<p><code>servers</code> returns a data frame with registered server names and URLs.
 <code>serverInfo</code> returns a list with details for a particular server.</p>
     </div>
     <div id="details">
@@ -107,17 +118,17 @@ server)</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># register a local server</span></span>
-<span class="r-in"><span class="fu">addServer</span><span class="op">(</span><span class="st">"http://myrsconnect/"</span>, <span class="st">"myserver"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># list servers</span></span>
-<span class="r-in"><span class="fu">servers</span><span class="op">(</span>local <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># connect to an account on the server</span></span>
-<span class="r-in"><span class="fu"><a href="connectUser.html">connectUser</a></span><span class="op">(</span>server <span class="op">=</span> <span class="st">"myserver"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># register a local server</span></span></span>
+<span class="r-in"><span><span class="fu">addServer</span><span class="op">(</span><span class="st">"http://myrsconnect/"</span>, <span class="st">"myserver"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># list servers</span></span></span>
+<span class="r-in"><span><span class="fu">servers</span><span class="op">(</span>local <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># connect to an account on the server</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="connectUser.html">connectUser</a></span><span class="op">(</span>server <span class="op">=</span> <span class="st">"myserver"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -132,7 +143,7 @@ server)</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

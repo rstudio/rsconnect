@@ -53,16 +53,16 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">showUsage</span><span class="op">(</span>
-  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  appName <span class="op">=</span> <span class="cn">NULL</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  usageType <span class="op">=</span> <span class="st">"hours"</span>,
-  from <span class="op">=</span> <span class="cn">NULL</span>,
-  until <span class="op">=</span> <span class="cn">NULL</span>,
-  interval <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">showUsage</span><span class="op">(</span></span>
+<span>  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  usageType <span class="op">=</span> <span class="st">"hours"</span>,</span>
+<span>  from <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  until <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -70,25 +70,40 @@
     <dl><dt>appDir</dt>
 <dd><p>Directory containing application. Defaults to
 current working directory.</p></dd>
+
+
 <dt>appName</dt>
 <dd><p>Name of application</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account name. If a single account is registered on the
 system then this parameter can be omitted.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers.</p></dd>
+
+
 <dt>usageType</dt>
 <dd><p>Use metric to retreive (for example: "hours")</p></dd>
+
+
 <dt>from</dt>
 <dd><p>Date range starting timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").</p></dd>
+
+
 <dt>until</dt>
 <dd><p>Date range ending timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").</p></dd>
+
+
 <dt>interval</dt>
 <dd><p>Summarization interval. Data points at intervals less then this
 will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").</p></dd>
+
 </dl></div>
     <div id="note">
     <h2>Note</h2>
@@ -107,7 +122,7 @@ will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

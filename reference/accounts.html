@@ -55,11 +55,11 @@ deploying applications you need to register your account on the local system.</p
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">accounts</span><span class="op">(</span>server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-
-<span class="fu">accountInfo</span><span class="op">(</span><span class="va">name</span>, server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-
-<span class="fu">removeAccount</span><span class="op">(</span><span class="va">name</span>, server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">accounts</span><span class="op">(</span>server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">accountInfo</span><span class="op">(</span><span class="va">name</span>, server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">removeAccount</span><span class="op">(</span><span class="va">name</span>, server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -67,12 +67,17 @@ deploying applications you need to register your account on the local system.</p
     <dl><dt>server</dt>
 <dd><p>Name of the server on which the account is registered
 (optional; see <code><a href="servers.html">servers()</a></code>)</p></dd>
+
+
 <dt>name</dt>
 <dd><p>Name of account</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>accounts</code> returns a data frame with the names of all accounts
+    
+
+<p><code>accounts</code> returns a data frame with the names of all accounts
 registered on the system and the servers on which they reside.
 <code>accountInfo</code> returns a list with account details.</p>
     </div>
@@ -104,7 +109,7 @@ previously registered accounts.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

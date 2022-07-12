@@ -57,14 +57,14 @@ be reset.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">forgetDeployment</span><span class="op">(</span>
-  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  name <span class="op">=</span> <span class="cn">NULL</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  dryRun <span class="op">=</span> <span class="cn">FALSE</span>,
-  force <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">forgetDeployment</span><span class="op">(</span></span>
+<span>  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dryRun <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  force <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -72,24 +72,37 @@ be reset.</p>
     <dl><dt>appPath</dt>
 <dd><p>The path to the content that was deployed, either a directory
 or an individual document.</p></dd>
+
+
 <dt>name</dt>
 <dd><p>The name of the content that was deployed (optional)</p></dd>
+
+
 <dt>account</dt>
 <dd><p>The name of the account to which the content was deployed
 (optional)</p></dd>
+
+
 <dt>server</dt>
 <dd><p>The name of the server to which the content was deployed
 (optional)</p></dd>
+
+
 <dt>dryRun</dt>
 <dd><p>Set to TRUE to preview the files/directories to be removed
 instead of actually removing them. Defaults to FALSE.</p></dd>
+
+
 <dt>force</dt>
 <dd><p>Set to TRUE to remove files and directories without prompting.
 Defaults to FALSE in interactive sessions.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>NULL, invisibly.</p>
+    
+
+<p>NULL, invisibly.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -111,7 +124,7 @@ specified deployment is forgotten.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

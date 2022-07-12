@@ -55,7 +55,7 @@ project.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">linter</span><span class="op">(</span><span class="va">apply</span>, <span class="va">takes</span>, <span class="va">message</span>, <span class="va">suggestion</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">linter</span><span class="op">(</span><span class="va">apply</span>, <span class="va">takes</span>, <span class="va">message</span>, <span class="va">suggestion</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -63,39 +63,46 @@ project.</p>
     <dl><dt>apply</dt>
 <dd><p>Function that, given the content of a file, returns the indices
 at which problems were found.</p></dd>
+
+
 <dt>takes</dt>
 <dd><p>Function that, given a set of paths, returns the subset of
 paths that this linter uses.</p></dd>
+
+
 <dt>message</dt>
 <dd><p>Function that, given content and lines, returns an
 informative message for the user. Typically generated with
 <code><a href="makeLinterMessage.html">makeLinterMessage()</a></code>.</p></dd>
+
+
 <dt>suggestion</dt>
 <dd><p>String giving a prescribed fix for the linted problem.</p></dd>
+
 </dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="addLinter.html">addLinter</a></span><span class="op">(</span><span class="st">"no.capitals"</span>, <span class="fu">linter</span><span class="op">(</span></span>
-<span class="r-in"></span>
-<span class="r-in">  <span class="co">## Identify lines containing capital letters -- either by name or by index</span></span>
-<span class="r-in">  apply <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">content</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"[A-Z]"</span>, <span class="va">content</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">  <span class="co">## Only use this linter on R files (paths ending with .r or .R)</span></span>
-<span class="r-in">  takes <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">paths</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"[rR]$"</span>, <span class="va">paths</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">  <span class="co"># Use the default message constructor</span></span>
-<span class="r-in">  message <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">content</span>, <span class="va">lines</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="fu"><a href="makeLinterMessage.html">makeLinterMessage</a></span><span class="op">(</span><span class="st">"Capital letters found on the following lines"</span>, <span class="va">content</span>, <span class="va">lines</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">  <span class="co"># Give a suggested prescription</span></span>
-<span class="r-in">  suggest <span class="op">=</span> <span class="st">"Do not use capital letters in these documents."</span></span>
-<span class="r-in"><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="addLinter.html">addLinter</a></span><span class="op">(</span><span class="st">"no.capitals"</span>, <span class="fu">linter</span><span class="op">(</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## Identify lines containing capital letters -- either by name or by index</span></span></span>
+<span class="r-in"><span>  apply <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">content</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"[A-Z]"</span>, <span class="va">content</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## Only use this linter on R files (paths ending with .r or .R)</span></span></span>
+<span class="r-in"><span>  takes <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">paths</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"[rR]$"</span>, <span class="va">paths</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Use the default message constructor</span></span></span>
+<span class="r-in"><span>  message <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">content</span>, <span class="va">lines</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="makeLinterMessage.html">makeLinterMessage</a></span><span class="op">(</span><span class="st">"Capital letters found on the following lines"</span>, <span class="va">content</span>, <span class="va">lines</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Give a suggested prescription</span></span></span>
+<span class="r-in"><span>  suggest <span class="op">=</span> <span class="st">"Do not use capital letters in these documents."</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -110,7 +117,7 @@ informative message for the user. Typically generated with
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

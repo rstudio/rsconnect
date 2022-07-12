@@ -53,13 +53,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">deployments</span><span class="op">(</span>
-  <span class="va">appPath</span>,
-  nameFilter <span class="op">=</span> <span class="cn">NULL</span>,
-  accountFilter <span class="op">=</span> <span class="cn">NULL</span>,
-  serverFilter <span class="op">=</span> <span class="cn">NULL</span>,
-  excludeOrphaned <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">deployments</span><span class="op">(</span></span>
+<span>  <span class="va">appPath</span>,</span>
+<span>  nameFilter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  accountFilter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  serverFilter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  excludeOrphaned <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -67,23 +67,34 @@
     <dl><dt>appPath</dt>
 <dd><p>The path to the content that was deployed, either a directory
 or an individual document.</p></dd>
+
+
 <dt>nameFilter</dt>
 <dd><p>Return only deployments matching the given name (optional)</p></dd>
+
+
 <dt>accountFilter</dt>
 <dd><p>Return only deployments matching the given account
 (optional)</p></dd>
+
+
 <dt>serverFilter</dt>
 <dd><p>Return only deployments matching the given server
 (optional)</p></dd>
+
+
 <dt>excludeOrphaned</dt>
 <dd><p>If <code>TRUE</code> (the default), return only deployments
 made by a currently registered account. Deployments made from accounts that
 are no longer registered (via e.g.<code><a href="accounts.html">removeAccount()</a></code>) will not be
 returned.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a data frame with at least following columns:</p><table class="table table"><tr><td><code>name</code></td><td>Name of deployed application</td></tr><tr><td><code>account</code></td><td>Account owning deployed application</td></tr><tr><td><code>bundleId</code></td><td>Identifier of deployed application's bundle</td></tr><tr><td><code>url</code></td><td>URL of deployed application</td></tr><tr><td><code>when</code></td><td>When the application was deployed (in seconds since the
+    
+
+<p>Returns a data frame with at least following columns:</p><table class="table table"><tr><td><code>name</code></td><td>Name of deployed application</td></tr><tr><td><code>account</code></td><td>Account owning deployed application</td></tr><tr><td><code>bundleId</code></td><td>Identifier of deployed application's bundle</td></tr><tr><td><code>url</code></td><td>URL of deployed application</td></tr><tr><td><code>when</code></td><td>When the application was deployed (in seconds since the
 epoch)</td></tr><tr><td><code>lastSyncTime</code></td><td>When the application was last synced (in seconds since the
 epoch)</td></tr><tr><td><code>deploymentFile</code></td><td>Name of configuration file</td></tr></table><p>If additional metadata has been saved with the deployment record using the
 <code>metadata</code> argument to <code><a href="deployApp.html">deployApp()</a></code>, the frame will include
@@ -97,12 +108,12 @@ server, and <code><a href="deployApp.html">deployApp()</a></code> to create a ne
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Return all deployments of the ~/r/myapp directory made with the 'abc'</span></span>
-<span class="r-in"><span class="co"># account</span></span>
-<span class="r-in"><span class="fu">deployments</span><span class="op">(</span><span class="st">"~/r/myapp"</span>, accountFilter<span class="op">=</span><span class="st">"abc"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Return all deployments of the ~/r/myapp directory made with the 'abc'</span></span></span>
+<span class="r-in"><span><span class="co"># account</span></span></span>
+<span class="r-in"><span><span class="fu">deployments</span><span class="op">(</span><span class="st">"~/r/myapp"</span>, accountFilter<span class="op">=</span><span class="st">"abc"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -117,7 +128,7 @@ server, and <code><a href="deployApp.html">deployApp()</a></code> to create a ne
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

@@ -53,39 +53,52 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">showLogs</span><span class="op">(</span>
-  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  appFile <span class="op">=</span> <span class="cn">NULL</span>,
-  appName <span class="op">=</span> <span class="cn">NULL</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  entries <span class="op">=</span> <span class="fl">50</span>,
-  streaming <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">showLogs</span><span class="op">(</span></span>
+<span>  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appFile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  entries <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  streaming <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>appPath</dt>
 <dd><p>The path to the directory or file that was deployed.</p></dd>
+
+
 <dt>appFile</dt>
 <dd><p>The path to the R source file that contains the application
 (for single file applications).</p></dd>
+
+
 <dt>appName</dt>
 <dd><p>The name of the application to show logs for. May be omitted
 if only one application deployment was made from <code>appPath</code>.</p></dd>
+
+
 <dt>account</dt>
 <dd><p>The account under which the application was deployed. May be
 omitted if only one account is registered on the system.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers.</p></dd>
+
+
 <dt>entries</dt>
 <dd><p>The number of log entries to show. Defaults to 50 entries.</p></dd>
+
+
 <dt>streaming</dt>
 <dd><p>Whether to stream the logs. If <code>TRUE</code>, then the
 function does not return; instead, log entries are written to the console
 as they are made, until R is interrupted. Defaults to <code>FALSE</code>.</p></dd>
+
 </dl></div>
     <div id="note">
     <h2>Note</h2>
@@ -105,7 +118,7 @@ ShinyApps servers.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

@@ -55,29 +55,36 @@ manage applications on behalf of the account.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">connectUser</span><span class="op">(</span>
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>,
-  launch.browser <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.launch.browser"</span>, <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">connectUser</span><span class="op">(</span></span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  launch.browser <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.launch.browser"</span>, <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>account</dt>
 <dd><p>A name for the account to connect. Optional.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>The server to connect to. Optional if there is only one server
 registered.</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>Whether or not to show messages and prompts while connecting the
 account.</p></dd>
+
+
 <dt>launch.browser</dt>
 <dd><p>If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to <code>TRUE</code> in
 interactive sessions only. If a function is passed, it will be called
 after the app is started, with the app URL as a paramter.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -108,7 +115,7 @@ prompts for credentials.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

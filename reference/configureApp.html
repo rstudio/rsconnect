@@ -53,41 +53,56 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">configureApp</span><span class="op">(</span>
-  <span class="va">appName</span>,
-  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  redeploy <span class="op">=</span> <span class="cn">TRUE</span>,
-  size <span class="op">=</span> <span class="cn">NULL</span>,
-  instances <span class="op">=</span> <span class="cn">NULL</span>,
-  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">configureApp</span><span class="op">(</span></span>
+<span>  <span class="va">appName</span>,</span>
+<span>  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  redeploy <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  instances <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>appName</dt>
 <dd><p>Name of application to configure</p></dd>
+
+
 <dt>appDir</dt>
 <dd><p>Directory containing application. Defaults to
 current working directory.</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account name. If a single account is registered on the
 system then this parameter can be omitted.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers (see <code><a href="servers.html">servers()</a></code>)</p></dd>
+
+
 <dt>redeploy</dt>
 <dd><p>Re-deploy application after its been configured.</p></dd>
+
+
 <dt>size</dt>
 <dd><p>Configure application instance size</p></dd>
+
+
 <dt>instances</dt>
 <dd><p>Configure number of application instances</p></dd>
+
+
 <dt>logLevel</dt>
 <dd><p>One of <code>"quiet"</code>, <code>"normal"</code> or <code>"verbose"</code>; indicates how
 much logging to the console is to be performed. At <code>"quiet"</code> reports no
 information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></dd>
+
 </dl></div>
     <div id="note">
     <h2>Note</h2>
@@ -100,11 +115,11 @@ information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># set instance size for an application</span></span>
-<span class="r-in"><span class="fu">configureApp</span><span class="op">(</span><span class="st">"myapp"</span>, size<span class="op">=</span><span class="st">"xlarge"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># set instance size for an application</span></span></span>
+<span class="r-in"><span><span class="fu">configureApp</span><span class="op">(</span><span class="st">"myapp"</span>, size<span class="op">=</span><span class="st">"xlarge"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -119,7 +134,7 @@ information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

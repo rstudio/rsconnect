@@ -53,22 +53,29 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">purgeApp</span><span class="op">(</span><span class="va">appName</span>, account <span class="op">=</span> <span class="cn">NULL</span>, server <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">purgeApp</span><span class="op">(</span><span class="va">appName</span>, account <span class="op">=</span> <span class="cn">NULL</span>, server <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>appName</dt>
 <dd><p>Name of application to purge</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account name. If a single account is registered on the system
 then this parameter can be omitted.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers (see <code><a href="servers.html">servers()</a></code>)</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>Request that no status information be printed to the console
 during the termination.</p></dd>
+
 </dl></div>
     <div id="note">
     <h2>Note</h2>
@@ -82,11 +89,11 @@ during the termination.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># purge an application</span></span>
-<span class="r-in"><span class="fu">purgeApp</span><span class="op">(</span><span class="st">"myapp"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># purge an application</span></span></span>
+<span class="r-in"><span><span class="fu">purgeApp</span><span class="op">(</span><span class="st">"myapp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -101,7 +108,7 @@ during the termination.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

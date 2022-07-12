@@ -61,31 +61,42 @@ document. If an error occurs then a diagnostic message is returned in the
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">rpubsUpload</span><span class="op">(</span><span class="va">title</span>, <span class="va">contentFile</span>, <span class="va">originalDoc</span>, id <span class="op">=</span> <span class="cn">NULL</span>, properties <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rpubsUpload</span><span class="op">(</span><span class="va">title</span>, <span class="va">contentFile</span>, <span class="va">originalDoc</span>, id <span class="op">=</span> <span class="cn">NULL</span>, properties <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>title</dt>
 <dd><p>The title of the document.</p></dd>
+
+
 <dt>contentFile</dt>
 <dd><p>The path to the content file to upload.</p></dd>
+
+
 <dt>originalDoc</dt>
 <dd><p>The document that was rendered to produce the
 <code>contentFile</code>. May be <code>NULL</code> if the document is not known.</p></dd>
+
+
 <dt>id</dt>
 <dd><p>If this upload is an update of an existing document then the id
 parameter should specify the document id to update. Note that the id is
 provided as an element of the list returned by successful calls to
 <code>rpubsUpload</code>.</p></dd>
+
+
 <dt>properties</dt>
 <dd><p>A named list containing additional document properties
 (RPubs doesn't currently expect any additional properties, this parameter
 is reserved for future use).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A named list. If the upload was successful then the list contains a
+    
+
+<p>A named list. If the upload was successful then the list contains a
 <code>id</code> element that can be used to subsequently update the document as
 well as a <code>continueUrl</code> element that provides a URL that a browser
 should be opened to in order to complete publishing of the document. If the
@@ -95,18 +106,18 @@ an explanation of the error that occurred.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co"># upload a document</span></span>
-<span class="r-in"><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">rpubsUpload</span><span class="op">(</span><span class="st">"My document title"</span>, <span class="st">"Document.html"</span><span class="op">)</span></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">continueUrl</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in">   <span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">continueUrl</span><span class="op">)</span></span>
-<span class="r-in"><span class="kw">else</span></span>
-<span class="r-in">   <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">error</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># update the same document with a new title</span></span>
-<span class="r-in"><span class="va">updateResult</span> <span class="op">&lt;-</span> <span class="fu">rpubsUpload</span><span class="op">(</span><span class="st">"My updated title"</span>, <span class="st">"Document.html"</span>,</span>
-<span class="r-in">                            id <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">id</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># upload a document</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">rpubsUpload</span><span class="op">(</span><span class="st">"My document title"</span>, <span class="st">"Document.html"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">continueUrl</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>   <span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">continueUrl</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">else</span></span></span>
+<span class="r-in"><span>   <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">error</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># update the same document with a new title</span></span></span>
+<span class="r-in"><span><span class="va">updateResult</span> <span class="op">&lt;-</span> <span class="fu">rpubsUpload</span><span class="op">(</span><span class="st">"My updated title"</span>, <span class="st">"Document.html"</span>,</span></span>
+<span class="r-in"><span>                            id <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">id</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -121,7 +132,7 @@ an explanation of the error that occurred.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

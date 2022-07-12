@@ -53,7 +53,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">applications</span><span class="op">(</span>account <span class="op">=</span> <span class="cn">NULL</span>, server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">applications</span><span class="op">(</span>account <span class="op">=</span> <span class="cn">NULL</span>, server <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -61,13 +61,18 @@
     <dl><dt>account</dt>
 <dd><p>Account name. If a single account is registered on the system
 then this parameter can be omitted.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a data frame with the following columns:</p><table class="table table"><tr><td><code>id</code></td><td>Application unique id</td></tr><tr><td><code>name</code></td><td>Name of application</td></tr><tr><td><code>url</code></td><td>URL where application can be accessed</td></tr><tr><td><code>status</code></td><td>Current status of application. Valid values are <code>pending</code>,
+    
+
+<p>Returns a data frame with the following columns:</p><table class="table table"><tr><td><code>id</code></td><td>Application unique id</td></tr><tr><td><code>name</code></td><td>Name of application</td></tr><tr><td><code>url</code></td><td>URL where application can be accessed</td></tr><tr><td><code>status</code></td><td>Current status of application. Valid values are <code>pending</code>,
 <code>deploying</code>, <code>running</code>, <code>terminating</code>, and <code>terminated</code></td></tr><tr><td><code>size</code></td><td>Instance size (small, medium, large, etc.) (on
 ShinyApps.io)</td></tr><tr><td><code>instances</code></td><td>Number of instances (on ShinyApps.io)</td></tr><tr><td><code>config_url</code></td><td>URL where application can be configured</td></tr></table></div>
     <div id="note">
@@ -87,17 +92,17 @@ ShinyApps.io)</td></tr><tr><td><code>instances</code></td><td>Number of instance
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># list all applications for the default account</span></span>
-<span class="r-in"><span class="fu">applications</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># list all applications for a specific account</span></span>
-<span class="r-in"><span class="fu">applications</span><span class="op">(</span><span class="st">"myaccount"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># view the list of applications in the data viewer</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="fu">applications</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># list all applications for the default account</span></span></span>
+<span class="r-in"><span><span class="fu">applications</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># list all applications for a specific account</span></span></span>
+<span class="r-in"><span><span class="fu">applications</span><span class="op">(</span><span class="st">"myaccount"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># view the list of applications in the data viewer</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="fu">applications</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -112,7 +117,7 @@ ShinyApps.io)</td></tr><tr><td><code>instances</code></td><td>Number of instance
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

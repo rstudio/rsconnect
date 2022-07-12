@@ -53,19 +53,19 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">deploySite</span><span class="op">(</span>
-  siteDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  siteName <span class="op">=</span> <span class="cn">NULL</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  render <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"local"</span>, <span class="st">"server"</span><span class="op">)</span>,
-  launch.browser <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.launch.browser"</span>, <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,
-  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span>,
-  lint <span class="op">=</span> <span class="cn">FALSE</span>,
-  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  python <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">deploySite</span><span class="op">(</span></span>
+<span>  siteDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  siteName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  render <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"local"</span>, <span class="st">"server"</span><span class="op">)</span>,</span>
+<span>  launch.browser <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.launch.browser"</span>, <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span>,</span>
+<span>  lint <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,17 +73,25 @@
     <dl><dt>siteDir</dt>
 <dd><p>Directory containing website. Defaults to current
 working directory.</p></dd>
+
+
 <dt>siteName</dt>
 <dd><p>Name for the site (names must be unique within
 an account). Defaults to the base name of the specified siteDir,
 (or to a name provided by a custom site generation function).</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account to deploy application to. This parameter is only
 required for the initial deployment of an application when there are
 multiple accounts configured on the system (see <a href="accounts.html">accounts</a>).</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers.</p></dd>
+
+
 <dt>render</dt>
 <dd><p>Rendering behavior for site: "none" to upload a
 static version of the current contents of the site directory;
@@ -91,22 +99,32 @@ static version of the current contents of the site directory;
 render the site on the server. Note that for "none" and "local"
 R scripts (.R) and markdown documents (.Rmd and .md) will not be
 uploaded to the server.</p></dd>
+
+
 <dt>launch.browser</dt>
 <dd><p>If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to <code>TRUE</code> in
 interactive sessions only. If a function is passed, it will be called
 after the app is started, with the app URL as a paramter.</p></dd>
+
+
 <dt>logLevel</dt>
 <dd><p>One of <code>"quiet"</code>, <code>"normal"</code> or <code>"verbose"</code>; indicates how
 much logging to the console is to be performed. At <code>"quiet"</code> reports no
 information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></dd>
+
+
 <dt>lint</dt>
 <dd><p>Lint the project before initiating deployment, to identify
 potentially problematic code?</p></dd>
+
+
 <dt>metadata</dt>
 <dd><p>Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
 <code><a href="deployments.html">deployments()</a></code>.</p></dd>
+
+
 <dt>python</dt>
 <dd><p>Full path to a python binary for use by <code>reticulate</code>.
 Required if <code>reticulate</code> is a dependency of the app being deployed.
@@ -114,10 +132,13 @@ If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
 set in the environment, its value will be used. The specified python binary
 will be invoked to determine its version and to list the python packages
 installed in the environment.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments to <code><a href="deployApp.html">deployApp()</a></code>. Do not supply <code>appDir</code>,
 <code>appFiles</code>, or <code>appSourceDoc</code>; these three parameters are automatically
 generated by <code>deploySite</code>.</p></dd>
+
 </dl></div>
     <div id="see-also">
     <h2>See also</h2>
@@ -141,7 +162,7 @@ generated by <code>deploySite</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

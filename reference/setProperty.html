@@ -53,32 +53,43 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">setProperty</span><span class="op">(</span>
-  <span class="va">propertyName</span>,
-  <span class="va">propertyValue</span>,
-  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  appName <span class="op">=</span> <span class="cn">NULL</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  force <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setProperty</span><span class="op">(</span></span>
+<span>  <span class="va">propertyName</span>,</span>
+<span>  <span class="va">propertyValue</span>,</span>
+<span>  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  force <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>propertyName</dt>
 <dd><p>Name of property to set</p></dd>
+
+
 <dt>propertyValue</dt>
 <dd><p>Nalue to set property to</p></dd>
+
+
 <dt>appPath</dt>
 <dd><p>Directory or file that was deployed. Defaults to current
 working directory.</p></dd>
+
+
 <dt>appName</dt>
 <dd><p>Name of application</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account name. If a single account is registered on the system
 then this parameter can be omitted.</p></dd>
+
+
 <dt>force</dt>
 <dd><p>Forcibly set the property</p></dd>
+
 </dl></div>
     <div id="note">
     <h2>Note</h2>
@@ -87,15 +98,15 @@ then this parameter can be omitted.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># set instance size for an application</span></span>
-<span class="r-in"><span class="fu">setProperty</span><span class="op">(</span><span class="st">"application.instances.count"</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># disable application package cache</span></span>
-<span class="r-in"><span class="fu">setProperty</span><span class="op">(</span><span class="st">"application.package.cache"</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># set instance size for an application</span></span></span>
+<span class="r-in"><span><span class="fu">setProperty</span><span class="op">(</span><span class="st">"application.instances.count"</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># disable application package cache</span></span></span>
+<span class="r-in"><span><span class="fu">setProperty</span><span class="op">(</span><span class="st">"application.package.cache"</span>, <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -110,7 +121,7 @@ then this parameter can be omitted.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

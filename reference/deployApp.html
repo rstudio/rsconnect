@@ -57,32 +57,32 @@ content to a server.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">deployApp</span><span class="op">(</span>
-  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  appFiles <span class="op">=</span> <span class="cn">NULL</span>,
-  appFileManifest <span class="op">=</span> <span class="cn">NULL</span>,
-  appPrimaryDoc <span class="op">=</span> <span class="cn">NULL</span>,
-  appSourceDoc <span class="op">=</span> <span class="cn">NULL</span>,
-  appName <span class="op">=</span> <span class="cn">NULL</span>,
-  appTitle <span class="op">=</span> <span class="cn">NULL</span>,
-  appId <span class="op">=</span> <span class="cn">NULL</span>,
-  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,
-  account <span class="op">=</span> <span class="cn">NULL</span>,
-  server <span class="op">=</span> <span class="cn">NULL</span>,
-  upload <span class="op">=</span> <span class="cn">TRUE</span>,
-  recordDir <span class="op">=</span> <span class="cn">NULL</span>,
-  launch.browser <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.launch.browser"</span>, <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,
-  on.failure <span class="op">=</span> <span class="cn">NULL</span>,
-  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span>,
-  lint <span class="op">=</span> <span class="cn">TRUE</span>,
-  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  forceUpdate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.force.update.apps"</span>, <span class="cn">FALSE</span><span class="op">)</span>,
-  python <span class="op">=</span> <span class="cn">NULL</span>,
-  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,
-  quarto <span class="op">=</span> <span class="cn">NULL</span>,
-  appVisibility <span class="op">=</span> <span class="cn">NULL</span>,
-  image <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">deployApp</span><span class="op">(</span></span>
+<span>  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appFiles <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appFileManifest <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appPrimaryDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appSourceDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appTitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appId <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  upload <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  recordDir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  launch.browser <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.launch.browser"</span>, <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  on.failure <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span>,</span>
+<span>  lint <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  forceUpdate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.force.update.apps"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quarto <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appVisibility <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  image <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -90,78 +90,116 @@ content to a server.</p>
     <dl><dt>appDir</dt>
 <dd><p>Directory containing application. Defaults to current working
 directory.</p></dd>
+
+
 <dt>appFiles</dt>
 <dd><p>The files and directories to bundle and deploy (only if
 <code>upload = TRUE</code>). Can be <code>NULL</code>, in which case all the files in the
 directory containing the application are bundled, with the exception of
-any listed in an <code>.rcsignore</code> file. Takes precedence over
+any listed in an <code>.rscignore</code> file. Takes precedence over
 <code>appFileManifest</code> if both are supplied.</p></dd>
+
+
 <dt>appFileManifest</dt>
 <dd><p>An alternate way to specify the files to be deployed;
 a file containing the names of the files, one per line, relative to the
 <code>appDir</code>.</p></dd>
+
+
 <dt>appPrimaryDoc</dt>
 <dd><p>If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to <code>appDir</code>. Can be
 <code>NULL</code>, in which case the primary document is inferred from the contents
 being deployed.</p></dd>
+
+
 <dt>appSourceDoc</dt>
 <dd><p>If the application is composed of static files (e.g
 HTML), this parameter indicates the source document, if any, as a fully
 qualified path. Deployment information returned by <code><a href="deployments.html">deployments()</a></code> is
 associated with the source document.</p></dd>
+
+
 <dt>appName</dt>
 <dd><p>Name of application (names must be unique within an account).
 Defaults to the base name of the specified <code>appDir</code>.</p></dd>
+
+
 <dt>appTitle</dt>
 <dd><p>Free-form descriptive title of application. Optional; if
 supplied, will often be displayed in favor of the name. When deploying a
 new application, you may supply only the <code>appTitle</code> to receive an
 auto-generated <code>appName</code>.</p></dd>
+
+
 <dt>appId</dt>
 <dd><p>If updating an application, the ID of the application being
 updated. Optional unless updating an app owned by another user.</p></dd>
+
+
 <dt>contentCategory</dt>
 <dd><p>Optional; the kind of content being deployed (e.g.
 <code>"plot"</code> or <code>"site"</code>).</p></dd>
+
+
 <dt>account</dt>
 <dd><p>Account to deploy application to. This parameter is only
 required for the initial deployment of an application when there are
 multiple accounts configured on the system (see <a href="accounts.html">accounts</a>).</p></dd>
+
+
 <dt>server</dt>
 <dd><p>Server name. Required only if you use the same account name on
 multiple servers.</p></dd>
+
+
 <dt>upload</dt>
 <dd><p>If <code>TRUE</code> (the default) then the application is uploaded from
 the local system prior to deployment. If <code>FALSE</code> then it is re-deployed
 using the last version that was uploaded. <code>FALSE</code> is only supported on
 shinyapps.io; <code>TRUE</code> is required on RStudio Connect.</p></dd>
+
+
 <dt>recordDir</dt>
 <dd><p>Directory where publish record is written. Can be <code>NULL</code>
 in which case record will be written to the location specified with <code>appDir</code>.</p></dd>
+
+
 <dt>launch.browser</dt>
 <dd><p>If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to <code>TRUE</code> in
 interactive sessions only. If a function is passed, it will be called
 after the app is started, with the app URL as a paramter.</p></dd>
+
+
 <dt>on.failure</dt>
 <dd><p>Function to be called if the deployment fails. If a
 deployment log URL is available, it's passed as a parameter.</p></dd>
+
+
 <dt>logLevel</dt>
 <dd><p>One of <code>"quiet"</code>, <code>"normal"</code> or <code>"verbose"</code>; indicates how
 much logging to the console is to be performed. At <code>"quiet"</code> reports no
 information; at <code>"verbose"</code>, a full diagnostic log is captured.</p></dd>
+
+
 <dt>lint</dt>
 <dd><p>Lint the project before initiating deployment, to identify
 potentially problematic code?</p></dd>
+
+
 <dt>metadata</dt>
 <dd><p>Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
 <code><a href="deployments.html">deployments()</a></code>.</p></dd>
+
+
 <dt>forceUpdate</dt>
 <dd><p>If <code>TRUE</code>, update any previously-deployed app without
 asking. If <code>FALSE</code>, ask to update. If unset, defaults to the value of
 <code>getOption("rsconnect.force.update.apps", FALSE)</code>.</p></dd>
+
+
 <dt>python</dt>
 <dd><p>Full path to a python binary for use by <code>reticulate</code>.
 Required if <code>reticulate</code> is a dependency of the app being deployed.
@@ -169,21 +207,30 @@ If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
 set in the environment, its value will be used. The specified python binary
 will be invoked to determine its version and to list the python packages
 installed in the environment.</p></dd>
+
+
 <dt>forceGeneratePythonEnvironment</dt>
 <dd><p>Optional. If an existing
 <code>requirements.txt</code> file is found, it will be overwritten when this argument
 is <code>TRUE</code>.</p></dd>
+
+
 <dt>quarto</dt>
 <dd><p>Optional. Full path to a Quarto binary for use deploying Quarto
 content. The provided Quarto binary will be used to run <code>quarto inspect</code>
 to gather information about the content.</p></dd>
+
+
 <dt>appVisibility</dt>
 <dd><p>One of <code>NULL</code>, "private"<code>, or </code>"public"<code>; the visibility of the deployment. When </code>NULL`, no change to visibility is
 made. Currently has an effect only on deployments to shinyapps.io.</p></dd>
+
+
 <dt>image</dt>
 <dd><p>Optional. The name of the image to use when building and
 executing this content. If none is provided, RStudio Connect will
 attempt to choose an image based on the content requirements.</p></dd>
+
 </dl></div>
     <div id="see-also">
     <h2>See also</h2>
@@ -198,31 +245,31 @@ attempt to choose an image based on the content requirements.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># deploy the application in the current working dir</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># deploy an application in another directory</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/shiny/app1"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># deploy using an alternative application name and title</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/shiny/app1"</span>, appName <span class="op">=</span> <span class="st">"myapp"</span>,</span>
-<span class="r-in">          appTitle <span class="op">=</span> <span class="st">"My Application"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># deploy specifying an explicit account name, then</span></span>
-<span class="r-in"><span class="co"># redeploy with no arguments (will automatically use</span></span>
-<span class="r-in"><span class="co"># the previously specified account)</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span>account <span class="op">=</span> <span class="st">"jsmith"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># deploy but don't launch a browser when completed</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># deploy a Quarto website, using the quarto package to</span></span>
-<span class="r-in"><span class="co"># find the Quarto binary</span></span>
-<span class="r-in"><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/quarto/site1"</span>, quarto <span class="op">=</span> <span class="fu">quarto</span><span class="fu">::</span><span class="fu">quarto_path</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy the application in the current working dir</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy an application in another directory</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/shiny/app1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy using an alternative application name and title</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/shiny/app1"</span>, appName <span class="op">=</span> <span class="st">"myapp"</span>,</span></span>
+<span class="r-in"><span>          appTitle <span class="op">=</span> <span class="st">"My Application"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy specifying an explicit account name, then</span></span></span>
+<span class="r-in"><span><span class="co"># redeploy with no arguments (will automatically use</span></span></span>
+<span class="r-in"><span><span class="co"># the previously specified account)</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span>account <span class="op">=</span> <span class="st">"jsmith"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy but don't launch a browser when completed</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy a Quarto website, using the quarto package to</span></span></span>
+<span class="r-in"><span><span class="co"># find the Quarto binary</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/quarto/site1"</span>, quarto <span class="op">=</span> <span class="fu">quarto</span><span class="fu">::</span><span class="fu">quarto_path</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -237,7 +284,7 @@ attempt to choose an image based on the content requirements.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

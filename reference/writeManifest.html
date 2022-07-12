@@ -45,7 +45,7 @@ that directory describing the deployment requirements for that content."><meta p
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create a manifest.json describing deployment requirements.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rstudio/rsconnect/blob/HEAD/R/bundle.R" class="external-link"><code>R/bundle.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rstudio/rsconnect/blob/HEAD/R/writeManifest.R" class="external-link"><code>R/writeManifest.R</code></a></small>
     <div class="hidden name"><code>writeManifest.Rd</code></div>
     </div>
 
@@ -55,17 +55,17 @@ that directory describing the deployment requirements for that content.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">writeManifest</span><span class="op">(</span>
-  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,
-  appFiles <span class="op">=</span> <span class="cn">NULL</span>,
-  appPrimaryDoc <span class="op">=</span> <span class="cn">NULL</span>,
-  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,
-  python <span class="op">=</span> <span class="cn">NULL</span>,
-  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,
-  quarto <span class="op">=</span> <span class="cn">NULL</span>,
-  image <span class="op">=</span> <span class="cn">NULL</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">writeManifest</span><span class="op">(</span></span>
+<span>  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appFiles <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appPrimaryDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quarto <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  image <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,36 +73,53 @@ that directory describing the deployment requirements for that content.</p>
     <dl><dt>appDir</dt>
 <dd><p>Directory containing the content (Shiny application, R Markdown
 document, etc).</p></dd>
+
+
 <dt>appFiles</dt>
 <dd><p>Optional. The full set of files and directories to be
 included in future deployments of this content. Used when computing
 dependency requirements. When <code>NULL</code>, all files in <code>appDir</code> are considered.</p></dd>
+
+
 <dt>appPrimaryDoc</dt>
 <dd><p>Optional. Specifies the primary document in a content
 directory containing more than one. If <code>NULL</code>, the primary document is
 inferred from the file list.</p></dd>
+
+
 <dt>contentCategory</dt>
 <dd><p>Optional. Specifies the kind of content being deployed
 (e.g. <code>"plot"</code> or <code>"site"</code>).</p></dd>
+
+
 <dt>python</dt>
 <dd><p>Optional. Full path to a Python binary for use by <code>reticulate</code>.
 The specified Python binary will be invoked to determine its version and to
 list the Python packages installed in the environment. If <code>python = NULL</code>,
 and <code>RETICULATE_PYTHON</code> is set in the environment, its value will be used.</p></dd>
+
+
 <dt>forceGeneratePythonEnvironment</dt>
 <dd><p>Optional. If an existing
 <code>requirements.txt</code> file is found, it will be overwritten when this argument
 is <code>TRUE</code>.</p></dd>
+
+
 <dt>quarto</dt>
 <dd><p>Optional. Full path to a Quarto binary for use deploying Quarto
 content. The provided Quarto binary will be used to run <code>quarto inspect</code>
 to gather information about the content.</p></dd>
+
+
 <dt>image</dt>
 <dd><p>Optional. The name of the image to use when building and
 executing this content. If none is provided, RStudio Connect will
 attempt to choose an image based on the content requirements.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>If TRUE, prints progress messages to the console</p></dd>
+
 </dl></div>
 
   </div>
@@ -117,7 +134,7 @@ attempt to choose an image based on the content requirements.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
