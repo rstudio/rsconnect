@@ -923,26 +923,24 @@ explodeFiles <- function(dir, files) {
 
 # Run "quarto inspect" on the target and returns its output as a parsed object.
 quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
-  if (!is.null(quarto)) {
-    inspect <- NULL
-    print("Running quarto inspect")
-    print(paste("appDir:", appDir))
-    print(paste("appPrimaryDoc:", appPrimaryDoc))
-    # If "quarto inspect appDir" fails, we will try "quarto inspect
-    # appPrimaryDoc", so that we can support single files as well as projects.
-    primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
-    for (path in c(appDir, primaryDocPath)) {
-      args <- c("inspect", path.expand(path))
-      inspect <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = FALSE))
-      cat(inspect)
-      if (is.null(attr(inspect, "status"))) {
-        print("Returning inspect")
-        return(jsonlite::fromJSON(inspect))
-      }
-    }
+  if (is.null(quarto)) {
+    return(NULL)
   }
-  print("Returning NULL")
-  return(NULL)
+  inspect <- NULL
+  # If "quarto inspect appDir" fails, we will try "quarto inspect
+  # appPrimaryDoc", so that we can support single files as well as projects.
+  primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
+  for (path in c(appDir, primaryDocPath)) {
+    args <- c("inspect", path.expand(path))
+    tryCatch(
+      {
+        inspectOutput <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
+        inspect <- jsonlite::fromJSON(inspectOutput)
+        return(inspect)
+      },
+      error = function(e) e
+    )
+  }
 }
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
