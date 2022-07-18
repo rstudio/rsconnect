@@ -936,11 +936,12 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
       {
         inspectOutput <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
         inspect <- jsonlite::fromJSON(inspectOutput)
-        return(inspect)
       },
       error = function(e) e
     )
+    if (!is.null(inspect)) break
   }
+  return(inspect)
 }
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a
