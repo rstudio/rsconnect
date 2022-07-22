@@ -1,4 +1,3 @@
-
 # return a list of functions that can be used to interact with lucid
 lucidClient <- function(service, authInfo) {
   service <- parseHttpUrl(service)
@@ -360,8 +359,6 @@ cloudClient <- function(service, authInfo) {
       json$name <- name
       # the title field is only used on connect
       # the template and account id fields are not user by cloud.
-      # TODO: do we derive output type.
-      json$output_type <- "shiny"
 
       currentApplicationId = Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
