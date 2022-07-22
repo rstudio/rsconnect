@@ -210,6 +210,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
 #' @param name Name of account to save or remove
 #' @param token User token for the account
 #' @param secret User secret for the account
+#' @param cloud Whether this account should publish to rstudio.cloud.
 #'
 #' @examples
 #' \dontrun{
