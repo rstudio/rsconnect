@@ -275,7 +275,7 @@ clientForAccount <- function(account) {
     constructor <- lucidClient
   } else if (account$server == cloudServerInfo()$name) {
     serverInfo <- cloudServerInfo()
-    constructor <- cloudClient
+    constructor <- lucidClient
   } else {
     serverInfo <- serverInfo(account$server)
     constructor <- connectClient

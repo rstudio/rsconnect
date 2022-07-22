@@ -223,7 +223,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
 #'
 #' @family Account functions
 #' @export
-setAccountInfo <- function(name, token, secret, cloud = TRUE) {
+setAccountInfo <- function(name, token, secret, cloud = FALSE) {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))

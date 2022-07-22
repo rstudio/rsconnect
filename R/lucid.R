@@ -1,7 +1,14 @@
-# return a list of functions that can be used to interact with lucid
 lucidClient <- function(service, authInfo) {
   service <- parseHttpUrl(service)
+  if(grepl("rstudio.cloud", service$host)) {
+    cloudClient(service, authInfo)
+  } else {
+    shinyAppsClient(service, authInfo)
+  }
+}
 
+# return a list of functions that can be used to interact with shinyapps.io
+shinyAppsClient <- function(service, authInfo) {
   list(
 
     status = function() {
@@ -258,10 +265,8 @@ lucidClient <- function(service, authInfo) {
   )
 }
 
-# return a list of functions that can be used to interact with lucid
+# return a list of functions that can be used to interact with rstudio.cloud
 cloudClient <- function(service, authInfo) {
-  service <- parseHttpUrl(service)
-
   list(
 
     status = function() {
@@ -357,8 +362,6 @@ cloudClient <- function(service, authInfo) {
     createApplication = function(name, title, template, accountId) {
       json <- list()
       json$name <- name
-      # the title field is only used on connect
-      # the template and account id fields are not user by cloud.
 
       currentApplicationId = Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
