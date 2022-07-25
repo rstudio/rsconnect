@@ -250,9 +250,11 @@ setAccountInfo <- function(name, token, secret, cloud = FALSE) {
   } else {
     serverInfo <- shinyappsServerInfo()
   }
-  authInfo <- list(token = token, secret = secret,
-                   certificate = serverInfo$certificate)
-  lucid <- lucidClient(serverInfo$url, authInfo)
+  authInfo <- list(token = token,
+                   secret = secret,
+                   certificate = serverInfo$certificate,
+                   server = serverInfo$name)
+  lucid <- lucidClientForAccount(authInfo)
 
   # get user Id
   userId <- lucid$currentUser()$id

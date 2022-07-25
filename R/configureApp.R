@@ -105,8 +105,7 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
   # resolve the application target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account)
   accountDetails <- accountInfo(target$account)
-  serverDetails <- serverInfo(accountDetails$server)
-  lucid <- lucidClient(serverDetails$url, accountDetails)
+  lucid <- lucidClientForAccount(accountDetails)
   application <- getAppByName(lucid, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -147,8 +146,7 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName=NULL,
   # resolve the application target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account)
   accountDetails <- accountInfo(target$account)
-  serverDetails <- serverInfo(accountDetails$server)
-  lucid <- lucidClient(serverDetails$url, accountDetails)
+  lucid <- lucidClientForAccount(accountDetails)
   application <- getAppByName(lucid, accountInfo, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -178,8 +176,7 @@ showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
   # determine the log target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account)
   accountDetails <- accountInfo(target$account)
-  serverDetails <- serverInfo(accountDetails$server)
-  lucid <- lucidClient(serverDetails$url, accountDetails)
+  lucid <- lucidClientForAccount(accountDetails)
   application <- getAppByName(lucid, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",

@@ -267,25 +267,15 @@ missingServerErrorMessage <- function(name) {
 }
 
 clientForAccount <- function(account) {
-  authInfo <- account
 
   # determine appropriate server information for account
-  if (account$server == shinyappsServerInfo()$name) {
-    serverInfo <- shinyappsServerInfo()
-    constructor <- lucidClient
-  } else if (account$server == cloudServerInfo()$name) {
-    serverInfo <- cloudServerInfo()
-    constructor <- lucidClient
+  if (isShinyapps(account$server)) {
+    constructor <- lucidClientForAccount(account)
   } else {
     serverInfo <- serverInfo(account$server)
-    constructor <- connectClient
+    account$certificate <- serverInfo$certificate
+    connectClient(serverInfo$url, account)
   }
-
-  # promote certificate into auth info
-  authInfo$certificate <- serverInfo$certificate
-
-  # invoke client constructor
-  constructor(serverInfo$url, authInfo)
 }
 
 ensureConnectServerUrl <- function(url) {

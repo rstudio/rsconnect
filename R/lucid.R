@@ -1,10 +1,20 @@
-lucidClient <- function(service, authInfo) {
-  service <- parseHttpUrl(service)
-  if(grepl("rstudio.cloud", service$host)) {
-    cloudClient(service, authInfo)
+lucidClientForAccount <- function(account) {
+  authInfo <- account
+
+  # determine appropriate server information for account
+  if (account$server == cloudServerInfo()$name) {
+    serverInfo <- cloudServerInfo()
+    constructor = cloudClient
   } else {
-    shinyAppsClient(service, authInfo)
+    serverInfo <- shinyappsServerInfo()
+    constructor = shinyAppsClient
   }
+
+  # promote certificate into auth info
+  authInfo$certificate <- serverInfo$certificate
+  serverUrl <- parseHttpUrl(serverInfo$url)
+
+  constructor(serverUrl, authInfo)
 }
 
 # return a list of functions that can be used to interact with shinyapps.io
