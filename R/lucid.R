@@ -204,6 +204,13 @@ shinyAppsClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "invitations")
     },
 
+    resendApplicationInvitation = function(invitationId, regenerate=FALSE) {
+      path <- paste("/invitations/", invitationId, "/send", sep="")
+      json <- list()
+      json$regenerate = regenerate
+      handleResponse(POST_JSON(service, authInfo, path, json))
+    },
+
     listTasks = function(accountId, filters = NULL) {
       if (is.null(filters)) {
         filters <- vector()

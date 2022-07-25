@@ -112,6 +112,10 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
 #' manage applications on behalf of the account.
 #'
 #' @param account A name for the account to connect. Optional.
+#' @param launch.browser If true, the system's default web browser will be
+#'   launched automatically after the app is started. Defaults to `TRUE` in
+#'   interactive sessions only. If a function is passed, it will be called
+#'   after the app is started, with the app URL as a paramter.
 #' @param server The server to connect to. Optional if there is only one server
 #'   registered.
 #' @param quiet Whether or not to show messages and prompts while connecting the
@@ -126,7 +130,8 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
 #'
 #' @family Account functions
 #' @export
-connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
+connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
+                        launch.browser = getOption("rsconnect.launch.browser", interactive())) {
   # if server isn't specified, look up the default
   if (is.null(server)) {
     target <- getDefaultServer(local = TRUE)
@@ -160,7 +165,11 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE) {
             "manually by visiting ", token$claim_url, ".")
     message("Waiting for authentication...")
   }
-  utils::browseURL(token$claim_url)
+
+  if (isTRUE(launch.browser))
+    utils::browseURL(token$claim_url)
+  else if (is.function(launch.browser))
+    launch.browser(token$claim_url)
 
   # keep trying to authenticate until we're successful
   repeat {

@@ -2,9 +2,10 @@
 ^\.Rproj\.user$
 ^examples$
 ^R/\.editorconfig$
-^\.travis\.yml$
 ^README\.Rmd$
+^RELEASE\.md$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 tags
+^\.github$

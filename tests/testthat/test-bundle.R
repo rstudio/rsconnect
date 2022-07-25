@@ -9,8 +9,8 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL
   bundleTempDir
 }
 
-makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL) {
-  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto)
+makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, image = NULL) {
+  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto, image = image)
   manifestFile <-file.path(appDir, "manifest.json")
   data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
   manifestJson <- jsonlite::fromJSON(data)
@@ -439,7 +439,9 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-doc-none",
     appPrimaryDoc = "quarto-doc-none.qmd",
-    quarto = quarto
+    appFiles = bundleFiles("quarto-doc-none"),
+    quarto = quarto,
+    metadata = list()
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("markdown")))
@@ -447,7 +449,9 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    appFiles = bundleFiles("quarto-website-r"),
+    quarto = quarto,
+    metadata = list()
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("knitr")))
@@ -461,6 +465,7 @@ test_that("inferQuartoInfo extracts info from metadata when it is provided alone
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
     quarto = NULL,
     metadata = metadata
   )
@@ -476,6 +481,7 @@ test_that("inferQuartoInfo prefers using metadata over running quarto inspect it
   quartoInfo <- inferQuartoInfo(
     appDir = "quarto-website-r",
     appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
     quarto = quarto,
     metadata = metadata
   )
@@ -488,7 +494,9 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
   quartoInfo <- inferQuartoInfo(
     appDir = "shinyapp-simple",
     appPrimaryDoc = NULL,
-    quarto = quarto
+    appFiles = bundleFiles("shinyapp-simple"),
+    quarto = quarto,
+    metadata = list()
   )
   expect_null(quartoInfo)
 })
@@ -514,6 +522,40 @@ test_that("writeManifest: Quarto document includes quarto in the manifest", {
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "markdown")
   expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+})
+
+test_that("writeManifest: Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.qmd)", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "quarto-doc-none"
+  appPrimaryDoc = NULL
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "markdown")
+  expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+})
+
+test_that("writeManifest: Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.Rmd)", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "shiny-rmds"
+  appPrimaryDoc = NULL
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-shiny")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "non-shiny-rmd.Rmd")
+})
+
+test_that("writeManifest: specifying quarto arg with non-quarto app does not include quarto in the manifest", {
+  quarto <- quartoPathOrSkip()
+
+  appDir <- "shinyapp-singleR"
+  appPrimaryDoc = "single.R"
+  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+
+  expect_null(manifest$quarto)
 })
 
 test_that("writeManifest: Quarto shiny project includes quarto in the manifest", {
@@ -558,4 +600,91 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
   # We expect Quarto and Python metadata, but no R packages.
   expect_true(all(c("quarto", "python") %in% names(manifest)))
   expect_null(manifest$packages)
+})
+
+test_that("writeManifest: Deploying a Quarto project without Quarto info in an error", {
+  missingQuartoInfoErrorText <- paste(
+    "Attempting to deploy Quarto content without Quarto metadata.",
+    "Please provide the path to a quarto binary to the 'quarto' argument."
+  )
+
+  appDir <- "quarto-website-r"
+  expect_error(
+    makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
+    missingQuartoInfoErrorText
+  )
+})
+
+test_that("writeManifest: Deploying a Quarto doc without Quarto info in an error", {
+  missingQuartoInfoErrorText <- paste(
+    "Attempting to deploy Quarto content without Quarto metadata.",
+    "Please provide the path to a quarto binary to the 'quarto' argument."
+  )
+
+  appDir <- "quarto-doc-none"
+  appPrimaryDoc <- "quarto-doc-none.qmd"
+  expect_error(
+    makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL),
+    missingQuartoInfoErrorText
+  )
+})
+
+test_that("writeManifest: Deploying R Markdown content with Quarto gives a Quarto app mode", {
+  quarto <- quartoPathOrSkip()
+
+  manifest <- makeManifest("test-rmds", "simple.Rmd", quarto = quarto)
+
+  expect_equal(manifest$metadata$appmode, "quarto-static")
+  expect_equal(manifest$quarto$engines, "knitr")
+  expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
+})
+
+test_that("writeManifest: Deploying static content with _quarto.yaml succeeds without quartoInfo", {
+
+  manifest <- makeManifest("static-with-quarto-yaml", NULL, quarto = NULL)
+
+  expect_equal(manifest$metadata$appmode, "static")
+})
+
+test_that("writeManifest: Sets environment.image in the manifest if one is provided", {
+  appDir <- "shinyapp-simple"
+
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, image = "rstudio/content-base:latest")
+  expect_equal(manifest$environment$image, "rstudio/content-base:latest")
+
+  manifest <- makeManifest(appDir, appPrimaryDoc = NULL)
+  expect_null(manifest$environment)
+})
+
+test_that("tarImplementation: checks environment variable and option before using default", {
+  option_value <- getOption("rsconnect.tar")
+  envvar_value <- Sys.getenv("RSCONNECT_TAR", unset = NA)
+  on.exit({
+    options("rsconnect.tar" = option_value)
+    Sys.setenv("RSCONNECT_TAR" = envvar_value)
+  }, add = TRUE, after = FALSE)
+
+  # Environment variable only set should use environment varaible
+  Sys.setenv("RSCONNECT_TAR" = "envvar")
+  options("rsconnect.tar" = NULL)
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "envvar")
+
+  # Option only set should use option
+  Sys.unsetenv("RSCONNECT_TAR")
+  options("rsconnect.tar" = "option")
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "option")
+
+  # Both environment variable and option set should use option
+  Sys.setenv("RSCONNECT_TAR" = "envvar")
+  options("rsconnect.tar" = "option")
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "option")
+
+  # Neither set should use "internal"
+  Sys.unsetenv("RSCONNECT_TAR")
+  options("rsconnect.tar" = NULL)
+  tarImplementation <- getTarImplementation()
+  expect_equal(tarImplementation, "internal")
 })

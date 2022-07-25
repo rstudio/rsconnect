@@ -1,4 +1,9 @@
-bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
+# Given a path to an directory and a list of files in that directory, copies
+ # those files to a new temporary directory. Performes some small modifications
+ # in this process, including renaming single-file Shiny apps to "app.R" and
+ # stripping packrat and renv commands from .Rprofile. Returns the path to the
+ # temporary directory.
+ bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
   if (verbose)
     timestampedLog("Creating tempfile for appdir")
   # create a directory to stage the application bundle in
@@ -219,84 +224,7 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
   }
 }
 
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, verbose = FALSE, python = NULL,
-                      condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      isShinyApps = FALSE, metadata = list()) {
-  logger <- verboseLogger(verbose)
 
-  quartoInfo <- inferQuartoInfo(
-    appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    metadata = metadata
-  )
-
-  logger("Inferring App mode and parameters")
-  appMode <- inferAppMode(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      files = appFiles,
-      quartoInfo = quartoInfo)
-  appPrimaryDoc <- inferAppPrimaryDoc(
-      appPrimaryDoc = appPrimaryDoc,
-      appFiles = appFiles,
-      appMode = appMode)
-  hasParameters <- appHasParameters(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      appMode = appMode,
-      contentCategory = contentCategory)
-  documentsHavePython <- detectPythonInDocuments(
-      appDir = appDir,
-      files = appFiles)
-
-  # get application users (for non-document deployments)
-  users <- NULL
-  if (is.null(appPrimaryDoc)) {
-    users <- suppressWarnings(authorizedUsers(appDir))
-  }
-
-  # copy files to bundle dir to stage
-  logger("Bundling app dir")
-  bundleDir <- bundleAppDir(
-      appDir = appDir,
-      appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc)
-  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
-
-  # generate the manifest and write it into the bundle dir
-  logger("Generate manifest.json")
-  manifest <- createAppManifest(
-      appDir = bundleDir,
-      appMode = appMode,
-      contentCategory = contentCategory,
-      hasParameters = hasParameters,
-      appPrimaryDoc = appPrimaryDoc,
-      assetTypeName = assetTypeName,
-      users = users,
-      condaMode = condaMode,
-      forceGenerate = forceGenerate,
-      python = python,
-      documentsHavePython = documentsHavePython,
-      retainPackratDirectory = TRUE,
-      quartoInfo = quartoInfo,
-      isShinyApps = isShinyApps,
-      verbose = verbose)
-  manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
-  manifestPath <- file.path(bundleDir, "manifest.json")
-  writeLines(manifestJson, manifestPath, useBytes = TRUE)
-
-  # if necessary write an index.htm for shinydoc deployments
-  logger("Writing Rmd index if necessary")
-  indexFiles <- writeRmdIndex(appName, bundleDir)
-
-  # create the bundle and return its path
-  logger("Compressing the bundle")
-  bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
-  writeBundle(bundleDir, bundlePath)
-  bundlePath
-}
 
 # Writes a tar.gz file located at bundlePath containing all files in bundleDir.
 writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
@@ -305,7 +233,7 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
   prevDir <- setwd(bundleDir)
   on.exit(setwd(prevDir), add = TRUE)
 
-  tarImplementation <- Sys.getenv("RSCONNECT_TAR", "internal")
+  tarImplementation <- getTarImplementation()
   logger(sprintf("Using tar: %s", tarImplementation))
 
   if (tarImplementation == "internal") {
@@ -314,6 +242,21 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
 
   utils::tar(bundlePath, files = NULL, compression = "gzip", tar = tarImplementation)
 }
+
+
+getTarImplementation <- function() {
+  # Check the rsconnect.tar option first. If that is unset, check the
+  # RSCONNECT_TAR environment var. If neither are set, use "internal".
+  tarImplementation <- getOption("rsconnect.tar", default = NA)
+  if (is.na(tarImplementation) || !nzchar(tarImplementation)) {
+    tarImplementation <- Sys.getenv("RSCONNECT_TAR", unset = NA)
+  }
+  if (is.na(tarImplementation) || !nzchar(tarImplementation)) {
+    tarImplementation <- "internal"
+  }
+  return(tarImplementation)
+}
+
 
 # uname/grname is not always available.
 # https://github.com/wch/r-source/blob/8cf68878a1361d00ff2125db2e1ac7dc8f6c8009/src/library/utils/R/tar.R#L539-L549
@@ -340,131 +283,14 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
       warning("The bundle contains files with user/group names having more than ", lengthLimit,
               " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
               "Long user and group names cause the internal R tar implementation to produce invalid archives. ",
-              "Set the RSCONNECT_TAR environment variable to use an external tar command.")
+              "Set the rsconnect.tar option or the RSCONNECT_TAR environment variable to the path to ",
+              "a tar executable to use that implementation.")
       return(invisible(TRUE))
     }
   }
   return(invisible(FALSE))
 }
 
-
-#' Create a manifest.json describing deployment requirements.
-#'
-#' Given a directory content targeted for deployment, write a manifest.json into
-#' that directory describing the deployment requirements for that content.
-#'
-#' @param appDir Directory containing the content (Shiny application, R Markdown
-#'   document, etc).
-#'
-#' @param appFiles Optional. The full set of files and directories to be
-#'   included in future deployments of this content. Used when computing
-#'   dependency requirements. When `NULL`, all files in `appDir` are considered.
-#'
-#' @param appPrimaryDoc Optional. Specifies the primary document in a content
-#'   directory containing more than one. If `NULL`, the primary document is
-#'   inferred from the file list.
-#'
-#' @param contentCategory Optional. Specifies the kind of content being deployed
-#'   (e.g. `"plot"` or `"site"`).
-#'
-#' @param python Optional. Full path to a Python binary for use by `reticulate`.
-#'   The specified Python binary will be invoked to determine its version and to
-#'   list the Python packages installed in the environment. If `python = NULL`,
-#'   and `RETICULATE_PYTHON` is set in the environment, its value will be used.
-#'
-#' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` file is found, it will be overwritten when this argument
-#'   is `TRUE`.
-#'
-#' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
-#'   content. The provided Quarto binary will be used to run `quarto inspect`
-#'   to gather information about the content.
-#'
-#' @param verbose If TRUE, prints progress messages to the console
-#'
-#'
-#' @export
-writeManifest <- function(appDir = getwd(),
-                          appFiles = NULL,
-                          appPrimaryDoc = NULL,
-                          contentCategory = NULL,
-                          python = NULL,
-                          forceGeneratePythonEnvironment = FALSE,
-                          quarto = NULL,
-                          verbose = FALSE) {
-
-  condaMode <- FALSE
-
-  if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
-  } else {
-    appFiles <- explodeFiles(appDir, appFiles)
-  }
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    metadata = list()
-  )
-
-  appMode <- inferAppMode(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      files = appFiles,
-      quartoInfo = quartoInfo)
-  appPrimaryDoc <- inferAppPrimaryDoc(
-      appPrimaryDoc = appPrimaryDoc,
-      appFiles = appFiles,
-      appMode = appMode)
-  hasParameters <- appHasParameters(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      appMode = appMode,
-      contentCategory = contentCategory)
-  documentsHavePython <- detectPythonInDocuments(
-      appDir = appDir,
-      files = appFiles)
-
-  # copy files to bundle dir to stage
-  bundleDir <- bundleAppDir(
-      appDir = appDir,
-      appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc)
-  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
-
-  python <- getPython(python)
-
-  # generate the manifest and write it into the bundle dir
-  manifest <- createAppManifest(
-      appDir = bundleDir,
-      appMode = appMode,
-      contentCategory = contentCategory,
-      hasParameters = hasParameters,
-      appPrimaryDoc = appPrimaryDoc,
-      assetTypeName = "content",
-      users = NULL,
-      condaMode = condaMode,
-      forceGenerate = forceGeneratePythonEnvironment,
-      python = python,
-      documentsHavePython = documentsHavePython,
-      retainPackratDirectory = FALSE,
-      quartoInfo = quartoInfo,
-      isShinyApps = FALSE,
-      verbose = verbose)
-  manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
-  manifestPath <- file.path(appDir, "manifest.json")
-  writeLines(manifestJson, manifestPath, useBytes = TRUE)
-
-  requirementsFilename <- manifest$python$package_manager$package_file
-  if (is.null(requirementsFilename)) { requirementsFilename <- "requirements.txt" }
-  srcRequirementsFile <- file.path(bundleDir, requirementsFilename)
-  dstRequirementsFile <- file.path(appDir, requirementsFilename)
-  if(file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
-    file.copy(srcRequirementsFile, dstRequirementsFile)
-  }
-  invisible()
-}
 
 yamlFromRmd <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
@@ -580,16 +406,39 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     return("shiny")
   }
 
-  # Determine if we have Rmd and if they are (optionally) need the Shiny runtime.
-  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  # Determine if we have Rmd files, and if they use the Shiny runtime.
+  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
   shinyRmdFiles <- sapply(file.path(appDir, rmdFiles), isShinyRmd)
 
-  # An Rmd file with a Shiny runtime uses rmarkdown::run.
-  if (any(shinyRmdFiles)) {
-    if (is.null(quartoInfo)) {
-      return("rmd-shiny")
-    } else {
+  # Determine if we have qmd files, and if they use the Shiny runtime
+  qmdFiles <- grep("^[^/\\\\]+\\.qmd$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  shinyQmdFiles <- sapply(file.path(appDir, qmdFiles), isShinyRmd)
+
+  # We make Quarto requirement conditional on the presence of files that Quarto
+  # can render and _quarto.yml, because keying off the presence of qmds
+  # *or* _quarto.yml was causing deployment failures in static content.
+  # https://github.com/rstudio/rstudio/issues/11444
+  hasQuartoYaml <- any(grepl("^_quarto.y(a)?ml$", x = files, ignore.case = TRUE, perl = TRUE))
+  hasQuartoCompatibleFiles <- any(length(qmdFiles) > 0, length(rmdFiles > 0))
+  requiresQuarto <- (hasQuartoCompatibleFiles && hasQuartoYaml) || length(qmdFiles) > 0
+
+  # We gate the deployment of content that appears to be Quarto behind the
+  # presence of Quarto metadata. Rmd files can still be deployed as Quarto
+  # content.
+  if (requiresQuarto && is.null(quartoInfo)) {
+    stop(paste(
+      "Attempting to deploy Quarto content without Quarto metadata.",
+      "Please provide the path to a quarto binary to the 'quarto' argument."
+    ))
+  }
+
+  # Shiny or Quarto documents with "server: shiny" in their YAML front matter
+  # are rmd-shiny or quarto-shiny.
+  if (any(shinyRmdFiles) || any(shinyQmdFiles)) {
+    if (!is.null(quartoInfo)) {
       return("quarto-shiny")
+    } else {
+      return("rmd-shiny")
     }
   }
 
@@ -601,12 +450,13 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     return("shiny")
   }
 
-  # Any non-Shiny R Markdown documents are rendered content (rmd-static).
-  if (length(rmdFiles) > 0) {
-    if (is.null(quartoInfo)) {
-      return("rmd-static")
-    } else {
+  # Any non-Shiny R Markdown or Quarto documents are rendered content and get
+  # rmd-static or quarto-static.
+  if (length(rmdFiles) > 0 || length(qmdFiles) > 0) {
+    if (!is.null(quartoInfo)) {
       return("quarto-static")
+    } else {
+      return("rmd-static")
     }
   }
 
@@ -626,8 +476,10 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
 }
 
 inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
-  # if deploying an R Markdown app or static content, infer a primary document
-  # if not already specified
+  # If deploying an R Markdown, Quarto, or static content, infer a primary
+  # document if one is not already specified.
+  # Note: functionality in inferQuartoInfo() depends on primary doc inference
+  # working the same across app modes.
   docAppModes <- c(
       "static",
       "rmd-shiny",
@@ -674,13 +526,13 @@ inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePytho
   }
   if (appMode == "quarto-shiny") {
     # Quarto Shiny documents are executed with rmarkdown::run
-    deps <- c(deps, "rmarkdown", "shiny")
+    deps <- c(deps, "rmarkdown", shinyDeps())
   }
   if (appMode == "rmd-shiny") {
-    deps <- c(deps, "rmarkdown", "shiny")
+    deps <- c(deps, "rmarkdown", shinyDeps())
   }
   if (appMode == "shiny") {
-    deps <- c(deps, "shiny")
+    deps <- c(deps, shinyDeps())
   }
   if (appMode == "api") {
     deps <- c(deps, "plumber")
@@ -689,6 +541,15 @@ inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePytho
     deps <- c(deps, "reticulate")
   }
   unique(deps)
+}
+
+# With shiny v1.7.2 or higher, renderPlot() defaults to ragg for png rendering
+# (if it's installed), so include it if it's installed locally (this way users
+# will get consistent PNG results without needing to add library(ragg) to the
+# app). https://github.com/rstudio/shiny/pull/3654
+shinyDeps <- function() {
+  include_ragg <- isAvailable("ragg") && isAvailable("shiny", "1.7.1.9000")
+  c("shiny", if (include_ragg) "ragg")
 }
 
 isWindows <- function() {
@@ -713,6 +574,17 @@ getCondaExeForPrefix <- function(prefix) {
     stop(paste("Conda env prefix", prefix, "does not have the `conda` command line interface."))
   }
   conda
+}
+
+getPython <- function(path) {
+  if (is.null(path)) {
+    path <- Sys.getenv("RETICULATE_PYTHON",
+                       unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
+    if (path == "") {
+      return(NULL)
+    }
+  }
+  path.expand(path)
 }
 
 inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
@@ -763,6 +635,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
                               isShinyApps = FALSE,
+                              image = NULL,
                               verbose = FALSE) {
 
   # provide package entries for all dependencies
@@ -853,7 +726,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
   }
 
-  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages) 
+  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
   if (needsPyInfo && !is.null(python)) {
     pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
     if (is.null(pyInfo$error)) {
@@ -924,6 +797,11 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # add metadata
   manifest$metadata <- metadata
 
+  # if there is a target image, attach it to the environment
+  if (!is.null(image)) {
+    manifest$environment <- list(image = image)
+  }
+
   # indicate whether this is a quarto app/doc
   if (!is.null(quartoInfo) && !isShinyApps) {
     manifest$quarto <- quartoInfo
@@ -969,75 +847,6 @@ validatePackageSource <- function(pkg) {
 hasRequiredDevtools <- function() {
   "devtools" %in% .packages(all.available = TRUE) &&
     packageVersion("devtools") > "1.3"
-}
-
-snapshotLockFile <- function(appDir) {
-  file.path(appDir, "packrat", "packrat.lock")
-}
-
-addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
-
-  logger <- verboseLogger(verbose)
-
-  # if we discovered any extra dependencies, write them to a file for packrat to
-  # discover when it creates the snapshot
-
-  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
-  if (length(implicit_dependencies) > 0) {
-    extraPkgDeps <- paste0(lapply(implicit_dependencies,
-                                  function(dep) {
-                                    paste0("library(", dep, ")\n")
-                                  }),
-                           collapse="")
-    # emit dependencies to file
-    writeLines(extraPkgDeps, tempDependencyFile)
-
-    # ensure temp file is cleaned up even if there's an error
-    on.exit({
-      if (file.exists(tempDependencyFile))
-        unlink(tempDependencyFile)
-    }, add = TRUE)
-  }
-
-  # ensure we have an up-to-date packrat lockfile
-  packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.6"
-  if (packratVersion < requiredVersion) {
-    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
-         "you have version '", packratVersion, "' installed.\n",
-         "Please install the latest version of Packrat from CRAN with:\n- ",
-         "install.packages('packrat', type = 'source')")
-  }
-
-  # generate the packrat snapshot
-  if (verbose) logger("Starting to perform packrat snapshot")
-  tryCatch({
-    performPackratSnapshot(bundleDir, verbose = verbose)
-  }, error = function(e) {
-    # if an error occurs while generating the snapshot, add a header to the
-    # message for improved attribution
-    e$msg <- paste0("----- Error snapshotting dependencies (Packrat) -----\n",
-                    e$msg)
-
-    # print a traceback if enabled
-    if (isTRUE(getOption("rsconnect.error.trace"))) {
-      traceback(x = sys.calls(), max.lines = 3)
-    }
-
-    # rethrow error so we still halt deployment
-    stop(e)
-  })
-  if (verbose) logger("Completed performing packrat snapshot")
-
-  # if we emitted a temporary dependency file for packrat's benefit, remove it
-  # now so it isn't included in the bundle sent to the server
-  if (file.exists(tempDependencyFile)) {
-    unlink(tempDependencyFile)
-  }
-
-  preservePackageDescriptions(bundleDir)
-
-  invisible()
 }
 
 preservePackageDescriptions <- function(bundleDir) {
@@ -1112,6 +921,261 @@ explodeFiles <- function(dir, files) {
   exploded
 }
 
+# Run "quarto inspect" on the target and returns its output as a parsed object.
+quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
+  if (!is.null(quarto)) {
+    inspect <- NULL
+    # If "quarto inspect appDir" fails, we will try "quarto inspect
+    # appPrimaryDoc", so that we can support single files as well as projects.
+    primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
+    for (path in c(appDir, primaryDocPath)) {
+      args <- c("inspect", path.expand(path))
+      inspect <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = FALSE))
+      if (is.null(attr(inspect, "status"))) {
+        return(jsonlite::fromJSON(inspect))
+      }
+    }
+  }
+  return(NULL)
+}
+
+# Attempt to gather Quarto version and engines, first from quarto inspect if a
+# quarto executable is provided, and then from metadata.
+inferQuartoInfo <- function(appDir, appPrimaryDoc, appFiles, quarto, metadata) {
+  quartoInfo <- NULL
+  if (!is.null(metadata$quarto_version)) {
+    # Prefer metadata, because that means someone already ran quarto inspect
+    quartoInfo <- list(
+      "version" = metadata[["quarto_version"]],
+      "engines" = metadata[["quarto_engines"]]
+    )
+  }
+  if (is.null(quartoInfo) && !is.null(quarto)) {
+    # If we don't yet have Quarto details, run quarto inspect ourselves
+
+    # If no appPrimaryDoc has been provided, we will use the file that will be
+    # chosen if this deployment ends up with an R Markdown or Quarto app mode.
+    # This works because:
+
+    # - App modes are only used to gate primary doc inference; the behavior does
+    #   not differ between app modes.
+    # - inferAppPrimaryDoc() returns appPrimaryDoc() if it is not null.
+    tryCatch({
+      appPrimaryDoc <- inferAppPrimaryDoc(
+        appPrimaryDoc = appPrimaryDoc,
+        appFiles = appFiles,
+        appMode = "quarto-static"
+      )
+    }, error = function(e) {}
+    )
+    inspect <- quartoInspect(
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto
+    )
+    if (!is.null(inspect)) {
+      quartoInfo <- list(
+        version = inspect[["quarto"]][["version"]],
+        engines = I(inspect[["engines"]])
+      )
+    }
+  }
+  return(quartoInfo)
+}
+
+appUsesR <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # All non-Quarto content currently uses R by default.
+    # To support non-R content in rsconnect, we could inspect appmode here.
+    return(TRUE)
+  }
+  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
+  # Technically, "jupyter" content could support R.
+  return("knitr" %in% quartoInfo[["engines"]])
+}
+
+appUsesPython <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # No R-based, non-Quarto content uses Python by default.
+    # Looking for Python chunks in Rmd needs to happen separately.
+    return(FALSE)
+  }
+  # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
+  return("jupyter" %in% quartoInfo[["engines"]])
+}
+
+
+# Packrat Snapshots
+
+# There are three functions here that do a lot of work here.
+# snapshotRDependencies() calls addPackratSnapshot(), which calls
+# performPackratSnapshot().
+
+snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = FALSE) {
+
+  # create a packrat "snapshot"
+
+  addPackratSnapshot(appDir, implicit_dependencies, verbose = verbose)
+
+  # TODO: should we care about lockfile version or packrat version?
+  lockFilePath <- snapshotLockFile(appDir)
+  df <- as.data.frame(read.dcf(lockFilePath), stringsAsFactors = FALSE)
+
+  # get repos defined in the lockfile
+  repos <- gsub("[\r\n]", " ", df[1, 'Repos'])
+  repos <- strsplit(unlist(strsplit(repos, "\\s*,\\s*", perl = TRUE)), "=", fixed = TRUE)
+  repos <- setNames(
+    sapply(repos, "[[", 2),
+    sapply(repos, "[[", 1)
+  )
+
+  # read available.packages filters (allow user to override if necessary;
+  # this is primarily to allow debugging)
+  #
+  # note that we explicitly exclude the 'R_version' filter as we want to ensure
+  # that packages which require newer versions of R than the one currently
+  # in use can still be marked as available on CRAN -- for example, currently
+  # the package 'foreign' requires 'R (>= 4.0.0)' but older versions of R
+  # can still successfully install older versions from the CRAN archive
+  filters <- getOption(
+    "available_packages_filters",
+    default = c("duplicates")
+  )
+
+  # get Bioconductor repos if any
+  biocRepos <- repos[grep('BioC', names(repos), perl = TRUE, value = TRUE)]
+  biocPackages <- if (length(biocRepos) > 0) {
+    available.packages(
+      contriburl = contrib.url(biocRepos, type = "source"),
+      type = "source",
+      filters = filters
+    )
+  }
+
+  # read available packages
+  repo.packages <- available.packages(
+    contriburl = contrib.url(repos, type = "source"),
+    type = "source",
+    filters = filters
+  )
+
+  named.repos <- name.all.repos(repos)
+  repo.lookup <- data.frame(
+    name = names(named.repos),
+    url = as.character(named.repos),
+    contrib.url = contrib.url(named.repos, type = "source"),
+    stringsAsFactors = FALSE)
+
+  # get packages records defined in the lockfile
+  records <- utils::tail(df, -1)
+
+  # if the package is in a named CRAN-like repository capture it
+  tmp <- lapply(seq_len(nrow(records)), function(i) {
+
+    pkg <- records[i, "Package"]
+    source <- records[i, "Source"]
+    repository <- NA
+    # capture Bioconcutor repository
+    if (identical(source, "Bioconductor")) {
+      if (pkg %in% biocPackages) {
+        repository <- biocPackages[pkg, 'Repository']
+      }
+    } else if (isSCMSource(source)) {
+      # leave source+SCM packages alone.
+    } else if (pkg %in% rownames(repo.packages)) {
+      # capture CRAN-like repository
+
+      # Find this package in the set of available packages then use its
+      # contrib.url to map back to the configured repositories.
+      package.contrib <- repo.packages[pkg, 'Repository']
+      package.repo.index <- vapply(repo.lookup$contrib.url,
+                                   function(url) grepl(url, package.contrib, fixed = TRUE), logical(1))
+      package.repo <- repo.lookup[package.repo.index, ][1, ]
+      # If the incoming package comes from CRAN, keep the CRAN name in place
+      # even if that means using a different name than the repos list.
+      #
+      # The "cran" source is a well-known location for shinyapps.io.
+      #
+      # shinyapps.io isn't going to use the manifest-provided CRAN URL,
+      # but other consumers (Connect) will.
+      if (tolower(source) != "cran") {
+        source <- package.repo$name
+      }
+      repository <- package.repo$url
+    }
+    # validatePackageSource will emit a warning for packages with NA repository.
+    data.frame(Source = source, Repository = repository)
+  })
+  records[, c("Source","Repository")] <- do.call("rbind", tmp)
+  return(records)
+}
+
+addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
+
+  logger <- verboseLogger(verbose)
+
+  # if we discovered any extra dependencies, write them to a file for packrat to
+  # discover when it creates the snapshot
+
+  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
+  if (length(implicit_dependencies) > 0) {
+    extraPkgDeps <- paste0(lapply(implicit_dependencies,
+                                  function(dep) {
+                                    paste0("library(", dep, ")\n")
+                                  }),
+                           collapse="")
+    # emit dependencies to file
+    writeLines(extraPkgDeps, tempDependencyFile)
+
+    # ensure temp file is cleaned up even if there's an error
+    on.exit({
+      if (file.exists(tempDependencyFile))
+        unlink(tempDependencyFile)
+    }, add = TRUE)
+  }
+
+  # ensure we have an up-to-date packrat lockfile
+  packratVersion <- packageVersion("packrat")
+  requiredVersion <- "0.4.6"
+  if (packratVersion < requiredVersion) {
+    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
+         "you have version '", packratVersion, "' installed.\n",
+         "Please install the latest version of Packrat from CRAN with:\n- ",
+         "install.packages('packrat', type = 'source')")
+  }
+
+  # generate the packrat snapshot
+  if (verbose) logger("Starting to perform packrat snapshot")
+  tryCatch({
+    performPackratSnapshot(bundleDir, verbose = verbose)
+  }, error = function(e) {
+    # if an error occurs while generating the snapshot, add a header to the
+    # message for improved attribution
+    e$msg <- paste0("----- Error snapshotting dependencies (Packrat) -----\n",
+                    e$msg)
+
+    # print a traceback if enabled
+    if (isTRUE(getOption("rsconnect.error.trace"))) {
+      traceback(x = sys.calls(), max.lines = 3)
+    }
+
+    # rethrow error so we still halt deployment
+    stop(e)
+  })
+  if (verbose) logger("Completed performing packrat snapshot")
+
+  # if we emitted a temporary dependency file for packrat's benefit, remove it
+  # now so it isn't included in the bundle sent to the server
+  if (file.exists(tempDependencyFile)) {
+    unlink(tempDependencyFile)
+  }
+
+  preservePackageDescriptions(bundleDir)
+
+  invisible()
+}
+
+
 performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 
   # move to the bundle directory
@@ -1158,70 +1222,45 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   TRUE
 }
 
-# Run "quarto inspect" on the target and returns its output as a parsed object.
-quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
-  if (!is.null(quarto)) {
-    inspect <- NULL
-    # If "quarto inspect appDir" fails, we will try "quarto inspect
-    # appPrimaryDoc", so that we can support single files as well as projects.
-    primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
-    for (path in c(appDir, primaryDocPath)) {
-      args <- c("inspect", path.expand(path))
-      inspect <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = FALSE))
-      if (is.null(attr(inspect, "status"))) {
-        return(jsonlite::fromJSON(inspect))
-      }
+snapshotLockFile <- function(appDir) {
+  file.path(appDir, "packrat", "packrat.lock")
+}
+
+# Return TRUE when the source indicates that a package was installed from
+# source or comes from a source control system. This indicates that we will
+# not have a repostory URL; location is recorded elsewhere.
+isSCMSource <- function(source) {
+  tolower(source) %in% c("github", "gitlab", "bitbucket", "source")
+}
+
+# generate a random name prefixed with "repo_".
+random.repo.name <- function() {
+  paste("repo_", paste(sample(LETTERS, 8, replace = TRUE), collapse = ""), sep = "")
+}
+
+# Given a list of optionally named repository URLs, return a list of
+# repository URLs where each element is named. Incoming names are preserved.
+# Un-named repositories are given random names.
+name.all.repos <- function(repos) {
+  repo.names <- names(repos)
+  if (is.null(repo.names)) {
+    # names(X) return NULL when nothing is named. Build a same-sized vector of
+    # empty-string names, which is the "no name here" placeholder value
+    # produced when its input has a mix of named and un-named items.
+    repo.names <- rep("", length(repos))
+  }
+  names(repos) <- sapply(repo.names, function(name) {
+    if (name == "") {
+      # Assumption: Random names are not repeated across a repo list.
+      random.repo.name()
+    } else {
+      name
     }
-  }
-  return(NULL)
+  }, USE.NAMES = FALSE)
+  repos
 }
 
-# Attempt to gather Quarto version and engines, first from quarto inspect if a
-# quarto executable is provided, and then from metadata.
-inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
-  quartoInfo <- NULL
-  if (!is.null(metadata$quarto_version)) {
-    # Prefer metadata, because that means someone already ran quarto inspect
-    quartoInfo <- list(
-      "version" = metadata[["quarto_version"]],
-      "engines" = metadata[["quarto_engines"]]
-    )
-  }
-  if (is.null(quartoInfo) && !is.null(quarto)) {
-    # If we don't yet have Quarto details, run quarto inspect ourselves
-    inspect <- quartoInspect(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      quarto = quarto
-    )
-    if (!is.null(inspect)) {
-      quartoInfo <- list(
-        version = inspect[["quarto"]][["version"]],
-        engines = I(inspect[["engines"]])
-      )
-    }
-  }
-  return(quartoInfo)
+# get source packages from CRAN
+availableCRANSourcePackages <- function() {
+  available.packages("https://cran.rstudio.com/src/contrib", type = "source")
 }
-
-appUsesR <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # All non-Quarto content currently uses R by default.
-    # To support non-R content in rsconnect, we could inspect appmode here.
-    return(TRUE)
-  }
-  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
-  # Technically, "jupyter" content could support R.
-  return("knitr" %in% quartoInfo[["engines"]])
-}
-
-appUsesPython <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # No R-based, non-Quarto content uses Python by default.
-    # Looking for Python chunks in Rmd needs to happen separately.
-    return(FALSE)
-  }
-  # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
-  return("jupyter" %in% quartoInfo[["engines"]])
-}
-

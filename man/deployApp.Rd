@@ -27,7 +27,8 @@ deployApp(
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
   quarto = NULL,
-  appVisibility = NULL
+  appVisibility = NULL,
+  image = NULL
 )
 }
 \arguments{
@@ -37,7 +38,7 @@ directory.}
 \item{appFiles}{The files and directories to bundle and deploy (only if
 \code{upload = TRUE}). Can be \code{NULL}, in which case all the files in the
 directory containing the application are bundled, with the exception of
-any listed in an \code{.rcsignore} file. Takes precedence over
+any listed in an \code{.rscignore} file. Takes precedence over
 \code{appFileManifest} if both are supplied.}
 
 \item{appFileManifest}{An alternate way to specify the files to be deployed;
@@ -123,6 +124,10 @@ to gather information about the content.}
 
 \item{appVisibility}{One of \code{NULL}, "private"\verb{, or }"public"\verb{; the visibility of the deployment. When }NULL`, no change to visibility is
 made. Currently has an effect only on deployments to shinyapps.io.}
+
+\item{image}{Optional. The name of the image to use when building and
+executing this content. If none is provided, RStudio Connect will
+attempt to choose an image based on the content requirements.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

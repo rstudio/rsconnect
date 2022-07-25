@@ -205,12 +205,13 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
   api <- clientForAccount(accountDetails)
   res <- api$listApplicationInvitations(application$id)
 
-  # get intersting fields
+  # get interesting fields
   users <- lapply(res, function(x) {
     a = list()
     a$id = x$id
     a$email = x$email
     a$link = x$link
+    a$expired = x$expired
     return(a)
   })
 
@@ -218,6 +219,56 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
   users <- do.call(rbind, users)
   df <- as.data.frame(users, stringsAsFactors = FALSE)
   return(df)
+}
+
+#' Resend invitation for invited users of an application
+#'
+#' @param invite The invitation to resend. Can be id or email address.
+#' @param regenerate Regenerate the invite code. Can be helpful is the
+#' invitation has expired.
+#' @param appDir Directory containing application. Defaults to
+#'   current working directory.
+#' @param appName Name of application.
+#' @param account Account name. If a single account is registered on the
+#'   system then this parameter can be omitted.
+#' @param server Server name. Required only if you use the same account name on
+#'   multiple servers.
+#' @seealso [showInvited()]
+#' @note This function works only for ShinyApps servers.
+#' @export
+resendInvitation <- function(invite, regenerate=FALSE,
+                             appDir=getwd(), appName=NULL,
+                             account = NULL, server=NULL) {
+
+  # resolve account
+  accountDetails <- accountInfo(resolveAccount(account, server), server)
+
+  # get invitations
+  invited <- showInvited(appDir, appName, account, server)
+
+  if (is.numeric(invite)) {
+    # lookup by id
+    if (invite %in% invited$id) {
+      invite = invited[invited$id==invite, ]
+    } else {
+      stop("Invitation \"", invite, "\" not found", call. = FALSE)
+    }
+  } else {
+    # lookup by email
+    if (invite %in% invited$email) {
+      invite = invited[invited$email==invite, ]
+    } else {
+      stop("Invitiation for \"", invite, "\" not found", call. = FALSE)
+    }
+  }
+
+  # resend invitation
+  api <- clientForAccount(accountDetails)
+  api$resendApplicationInvitation(invite$id, regenerate)
+
+  message(paste("Sent invitation to", invite$email, "", sep=" "))
+
+  invisible(TRUE)
 }
 
 #' (Deprecated) List authorized users for an application

@@ -17,15 +17,11 @@ findConnect <- function() {
   }
 }
 
-isConnectRunning <- function() {
-  any(grepl("./bin/connect", system2("ps", "-a", stdout = TRUE), fixed = TRUE))
-}
-
 test_that("Users API", {
 
   skip_on_cran()
   skip_on_os("windows")
-  skip_if(!isConnectRunning())
+  skip("connect user test skipped.")
 
   ## rm db/*.db
   server <- getDefaultServer(local = TRUE)
