@@ -484,7 +484,7 @@ resolveAccount <- function(account, server = NULL) {
   }
 }
 
-isLucid <- function(server) {
+isShinyapps <- function(server) {
   identical(server, "shinyapps.io") | identical(server, "rstudio.cloud")
 }
 
