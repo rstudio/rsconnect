@@ -219,7 +219,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #' @param name Name of account to save or remove
 #' @param token User token for the account
 #' @param secret User secret for the account
-#' @param cloud Whether this account should publish to rstudio.cloud.
+#' @param server Server to associate account with.
 #'
 #' @examples
 #' \dontrun{
@@ -233,7 +233,8 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #'
 #' @family Account functions
 #' @export
-setAccountInfo <- function(name, token, secret, cloud = FALSE) {
+setAccountInfo <- function(name, token, secret,
+                           server = 'shinyapps.io') {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
@@ -245,7 +246,7 @@ setAccountInfo <- function(name, token, secret, cloud = FALSE) {
     stop(stringParamErrorMessage("secret"))
 
   # create connect client
-  if (cloud) {
+  if (identical(server, cloudServerInfo()$name)) {
     serverInfo <- cloudServerInfo()
   } else {
     serverInfo <- shinyappsServerInfo()
@@ -483,7 +484,7 @@ resolveAccount <- function(account, server = NULL) {
   }
 }
 
-isShinyapps <- function(server) {
+isLucid <- function(server) {
   identical(server, "shinyapps.io") | identical(server, "rstudio.cloud")
 }
 

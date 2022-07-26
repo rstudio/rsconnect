@@ -4,7 +4,7 @@
 \alias{setAccountInfo}
 \title{Set ShinyApps Account Info}
 \usage{
-setAccountInfo(name, token, secret, cloud = FALSE)
+setAccountInfo(name, token, secret, server = "shinyapps.io")
 }
 \arguments{
 \item{name}{Name of account to save or remove}
@@ -13,7 +13,7 @@ setAccountInfo(name, token, secret, cloud = FALSE)
 
 \item{secret}{User secret for the account}
 
-\item{cloud}{Whether this account should publish to rstudio.cloud.}
+\item{server}{Server to associate account with.}
 }
 \description{
 Configure a ShinyApps account for publishing from this system.
