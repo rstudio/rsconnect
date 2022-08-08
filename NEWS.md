@@ -2,6 +2,10 @@
 
 ## 0.8.28 (in development)
 
+* Fix bug that prevented publishing or writing manifests for non-Quarto content
+  when a Quarto path was provided to the `quarto` argument of `writeManifest()`,
+  `deployApp()`, and related functions.
+
 
 ## 0.8.27
 
