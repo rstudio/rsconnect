@@ -210,7 +210,7 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   # determine the log target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account, server)
   accountDetails <- accountInfo(target$account, target$server)
-  client <- lucidClient(shinyappsServerInfo()$url, accountDetails)
+  client <- lucidClientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",

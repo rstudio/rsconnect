@@ -84,6 +84,14 @@ shinyappsServerInfo <- function() {
                                "https://api.shinyapps.io/v1"))
 }
 
+cloudServerInfo <- function() {
+  info <- list(name = "rstudio.cloud",
+               certificate = inferCertificateContents(
+                 system.file("cert/shinyapps.io.pem", package = "rsconnect")),
+               url = getOption("rsconnect.shinyapps_url",
+                               "https://api.shinyapps.io/v1"))
+}
+
 #' @rdname servers
 #' @export
 discoverServers <- function(quiet = FALSE) {
@@ -218,6 +226,11 @@ serverInfo <- function(name) {
     return(shinyappsServerInfo())
   }
 
+  # there's no config file for rstudio.cloud
+  if (identical(name, "rstudio.cloud")) {
+    return(cloudServerInfo())
+  }
+
   configFile <- serverConfigFile(name)
   if (!file.exists(configFile))
     stop(missingServerErrorMessage(name))
@@ -254,22 +267,15 @@ missingServerErrorMessage <- function(name) {
 }
 
 clientForAccount <- function(account) {
-  authInfo <- account
 
   # determine appropriate server information for account
-  if (account$server == shinyappsServerInfo()$name) {
-    serverInfo <- shinyappsServerInfo()
-    constructor <- lucidClient
+  if (isShinyapps(account$server)) {
+    constructor <- lucidClientForAccount(account)
   } else {
     serverInfo <- serverInfo(account$server)
-    constructor <- connectClient
+    account$certificate <- serverInfo$certificate
+    connectClient(serverInfo$url, account)
   }
-
-  # promote certificate into auth info
-  authInfo$certificate <- serverInfo$certificate
-
-  # invoke client constructor
-  constructor(serverInfo$url, authInfo)
 }
 
 ensureConnectServerUrl <- function(url) {

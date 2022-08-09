@@ -219,6 +219,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #' @param name Name of account to save or remove
 #' @param token User token for the account
 #' @param secret User secret for the account
+#' @param server Server to associate account with.
 #'
 #' @examples
 #' \dontrun{
@@ -232,7 +233,8 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #'
 #' @family Account functions
 #' @export
-setAccountInfo <- function(name, token, secret) {
+setAccountInfo <- function(name, token, secret,
+                           server = 'shinyapps.io') {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
@@ -244,10 +246,16 @@ setAccountInfo <- function(name, token, secret) {
     stop(stringParamErrorMessage("secret"))
 
   # create connect client
-  serverInfo <- shinyappsServerInfo()
-  authInfo <- list(token = token, secret = secret,
-                   certificate = serverInfo$certificate)
-  lucid <- lucidClient(serverInfo$url, authInfo)
+  if (identical(server, cloudServerInfo()$name)) {
+    serverInfo <- cloudServerInfo()
+  } else {
+    serverInfo <- shinyappsServerInfo()
+  }
+  authInfo <- list(token = token,
+                   secret = secret,
+                   certificate = serverInfo$certificate,
+                   server = serverInfo$name)
+  lucid <- lucidClientForAccount(authInfo)
 
   # get user Id
   userId <- lucid$currentUser()$id
@@ -477,7 +485,7 @@ resolveAccount <- function(account, server = NULL) {
 }
 
 isShinyapps <- function(server) {
-  identical(server, "shinyapps.io")
+  identical(server, "shinyapps.io") | identical(server, "rstudio.cloud")
 }
 
 isRPubs <- function(server) {

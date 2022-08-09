@@ -4,7 +4,7 @@
 \alias{setAccountInfo}
 \title{Set ShinyApps Account Info}
 \usage{
-setAccountInfo(name, token, secret)
+setAccountInfo(name, token, secret, server = "shinyapps.io")
 }
 \arguments{
 \item{name}{Name of account to save or remove}
@@ -12,6 +12,8 @@ setAccountInfo(name, token, secret)
 \item{token}{User token for the account}
 
 \item{secret}{User secret for the account}
+
+\item{server}{Server to associate account with.}
 }
 \description{
 Configure a ShinyApps account for publishing from this system.
