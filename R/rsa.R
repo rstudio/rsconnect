@@ -32,7 +32,7 @@ createUniqueId <- function(bytes) {
   paste0(as.hexmode(sample(256, bytes)-1), collapse="")
 }
 
-# generateToken generates a token for signing requests sent to the RStudio
+# generateToken generates a token for signing requests sent to the Posit
 # Connect service. The token's ID and public key are sent to the server, and
 # the private key is saved locally.
 generateToken <- function() {

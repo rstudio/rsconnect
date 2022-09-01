@@ -31,7 +31,7 @@
 #'   to gather information about the content.
 #'
 #' @param image Optional. The name of the image to use when building and
-#'   executing this content. If none is provided, RStudio Connect will
+#'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements.
 #'
 #' @param verbose If TRUE, prints progress messages to the console
