@@ -45,7 +45,7 @@ content. The provided Quarto binary will be used to run \verb{quarto inspect}
 to gather information about the content.}
 
 \item{image}{Optional. The name of the image to use when building and
-executing this content. If none is provided, RStudio Connect will
+executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements.}
 
 \item{verbose}{If TRUE, prints progress messages to the console}

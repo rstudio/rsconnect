@@ -79,7 +79,7 @@ multiple servers.}
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
 using the last version that was uploaded. \code{FALSE} is only supported on
-shinyapps.io; \code{TRUE} is required on RStudio Connect.}
+shinyapps.io; \code{TRUE} is required on Posit Connect.}
 
 \item{recordDir}{Directory where publish record is written. Can be \code{NULL}
 in which case record will be written to the location specified with \code{appDir}.}
@@ -126,7 +126,7 @@ to gather information about the content.}
 made. Currently has an effect only on deployments to shinyapps.io.}
 
 \item{image}{Optional. The name of the image to use when building and
-executing this content. If none is provided, RStudio Connect will
+executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements.}
 }
 \description{

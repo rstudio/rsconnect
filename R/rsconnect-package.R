@@ -1,7 +1,7 @@
 #' Deployment Interface for R Markdown Documents and Shiny Applications
 #'
 #' The `rsconnect`` package provides a programmatic deployment
-#' interface for RPubs, shinyapps.io, and RStudio Connect. Supported contents
+#' interface for RPubs, shinyapps.io, and Posit Connect. Supported contents
 #' types include R Markdown documents, Shiny applications, plots, and static
 #' web content.
 #'

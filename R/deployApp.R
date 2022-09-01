@@ -40,7 +40,7 @@
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
-#'   shinyapps.io; `TRUE` is required on RStudio Connect.
+#'   shinyapps.io; `TRUE` is required on Posit Connect.
 #' @param recordDir Directory where publish record is written. Can be `NULL`
 #'   in which case record will be written to the location specified with `appDir`.
 #' @param launch.browser If true, the system's default web browser will be
@@ -76,7 +76,7 @@
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
 #' @param image Optional. The name of the image to use when building and
-#'   executing this content. If none is provided, RStudio Connect will
+#'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements.
 #' @examples
 #' \dontrun{
@@ -341,12 +341,12 @@ deployApp <- function(appDir = getwd(),
     # currently end well
     if (identical(contentCategory, "api")) {
       stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-           "can only be published to RStudio Connect.")
+           "can only be published to Posit Connect.")
     }
   } else {
     if (identical(upload, FALSE)) {
       # it is not possible to deploy to Connect without uploading
-      stop("RStudio Connect does not support deploying without uploading. ",
+      stop("Posit Connect does not support deploying without uploading. ",
            "Specify upload=TRUE to upload and re-deploy your application.")
     }
   }

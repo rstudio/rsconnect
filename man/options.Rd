@@ -36,7 +36,7 @@ Supported global options include:
    \item{\code{rsconnect.force.update.apps}}{When \code{TRUE}, bypasses the prompt to confirm whether you wish to update previously-deployed content}
    \item{\code{rsconnect.pre.deploy}}{A function to run prior to deploying content; it receives as an argument the path to the content that's about to be deployed.}
    \item{\code{rsconnect.post.deploy}}{A function to run after successfully deploying content; it receives as an argument the path to the content that was just deployed.}
-   \item{\code{rsconnect.python.enabled}}{When \code{TRUE}, use the python executable specified by the \code{RETICULATE_PYTHON} environment variable and add a \code{python} section to the deployment manifest. By default, python is enabled when deploying to RStudio Connect and disabled when deploying to shinyapps.io.}
+   \item{\code{rsconnect.python.enabled}}{When \code{TRUE}, use the python executable specified by the \code{RETICULATE_PYTHON} environment variable and add a \code{python} section to the deployment manifest. By default, python is enabled when deploying to Posit Connect and disabled when deploying to shinyapps.io.}
 }
 When deploying content from the RStudio IDE, the rsconnect package's deployment methods are executed in a vanilla R session that doesn't execute startup scripts. This can make it challenging to ensure options are set properly prior to push-button deployment, so the rsconnect package has a parallel set of ``startup'' scripts it runs prior to deploying. The follow are run in order, if they exist, prior to deployment:
 \describe{
