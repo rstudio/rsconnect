@@ -20,12 +20,14 @@ Deploy a single Tensorflow saved model as a bundle. Should be passed a
 directory that contains the \emph{saved_model.pb} or \emph{saved_model.pbtxt} file,
 as well as any variables and assets necessary to load the model.
 
-A saved model directory might look like this:\preformatted{./1/
+A saved model directory might look like this:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{./1/
 ./1/saved_model.pb or ./1/saved_model.pbtxt
 ./1/variables/
 ./1/variables/variables.data-00000-of-00001
 ./1/variables/variables.index
-}
+}\if{html}{\out{</div>}}
 
 For information on creating saved models, see the Keras method
 \code{\link[keras:export_savedmodel.keras.engine.training.Model]{keras::export_savedmodel.keras.engine.training.Model()}} or the TensorFlow

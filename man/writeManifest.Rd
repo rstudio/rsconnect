@@ -13,7 +13,8 @@ writeManifest(
   forceGeneratePythonEnvironment = FALSE,
   quarto = NULL,
   image = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  isCloudServer = FALSE
 )
 }
 \arguments{
