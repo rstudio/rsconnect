@@ -12,7 +12,7 @@ test_that("Shiny R Markdown files are detected correctly", {
 # Each file is written with its content to a temporary directory.
 # Returns the result of inferAppMode when run against that directory.
 # The temporary directory is removed on exit.
-inferAppModeFromFiles <- function(fileContent) {
+inferAppModeFromFiles <- function(fileContent, isCloudServer = FALSE) {
   targetDir <- tempfile()
   dir.create(targetDir)
   on.exit(unlink(targetDir, recursive = TRUE))
@@ -28,7 +28,7 @@ inferAppModeFromFiles <- function(fileContent) {
   }
 
   files <- list.files(targetDir, recursive = FALSE, all.files = FALSE, include.dirs = FALSE, no.. = TRUE, full.names = FALSE)
-  appMode <- inferAppMode(targetDir, NULL, files, quartoInfo = NULL)
+  appMode <- inferAppMode(targetDir, NULL, files, quartoInfo = NULL, isCloudServer = isCloudServer)
   return(appMode)
 }
 
@@ -75,6 +75,20 @@ test_that("inferAppMode", {
     "alpha.Rmd" = NA,
     "bravo.Rmd" = NA
   )))
+
+  # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
+  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
+    "index.Rmd" = NA
+  ), isCloudServer = TRUE))
+  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
+    "index.Rmd" = NA,
+    "alpha.Rmd" = NA,
+    "bravo.Rmd" = NA
+  ), isCloudServer = TRUE))
+  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
+    "alpha.Rmd" = NA,
+    "bravo.Rmd" = NA
+  ), isCloudServer = TRUE))
 
   rmdRuntimeShiny <- c(
     "---",

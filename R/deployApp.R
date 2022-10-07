@@ -336,12 +336,13 @@ deployApp <- function(appDir = getwd(),
   accountDetails <- accountInfo(target$account, target$server)
 
   # test for compatibility between account type and publish intent
-  if (isShinyapps(accountDetails$server)) {
-    # ensure we aren't trying to publish an API to shinyapps.io; this will not
-    # currently end well
-    if (identical(contentCategory, "api")) {
-      stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-           "can only be published to RStudio Connect.")
+  if (isCloudServer(accountDetails$server)) {
+    # Publishing an API to shinyapps.io will not currently end well
+    if (isShinyappsServer(accountDetails$server)) {
+      if (identical(contentCategory, "api")) {
+        stop("Plumber APIs are not currently supported on shinyapps.io; they ",
+             "can only be published to RStudio Connect or rstudio.cloud.")
+      }
     }
   } else {
     if (identical(upload, FALSE)) {
@@ -369,7 +370,7 @@ deployApp <- function(appDir = getwd(),
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
-  if (isShinyapps(accountDetails$server) && !is.null(appVisibility)) {
+  if (isCloudServer(accountDetails$server) && !is.null(appVisibility)) {
     # Shinyapps defaults to public visibility.
     # Other values should be set before data is deployed.
     currentVisibility <- application$deployment$properties$application.visibility
@@ -398,9 +399,9 @@ deployApp <- function(appDir = getwd(),
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
                               appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment, quarto,
-                              isShinyapps(accountDetails$server), metadata, image)
+                              isCloudServer(accountDetails$server), metadata, image)
 
-      if (isShinyapps(accountDetails$server)) {
+      if (isCloudServer(accountDetails$server)) {
 
         # Step 1. Create presigned URL and register pending bundle.
         bundleSize <- file.info(bundlePath)$size
@@ -514,7 +515,7 @@ deployApp <- function(appDir = getwd(),
 bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      isShinyApps = FALSE, metadata = list(), image = NULL) {
+                      isCloudServer = FALSE, metadata = list(), image = NULL) {
   logger <- verboseLogger(verbose)
 
   quartoInfo <- inferQuartoInfo(
@@ -530,7 +531,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quartoInfo = quartoInfo)
+      quartoInfo = quartoInfo,
+      isCloudServer = isCloudServer)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -574,7 +576,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       documentsHavePython = documentsHavePython,
       retainPackratDirectory = TRUE,
       quartoInfo = quartoInfo,
-      isShinyApps = isShinyApps,
+      isCloud = isCloudServer,
       image = image,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
@@ -594,8 +596,8 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
 
 getPythonForTarget <- function(path, accountDetails) {
-  # python is enabled on Connect but not on Shinyapps
-  targetIsShinyapps <- isShinyapps(accountDetails$server)
+  # python is enabled on Connect and rstudio.cloud, but not on Shinyapps
+  targetIsShinyapps <- isShinyappsServer(accountDetails$server)
   pythonEnabled = getOption("rsconnect.python.enabled", default=!targetIsShinyapps)
   if (pythonEnabled) {
     getPython(path)

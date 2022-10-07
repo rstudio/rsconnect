@@ -387,7 +387,7 @@ isShinyRmd <- function(filename) {
 
 # infer the mode of the application from its layout
 # unless we're an API, in which case, we're API mode.
-inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
+inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo, isCloudServer = FALSE) {
   # plumber API
   plumberFiles <- grep("^(plumber|entrypoint).r$", files, ignore.case = TRUE, perl = TRUE)
   if (length(plumberFiles) > 0) {
@@ -456,6 +456,12 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo) {
     if (!is.null(quartoInfo)) {
       return("quarto-static")
     } else {
+      # For Shinyapps and rstudio.cloud, treat "rmd-static" app mode as "rmd-shiny" so that
+      # they can be served from a shiny process in Connect until we have better support of
+      # rmarkdown static content
+      if (isCloudServer) {
+        return("rmd-shiny")
+      }
       return("rmd-static")
     }
   }
@@ -634,7 +640,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               forceGenerate, python = NULL, documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
-                              isShinyApps = FALSE,
+                              isCloud = FALSE,
                               image = NULL,
                               verbose = FALSE) {
 
@@ -803,7 +809,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   }
 
   # indicate whether this is a quarto app/doc
-  if (!is.null(quartoInfo) && !isShinyApps) {
+  if (!is.null(quartoInfo) && !isCloud) {
     manifest$quarto <- quartoInfo
   }
   # if there is python info for reticulate or Quarto, attach it

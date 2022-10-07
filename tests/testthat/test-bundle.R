@@ -396,6 +396,13 @@ test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
   expect_equal(result, NULL)
 })
 
+test_that("getPythonForTarget defaults to enabled for rstudio.cloud", {
+  skip_on_cran()
+
+  result <- getPythonForTarget("/usr/bin/python", list(server="rstudio.cloud"))
+  expect_equal(result, "/usr/bin/python")
+})
+
 # Quarto Tests
 
 test_that("quartoInspect identifies on Quarto projects", {

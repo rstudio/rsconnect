@@ -46,7 +46,8 @@ writeManifest <- function(appDir = getwd(),
                           forceGeneratePythonEnvironment = FALSE,
                           quarto = NULL,
                           image = NULL,
-                          verbose = FALSE) {
+                          verbose = FALSE,
+                          isCloudServer = FALSE) {
 
   condaMode <- FALSE
 
@@ -68,7 +69,8 @@ writeManifest <- function(appDir = getwd(),
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quartoInfo = quartoInfo)
+      quartoInfo = quartoInfo,
+      isCloudServer = isCloudServer)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
@@ -106,7 +108,7 @@ writeManifest <- function(appDir = getwd(),
       documentsHavePython = documentsHavePython,
       retainPackratDirectory = FALSE,
       quartoInfo = quartoInfo,
-      isShinyApps = FALSE,
+      isCloud = FALSE,
       image = image,
       verbose = verbose)
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
