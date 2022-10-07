@@ -36,8 +36,6 @@
 #'
 #' @param verbose If TRUE, prints progress messages to the console
 #'
-#' @param isCloudServer Set to TRUE if the target is shinyapps.io or rsrudio.cloud
-#'
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
@@ -48,8 +46,7 @@ writeManifest <- function(appDir = getwd(),
                           forceGeneratePythonEnvironment = FALSE,
                           quarto = NULL,
                           image = NULL,
-                          verbose = FALSE,
-                          isCloudServer = FALSE) {
+                          verbose = FALSE) {
 
   condaMode <- FALSE
 
@@ -71,8 +68,7 @@ writeManifest <- function(appDir = getwd(),
       appDir = appDir,
       appPrimaryDoc = appPrimaryDoc,
       files = appFiles,
-      quartoInfo = quartoInfo,
-      isCloudServer = isCloudServer)
+      quartoInfo = quartoInfo)
   appPrimaryDoc <- inferAppPrimaryDoc(
       appPrimaryDoc = appPrimaryDoc,
       appFiles = appFiles,
