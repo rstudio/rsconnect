@@ -50,6 +50,8 @@ executing this content. If none is provided, RStudio Connect will
 attempt to choose an image based on the content requirements.}
 
 \item{verbose}{If TRUE, prints progress messages to the console}
+
+\item{isCloudServer}{Set to TRUE if the target is shinyapps.io or rsrudio.cloud}
 }
 \description{
 Given a directory content targeted for deployment, write a manifest.json into

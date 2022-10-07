@@ -36,6 +36,8 @@
 #'
 #' @param verbose If TRUE, prints progress messages to the console
 #'
+#' @param isCloudServer Set to TRUE if the target is shinyapps.io or rsrudio.cloud
+#'
 #'
 #' @export
 writeManifest <- function(appDir = getwd(),
