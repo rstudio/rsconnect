@@ -484,8 +484,12 @@ resolveAccount <- function(account, server = NULL) {
   }
 }
 
-isShinyapps <- function(server) {
-  identical(server, "shinyapps.io") | identical(server, "rstudio.cloud")
+isCloudServer <- function(server) {
+  identical(server, "shinyapps.io") || identical(server, "rstudio.cloud")
+}
+
+isShinyappsServer <- function(server) {
+  identical(server, "shinyapps.io")
 }
 
 isRPubs <- function(server) {
@@ -494,7 +498,7 @@ isRPubs <- function(server) {
 
 isConnectInfo <- function(accountInfo = NULL, server = NULL) {
   host <- if (is.null(accountInfo)) server else accountInfo$server
-  !isShinyapps(host) && !isRPubs(host)
+  !isCloudServer(host) && !isRPubs(host)
 }
 
 stopWithNoAccount <- function() {

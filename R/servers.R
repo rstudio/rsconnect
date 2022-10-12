@@ -269,7 +269,7 @@ missingServerErrorMessage <- function(name) {
 clientForAccount <- function(account) {
 
   # determine appropriate server information for account
-  if (isShinyapps(account$server)) {
+  if (isCloudServer(account$server)) {
     constructor <- lucidClientForAccount(account)
   } else {
     serverInfo <- serverInfo(account$server)
