@@ -34,7 +34,7 @@ cert_test_that("certificates can be saved", {
   # add a server with a sample certificate
   addServer(url = "https://localhost:4567/",
             name = "cert_test_a",
-            cert = "certs/sample.crt",
+            certificate = "certs/sample.crt",
             quiet = FALSE)
 
   # read it back
@@ -97,14 +97,14 @@ cert_test_that("invalid certificates cannot be added", {
   expect_error(
     addServer(url = "https://localhost:4567/",
               name = "cert_test_e",
-              cert = "certs/invalid.crt",
+              certificate = "certs/invalid.crt",
               quiet = FALSE))
 })
 
 cert_test_that("multiple certificates can exist in the same file", {
   addServer(url = "https://localhost:4567/",
             name = "cert_test_f",
-            cert = "certs/two-cas.crt",
+            certificate = "certs/two-cas.crt",
             quiet = FALSE)
 
   # read it back
