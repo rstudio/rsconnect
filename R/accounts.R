@@ -442,8 +442,9 @@ accountConfigFile <- function(name, server = NULL) {
   # if no server is specified, try to find an account with the given name
   # associated with any server
   if (is.null(server)) {
-    return(list.files(accountsConfigDir(), pattern = paste0(name, ".dcf"),
-                      recursive = TRUE, full.names = TRUE))
+    pat <- escapeRegex(paste0(name, ".dcf"))
+    return(normalizePath(list.files(accountsConfigDir(), pattern = pat,
+                                    recursive = TRUE, full.names = TRUE)))
   }
   normalizePath(file.path(accountsConfigDir(), server,
                           paste(name, ".dcf", sep="")),
