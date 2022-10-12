@@ -1,32 +1,46 @@
 context("certificates")
 
-cert_test_that <- function(test, expr) {
-  config_dir <- tempfile()
-  dir.create(config_dir)
+havingFakeConfig <- function(expr) {
+  temp_home_dir <- tempfile("home-")
+  dir.create(temp_home_dir)
 
-  # preserve old values
   home <- Sys.getenv("HOME")
-  http <- getOption("rsconnect.http")
 
   on.exit({
     # clean up temp folder
-    unlink(config_dir, recursive = TRUE)
+    unlink(temp_home_dir, recursive = TRUE)
 
     # restore HOME
     Sys.setenv(HOME = home)
-
-    # clean up options
-    options(rsconnect.http = http)
   }, add = TRUE)
 
   # temporarily change home to a temp folder so we don't litter the actual
   # config folder with test output
-  Sys.setenv(HOME = config_dir)
+  Sys.setenv(HOME = temp_home_dir)
+
+  eval(expr)
+}
+
+havingHttpRecorder <- function(expr) {
+  http <- getOption("rsconnect.http")
+
+  on.exit({
+    # restore options
+    options(rsconnect.http = http)
+  }, add = TRUE)
 
   # record HTTP calls rather than actually performing them
   options(rsconnect.http = httpTestRecorder)
 
-  test_that(test, expr)
+  eval(expr)
+}
+
+cert_test_that <- function(test, expr) {
+  havingFakeConfig(
+    havingHttpRecorder(
+      test_that(test, expr)
+    )
+  )
 }
 
 cert_test_that("certificates can be saved", {
