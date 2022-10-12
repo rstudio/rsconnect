@@ -13,7 +13,7 @@ cert_test_that <- function(test, expr) {
     unlink(config_dir, recursive = TRUE)
 
     # restore HOME
-    Sys.setenv(HOME = home, add = TRUE)
+    Sys.setenv(HOME = home)
 
     # clean up options
     options(rsconnect.http = http)
