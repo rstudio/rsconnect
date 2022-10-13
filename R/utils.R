@@ -253,3 +253,11 @@ isAvailable <- function(package, min_version = NULL) {
   # the package has at least that version.
   return(utils::packageVersion(package) >= min_version)
 }
+
+# Escape characters that have special meaning for extended regular expressions as supported by
+# list.files.
+#
+# Similar to rex::escape
+escapeRegex <- function(name) {
+  gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", name, perl = TRUE)
+}

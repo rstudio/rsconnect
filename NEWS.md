@@ -6,6 +6,8 @@
   when a Quarto path was provided to the `quarto` argument of `writeManifest()`,
   `deployApp()`, and related functions.
 
+* Escape account names when performing a directory search to determine an
+  appropriate server. (#620)
 
 ## 0.8.27
 
@@ -23,7 +25,7 @@ Released to CRAN on 2022-07-12
 * If the `ragg` package is installed locally, it is now added as an implicit
   dependency to `shiny` apps since `shiny::renderPlot()` now uses it by default 
   (when available). This way, `shiny` apps won't have to add `library(ragg)` to 
-  get consistent (higher-quality) PNG images when deployed. (#598)  
+  get consistent (higher-quality) PNG images when deployed. (#598)
 
 ## 0.8.26
 
