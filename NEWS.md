@@ -2,6 +2,16 @@
 
 ## 0.8.28 (in development)
 
+* Shiny applications and Shiny documents no longer include an implicit
+  dependency on [`ragg`](https://ragg.r-lib.org) when that package is present
+  in the local environment. This reverts a change introduced in 0.8.27.
+  
+  Shiny applications should add an explicit dependency on `ragg` (usually with
+  a `library("ragg")` statement) to see it used by `shiny::renderPlot` (via
+  `shiny::plotPNG`).
+  
+  The documentation for `shiny::plotPNG` explains the use of `ragg`. (#598)
+
 * Fix bug that prevented publishing or writing manifests for non-Quarto content
   when a Quarto path was provided to the `quarto` argument of `writeManifest()`,
   `deployApp()`, and related functions.
