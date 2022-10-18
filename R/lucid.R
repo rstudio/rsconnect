@@ -74,8 +74,8 @@ shinyAppsClient <- function(service, authInfo) {
    listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
       query <- paste(filterQuery(
-        c("account_id", names(filters)),
-        c(accountId, unname(filters))
+        c("account_id", "type", names(filters)),
+        c(accountId, "shiny", unname(filters))
       ), collapse = "&")
       listRequest(service, authInfo, path, query, "applications")
     },
@@ -339,8 +339,8 @@ cloudClient <- function(service, authInfo) {
     listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
       query <- paste(filterQuery(
-        c("account_id", names(filters)),
-        c(accountId, unname(filters))
+        c("account_id", "type", names(filters)),
+        c(accountId, "connect", unname(filters))
       ), collapse = "&")
       listRequest(service, authInfo, path, query, "applications")
     },
