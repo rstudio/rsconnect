@@ -63,7 +63,8 @@ servers <- function(local = FALSE) {
   if (local) {
     locals
   } else {
-    rbind(locals, as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE))
+    locals <- rbind(locals, as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE))
+    rbind(locals, as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
   }
 }
 
