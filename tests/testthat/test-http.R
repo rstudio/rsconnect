@@ -1,17 +1,10 @@
 context("http")
 
+# Test HTTP server doesn't work on Solaris
+skip_on_os("solaris")
+
 skip_if_not_installed("callr")
 skip_if_not_installed("httpuv")
-
-# The list of HTTP transports to check
-transports <- c("libcurl", "internal")
-
-if (requireNamespace("RCurl", quietly = TRUE)) {
-  transports <- c(transports, "rcurl")
-}
-if (Sys.which("curl") != "") {
-  transports <- c(transports, "curl")
-}
 
 # Temporary file to cache the output (request) to HTTP methods
 output <- tempfile(fileext = ".rds")
@@ -79,169 +72,242 @@ teardown({
   server$kill()
 })
 
-test_that("simple http GET works", {
-  # Test HTTP server doesn't work on Solaris
-  skip_on_os("solaris")
+test_http_GET <- function(transport) {
+  # Set the transport for this instance of the test
+  old <- options("rsconnect.http" = transport)
+  on.exit(options(old), add = TRUE)
 
-  for(transport in transports) {
-    # Set the transport for this instance of the test
-    options("rsconnect.http" = transport)
+  # Save the response the server will return
+  saveRDS(file = input, object = list(
+    status = 200L,
+    headers = list(
+      "Content-Type" = "text/plain"
+    ),
+    body = "GET successful"
+  ))
 
-    # Save the response the server will return
-    saveRDS(file = input, object = list(
-      status = 200L,
-      headers = list(
-        "Content-Type" = "text/plain"
-      ),
-      body = "GET successful"
-    ))
+  # Perform the request
+  GET(service = service,
+      authInfo = NULL,
+      query = NULL,
+      path = "test")
 
-    # Perform the request
-    GET(service = service,
-        authInfo = NULL,
-        query = NULL,
-        path = "test")
+  # Validate that we performed a GET on the requested path
+  request <- readRDS(output)
+  expect_equal(request$REQUEST_METHOD, "GET")
+  expect_equal(request$PATH_INFO, "/test")
+}
 
-    # Validate that we performed a GET on the requested path
-    request <- readRDS(output)
-    expect_equal(request$REQUEST_METHOD, "GET")
-    expect_equal(request$PATH_INFO, "/test")
-  }
+test_that("simple http GET works (libcurl)", {
+  test_http_GET("libcurl")
 })
 
-test_that("posting JSON works", {
-  # Test HTTP server doesn't work on Solaris
-  skip_on_os("solaris")
-
-  for(transport in transports) {
-    options("rsconnect.http" = transport)
-    saveRDS(file = input, object = list(
-      status = 200L,
-      headers = list(
-        "Content-Type" = "text/plain"
-      ),
-      body = "POST successful"
-    ))
-
-    # Perform the request
-    body <- list(a = 1, b = 2, c = 3)
-    POST_JSON(service = service,
-        authInfo = NULL,
-        json = body,
-        query = NULL,
-        path = "test")
-
-    # Validate HTTP method
-    request <- readRDS(output)
-    expect_equal(request$REQUEST_METHOD, "POST")
-
-    # Validate body contents
-    expect(request$body == toJSON(body, pretty = TRUE),
-           failure_message =
-             paste0("Unexpected request body '", request$body, "', with transport ", transport))
-  }
+test_that("simple http GET works (internal)", {
+  test_http_GET("internal")
 })
 
-test_that("posting with no data works", {
-  # Test HTTP server doesn't work on Solaris
-  skip_on_os("solaris")
-
-  for(transport in transports) {
-    options("rsconnect.http" = transport)
-
-    # Save the response the server will return
-    saveRDS(file = input, object = list(
-      status = 200L,
-      headers = list(
-        "Content-Type" = "text/plain"
-      ),
-      body = "POST successful"
-    ))
-
-    # Perform the request
-    POST(service = service,
-        authInfo = NULL,
-        path = "test",
-        file = NULL,
-        content = NULL)
-
-    # Validate HTTP method
-    request <- readRDS(output)
-    expect_equal(request$REQUEST_METHOD, "POST")
-
-    # Validate body contents
-    expect(request$body == "",
-           failure_message =
-             paste0("Unexpected request body '", request$body, "', with transport ", transport))
-  }
+test_that("simple http GET works (RCurl)", {
+  skip_if_not_installed("RCurl")
+  test_http_GET("rcurl")
 })
 
-test_that("posting file works", {
-  # Test HTTP server doesn't work on Solaris
-  skip_on_os("solaris")
-
-  for(transport in transports) {
-    options("rsconnect.http" = transport)
-
-    # Save the response the server will return
-    saveRDS(file = input, object = list(
-      status = 200L,
-      headers = list(
-        "Content-Type" = "text/plain"
-      ),
-      body = "POST successful"
-    ))
-
-    # Perform the request
-    write(c("1","2","3"), datafile)
-    POST(service = service,
-        authInfo = NULL,
-        path = "test",
-        contentType = "text/plain",
-        file = datafile,
-        content = NULL)
-
-    # Validate HTTP method
-    request <- readRDS(output)
-    expect_equal(request$REQUEST_METHOD, "POST")
-
-    # Validate body contents
-    expect(request$body == "1\n2\n3",
-           failure_message =
-             paste0("Unexpected request body '", request$body, "', with transport ", transport))
-  }
+test_that("simple http GET works (curl)", {
+  skip_if(Sys.which("curl") == "")
+  test_http_GET("curl")
 })
 
-test_that("api key authinfo sets headers", {
-  # Test HTTP server doesn't work on Solaris
-  skip_on_os("solaris")
-  for(transport in transports) {
-    options("rsconnect.http" = transport)
-    # Save the response the server will return
-    saveRDS(file = input, object = list(
-      status = 200L,
-      headers = list(
-        "Content-Type" = "text/plain"
-      ),
-      body = "GET successful"
-    ))
-    apiKey = "abc123"
-    # Perform the request
-    GET(service = service,
-        authInfo = list(apiKey = apiKey),
-        query = NULL,
-        path = "test")
-    # Validate that we performed a GET on the requested path
-    request <- readRDS(output)
+test_http_POST_JSON <- function(transport) {
+  # Set the transport for this instance of the test
+  old <- options("rsconnect.http" = transport)
+  on.exit(options(old), add = TRUE)
 
-    # Validate header contents
-    expect(request$HEADERS["authorization"] == paste("Key", apiKey),
-           failure_message =
-             paste0("Correct api key request header missing in '",
-                    request$HEADERS, "', with transport ", transport))
-  }
+  saveRDS(file = input, object = list(
+    status = 200L,
+    headers = list(
+      "Content-Type" = "text/plain"
+    ),
+    body = "POST successful"
+  ))
+
+  # Perform the request
+  body <- list(a = 1, b = 2, c = 3)
+  POST_JSON(service = service,
+            authInfo = NULL,
+            json = body,
+            query = NULL,
+            path = "test")
+
+  # Validate HTTP method
+  request <- readRDS(output)
+  expect_equal(request$REQUEST_METHOD, "POST")
+
+  # Validate body contents
+  expect(request$body == toJSON(body, pretty = TRUE),
+         failure_message =
+           paste0("Unexpected request body '", request$body, "', with transport ", transport))
+}
+
+test_that("posting JSON works (libcurl)", {
+  test_http_POST_JSON("libcurl")
 })
 
-# These are purely to alert users that some tests have been skipped.
-skip_if(Sys.which("curl") == "", "curl is not installed")
-skip_if_not_installed("RCurl")
+test_that("posting JSON works (internal)", {
+  test_http_POST_JSON("internal")
+})
+
+test_that("posting JSON works (RCurl)", {
+  skip_if_not_installed("RCurl")
+  test_http_POST_JSON("rcurl")
+})
+
+test_that("posting JSON works (libcurl)", {
+  skip_if(Sys.which("curl") == "")
+  test_http_POST_JSON("curl")
+})
+
+test_http_POST_empty <- function(transport) {
+  # Set the transport for this instance of the test
+  old <- options("rsconnect.http" = transport)
+  on.exit(options(old), add = TRUE)
+
+  # Save the response the server will return
+  saveRDS(file = input, object = list(
+    status = 200L,
+    headers = list(
+      "Content-Type" = "text/plain"
+    ),
+    body = "POST successful"
+  ))
+
+  # Perform the request
+  POST(service = service,
+       authInfo = NULL,
+       path = "test",
+       file = NULL,
+       content = NULL)
+
+  # Validate HTTP method
+  request <- readRDS(output)
+  expect_equal(request$REQUEST_METHOD, "POST")
+
+  # Validate body contents
+  expect(request$body == "",
+         failure_message =
+           paste0("Unexpected request body '", request$body, "', with transport ", transport))
+}
+
+test_that("posting with no data works (libcurl)", {
+  test_http_POST_empty("libcurl")
+})
+
+test_that("posting with no data works (internal)", {
+  test_http_POST_empty("internal")
+})
+
+test_that("posting with no data works (RCurl)", {
+  skip_if_not_installed("RCurl")
+  test_http_POST_empty("rcurl")
+})
+
+test_that("posting with no data works (curl)", {
+  skip_if(Sys.which("curl") == "")
+  test_http_POST_empty("curl")
+})
+
+test_http_POST_file <- function(transport) {
+  # Set the transport for this instance of the test
+  old <- options("rsconnect.http" = transport)
+  on.exit(options(old), add = TRUE)
+
+  # Save the response the server will return
+  saveRDS(file = input, object = list(
+    status = 200L,
+    headers = list(
+      "Content-Type" = "text/plain"
+    ),
+    body = "POST successful"
+  ))
+
+  # Perform the request
+  write(c("1","2","3"), datafile)
+  POST(service = service,
+       authInfo = NULL,
+       path = "test",
+       contentType = "text/plain",
+       file = datafile,
+       content = NULL)
+
+  # Validate HTTP method
+  request <- readRDS(output)
+  expect_equal(request$REQUEST_METHOD, "POST")
+
+  # Validate body contents
+  expect(request$body == "1\n2\n3",
+         failure_message =
+           paste0("Unexpected request body '", request$body, "', with transport ", transport))
+}
+
+test_that("posting file works (libcurl)", {
+  test_http_POST_file("libcurl")
+})
+
+test_that("posting file works (internal)", {
+  test_http_POST_file("internal")
+})
+
+test_that("posting file works (RCurl)", {
+  skip_if_not_installed("RCurl")
+  test_http_POST_file("rcurl")
+})
+
+test_that("posting file works (curl)", {
+  skip_if(Sys.which("curl") == "")
+  test_http_POST_file("curl")
+})
+
+test_http_api_headers <- function(transport) {
+  # Set the transport for this instance of the test
+  old <- options("rsconnect.http" = transport)
+  on.exit(options(old), add = TRUE)
+
+  # Save the response the server will return
+  saveRDS(file = input, object = list(
+    status = 200L,
+    headers = list(
+      "Content-Type" = "text/plain"
+    ),
+    body = "GET successful"
+  ))
+  apiKey = "abc123"
+  # Perform the request
+  GET(service = service,
+      authInfo = list(apiKey = apiKey),
+      query = NULL,
+      path = "test")
+  # Validate that we performed a GET on the requested path
+  request <- readRDS(output)
+
+  # Validate header contents
+  expect(request$HEADERS["authorization"] == paste("Key", apiKey),
+         failure_message =
+           paste0("Correct api key request header missing in '",
+                  request$HEADERS, "', with transport ", transport))
+}
+
+test_that("api key authinfo sets headers (libcurl)", {
+  test_http_api_headers("libcurl")
+})
+
+test_that("api key authinfo sets headers (internal)", {
+  test_http_api_headers("internal")
+})
+
+test_that("api key authinfo sets headers (RCurl)", {
+  skip_if_not_installed("RCurl")
+  test_http_api_headers("rcurl")
+})
+
+test_that("api key authinfo sets headers (curl)", {
+  skip_if(Sys.which("curl") == "")
+  test_http_api_headers("curl")
+})
