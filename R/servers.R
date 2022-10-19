@@ -11,8 +11,7 @@
 #' The `servers` and `serverInfo` functions are provided for viewing
 #' previously registered servers.
 #'
-#' There is always at least one server registered (the `shinyapps.io`
-#' server)
+#' Servers for `shinyapps.io` and `rstudio.cloud` are always registered.
 #'
 #' @param name Optional nickname for the server. If none is given, the nickname
 #'   is inferred from the server's hostname.
@@ -63,7 +62,10 @@ servers <- function(local = FALSE) {
   if (local) {
     locals
   } else {
-    rbind(locals, as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE))
+    rbind(
+      locals,
+      as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
+      as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
   }
 }
 
