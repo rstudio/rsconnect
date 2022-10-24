@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">rsconnect</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8.28</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
 <p>Check and fix URLs (from R):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"urlchecker"</span><span class="op">)</span></span>
-<span><span class="fu">urlchecker</span><span class="fu">::</span><span class="fu">url_check</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">urlchecker</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/urlchecker/man/url_check.html" class="external-link">url_check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </li>
 <li>
 <p>Generate a release <code>.tar.gz</code> by running the following command from the parent directory of your <code>rsconnect</code> repository:</p>
@@ -77,19 +77,14 @@
 <p>Test the package (also from the parent directory):</p>
 <pre class="console"><code>R CMD check --as-cran rsconnect_*.tar.gz</code></pre>
 </li>
-<li>
-<p>Test the package using <a href="https://docs.r-hub.io" class="external-link">R-Hub</a>. Triggered from R:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rhub"</span><span class="op">)</span></span>
-<span><span class="fu">rhub</span><span class="fu">::</span><span class="fu">check_for_cran</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</li>
+<li><p>Push the branch to GitHub and let our CI workflow run.</p></li>
 <li><p>Fix any issues identified by the previous steps. Rinse and repeat.</p></li>
 <li><p>Submit to CRAN. Cross fingers.</p></li>
 <li><p>After submission, squash-and-merge the <code>release/&lt;version&gt;</code> branch back to <code>main</code>.</p></li>
 <li>
 <p>Create a git tag for your new release and push that tag.</p>
 <pre class="console"><code>git tag -a -m 'CRAN release: vX.Y.Z' vX.Y.Z COMMIT_HASH
-git push origin --tags</code></pre>
+git push origin vX.Y.Z</code></pre>
 </li>
 <li><p>Create a GitHub release against that tag and include the NEWS.md items in its notes.</p></li>
 <li>
@@ -114,7 +109,7 @@ git push origin --tags</code></pre>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
