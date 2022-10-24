@@ -1,6 +1,8 @@
 # NEWS
 
-## 0.8.28 (in development)
+## 0.8.28
+
+Released to CRAN on 2022-10-17
 
 * Shiny applications and Shiny documents no longer include an implicit
   dependency on [`ragg`](https://ragg.r-lib.org) when that package is present
