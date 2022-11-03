@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 An R package used for deploying applications to the [ShinyApps](https://www.shinyapps.io/) hosted service, 
-or to [Posit Connect](https://www.rstudio.com/products/connect/).
+or to [Posit Connect](https://www.posit.co/products/enterprise/connect/).
 
 ## Installation
 

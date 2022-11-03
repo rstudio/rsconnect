@@ -13,7 +13,7 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 
 An R package used for deploying applications to the
 [ShinyApps](https://www.shinyapps.io/) hosted service, or to [Posit
-Connect](https://www.rstudio.com/products/connect/).
+Connect](https://www.posit.co/products/enterprise/connect/).
 
 ## Installation
 
