@@ -57,8 +57,7 @@ using \code{\link[=connectUser]{connectUser()}}.
 The \code{servers} and \code{serverInfo} functions are provided for viewing
 previously registered servers.
 
-There is always at least one server registered (the \code{shinyapps.io}
-server)
+Servers for \code{shinyapps.io} and \code{rstudio.cloud} are always registered.
 }
 \examples{
 \dontrun{
