@@ -2,6 +2,7 @@
 
 ## 0.8.29 (in development)
 
+* Update company and product name for rebranding to Posit.
 
 ## 0.8.28
 

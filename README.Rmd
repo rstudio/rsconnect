@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 An R package used for deploying applications to the [ShinyApps](https://www.shinyapps.io/) hosted service, 
-or to [RStudio Connect](https://www.rstudio.com/products/connect/).
+or to [Posit Connect](https://www.posit.co/products/enterprise/connect/).
 
 ## Installation
 
@@ -44,9 +44,9 @@ devtools::install_github("rstudio/rsconnect")
 
 To get started using ShinyApps check out the [Getting Started Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
-For more information using RStudio Connect, see the [RStudio Connect User Guide](https://docs.rstudio.com/connect/user/index.html).
+For more information using Posit Connect, see the [Posit Connect User Guide](https://docs.rstudio.com/connect/user/index.html).
 
 
 ## Legal Stuff
 
-TensorFlow, the TensorFlow logo and any related marks are trademarks of Google Inc., and are not affiliated with RStudio, Inc.
+TensorFlow, the TensorFlow logo and any related marks are trademarks of Google Inc., and are not affiliated with Posit Software, PBC
