@@ -2,6 +2,7 @@
 
 ## 0.8.29 (in development)
 
+* Update company and product name for rebranding to Posit
 
 ## 0.8.28
 
@@ -20,7 +21,6 @@ Released to CRAN on 2022-10-17
 * Fix bug that prevented publishing or writing manifests for non-Quarto content
   when a Quarto path was provided to the `quarto` argument of `writeManifest()`,
   `deployApp()`, and related functions.
-* Update company and product name for rebranding to Posit
 
 * Escape account names when performing a directory search to determine an
   appropriate server. (#620)
