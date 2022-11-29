@@ -286,7 +286,7 @@ shinyAppsClient <- function(service, authInfo) {
   )
 }
 
-# return a list of functions that can be used to interact with rstudio.cloud
+# return a list of functions that can be used to interact with posit.cloud
 cloudClient <- function(service, authInfo) {
   list(
 

@@ -11,7 +11,7 @@
 #' The `servers` and `serverInfo` functions are provided for viewing
 #' previously registered servers.
 #'
-#' Servers for `shinyapps.io` and `rstudio.cloud` are always registered.
+#' Servers for `shinyapps.io` and `posit.cloud` are always registered.
 #'
 #' @param name Optional nickname for the server. If none is given, the nickname
 #'   is inferred from the server's hostname.

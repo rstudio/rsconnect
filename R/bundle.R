@@ -456,7 +456,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo, isCloudServer
     if (!is.null(quartoInfo)) {
       return("quarto-static")
     } else {
-      # For Shinyapps and rstudio.cloud, treat "rmd-static" app mode as "rmd-shiny" so that
+      # For Shinyapps and posit.cloud, treat "rmd-static" app mode as "rmd-shiny" so that
       # they can be served from a shiny process in Connect until we have better support of
       # rmarkdown static content
       if (isCloudServer) {

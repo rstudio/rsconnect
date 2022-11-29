@@ -341,7 +341,7 @@ deployApp <- function(appDir = getwd(),
     if (isShinyappsServer(accountDetails$server)) {
       if (identical(contentCategory, "api")) {
         stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-             "can only be published to Posit Connect or rstudio.cloud.")
+             "can only be published to Posit Connect or Posit Cloud.")
       }
     }
   } else {
@@ -596,7 +596,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
 
 getPythonForTarget <- function(path, accountDetails) {
-  # python is enabled on Connect and rstudio.cloud, but not on Shinyapps
+  # python is enabled on Connect and posit.cloud, but not on Shinyapps
   targetIsShinyapps <- isShinyappsServer(accountDetails$server)
   pythonEnabled = getOption("rsconnect.python.enabled", default=!targetIsShinyapps)
   if (pythonEnabled) {

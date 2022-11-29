@@ -486,7 +486,8 @@ resolveAccount <- function(account, server = NULL) {
 }
 
 isCloudServer <- function(server) {
-  identical(server, "shinyapps.io") || identical(server, "rstudio.cloud")
+  identical(server, "shinyapps.io")||
+    identical(server, cloudServerInfo(server)$name)
 }
 
 isShinyappsServer <- function(server) {
