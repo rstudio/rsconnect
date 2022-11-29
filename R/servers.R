@@ -62,10 +62,20 @@ servers <- function(local = FALSE) {
   if (local) {
     locals
   } else {
-    rbind(
+    serversList <- rbind(
       locals,
       as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
       as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
+
+    # RStudio IDE requires a server whose name matches the server name on
+    # previously configured accounts. Prevent breakage for pre-rebrand users.
+    if (!is.null(rsconnect::accounts(server = "rstudio.cloud"))) {
+      serversList <- rbind(
+        serversList,
+        as.data.frame(cloudServerInfo("rstudio.cloud"), stringsAsFactors = FALSE)
+      )
+    }
+    serversList
   }
 }
 
