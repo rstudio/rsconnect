@@ -387,10 +387,14 @@ cloudClient <- function(service, authInfo) {
         current_application = handleResponse(GET(service, authInfo, path))
         project_id = current_application$content_id
 
-        path <- paste("/content/", project_id, sep="")
-        current_project = handleResponse(GET(service, authInfo, path))
-        json$project = current_project$id
-        json$space = current_project$space_id
+        # in case the source cloud project is a temporary copy, there is no
+        # content id. The output will be published without a space id.
+        if (!is.null(project_id)) {
+          path <- paste("/content/", project_id, sep="")
+          current_project = handleResponse(GET(service, authInfo, path))
+          json$project = current_project$id
+          json$space = current_project$space_id
+        }
       }
       output <- handleResponse(POST_JSON(service, authInfo, "/outputs", json))
       path <- paste("/applications/", output$source_id, sep="")
