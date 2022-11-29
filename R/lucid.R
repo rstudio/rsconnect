@@ -2,8 +2,8 @@ lucidClientForAccount <- function(account) {
   authInfo <- account
 
   # determine appropriate server information for account
-  if (account$server == cloudServerInfo()$name) {
-    serverInfo <- cloudServerInfo()
+  if (account$server == cloudServerInfo(account$server)$name) {
+    serverInfo <- cloudServerInfo(account$server)
     constructor = cloudClient
   } else {
     serverInfo <- shinyappsServerInfo()
@@ -23,6 +23,10 @@ shinyAppsClient <- function(service, authInfo) {
 
     status = function() {
       handleResponse(GET(service, authInfo,  "/internal/status"))
+    },
+
+    service = function() {
+      "shinyapps.io"
     },
 
     currentUser = function() {
@@ -288,6 +292,10 @@ cloudClient <- function(service, authInfo) {
 
     status = function() {
       handleResponse(GET(service, authInfo,  "/internal/status"))
+    },
+
+    service = function() {
+      "posit.cloud"
     },
 
     currentUser = function() {

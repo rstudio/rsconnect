@@ -246,8 +246,8 @@ setAccountInfo <- function(name, token, secret,
     stop(stringParamErrorMessage("secret"))
 
   # create connect client
-  if (identical(server, cloudServerInfo()$name)) {
-    serverInfo <- cloudServerInfo()
+  if (identical(server, cloudServerInfo(server)$name)) {
+    serverInfo <- cloudServerInfo(server)
   } else {
     serverInfo <- shinyappsServerInfo()
   }
