@@ -212,9 +212,9 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   }
 }
 
-#' Set ShinyApps Account Info
+#' Set ShinyApps or Posit Cloud Account Info
 #'
-#' Configure a ShinyApps account for publishing from this system.
+#' Configure a ShinyApps or Posit Cloud account for publishing from this system.
 #'
 #' @param name Name of account to save or remove
 #' @param token User token for the account

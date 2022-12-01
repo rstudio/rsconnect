@@ -2,6 +2,11 @@
 
 ## 0.8.29 (in development)
 
+* Introduced support for publishing to Posit Cloud. This feature is currently
+  in closed beta and requires access to an enabled account on Posit Cloud.
+  See [Posit Cloud's Announcement](https://posit.cloud/learn/whats-new) for
+  more information and to request access.
+
 * Update company and product name for rebranding to Posit.
 
 ## 0.8.28

@@ -2,7 +2,7 @@
 % Please edit documentation in R/accounts.R
 \name{setAccountInfo}
 \alias{setAccountInfo}
-\title{Set ShinyApps Account Info}
+\title{Set ShinyApps or Posit Cloud Account Info}
 \usage{
 setAccountInfo(name, token, secret, server = "shinyapps.io")
 }
@@ -16,7 +16,7 @@ setAccountInfo(name, token, secret, server = "shinyapps.io")
 \item{server}{Server to associate account with.}
 }
 \description{
-Configure a ShinyApps account for publishing from this system.
+Configure a ShinyApps or Posit Cloud account for publishing from this system.
 }
 \examples{
 \dontrun{
