@@ -22,7 +22,7 @@ multiple servers.}
 List invited users for an application
 }
 \note{
-This function works only for ShinyApps servers.
+This function works only for shinyapps.io servers.
 }
 \seealso{
 \code{\link[=addAuthorizedUser]{addAuthorizedUser()}} and \code{\link[=showUsers]{showUsers()}}

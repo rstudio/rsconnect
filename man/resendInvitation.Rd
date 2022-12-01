@@ -34,7 +34,7 @@ multiple servers.}
 Resend invitation for invited users of an application
 }
 \note{
-This function works only for ShinyApps servers.
+This function works only for shinyapps.io servers.
 }
 \seealso{
 \code{\link[=showInvited]{showInvited()}}

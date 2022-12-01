@@ -46,7 +46,7 @@ cleanupPasswordFile <- function(appDir) {
 #'   custom message to send in email invitation. Defaults to NULL, which
 #'   will use default invitation message.
 #' @seealso [removeAuthorizedUser()] and [showUsers()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works only for shinyapps.io servers.
 #' @export
 addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
                               account = NULL, server=NULL, sendEmail=NULL,
@@ -84,7 +84,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso [addAuthorizedUser()] and [showUsers()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works only for shinyapps.io servers.
 #' @export
 removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
                                  account = NULL, server=NULL) {
@@ -138,7 +138,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso [addAuthorizedUser()] and [showInvited()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works only for shinyapps.io servers.
 #' @export
 showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
                       server=NULL) {
@@ -147,7 +147,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   if (!isCloudServer(accountDetails$server)) {
-    stop("This method only works for ShinyApps or posit.cloud servers.")
+    stop("This method only works for shinyapps.io or posit.cloud servers.")
   }
 
   # resolve application
@@ -188,7 +188,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso [addAuthorizedUser()] and [showUsers()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works only for shinyapps.io servers.
 #' @export
 showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
                         server=NULL) {
@@ -234,7 +234,7 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @seealso [showInvited()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works only for shinyapps.io servers.
 #' @export
 resendInvitation <- function(invite, regenerate=FALSE,
                              appDir=getwd(), appName=NULL,
