@@ -39,7 +39,7 @@ will use default invitation message.}
 Add authorized user to application
 }
 \note{
-This function works only for shinyapps.io servers.
+This function works only for ShinyApps servers.
 }
 \seealso{
 \code{\link[=removeAuthorizedUser]{removeAuthorizedUser()}} and \code{\link[=showUsers]{showUsers()}}
