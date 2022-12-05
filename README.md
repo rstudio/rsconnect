@@ -11,10 +11,10 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 [![R-CMD-check](https://github.com/rstudio/rsconnect/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/rsconnect/actions)
 <!-- badges: end -->
 
-An R package used for deploying applications to the
-[ShinyApps](https://www.shinyapps.io/) and [Posit
-Cloud](https://www.posit.cloud/) hosted services, or to [Posit
-Connect](https://www.posit.co/products/enterprise/connect/).
+An R package used for deploying applications to [Posit
+Connect](https://www.posit.co/products/enterprise/connect/),
+[ShinyApps.io](https://www.shinyapps.io/), and [Posit
+Cloud](https://www.posit.cloud/).
 
 ## Installation
 
