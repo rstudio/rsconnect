@@ -11,8 +11,7 @@
 -   Update `NEWS.md`. Confirm recent changes are included.
 
     1. Update version in header, if necessary.
-    2. Remove "(in development)" from the version header
-    3. Add "Released to CRAN <date>"
+    2. Remove "(development version)" from the version header
 
 -   Commit the `NEWS.md` and `DESCRIPTION` changes.
 
@@ -63,5 +62,9 @@
 
     Update `DESCRIPTION` bumping to the next version.
     Update `NEWS.md` with a version header for the next version.
+    
+    ````markdown
+    # rsconnect VERSION (development version)
+    ````
 
     Squash-and-merge the PR for this branch back to `main`.
