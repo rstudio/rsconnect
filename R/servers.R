@@ -11,7 +11,7 @@
 #' The `servers` and `serverInfo` functions are provided for viewing
 #' previously registered servers.
 #'
-#' Servers for `shinyapps.io` and `rstudio.cloud` are always registered.
+#' Servers for `shinyapps.io` and `posit.cloud` are always registered.
 #'
 #' @param name Optional nickname for the server. If none is given, the nickname
 #'   is inferred from the server's hostname.
@@ -62,10 +62,20 @@ servers <- function(local = FALSE) {
   if (local) {
     locals
   } else {
-    rbind(
+    serversList <- rbind(
       locals,
       as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
       as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
+
+    # RStudio IDE requires a server whose name matches the server name on
+    # previously configured accounts. Prevent breakage for pre-rebrand users.
+    if (!is.null(rsconnect::accounts(server = "rstudio.cloud"))) {
+      serversList <- rbind(
+        serversList,
+        as.data.frame(cloudServerInfo("rstudio.cloud"), stringsAsFactors = FALSE)
+      )
+    }
+    serversList
   }
 }
 
@@ -86,8 +96,13 @@ shinyappsServerInfo <- function() {
                                "https://api.shinyapps.io/v1"))
 }
 
-cloudServerInfo <- function() {
-  info <- list(name = "rstudio.cloud",
+cloudServerInfo <- function(name = "posit.cloud") {
+  # We encode the current and prior product names here and call this function to
+  # see if a configured server identifier references the cloud product.
+  if (!is.element(name, c("posit.cloud", "rstudio.cloud"))) {
+    name = "posit.cloud"
+  }
+  info <- list(name = name,
                certificate = inferCertificateContents(
                  system.file("cert/shinyapps.io.pem", package = "rsconnect")),
                url = getOption("rsconnect.shinyapps_url",
@@ -223,14 +238,13 @@ serverInfo <- function(name) {
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))
 
-  # there's no config file for shinyapps.io
+  # there's no config file for Posit's hosted offerings
   if (identical(name, "shinyapps.io")) {
     return(shinyappsServerInfo())
   }
 
-  # there's no config file for rstudio.cloud
-  if (identical(name, "rstudio.cloud")) {
-    return(cloudServerInfo())
+  if (identical(name, cloudServerInfo(name)$name)) {
+    return(cloudServerInfo(name))
   }
 
   configFile <- serverConfigFile(name)
