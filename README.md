@@ -43,8 +43,8 @@ Guide](https://docs.rstudio.com/connect/user/index.html).
 Publishing to Posit Cloud is currently in closed beta and requires
 access to an enabled account on Posit Cloud. Premium, Instructor, and
 Organization account holders can request to participate. See [Posit
-Cloud’s Announcement](https://posit.cloud/learn/whats-new) for more
-information and to request access.
+Cloud’s Announcement](https://posit.cloud/learn/whats-new#publishing)
+for more information and to request access.
 
 ## Legal Stuff
 
