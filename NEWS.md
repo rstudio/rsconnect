@@ -1,12 +1,8 @@
-# NEWS
-
-## 0.8.29 (in development)
+# rsconnect 0.8.29 (development version)
 
 * Update company and product name for rebranding to Posit.
 
-## 0.8.28
-
-Released to CRAN on 2022-10-17
+# rsconnect 0.8.28
 
 * Shiny applications and Shiny documents no longer include an implicit
   dependency on [`ragg`](https://ragg.r-lib.org) when that package is present
@@ -25,9 +21,7 @@ Released to CRAN on 2022-10-17
 * Escape account names when performing a directory search to determine an
   appropriate server. (#620)
 
-## 0.8.27
-
-Released to CRAN on 2022-07-12
+# rsconnect 0.8.27
 
 * Quarto content will no longer silently deploy as R Markdown content when
   Quarto metadata is missing or cannot be gathered. Functions will error,
@@ -43,9 +37,7 @@ Released to CRAN on 2022-07-12
   (when available). This way, `shiny` apps won't have to add `library(ragg)` to 
   get consistent (higher-quality) PNG images when deployed. (#598)
 
-## 0.8.26
-
-Released to CRAN on 2022-05-31
+# rsconnect 0.8.26
 
 * Add ability to resend shinyapps.io application invitations (#543)
 * Show expiration status in shinyapps.io for invitations (#543)
@@ -64,9 +56,7 @@ Released to CRAN on 2022-05-31
   method, using the `RSCONNECT_TAR` environment variable, still works, but the
   new option will take precedence if both are set.
 
-## 0.8.25
-
-Released to CRAN on 2021-11-16
+# rsconnect 0.8.25
 
 * Use the `curl` option `-T` when uploading files to avoid out of memory
   errors with large files. (#544)
@@ -79,18 +69,14 @@ Released to CRAN on 2021-11-16
   by `tools::R_user_dir`. Configuration created by earlier versions of this
   package is automatically migrated to the new location. (#550)
 
-## 0.8.24
-
-Released to CRAN on 2021-08-04
+# rsconnect 0.8.24
 
 * Added support for publishing Quarto documents and websites
 * Added support for `.rscignore` file to exclude files or directories from publishing (#368)
 * Fixed issue causing missing value errors when publishing content containing filenames with extended characters (#514)
 * Fixed issue preventing error tracebacks from displaying (#518)
 
-## 0.8.18
-
-Released to CRAN on 2021-05-24
+# rsconnect 0.8.18
 
 * Fixed issue causing configuration directory to be left behind after `R CMD CHECK`
 * Fixed incorrect subdirectory nesting when storing configuration in `R_USER_CONFIG_DIR`
@@ -104,9 +90,7 @@ Released to CRAN on 2021-05-24
 * Err when the app-mode cannot be inferred; seen with empty directories/file-sets (#512)
 * Add `verbose` option to `writeManifest` utility (#468)
 
-## 0.8.17
-
-Released to CRAN on 2021-04-09
+# rsconnect 0.8.17
 
 * Fixed issue where setting `options(rsconnect.http.trace.json = TRUE)` could cause deployment errors with some HTTP transports (#490)
 * Improve how large bundles (file size and count) are detected (#464)
@@ -129,9 +113,7 @@ Released to CRAN on 2021-04-09
 * Fix `applications` when ShinyApps does not return `size` details (#496)
 * GitLab is seen as a valid SCM source (#491)
 
-## 0.8.16
-
-Released to CRAN on 2019-12-13
+# rsconnect 0.8.16
 
 * Prevent attempts to deploy Connect applications without uploading (#145)
 * Flag usage of `browser()` debugging calls when deploying (#196)
@@ -150,9 +132,7 @@ Released to CRAN on 2019-12-13
 * Restore compatibility with R < 3.5 (#394)
 * Add support for authenticating with Connect via an API key rather than a token (#393)
 
-## 0.8.15
-
-Released to CRAN on 2019-07-22
+# rsconnect 0.8.15
 
 * Switch from **RCurl** to **curl** as the default HTTP backend (#325)
 * Add `purgeApp()` function to purge previously deployed shinyapps.io applications (#352)
