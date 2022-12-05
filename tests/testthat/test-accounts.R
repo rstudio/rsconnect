@@ -52,3 +52,10 @@ test_that("account file containing pattern characters found without server name"
     })
   )
 })
+
+test_that("All hosted product names are identified as cloud", {
+  expect_true(isCloudServer("shinyapps.io"))
+  expect_true(isCloudServer("rstudio.cloud"))
+  expect_true(isCloudServer("posit.cloud"))
+  expect_false(isCloudServer("connect.internal"))
+})

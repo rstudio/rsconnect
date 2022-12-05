@@ -147,7 +147,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   if (!isCloudServer(accountDetails$server)) {
-    stop("This method only works for ShinyApps or rstudio.cloud servers.")
+    stop("This method only works for ShinyApps or posit.cloud servers.")
   }
 
   # resolve application
