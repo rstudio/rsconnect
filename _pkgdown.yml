@@ -1,8 +1,7 @@
 url: https://rstudio.github.io/rsconnect
 
 template:
-  params:
-    bootswatch: cerulean
+  bootstrap: 5
 
 reference:
 
