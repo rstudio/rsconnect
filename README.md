@@ -11,9 +11,10 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 [![R-CMD-check](https://github.com/rstudio/rsconnect/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/rsconnect/actions)
 <!-- badges: end -->
 
-An R package used for deploying applications to the
-[ShinyApps](https://www.shinyapps.io/) hosted service, or to [Posit
-Connect](https://www.posit.co/products/enterprise/connect/).
+An R package used for deploying applications to [Posit
+Connect](https://www.posit.co/products/enterprise/connect/),
+[ShinyApps.io](https://www.shinyapps.io/), and [Posit
+Cloud](https://www.posit.cloud/).
 
 ## Installation
 
@@ -38,6 +39,12 @@ Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
 For more information using Posit Connect, see the [Posit Connect User
 Guide](https://docs.rstudio.com/connect/user/index.html).
+
+Publishing to Posit Cloud is currently in closed beta and requires
+access to an enabled account on Posit Cloud. Premium, Instructor, and
+Organization account holders can request to participate. See [Posit
+Cloud’s Announcement](https://posit.cloud/learn/whats-new#publishing)
+for more information and to request access.
 
 ## Legal Stuff
 
