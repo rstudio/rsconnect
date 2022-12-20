@@ -1,4 +1,4 @@
-# rsconnect 0.8.29 (development version)
+# rsconnect 0.8.29
 
 * Introduced support for publishing to Posit Cloud. This feature is currently
   in closed beta and requires access to an enabled account on Posit Cloud.
