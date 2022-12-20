@@ -1,6 +1,6 @@
 ## Release instructions
 
--   Use git to switch to a release branch (e.g. `release/<version>`).
+-   Create and switch to a release branch (e.g. `release/<version>`).
 
     ```bash
     git checkout -b release/0.8.26
@@ -43,9 +43,9 @@
 
 -   Fix any issues identified by the previous steps. Rinse and repeat.
 
--   Submit to CRAN. Cross fingers.
-
--   After submission, squash-and-merge the `release/<version>` branch back to
+-   Submit to CRAN. Cross fingers. https://cran.r-project.org/
+    
+-   After acceptance, squash-and-merge the `release/<version>` branch back to
     `main`.
 
 -   Create a git tag for your new release and push that tag.
