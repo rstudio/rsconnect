@@ -12,9 +12,9 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 <!-- badges: end -->
 
 An R package used for deploying applications to [Posit
-Connect](https://www.posit.co/products/enterprise/connect/),
+Connect](https://posit.co/products/enterprise/connect/),
 [ShinyApps.io](https://www.shinyapps.io/), and [Posit
-Cloud](https://www.posit.cloud/).
+Cloud](https://posit.cloud/).
 
 ## Installation
 
@@ -38,7 +38,7 @@ To get started using ShinyApps check out the [Getting Started
 Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
 For more information using Posit Connect, see the [Posit Connect User
-Guide](https://docs.rstudio.com/connect/user/index.html).
+Guide](https://docs.posit.co/connect/user/index.html).
 
 Publishing to Posit Cloud is currently in closed beta and requires
 access to an enabled account on Posit Cloud. Premium, Instructor, and
