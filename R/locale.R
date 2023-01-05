@@ -1,6 +1,6 @@
 overrideWindowsLocale <- function(locale) {
   map <- list()
-  map[['el_EL']] <- "el_GR"
+  map[["el_EL"]] <- "el_GR"
   if (locale %in% names(map)) {
     locale <- map[[locale]]
   }
@@ -8,7 +8,7 @@ overrideWindowsLocale <- function(locale) {
 }
 
 detectLocale <- function() {
-  sysName <- Sys.info()[['sysname']]
+  sysName <- Sys.info()[["sysname"]]
   if (identical(sysName, "Windows")) {
     locale <- detectLocale.Windows()
   } else {
@@ -22,10 +22,10 @@ detectLocale.Unix <- function() {
 }
 
 detectLocale.Windows <- function(useCache =
-                                  getOption('rsconnect.locale.cache', TRUE)) {
+                                  getOption("rsconnect.locale.cache", TRUE)) {
 
   # default locale
-  locale <- 'en_US'
+  locale <- "en_US"
 
   cacheFile <- localeCacheFile()
   if (file.exists(cacheFile) && useCache) {

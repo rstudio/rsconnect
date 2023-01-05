@@ -843,7 +843,7 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
 }
 
 validURL <- function(url) {
-  !(is.null(url) || url == '')
+  !(is.null(url) || url == "")
 }
 
 openURL <- function(client, application, launch.browser, on.failure, deploymentSucceeded) {

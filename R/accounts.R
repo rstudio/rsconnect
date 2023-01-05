@@ -234,7 +234,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #' @family Account functions
 #' @export
 setAccountInfo <- function(name, token, secret,
-                           server = 'shinyapps.io') {
+                           server = "shinyapps.io") {
 
   if (!isStringParam(name))
     stop(stringParamErrorMessage("name"))

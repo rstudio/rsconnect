@@ -102,7 +102,7 @@ httpTraceJson <- function() {
 
 httpTrace <- function(method, path, time) {
   if (getOption("rsconnect.http.trace", FALSE)) {
-    cat(method, " ", path, " ", as.integer(time[['elapsed']] * 1000), "ms\n",
+    cat(method, " ", path, " ", as.integer(time[["elapsed"]] * 1000), "ms\n",
         sep = "")
   }
 }
@@ -317,7 +317,7 @@ httpInvokeRequest <- function(service,
 rfc2616Date <- function(time = Sys.time()) {
 
   # capure current locale
-  loc <- Sys.getlocale('LC_TIME')
+  loc <- Sys.getlocale("LC_TIME")
 
   # set locale to POSIX/C to ensure ASCII date
   Sys.setlocale("LC_TIME", "C")
@@ -359,7 +359,7 @@ apiKeyAuthHeaders <- function(apiKey) {
 }
 
 bogusSignatureHeaders <- function() {
-  list(`X-Auth-Token` = 'anonymous-access') # The value doesn't actually matter here, but the header needs to be set.
+  list(`X-Auth-Token` = "anonymous-access") # The value doesn't actually matter here, but the header needs to be set.
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {

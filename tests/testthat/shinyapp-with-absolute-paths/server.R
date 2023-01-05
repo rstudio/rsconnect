@@ -13,7 +13,7 @@ shinyServer(function(input, output) {
 
     # read a file on disk
     otherFile <- read.table("~/.rsconnect-tests/local-file.txt")
-    anotherFile <- readLines('../../foo.bar')
+    anotherFile <- readLines("../../foo.bar")
     serverFile <- "\\\\server\\path\\to\\file"
     validWeblink <- "//www.google.com/"
 
@@ -25,7 +25,7 @@ shinyServer(function(input, output) {
     text <- paste0("x:", round(new_row$x, 2), " y:", round(new_row$y, 2))
 
     # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    hist(x, breaks = bins, col = "darkgray", border = "white")
 
     ## read a csv file
     file <- read.csv("college.txt") ## bad

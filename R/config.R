@@ -79,7 +79,7 @@ oldApplicationConfigDir <- function(appName) {
     configDir <- file.path(configDir, appName)
   } else {
     # no R specific config dir; determine application config dir (platform specific)
-    sysName <- Sys.info()[['sysname']]
+    sysName <- Sys.info()[["sysname"]]
     if (identical(sysName, "Windows"))
       configDir <- Sys.getenv("APPDATA")
     else if (identical(sysName, "Darwin"))

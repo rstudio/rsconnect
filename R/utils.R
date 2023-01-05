@@ -66,7 +66,7 @@ readPassword <- function(prompt) {
     password <- rstudioapi::askForPassword(prompt)
   } else {
 
-    os <- Sys.info()[['sysname']]
+    os <- Sys.info()[["sysname"]]
 
     echoOff <- function() {
       if (identical(os, "Darwin") || identical(os, "Linux")) {
@@ -93,8 +93,8 @@ readPassword <- function(prompt) {
 
 # wrapper around read.dcf to workaround LC_CTYPE bug
 readDcf <- function(...) {
-  loc <- Sys.getlocale('LC_CTYPE')
-  on.exit(Sys.setlocale('LC_CTYPE', loc))
+  loc <- Sys.getlocale("LC_CTYPE")
+  on.exit(Sys.setlocale("LC_CTYPE", loc))
   read.dcf(...)
 }
 
@@ -118,11 +118,11 @@ file_path_sans_ext <- function(x, compression = FALSE) {
 hr <- function(message = "", n = 80) {
   if (nzchar(message)) {
     r <- as.integer((n - nchar(message) - 2) / 2)
-    hr <- paste(rep.int("#", r), collapse = '')
-    cat(hr, message, hr, sep = " ", '\n')
+    hr <- paste(rep.int("#", r), collapse = "")
+    cat(hr, message, hr, sep = " ", "\n")
   } else {
-    hr <- paste(rep.int("#", n), collapse = '')
-    cat(hr, sep = "", '\n')
+    hr <- paste(rep.int("#", n), collapse = "")
+    cat(hr, sep = "", "\n")
   }
 }
 
@@ -130,30 +130,30 @@ hr <- function(message = "", n = 80) {
 # shiny:::checkEncoding() is not available, use a simplified version here
 checkEncoding2 <- function(file) {
   tryCatch(
-    getFromNamespace('checkEncoding', 'shiny')(file),
+    getFromNamespace("checkEncoding", "shiny")(file),
     error = function(e) {
-      if (.Platform$OS.type != 'windows') return('UTF-8')
-      x <- readLines(file, encoding = 'UTF-8', warn = FALSE)
-      isUTF8 <- !any(is.na(iconv(x, 'UTF-8')))
-      if (isUTF8) 'UTF-8' else getOption('encoding')
+      if (.Platform$OS.type != "windows") return("UTF-8")
+      x <- readLines(file, encoding = "UTF-8", warn = FALSE)
+      isUTF8 <- !any(is.na(iconv(x, "UTF-8")))
+      if (isUTF8) "UTF-8" else getOption("encoding")
     }
   )
 }
 
 # if shiny:::checkEncoding() gives UTF-8, use it, otherwise first consider
-# the RStudio project encoding, and eventually getOption('encoding')
+# the RStudio project encoding, and eventually getOption("encoding")
 checkEncoding <- function(file) {
   enc1 <- .globals$encoding
   enc2 <- checkEncoding2(file)
-  if (enc2 == 'UTF-8') return(enc2)
+  if (enc2 == "UTF-8") return(enc2)
   if (length(enc1)) enc1 else enc2
 }
 
 # read the Encoding field from the *.Rproj file
 rstudioEncoding <- function(dir) {
-  proj <- list.files(dir, '[.]Rproj$', full.names = TRUE)
+  proj <- list.files(dir, "[.]Rproj$", full.names = TRUE)
   if (length(proj) != 1L) return()  # there should be one and only one .Rproj
-  enc <- drop(readDcf(proj, 'Encoding'))
+  enc <- drop(readDcf(proj, "Encoding"))
   enc[!is.na(enc)]
 }
 
@@ -181,7 +181,7 @@ rsconnectRootPath <- function(appPath) {
 }
 
 dirExists <- function(x) {
-  utils::file_test('-d', x)
+  utils::file_test("-d", x)
 }
 
 capitalize <- function(x) {
@@ -209,7 +209,7 @@ activeEncoding <- function(project = getwd()) {
   if (length(encodingLine) != 1)
     return(defaultEncoding)
 
-  # remove 'Encoding:' prefix
+  # remove "Encoding:" prefix
   sub("^Encoding:\\s*", "", encodingLine)
 
 }

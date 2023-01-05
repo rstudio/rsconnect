@@ -165,7 +165,7 @@ connectClient <- function(service, authInfo) {
         response <- handleResponse(GET(service, authInfo, path))
 
         labeledMessage <- function(msg) {
-          message(paste('[Connect]', msg))
+          message(paste("[Connect]", msg))
         }
 
         if (length(response$status) > 0) {

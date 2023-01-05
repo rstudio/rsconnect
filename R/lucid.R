@@ -39,7 +39,7 @@ shinyAppsClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "accounts")
     },
 
-    getAccountUsage = function(accountId, usageType = 'hours', applicationId = NULL,
+    getAccountUsage = function(accountId, usageType = "hours", applicationId = NULL,
                                from = NULL, until = NULL, interval = NULL) {
       path <- paste("/accounts/", accountId, "/usage/", usageType, "/", sep = "")
       query <- list()
@@ -308,7 +308,7 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "accounts")
     },
 
-    getAccountUsage = function(accountId, usageType = 'hours', applicationId = NULL,
+    getAccountUsage = function(accountId, usageType = "hours", applicationId = NULL,
                                from = NULL, until = NULL, interval = NULL) {
       path <- paste("/accounts/", accountId, "/usage/", usageType, "/", sep = "")
       query <- list()
@@ -625,7 +625,7 @@ uploadBundle <- function(bundle, bundleSize, bundlePath) {
   presigned_service <- parseHttpUrl(bundle$presigned_url)
 
   headers <- list()
-  headers$`Content-Type` <-  'application/x-tar'
+  headers$`Content-Type` <-  "application/x-tar"
   headers$`Content-Length` <-  bundleSize
 
   # AWS requires a base64 encoded hash

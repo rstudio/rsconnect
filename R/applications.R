@@ -50,23 +50,23 @@ applications <- function(account = NULL, server = NULL) {
 
   keep <- if (isConnect) {
     c(
-      'id',
-      'name',
-      'url',
-      'build_status',
-      'created_time',
-      'last_deployed_time',
-      'guid'
+      "id",
+      "name",
+      "url",
+      "build_status",
+      "created_time",
+      "last_deployed_time",
+      "guid"
     )
   } else {
     c(
-      'id',
-      'name',
-      'url',
-      'status',
-      'created_time',
-      'updated_time',
-      'deployment'
+      "id",
+      "name",
+      "url",
+      "status",
+      "created_time",
+      "updated_time",
+      "deployment"
     )
   }
   # extract the subset of fields we're interested in

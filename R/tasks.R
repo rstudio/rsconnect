@@ -32,7 +32,7 @@ tasks <- function(account = NULL, server = NULL) {
   tasks <- client$listTasks(accountDetails$accountId)
 
   # extract the subset of fields we're interested in
-  res <- lapply(tasks, `[`, c('id', 'action', 'status', 'created_time'))
+  res <- lapply(tasks, `[`, c("id", "action", "status", "created_time"))
 
   # convert to data frame
   res <- do.call(rbind, res)
@@ -83,7 +83,7 @@ taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 
   # get child task logs
   for (task in tasks) {
-    taskLog(task['id'], account = account, server = server, output = output)
+    taskLog(task["id"], account = account, server = server, output = output)
   }
 
 }

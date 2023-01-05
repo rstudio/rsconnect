@@ -371,7 +371,7 @@ isShinyRmd <- function(filename) {
   if (!is.null(yaml)) {
     runtime <- yaml[["runtime"]]
     server <- yaml[["server"]]
-    if (!is.null(runtime) && grepl('^shiny', runtime)) {
+    if (!is.null(runtime) && grepl("^shiny", runtime)) {
       # ...and "runtime: shiny", then it's a dynamic Rmd.
       return(TRUE)
     } else if (!is.null(server)) {
@@ -563,7 +563,7 @@ getCondaEnvPrefix <- function(python) {
 
 getCondaExeForPrefix <- function(prefix) {
   miniconda <- dirname(dirname(prefix))
-  conda <- file.path(miniconda, 'bin', 'conda')
+  conda <- file.path(miniconda, "bin", "conda")
   if (isWindows()) {
     conda <- paste(conda, ".exe", sep = "")
   }
@@ -589,7 +589,7 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
   env_py <- system.file("resources/environment.py", package = "rsconnect")
   args <- c(shQuote(env_py))
   if (condaMode || forceGenerate) {
-    flags <- paste('-', ifelse(condaMode, 'c', ''), ifelse(forceGenerate, 'f', ''), sep = '')
+    flags <- paste("-", ifelse(condaMode, "c", ""), ifelse(forceGenerate, "f", ""), sep = "")
     args <- c(args, flags)
   }
   args <- c(args, shQuote(workdir))
@@ -597,7 +597,7 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
   tryCatch({
     # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
     # and verify that the user hasn't specified that they don't want their conda environment captured.
-    if ('reticulate' %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
+    if ("reticulate" %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
        reticulate::py_config()$anaconda && !condaMode) {
       prefix <- getCondaEnvPrefix(python)
       conda <- getCondaExeForPrefix(prefix)
@@ -672,10 +672,10 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       name <- deps[i, "Package"]
 
       # get package info
-      info <- as.list(deps[i, c('Source', 'Repository')])
+      info <- as.list(deps[i, c("Source", "Repository")])
 
       # include github package info
-      info <- c(info, as.list(deps[i, grep('Github', colnames(deps), perl = TRUE, value = TRUE)]))
+      info <- c(info, as.list(deps[i, grep("Github", colnames(deps), perl = TRUE, value = TRUE)]))
 
       # get package description; note that we need to remove the
       # packageDescription S3 class from the object or jsonlite will refuse to
@@ -720,7 +720,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                            "options('repos') refers to a package repository containing ",
                            "the needed package versions."
                          ))
-    warning(paste(formatUL(packageMessages, '\n*'), collapse = '\n'), call. = FALSE, immediate. = TRUE)
+    warning(paste(formatUL(packageMessages, "\n*"), collapse = "\n"), call. = FALSE, immediate. = TRUE)
   }
 
   needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
@@ -738,7 +738,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   }
 
   if (length(errorMessages)) {
-    stop(paste(formatUL(errorMessages, '\n*'), collapse = '\n'), call. = FALSE)
+    stop(paste(formatUL(errorMessages, "\n*"), collapse = "\n"), call. = FALSE)
   }
 
   if (!retainPackratDirectory) {
@@ -774,7 +774,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   # create the manifest
   manifest <- list()
   manifest$version <- 1
-  manifest$locale <- getOption('rsconnect.locale', detectLocale())
+  manifest$locale <- getOption("rsconnect.locale", detectLocale())
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep = ".")
 
   metadata <- list(appmode = appMode)
@@ -1024,7 +1024,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
   df <- as.data.frame(read.dcf(lockFilePath), stringsAsFactors = FALSE)
 
   # get repos defined in the lockfile
-  repos <- gsub("[\r\n]", " ", df[1, 'Repos'])
+  repos <- gsub("[\r\n]", " ", df[1, "Repos"])
   repos <- strsplit(unlist(strsplit(repos, "\\s*,\\s*", perl = TRUE)), "=", fixed = TRUE)
   repos <- setNames(
     sapply(repos, "[[", 2),
@@ -1034,10 +1034,10 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
   # read available.packages filters (allow user to override if necessary;
   # this is primarily to allow debugging)
   #
-  # note that we explicitly exclude the 'R_version' filter as we want to ensure
+  # note that we explicitly exclude the "R_version" filter as we want to ensure
   # that packages which require newer versions of R than the one currently
   # in use can still be marked as available on CRAN -- for example, currently
-  # the package 'foreign' requires 'R (>= 4.0.0)' but older versions of R
+  # the package "foreign" requires "R (>= 4.0.0)" but older versions of R
   # can still successfully install older versions from the CRAN archive
   filters <- getOption(
     "available_packages_filters",
@@ -1045,7 +1045,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
   )
 
   # get Bioconductor repos if any
-  biocRepos <- repos[grep('BioC', names(repos), perl = TRUE, value = TRUE)]
+  biocRepos <- repos[grep("BioC", names(repos), perl = TRUE, value = TRUE)]
   biocPackages <- if (length(biocRepos) > 0) {
     available.packages(
       contriburl = contrib.url(biocRepos, type = "source"),
@@ -1080,7 +1080,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
     # capture Bioconcutor repository
     if (identical(source, "Bioconductor")) {
       if (pkg %in% biocPackages) {
-        repository <- biocPackages[pkg, 'Repository']
+        repository <- biocPackages[pkg, "Repository"]
       }
     } else if (isSCMSource(source)) {
       # leave source+SCM packages alone.
@@ -1089,7 +1089,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
 
       # Find this package in the set of available packages then use its
       # contrib.url to map back to the configured repositories.
-      package.contrib <- repo.packages[pkg, 'Repository']
+      package.contrib <- repo.packages[pkg, "Repository"]
       package.repo.index <- vapply(repo.lookup$contrib.url,
                                    function(url) grepl(url, package.contrib, fixed = TRUE), logical(1))
       package.repo <- repo.lookup[package.repo.index, ][1, ]
