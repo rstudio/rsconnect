@@ -167,9 +167,9 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
         next
 
       # filter by account name and then by server
-      matchingAccounts <- activeAccounts[activeAccounts[["name"]] == account,]
+      matchingAccounts <- activeAccounts[activeAccounts[["name"]] == account, ]
       matchingAccounts <-
-        matchingAccounts[matchingAccounts[["server"]] == server,]
+        matchingAccounts[matchingAccounts[["server"]] == server, ]
 
       # if there's no account with the given name and server, consider this
       # record to be an orphan
@@ -184,18 +184,18 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
     # fill in any columns missing in this record
     missingCols <- setdiff(colnames(deploymentRecs), colnames(deployment))
     if (length(missingCols) > 0) {
-      deployment[,missingCols] <- NA
+      deployment[, missingCols] <- NA
     }
 
     # if this record contains any columns that aren't present everywhere, add
     # them
     extraCols <- setdiff(colnames(deployment), colnames(deploymentRecs))
     if (length(extraCols) > 0 && nrow(deploymentRecs) > 0) {
-      deploymentRecs[,extraCols] <- NA
+      deploymentRecs[, extraCols] <- NA
     }
 
     # record the deployment file for metadata management
-    deployment$deploymentFile = file.path(rsconnectDir, deploymentFile)
+    deployment$deploymentFile <- file.path(rsconnectDir, deploymentFile)
 
     # append to record set to return
     deploymentRecs <- rbind(deploymentRecs, deployment)
@@ -212,7 +212,7 @@ deploymentFile <- function(appPath, name, account, server) {
 }
 
 deploymentRecord <- function(name, title, username, account, server, hostUrl,
-                             appId, bundleId, url, when, 
+                             appId, bundleId, url, when,
                              lastSyncTime = as.numeric(Sys.time()), metadata = list()) {
 
   # find the username if not already supplied (may differ from account nickname)
@@ -311,7 +311,7 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
       message("Would remove the directory ", dcfDir)
     else if (file.exists(dcfDir)) {
       if (!force) {
-        prompt <- paste("Forget all deployment records for ", appPath, "? [Y/n] ", sep="")
+        prompt <- paste("Forget all deployment records for ", appPath, "? [Y/n] ", sep = "")
         input <- readline(prompt)
         if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
           stop("No deployment records removed.", call. = FALSE)
@@ -332,7 +332,7 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
     else if (file.exists(dcf)) {
       if (!force) {
         prompt <- paste("Forget deployment of ", appPath, " to '", name, "' on ",
-                        server, "? [Y/n] ", sep="")
+                        server, "? [Y/n] ", sep = "")
         input <- readline(prompt)
         if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
           stop("Cancelled. No deployment records removed.", call. = FALSE)
@@ -346,7 +346,3 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
 
   invisible(NULL)
 }
-
-
-
-

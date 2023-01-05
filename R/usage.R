@@ -17,8 +17,8 @@
 #'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @note This function only works for ShinyApps servers.
 #' @export
-showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
-                      usageType="hours", from=NULL, until=NULL, interval=NULL) {
+showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server = NULL,
+                      usageType = "hours", from = NULL, until = NULL, interval = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -28,7 +28,7 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
 
   # resolve application
   if (is.null(appName))
-    appName = basename(appDir)
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
@@ -40,18 +40,18 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
                               interval)
 
   if (length(data$points) < 1) {
-    stop("No data.", call.=FALSE)
+    stop("No data.", call. = FALSE)
   }
 
   # get data points
   points <- data$points[[1]]
   points <- lapply(points, function(X) {
-    X[[1]] <- X[[1]]/1000 # convert from milliseconds to seconds
+    X[[1]] <- X[[1]] / 1000 # convert from milliseconds to seconds
     X
   })
 
   # convert to data frame
-  df <- data.frame(matrix(unlist(points), nrow=length(points), byrow=T), stringsAsFactors=FALSE)
+  df <- data.frame(matrix(unlist(points), nrow = length(points), byrow = TRUE), stringsAsFactors = FALSE)
   colnames(df) <- c("timestamp", usageType)
   return(df)
 }
@@ -80,8 +80,8 @@ showUsage <- function(appDir=getwd(), appName=NULL, account = NULL, server=NULL,
 #'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @note This function only works for ShinyApps servers.
 #' @export
-showMetrics <- function(metricSeries, metricNames, appDir=getwd(), appName=NULL, account = NULL, server=NULL,
-                        from=NULL, until=NULL, interval=NULL) {
+showMetrics <- function(metricSeries, metricNames, appDir = getwd(), appName = NULL, account = NULL, server = NULL,
+                        from = NULL, until = NULL, interval = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -91,7 +91,7 @@ showMetrics <- function(metricSeries, metricNames, appDir=getwd(), appName=NULL,
 
   # resolve application
   if (is.null(appName))
-    appName = basename(appDir)
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
@@ -103,18 +103,18 @@ showMetrics <- function(metricSeries, metricNames, appDir=getwd(), appName=NULL,
                                     interval)
 
   if (length(data$points) < 1) {
-    stop("No data.", call.=FALSE)
+    stop("No data.", call. = FALSE)
   }
 
   # get data points
   points <- data$points
   points <- lapply(points, function(X) {
-    X$time <- X$time/1000 # convert from milliseconds to seconds
+    X$time <- X$time / 1000 # convert from milliseconds to seconds
     X
   })
 
   # convert to data frame
-  df <- data.frame(matrix(unlist(points), nrow=length(points), byrow=T), stringsAsFactors=FALSE)
+  df <- data.frame(matrix(unlist(points), nrow = length(points), byrow = TRUE), stringsAsFactors = FALSE)
   colnames(df) <- c(metricNames, "timestamp")
   return(df)
 }
@@ -135,8 +135,8 @@ showMetrics <- function(metricSeries, metricNames, appDir=getwd(), appName=NULL,
 #'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
 #' @note This function only works for ShinyApps servers.
 #' @export
-accountUsage <- function(account=NULL, server=NULL, usageType="hours",
-                         from=NULL, until=NULL, interval=NULL) {
+accountUsage <- function(account = NULL, server = NULL, usageType = "hours",
+                         from = NULL, until = NULL, interval = NULL) {
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 

@@ -86,7 +86,7 @@ htmlEscape <- local({
     `<` = '&lt;',
     `>` = '&gt;'
   )
-  .htmlSpecialsPattern <- paste(names(.htmlSpecials), collapse='|')
+  .htmlSpecialsPattern <- paste(names(.htmlSpecials), collapse = '|')
   .htmlSpecialsAttrib <- c(
     .htmlSpecials,
     `'` = '&#39;',
@@ -94,10 +94,10 @@ htmlEscape <- local({
     `\r` = '&#13;',
     `\n` = '&#10;'
   )
-  .htmlSpecialsPatternAttrib <- paste(names(.htmlSpecialsAttrib), collapse='|')
+  .htmlSpecialsPatternAttrib <- paste(names(.htmlSpecialsAttrib), collapse = '|')
 
-  function(text, attribute=FALSE) {
-    pattern <- if(attribute)
+  function(text, attribute = FALSE) {
+    pattern <- if (attribute)
       .htmlSpecialsPatternAttrib
     else
       .htmlSpecialsPattern
@@ -106,16 +106,15 @@ htmlEscape <- local({
     if (!any(grepl(pattern, text)))
       return(text)
 
-    specials <- if(attribute)
+    specials <- if (attribute)
       .htmlSpecialsAttrib
     else
       .htmlSpecials
 
     for (chr in names(specials)) {
-      text <- gsub(chr, specials[[chr]], text, fixed=TRUE)
+      text <- gsub(chr, specials[[chr]], text, fixed = TRUE)
     }
 
     return(text)
   }
 })
-

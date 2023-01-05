@@ -61,4 +61,3 @@ deployDoc <- function(doc, ...) {
             appPrimaryDoc = basename(qualified_doc),
             ...)
 }
-

@@ -41,7 +41,7 @@
 #' }
 #' @seealso [rsconnectPackages](Using Packages with rsconnect)
 #' @export
-appDependencies <- function(appDir = getwd(), appFiles=NULL) {
+appDependencies <- function(appDir = getwd(), appFiles = NULL) {
   # if the list of files wasn't specified, generate it
   if (is.null(appFiles)) {
     appFiles <- bundleFiles(appDir)
@@ -49,9 +49,9 @@ appDependencies <- function(appDir = getwd(), appFiles=NULL) {
   bundleDir <- bundleAppDir(appDir, appFiles)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
   deps <- snapshotRDependencies(bundleDir)
-  data.frame(package = deps[,"Package"],
-             version = deps[,"Version"],
-             source = deps[,"Source"],
-             row.names = c(1:length(deps[,"Package"])),
-             stringsAsFactors=FALSE)
+  data.frame(package = deps[, "Package"],
+             version = deps[, "Version"],
+             source = deps[, "Source"],
+             row.names = c(1:length(deps[, "Package"])),
+             stringsAsFactors = FALSE)
 }

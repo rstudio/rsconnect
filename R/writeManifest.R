@@ -117,7 +117,7 @@ writeManifest <- function(appDir = getwd(),
   if (is.null(requirementsFilename)) { requirementsFilename <- "requirements.txt" }
   srcRequirementsFile <- file.path(bundleDir, requirementsFilename)
   dstRequirementsFile <- file.path(appDir, requirementsFilename)
-  if(file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
+  if (file.exists(srcRequirementsFile) && !file.exists(dstRequirementsFile)) {
     file.copy(srcRequirementsFile, dstRequirementsFile)
   }
   invisible()

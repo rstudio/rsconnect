@@ -37,10 +37,10 @@
 
       packratReplacement <- paste(msg,
                                   "# Packrat initialization disabled in published application",
-                                  '# source(\"packrat/init.R\")', sep="\n")
+                                  '# source(\"packrat/init.R\")', sep = "\n")
       renvReplacement <- paste(msg,
                                "# renv initialization disabled in published application",
-                               '# source(\"renv/activate.R\")', sep="\n")
+                               '# source(\"renv/activate.R\")', sep = "\n")
       newRprofile <- origRprofile
       newRprofile <- gsub('source(\"packrat/init.R\")',
                           packratReplacement,
@@ -48,7 +48,7 @@
       newRprofile <- gsub('source(\"renv/activate.R\")',
                           renvReplacement,
                           newRprofile, fixed = TRUE)
-      cat(newRprofile, file=to, sep="\n")
+      cat(newRprofile, file = to, sep = "\n")
     }
 
   }
@@ -75,7 +75,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
                          include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
 
   # At the root, some well-known files and directories are not included in the bundle.
-  if (depth==0) {
+  if (depth == 0) {
     contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
     contents <- setdiff(contents, c(
                                       ".DS_Store",
@@ -114,7 +114,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
   row.names(infos) <- contents
 
   for (name in contents) {
-    info <- infos[name,]
+    info <- infos[name, ]
 
     if (isTRUE(info$isdir)) {
       # Directories do not include their self-size in our counts.
@@ -125,7 +125,7 @@ maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
       }
 
       # Recursively enumerate this directory.
-      dirList <- maxDirectoryList(file.path(dir, name), depth+1, totalFiles, totalSize)
+      dirList <- maxDirectoryList(file.path(dir, name), depth + 1, totalFiles, totalSize)
 
       # Inherit the running totals from our child.
       totalSize <- dirList$totalSize
@@ -276,7 +276,7 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
   files <- list.files(bundleDir, recursive = TRUE, all.files = TRUE,
                       include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
   for (f in files) {
-    info <- file.info(file.path(bundleDir,f))
+    info <- file.info(file.path(bundleDir, f))
 
 
     if (longerThan(info$uname, lengthLimit) || longerThan(info$grname, lengthLimit)) {
@@ -299,7 +299,7 @@ yamlFromRmd <- function(filename) {
     # If at least two --- or ... lines were found...
     if (delim[[1]] == 1 || all(grepl("^\\s*$", lines[1:delim[[1]]]))) {
       # and the first is a ---
-      if(grepl("^---\\s*$", lines[delim[[1]]])) {
+      if (grepl("^---\\s*$", lines[delim[[1]]])) {
         # ...and the first --- line is not preceded by non-whitespace...
         if (diff(delim[1:2]) > 1) {
           # ...and there is actually something between the two --- lines...
@@ -316,7 +316,7 @@ yamlFromRmd <- function(filename) {
 documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
-  return (length(matches) > 0)
+  return(length(matches) > 0)
 }
 
 detectPythonInDocuments <- function(appDir, files) {
@@ -467,7 +467,7 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo, isCloudServer
   }
 
   # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
-  if(length(grep("(saved_model.pb|saved_model.pbtxt)$", files, ignore.case = TRUE, perl = TRUE)) > 0) {
+  if (length(grep("(saved_model.pb|saved_model.pbtxt)$", files, ignore.case = TRUE, perl = TRUE)) > 0) {
     return("tensorflow-saved-model")
   }
 
@@ -597,7 +597,7 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
   tryCatch({
     # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
     # and verify that the user hasn't specified that they don't want their conda environment captured.
-    if('reticulate' %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
+    if ('reticulate' %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
        reticulate::py_config()$anaconda && !condaMode) {
       prefix <- getCondaEnvPrefix(python)
       conda <- getCondaExeForPrefix(prefix)
@@ -681,7 +681,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       # packageDescription S3 class from the object or jsonlite will refuse to
       # serialize it when building the manifest JSON
       # TODO: should we get description from packrat/desc folder?
-      info$description = suppressWarnings(unclass(utils::packageDescription(name)))
+      info$description <- suppressWarnings(unclass(utils::packageDescription(name)))
 
       # if description is NA, application dependency may not be installed
       if (is.na(info$description[1])) {
@@ -729,7 +729,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     if (is.null(pyInfo$error)) {
       # write the package list into requirements.txt/environment.yml file in the bundle dir
       packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
-      cat(pyInfo$package_manager$contents, file=packageFile, sep="\n")
+      cat(pyInfo$package_manager$contents, file = packageFile, sep = "\n")
       pyInfo$package_manager$contents <- NULL
     }
     else {
@@ -783,7 +783,7 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   primaryDoc <- ifelse(is.null(appPrimaryDoc) ||
                          tolower(tools::file_ext(appPrimaryDoc)) == "r",
                        NA, appPrimaryDoc)
-  metadata$primary_rmd <- ifelse(appMode %in% c("rmd-shiny","rmd-static","quarto-shiny","quarto-static"), primaryDoc, NA)
+  metadata$primary_rmd <- ifelse(appMode %in% c("rmd-shiny", "rmd-static", "quarto-shiny", "quarto-static"), primaryDoc, NA)
   metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
 
   # emit content category (plots, etc)
@@ -1013,7 +1013,7 @@ appUsesPython <- function(quartoInfo) {
 # snapshotRDependencies() calls addPackratSnapshot(), which calls
 # performPackratSnapshot().
 
-snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = FALSE) {
+snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose = FALSE) {
 
   # create a packrat "snapshot"
 
@@ -1108,7 +1108,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies=c(), verbose = F
     # validatePackageSource will emit a warning for packages with NA repository.
     data.frame(Source = source, Repository = repository)
   })
-  records[, c("Source","Repository")] <- do.call("rbind", tmp)
+  records[, c("Source", "Repository")] <- do.call("rbind", tmp)
   return(records)
 }
 
@@ -1125,7 +1125,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
                                   function(dep) {
                                     paste0("library(", dep, ")\n")
                                   }),
-                           collapse="")
+                           collapse = "")
     # emit dependencies to file
     writeLines(extraPkgDeps, tempDependencyFile)
 
@@ -1193,7 +1193,7 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 
   # Force renv dependency scanning within packrat unless the option has been
   # explicitly configured. This is a no-op for older versions of packrat.
-  renvDiscovery = getOption("packrat.dependency.discovery.renv")
+  renvDiscovery <- getOption("packrat.dependency.discovery.renv")
   if (is.null(renvDiscovery)) {
     oldDiscovery <- options("packrat.dependency.discovery.renv" = TRUE)
     on.exit(options(oldDiscovery), add = TRUE)

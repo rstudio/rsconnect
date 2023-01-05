@@ -33,7 +33,7 @@
 #' @section Setting Curl Proxy Options:
 #'
 #' The default HTTP connection type is `libcurl`. If you need more configurability
-#' than afforded by the `http_proxy` environment variable you can specify 
+#' than afforded by the `http_proxy` environment variable you can specify
 #' proxy options explicity using `rsconnect.libcurl.options`. For example, you
 #' could add the following code to your `.rsconnect_profile`:
 #'

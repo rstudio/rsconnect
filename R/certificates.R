@@ -53,7 +53,7 @@ createCertificateFile <- function(certificate) {
     }
 
     # use our own baked-in bundle as a last resort
-    stores <- c(stores, system.file(package="rsconnect", "cert", "cacert.pem"))
+    stores <- c(stores, system.file(package = "rsconnect", "cert", "cacert.pem"))
 
     for (store in stores) {
       if (file.exists(store)) {

@@ -27,7 +27,7 @@ accounts <- function(server = NULL) {
 
   # get a raw list of accounts
   accountnames <- file_path_sans_ext(list.files(path,
-    pattern=glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE))
+    pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE))
 
   if (length(accountnames) == 0) {
     return(NULL)
@@ -78,7 +78,7 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
   userId <- 0
   userAccounts <- accounts(target$name)
   if (!is.null(account) && !is.null(userAccounts)) {
-    if (account %in% userAccounts[,"name"]) {
+    if (account %in% userAccounts[, "name"]) {
       accountDetails <- accountInfo(account, target$name)
       userId <- accountDetails$accountId
       if (!quiet) {
@@ -148,7 +148,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   userId <- 0
   userAccounts <- accounts(target$name)
   if (!is.null(account) && !is.null(userAccounts)) {
-    if (account %in% userAccounts[,"name"]) {
+    if (account %in% userAccounts[, "name"]) {
       accountDetails <- accountInfo(account, target$name)
       userId <- accountDetails$accountId
       if (!quiet) {
@@ -288,7 +288,7 @@ setAccountInfo <- function(name, token, secret,
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode="0600")
+    Sys.chmod(configFile, mode = "0600")
 }
 
 #' @rdname accounts
@@ -309,7 +309,7 @@ accountInfo <- function(name, server = NULL) {
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
-    info$private_key <- gsub("[[:space:]]","",info$private_key)
+    info$private_key <- gsub("[[:space:]]", "", info$private_key)
   }
   info
 }
@@ -418,7 +418,7 @@ registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode="0600")
+    Sys.chmod(configFile, mode = "0600")
 }
 
 registerUserToken <- function(serverName, accountName, userId, token,
@@ -435,7 +435,7 @@ registerUserToken <- function(serverName, accountName, userId, token,
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode="0600")
+    Sys.chmod(configFile, mode = "0600")
 }
 
 accountConfigFile <- function(name, server = NULL) {
@@ -447,7 +447,7 @@ accountConfigFile <- function(name, server = NULL) {
                                     recursive = TRUE, full.names = TRUE)))
   }
   normalizePath(file.path(accountsConfigDir(), server,
-                          paste(name, ".dcf", sep="")),
+                          paste(name, ".dcf", sep = "")),
                 mustWork = FALSE)
 }
 
@@ -456,13 +456,13 @@ accountsConfigDir <- function() {
 }
 
 missingAccountErrorMessage <- function(name) {
-  paste("account named '", name, "' does not exist", sep="")
+  paste("account named '", name, "' does not exist", sep = "")
 }
 
 resolveAccount <- function(account, server = NULL) {
 
   # get existing accounts
-  accounts <- accounts(server)[,"name"]
+  accounts <- accounts(server)[, "name"]
   if (length(accounts) == 0)
     stopWithNoAccount()
 
@@ -486,7 +486,7 @@ resolveAccount <- function(account, server = NULL) {
 }
 
 isCloudServer <- function(server) {
-  identical(server, "shinyapps.io")||
+  identical(server, "shinyapps.io") ||
     identical(server, cloudServerInfo(server)$name)
 }
 
@@ -527,13 +527,13 @@ accountInfoFromHostUrl <- function(hostUrl) {
   servers <- servers()
 
   # filter to just those matching the given host url
-  server <- servers[as.character(servers$url) == hostUrl,]
+  server <- servers[as.character(servers$url) == hostUrl, ]
   if (nrow(server) < 1) {
     stop("No server with the URL ", hostUrl, " is registered.", call. = FALSE)
   }
 
   # extract server name
-  server <- as.character(server[1,"name"])
+  server <- as.character(server[1, "name"])
 
   # now find accounts with the given server
   account <- accounts(server = server)
@@ -542,6 +542,6 @@ accountInfoFromHostUrl <- function(hostUrl) {
   }
 
   # return account info from the first one
-  return(accountInfo(name = as.character(account[1,"name"]),
+  return(accountInfo(name = as.character(account[1, "name"]),
                      server = server))
 }

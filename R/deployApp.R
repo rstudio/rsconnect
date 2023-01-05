@@ -353,13 +353,13 @@ deployApp <- function(appDir = getwd(),
   }
 
   client <- clientForAccount(accountDetails)
-  if(verbose){
+  if (verbose) {
     urlstr <- serverInfo(accountDetails$server)$url
     url <- parseHttpUrl(urlstr)
     cat("Cookies:", "\n")
     host <- getCookieHost(url)
-    if (exists(host, .cookieStore)){
-      print(get(host, envir=.cookieStore))
+    if (exists(host, .cookieStore)) {
+      print(get(host, envir = .cookieStore))
     } else {
       print("None")
     }
@@ -420,7 +420,7 @@ deployApp <- function(appDir = getwd(),
           timestampedLog("Upload complete")
 
         # Step 3. Upload revise bundle status.
-        response <- client$updateBundleStatus(bundle$id, status="ready")
+        response <- client$updateBundleStatus(bundle$id, status = "ready")
 
         # Step 4. Retrieve updated bundle post status change - which is required in subsequent
         # areas of the code below.
@@ -461,7 +461,7 @@ deployApp <- function(appDir = getwd(),
   if (length(bundle$id) > 0 && nzchar(bundle$id)) {
     displayStatus(paste0("Deploying bundle: ", bundle$id,
                          " for ", assetTypeName, ": ", application$id,
-                         " ...\n", sep=""))
+                         " ...\n", sep = ""))
   }
   if (verbose) {
     cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
@@ -598,11 +598,10 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 getPythonForTarget <- function(path, accountDetails) {
   # python is enabled on Connect and posit.cloud, but not on Shinyapps
   targetIsShinyapps <- isShinyappsServer(accountDetails$server)
-  pythonEnabled = getOption("rsconnect.python.enabled", default=!targetIsShinyapps)
+  pythonEnabled <- getOption("rsconnect.python.enabled", default = !targetIsShinyapps)
   if (pythonEnabled) {
     getPython(path)
-  }
-  else {
+  } else {
     NULL
   }
 }
@@ -613,7 +612,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
                              server = NULL) {
 
   # read existing accounts
-  accounts <- accounts(server)[,"name"]
+  accounts <- accounts(server)[, "name"]
   if (length(accounts) == 0)
     stopWithNoAccount()
 
@@ -726,7 +725,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
   # based on the basename of the application directory
   else if (!is.null(account) || !is.null(server)) {
     if (is.null(account)) {
-      account <- accounts(server)[,"name"]
+      account <- accounts(server)[, "name"]
       if (length(account) > 1) {
         stopWithSpecifyAccount()
       }
@@ -827,7 +826,7 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
   # is an application of that name already deployed then confirm
   if (!is.null(target$appId) && !is.null(app) && interactive() && !forceUpdate) {
     prompt <- paste("Update application currently deployed at\n", app$url,
-                    "? [Y/n] ", sep="")
+                    "? [Y/n] ", sep = "")
     input <- readline(prompt)
     if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
       stop("Application deployment cancelled", call. = FALSE)

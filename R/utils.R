@@ -29,17 +29,17 @@ regexExtract <- function(re, input) {
   match <- regexec(re, input)
   matchLoc <- match[1][[1]]
   if (length(matchLoc) > 1) {
-    matchLen <-attributes(matchLoc)$match.length
-    return (substr(input, matchLoc[2], matchLoc[2] + matchLen[2]-1))
+    matchLen <- attributes(matchLoc)$match.length
+    return(substr(input, matchLoc[2], matchLoc[2] + matchLen[2] - 1))
   }
   else {
-    return (NULL)
+    return(NULL)
   }
 }
 
 displayStatus <- function(quiet) {
   quiet <- quiet || httpDiagnosticsEnabled()
-  function (status) {
+  function(status) {
     if (!quiet)
       cat(status)
   }
@@ -49,7 +49,7 @@ withStatus <- function(quiet) {
   quiet <- quiet || httpDiagnosticsEnabled()
   function(status, code) {
     if (!quiet)
-      cat(status, "...", sep="")
+      cat(status, "...", sep = "")
     force(code)
     if (!quiet)
       cat("DONE\n")
@@ -57,8 +57,8 @@ withStatus <- function(quiet) {
 }
 
 httpDiagnosticsEnabled <- function() {
-  return (getOption("rsconnect.http.trace", FALSE) ||
-          getOption("rsconnect.http.verbose", FALSE))
+  return(getOption("rsconnect.http.trace", FALSE) ||
+         getOption("rsconnect.http.verbose", FALSE))
 }
 
 readPassword <- function(prompt) {
@@ -88,7 +88,7 @@ readPassword <- function(prompt) {
     password <- readline(prompt)
     echoOn()
   }
-  return (password)
+  return(password)
 }
 
 # wrapper around read.dcf to workaround LC_CTYPE bug
@@ -119,10 +119,10 @@ hr <- function(message = "", n = 80) {
   if (nzchar(message)) {
     r <- as.integer((n - nchar(message) - 2) / 2)
     hr <- paste(rep.int("#", r), collapse = '')
-    cat(hr, message, hr, sep=" ", '\n')
+    cat(hr, message, hr, sep = " ", '\n')
   } else {
     hr <- paste(rep.int("#", n), collapse = '')
-    cat(hr, sep="", '\n')
+    cat(hr, sep = "", '\n')
   }
 }
 

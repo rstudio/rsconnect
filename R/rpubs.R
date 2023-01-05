@@ -70,7 +70,7 @@ rpubsUpload <- function(title,
                            properties = list()) {
 
     # build package.json
-    properties$title = title
+    properties$title <- title
     packageJson <- toJSON(properties)
 
     # create a tempdir to build the package in and copy the files to it
@@ -169,4 +169,3 @@ rpubsUpload <- function(title,
     return(list(error = content))
   }
 }
-

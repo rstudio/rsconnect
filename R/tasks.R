@@ -75,11 +75,11 @@ taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
   }
 
   # show task log
-  cat(client$getTaskLogs(taskId), file=conn)
+  cat(client$getTaskLogs(taskId), file = conn)
 
   # get child tasks
   tasks <- client$listTasks(accountDetails$accountId,
-                            filters=filterQuery("parent_id", taskId))
+                            filters = filterQuery("parent_id", taskId))
 
   # get child task logs
   for (task in tasks) {

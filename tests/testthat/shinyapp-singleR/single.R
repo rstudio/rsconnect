@@ -6,7 +6,7 @@ server <- function(input, output) {
 ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      sliderInput("obs", "Number of observations:", min = 10, max = 500, 
+      sliderInput("obs", "Number of observations:", min = 10, max = 500,
                   value = 100)),
     mainPanel(plotOutput("distPlot"))))
 shinyApp(ui = ui, server = server)
