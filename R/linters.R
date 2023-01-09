@@ -196,4 +196,3 @@ addLinter("browseURL", linter(
 
   suggestion = "Remove browseURL calls; browseURL does not work in deployed applications."
 ))
-

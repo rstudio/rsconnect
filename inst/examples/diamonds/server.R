@@ -4,18 +4,18 @@ library(ggplot2)
 shinyServer(function(input, output) {
 
   dataset <- reactive(function() {
-    diamonds[sample(nrow(diamonds), input$sampleSize),]
+    diamonds[sample(nrow(diamonds), input$sampleSize), ]
   })
 
   output$plot <- reactivePlot(function() {
 
-    p <- ggplot(dataset(), aes_string(x=input$x, y=input$y)) + geom_point()
+    p <- ggplot(dataset(), aes_string(x = input$x, y = input$y)) + geom_point()
 
-    if (input$color != 'None')
-      p <- p + aes_string(color=input$color)
+    if (input$color != "None")
+      p <- p + aes_string(color = input$color)
 
-    facets <- paste(input$facet_row, '~', input$facet_col)
-    if (facets != '. ~ .')
+    facets <- paste(input$facet_row, "~", input$facet_col)
+    if (facets != ". ~ .")
       p <- p + facet_grid(facets)
 
     if (input$jitter)
@@ -25,6 +25,6 @@ shinyServer(function(input, output) {
 
     print(p)
 
-  }, height=700)
+  }, height = 700)
 
 })

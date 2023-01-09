@@ -69,7 +69,7 @@ oldApplicationConfigDir <- function(appName) {
   # get the home directory from the operating system (in case
   # the user has redefined the meaning of ~) but fault back
   # to ~ if there is no HOME variable defined
-  homeDir <- Sys.getenv("HOME", unset="~")
+  homeDir <- Sys.getenv("HOME", unset = "~")
 
   # check for R specific config dir
   configDir <- Sys.getenv("R_USER_CONFIG_DIR")
@@ -79,7 +79,7 @@ oldApplicationConfigDir <- function(appName) {
     configDir <- file.path(configDir, appName)
   } else {
     # no R specific config dir; determine application config dir (platform specific)
-    sysName <- Sys.info()[['sysname']]
+    sysName <- Sys.info()[["sysname"]]
     if (identical(sysName, "Windows"))
       configDir <- Sys.getenv("APPDATA")
     else if (identical(sysName, "Darwin"))
@@ -104,7 +104,7 @@ oldApplicationConfigDir <- function(appName) {
 #' @return A string containing the path of the configuration folder.
 #'
 #' @keywords internal
-applicationConfigDir <- function()  {
+applicationConfigDir <- function() {
 
   if (exists("R_user_dir", envir = asNamespace("tools"))) {
     # In newer versions of R (>=4.0), we can ask R itself where configuration should be stored.
@@ -115,13 +115,13 @@ applicationConfigDir <- function()  {
     # In older versions of R, use an implementation derived from R_user_dir
     home <- Sys.getenv("HOME", unset = normalizePath("~"))
     path <-
-      if(nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR")))
+      if (nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR")))
         p
-      else if(nzchar(p <- Sys.getenv("XDG_CONFIG_HOME")))
+      else if (nzchar(p <- Sys.getenv("XDG_CONFIG_HOME")))
         p
-      else if(.Platform$OS.type == "windows")
+      else if (.Platform$OS.type == "windows")
         file.path(Sys.getenv("APPDATA"), "R", "config")
-      else if(Sys.info()["sysname"] == "Darwin")
+      else if (Sys.info()["sysname"] == "Darwin")
         file.path(home, "Library", "Preferences", "org.R-project.R")
       else
         file.path(home, ".config")

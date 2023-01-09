@@ -50,30 +50,30 @@ applications <- function(account = NULL, server = NULL) {
 
   keep <- if (isConnect) {
     c(
-      'id',
-      'name',
-      'url',
-      'build_status',
-      'created_time',
-      'last_deployed_time',
-      'guid'
+      "id",
+      "name",
+      "url",
+      "build_status",
+      "created_time",
+      "last_deployed_time",
+      "guid"
     )
   } else {
     c(
-      'id',
-      'name',
-      'url',
-      'status',
-      'created_time',
-      'updated_time',
-      'deployment'
+      "id",
+      "name",
+      "url",
+      "status",
+      "created_time",
+      "updated_time",
+      "deployment"
     )
   }
   # extract the subset of fields we're interested in
   res <- lapply(apps, `[`, keep)
 
   res <- if (isConnect) {
-    lapply(res, function(x){
+    lapply(res, function(x) {
       # set size and instance to NA since Connect doesn't return this info
       x$size <- NA
       x$instances <- NA
@@ -107,14 +107,14 @@ applications <- function(account = NULL, server = NULL) {
   })
 
   # convert to data frame
-  rbindWithoutFactors <- function(...){
+  rbindWithoutFactors <- function(...) {
     rbind.data.frame(..., stringsAsFactors = FALSE)
   }
   res <- do.call(rbindWithoutFactors, res)
 
   # Ensure the Connect and ShinyApps.io data frames have same column names
   idx <- match("last_deployed_time", names(res))
-  if(!is.na(idx)) names(res)[idx] <- "updated_time"
+  if (!is.na(idx)) names(res)[idx] <- "updated_time"
 
   idx <- match("build_status", names(res))
   if (!is.na(idx)) names(res)[idx] <- "status"
@@ -127,7 +127,7 @@ resolveApplication <- function(accountDetails, appName) {
   apps <- client$listApplications(accountDetails$accountId)
   for (app in apps) {
     if (identical(app$name, appName))
-      return (app)
+      return(app)
   }
 
   stopWithApplicationNotFound(appName)
@@ -135,14 +135,14 @@ resolveApplication <- function(accountDetails, appName) {
 
 stopWithApplicationNotFound <- function(appName) {
   stop(paste("No application named '", appName, "' is currently deployed",
-             sep=""), call. = FALSE)
+             sep = ""), call. = FALSE)
 }
 
 applicationTask <- function(taskDef, appName, account, server, quiet) {
 
   # get status function and display initial status
   displayStatus <- displayStatus(quiet)
-  displayStatus(paste(taskDef$beginStatus, "...\n", sep=""))
+  displayStatus(paste(taskDef$beginStatus, "...\n", sep = ""))
 
   # resolve target account and application
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -261,8 +261,8 @@ syncAppMetadata <- function(appPath) {
   # get all of the currently known deployments
   deploys <- deployments(appPath)
 
-  syncWindow = getOption("rsconnect.metadata.sync.hours", 24) * 3600
-  now = as.numeric(Sys.time())
+  syncWindow <- getOption("rsconnect.metadata.sync.hours", 24) * 3600
+  now <- as.numeric(Sys.time())
 
   for (i in 1:nrow(deploys)) {
     lastSyncTime <- deploys[i, "lastSyncTime"]

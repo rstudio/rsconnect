@@ -106,19 +106,19 @@ connectClient <- function(service, authInfo) {
     },
 
     terminateApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/terminate", sep="")
+      path <- paste("/applications/", applicationId, "/terminate", sep = "")
       handleResponse(POST_JSON(service, authInfo, path, list()))
     },
 
     uploadApplication = function(appId, bundlePath) {
       path <- file.path("/applications", appId, "upload")
       handleResponse(POST(service, authInfo, path,
-                          contentType="application/x-gzip",
-                          file=bundlePath))
+                          contentType = "application/x-gzip",
+                          file = bundlePath))
     },
 
-    deployApplication = function(applicationId, bundleId=NULL) {
-      path <- paste("/applications/", applicationId, "/deploy", sep="")
+    deployApplication = function(applicationId, bundleId = NULL) {
+      path <- paste("/applications/", applicationId, "/deploy", sep = "")
       json <- list()
       json$bundle <- as.numeric(bundleId)
       handleResponse(POST_JSON(service, authInfo, path, json))
@@ -126,7 +126,7 @@ connectClient <- function(service, authInfo) {
 
     configureApplication = function(applicationId) {
       handleResponse(GET(service, authInfo, paste(
-        "/applications/", applicationId, "/config", sep="")))
+        "/applications/", applicationId, "/config", sep = "")))
     },
 
     getApplication = function(applicationId) {
@@ -164,8 +164,8 @@ connectClient <- function(service, authInfo) {
         path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
         response <- handleResponse(GET(service, authInfo, path))
 
-        labeledMessage = function(msg) {
-          message(paste('[Connect]', msg))
+        labeledMessage <- function(msg) {
+          message(paste("[Connect]", msg))
         }
 
         if (length(response$status) > 0) {
@@ -183,20 +183,20 @@ connectClient <- function(service, authInfo) {
 
 }
 
-listRequest = function(service, authInfo, path, query, listName, page = 100,
-                       max=NULL) {
+listRequest <- function(service, authInfo, path, query, listName, page = 100,
+                       max = NULL) {
 
   # accumulate multiple pages of results
   offset <- 0
   results <- list()
 
-  while(TRUE) {
+  while (TRUE) {
 
     # add query params
     pathWithQuery <- paste(path, "?", query,
                            "&count=", page,
                            "&offset=", offset,
-                           sep="")
+                           sep = "")
 
     # make request and append the results
     response <- handleResponse(GET(service, authInfo, pathWithQuery))
@@ -207,7 +207,7 @@ listRequest = function(service, authInfo, path, query, listName, page = 100,
 
     # get all results if no max was specified
     if (is.null(max)) {
-      max = response$total
+      max <- response$total
     }
 
     # exit if we've got them all
@@ -222,9 +222,9 @@ filterQuery <- function(param, value, operator = NULL) {
   if (is.null(operator)) {
     op <- ":"
   } else {
-    op <- paste(":", operator, ":", sep="")
+    op <- paste(":", operator, ":", sep = "")
   }
-  q <- paste("filter=", param, op, value, sep="")
+  q <- paste("filter=", param, op, value, sep = "")
   return(q)
 }
 

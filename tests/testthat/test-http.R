@@ -229,7 +229,7 @@ test_http_POST_file <- function(transport) {
   ))
 
   # Perform the request
-  write(c("1","2","3"), datafile)
+  write(c("1", "2", "3"), datafile)
   POST(service = service,
        authInfo = NULL,
        path = "test",
@@ -278,7 +278,7 @@ test_http_api_headers <- function(transport) {
     ),
     body = "GET successful"
   ))
-  apiKey = "abc123"
+  apiKey <- "abc123"
   # Perform the request
   GET(service = service,
       authInfo = list(apiKey = apiKey),

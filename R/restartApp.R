@@ -32,4 +32,3 @@ restartApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
   # perform it
   applicationTask(taskDef, appName, account, server, quiet)
 }
-

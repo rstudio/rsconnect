@@ -30,7 +30,7 @@
 #' @export
 
 generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = TRUE) {
-  munge <- function (title) {
+  munge <- function(title) {
     # safe default if no title specified
     if (is.null(title)) {
       return("")

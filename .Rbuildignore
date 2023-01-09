@@ -9,3 +9,4 @@
 ^pkgdown$
 tags
 ^\.github$
+^\.lintr$

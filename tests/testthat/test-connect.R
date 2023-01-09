@@ -27,11 +27,11 @@ test_that("Users API", {
   server <- getDefaultServer(local = TRUE)
 
   connect <- connectClient(server$url, list())
-  id <- paste(as.hexmode(sample(256, bytes)-1), collapse="")
+  id <- paste(as.hexmode(sample(256, bytes) - 1), collapse = "")
 
   # add a user
   record <- userRecord(
-    email = paste0("user", id ,"@gmail.com"),
+    email = paste0("user", id, "@gmail.com"),
     username = paste0("user", id),
     first_name = "User",
     last_name = "Resu",

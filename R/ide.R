@@ -103,7 +103,7 @@ findLocalServer <- function(url) {
     if (nrow(match) == 0)
       NULL
     else
-      as.character(match[1,"name"])
+      as.character(match[1, "name"])
   }
 
   # if there are no local servers with the given URL, add one and return its
@@ -142,5 +142,3 @@ showRstudioSourceMarkers <- function(basePath, lint) {
                       basePath = basePath,
                       autoSelect = "first")
 }
-
-

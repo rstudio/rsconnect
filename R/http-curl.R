@@ -19,14 +19,14 @@ httpCurl <- function(protocol,
     fileLength <- file.info(contentFile)$size
 
   headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
+    list(protocol = protocol, host = host, port = port, path = path), headers)
   extraHeaders <- character()
   for (header in names(headers))
   {
-    if(!identical(header, "Content-Type") && !identical(header, "Content-Length")){
+    if (!identical(header, "Content-Type") && !identical(header, "Content-Length")) {
       extraHeaders <- paste(extraHeaders, "--header")
       extraHeaders <- paste(extraHeaders,
-                            paste('"', header,": ",headers[[header]], '"', sep=""))
+                            paste('"', header, ": ", headers[[header]], '"', sep = ""))
     }
   }
 
@@ -35,7 +35,7 @@ httpCurl <- function(protocol,
   command <- paste("curl",
                    "-i",
                    "-X",
-                   method);
+                   method)
 
   if (httpVerbose())
     command <- paste(command, "-v")
@@ -47,13 +47,13 @@ httpCurl <- function(protocol,
     command <- paste(command,
                      "-T",
                      shQuote(contentFile),
-                     "--header", paste('"' ,"Content-Type: ",contentType, '"', sep=""),
-                     "--header", paste('"', "Content-Length: ", fileLength, '"', sep=""))
+                     "--header", paste('"', "Content-Type: ", contentType, '"', sep = ""),
+                     "--header", paste('"', "Content-Length: ", fileLength, '"', sep = ""))
   }
 
   # add prefix to port if necessary
   if (nzchar(port))
-    port <- paste(":", port, sep="")
+    port <- paste(":", port, sep = "")
 
   if (!isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
     # suppressed certificate check
@@ -71,7 +71,7 @@ httpCurl <- function(protocol,
                    "--silent",
                    "--show-error",
                    "-o", shQuote(outputFile),
-                   paste('"', protocol, "://", host, port, path, '"', sep=""))
+                   paste('"', protocol, "://", host, port, path, '"', sep = ""))
 
   result <- NULL
   time <- system.time(gcFirst = FALSE, {
@@ -84,7 +84,7 @@ httpCurl <- function(protocol,
       identical(contentType, "application/json"))
   {
     fileLength <- file.info(contentFile)$size
-    fileContents <- readBin(contentFile, what="raw", n=fileLength)
+    fileContents <- readBin(contentFile, what = "raw", n = fileLength)
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
   }
 
@@ -102,5 +102,3 @@ httpCurl <- function(protocol,
     stop(paste("Curl request failed (curl error", result, "occurred)"))
   }
 }
-
-

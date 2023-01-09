@@ -23,31 +23,31 @@ httpInternal <- function(protocol,
   # read file in binary mode
   if (!is.null(contentFile)) {
     fileLength <- file.info(contentFile)$size
-    fileContents <- readBin(contentFile, what="raw", n=fileLength)
+    fileContents <- readBin(contentFile, what = "raw", n = fileLength)
   }
 
   # build http request
   request <- NULL
-  request <- c(request, paste(method, " ", path, " HTTP/1.1\r\n", sep=""))
+  request <- c(request, paste(method, " ", path, " HTTP/1.1\r\n", sep = ""))
   request <- c(request, "User-Agent: ", userAgent(), "\r\n")
-  request <- c(request, "Host: ", host, "\r\n", sep="")
+  request <- c(request, "Host: ", host, "\r\n", sep = "")
   request <- c(request, "Accept: */*\r\n")
   if (!is.null(contentFile)) {
     request <- c(request, paste("Content-Type: ",
                                 contentType,
                                 "\r\n",
-                                sep=""))
+                                sep = ""))
     request <- c(request, paste("Content-Length: ",
                                 fileLength,
                                 "\r\n",
-                                sep=""))
+                                sep = ""))
   }
   headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
+    list(protocol = protocol, host = host, port = port, path = path), headers)
   for (name in names(headers))
   {
     request <- c(request,
-                 paste(name, ": ", headers[[name]], "\r\n", sep=""))
+                 paste(name, ": ", headers[[name]], "\r\n", sep = ""))
   }
   request <- c(request, "\r\n")
 
@@ -60,7 +60,7 @@ httpInternal <- function(protocol,
   timeout <- if (is.null(timeout)) getOption("timeout") else timeout
 
   # open socket connection
-  time <- system.time(gcFirst=FALSE, {
+  time <- system.time(gcFirst = FALSE, {
     conn <- socketConnection(host = host,
                              port = as.integer(port),
                              open = "w+b",
@@ -69,9 +69,9 @@ httpInternal <- function(protocol,
     on.exit(close(conn))
 
     # write the request header and file payload
-    writeBin(charToRaw(paste(request,collapse="")), conn, size=1)
+    writeBin(charToRaw(paste(request, collapse = "")), conn, size = 1)
     if (!is.null(contentFile)) {
-      writeBin(fileContents, conn, size=1)
+      writeBin(fileContents, conn, size = 1)
     }
 
     # read the response
@@ -96,4 +96,3 @@ httpInternal <- function(protocol,
   # return it
   response
 }
-

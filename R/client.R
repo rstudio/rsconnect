@@ -32,9 +32,9 @@ handleResponse <- function(response, jsonFilter = NULL) {
   else if (isContentType(response, "text/html")) {
 
     body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
-    if (response$status >= 200 && response$status < 400){
+    if (response$status >= 200 && response$status < 400) {
       # Good response, return the body if we have one, or the content if not
-      if (!is.null(body)){
+      if (!is.null(body)) {
         body
       } else{
         response$content

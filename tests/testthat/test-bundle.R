@@ -11,7 +11,7 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL
 
 makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, image = NULL) {
   writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto, image = image)
-  manifestFile <-file.path(appDir, "manifest.json")
+  manifestFile <- file.path(appDir, "manifest.json")
   data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
   manifestJson <- jsonlite::fromJSON(data)
   unlink(manifestFile)
@@ -335,7 +335,7 @@ test_that("writeManifest: Rmd without a python block doesn't include reticulate 
 test_that("getPython handles null python by checking RETICULATE_PYTHON", {
   skip_on_cran()
 
-  Sys.setenv(RETICULATE_PYTHON="/usr/local/bin/python")
+  Sys.setenv(RETICULATE_PYTHON = "/usr/local/bin/python")
   expect_equal(getPython(NULL), "/usr/local/bin/python")
   Sys.unsetenv("RETICULATE_PYTHON")
 })
@@ -344,7 +344,7 @@ test_that("getPython handles null python and empty RETICULATE_PYTHON by checking
   skip_on_cran()
 
   Sys.unsetenv("RETICULATE_PYTHON")
-  Sys.setenv(RETICULATE_PYTHON_FALLBACK="/usr/local/bin/python")
+  Sys.setenv(RETICULATE_PYTHON_FALLBACK = "/usr/local/bin/python")
   expect_equal(getPython(NULL), "/usr/local/bin/python")
 })
 
@@ -368,7 +368,7 @@ test_that("getPythonForTarget honors rsconnect.python.enabled = FALSE", {
   skip_on_cran()
 
   options(rsconnect.python.enabled = FALSE)
-  result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
+  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
   expect_equal(result, NULL)
   options(rsconnect.python.enabled = NULL)
 })
@@ -377,7 +377,7 @@ test_that("getPythonForTarget honors rsconnect.python.enabled = TRUE", {
   skip_on_cran()
 
   options(rsconnect.python.enabled = TRUE)
-  result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
+  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
   expect_equal(result, "/usr/bin/python")
   options(rsconnect.python.enabled = NULL)
 })
@@ -385,21 +385,21 @@ test_that("getPythonForTarget honors rsconnect.python.enabled = TRUE", {
 test_that("getPythonForTarget defaults to enabled for Connect", {
   skip_on_cran()
 
-  result <- getPythonForTarget("/usr/bin/python", list(server="connect.example.com"))
+  result <- getPythonForTarget("/usr/bin/python", list(server = "connect.example.com"))
   expect_equal(result, "/usr/bin/python")
 })
 
 test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
   skip_on_cran()
 
-  result <- getPythonForTarget("/usr/bin/python", list(server="shinyapps.io"))
+  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
   expect_equal(result, NULL)
 })
 
 test_that("getPythonForTarget defaults to enabled for rstudio.cloud", {
   skip_on_cran()
 
-  result <- getPythonForTarget("/usr/bin/python", list(server="rstudio.cloud"))
+  result <- getPythonForTarget("/usr/bin/python", list(server = "rstudio.cloud"))
   expect_equal(result, "/usr/bin/python")
 })
 
@@ -523,7 +523,7 @@ test_that("writeManifest: Quarto document includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
   appDir <- "quarto-doc-none"
-  appPrimaryDoc = "quarto-doc-none.qmd"
+  appPrimaryDoc <- "quarto-doc-none.qmd"
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -535,7 +535,7 @@ test_that("writeManifest: Specifying quarto arg includes quarto in the manifest,
   quarto <- quartoPathOrSkip()
 
   appDir <- "quarto-doc-none"
-  appPrimaryDoc = NULL
+  appPrimaryDoc <- NULL
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -547,7 +547,7 @@ test_that("writeManifest: Specifying quarto arg includes quarto in the manifest,
   quarto <- quartoPathOrSkip()
 
   appDir <- "shiny-rmds"
-  appPrimaryDoc = NULL
+  appPrimaryDoc <- NULL
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
@@ -559,7 +559,7 @@ test_that("writeManifest: specifying quarto arg with non-quarto app does not inc
   quarto <- quartoPathOrSkip()
 
   appDir <- "shinyapp-singleR"
-  appPrimaryDoc = "single.R"
+  appPrimaryDoc <- "single.R"
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
   expect_null(manifest$quarto)

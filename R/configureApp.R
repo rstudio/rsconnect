@@ -23,7 +23,7 @@
 #' @seealso [applications()], [deployApp()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
+configureApp <- function(appName, appDir = getwd(), account = NULL, server = NULL,
                          redeploy = TRUE, size = NULL,
                          instances = NULL, logLevel = c("normal", "quiet", "verbose")) {
 
@@ -34,15 +34,15 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
   displayStatus <- displayStatus(identical(logLevel, "quiet"))
 
   # some properties may required a rebuild to take effect
-  rebuildRequired = FALSE
+  rebuildRequired <- FALSE
 
   # get a list of properties to set
   properties <- list()
-  if (! is.null(size) ) {
-    properties[[ "application.instances.template" ]] = size
+  if (! is.null(size)) {
+    properties[["application.instances.template"]] <- size
   }
-  if (! is.null(instances) ) {
-    properties[[ "application.instances.count" ]] = instances
+  if (! is.null(instances)) {
+    properties[["application.instances.count"]] <- instances
   }
 
   # set application properties
@@ -64,7 +64,7 @@ configureApp <- function(appName, appDir=getwd(), account = NULL, server = NULL,
   # redeploy application if requested
   if (redeploy) {
     if (length(properties) > 0) {
-      deployApp(appDir=appDir, appName=appName, account=account, logLevel=logLevel, upload=rebuildRequired)
+      deployApp(appDir = appDir, appName = appName, account = account, logLevel = logLevel, upload = rebuildRequired)
     }
     else
     {
@@ -140,8 +140,8 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 #'
 #' }
 #' @export
-unsetProperty <- function(propertyName, appPath = getwd(), appName=NULL,
-                          account = NULL, force=FALSE) {
+unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
+                          account = NULL, force = FALSE) {
 
   # resolve the application target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account)

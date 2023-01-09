@@ -31,8 +31,8 @@ writeRmdIndex <- function(appName, appDir) {
 }
 
 redirectWebPage <- function(appFile) {
-  meta <- paste('<meta http-equiv="refresh" content="0;',
-                htmlEscape(appFile), '">', sep = "")
+  meta <- paste("<meta http-equiv='refresh' content='0;",
+                htmlEscape(appFile), "'>", sep = "")
   webPage(meta, NULL)
 }
 
@@ -66,38 +66,38 @@ webPage <- function(head, body) {
     body <- c()
 
   enc2utf8(c(
-    '<!DOCTYPE HTML>',
-    '<html>',
-    '<head>',
-    '<meta charset="UTF-8">',
+    "<!DOCTYPE HTML>",
+    "<html>",
+    "<head>",
+    "<meta charset='UTF-8'>",
     head,
-    '</head>',
-    '<body>',
+    "</head>",
+    "<body>",
     body,
-    '</body>',
-    '</html>')
+    "</body>",
+    "</html>")
   )
 }
 
 htmlEscape <- local({
 
   .htmlSpecials <- list(
-    `&` = '&amp;',
-    `<` = '&lt;',
-    `>` = '&gt;'
+    `&` = "&amp;",
+    `<` = "&lt;",
+    `>` = "&gt;"
   )
-  .htmlSpecialsPattern <- paste(names(.htmlSpecials), collapse='|')
+  .htmlSpecialsPattern <- paste(names(.htmlSpecials), collapse = "|")
   .htmlSpecialsAttrib <- c(
     .htmlSpecials,
-    `'` = '&#39;',
-    `"` = '&quot;',
-    `\r` = '&#13;',
-    `\n` = '&#10;'
+    `'` = "&#39;",
+    `"` = "&quot;",
+    `\r` = "&#13;",
+    `\n` = "&#10;"
   )
-  .htmlSpecialsPatternAttrib <- paste(names(.htmlSpecialsAttrib), collapse='|')
+  .htmlSpecialsPatternAttrib <- paste(names(.htmlSpecialsAttrib), collapse = "|")
 
-  function(text, attribute=FALSE) {
-    pattern <- if(attribute)
+  function(text, attribute = FALSE) {
+    pattern <- if (attribute)
       .htmlSpecialsPatternAttrib
     else
       .htmlSpecialsPattern
@@ -106,16 +106,15 @@ htmlEscape <- local({
     if (!any(grepl(pattern, text)))
       return(text)
 
-    specials <- if(attribute)
+    specials <- if (attribute)
       .htmlSpecialsAttrib
     else
       .htmlSpecials
 
     for (chr in names(specials)) {
-      text <- gsub(chr, specials[[chr]], text, fixed=TRUE)
+      text <- gsub(chr, specials[[chr]], text, fixed = TRUE)
     }
 
     return(text)
   }
 })
-

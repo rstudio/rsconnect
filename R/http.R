@@ -1,5 +1,5 @@
 userAgent <- function() {
-  paste("rsconnect", packageVersion("rsconnect"), sep="/")
+  paste("rsconnect", packageVersion("rsconnect"), sep = "/")
 }
 
 parseHttpUrl <- function(urlText) {
@@ -20,18 +20,18 @@ parseHttpUrl <- function(urlText) {
 parseHttpHeader <- function(header) {
   split <- strsplit(header, ": ")[[1]]
   if (length(split) == 2)
-    return (list(name = split[1], value = split[2]))
+    return(list(name = split[1], value = split[2]))
   else
-    return (NULL)
+    return(NULL)
 }
 
 parseHttpStatusCode <- function(statusLine) {
   # extract status code; needs to deal with HTTP/1.0, HTTP/1.1, and HTTP/2
   statusCode <- regexExtract("HTTP/[0-9]+\\.?[0-9]* ([0-9]+).*", statusLine)
   if (is.null(statusCode))
-    return (-1)
+    return(-1)
   else
-    return (as.integer(statusCode))
+    return(as.integer(statusCode))
 }
 
 # @param request A list containing protocol, host, port, method, and path fields
@@ -102,8 +102,8 @@ httpTraceJson <- function() {
 
 httpTrace <- function(method, path, time) {
   if (getOption("rsconnect.http.trace", FALSE)) {
-    cat(method, " ", path, " ", as.integer(time[['elapsed']]*1000), "ms\n",
-        sep="")
+    cat(method, " ", path, " ", as.integer(time[["elapsed"]] * 1000), "ms\n",
+        sep = "")
   }
 }
 
@@ -120,7 +120,7 @@ httpFunction <- function() {
   else if (is.function(httpType))
     httpType
   else
-    stop(paste("Invalid http option specified:",httpType,
+    stop(paste("Invalid http option specified:", httpType,
                ". Valid values are libcurl, rcurl, curl, and internal"))
 }
 
@@ -217,19 +217,19 @@ httpRequestWithBody <- function(service,
     stop("You must specify either the file or content parameter but not both.")
 
   # prepend the service path
-  url <- paste(service$path, path, sep="")
+  url <- paste(service$path, path, sep = "")
 
   # append the query
   if (!is.null(query)) {
     # URL encode query args
     query <- utils::URLencode(query)
-    url <- paste(url, "?", query, sep="")
+    url <- paste(url, "?", query, sep = "")
   }
 
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
     file <- tempfile()
-    writeChar(content, file,  eos = NULL, useBytes=TRUE)
+    writeChar(content, file,  eos = NULL, useBytes = TRUE)
   }
 
   # if this request is to be authenticated, sign it
@@ -274,13 +274,13 @@ httpInvokeRequest <- function(service,
                               http) {
 
   # prepend the service path
-  url <- paste(service$path, path, sep="")
+  url <- paste(service$path, path, sep = "")
 
   # append the query
   if (!is.null(query)) {
     # URL encode query args
     query <- utils::URLencode(query)
-    url <- paste(url, "?", query, sep="")
+    url <- paste(url, "?", query, sep = "")
   }
 
   # the request should be authenticated if there's any auth specified
@@ -317,7 +317,7 @@ httpInvokeRequest <- function(service,
 rfc2616Date <- function(time = Sys.time()) {
 
   # capure current locale
-  loc <- Sys.getlocale('LC_TIME')
+  loc <- Sys.getlocale("LC_TIME")
 
   # set locale to POSIX/C to ensure ASCII date
   Sys.setlocale("LC_TIME", "C")
@@ -340,7 +340,7 @@ urlEncode <- function(x) {
   RCurl::curlEscape(x)
 }
 
-queryString <- function (elements) {
+queryString <- function(elements) {
   stopifnot(is.list(elements))
   elements <- elements[!sapply(elements, is.null)]
 
@@ -359,7 +359,7 @@ apiKeyAuthHeaders <- function(apiKey) {
 }
 
 bogusSignatureHeaders <- function() {
-  list(`X-Auth-Token` = 'anonymous-access') # The value doesn't actually matter here, but the header needs to be set.
+  list(`X-Auth-Token` = "anonymous-access") # The value doesn't actually matter here, but the header needs to be set.
 }
 
 signatureHeaders <- function(authInfo, method, path, file) {
@@ -380,18 +380,18 @@ signatureHeaders <- function(authInfo, method, path, file) {
     md5 <- md5.as.string(md5)
 
     # build canonical request
-    canonicalRequest <- paste(method, path, date, md5, sep="\n")
+    canonicalRequest <- paste(method, path, date, md5, sep = "\n")
 
     # sign request using shared secret
     decodedSecret <- openssl::base64_decode(authInfo$secret)
     hmac <- openssl::sha256(canonicalRequest, key = decodedSecret)
-    signature <- paste(openssl::base64_encode(hmac), "; version=1", sep="")
+    signature <- paste(openssl::base64_encode(hmac), "; version=1", sep = "")
   } else if (!is.null(authInfo$private_key)) {
     # the raw content hash is base64 encoded hex values when using private key.
     md5 <- openssl::base64_encode(md5)
 
     # build canonical request
-    canonicalRequest <- paste(method, path, date, md5, sep="\n")
+    canonicalRequest <- paste(method, path, date, md5, sep = "\n")
 
     # sign request using local private key
     private_key <- openssl::read_key(
@@ -411,4 +411,3 @@ signatureHeaders <- function(authInfo, method, path, file) {
   headers$`X-Content-Checksum` <- md5
   headers
 }
-

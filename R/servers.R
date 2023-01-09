@@ -41,17 +41,17 @@
 #' }
 #' @export
 servers <- function(local = FALSE) {
-  configFiles <- list.files(serverConfigDir(), pattern=glob2rx("*.dcf"),
+  configFiles <- list.files(serverConfigDir(), pattern = glob2rx("*.dcf"),
                             full.names = TRUE)
   parsed <- lapply(configFiles, function(file) {
     info <- read.dcf(file)
 
     # empty if no contents
-    if(identical(nrow(info), 0L))
+    if (identical(nrow(info), 0L))
       return(NULL)
 
     # provide empty certificate if not specified in DCF (only if we also have a URL)
-    if(!("certificate" %in% colnames(info))) {
+    if (!("certificate" %in% colnames(info))) {
       info <- cbind(info, certificate = "")
     }
 
@@ -84,7 +84,7 @@ serverConfigDir <- function() {
 }
 
 serverConfigFile <- function(name) {
-  normalizePath(file.path(serverConfigDir(), paste(name, ".dcf", sep="")),
+  normalizePath(file.path(serverConfigDir(), paste(name, ".dcf", sep = "")),
                 mustWork = FALSE)
 }
 
@@ -100,7 +100,7 @@ cloudServerInfo <- function(name = "posit.cloud") {
   # We encode the current and prior product names here and call this function to
   # see if a configured server identifier references the cloud product.
   if (!is.element(name, c("posit.cloud", "rstudio.cloud"))) {
-    name = "posit.cloud"
+    name <- "posit.cloud"
   }
   info <- list(name = name,
                certificate = inferCertificateContents(
@@ -117,7 +117,7 @@ discoverServers <- function(quiet = FALSE) {
 
   # get the URLs of the known servers, and silently add any that aren't yet
   # present
-  existing <- servers()[,"url"]
+  existing <- servers()[, "url"]
   introduced <- setdiff(discovered, existing)
   lapply(introduced, function(url) { addServer(url, quiet = TRUE) })
 
@@ -141,16 +141,16 @@ getDefaultServer <- function(local = FALSE, prompt = TRUE) {
 
    # if exactly one server exists, return it
    if (nrow(existing) == 1) {
-     return(list(name = as.character(existing[,"name"]),
-                 url = as.character(existing[,"url"])))
+     return(list(name = as.character(existing[, "name"]),
+                 url = as.character(existing[, "url"])))
    }
 
    # no default server, prompt if there are multiple choices
   if (nrow(existing) > 1 && prompt && interactive()) {
-    name <- as.character(existing[1,"name"])
-    message("Registered servers: ", paste(existing[,"name"], collapse = ", "))
+    name <- as.character(existing[1, "name"])
+    message("Registered servers: ", paste(existing[, "name"], collapse = ", "))
     input <- readline(paste0(
-      "Which server (default '", name ,"')? "))
+      "Which server (default '", name, "')? "))
     if (nchar(input) > 0) {
       name <- input
     }
@@ -228,7 +228,7 @@ removeServer <- function(name) {
   if (file.exists(configFile))
     unlink(configFile)
   else
-    warning("The server '", name,"' is not currently registered.")
+    warning("The server '", name, "' is not currently registered.")
 }
 
 
@@ -251,7 +251,7 @@ serverInfo <- function(name) {
   if (!file.exists(configFile))
     stop(missingServerErrorMessage(name))
 
-  serverDcf <- readDcf(serverConfigFile(name), all=TRUE)
+  serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
   info <- as.list(serverDcf)
   info
 }

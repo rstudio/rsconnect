@@ -18,15 +18,15 @@ httpRCurl <- function(protocol,
 
   # add prefix to port if necessary
   if (!is.null(port) && nzchar(port))
-    port <- paste(":", port, sep="")
+    port <- paste(":", port, sep = "")
 
   # build url
-  url <- paste(protocol, "://", host, port, path, sep="")
+  url <- paste(protocol, "://", host, port, path, sep = "")
 
   # read file in binary mode
   if (!is.null(contentFile)) {
     fileLength <- file.info(contentFile)$size
-    fileContents <- readBin(contentFile, what="raw", n=fileLength)
+    fileContents <- readBin(contentFile, what = "raw", n = fileLength)
     headers$`Content-Type` <- contentType
   }
 
@@ -38,7 +38,7 @@ httpRCurl <- function(protocol,
   userOptions <- getOption("rsconnect.rcurl.options")
   if (is.list(userOptions)) {
     for (option in names(userOptions)) {
-      options[option] = userOptions[option]
+      options[option] <- userOptions[option]
     }
   }
 
@@ -72,7 +72,7 @@ httpRCurl <- function(protocol,
 
   # add extra headers
   headers <- appendCookieHeaders(
-    list(protocol=protocol, host=host, port=port, path=path), headers)
+    list(protocol = protocol, host = host, port = port, path = path), headers)
   extraHeaders <- as.character(headers)
   names(extraHeaders) <- names(headers)
   options$httpheader <- extraHeaders
@@ -151,7 +151,7 @@ httpRCurl <- function(protocol,
 
   # Parse cookies from header; bear in mind that there may be multiple headers
   cookieHeaders <- headers[names(headers) == "set-cookie"]
-  storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
+  storeCookies(list(protocol = protocol, host = host, port = port, path = path), cookieHeaders)
 
   contentValue <- textGatherer$value()
 

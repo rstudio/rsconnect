@@ -77,7 +77,7 @@ deploySite <- function(siteDir = getwd(),
 
   # determine appDir based on whether we are rendering on the server
   if (render == "server") {
-    appDir <- '.'
+    appDir <- "."
     appFiles <- NULL
   } else {
     appDir <- siteGenerator$output_dir

@@ -9,7 +9,7 @@ cleanupPasswordFile <- function(appDir) {
   dataDir <- file.path(appDir, "shinyapps")
 
   # get password file
-  passwordFile <- file.path(dataDir, paste("passwords", ".txt", sep=""))
+  passwordFile <- file.path(dataDir, paste("passwords", ".txt", sep = ""))
 
   # check if password file exists
   if (file.exists(passwordFile)) {
@@ -48,8 +48,8 @@ cleanupPasswordFile <- function(appDir) {
 #' @seealso [removeAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
-                              account = NULL, server=NULL, sendEmail=NULL,
+addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
+                              account = NULL, server = NULL, sendEmail = NULL,
                               emailMessage = NULL) {
 
   # resolve account
@@ -57,7 +57,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 
   # resolve application
   if (is.null(appName))
-    appName = basename(appDir)
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # check for and remove password file
@@ -68,7 +68,7 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
   api$inviteApplicationUser(application$id, validateEmail(email), sendEmail,
                             emailMessage)
 
-  message(paste("Added:", email, "to application", sep=" "))
+  message(paste("Added:", email, "to application", sep = " "))
 
   invisible(TRUE)
 }
@@ -86,15 +86,15 @@ addAuthorizedUser <- function(email, appDir=getwd(), appName=NULL,
 #' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
-                                 account = NULL, server=NULL) {
+removeAuthorizedUser <- function(user, appDir = getwd(), appName = NULL,
+                                 account = NULL, server = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   # resolve application
   if (is.null(appName))
-    appName = basename(appDir)
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # check and remove password file
@@ -106,14 +106,14 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
   if (is.numeric(user)) {
     # lookup by id
     if (user %in% users$id) {
-      user = users[users$id==user, ]
+      user <- users[users$id == user, ]
     } else {
       stop("User ", user, " not found", call. = FALSE)
     }
   } else {
     # lookup by email
     if (user %in% users$email) {
-      user = users[users$email==user, ]
+      user <- users[users$email == user, ]
     } else {
       stop("User \"", user, "\" not found", call. = FALSE)
     }
@@ -123,7 +123,7 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
   api <- clientForAccount(accountDetails)
   api$removeApplicationUser(application$id, user$id)
 
-  message(paste("Removed:", user$email, "from application", sep=" "))
+  message(paste("Removed:", user$email, "from application", sep = " "))
 
   invisible(TRUE)
 }
@@ -140,8 +140,8 @@ removeAuthorizedUser <- function(user, appDir=getwd(), appName=NULL,
 #' @seealso [addAuthorizedUser()] and [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
-                      server=NULL) {
+showUsers <- function(appDir = getwd(), appName = NULL, account = NULL,
+                      server = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -152,7 +152,7 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 
   # resolve application
   if (is.null(appName))
-    appName = basename(appDir)
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # fetch authoriztion list
@@ -161,9 +161,9 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 
   # get interesting fields
   users <- lapply(res, function(x) {
-    a = list()
-    a$id = x$user$id
-    a$email = x$user$email
+    a <- list()
+    a$id <- x$user$id
+    a$email <- x$user$email
     if (!is.null(x$account)) {
       a$account <- x$account
     } else {
@@ -190,15 +190,15 @@ showUsers <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
-                        server=NULL) {
+showInvited <- function(appDir = getwd(), appName = NULL, account = NULL,
+                        server = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
 
   # resolve application
   if (is.null(appName))
-    appName = basename(appDir)
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # fetch invitation list
@@ -207,11 +207,11 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
 
   # get interesting fields
   users <- lapply(res, function(x) {
-    a = list()
-    a$id = x$id
-    a$email = x$email
-    a$link = x$link
-    a$expired = x$expired
+    a <- list()
+    a$id <- x$id
+    a$email <- x$email
+    a$link <- x$link
+    a$expired <- x$expired
     return(a)
   })
 
@@ -236,9 +236,9 @@ showInvited <- function(appDir=getwd(), appName=NULL, account = NULL,
 #' @seealso [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-resendInvitation <- function(invite, regenerate=FALSE,
-                             appDir=getwd(), appName=NULL,
-                             account = NULL, server=NULL) {
+resendInvitation <- function(invite, regenerate = FALSE,
+                             appDir = getwd(), appName = NULL,
+                             account = NULL, server = NULL) {
 
   # resolve account
   accountDetails <- accountInfo(resolveAccount(account, server), server)
@@ -249,14 +249,14 @@ resendInvitation <- function(invite, regenerate=FALSE,
   if (is.numeric(invite)) {
     # lookup by id
     if (invite %in% invited$id) {
-      invite = invited[invited$id==invite, ]
+      invite <- invited[invited$id == invite, ]
     } else {
       stop("Invitation \"", invite, "\" not found", call. = FALSE)
     }
   } else {
     # lookup by email
     if (invite %in% invited$email) {
-      invite = invited[invited$email==invite, ]
+      invite <- invited[invited$email == invite, ]
     } else {
       stop("Invitiation for \"", invite, "\" not found", call. = FALSE)
     }
@@ -266,7 +266,7 @@ resendInvitation <- function(invite, regenerate=FALSE,
   api <- clientForAccount(accountDetails)
   api$resendApplicationInvitation(invite$id, regenerate)
 
-  message(paste("Sent invitation to", invite$email, "", sep=" "))
+  message(paste("Sent invitation to", invite$email, "", sep = " "))
 
   invisible(TRUE)
 }
@@ -317,11 +317,11 @@ readPasswordFile <- function(path) {
 
   # extract fields
   fields <- do.call(rbind, strsplit(lines, ":"))
-  users <- fields[,1]
-  hashes <- fields[,2]
+  users <- fields[, 1]
+  hashes <- fields[, 2]
 
   # convert to data frame
-  df <- data.frame(user=users, hash=hashes, stringsAsFactors=FALSE)
+  df <- data.frame(user = users, hash = hashes, stringsAsFactors = FALSE)
 
   # return data frame
   return(df)
@@ -330,13 +330,13 @@ readPasswordFile <- function(path) {
 writePasswordFile <- function(path, passwords) {
 
   # open and file
-  f = file(path, open="w")
+  f <- file(path, open = "w")
   on.exit(close(f), add = TRUE)
 
   # write passwords
   apply(passwords, 1, function(r) {
-    l <- paste(r[1], ":", r[2], "\n", sep="")
-    cat(l, file=f, sep="")
+    l <- paste(r[1], ":", r[2], "\n", sep = "")
+    cat(l, file = f, sep = "")
   })
   message("Password file updated. You must deploy your application for these changes to take effect.")
 }

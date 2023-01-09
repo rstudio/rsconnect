@@ -55,7 +55,7 @@ httpLibCurl <- function(protocol,
 
   # add prefix to port if necessary
   if (!is.null(port) && nzchar(port))
-    port <- paste(":", port, sep="")
+    port <- paste(":", port, sep = "")
 
   # build url
   url <- paste0(protocol, "://", host, port, path)
@@ -160,11 +160,11 @@ httpLibCurl <- function(protocol,
     identical(contentType, "application/json")
 
   if (jsonTracingEnabled)
-    cat(paste0("<< ", paste(readLines(contentFile), collapse="\n"), "\n"))
+    cat(paste0("<< ", paste(readLines(contentFile), collapse = "\n"), "\n"))
 
   # Parse cookies from header; bear in mind that there may be multiple headers
   cookieHeaders <- headers[names(headers) == "set-cookie"]
-  storeCookies(list(protocol=protocol, host=host, port=port, path=path), cookieHeaders)
+  storeCookies(list(protocol = protocol, host = host, port = port, path = path), cookieHeaders)
 
   contentValue <- rawToChar(response$content)
 
@@ -182,5 +182,3 @@ httpLibCurl <- function(protocol,
        contentType = contentType,
        content = contentValue)
 }
-
-

@@ -20,7 +20,7 @@ shinyServer(function(input, output, session) {
 
   # output userInfo
   output$userInfo <- renderText({
-    paste(sep="",
+    paste(sep = "",
           "user: ", session$user, "\n")
   })
 
