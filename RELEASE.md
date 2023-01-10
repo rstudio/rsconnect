@@ -60,8 +60,8 @@
 
 -   Create a branch to bump for development (e.g. `development/<version>`).
 
-    Update `DESCRIPTION` bumping to the next version.
-    Update `NEWS.md` with a version header for the next version.
+    Update `DESCRIPTION`, shifting to a "development" version like 0.8.29-1.
+    Update `NEWS.md` with a version header for the next version like 0.8.30.
     
     ````markdown
     # rsconnect VERSION (development version)
