@@ -6,7 +6,7 @@ Authors@R: c(
     person("Aron", "Atkins", role = c("aut", "cre"), email = "aron@posit.co"),
     person("Jonathan", "McPherson", role = "aut", email = "jonathan@posit.co"),
     person("JJ", "Allaire", role = "aut"),
-    person("Posit Software", role = c("cph", "fnd"))
+    person("Posit Software, PBC", role = c("cph", "fnd"))
     )
 Description: Programmatic deployment interface for 'RPubs', 'shinyapps.io', and
     'Posit Connect'. Supported content types include R Markdown documents,
