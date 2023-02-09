@@ -34,7 +34,8 @@ Suggests:
     shiny,
     sourcetools,
     testthat (>= 3.0.0),
-    xtable
+    xtable,
+    withr
 License: GPL-2
 Encoding: UTF-8
 RoxygenNote: 7.2.1
