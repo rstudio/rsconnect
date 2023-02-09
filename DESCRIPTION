@@ -33,7 +33,7 @@ Suggests:
     rmarkdown (>= 1.1),
     shiny,
     sourcetools,
-    testthat,
+    testthat (>= 3.0.0),
     xtable
 License: GPL-2
 Encoding: UTF-8
@@ -41,3 +41,4 @@ RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues
+Config/testthat/edition: 3
