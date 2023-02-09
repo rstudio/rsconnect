@@ -1,5 +1,3 @@
-context("cookies")
-
 test_that("URL parsing works", {
   p <- parseHttpUrl("http://yahoo.com")
   expect_equal(p$protocol, "http")

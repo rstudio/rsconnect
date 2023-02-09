@@ -1,5 +1,3 @@
-context("http")
-
 # Test HTTP server doesn't work on Solaris
 skip_on_os("solaris")
 

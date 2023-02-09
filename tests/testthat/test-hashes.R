@@ -1,5 +1,3 @@
-context("hashes")
-
 emptyFile <- tempfile(fileext = ".empty.txt")
 contentsFile <- tempfile(fileext = ".contents.txt")
 

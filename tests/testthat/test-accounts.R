@@ -1,5 +1,3 @@
-context("accounts")
-
 havingFakeAccounts <- function(expr) {
   registerUserApiKey("simple", "alice", 13, "alice-api-key")
   registerUserApiKey("complex", "hatter+mad@example.com", 42, "hatter-api-key")

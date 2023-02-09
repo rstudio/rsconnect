@@ -1,5 +1,3 @@
-context("utils")
-
 test_that("file_path_sans_ext removes extensions", {
   # extensions are removed.
   expect_equal(

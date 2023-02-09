@@ -1,5 +1,3 @@
-context("certificates")
-
 havingHttpRecorder <- function(expr) {
   # Preserve incoming state.
   http <- getOption("rsconnect.http")

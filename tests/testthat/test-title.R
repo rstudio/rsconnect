@@ -1,5 +1,3 @@
-context("title")
-
 test_that("generated application names do not exceed maximum length", {
   title <- "Good heavens, this title is simply enormous! I can't imagine why anyone would use such a cumbersome moniker."
   name <- generateAppName(title)

@@ -1,5 +1,3 @@
-context("lint")
-
 test_that("linter warns about absolute paths and relative paths", {
 
   ## Create a local file that 'server.R' tries to use

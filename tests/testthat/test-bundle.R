@@ -1,5 +1,3 @@
-context("bundle")
-
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
                        "application", NULL, python = python)
