@@ -185,17 +185,17 @@ test_that("appending cookie headers works", {
   # Nothing to append, no-op
   headers <- appendCookieHeaders(parsedUrl, c(header1 = 123, header2 = "abc"))
   expect_length(headers, 2)
-  expect_equivalent(headers["header1"], "123")
-  expect_equivalent(headers["header2"], "abc")
+  expect_equal(headers[["header1"]], "123")
+  expect_equal(headers[["header2"]], "abc")
 
   # Store a cookie
   storeCookies(parsedUrl, "cookie1=value1; Path=/; Max-Age=3600")
 
   headers <- appendCookieHeaders(parsedUrl, c(header1 = 123, header2 = "abc"))
   expect_length(headers, 3)
-  expect_equivalent(headers["header1"], "123")
-  expect_equivalent(headers["header2"], "abc")
-  expect_equivalent(headers["cookie"], "cookie1=value1")
+  expect_equal(headers[["header1"]], "123")
+  expect_equal(headers[["header2"]], "abc")
+  expect_equal(headers[["cookie"]], "cookie1=value1")
 
   # Store a couple more cookies
   storeCookies(parsedUrl, "cookie2=value2; Path=/test; Max-Age=3600")
@@ -204,9 +204,9 @@ test_that("appending cookie headers works", {
 
   headers <- appendCookieHeaders(parsedUrl, c(header1 = 123, header2 = "abc"))
   expect_length(headers, 3)
-  expect_equivalent(headers["header1"], "123")
-  expect_equivalent(headers["header2"], "abc")
-  expect_equivalent(headers["cookie"], "cookie2=value2; cookie1=value1")
+  expect_equal(headers[["header1"]], "123")
+  expect_equal(headers[["header2"]], "abc")
+  expect_equal(headers[["cookie"]], "cookie2=value2; cookie1=value1")
 
   # If you already have a cookie header, you end up with two
   headers <- appendCookieHeaders(parsedUrl, c(cookie = "existing=value"))
@@ -217,11 +217,11 @@ test_that("appending cookie headers works", {
   # Add a secure cookie
   storeCookies(parsedUrl, "securecookie=secureval; Path=/; Max-Age=3600; Secure")
   headers <- appendCookieHeaders(parsedUrl, c())
-  expect_equivalent(headers["cookie"], "cookie2=value2; cookie1=value1")
+  expect_equal(headers[["cookie"]], "cookie2=value2; cookie1=value1")
 
   # But over a secure channel, you'd include the secure cookie
   headers <- appendCookieHeaders(parseHttpUrl("https://fakedomain:123/test/stuff"), c())
-  expect_equivalent(headers["cookie"], "securecookie=secureval; cookie2=value2; cookie1=value1")
+  expect_equal(headers[["cookie"]], "securecookie=secureval; cookie2=value2; cookie1=value1")
 })
 
 test_that("Expired cookies are removed", {
