@@ -57,8 +57,11 @@ on.exit(options(repos = repos), add = TRUE)
 
 test_that("simple Shiny app bundle includes correct files", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
-                                          NULL)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "simple_shiny",
+    test_path("shinyapp-simple"),
+    NULL
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   # listBundleFiles only includes "user" files and ignores
   # generated files like the packrat and manifest data.
@@ -107,17 +110,26 @@ test_that("bundle directories are recursively enumerated", {
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
   skip_if_not_installed("shiny")
-  bundleTempDir <- makeShinyBundleTempDir("simple_shiny", "shinyapp-simple",
-                                          NULL)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "simple_shiny",
+    test_path("shinyapp-simple"),
+    NULL
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
 
 test_that("app.R Shiny app bundle is runnable", {
+  # shiny:::shinyAppDir() attach shiny so do it here so we can do it quietly
+  library(shiny, warn.conflicts = FALSE, quietly = TRUE)
+
   skip_on_cran()
   skip_if_not_installed("shiny")
-  bundleTempDir <- makeShinyBundleTempDir("app_r_shiny", "shinyapp-appR",
-                                          NULL)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "app_r_shiny",
+    test_path("shinyapp-appR"),
+    NULL
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
@@ -125,15 +137,23 @@ test_that("app.R Shiny app bundle is runnable", {
 test_that("single-file Shiny app bundle is runnable", {
   skip_on_cran()
   skip_if_not_installed("shiny")
-  bundleTempDir <- makeShinyBundleTempDir("app_r_shiny", "shinyapp-singleR",
-                                          "single.R")
+
+  bundleTempDir <- makeShinyBundleTempDir(
+    "app_r_shiny",
+    test_path("shinyapp-singleR"),
+    "single.R"
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
 
 test_that("recommended packages are snapshotted", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("MASS", "project-MASS", "MASS.R")
+  bundleTempDir <- makeShinyBundleTempDir(
+    "MASS",
+    test_path("project-MASS"),
+    "MASS.R"
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
   deps <- packrat:::readLockFilePackages(lockfile)
@@ -142,8 +162,11 @@ test_that("recommended packages are snapshotted", {
 
 test_that("simple Rmd as primary not identified as parameterized when parameterized Rmd in bundle", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
-                                          "simple.Rmd")
+  bundleTempDir <- makeShinyBundleTempDir(
+    "rmd primary",
+    test_path("test-rmds"),
+    "simple.Rmd"
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -153,8 +176,11 @@ test_that("simple Rmd as primary not identified as parameterized when parameteri
 
 test_that("parameterized Rmd identified as parameterized when other Rmd in bundle", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
-                                          "parameterized.Rmd")
+  bundleTempDir <- makeShinyBundleTempDir(
+    "rmd primary",
+    test_path("test-rmds"),
+    "parameterized.Rmd"
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -164,8 +190,11 @@ test_that("parameterized Rmd identified as parameterized when other Rmd in bundl
 
 test_that("primary doc can be inferred (and non-parameterized dispite an included parameterized", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "test-rmds",
-                                          NULL)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "rmd primary",
+    test_path("test-rmds"),
+    NULL
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -175,8 +204,11 @@ test_that("primary doc can be inferred (and non-parameterized dispite an include
 
 test_that("multiple shiny Rmd without index file have a generated one", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir("rmd primary", "shiny-rmds",
-                                          NULL)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "rmd primary",
+    test_path("shiny-rmds"),
+    NULL
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-shiny")
@@ -192,8 +224,12 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
   skip_if(pipMissing != 0, "pip module is not installed")
 
-  bundleTempDir <- makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds",
-                                          NULL, python = python)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "reticulated rmd",
+    test_path("test-reticulate-rmds"),
+    NULL,
+    python = python
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
@@ -215,8 +251,12 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
   skip_if(pipMissing != 0, "pip module is not installed")
 
-  bundleTempDir <- makeShinyBundleTempDir("reticulated rmd", "test-reticulate-rmds",
-                                          "implicit.Rmd", python = python)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "reticulated rmd",
+    test_path("test-reticulate-rmds"),
+    "implicit.Rmd",
+    python = python
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
@@ -232,8 +272,12 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest", {
   skip_on_cran()
 
-  bundleTempDir <- makeShinyBundleTempDir("plain rmd", "test-rmds",
-                                          "simple.Rmd", python = NULL)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "plain rmd",
+    test_path("test-rmds"),
+    "simple.Rmd",
+    python = NULL
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
@@ -251,8 +295,12 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
 
-  bundleTempDir <- makeShinyBundleTempDir("plain rmd", "test-rmds",
-                                          "simple.Rmd", python = python)
+  bundleTempDir <- makeShinyBundleTempDir(
+    "plain rmd",
+    test_path("test-rmds"),
+    "simple.Rmd",
+    python = python
+  )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
@@ -274,7 +322,7 @@ test_that("writeManifest: Rmd with reticulate as a dependency includes python in
   pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
   skip_if(pipMissing != 0, "pip module is not installed")
 
-  appDir <- "test-reticulate-rmds"
+  appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, NULL, python = python)
   requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
@@ -294,7 +342,7 @@ test_that("writeManifest: Rmd with reticulate as an inferred dependency includes
   pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
   skip_if(pipMissing != 0, "pip module is not installed")
 
-  appDir <- "test-reticulate-rmds"
+  appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, "implicit.Rmd", python = python)
   requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
@@ -308,7 +356,7 @@ test_that("writeManifest: Rmd with reticulate as an inferred dependency includes
 test_that("writeManifest: Rmd without a python block doesn't include reticulate or python in the manifest", {
   skip_on_cran()
 
-  manifest <- makeManifest("test-rmds", "simple.Rmd", python = NULL)
+  manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd", python = NULL)
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_null(manifest$python)
@@ -509,7 +557,7 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "quarto-website-r"
+  appDir <- test_path("quarto-website-r")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -520,7 +568,7 @@ test_that("writeManifest: Quarto website includes quarto in the manifest", {
 test_that("writeManifest: Quarto document includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "quarto-doc-none"
+  appDir <- test_path("quarto-doc-none")
   appPrimaryDoc <- "quarto-doc-none.qmd"
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
@@ -532,7 +580,7 @@ test_that("writeManifest: Quarto document includes quarto in the manifest", {
 test_that("writeManifest: Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.qmd)", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "quarto-doc-none"
+  appDir <- test_path("quarto-doc-none")
   appPrimaryDoc <- NULL
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
@@ -544,7 +592,7 @@ test_that("writeManifest: Specifying quarto arg includes quarto in the manifest,
 test_that("writeManifest: Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.Rmd)", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "shiny-rmds"
+  appDir <- test_path("shiny-rmds")
   appPrimaryDoc <- NULL
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
@@ -556,7 +604,7 @@ test_that("writeManifest: Specifying quarto arg includes quarto in the manifest,
 test_that("writeManifest: specifying quarto arg with non-quarto app does not include quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "shinyapp-singleR"
+  appDir <- test_path("shinyapp-singleR")
   appPrimaryDoc <- "single.R"
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
 
@@ -566,7 +614,7 @@ test_that("writeManifest: specifying quarto arg with non-quarto app does not inc
 test_that("writeManifest: Quarto shiny project includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
-  appDir <- "quarto-proj-r-shiny"
+  appDir <- test_path("quarto-proj-r-shiny")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
@@ -579,7 +627,7 @@ test_that("writeManifest: Quarto R + Python website includes quarto and python i
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
 
-  appDir <- "quarto-website-r-py"
+  appDir <- test_path("quarto-website-r-py")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -595,7 +643,7 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
   python <- Sys.which("python")
   skip_if(python == "", "python is not installed")
 
-  appDir <- "quarto-website-py"
+  appDir <- test_path("quarto-website-py")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -613,7 +661,7 @@ test_that("writeManifest: Deploying a Quarto project without Quarto info in an e
     "Please provide the path to a quarto binary to the 'quarto' argument."
   )
 
-  appDir <- "quarto-website-r"
+  appDir <- test_path("quarto-website-r")
   expect_error(
     makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
     missingQuartoInfoErrorText
@@ -626,7 +674,7 @@ test_that("writeManifest: Deploying a Quarto doc without Quarto info in an error
     "Please provide the path to a quarto binary to the 'quarto' argument."
   )
 
-  appDir <- "quarto-doc-none"
+  appDir <- test_path("quarto-doc-none")
   appPrimaryDoc <- "quarto-doc-none.qmd"
   expect_error(
     makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL),
@@ -637,7 +685,7 @@ test_that("writeManifest: Deploying a Quarto doc without Quarto info in an error
 test_that("writeManifest: Deploying R Markdown content with Quarto gives a Quarto app mode", {
   quarto <- quartoPathOrSkip()
 
-  manifest <- makeManifest("test-rmds", "simple.Rmd", quarto = quarto)
+  manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd", quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -646,13 +694,13 @@ test_that("writeManifest: Deploying R Markdown content with Quarto gives a Quart
 
 test_that("writeManifest: Deploying static content with _quarto.yaml succeeds without quartoInfo", {
 
-  manifest <- makeManifest("static-with-quarto-yaml", NULL, quarto = NULL)
+  manifest <- makeManifest(test_path("static-with-quarto-yaml"), NULL, quarto = NULL)
 
   expect_equal(manifest$metadata$appmode, "static")
 })
 
 test_that("writeManifest: Sets environment.image in the manifest if one is provided", {
-  appDir <- "shinyapp-simple"
+  appDir <- test_path("shinyapp-simple")
 
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, image = "rstudio/content-base:latest")
   expect_equal(manifest$environment$image, "rstudio/content-base:latest")
@@ -662,34 +710,21 @@ test_that("writeManifest: Sets environment.image in the manifest if one is provi
 })
 
 test_that("tarImplementation: checks environment variable and option before using default", {
-  option_value <- getOption("rsconnect.tar")
-  envvar_value <- Sys.getenv("RSCONNECT_TAR", unset = NA)
-  on.exit({
-    options("rsconnect.tar" = option_value)
-    Sys.setenv("RSCONNECT_TAR" = envvar_value)
-  }, add = TRUE, after = FALSE)
+  tar_implementation <- function(option, envvar) {
+    withr::local_options(rsconnect.tar = option)
+    withr::local_envvar(RSCONNECT_TAR = envvar)
+    getTarImplementation()
+  }
 
   # Environment variable only set should use environment varaible
-  Sys.setenv("RSCONNECT_TAR" = "envvar")
-  options("rsconnect.tar" = NULL)
-  tarImplementation <- getTarImplementation()
-  expect_equal(tarImplementation, "envvar")
+  expect_equal(tar_implementation(NULL, "envvar"), "envvar")
 
   # Option only set should use option
-  Sys.unsetenv("RSCONNECT_TAR")
-  options("rsconnect.tar" = "option")
-  tarImplementation <- getTarImplementation()
-  expect_equal(tarImplementation, "option")
+  expect_equal(tar_implementation("option", NA), "option")
 
   # Both environment variable and option set should use option
-  Sys.setenv("RSCONNECT_TAR" = "envvar")
-  options("rsconnect.tar" = "option")
-  tarImplementation <- getTarImplementation()
-  expect_equal(tarImplementation, "option")
+  expect_equal(tar_implementation("option", "envvar"), "option")
 
   # Neither set should use "internal"
-  Sys.unsetenv("RSCONNECT_TAR")
-  options("rsconnect.tar" = NULL)
-  tarImplementation <- getTarImplementation()
-  expect_equal(tarImplementation, "internal")
+  expect_equal(tar_implementation(NULL, NA), "internal")
 })
