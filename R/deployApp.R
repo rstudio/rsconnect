@@ -150,37 +150,23 @@ deployApp <- function(appDir = getwd(),
   # at verbose log level, turn on all tracing options implicitly for the
   # duration of the call
   if (verbose) {
-    options <- c("rsconnect.http.trace",
-                 "rsconnect.http.trace.json",
-                 "rsconnect.error.trace")
-    restorelist <- list()
-    newlist <- list()
-
-    # record options at non-default position
-    for (option in options) {
-      if (!isTRUE(getOption(option))) {
-        restorelist[[option]] <- FALSE
-        newlist[[option]] <- TRUE
-      }
-    }
-
-    # apply new option values
-    options(newlist)
-
-    # restore all old option values on exit
-    on.exit(options(restorelist), add = TRUE)
+    old_verbose <- options(
+      rsconnect.http.trace = TRUE,
+      rsconnect.http.trace.json = TRUE,
+      rsconnect.error.trace = TRUE
+    )
+    on.exit(options(old_verbose), add = TRUE)
   }
 
   # install error handler if requested
   if (isTRUE(getOption("rsconnect.error.trace"))) {
-    errOption <- getOption("error")
-    options(error = function(e) {
+    old_error <- options(error = function(e) {
       cat("----- Deployment error -----\n")
       cat(geterrmessage(), "\n")
       cat("----- Error stack trace -----\n")
       traceback(x = sys.calls(), max.lines = 3)
     })
-    on.exit(options(error = errOption), add = TRUE)
+    on.exit(options(old_error), add = TRUE)
   }
 
   # normalize appDir path and ensure it exists

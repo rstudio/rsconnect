@@ -1195,8 +1195,8 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   # explicitly configured. This is a no-op for older versions of packrat.
   renvDiscovery <- getOption("packrat.dependency.discovery.renv")
   if (is.null(renvDiscovery)) {
-    oldDiscovery <- options("packrat.dependency.discovery.renv" = TRUE)
-    on.exit(options(oldDiscovery), add = TRUE)
+    old <- options("packrat.dependency.discovery.renv" = TRUE)
+    on.exit(options(old), add = TRUE)
   }
 
   # attempt to eagerly load the BiocInstaller or BiocManaager package if installed, to work around

@@ -155,9 +155,8 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   projectContent <- lapply(projectFilesToLint, function(file) {
 
     # force native encoding (disable any potential internal conversion)
-    enc <- getOption("encoding")
-    options(encoding = "native.enc")
-    on.exit(options(encoding = enc), add = TRUE)
+    old <- options(encoding = "native.enc")
+    on.exit(options(old), add = TRUE)
 
     # read content with requested encoding
     # TODO: may consider converting from native encoding to UTF-8 if appropriate
