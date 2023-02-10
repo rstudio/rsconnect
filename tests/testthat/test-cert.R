@@ -1,17 +1,5 @@
-context("certificates")
-
 havingHttpRecorder <- function(expr) {
-  # Preserve incoming state.
-  http <- getOption("rsconnect.http")
-
-  on.exit({
-    # Restore incoming state on exit.
-    options(rsconnect.http = http)
-  }, add = TRUE)
-
-  # Record HTTP calls rather than actually performing them
-  options(rsconnect.http = httpTestRecorder)
-
+  withr::local_options(rsconnect.http = httpTestRecorder)
   eval(expr)
 }
 
@@ -21,14 +9,14 @@ test_that("certificates can be saved", {
       # add a server with a sample certificate
       addServer(url = "https://localhost:4567/",
                 name = "cert_test_a",
-                certificate = "certs/sample.crt",
-                quiet = FALSE)
+                certificate = test_path("certs/sample.crt"),
+                quiet = TRUE)
 
       # read it back
       info <- serverInfo("cert_test_a")
 
       # compare with the contents of the cert we read
-      certLines <- paste(readLines("certs/sample.crt"), collapse = "\n")
+      certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
       expect_equal(certLines, info$certificate)
     })
   )
@@ -40,11 +28,12 @@ test_that("certificates can be added", {
       # add a server without a certificate
       addServer(url = "https://localhost:4567/",
                 name = "cert_test_b",
-                quiet = FALSE)
+                quiet = TRUE)
 
       # add the certificate
       addServerCertificate(name = "cert_test_b",
-                           certificate = "certs/sample.crt")
+                           certificate = "certs/sample.crt",
+                           quiet = TRUE)
 
       # read the server info
       info <- serverInfo("cert_test_b")
@@ -62,7 +51,7 @@ test_that("certificates can't be attached to plain http servers", {
       expect_error(addServer(url = "http://localhost:4567",
                              name = "cert_test_c",
                              certificate = "certs/sample.crt"))
-      addServer(url = "http://localhost:4567", name = "cert_test_d")
+      addServer(url = "http://localhost:4567", name = "cert_test_d", quiet = TRUE)
       expect_error(addServerCertificate(name = "cert_test_d",
                                         certificate = "certs/sample.crt"))
     })
@@ -73,17 +62,11 @@ test_that("system and server cert stores are concatenated", {
   havingFakeConfig(
     havingHttpRecorder({
       # use a dummy CA bundle
-      oldCaOpt <- getOption("rsconnect.ca.bundle")
-      options(rsconnect.ca.bundle = file.path(getwd(), "certs", "store.crt"))
-      on.exit(expr = {
-        options(rsconnect.ca.bundle = oldCaOpt)
-      }, add = TRUE)
+      withr::local_options(rsconnect.ca.bundle = test_path("certs/store.crt"))
 
       # create and then read the temporary certificate file
-      concatenated <- createCertificateFile(readLines("certs/localhost.crt"))
-      on.exit(expr = {
-        unlink(concatenated)
-      }, add = TRUE)
+      concatenated <- createCertificateFile(readLines(test_path("certs/localhost.crt")))
+      withr::defer(unlink(concatenated))
       store <- paste(readLines(concatenated), collapse = "\n")
 
       # make sure that the localhost and system stores both exist in the
@@ -101,7 +84,7 @@ test_that("invalid certificates cannot be added", {
         addServer(url = "https://localhost:4567/",
                   name = "cert_test_e",
                   certificate = "certs/invalid.crt",
-                  quiet = FALSE))
+                  quiet = TRUE))
     })
   )
 })
@@ -112,7 +95,7 @@ test_that("multiple certificates can exist in the same file", {
       addServer(url = "https://localhost:4567/",
                 name = "cert_test_f",
                 certificate = "certs/two-cas.crt",
-                quiet = FALSE)
+                quiet = TRUE)
 
       # read it back
       info <- serverInfo("cert_test_f")

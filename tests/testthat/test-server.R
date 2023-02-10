@@ -1,5 +1,3 @@
-context("server")
-
 test_that("servers list", {
   allServers <- servers()$name
   predefinedServers <- c()

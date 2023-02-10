@@ -1,5 +1,3 @@
-context("connect")
-
 # NOTE: These tests expect that you're already running connect; the tests
 # will speak to that running connect process (if it can find it)
 findConnect <- function() {

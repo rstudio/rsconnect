@@ -1,5 +1,3 @@
-context("http")
-
 # Test HTTP server doesn't work on Solaris
 skip_on_os("solaris")
 
@@ -26,7 +24,7 @@ service <- list(
 # Holds the process object referring to the background HTTP server
 server <- NULL
 
-setup({
+local({
   # Ensure temp directory exists
   if (!dir.exists(dirname(input)))
     dir.create(dirname(input), recursive = TRUE)
@@ -62,7 +60,7 @@ setup({
   Sys.sleep(2)
 })
 
-teardown({
+withr::defer({
   # Clean up temp files
   unlink(output)
   unlink(input)
@@ -74,8 +72,7 @@ teardown({
 
 test_http_GET <- function(transport) {
   # Set the transport for this instance of the test
-  old <- options("rsconnect.http" = transport)
-  on.exit(options(old), add = TRUE)
+  withr::local_options("rsconnect.http" = transport)
 
   # Save the response the server will return
   saveRDS(file = input, object = list(

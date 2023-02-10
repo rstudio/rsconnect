@@ -1,5 +1,3 @@
-context("lucid")
-
 test_that("cloud accounts create cloud clients", {
   account <- list(
     server = "rstudio.cloud"
