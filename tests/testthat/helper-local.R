@@ -1,0 +1,16 @@
+fake_accounts <- function(accounts, servers, env = parent.frame()) {
+  force(accounts)
+  force(servers)
+
+  function(server = NULL) {
+    df <- data.frame(
+      name = accounts,
+      server = servers,
+      stringsAsFactors = FALSE
+    )
+    if (!is.null(server)) {
+      df <- df[df$servers == server, , drop = FALSE]
+    }
+    df
+  }
+}

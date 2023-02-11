@@ -1,7 +1,5 @@
 test_that("errors if no accounts", {
-  mockr::local_mock(accounts = function(...) {
-    data.frame(name = character(), server = character(), stringsAsFactors = FALSE)
-  })
+  mockr::local_mock(accounts = fake_accounts(character(), character()))
 
   expect_snapshot(deploymentTarget(), error = TRUE)
 })
@@ -12,9 +10,7 @@ test_that("errors if unknown server", {
 })
 
 test_that("errors if bad account", {
-  mockr::local_mock(accounts = function(...) {
-    data.frame(name = "ron", server = "bar", stringsAsFactors = FALSE)
-  })
+  mockr::local_mock(accounts = fake_accounts("ron", "bar"))
 
   expect_snapshot(error = TRUE, {
     deploymentTarget(server = NULL, account = "john")
