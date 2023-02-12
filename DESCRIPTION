@@ -35,7 +35,8 @@ Suggests:
     sourcetools,
     testthat (>= 3.0.0),
     xtable,
-    withr
+    withr,
+    mockr
 License: GPL-2
 Encoding: UTF-8
 RoxygenNote: 7.2.1

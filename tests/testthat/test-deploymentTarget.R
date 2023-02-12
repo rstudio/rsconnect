@@ -1,5 +1,5 @@
 test_that("errors if no accounts", {
-  mockr::local_mock(accounts = fake_accounts(character(), character()))
+  mockr::local_mock(accounts = fakeAccounts(character(), character()))
 
   expect_snapshot(deploymentTarget(), error = TRUE)
 })
@@ -10,7 +10,7 @@ test_that("errors if unknown server", {
 })
 
 test_that("errors if bad account", {
-  mockr::local_mock(accounts = fake_accounts("ron", "bar"))
+  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
 
   expect_snapshot(error = TRUE, {
     deploymentTarget(server = NULL, account = "john")
@@ -19,7 +19,7 @@ test_that("errors if bad account", {
 
 test_that("fully specified app stitches includes data from account", {
   mockr::local_mock(
-    accounts = fake_accounts("ron", "bar"),
+    accounts = fakeAccounts("ron", "bar"),
     accountInfo = fakeAccountInfo(ron = list(
       username = "foo",
       server = "test"
@@ -41,7 +41,7 @@ test_that("fully specified app stitches includes data from account", {
 })
 
 test_that("errors if no previous deployments and multiple accounts", {
-  mockr::local_mock(accounts = fake_accounts("ron", c("foo1", "foo2")))
+  mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -50,7 +50,7 @@ test_that("errors if no previous deployments and multiple accounts", {
 })
 
 test_that("errors if multiple deployments", {
-  mockr::local_mock(accounts = fake_accounts("ron", c("foo1", "foo2")))
+  mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
 
   app_dir <- withr::local_tempdir()
   saveDeployment(

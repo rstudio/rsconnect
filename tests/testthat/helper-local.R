@@ -1,4 +1,4 @@
-fake_accounts <- function(accounts, servers, env = parent.frame()) {
+fakeAccounts <- function(accounts, servers, env = parent.frame()) {
   force(accounts)
   force(servers)
 
