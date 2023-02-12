@@ -516,39 +516,6 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
   appPrimaryDoc
 }
 
-## check for extra dependencies congruent to application mode
-inferRPackageDependencies <- function(appMode, hasParameters, documentsHavePython, quartoInfo) {
-  deps <- c()
-  if (appMode == "rmd-static") {
-    if (hasParameters) {
-      # An Rmd with parameters needs shiny to run the customization app.
-      deps <- c(deps, "shiny")
-    }
-    deps <- c(deps, "rmarkdown")
-  }
-  if (appMode == "quarto-static" && appUsesR(quartoInfo)) {
-    # Quarto documents need R when the knitr execution engine is used, not always.
-    deps <- c(deps, "rmarkdown")
-  }
-  if (appMode == "quarto-shiny") {
-    # Quarto Shiny documents are executed with rmarkdown::run
-    deps <- c(deps, "rmarkdown", "shiny")
-  }
-  if (appMode == "rmd-shiny") {
-    deps <- c(deps, "rmarkdown", "shiny")
-  }
-  if (appMode == "shiny") {
-    deps <- c(deps, "shiny")
-  }
-  if (appMode == "api") {
-    deps <- c(deps, "plumber")
-  }
-  if (documentsHavePython && appUsesR(quartoInfo)) {
-    deps <- c(deps, "reticulate")
-  }
-  unique(deps)
-}
-
 isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
@@ -636,93 +603,17 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
                               verbose = FALSE) {
 
   # provide package entries for all dependencies
-  packages <- list()
+  packages <- bundlePackages(
+    appDir = appDir,
+    appMode = appMode,
+    assetTypeName = assetTypeName,
+    hasParameters = hasParameters,
+    documentsHavePython = documentsHavePython,
+    quartoInfo = quartoInfo,
+    verbose = verbose
+  )
 
-  # potential problems with the bundled content.
-  errorMessages <- NULL
-  packageMessages <- NULL
-
-  pyInfo   <- NULL
-
-  # get package dependencies for non-static content deployment
-  if (!identical(appMode, "static") &&
-      !identical(appMode, "tensorflow-saved-model")) {
-
-    # detect dependencies including inferred dependencies
-    inferredRDependencies <- inferRPackageDependencies(
-      appMode = appMode,
-      hasParameters = hasParameters,
-      documentsHavePython = documentsHavePython,
-      quartoInfo = quartoInfo
-    )
-
-    # Skip snapshotting R dependencies if an app does not use R. Some
-    # dependencies seem to be found based on the presence of Bioconductor
-    # packages in the user's environment.
-    if (appUsesR(quartoInfo)) {
-      deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
-    } else {
-      deps <- data.frame()
-    }
-
-    # construct package list from dependencies
-
-    logger <- verboseLogger(verbose)
-    for (i in seq_len(nrow(deps))) {
-      name <- deps[i, "Package"]
-
-      # get package info
-      info <- as.list(deps[i, c("Source", "Repository")])
-
-      # include github package info
-      info <- c(info, as.list(deps[i, grep("Github", colnames(deps), perl = TRUE, value = TRUE)]))
-
-      # get package description; note that we need to remove the
-      # packageDescription S3 class from the object or jsonlite will refuse to
-      # serialize it when building the manifest JSON
-      # TODO: should we get description from packrat/desc folder?
-      info$description <- suppressWarnings(unclass(utils::packageDescription(name)))
-
-      # if description is NA, application dependency may not be installed
-      if (is.na(info$description[1])) {
-        errorMessages <- c(errorMessages, paste0(capitalize(assetTypeName), " depends on package \"",
-                             name, "\" but it is not installed. Please resolve ",
-                             "before continuing."))
-        next
-      }
-
-      # validate package source (returns a message if there is a problem)
-      packageMessages <- c(packageMessages, validatePackageSource(deps[i, ]))
-
-      # good to go
-      packages[[name]] <- info
-    }
-  }
-  if (length(packageMessages)) {
-    # Advice to help resolve installed packages that are not available using the
-    # current set of configured repositories. Each package with a missing
-    # repository has already been printed (see snapshotDependencizes).
-    #
-    # This situation used to trigger an error (halting deployment), but was
-    # softened because:
-    #   * CRAN-archived packages are not visible to our available.packages
-    #     scanning.
-    #   * Source-installed packages may be available after a manual server-side
-    #     installation.
-    #
-    # That said, an incorrectly configured "repos" option is almost always the
-    # cause.
-    packageMessages <- c(packageMessages,
-                         paste0(
-                           "Unable to determine the source location for some packages. ",
-                           "Packages should be installed from a package repository like ",
-                           "CRAN or a version control system. Check that ",
-                           "options('repos') refers to a package repository containing ",
-                           "the needed package versions."
-                         ))
-    warning(paste(formatUL(packageMessages, "\n*"), collapse = "\n"), call. = FALSE, immediate. = TRUE)
-  }
-
+  pyInfo <- NULL
   needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
   if (needsPyInfo && !is.null(python)) {
     pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
@@ -731,14 +622,9 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
       packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
       cat(pyInfo$package_manager$contents, file = packageFile, sep = "\n")
       pyInfo$package_manager$contents <- NULL
+    } else {
+      stop(paste("Error detecting python environment:", pyInfo$error), call. = FALSE)
     }
-    else {
-      errorMessages <- c(errorMessages, paste("Error detecting python environment:", pyInfo$error))
-    }
-  }
-
-  if (length(errorMessages)) {
-    stop(paste(formatUL(errorMessages, "\n*"), collapse = "\n"), call. = FALSE)
   }
 
   if (!retainPackratDirectory) {
@@ -826,19 +712,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     manifest$users <- NA
   }
   manifest
-}
-
-validatePackageSource <- function(pkg) {
-  if (isSCMSource(pkg$Source)) {
-    return()
-  }
-
-  if (is.null(pkg$Repository) || is.na(pkg$Repository)) {
-    return(sprintf("May be unable to deploy package dependency '%s'; could not determine a repository URL for the source '%s'.",
-                   pkg$Package, pkg$Source))
-  }
-
-  return()
 }
 
 hasRequiredDevtools <- function() {
