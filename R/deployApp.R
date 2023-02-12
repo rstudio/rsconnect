@@ -319,6 +319,7 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
+  # TODO(HW): I'm pretty sure target$server is already the correctvalue
   accountDetails <- accountInfo(target$account, target$server)
 
   # test for compatibility between account type and publish intent

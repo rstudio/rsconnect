@@ -36,6 +36,7 @@ deploymentTarget <- function(appPath,
 
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
+    # TODO(HW): why does this always ignore existing deployments?
     accountDetails <- accountInfo(account, server)
     createDeploymentTarget(
       appPath,
@@ -78,6 +79,7 @@ deploymentTarget <- function(appPath,
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
+      # TODO(HW): why doesn't this take appId from the existing deployment?
       createDeploymentTarget(
         appPath,
         appName,
