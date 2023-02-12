@@ -19,3 +19,17 @@
     Error <simpleError>
       Unknown account name 'john' (you can use the setAccountInfo function to add a new account)
 
+# errors if no deployments and multiple accounts
+
+    Code
+      deployApp(app_dir, appName = "test")
+    Error <simpleError>
+      Please specify the account name (there is more than one account registered on this system)
+
+# errors if multiple deployments
+
+    Code
+      deploymentTarget(app_dir, appName = "test")
+    Error <simpleError>
+      Please specify the account you want to deploy 'test' to (you have previously deployed this application to more than one account).
+

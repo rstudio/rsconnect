@@ -16,3 +16,44 @@ test_that("errors if bad account", {
     deploymentTarget(server = NULL, account = "john")
   })
 })
+
+test_that("errors if no previous deployments and multiple accounts", {
+  mockr::local_mock(accounts = fake_accounts("ron", c("foo1", "foo2")))
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+
+  expect_snapshot(deployApp(app_dir, appName = "test"), error = TRUE)
+})
+
+test_that("errors if multiple deployments", {
+  mockr::local_mock(accounts = fake_accounts("ron", c("foo1", "foo2")))
+
+  app_dir <- withr::local_tempdir()
+  saveDeployment(
+    app_dir,
+    name = "test",
+    title = "",
+    username = "ron",
+    account = "ron",
+    server = "foo1",
+    hostUrl = "",
+    appId = "123",
+    bundleId = "abc",
+    url = "http://example.com"
+  )
+  saveDeployment(
+    app_dir,
+    name = "test",
+    title = "",
+    username = "ron",
+    account = "ron",
+    server = "foo2",
+    hostUrl = "",
+    appId = "123",
+    bundleId = "abc",
+    url = "http://example.com"
+  )
+
+  expect_snapshot(deploymentTarget(app_dir, appName = "test"), error = TRUE)
+})

@@ -1,10 +1,10 @@
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
 deploymentTarget <- function(appPath,
-                             appName,
-                             appTitle,
-                             appId,
-                             account,
+                             appName = NULL,
+                             appTitle = NULL,
+                             appId = NULL,
+                             account = NULL,
                              server = NULL) {
   # read existing accounts
   accounts <- accounts(server)[, "name"]
