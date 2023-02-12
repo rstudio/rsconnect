@@ -105,6 +105,10 @@ inferRPackageDependencies <- function(appMode,
                                       hasParameters,
                                       documentsHavePython,
                                       quartoInfo) {
+
+  # TODO(HW): appUsesR(quartoInfo) is always TRUE because this function is
+  # only called for apps that use R
+
   deps <- c()
   if (appMode == "rmd-static") {
     if (hasParameters) {
