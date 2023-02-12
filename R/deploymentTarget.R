@@ -193,17 +193,13 @@ createDeploymentTarget <- function(appPath,
                                    username,
                                    account,
                                    server) {
-  # look up the server URL
-  serverDetails <- serverInfo(server)
-
   if (is.null(appId)) {
     appId <- findAppId(
       appPath,
       appName,
       account = account,
       server = server,
-      username = username,
-      host = serverDetails$url
+      username = username
     )
   }
 
@@ -217,8 +213,9 @@ createDeploymentTarget <- function(appPath,
   )
 }
 
-findAppId <- function(appPath, appName, account, server, username, host) {
+findAppId <- function(appPath, appName, account, server, username) {
   appId <- NULL
+  serverDetails <- serverInfo(server)
 
   existingDeployments <- deployments(appPath, nameFilter = appName)
   for (i in seq_len(nrow(existingDeployments))) {
@@ -228,7 +225,7 @@ findAppId <- function(appPath, appName, account, server, username, host) {
       appId <- existingDeployments[[i, "appId"]]
       break
     } else if (identical(existingDeployments[[i, "username"]], username) &&
-      identical(existingDeployments[[i, "host"]], host)) {
+      identical(existingDeployments[[i, "host"]], serverDetails$url)) {
       # username and host match the user and host we're deploying to
       appId <- existingDeployments[[i, "appId"]]
       break

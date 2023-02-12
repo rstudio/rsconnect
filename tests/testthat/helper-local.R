@@ -14,3 +14,11 @@ fake_accounts <- function(accounts, servers, env = parent.frame()) {
     df
   }
 }
+
+fakeAccountInfo <- function(...) {
+  info <- list(...)
+
+  function(name, server = NULL) {
+    info[[name]]
+  }
+}

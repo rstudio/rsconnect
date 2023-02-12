@@ -19,7 +19,7 @@
     Error <simpleError>
       Unknown account name 'john' (you can use the setAccountInfo function to add a new account)
 
-# errors if no deployments and multiple accounts
+# errors if no previous deployments and multiple accounts
 
     Code
       deployApp(app_dir, appName = "test")

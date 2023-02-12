@@ -17,6 +17,29 @@ test_that("errors if bad account", {
   })
 })
 
+test_that("fully specified app stitches includes data from account", {
+  mockr::local_mock(
+    accounts = fake_accounts("ron", "bar"),
+    accountInfo = fakeAccountInfo(ron = list(
+      username = "foo",
+      server = "test"
+    ))
+  )
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+
+  target <- deploymentTarget(
+    app_dir,
+    appName = "test",
+    appTitle = "mytitle",
+    appId = "123",
+    account = "ron"
+  )
+  expect_equal(target$appId, "123")
+  expect_equal(target$username, "foo")
+})
+
 test_that("errors if no previous deployments and multiple accounts", {
   mockr::local_mock(accounts = fake_accounts("ron", c("foo1", "foo2")))
 
