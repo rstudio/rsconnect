@@ -196,22 +196,15 @@ createDeploymentTarget <- function(appPath,
   # look up the server URL
   serverDetails <- serverInfo(server)
 
-  # look for an application ID if we weren't supplied one
   if (is.null(appId)) {
-    existingDeployments <- deployments(appPath, nameFilter = appName)
-    for (i in seq_len(nrow(existingDeployments))) {
-      if (identical(existingDeployments[[i, "account"]], account) &&
-        identical(existingDeployments[[i, "server"]], server)) {
-        # account and server matches a locally configured account
-        appId <- existingDeployments[[i, "appId"]]
-        break
-      } else if (identical(existingDeployments[[i, "username"]], username) &&
-        identical(existingDeployments[[i, "host"]], serverDetails$url)) {
-        # username and host match the user and host we're deploying to
-        appId <- existingDeployments[[i, "appId"]]
-        break
-      }
-    }
+    appId <- findAppId(
+      appPath,
+      appName,
+      account = account,
+      server = server,
+      username = username,
+      host = serverDetails$url
+    )
   }
 
   list(
@@ -222,4 +215,25 @@ createDeploymentTarget <- function(appPath,
     account = account,
     server = server
   )
+}
+
+findAppId <- function(appPath, appName, account, server, username, host) {
+  appId <- NULL
+
+  existingDeployments <- deployments(appPath, nameFilter = appName)
+  for (i in seq_len(nrow(existingDeployments))) {
+    if (identical(existingDeployments[[i, "account"]], account) &&
+      identical(existingDeployments[[i, "server"]], server)) {
+      # account and server matches a locally configured account
+      appId <- existingDeployments[[i, "appId"]]
+      break
+    } else if (identical(existingDeployments[[i, "username"]], username) &&
+      identical(existingDeployments[[i, "host"]], host)) {
+      # username and host match the user and host we're deploying to
+      appId <- existingDeployments[[i, "appId"]]
+      break
+    }
+  }
+
+  appId
 }
