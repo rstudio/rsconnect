@@ -986,7 +986,6 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
 }
 
 addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
-
   logger <- verboseLogger(verbose)
 
   # if we discovered any extra dependencies, write them to a file for packrat to
@@ -994,19 +993,12 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
 
   tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
   if (length(implicit_dependencies) > 0) {
-    extraPkgDeps <- paste0(lapply(implicit_dependencies,
-                                  function(dep) {
-                                    paste0("library(", dep, ")\n")
-                                  }),
-                           collapse = "")
     # emit dependencies to file
+    extraPkgDeps <- paste0("library(", implicit_dependencies, ")\n")
     writeLines(extraPkgDeps, tempDependencyFile)
 
     # ensure temp file is cleaned up even if there's an error
-    on.exit({
-      if (file.exists(tempDependencyFile))
-        unlink(tempDependencyFile)
-    }, add = TRUE)
+    on.exit(unlink(tempDependencyFile), add = TRUE)
   }
 
   # ensure we have an up-to-date packrat lockfile

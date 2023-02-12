@@ -6,7 +6,7 @@ bundlePackages <- function(appDir,
                            quartoInfo = NULL,
                            verbose = FALSE
                            ) {
-  if (appMode %in% c("static","tensorflow-saved-model")) {
+  if (appMode %in% c("static", "tensorflow-saved-model")) {
     return(list())
   }
 
@@ -46,6 +46,7 @@ bundlePackages <- function(appDir,
     # TODO: should we get description from packrat/desc folder?
     info$description <- suppressWarnings(unclass(utils::packageDescription(name)))
 
+    # TODO(HW): should this code be removed? I don't see how it is ever reached
     # if description is NA, application dependency may not be installed
     if (is.na(info$description[1])) {
       errorMessages <- c(
