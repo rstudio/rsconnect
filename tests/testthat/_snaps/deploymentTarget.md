@@ -22,11 +22,18 @@
 # errors if no previous deployments and multiple accounts
 
     Code
-      deployApp(app_dir)
+      deploymentTarget(app_dir)
     Error <simpleError>
       Please specify the account and server to which you want to deploy the application (there is more than one account registered on this system).
     Code
-      deployApp(app_dir, appName = "test")
+      deploymentTarget(app_dir, appName = "test")
+    Error <simpleError>
+      Please specify the account name (there is more than one account registered on this system)
+
+# handles accounts if only server specified
+
+    Code
+      deploymentTarget(app_dir, server = "foo")
     Error <simpleError>
       Please specify the account name (there is more than one account registered on this system)
 

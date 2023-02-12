@@ -47,9 +47,27 @@ test_that("errors if no previous deployments and multiple accounts", {
   file.create(file.path(app_dir, "app.R"))
 
   expect_snapshot(error = TRUE, {
-    deployApp(app_dir)
-    deployApp(app_dir, appName = "test")
+    deploymentTarget(app_dir)
+    deploymentTarget(app_dir, appName = "test")
   })
+})
+
+test_that("handles accounts if only server specified", {
+  mockr::local_mock(
+    accounts = fakeAccounts(c("ron", "john"), "foo"),
+    accountInfo = fakeAccountInfo(ron = list(
+      username = "foo",
+      server = "test"
+    ))
+  )
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+
+  expect_snapshot(deploymentTarget(app_dir, server = "foo"), error = TRUE)
+
+  target <- deploymentTarget(app_dir, server = "foo", account = "ron", appId = "123")
+  expect_equal(target$username, "foo")
 })
 
 test_that("errors if multiple deployments", {

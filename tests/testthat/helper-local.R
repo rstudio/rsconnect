@@ -9,7 +9,7 @@ fakeAccounts <- function(accounts, servers, env = parent.frame()) {
       stringsAsFactors = FALSE
     )
     if (!is.null(server)) {
-      df <- df[df$servers == server, , drop = FALSE]
+      df <- df[df$server == server, , drop = FALSE]
     }
     df
   }
