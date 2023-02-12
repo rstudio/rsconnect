@@ -373,6 +373,8 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
+  logger <- verboseLogger(verbose)
+
   if (upload) {
     # create, and upload the bundle
     if (verbose)
@@ -396,14 +398,12 @@ deployApp <- function(appDir = getwd(),
         checksum <- fileMD5.as.string(bundlePath)
         bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checksum)
 
-        if (verbose)
-          timestampedLog("Starting upload now")
+        logger("Starting upload now")
         # Step 2. Upload Bundle to presigned URL
         if (!uploadBundle(bundle, bundleSize, bundlePath)) {
           stop("Could not upload file.")
         }
-        if (verbose)
-          timestampedLog("Upload complete")
+        logger("Upload complete")
 
         # Step 3. Upload revise bundle status.
         response <- client$updateBundleStatus(bundle$id, status = "ready")
@@ -426,8 +426,7 @@ deployApp <- function(appDir = getwd(),
       accountDetails$username == application$owner_username) {
     # save the deployment info for subsequent updates--we do this before
     # attempting the deployment itself to make retry easy on failure.
-    if (verbose)
-      timestampedLog("Saving deployment record for", target$appName, "-", target$username)
+    logger("Saving deployment record for ", target$appName, "-", target$username)
     saveDeployment(recordDir,
                    target$appName,
                    target$appTitle,
@@ -439,8 +438,8 @@ deployApp <- function(appDir = getwd(),
                    bundle$id,
                    application$url,
                    metadata)
-  } else if (verbose) {
-    timestampedLog("Updating", target$appName, ", owned by", application$owner_username,
+  } else {
+    logger("Updating ", target$appName, ", owned by ", application$owner_username,
         ", from account", accountDetails$username)
   }
 
