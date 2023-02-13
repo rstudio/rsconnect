@@ -49,8 +49,11 @@
 
     Code
       deploymentTarget(app_dir, appName = "test")
-    Error <simpleError>
-      Please specify the account you want to deploy 'test' to (you have previously deployed this application to more than one account).
+    Error <rlang_error>
+      This account has been previously deployed in multiple places.
+      Please use `server` or `account` to disambiguate.
+      i Known servers: "foo1" and "foo2".
+      i Known account names: "test".
     Code
       deploymentTarget(app_dir)
     Error <simpleError>

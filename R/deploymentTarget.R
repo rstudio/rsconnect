@@ -5,7 +5,8 @@ deploymentTarget <- function(appPath = ".",
                              appTitle = NULL,
                              appId = NULL,
                              account = NULL,
-                             server = NULL) {
+                             server = NULL,
+                             error_call = caller_env()) {
   # read existing deployments
   appDeployments <- deployments(appPath = appPath)
 
@@ -17,7 +18,7 @@ deploymentTarget <- function(appPath = ".",
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
     # TODO(HW): why does this always ignore existing deployments?
-    fullAccount <- findAccount(account, server)
+    fullAccount <- findAccount(account, server, error_call = error_call)
     createDeploymentTarget(
       appPath,
       appName,
@@ -40,7 +41,7 @@ deploymentTarget <- function(appPath = ".",
     # if there are none then we can create it if there is a single account
     # registered that we can default to
     if (nrow(appDeployments) == 0) {
-      fullAccount <- findAccount(account, server)
+      fullAccount <- findAccount(account, server, error_call = error_call)
       createDeploymentTarget(
         appPath,
         appName,
@@ -68,14 +69,14 @@ deploymentTarget <- function(appPath = ".",
 
     # multiple existing deployments
     else if (nrow(appDeployments) > 1) {
-      stop(
-        paste(
-          "Please specify the account you want to deploy '", appName,
-          "' to (you have previously deployed this application to ",
-          "more than one account).",
-          sep = ""
+      cli::cli_abort(
+        c(
+          "This account has been previously deployed in multiple places.",
+          "Please use {.arg server} or {.arg account} to disambiguate.",
+          i = "Known servers: {.str {unique(appDeployments$server)}}.",
+          i = "Known account names: {.str {unique(appDeployments$name)}}."
         ),
-        call. = FALSE
+        call = error_call
       )
     }
   }
