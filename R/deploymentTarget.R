@@ -8,11 +8,6 @@ deploymentTarget <- function(appPath = ".",
                              server = NULL,
                              error_call = caller_env()) {
 
-  # if appTitle specified but not appName, generate name from title
-  if (is.null(appName) && !is.null(appTitle) && nzchar(appTitle)) {
-    appName <- generateAppName(appTitle, appPath, account, unique = FALSE)
-  }
-
   appDeployments <- deployments(
     appPath = appPath,
     nameFilter = appName,
@@ -23,7 +18,6 @@ deploymentTarget <- function(appPath = ".",
   if (nrow(appDeployments) == 0) {
     fullAccount <- findAccount(account, server)
     if (is.null(appName)) {
-      # appTitle must not be set, or appName would already have been set
       appName <- generateAppName(appTitle, appPath, account, unique = FALSE)
     }
 
