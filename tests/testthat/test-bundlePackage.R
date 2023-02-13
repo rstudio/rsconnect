@@ -26,6 +26,7 @@ test_that("errors if dependencies aren't installed", {
 
   expect_snapshot(
     bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset"),
-    error = TRUE
+    error = TRUE,
+    transform = function(x) gsub('"', "'", x)
   )
 })
