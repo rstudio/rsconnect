@@ -1,7 +1,17 @@
 
-saveDeployment <- function(appPath, name, title, username, account, server,
-                           hostUrl, appId, bundleId, url, metadata) {
+saveDeployment <- function(appPath,
+                           name,
+                           title = NULL,
+                           username,
+                           account = username,
+                           server,
+                           hostUrl,
+                           appId,
+                           bundleId,
+                           url,
+                           metadata = list()) {
 
+  # TODO(HW): move this logic into deploymentTarget
   # if there's no new title specified, load the existing deployment record, if
   # any, to preserve the old title
   if (is.null(title) || is.na(title) || length(title) == 0 ||
