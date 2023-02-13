@@ -15,6 +15,9 @@
 * `accountInfo()` and `removeAccount()` no longer require `account` be 
   supplied (#666).
 
+* When needed packages are not installed, and you're in an interactive
+  environment, rsconnect will now prompt you to install them (#665).
+
 * The confirmation prompt presented upon lint failures indicates "no" as its
   default. (#652)
 
