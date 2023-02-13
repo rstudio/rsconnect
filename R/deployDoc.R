@@ -23,14 +23,15 @@
 #' @family Deployment functions
 #' @export
 deployDoc <- function(doc, ...) {
+  check_installed(
+    "rmarkdown",
+    version = "0.5.2",
+    reason = "to deploy individual R Markdown documents"
+  )
+
   # validate inputs
   if (!file.exists(doc)) {
     stop("The document '", doc, "' does not exist.")
-  }
-  if (!requireNamespace("rmarkdown") ||
-      packageVersion("rmarkdown") < "0.5.2") {
-    stop("Version 0.5.2 or later of the rmarkdown package is required to ",
-         "deploy individual R Markdown documents.")
   }
 
   # get qualified doc

@@ -20,7 +20,7 @@ Imports:
     jsonlite,
     openssl (>= 2.0.0),
     packrat (>= 0.6),
-    rlang,
+    rlang (>= 1.0.0),
     rstudioapi (>= 0.5),
     tools,
     yaml (>= 2.1.5)
