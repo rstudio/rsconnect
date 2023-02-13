@@ -233,22 +233,6 @@ md5.as.string <- function(md5) {
   paste(md5, collapse = "")
 }
 
-# Returns true if the package is installed and satisfies the version constraint.
-isAvailable <- function(package, min_version = NULL) {
-  installed <- nzchar(system.file(package = package))
-  if (!installed) {
-    # Not installed.
-    return(FALSE)
-  }
-  if (is.null(min_version)) {
-    # No version constraint; installation indicates availability.
-    return(TRUE)
-  }
-  # When installed and we have a version constraint, make sure
-  # the package has at least that version.
-  return(utils::packageVersion(package) >= min_version)
-}
-
 # Escape characters that have special meaning for extended regular expressions as supported by
 # list.files.
 #
