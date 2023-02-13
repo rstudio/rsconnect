@@ -19,6 +19,7 @@ Imports:
     jsonlite,
     openssl (>= 2.0.0),
     packrat (>= 0.6),
+    rlang,
     rstudioapi (>= 0.5),
     tools,
     yaml (>= 2.1.5)
@@ -39,7 +40,7 @@ Suggests:
     mockr
 License: GPL-2
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues

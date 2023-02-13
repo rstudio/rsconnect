@@ -46,6 +46,7 @@
 #'
 #' @name rsconnect-package
 #' @aliases rsconnect-package rsconnect
+#' @import rlang
 #' @docType package
 #' @keywords package
 NULL
