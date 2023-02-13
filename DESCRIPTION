@@ -39,7 +39,7 @@ Suggests:
     withr
 License: GPL-2
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues
