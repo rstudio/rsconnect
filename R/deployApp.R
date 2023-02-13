@@ -44,8 +44,10 @@
 #'   supplied, will often be displayed in favor of the name. If ommitted,
 #'   on second and subsequent deploys, the title will be unchanged.
 #' @param appId If updating an application, the ID of the application being
-#'   updated. Generally, you should not need to supply this as it will be
-#'   automatically taken from deployment record on disk.
+#'   updated. For shinyapps.io, this the `id` listed on your applications
+#'   page. For Posit Connect, this is the `guid` that you can find on the
+#'   info tab on the content page. Generally, you should not need to supply
+#'   this as it will be automatically taken from the deployment record on disk.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your

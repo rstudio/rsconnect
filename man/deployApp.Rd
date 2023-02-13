@@ -65,8 +65,10 @@ supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.}
 
 \item{appId}{If updating an application, the ID of the application being
-updated. Generally, you should not need to supply this as it will be
-automatically taken from deployment record on disk.}
+updated. For shinyapps.io, this the \code{id} listed on your applications
+page. For Posit Connect, this is the \code{guid} that you can find on the
+info tab on the content page. Generally, you should not need to supply
+this as it will be automatically taken from the deployment record on disk.}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"} or \code{"site"}).}
