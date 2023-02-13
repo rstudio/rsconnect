@@ -1,33 +1,13 @@
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appPath,
+deploymentTarget <- function(appPath = ".",
                              appName = NULL,
                              appTitle = NULL,
                              appId = NULL,
                              account = NULL,
                              server = NULL) {
-  # read existing accounts
-  accounts <- accounts(server)[, "name"]
-  if (length(accounts) == 0) {
-    stopWithNoAccount()
-  }
-
-  # validate account if provided
-  if (!is.null(account)) {
-    if (!account %in% accounts) {
-      stop(
-        paste("Unknown account name '", account, "' (you can use the ",
-          "setAccountInfo function to add a new account)",
-          sep = ""
-        ),
-        call. = FALSE
-      )
-    }
-  }
-
   # read existing deployments
   appDeployments <- deployments(appPath = appPath)
-
 
   # if appTitle specified but not appName, generate name from title
   if (is.null(appName) && !is.null(appTitle) && nzchar(appTitle)) {
@@ -37,15 +17,15 @@ deploymentTarget <- function(appPath,
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
     # TODO(HW): why does this always ignore existing deployments?
-    accountDetails <- accountInfo(account, server)
+    fullAccount <- findAccount(account, server)
     createDeploymentTarget(
       appPath,
       appName,
       appTitle,
       appId,
-      accountDetails$username,
+      fullAccount$name,
       account,
-      accountDetails$server
+      fullAccount$server
     )
   }
 
@@ -60,21 +40,16 @@ deploymentTarget <- function(appPath,
     # if there are none then we can create it if there is a single account
     # registered that we can default to
     if (nrow(appDeployments) == 0) {
-      if (length(accounts) == 1) {
-        # read the server associated with the account
-        accountDetails <- accountInfo(accounts, server)
-        createDeploymentTarget(
-          appPath,
-          appName,
-          appTitle,
-          appId,
-          accountDetails$username,
-          accounts,
-          accountDetails$server
-        )
-      } else {
-        stopWithSpecifyAccount()
-      }
+      fullAccount <- findAccount(account, server)
+      createDeploymentTarget(
+        appPath,
+        appName,
+        appTitle,
+        appId,
+        fullAccount$name,
+        accounts,
+        fullAccount$server
+      )
     }
 
     # single existing deployment
@@ -108,21 +83,15 @@ deploymentTarget <- function(appPath,
   # just account/server specified, that's fine we just default the app name
   # based on the basename of the application directory
   else if (!is.null(account) || !is.null(server)) {
-    if (is.null(account)) {
-      account <- accounts(server)[, "name"]
-      if (length(account) > 1) {
-        stopWithSpecifyAccount()
-      }
-    }
-    accountDetails <- accountInfo(account, server)
+    fullAccount <- findAccount(account, server)
     createDeploymentTarget(
       appPath,
       generateAppName(appTitle, appPath, account, unique = FALSE),
       appTitle,
       appId,
-      accountDetails$username,
+      fullAccount$name,
       account,
-      accountDetails$server
+      fullAccount$server
     )
   }
 
@@ -141,26 +110,16 @@ deploymentTarget <- function(appPath,
 
   # neither specified and no existing deployments
   else if (nrow(appDeployments) == 0) {
-    # single account we can default to
-    if (length(accounts) == 1) {
-      accountDetails <- accountInfo(accounts)
-      createDeploymentTarget(
-        appPath,
-        generateAppName(appTitle, appPath, account, unique = FALSE),
-        appTitle,
-        appId,
-        accountDetails$username,
-        accounts,
-        accountDetails$server
-      )
-    } else {
-      stop(
-        "Please specify the account and server to which you want to deploy ",
-        "the application (there is more than one account registered ",
-        "on this system).",
-        call. = FALSE
-      )
-    }
+    fullAccount <- findAccount(account, server)
+    createDeploymentTarget(
+      appPath,
+      generateAppName(appTitle, appPath, account, unique = FALSE),
+      appTitle,
+      appId,
+      fullAccount$name,
+      accounts,
+      fullAccount$server
+    )
   }
 
   # neither specified and multiple existing deployments
