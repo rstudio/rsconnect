@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* When needed packages are not installed, and you're in an interactive
+  environment, rsconnect will now prompt you to install them (#665).
+
 * The confirmation prompt presented upon lint failures indicates "no" as its
   default. (#652)
 
