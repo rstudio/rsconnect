@@ -1,17 +1,12 @@
 .globals <- new.env(parent = emptyenv())
 
-logTimestamper <- function() {
-  paste("[", as.character(Sys.time()), "]", sep = "")
-}
-
-timestampedLog <- function(...) {
-  cat(paste(logTimestamper(), ..., "\n"))
-}
-
 # Returns a logging function when enabled, a noop function otherwise.
 verboseLogger <- function(verbose) {
   if (verbose) {
-    timestampedLog
+    function(...) {
+      timestamp <- paste("[", as.character(Sys.time()), "]", sep = "")
+      cat(paste0(timestamp, " ", ..., "\n"))
+    }
   } else {
     function(...) {}
   }

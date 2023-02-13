@@ -4,19 +4,18 @@
  # stripping packrat and renv commands from .Rprofile. Returns the path to the
  # temporary directory.
  bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
-  if (verbose)
-    timestampedLog("Creating tempfile for appdir")
+
+  logger <- verboseLogger(verbose)
+  logger("Creating tempfile for appdir")
   # create a directory to stage the application bundle in
   bundleDir <- tempfile()
   dir.create(bundleDir, recursive = TRUE)
   on.exit(unlink(bundleDir), add = TRUE)
 
-  if (verbose)
-    timestampedLog("Copying files")
+  logger("Copying files")
   # copy the files into the bundle dir
   for (file in appFiles) {
-    if (verbose)
-      timestampedLog("Copying", file)
+    logger("Copying", file)
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
     # if deploying a single-file Shiny application, name it "app.R" so it can
@@ -234,7 +233,7 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
   on.exit(setwd(prevDir), add = TRUE)
 
   tarImplementation <- getTarImplementation()
-  logger(sprintf("Using tar: %s", tarImplementation))
+  logger("Using tar: ", tarImplementation)
 
   if (tarImplementation == "internal") {
     detectLongNames(bundleDir)
@@ -1012,7 +1011,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
   }
 
   # generate the packrat snapshot
-  if (verbose) logger("Starting to perform packrat snapshot")
+  logger("Starting to perform packrat snapshot")
   tryCatch({
     performPackratSnapshot(bundleDir, verbose = verbose)
   }, error = function(e) {
@@ -1029,7 +1028,7 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
     # rethrow error so we still halt deployment
     stop(e)
   })
-  if (verbose) logger("Completed performing packrat snapshot")
+  logger("Completed performing packrat snapshot")
 
   # if we emitted a temporary dependency file for packrat's benefit, remove it
   # now so it isn't included in the bundle sent to the server
