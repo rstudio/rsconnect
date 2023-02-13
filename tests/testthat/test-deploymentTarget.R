@@ -118,6 +118,31 @@ test_that("succeeds if there's a single existing deployment", {
   expect_equal(target$appTitle, "my title")
 })
 
+test_that("new title overrides existing title", {
+  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+  saveDeployment(
+    app_dir,
+    name = "test",
+    title = "old title",
+    username = "ron",
+    account = "ron",
+    server = "bar",
+    hostUrl = "",
+    appId = "123",
+    bundleId = "abc",
+    url = "http://example.com"
+  )
+
+  target <- deploymentTarget(app_dir)
+  expect_equal(target$appTitle, "old title")
+
+  target <- deploymentTarget(app_dir, appTitle = "new title")
+  expect_equal(target$appTitle, "new title")
+})
+
 test_that("succeeds if there are no deployments and a single account", {
   mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
 
