@@ -155,3 +155,38 @@ test_that("succeeds if there are no deployments and a single account", {
   target <- deploymentTarget(app_dir, appName = "foo")
   expect_equal(target$username, "ron")
 })
+
+test_that("default title is the empty string", {
+  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+
+  target <- deploymentTarget(app_dir)
+  expect_equal(target$appTitle, "")
+})
+
+test_that("on first deploy only, title affects app name", {
+  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+
+  target <- deploymentTarget(app_dir, appTitle = "my title")
+  expect_equal(target$appName, "my_title")
+
+  saveDeployment(
+    app_dir,
+    name = "my_title",
+    title = "my title",
+    username = "ron",
+    account = "ron",
+    server = "bar",
+    hostUrl = "",
+    appId = "",
+    bundleId = "",
+    url = ""
+  )
+  target <- deploymentTarget(app_dir, appTitle = "my new title")
+  expect_equal(target$appName, "my_title")
+})

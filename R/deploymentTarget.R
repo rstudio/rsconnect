@@ -24,7 +24,7 @@ deploymentTarget <- function(appPath = ".",
     createDeploymentTarget(
       appPath,
       appName,
-      appTitle,
+      appTitle %||% "",
       appId,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
