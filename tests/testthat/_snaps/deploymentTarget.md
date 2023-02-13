@@ -58,7 +58,8 @@
     Condition
       Error:
       ! This app has been previously deployed in multiple places.
-      Please use `server` or `account` to disambiguate.
+      Please use `appName`, `server` or `account` to disambiguate.
+      i Known application names: "test".
       i Known servers: "foo1" and "foo2".
       i Known account names: "ron".
     Code
@@ -66,7 +67,8 @@
     Condition
       Error:
       ! This app has been previously deployed in multiple places.
-      Please use `server` or `account` to disambiguate.
+      Please use `appName`, `server` or `account` to disambiguate.
+      i Known application names: "test".
       i Known servers: "foo1" and "foo2".
       i Known account names: "ron".
 

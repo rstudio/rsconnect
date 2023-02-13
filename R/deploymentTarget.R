@@ -45,7 +45,8 @@ deploymentTarget <- function(appPath = ".",
     cli::cli_abort(
       c(
         "This app has been previously deployed in multiple places.",
-        "Please use {.arg server} or {.arg account} to disambiguate.",
+        "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
+        i = "Known application names: {.str {unique(appDeployments$name)}}.",
         i = "Known servers: {.str {unique(appDeployments$server)}}.",
         i = "Known account names: {.str {unique(appDeployments$account)}}."
       ),
