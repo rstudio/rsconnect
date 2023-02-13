@@ -2,7 +2,9 @@
 
 * Account resolution from `account` and `server` arguments now gives specific
   recommendations on the values that you might use in the case of ambiguity
-  or lack of matches (#666).
+  or lack of matches (#666). Additionally, you'll now recieve a clear error
+  message if you accidentally provide something other than a string or `NULL`
+  to these arguments.
 
 * `accountInfo()` and `removeAccount()` no longer require `account` be 
   supplied (#666).
