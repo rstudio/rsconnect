@@ -69,12 +69,9 @@ updated. Optional unless updating an app owned by another user.}
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"} or \code{"site"}).}
 
-\item{account}{Account to deploy application to. This parameter is only
-required for the initial deployment of an application when there are
-multiple accounts configured on the system (see \link{accounts}).}
-
-\item{server}{Server name. Required only if you use the same account name on
-multiple servers.}
+\item{account, server}{Uniquely identify a remote server with either your
+user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
+full list of available options.}
 
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed

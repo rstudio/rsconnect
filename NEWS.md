@@ -1,5 +1,12 @@
 # rsconnect 0.8.30 (development version)
 
+* Account resolution from `account` and `server` arguments now gives specific
+  recommendations on the values that you might use in the case of ambiguity
+  or lack of matches (#666).
+
+* `accountInfo()` and `removeAccount()` no longer require `account` be 
+  supplied (#666).
+
 * The confirmation prompt presented upon lint failures indicates "no" as its
   default. (#652)
 

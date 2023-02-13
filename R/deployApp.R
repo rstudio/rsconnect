@@ -32,11 +32,9 @@
 #'   updated. Optional unless updating an app owned by another user.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
-#' @param account Account to deploy application to. This parameter is only
-#'   required for the initial deployment of an application when there are
-#'   multiple accounts configured on the system (see [accounts]).
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @param account,server Uniquely identify a remote server with either your
+#'   user `account`, the `server` name, or both. Use [accounts()] to see the
+#'   full list of available options.
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
@@ -608,7 +606,7 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
   accountDetails <- NULL
   tryCatch({
     # attempt to look up the account locally
-    accountDetails <- accountInfo(resolveAccount(account, server), server)
+    accountDetails <- accountInfo(account, server)
   }, error = function(e) {
     # we'll retry below
   })

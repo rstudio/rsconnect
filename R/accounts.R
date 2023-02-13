@@ -294,16 +294,10 @@ setAccountInfo <- function(name, token, secret,
 #' @rdname accounts
 #' @family Account functions
 #' @export
-accountInfo <- function(name, server = NULL) {
+accountInfo <- function(name = NULL, server = NULL) {
 
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
-
-  configFile <- accountConfigFile(name, server)
-  if (length(configFile) > 1)
-    stopWithMultipleAccounts(name)
-  if (length(configFile) == 0 || !file.exists(configFile))
-    stop(missingAccountErrorMessage(name))
+  fullAccount <- findAccount(name, server)
+  configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
 
   accountDcf <- readDcf(configFile, all = TRUE)
   info <- as.list(accountDcf)
@@ -316,17 +310,10 @@ accountInfo <- function(name, server = NULL) {
 
 #' @rdname accounts
 #' @export
-removeAccount <- function(name, server = NULL) {
-
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
+removeAccount <- function(name = NULL, server = NULL) {
+  fullAccount <- findAccount(name, server)
 
   configFile <- accountConfigFile(name, server)
-  if (length(configFile) > 1)
-    stopWithMultipleAccounts(name)
-  if (length(configFile) == 0 || !file.exists(configFile))
-    stop(missingAccountErrorMessage(name))
-
   file.remove(configFile)
 
   invisible(NULL)
@@ -459,32 +446,6 @@ missingAccountErrorMessage <- function(name) {
   paste("account named '", name, "' does not exist", sep = "")
 }
 
-resolveAccount <- function(account, server = NULL) {
-
-  # get existing accounts
-  accounts <- accounts(server)[, "name"]
-  if (length(accounts) == 0)
-    stopWithNoAccount()
-
-  # if no account was specified see if we can resolve the account to a default
-  if (is.null(account)) {
-    if (length(accounts) == 1)
-      accounts[[1]]
-    else
-      stopWithSpecifyAccount()
-  }
-  # account explicitly specified, confirm it exists
-  else {
-    count <- sum(accounts == account)
-    if (count == 0)
-      stopWithMissingAccount(account)
-    else if (count == 1)
-      account
-    else
-      stopWithMultipleAccounts(account)
-  }
-}
-
 isCloudServer <- function(server) {
   identical(server, "shinyapps.io") ||
     identical(server, cloudServerInfo(server)$name)
@@ -501,25 +462,6 @@ isRPubs <- function(server) {
 isConnectInfo <- function(accountInfo = NULL, server = NULL) {
   host <- if (is.null(accountInfo)) server else accountInfo$server
   !isCloudServer(host) && !isRPubs(host)
-}
-
-stopWithNoAccount <- function() {
-  stop("You must register an account using setAccountInfo prior to ",
-       "proceeding.", call. = FALSE)
-}
-
-stopWithSpecifyAccount <- function() {
-  stop("Please specify the account name (there is more than one ",
-       "account registered on this system)", call. = FALSE)
-}
-
-stopWithMissingAccount <- function(account) {
-  stop(missingAccountErrorMessage(account), call. = FALSE)
-}
-
-stopWithMultipleAccounts <- function(account) {
-  stop("Multiple accounts with the name '", account, "' exist. Please specify ",
-       "the server of the account you wish to use.", call. = FALSE)
 }
 
 accountInfoFromHostUrl <- function(hostUrl) {
