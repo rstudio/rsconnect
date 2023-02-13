@@ -27,7 +27,6 @@ test_that("succeeds if app is fully specified", {
     account = "ron"
   )
   expect_equal(target$appId, "123")
-  expect_equal(target$username, "ron")
 })
 
 test_that("errors if no previous deployments and multiple accounts", {
@@ -61,24 +60,16 @@ test_that("errors if multiple deployments", {
   saveDeployment(
     app_dir,
     name = "test",
-    title = "",
-    username = "ron",
-    account = "ron",
     server = "foo1",
-    hostUrl = "",
-    appId = "123",
+    appId = "1",
     bundleId = "abc",
     url = "http://example.com"
   )
   saveDeployment(
     app_dir,
     name = "test",
-    title = "",
-    username = "ron",
-    account = "ron",
     server = "foo2",
-    hostUrl = "",
-    appId = "123",
+    appId = "2",
     bundleId = "abc",
     url = "http://example.com"
   )
@@ -97,25 +88,18 @@ test_that("succeeds if there's a single existing deployment", {
   saveDeployment(
     app_dir,
     name = "test",
-    title = "my title",
-    username = "ron",
-    account = "ron",
-    server = "bar",
-    hostUrl = "",
-    appId = "123",
+    appId = "1",
     bundleId = "abc",
     url = "http://example.com"
   )
 
   target <- deploymentTarget(app_dir)
-  expect_equal(target$appId, "123")
+  expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
-  expect_equal(target$appTitle, "my title")
 
   target <- deploymentTarget(app_dir, appName = "test")
-  expect_equal(target$appId, "123")
+  expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
-  expect_equal(target$appTitle, "my title")
 })
 
 test_that("new title overrides existing title", {
@@ -127,11 +111,7 @@ test_that("new title overrides existing title", {
     app_dir,
     name = "test",
     title = "old title",
-    username = "ron",
-    account = "ron",
-    server = "bar",
-    hostUrl = "",
-    appId = "123",
+    appId = "1",
     bundleId = "abc",
     url = "http://example.com"
   )
@@ -179,11 +159,7 @@ test_that("on first deploy only, title affects app name", {
     app_dir,
     name = "my_title",
     title = "my title",
-    username = "ron",
-    account = "ron",
-    server = "bar",
-    hostUrl = "",
-    appId = "",
+    appId = "1",
     bundleId = "",
     url = ""
   )

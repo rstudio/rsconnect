@@ -2,21 +2,35 @@
 saveDeployment <- function(appPath,
                            name,
                            title = NULL,
-                           username,
-                           account = username,
-                           server,
-                           hostUrl,
+                           username = NULL,
+                           account = NULL,
+                           server = NULL,
+                           hostUrl = NULL,
                            appId,
                            bundleId,
                            url,
                            metadata = list()) {
 
-  # create the record to write to disk
-  deployment <- deploymentRecord(name, title, username, account, server, hostUrl,
-                                 appId, bundleId, url, when = as.numeric(Sys.time()),
-                                 lastSyncTime = as.numeric(Sys.time()), metadata)
+  fullServer <- findAccount(account, server)
 
-  writeDeploymentRecord(deployment, deploymentFile(appPath, name, account, server))
+  # create the record to write to disk
+  deployment <- deploymentRecord(
+    name,
+    title %||% "",
+    username %||% fullServer$name,
+    fullServer$name,
+    fullServer$server,
+    hostUrl,
+    appId,
+    bundleId,
+    url,
+    when = as.numeric(Sys.time()),
+    lastSyncTime = as.numeric(Sys.time()),
+    metadata
+  )
+
+  path <- deploymentFile(appPath, name, fullServer$name, fullServer$server)
+  writeDeploymentRecord(deployment, path)
 
   # also save to global history
   addToDeploymentHistory(appPath, deployment)
