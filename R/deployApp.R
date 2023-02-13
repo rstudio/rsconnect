@@ -4,6 +4,20 @@
 #' [RMarkdown][rmarkdown::rmarkdown-package] document, a plumber API, or HTML
 #' content to a server.
 #'
+#' ## Updating existing apps
+#'
+#' If you have previously deployed an app, `deployApp()` will do its best to
+#' update the existing deployment. In the simple case where you have only on
+#' deployment in `appDir`, this should just work with the default arguments.
+#' If you want multiple deployments to the same server, supply `appName`.
+#' If you want multiple deployments to different servers, use `account` and/or
+#' `server`.
+#'
+#' The metadata needs to make this work is stored in the `rsconnect/` directory
+#' beneath `appDir`. You should generally check these files into version
+#' control to ensure that future you and other collaborators will publish
+#' to the same location.
+#'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @param appFiles The files and directories to bundle and deploy (only if
@@ -23,13 +37,15 @@
 #'   qualified path. Deployment information returned by [deployments()] is
 #'   associated with the source document.
 #' @param appName Name of application (names must be unique within an account).
-#'   Defaults to the base name of the specified `appDir`.
+#'   If not supplied on the first deploy, it will be generated from the base
+#'   name of `appDir` and `appTitle`, if supplied. On subsequent deploys,
+#'   it will use the previously stored value.
 #' @param appTitle Free-form descriptive title of application. Optional; if
-#'   supplied, will often be displayed in favor of the name. When deploying a
-#'   new application, you may supply only the `appTitle` to receive an
-#'   auto-generated `appName`.
+#'   supplied, will often be displayed in favor of the name. If ommitted,
+#'   on second and subsequent deploys, the title will be unchanged.
 #' @param appId If updating an application, the ID of the application being
-#'   updated. Optional unless updating an app owned by another user.
+#'   updated. Generally, you should not need to supply this as it will be
+#'   automatically taken from deployment record on disk.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
