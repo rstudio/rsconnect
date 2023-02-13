@@ -50,12 +50,15 @@
     Code
       deploymentTarget(app_dir, appName = "test")
     Error <rlang_error>
-      This account has been previously deployed in multiple places.
+      This app has been previously deployed in multiple places.
       Please use `server` or `account` to disambiguate.
       i Known servers: "foo1" and "foo2".
-      i Known account names: "test".
+      i Known account names: "ron".
     Code
       deploymentTarget(app_dir)
-    Error <simpleError>
-      Unable to deploy using default arguments (multiple existing deployments from this application directory already exist). Please specify appName and/or account name explicitly.
+    Error <rlang_error>
+      This app has been previously deployed in multiple places.
+      Please use `server` or `account` to disambiguate.
+      i Known servers: "foo1" and "foo2".
+      i Known account names: "ron".
 

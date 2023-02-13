@@ -50,7 +50,7 @@ test_that("handles accounts if only server specified", {
 
   expect_snapshot(deploymentTarget(app_dir, server = "foo"), error = TRUE)
 
-  target <- deploymentTarget(app_dir, server = "foo", account = "ron", appId = "123")
+  target <- deploymentTarget(app_dir, server = "foo", account = "ron")
   expect_equal(target$username, "ron")
 })
 
@@ -107,16 +107,15 @@ test_that("succeeds if there's a single existing deployment", {
     url = "http://example.com"
   )
 
-  target <- deploymentTarget(app_dir, appId = "123")
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appId, "123")
   expect_equal(target$username, "ron")
   expect_equal(target$appTitle, "my title")
 
-  target <- deploymentTarget(app_dir, appName = "test", appId = "123")
+  target <- deploymentTarget(app_dir, appName = "test")
   expect_equal(target$appId, "123")
   expect_equal(target$username, "ron")
-  # TODO(HW): why doesn't this equal my title?
-  # expect_equal(target$appTitle, "my title")
+  expect_equal(target$appTitle, "my title")
 })
 
 test_that("succeeds if there are no deployments and a single account", {
@@ -125,9 +124,9 @@ test_that("succeeds if there are no deployments and a single account", {
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
 
-  target <- deploymentTarget(app_dir, appId = "123")
+  target <- deploymentTarget(app_dir)
   expect_equal(target$username, "ron")
 
-  target <- deploymentTarget(app_dir, appName = "foo", appId = "123")
+  target <- deploymentTarget(app_dir, appName = "foo")
   expect_equal(target$username, "ron")
 })
