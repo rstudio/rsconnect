@@ -26,7 +26,7 @@
       findAccount("unknown", NULL)
     Condition
       Error:
-      ! Can't find any accounts with `acccount` = "unknown".
+      ! Can't find any accounts with `account` = "unknown".
       i Available account names: "name".
     Code
       findAccount(NULL, "unknown")
@@ -63,6 +63,6 @@
     Condition
       Error:
       ! Found multiple accounts for `server` = "y".
-      Please disambiguate by setting `acccount`.
+      Please disambiguate by setting `account`.
       i Available account names: "a" and "b".
 

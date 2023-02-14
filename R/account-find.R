@@ -38,7 +38,7 @@ findAccount <- function(accountName = NULL, server = NULL, error_call = caller_e
       cli::cli_abort(
         c(
           "Found multiple accounts for {.arg server} = {.str {server}}.",
-          "Please disambiguate by setting {.arg acccount}.",
+          "Please disambiguate by setting {.arg account}.",
           i = "Available account names: {.str {theseAccounts$name}}."
         ),
         call = error_call
@@ -49,7 +49,7 @@ findAccount <- function(accountName = NULL, server = NULL, error_call = caller_e
     if (nrow(theseAccounts) == 0) {
       cli::cli_abort(
         c(
-          "Can't find any accounts with {.arg acccount} = {.str {accountName}}.",
+          "Can't find any accounts with {.arg account} = {.str {accountName}}.",
           i = "Available account names: {.str {unique(accounts$name)}}."
         ),
         call = error_call
