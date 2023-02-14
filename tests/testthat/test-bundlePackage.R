@@ -7,6 +7,22 @@ test_that("non-R apps don't have packages", {
   expect_equal(out, list())
 })
 
+test_that("returns list of package details", {
+  app_dir <- withr::local_tempdir()
+  out <- bundlePackages(app_dir, appMode = "api", hasParameters = TRUE)
+
+  expect_type(out, "list")
+  expect_named(out[[1]], c(
+    'Source',
+    'Repository',
+    'GithubRepo',
+    'GithubUsername',
+    'GithubRef',
+    'GithubSha1',
+    'description'
+  ))
+})
+
 test_that("includes inferred dependencies", {
   app_dir <- withr::local_tempdir()
   out <- bundlePackages(app_dir, appMode = "rmd-static", hasParameters = TRUE)
