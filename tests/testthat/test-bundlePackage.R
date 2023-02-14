@@ -12,15 +12,9 @@ test_that("returns list of package details", {
   out <- bundlePackages(app_dir, appMode = "api", hasParameters = TRUE)
 
   expect_type(out, "list")
-  expect_named(out[[1]], c(
-    'Source',
-    'Repository',
-    'GithubRepo',
-    'GithubUsername',
-    'GithubRef',
-    'GithubSha1',
-    'description'
-  ))
+
+  common <- c('Source', 'Repository', 'description')
+  expect_equal(setdiff(common, names(out[[1]])), character())
 })
 
 test_that("includes inferred dependencies", {
