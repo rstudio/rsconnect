@@ -5,9 +5,9 @@
     Condition
       Error:
       ! 
-      * Asset depends on package 'doesntexist1'but it is not installed.
+      * Asset depends on package "doesntexist1"but it is not installed.
         Please resolve before continuing.
       
-      * Asset depends on package 'doesntexist2'but it is not installed.
+      * Asset depends on package "doesntexist2"but it is not installed.
         Please resolve before continuing.
 
