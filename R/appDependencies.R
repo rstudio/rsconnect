@@ -50,5 +50,5 @@ appDependencies <- function(appDir = getwd(), appFiles = NULL) {
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   deps <- snapshotRDependencies(bundleDir)
-  deps[c("Package", "Version", "Source")]
+  deps[c("Package", "Version", "Source", "Repository")]
 }
