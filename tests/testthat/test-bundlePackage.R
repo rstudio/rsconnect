@@ -38,3 +38,23 @@ test_that("errors if dependencies aren't installed", {
   )
 })
 
+test_that("warns if can't find source", {
+  mockr::local_mock(snapshotRDependencies = function(...) {
+    data.frame(
+      Package = "shiny",
+      Source = "foo",
+      Repository = NA
+    )
+  })
+
+  app_dir <- withr::local_tempdir()
+  writeLines(con = file.path(app_dir, "index.Rmd"), c(
+    "```{r}",
+    "library(shiny)",
+    "```"
+  ))
+
+  expect_snapshot(
+    . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
+  )
+})
