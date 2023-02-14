@@ -13,9 +13,9 @@
       . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
     Condition
       Warning:
-      Packages require a known repository for install on remote system.
+      Local packages require a known repository for install on a remote system.
       x Packages with unknown repository: shiny.
-      i Automatic source detection relies on packages being installed from a standard repository like CRAN or BioConductor, or from a version control system like GitHub or GitLab.
+      i Local packages must be be installed from a standard repository like CRAN or BioConductor, or from a version control system like GitHub or GitLab.
 
 # infers correct packages for each source
 

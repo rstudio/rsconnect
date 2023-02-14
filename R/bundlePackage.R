@@ -38,12 +38,12 @@ bundlePackages <- function(appDir,
   if (any(missing_repo)) {
     pkgs <- deps$Package[missing_repo]
     cli::cli_warn(c(
-      "Packages require a known repository for install on remote system.",
+      "Local packages require a known repository for install on a remote system.",
       x = "Packages with unknown repository: {.pkg {pkgs}}.",
       i = paste0(
-        "Automatic source detection relies on packages being installed from ",
-        "a standard repository like CRAN or BioConductor, or from a version ",
-        "control system like GitHub or GitLab."
+        "Local packages must be be installed from a standard repository like ",
+        "CRAN or BioConductor, or from a version control system like GitHub or ",
+        "GitLab."
       )
     ))
   }
