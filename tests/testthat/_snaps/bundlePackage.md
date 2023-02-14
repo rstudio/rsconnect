@@ -3,12 +3,9 @@
     Code
       bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
     Condition
-      Error:
-      ! * Asset depends on package "doesntexist1"but it is not installed.
-        Please resolve before continuing.
-      
-      * Asset depends on package "doesntexist2"but it is not installed.
-        Please resolve before continuing.
+      Error in `bundlePackages()`:
+      ! All packages used by asset must be installed.
+      x Missing packages: doesntexist1 and doesntexist2.
 
 # warns if can't find source
 
@@ -16,13 +13,9 @@
       . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
     Condition
       Warning:
-      * May be unable to deploy package dependency 'shiny'; could not
-        determine a repository URL for the source 'foo'.
-      
-      * Unable to determine the source location for some packages. Packages
-        should be installed from a package repository like CRAN or a version
-        control system. Check that options('repos') refers to a package
-        repository containing the needed package versions.
+      Packages require a known repository for install on remote system.
+      x Packages with unknown repository: shiny.
+      i Automatic source detection relies on packages being installed from a standard repository like CRAN or BioConductor, or from a version control system like GitHub or GitLab.
 
 # infers correct packages for each source
 
@@ -33,7 +26,7 @@
     Code
       inferRPackageDependencies("rmd-static", TRUE)
     Output
-      [1] "shiny"     "rmarkdown"
+      [1] "rmarkdown" "shiny"    
     Code
       inferRPackageDependencies("quarto-static")
     Output
