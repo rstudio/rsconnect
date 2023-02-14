@@ -89,14 +89,21 @@ bundlePackages <- function(appDir,
         "the needed package versions."
       )
     )
-    warning(paste(formatUL(packageMessages, "\n*"), collapse = "\n"), call. = FALSE, immediate. = TRUE)
+    warning(bullets(packageMessages), call. = FALSE, immediate. = TRUE)
   }
 
   if (length(errorMessages)) {
-    stop(paste(formatUL(errorMessages, "\n*"), collapse = "\n"), call. = FALSE)
+    stop(bullets(errorMessages), call. = FALSE)
   }
 
   packages
+}
+
+bullets <- function(x) {
+  bullets <- lapply(x, function(x) {
+    paste0(strwrap(x, initial = "* ", exdent = 2, width = 72), "\n", collapse = "")
+  })
+  paste0(bullets, "\n", collapse = "")
 }
 
 ## check for extra dependencies uses
