@@ -13,10 +13,9 @@
       bundlePackages(app_dir, appMode = "rmd-static")
     Condition
       Error:
-      ! Local packages must be installed from a supported source.
-      x Unsupported packages: shiny.
-      i Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.
-      i See `rsconnect::appDependencies()` for more details.
+      ! Don't know how to install shiny package.
+      x Local packages must be installed from a supported source.
+      i See `rsconnect::appDependencies()` for details.
 
 # infers correct packages for each source
 

@@ -60,10 +60,9 @@ checkBundlePackages <- function(deps, call = caller_env()) {
     pkgs <- deps$Package[unknown_source]
     cli::cli_abort(
       c(
-        "Local packages must be installed from a supported source.",
-        x = "Unsupported packages: {.pkg {pkgs}}.",
-        i = "Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.",
-        i = "See {.fun rsconnect::appDependencies} for more details."
+        "Don't know how to install {.pkg {pkgs}} package{?s}.",
+        x = "Local packages must be installed from a supported source.",
+        i = "See {.fun rsconnect::appDependencies} for details."
       ),
       call = call
     )
