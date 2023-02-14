@@ -13,7 +13,7 @@ test_that("returns list of package details", {
 
   expect_type(out, "list")
 
-  common <- c('Source', 'Repository', 'description')
+  common <- c("Source", "Repository", "description")
   expect_equal(setdiff(common, names(out[[1]])), character())
 })
 
