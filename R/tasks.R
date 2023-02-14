@@ -1,9 +1,6 @@
 #' List Tasks
 #'
-#' @param account Account name. If a single account is registered on the system
-#'   then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see [servers()])
+#' @inheritParams deployApp
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
@@ -25,7 +22,7 @@
 tasks <- function(account = NULL, server = NULL) {
 
   # resolve account and create connect client
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
   client <- clientForAccount(accountDetails)
 
   # list tasks
@@ -45,10 +42,7 @@ tasks <- function(account = NULL, server = NULL) {
 #'
 #' Writes the task log for the given task
 #' @param taskId Task Id
-#' @param account Account name. If a single account is registered on the system
-#'   then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see [servers()])
+#' @inheritParams deployApp
 #' @param output Where to write output. Valid values are `NULL` or `stderr`
 #' @examples
 #' \dontrun{
@@ -64,8 +58,7 @@ tasks <- function(account = NULL, server = NULL) {
 #' @export
 taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 
-  # resolve account and create connect client
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
   client <- clientForAccount(accountDetails)
 
   if (identical(output, "stderr")) {

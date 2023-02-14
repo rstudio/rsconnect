@@ -1,5 +1,20 @@
 # rsconnect 0.8.30 (development version)
 
+* The logic used by `deployApp()` for determining whether you publish a 
+  new update or update an existing app has been simplified. Now `appName`,
+  `account`, and `server` are used to find existing deployments. If none
+  are found, it will create a new deployment; if one is found, it'll be 
+  updated; if more than one are found, it will error (#666).
+
+* Account resolution from `account` and `server` arguments now gives specific
+  recommendations on the values that you might use in the case of ambiguity
+  or lack of matches (#666). Additionally, you'll now recieve a clear error
+  message if you accidentally provide something other than a string or `NULL`
+  to these arguments.
+
+* `accountInfo()` and `removeAccount()` no longer require `account` be 
+  supplied (#666).
+
 * When needed packages are not installed, and you're in an interactive
   environment, rsconnect will now prompt you to install them (#665).
 

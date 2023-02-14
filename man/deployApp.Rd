@@ -56,25 +56,26 @@ qualified path. Deployment information returned by \code{\link[=deployments]{dep
 associated with the source document.}
 
 \item{appName}{Name of application (names must be unique within an account).
-Defaults to the base name of the specified \code{appDir}.}
+If not supplied on the first deploy, it will be generated from the base
+name of \code{appDir} and \code{appTitle}, if supplied. On subsequent deploys,
+it will use the previously stored value.}
 
 \item{appTitle}{Free-form descriptive title of application. Optional; if
-supplied, will often be displayed in favor of the name. When deploying a
-new application, you may supply only the \code{appTitle} to receive an
-auto-generated \code{appName}.}
+supplied, will often be displayed in favor of the name. If ommitted,
+on second and subsequent deploys, the title will be unchanged.}
 
 \item{appId}{If updating an application, the ID of the application being
-updated. Optional unless updating an app owned by another user.}
+updated. For shinyapps.io, this the \code{id} listed on your applications
+page. For Posit Connect, this is the \code{guid} that you can find on the
+info tab on the content page. Generally, you should not need to supply
+this as it will be automatically taken from the deployment record on disk.}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"} or \code{"site"}).}
 
-\item{account}{Account to deploy application to. This parameter is only
-required for the initial deployment of an application when there are
-multiple accounts configured on the system (see \link{accounts}).}
-
-\item{server}{Server name. Required only if you use the same account name on
-multiple servers.}
+\item{account, server}{Uniquely identify a remote server with either your
+user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
+full list of available options.}
 
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
@@ -133,6 +134,22 @@ attempt to choose an image based on the content requirements.}
 Deploy a \link[shiny:shiny-package]{shiny} application, an
 \link[rmarkdown:rmarkdown-package]{RMarkdown} document, a plumber API, or HTML
 content to a server.
+}
+\details{
+\subsection{Updating existing apps}{
+
+If you have previously deployed an app, \code{deployApp()} will do its best to
+update the existing deployment. In the simple case where you have only one
+deployment in \code{appDir}, this should just work with the default arguments.
+If you want multiple deployments to the same server, supply \code{appName}.
+If you want multiple deployments to different servers, use \code{account} and/or
+\code{server}.
+
+The metadata needs to make this work is stored in the \verb{rsconnect/} directory
+beneath \code{appDir}. You should generally check these files into version
+control to ensure that future you and other collaborators will publish
+to the same location.
+}
 }
 \examples{
 \dontrun{

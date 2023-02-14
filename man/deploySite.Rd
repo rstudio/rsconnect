@@ -26,12 +26,9 @@ working directory.}
 an account). Defaults to the base name of the specified siteDir,
 (or to a name provided by a custom site generation function).}
 
-\item{account}{Account to deploy application to. This parameter is only
-required for the initial deployment of an application when there are
-multiple accounts configured on the system (see \link{accounts}).}
-
-\item{server}{Server name. Required only if you use the same account name on
-multiple servers.}
+\item{account, server}{Uniquely identify a remote server with either your
+user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
+full list of available options.}
 
 \item{render}{Rendering behavior for site: "none" to upload a
 static version of the current contents of the site directory;

@@ -36,10 +36,7 @@ cleanupPasswordFile <- function(appDir) {
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @param sendEmail Send an email letting the user know the application
 #'   has been shared with them.
 #' @param emailMessage Optional character vector of length 1 containing a
@@ -52,8 +49,7 @@ addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
                               account = NULL, server = NULL, sendEmail = NULL,
                               emailMessage = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # resolve application
   if (is.null(appName))
@@ -79,18 +75,14 @@ addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
 #' @param appDir Directory containing application. Defaults to
 #' current working directory.
 #' @param appName Name of application.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 removeAuthorizedUser <- function(user, appDir = getwd(), appName = NULL,
                                  account = NULL, server = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # resolve application
   if (is.null(appName))
@@ -133,18 +125,14 @@ removeAuthorizedUser <- function(user, appDir = getwd(), appName = NULL,
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @seealso [addAuthorizedUser()] and [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 showUsers <- function(appDir = getwd(), appName = NULL, account = NULL,
                       server = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   if (!isCloudServer(accountDetails$server)) {
     stop("This method only works for ShinyApps or posit.cloud servers.")
@@ -183,18 +171,14 @@ showUsers <- function(appDir = getwd(), appName = NULL, account = NULL,
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
 showInvited <- function(appDir = getwd(), appName = NULL, account = NULL,
                         server = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # resolve application
   if (is.null(appName))
@@ -229,10 +213,7 @@ showInvited <- function(appDir = getwd(), appName = NULL, account = NULL,
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @seealso [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
@@ -240,8 +221,7 @@ resendInvitation <- function(invite, regenerate = FALSE,
                              appDir = getwd(), appName = NULL,
                              account = NULL, server = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # get invitations
   invited <- showInvited(appDir, appName, account, server)

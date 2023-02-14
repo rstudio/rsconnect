@@ -2,10 +2,7 @@
 #' List Deployed Applications
 #'
 #' List all applications currently deployed for a given account.
-#' @param account Account name. If a single account is registered on the system
-#'   then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @return
 #' Returns a data frame with the following columns:
 #' \tabular{ll}{
@@ -39,7 +36,7 @@
 applications <- function(account = NULL, server = NULL) {
 
   # resolve account and create connect client
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
@@ -145,7 +142,7 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
   displayStatus(paste(taskDef$beginStatus, "...\n", sep = ""))
 
   # resolve target account and application
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
   application <- resolveApplication(accountDetails, appName)
 
   # perform the action

@@ -2,43 +2,35 @@
 saveDeployment <- function(appPath,
                            name,
                            title = NULL,
-                           username,
-                           account = username,
-                           server,
-                           hostUrl,
+                           username = NULL,
+                           account = NULL,
+                           server = NULL,
+                           hostUrl = NULL,
                            appId,
                            bundleId,
                            url,
                            metadata = list()) {
 
-  # TODO(HW): move this logic into deploymentTarget
-  # if there's no new title specified, load the existing deployment record, if
-  # any, to preserve the old title
-  if (is.null(title) || is.na(title) || length(title) == 0 ||
-      nchar(title) == 0) {
-    tryCatch({
-      path <- deploymentFile(appPath, name, account, server)
-      if (file.exists(path)) {
-        deployment <- as.data.frame(read.dcf(path))
-        title <- as.character(deployment$title[[1]])
-
-        # use empty string rather than character(0) if title isn't specified
-        # in the record
-        if (length(title) == 0)
-          title <- ""
-      }
-    }, error = function(e) {
-      # no action needed here (we just won't write a title)
-      title <<- ""
-    })
-  }
+  fullServer <- findAccount(account, server)
 
   # create the record to write to disk
-  deployment <- deploymentRecord(name, title, username, account, server, hostUrl,
-                                 appId, bundleId, url, when = as.numeric(Sys.time()),
-                                 lastSyncTime = as.numeric(Sys.time()), metadata)
+  deployment <- deploymentRecord(
+    name,
+    title %||% "",
+    username %||% fullServer$name,
+    fullServer$name,
+    fullServer$server,
+    hostUrl,
+    appId,
+    bundleId,
+    url,
+    when = as.numeric(Sys.time()),
+    lastSyncTime = as.numeric(Sys.time()),
+    metadata
+  )
 
-  writeDeploymentRecord(deployment, deploymentFile(appPath, name, account, server))
+  path <- deploymentFile(appPath, name, fullServer$name, fullServer$server)
+  writeDeploymentRecord(deployment, path)
 
   # also save to global history
   addToDeploymentHistory(appPath, deployment)

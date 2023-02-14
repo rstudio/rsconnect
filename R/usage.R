@@ -4,10 +4,7 @@
 #' @param appName Name of application
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @param usageType Use metric to retreive (for example: "hours")
 #' @param from Date range starting timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
@@ -20,8 +17,7 @@
 showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server = NULL,
                       usageType = "hours", from = NULL, until = NULL, interval = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # intialize client
   api <- clientForAccount(accountDetails)
@@ -68,10 +64,7 @@ showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server =
 #' @param appName Name of application
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @param from Date range starting timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
 #' @param until Date range ending timestamp (Unix timestamp or relative time
@@ -83,8 +76,7 @@ showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server =
 showMetrics <- function(metricSeries, metricNames, appDir = getwd(), appName = NULL, account = NULL, server = NULL,
                         from = NULL, until = NULL, interval = NULL) {
 
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # intialize client
   api <- clientForAccount(accountDetails)
@@ -122,10 +114,7 @@ showMetrics <- function(metricSeries, metricNames, appDir = getwd(), appName = N
 #' Show Account Usage
 #'
 #' Show account usage
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @inheritParams deployApp
 #' @param usageType Use metric to retreive (for example: "hours")
 #' @param from Date range starting timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
@@ -137,8 +126,7 @@ showMetrics <- function(metricSeries, metricNames, appDir = getwd(), appName = N
 #' @export
 accountUsage <- function(account = NULL, server = NULL, usageType = "hours",
                          from = NULL, until = NULL, interval = NULL) {
-  # resolve account
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
 
   # intialize client
   api <- clientForAccount(accountDetails)
