@@ -33,19 +33,15 @@ deploySite <- function(siteDir = getwd(),
                        python = NULL,
                        ...) {
 
+  check_installed(
+    "rmarkdown",
+    version = "0.9.5.3",
+    reason = "to deploy websites"
+  )
+
   # switch to siteDir for duration of this function
   oldwd <- setwd(siteDir)
   on.exit(setwd(oldwd), add = TRUE)
-
-  # validate we have the version of rmarkdown required to discover
-  # whether this directory has a website in it, what it's name
-  # and content directory are, etc.
-  rmarkdownVersion <- "0.9.5.3"
-  if (!requireNamespace("rmarkdown") ||
-      packageVersion("rmarkdown") < rmarkdownVersion) {
-    stop("Version ", rmarkdownVersion, " or later of the rmarkdown package ",
-         "is required to deploy websites.")
-  }
 
   # validate and normalize siteDir
   if (!isStringParam(siteDir))

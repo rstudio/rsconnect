@@ -2,10 +2,12 @@
 
     Code
       bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
-    Warning <simpleWarning>
+    Condition
+      Warning in `FUN()`:
       Package 'doesntexist1' not available in repository or locally
+      Warning in `FUN()`:
       Package 'doesntexist2' not available in repository or locally
-    Error <simpleError>
-      Unable to retrieve package records for the following packages:
+      Error:
+      ! Unable to retrieve package records for the following packages:
       - 'doesntexist1', 'doesntexist2'
 

@@ -4,6 +4,20 @@
 #' [RMarkdown][rmarkdown::rmarkdown-package] document, a plumber API, or HTML
 #' content to a server.
 #'
+#' ## Updating existing apps
+#'
+#' If you have previously deployed an app, `deployApp()` will do its best to
+#' update the existing deployment. In the simple case where you have only one
+#' deployment in `appDir`, this should just work with the default arguments.
+#' If you want multiple deployments to the same server, supply `appName`.
+#' If you want multiple deployments to different servers, use `account` and/or
+#' `server`.
+#'
+#' The metadata needs to make this work is stored in the `rsconnect/` directory
+#' beneath `appDir`. You should generally check these files into version
+#' control to ensure that future you and other collaborators will publish
+#' to the same location.
+#'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @param appFiles The files and directories to bundle and deploy (only if
@@ -23,20 +37,22 @@
 #'   qualified path. Deployment information returned by [deployments()] is
 #'   associated with the source document.
 #' @param appName Name of application (names must be unique within an account).
-#'   Defaults to the base name of the specified `appDir`.
+#'   If not supplied on the first deploy, it will be generated from the base
+#'   name of `appDir` and `appTitle`, if supplied. On subsequent deploys,
+#'   it will use the previously stored value.
 #' @param appTitle Free-form descriptive title of application. Optional; if
-#'   supplied, will often be displayed in favor of the name. When deploying a
-#'   new application, you may supply only the `appTitle` to receive an
-#'   auto-generated `appName`.
+#'   supplied, will often be displayed in favor of the name. If ommitted,
+#'   on second and subsequent deploys, the title will be unchanged.
 #' @param appId If updating an application, the ID of the application being
-#'   updated. Optional unless updating an app owned by another user.
+#'   updated. For shinyapps.io, this the `id` listed on your applications
+#'   page. For Posit Connect, this is the `guid` that you can find on the
+#'   info tab on the content page. Generally, you should not need to supply
+#'   this as it will be automatically taken from the deployment record on disk.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
-#' @param account Account to deploy application to. This parameter is only
-#'   required for the initial deployment of an application when there are
-#'   multiple accounts configured on the system (see [accounts]).
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers.
+#' @param account,server Uniquely identify a remote server with either your
+#'   user `account`, the `server` name, or both. Use [accounts()] to see the
+#'   full list of available options.
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
@@ -319,6 +335,7 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
+  # TODO(HW): I'm pretty sure target$server is already the correctvalue
   accountDetails <- accountInfo(target$account, target$server)
 
   # test for compatibility between account type and publish intent
@@ -591,174 +608,6 @@ getPythonForTarget <- function(path, accountDetails) {
   }
 }
 
-# calculate the deployment target based on the passed parameters and
-# any saved deployments that we have
-deploymentTarget <- function(appPath, appName, appTitle, appId, account,
-                             server = NULL) {
-
-  # read existing accounts
-  accounts <- accounts(server)[, "name"]
-  if (length(accounts) == 0)
-    stopWithNoAccount()
-
-  # validate account if provided
-  if (!is.null(account)) {
-    if (!account %in% accounts)
-      stop(paste("Unknown account name '", account, "' (you can use the ",
-                 "setAccountInfo function to add a new account)", sep = ""),
-           call. = FALSE)
-  }
-
-  # read existing deployments
-  appDeployments <- deployments(appPath = appPath)
-
-  # function to compute the target username from a deployment
-  usernameFromDeployment <- function(deployment) {
-    # determine which username on the serve owns the application
-    if (!is.null(appDeployments$username)) {
-      # read from the deployment record if supplied
-      username <- appDeployments$username
-    } else {
-      # lookup account info if not
-      username <- accountInfo(appDeployments$account)$username
-    }
-    username
-  }
-
-  # function to create a deployment target list (checks whether the target
-  # is an update and adds that field)
-  createDeploymentTarget <- function(appName, appTitle, appId,
-                                     username, account, server) {
-    # look up the server URL
-    serverDetails <- serverInfo(server)
-
-    # look for an application ID if we weren't supplied one
-    if (is.null(appId))
-    {
-      existingDeployments <- deployments(appPath, nameFilter = appName)
-      for (i in seq_len(nrow(existingDeployments))) {
-        if (identical(existingDeployments[[i, "account"]], account) &&
-            identical(existingDeployments[[i, "server"]], server))
-        {
-          # account and server matches a locally configured account
-          appId <- existingDeployments[[i, "appId"]]
-          break
-        }
-        else if (identical(existingDeployments[[i, "username"]], username) &&
-                 identical(existingDeployments[[i, "host"]], serverDetails$url))
-        {
-          # username and host match the user and host we're deploying to
-          appId <- existingDeployments[[i, "appId"]]
-          break
-        }
-      }
-    }
-
-    list(appName = appName, appTitle = appTitle, appId = appId, username = username,
-         account = account, server = server)
-  }
-
-  # if appTitle specified but not appName, generate name from title
-  if (is.null(appName) && !is.null(appTitle) && nzchar(appTitle)) {
-    appName <- generateAppName(appTitle, appPath, account, unique = FALSE)
-  }
-
-  # both appName and account explicitly specified
-  if (!is.null(appName) && !is.null(account)) {
-    accountDetails <- accountInfo(account, server)
-    createDeploymentTarget(appName, appTitle, appId, accountDetails$username,
-                           account, accountDetails$server)
-  }
-
-  # just appName specified
-  else if (!is.null(appName)) {
-
-    # find any existing deployments of this application
-    appDeployments <- deployments(appPath,
-                                  nameFilter = appName)
-
-    # if there are none then we can create it if there is a single account
-    # registered that we can default to
-    if (nrow(appDeployments) == 0) {
-      if (length(accounts) == 1) {
-        # read the server associated with the account
-        accountDetails <- accountInfo(accounts, server)
-        createDeploymentTarget(appName, appTitle, appId, accountDetails$username, accounts,
-                               accountDetails$server)
-      } else {
-        stopWithSpecifyAccount()
-      }
-    }
-
-    # single existing deployment
-    else if (nrow(appDeployments) == 1) {
-      createDeploymentTarget(appName, appTitle, appId,
-                             usernameFromDeployment(appDeployments), appDeployments$account,
-                             appDeployments$server)
-    }
-
-    # multiple existing deployments
-    else if (nrow(appDeployments) > 1) {
-      stop(paste("Please specify the account you want to deploy '", appName,
-                 "' to (you have previously deployed this application to ",
-                 "more than one account).", sep = ""), call. = FALSE)
-    }
-
-  }
-
-  # just account/server specified, that's fine we just default the app name
-  # based on the basename of the application directory
-  else if (!is.null(account) || !is.null(server)) {
-    if (is.null(account)) {
-      account <- accounts(server)[, "name"]
-      if (length(account) > 1) {
-        stopWithSpecifyAccount()
-      }
-    }
-    accountDetails <- accountInfo(account, server)
-    createDeploymentTarget(
-      generateAppName(appTitle, appPath, account, unique = FALSE),
-      appTitle, appId, accountDetails$username, account, accountDetails$server)
-  }
-
-  # neither specified but a single existing deployment
-  else if (nrow(appDeployments) == 1) {
-    createDeploymentTarget(appDeployments$name,
-                           appDeployments$title,
-                           appDeployments$appId,
-                           usernameFromDeployment(appDeployments),
-                           appDeployments$account,
-                           appDeployments$server)
-  }
-
-  # neither specified and no existing deployments
-  else if (nrow(appDeployments) == 0) {
-
-    # single account we can default to
-    if (length(accounts) == 1) {
-      accountDetails <- accountInfo(accounts)
-      createDeploymentTarget(
-        generateAppName(appTitle, appPath, account, unique = FALSE),
-        appTitle, appId, accountDetails$username,
-        accounts, accountDetails$server)
-    }
-    else
-      stop("Please specify the account and server to which you want to deploy ",
-           "the application (there is more than one account registered ",
-           "on this system).", call. = FALSE)
-
-  }
-
-  # neither specified and multiple existing deployments
-  else {
-
-    stop("Unable to deploy using default arguments (multiple existing ",
-         "deployments from this application directory already exist). ",
-         "Please specify appName and/or account name explicitly.",
-         call. = FALSE)
-
-  }
-}
 
 # get the record for the application of the given name in the given account, or
 # NULL if no application exists by that name
@@ -775,7 +624,7 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
   accountDetails <- NULL
   tryCatch({
     # attempt to look up the account locally
-    accountDetails <- accountInfo(resolveAccount(account, server), server)
+    accountDetails <- accountInfo(account, server)
   }, error = function(e) {
     # we'll retry below
   })

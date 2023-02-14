@@ -713,11 +713,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   manifest
 }
 
-hasRequiredDevtools <- function() {
-  "devtools" %in% .packages(all.available = TRUE) &&
-    packageVersion("devtools") > "1.3"
-}
-
 preservePackageDescriptions <- function(bundleDir) {
   # Copy all the DESCRIPTION files we're relying on into packrat/desc.
   # That directory will contain one file for each package, e.g.
@@ -998,16 +993,6 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
 
     # ensure temp file is cleaned up even if there's an error
     on.exit(unlink(tempDependencyFile), add = TRUE)
-  }
-
-  # ensure we have an up-to-date packrat lockfile
-  packratVersion <- packageVersion("packrat")
-  requiredVersion <- "0.4.6"
-  if (packratVersion < requiredVersion) {
-    stop("rsconnect requires version '", requiredVersion, "' of Packrat; ",
-         "you have version '", packratVersion, "' installed.\n",
-         "Please install the latest version of Packrat from CRAN with:\n- ",
-         "install.packages('packrat', type = 'source')")
   }
 
   # generate the packrat snapshot

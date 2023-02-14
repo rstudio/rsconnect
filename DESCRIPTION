@@ -14,11 +14,13 @@ Description: Programmatic deployment interface for 'RPubs', 'shinyapps.io', and
 Depends:
     R (>= 3.0.0)
 Imports:
+    cli,
     curl,
     digest,
     jsonlite,
     openssl (>= 2.0.0),
     packrat (>= 0.6),
+    rlang (>= 1.0.0),
     rstudioapi (>= 0.5),
     tools,
     yaml (>= 2.1.5)
@@ -35,10 +37,11 @@ Suggests:
     sourcetools,
     testthat (>= 3.0.0),
     xtable,
-    withr
+    withr,
+    mockr
 License: GPL-2
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues

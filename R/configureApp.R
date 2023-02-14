@@ -7,10 +7,7 @@
 #' @param appName Name of application to configure
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
-#' @param server Server name. Required only if you use the same account name on
-#'   multiple servers (see [servers()])
+#' @inheritParams deployApp
 #' @param redeploy Re-deploy application after its been configured.
 #' @param size Configure application instance size
 #' @param instances Configure number of application instances
@@ -28,7 +25,7 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
                          instances = NULL, logLevel = c("normal", "quiet", "verbose")) {
 
   # resolve target account and application
-  accountDetails <- accountInfo(resolveAccount(account, server), server)
+  accountDetails <- accountInfo(account, server)
   application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(identical(logLevel, "quiet"))
