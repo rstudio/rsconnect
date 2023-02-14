@@ -26,3 +26,38 @@
         control system. Check that options('repos') refers to a package
         repository containing the needed package versions.
 
+# infers correct packages for each source
+
+    Code
+      inferRPackageDependencies("rmd-static")
+    Output
+      [1] "rmarkdown"
+    Code
+      inferRPackageDependencies("rmd-static", TRUE)
+    Output
+      [1] "shiny"     "rmarkdown"
+    Code
+      inferRPackageDependencies("quarto-static")
+    Output
+      [1] "rmarkdown"
+    Code
+      inferRPackageDependencies("quarto-shiny")
+    Output
+      [1] "rmarkdown" "shiny"    
+    Code
+      inferRPackageDependencies("rmd-shiny")
+    Output
+      [1] "rmarkdown" "shiny"    
+    Code
+      inferRPackageDependencies("shiny")
+    Output
+      [1] "shiny"
+    Code
+      inferRPackageDependencies("api")
+    Output
+      [1] "plumber"
+    Code
+      inferRPackageDependencies("api", documentsHavePython = TRUE)
+    Output
+      [1] "plumber"    "reticulate"
+

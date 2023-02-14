@@ -58,3 +58,17 @@ test_that("warns if can't find source", {
     . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
   )
 })
+
+test_that("infers correct packages for each source", {
+  # Simple regression test in preparation for refactoring
+  expect_snapshot({
+    inferRPackageDependencies("rmd-static")
+    inferRPackageDependencies("rmd-static", TRUE)
+    inferRPackageDependencies("quarto-static")
+    inferRPackageDependencies("quarto-shiny")
+    inferRPackageDependencies("rmd-shiny")
+    inferRPackageDependencies("shiny")
+    inferRPackageDependencies("api")
+    inferRPackageDependencies("api", documentsHavePython = TRUE)
+  })
+})

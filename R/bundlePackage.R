@@ -21,8 +21,7 @@ bundlePackages <- function(appDir,
   inferredRDependencies <- inferRPackageDependencies(
     appMode = appMode,
     hasParameters = hasParameters,
-    documentsHavePython = documentsHavePython,
-    quartoInfo = quartoInfo
+    documentsHavePython = documentsHavePython
   )
   deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
 
@@ -100,14 +99,10 @@ bundlePackages <- function(appDir,
   packages
 }
 
-## check for extra dependencies congruent to application mode
+## check for extra dependencies uses
 inferRPackageDependencies <- function(appMode,
-                                      hasParameters,
-                                      documentsHavePython,
-                                      quartoInfo) {
-
-  # TODO(HW): appUsesR(quartoInfo) is always TRUE because this function is
-  # only called for apps that use R
+                                      hasParameters = FALSE,
+                                      documentsHavePython = FALSE) {
 
   deps <- c()
   if (appMode == "rmd-static") {
@@ -117,7 +112,7 @@ inferRPackageDependencies <- function(appMode,
     }
     deps <- c(deps, "rmarkdown")
   }
-  if (appMode == "quarto-static" && appUsesR(quartoInfo)) {
+  if (appMode == "quarto-static") {
     # Quarto documents need R when the knitr execution engine is used, not always.
     deps <- c(deps, "rmarkdown")
   }
@@ -134,7 +129,7 @@ inferRPackageDependencies <- function(appMode,
   if (appMode == "api") {
     deps <- c(deps, "plumber")
   }
-  if (documentsHavePython && appUsesR(quartoInfo)) {
+  if (documentsHavePython) {
     deps <- c(deps, "reticulate")
   }
   unique(deps)
