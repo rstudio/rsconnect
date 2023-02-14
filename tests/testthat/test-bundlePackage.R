@@ -16,6 +16,14 @@ test_that("includes inferred dependencies", {
 })
 
 test_that("errors if dependencies aren't installed", {
+  mockr::local_mock(snapshotRDependencies = function(...) {
+    data.frame(
+      Package = c("doesntexist1", "doesntexist2"),
+      Source = "CRAN",
+      Repository = "https://cran.rstudio.com"
+    )
+  })
+
   app_dir <- withr::local_tempdir()
   writeLines(con = file.path(app_dir, "index.Rmd"), c(
     "```{r}",
