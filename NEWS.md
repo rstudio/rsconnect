@@ -1,5 +1,10 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` now uses a stricter policy for determining whether or not
+  a local package can be successfully installed on the deployment server.
+  This means that you're more likely to get a clean failure prior to 
+  deployment (#659).
+
 * The logic used by `deployApp()` for determining whether you publish a 
   new update or update an existing app has been simplified. Now `appName`,
   `account`, and `server` are used to find existing deployments. If none

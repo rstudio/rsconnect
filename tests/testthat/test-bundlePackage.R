@@ -43,16 +43,16 @@ test_that("errors if dependencies aren't installed", {
   ))
 
   expect_snapshot(
-    bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset"),
+    bundlePackages(app_dir, appMode = "rmd-static"),
     error = TRUE
   )
 })
 
-test_that("warns if can't find source", {
+test_that("errors if can't find source", {
   mockr::local_mock(snapshotRDependencies = function(...) {
     data.frame(
       Package = "shiny",
-      Source = "foo",
+      Source = NA,
       Repository = NA
     )
   })
@@ -65,7 +65,8 @@ test_that("warns if can't find source", {
   ))
 
   expect_snapshot(
-    . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
+    bundlePackages(app_dir, appMode = "rmd-static"),
+    error = TRUE
   )
 })
 

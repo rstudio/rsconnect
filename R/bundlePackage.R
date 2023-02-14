@@ -4,7 +4,8 @@ bundlePackages <- function(appDir,
                            hasParameters = FALSE,
                            documentsHavePython = FALSE,
                            quartoInfo = NULL,
-                           verbose = FALSE
+                           verbose = FALSE,
+                           error_call = caller_env()
                            ) {
   if (appMode %in% c("static", "tensorflow-saved-model")) {
     return(list())
@@ -24,29 +25,7 @@ bundlePackages <- function(appDir,
     documentsHavePython = documentsHavePython
   )
   deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
-
-  not_installed <- !vapply(deps$Package, is_installed, logical(1))
-  if (any(not_installed)) {
-    pkgs <- deps$Package[not_installed]
-    cli::cli_abort(c(
-      "All packages used by {assetTypeName} must be installed.",
-      x = "Missing packages: {.pkg {pkgs}}."
-    ))
-  }
-
-  missing_repo <- !isSCMSource(deps$Source) & is.na(deps$Repository)
-  if (any(missing_repo)) {
-    pkgs <- deps$Package[missing_repo]
-    cli::cli_warn(c(
-      "Local packages require a known repository for install on a remote system.",
-      x = "Packages with unknown repository: {.pkg {pkgs}}.",
-      i = paste0(
-        "Local packages must be be installed from a standard repository like ",
-        "CRAN or BioConductor, or from a version control system like GitHub or ",
-        "GitLab."
-      )
-    ))
-  }
+  checkBundlePackages(deps, call = error_call)
 
   deps$description <- lapply(deps$Package, function(nm) {
     # Remove packageDescription S3 class so jsonlite can serialize
@@ -61,6 +40,34 @@ bundlePackages <- function(appDir,
   })
   names(packages_list) <- deps$Package
   packages_list
+}
+
+checkBundlePackages <- function(deps, call = caller_env()) {
+  not_installed <- !vapply(deps$Package, is_installed, logical(1))
+  if (any(not_installed)) {
+    pkgs <- deps$Package[not_installed]
+    cli::cli_abort(
+      c(
+        "All packages used by the asset must be installed.",
+        x = "Missing packages: {.pkg {pkgs}}."
+      ),
+      call = call
+    )
+  }
+
+  unknown_source <- is.na(deps$Source)
+  if (any(unknown_source)) {
+    pkgs <- deps$Package[unknown_source]
+    cli::cli_abort(
+      c(
+        "Local packages must be installed from a supported source.",
+        x = "Unsupported packages: {.pkg {pkgs}}.",
+        i = "Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.",
+        i = "See {.fun rsconnect::appDependencies} for more details."
+      ),
+      call = call
+    )
+  }
 }
 
 ## check for extra dependencies uses

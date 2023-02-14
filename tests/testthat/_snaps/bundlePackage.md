@@ -1,21 +1,22 @@
 # errors if dependencies aren't installed
 
     Code
-      bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
+      bundlePackages(app_dir, appMode = "rmd-static")
     Condition
-      Error in `bundlePackages()`:
-      ! All packages used by asset must be installed.
+      Error:
+      ! All packages used by the asset must be installed.
       x Missing packages: doesntexist1 and doesntexist2.
 
-# warns if can't find source
+# errors if can't find source
 
     Code
-      . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
+      bundlePackages(app_dir, appMode = "rmd-static")
     Condition
-      Warning:
-      Local packages require a known repository for install on a remote system.
-      x Packages with unknown repository: shiny.
-      i Local packages must be be installed from a standard repository like CRAN or BioConductor, or from a version control system like GitHub or GitLab.
+      Error:
+      ! Local packages must be installed from a supported source.
+      x Unsupported packages: shiny.
+      i Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.
+      i See `rsconnect::appDependencies()` for more details.
 
 # infers correct packages for each source
 
