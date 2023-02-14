@@ -7,7 +7,7 @@
 #' ## Updating existing apps
 #'
 #' If you have previously deployed an app, `deployApp()` will do its best to
-#' update the existing deployment. In the simple case where you have only on
+#' update the existing deployment. In the simple case where you have only one
 #' deployment in `appDir`, this should just work with the default arguments.
 #' If you want multiple deployments to the same server, supply `appName`.
 #' If you want multiple deployments to different servers, use `account` and/or

@@ -139,7 +139,7 @@ content to a server.
 \subsection{Updating existing apps}{
 
 If you have previously deployed an app, \code{deployApp()} will do its best to
-update the existing deployment. In the simple case where you have only on
+update the existing deployment. In the simple case where you have only one
 deployment in \code{appDir}, this should just work with the default arguments.
 If you want multiple deployments to the same server, supply \code{appName}.
 If you want multiple deployments to different servers, use \code{account} and/or
