@@ -19,7 +19,7 @@
       deploymentTarget(account = "john")
     Condition
       Error in `deploymentTarget()`:
-      ! Can't find any accounts with `acccount` = "john".
+      ! Can't find any accounts with `account` = "john".
       i Available account names: "foo".
 
 # errors if no previous deployments and multiple accounts
@@ -48,7 +48,7 @@
     Condition
       Error in `deploymentTarget()`:
       ! Found multiple accounts for `server` = "foo".
-      Please disambiguate by setting `acccount`.
+      Please disambiguate by setting `account`.
       i Available account names: "ron" and "john".
 
 # errors if multiple deployments
