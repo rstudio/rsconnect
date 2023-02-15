@@ -6,138 +6,95 @@ fakeQuartoMetadata <- function(version, engines) {
   return(metadata)
 }
 
+
+# appMetadata -------------------------------------------------------------
+
+test_that("clear error if no files", {
+  dir <- local_temp_app()
+  expect_snapshot(appMetadata(dir), error = TRUE)
+})
+
+# inferAppMode ------------------------------------------------------------
+
+test_that("can infer mode for APIs", {
+  dir <- local_temp_app(list("plumber.R" = ""))
+  expect_equal(inferAppMode(dir), "api")
+
+  dir <- local_temp_app(list("entrypoint.R" = ""))
+  expect_equal(inferAppMode(dir), "api")
+})
+
+test_that("can infer mode for shiny apps", {
+  dir <- local_temp_app(list("app.R" = ""))
+  expect_equal(inferAppMode(dir), "shiny")
+
+  dir <- local_temp_app(list("server.R" = ""))
+  expect_equal(inferAppMode(dir), "shiny")
+
+  dir <- local_temp_app(list("foo.R" = ""))
+  expect_equal(inferAppMode(dir, "foo.R"), "shiny")
+})
+
+test_that("can infer mode for static quarto and rmd docs", {
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  expect_equal(inferAppMode(dir), "rmd-static")
+  expect_equal(inferAppMode(dir, quartoInfo = list()), "quarto-static")
+  # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
+  expect_equal(inferAppMode(dir, isCloudServer = TRUE), "rmd-shiny")
+})
+
+test_that("quarto docs require quarto", {
+  single_qmd <- local_temp_app(list("foo.qmd" = ""))
+  rmd_and_quarto_yml <- local_temp_app(list("foo.Rmd" = "", "_quarto.yaml" = ""))
+
+  expect_snapshot(error = TRUE, {
+    inferAppMode(single_qmd)
+    inferAppMode(rmd_and_quarto_yml)
+  })
+})
+
+test_that("can infer mode for shiny quarto and rmd docs", {
+  yaml_runtime <- function(runtime) {
+    c("---", paste0("runtime: ", runtime), "---")
+  }
+
+  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
+  expect_equal(inferAppMode(dir), "rmd-shiny")
+
+  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shinyrmd")))
+  expect_equal(inferAppMode(dir), "rmd-shiny")
+
+  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny_prerendered")))
+  expect_equal(inferAppMode(dir), "rmd-shiny")
+
+  # And for quarto
+  dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
+  expect_equal(inferAppMode(dir, quartoInfo = list()), "quarto-shiny")
+
+  # can pair server.R with shiny runtime
+  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "server.R" = ""))
+  expect_equal(inferAppMode(dir), "rmd-shiny")
+
+  # Beats static rmarkdowns
+  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "foo.Rmd" = ""))
+  expect_equal(inferAppMode(dir), "rmd-shiny")
+})
+
 test_that("Shiny R Markdown files are detected correctly", {
   expect_true(isShinyRmd("./shiny-rmds/shiny-rmd-dashes.Rmd"))
   expect_true(isShinyRmd("./shiny-rmds/shiny-rmd-dots.Rmd"))
   expect_false(isShinyRmd("./shiny-rmds/non-shiny-rmd.Rmd"))
 })
 
-# fileContent is a named list with file content. When content is NA, the
-# name of the file is used as its content.
-#
-# Each file is written with its content to a temporary directory.
-# Returns the result of inferAppMode when run against that directory.
-# The temporary directory is removed on exit.
-inferAppModeFromFiles <- function(fileContent, isCloudServer = FALSE) {
-  targetDir <- tempfile()
-  dir.create(targetDir)
-  on.exit(unlink(targetDir, recursive = TRUE))
-
-  for (file in names(fileContent)) {
-    content <- fileContent[[file]]
-    # Write the filename as its content when we are not given content.
-    if (all(is.na(content))) {
-      content <- c(file)
-    }
-    targetFile <- file.path(targetDir, file)
-    writeLines(content, con = targetFile, sep = "\n")
-  }
-
-  files <- list.files(targetDir, recursive = FALSE, all.files = FALSE, include.dirs = FALSE, no.. = TRUE, full.names = FALSE)
-  appMode <- inferAppMode(targetDir, NULL, files, quartoInfo = NULL, isCloudServer = isCloudServer)
-  return(appMode)
-}
-
-test_that("inferAppMode", {
-  # Plumber API identification
-  expect_identical("api", inferAppModeFromFiles(list(
-    "plumber.R" = NA
-  )))
-  expect_identical("api", inferAppModeFromFiles(list(
-    "entrypoint.R" = NA
-  )))
-  expect_identical("api", inferAppModeFromFiles(list(
-    "plumber.R" = NA,
-    "helper.R" = NA
-  )))
-
-  # Shiny application identification
-  expect_identical("shiny", inferAppModeFromFiles(list(
-    "app.R" = NA
-  )))
-  expect_identical("shiny", inferAppModeFromFiles(list(
-    "server.R" = NA
-  )))
-  expect_identical("shiny", inferAppModeFromFiles(list(
-    "server.R" = NA,
-    "ui.R" = NA
-  )))
-  expect_identical("shiny", inferAppModeFromFiles(list(
-    "server.R" = NA,
-    "ui.R" = NA,
-    "global.R" = NA
-  )))
-
-  # Static R Markdown identification (rendered documents)
-  expect_identical("rmd-static", inferAppModeFromFiles(list(
-    "index.Rmd" = NA
-  )))
-  expect_identical("rmd-static", inferAppModeFromFiles(list(
-    "index.Rmd" = NA,
-    "alpha.Rmd" = NA,
-    "bravo.Rmd" = NA
-  )))
-  expect_identical("rmd-static", inferAppModeFromFiles(list(
-    "alpha.Rmd" = NA,
-    "bravo.Rmd" = NA
-  )))
-
-  # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "index.Rmd" = NA
-  ), isCloudServer = TRUE))
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "index.Rmd" = NA,
-    "alpha.Rmd" = NA,
-    "bravo.Rmd" = NA
-  ), isCloudServer = TRUE))
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "alpha.Rmd" = NA,
-    "bravo.Rmd" = NA
-  ), isCloudServer = TRUE))
-
-  rmdRuntimeShiny <- c(
-    "---",
-    "runtime: shiny",
-    "---"
-  )
-  rmdRuntimeShinyRmd <- c(
-    "---",
-    "runtime: shinyrmd",
-    "---"
-  )
-  rmdRuntimeShinyPrerendered <- c(
-    "---",
-    "runtime: shiny_prerendered",
-    "---"
-  )
-  # Shiny R Markdown identification
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "index.Rmd" = rmdRuntimeShiny
-  )))
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "index.Rmd" = rmdRuntimeShinyRmd
-  )))
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "index.Rmd" = rmdRuntimeShinyPrerendered
-  )))
-  # Shiny Rmd with other Rmd
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "shiny.Rmd" = rmdRuntimeShinyPrerendered,
-    "other.Rmd" = NA
-  )))
-  # Shiny Rmd with other R script
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "shiny.Rmd" = rmdRuntimeShinyPrerendered,
-    "helper.R" = NA
-  )))
-  # Shiny Rmd with server.R script
-  expect_identical("rmd-shiny", inferAppModeFromFiles(list(
-    "shiny.Rmd" = rmdRuntimeShinyPrerendered,
-    "server.R" = NA
-  )))
+test_that("can infer tensorflow models", {
+  dir <- local_temp_app(list("saved_model.pb" = ""))
+  expect_equal(inferAppMode(dir), "tensorflow-saved-model")
 })
 
+test_that("otherwise, fallsback to static deploy", {
+  dir <- local_temp_app(list("a.html" = "", "b.html" = ""))
+  expect_equal(inferAppMode(dir), "static")
+})
 
 # inferAppPrimaryDoc ------------------------------------------------------
 

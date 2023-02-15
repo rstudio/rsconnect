@@ -66,3 +66,14 @@ quartoPathOrSkip <- function() {
   skip_if(is.null(quarto), "quarto cli is not installed")
   return(quarto)
 }
+
+local_temp_app <- function(files = list(), env = caller_env()) {
+  dir <- withr::local_tempdir(.local_envir = env)
+
+  for (name in names(files)) {
+    content <- files[[name]]
+    writeLines(content, file.path(dir, name))
+  }
+
+  dir
+}
