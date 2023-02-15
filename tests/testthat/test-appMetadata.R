@@ -139,6 +139,35 @@ test_that("inferAppMode", {
 })
 
 
+# inferAppPrimaryDoc ------------------------------------------------------
+
+test_that("leaves addPrimaryDoc unchanged or not a document", {
+  expect_equal(inferAppPrimaryDoc("foo.Rmd"), "foo.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, appMode = "shiny"), NULL)
+  expect_equal(inferAppPrimaryDoc(NULL, appMode = "api"), NULL)
+})
+
+test_that("uses index file if present", {
+  files <- c("index.html", "index.Rmd", "a.html", "b.html", "a.Rmd", "b.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "static"), "index.html")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "rmd-shiny"), "index.Rmd")
+})
+
+test_that("otherwise fails back to first file with matching extensions", {
+  files <- c("a.html", "b.html", "a.Rmd", "b.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "static"), "a.html")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "rmd-shiny"), "a.Rmd")
+})
+
+test_that("errors if no files with needed extension", {
+  expect_snapshot(error = TRUE, {
+    inferAppPrimaryDoc(NULL, "a.R", "static")
+    inferAppPrimaryDoc(NULL, "a.R", "rmd-shiny")
+  })
+})
+
+# quarto ------------------------------------------------------------------
+
 test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
   quarto <- quartoPathOrSkip()
 

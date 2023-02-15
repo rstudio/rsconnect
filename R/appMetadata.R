@@ -154,39 +154,43 @@ inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo, isCloudServer
   stop("No content to deploy; cannot detect content type.")
 }
 
-inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
-  # If deploying an R Markdown, Quarto, or static content, infer a primary
-  # document if one is not already specified.
+# If deploying an R Markdown, Quarto, or static content, infer a primary
+# document if one is not already specified.
   # Note: functionality in inferQuartoInfo() depends on primary doc inference
   # working the same across app modes.
-  docAppModes <- c(
-      "static",
-      "rmd-shiny",
-      "rmd-static",
-      "quarto-shiny",
-      "quarto-static"
-  )
-  if ((appMode %in% docAppModes) && is.null(appPrimaryDoc)) {
-    # determine expected primary document extension
-    ext <- ifelse(appMode == "static", "html?", "[Rq]md")
-
-    # use index file if it exists
-    primary <- which(grepl(paste0("^index\\.", ext, "$"), appFiles, fixed = FALSE,
-                           ignore.case = TRUE))
-    if (length(primary) == 0) {
-      # no index file found, so pick the first one we find
-      primary <- which(grepl(paste0("^.*\\.", ext, "$"), appFiles, fixed = FALSE,
-                             ignore.case = TRUE))
-      if (length(primary) == 0) {
-        stop("Application mode ", appMode, " requires at least one document.")
-      }
-    }
-    # if we have multiple matches, pick the first
-    if (length(primary) > 1)
-      primary <- primary[[1]]
-    appPrimaryDoc <- appFiles[[primary]]
+inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
+  if (!is.null(appPrimaryDoc)) {
+    return(appPrimaryDoc)
   }
-  appPrimaryDoc
+
+  # Non-document apps don't have primary _doc_
+  if (appMode %in% c("shiny", "api")) {
+    return(appPrimaryDoc)
+  }
+
+  # determine expected primary document extension
+  ext <- if (appMode == "static") "\\.html?$" else "\\.[Rq]md$"
+
+  # use index file if it exists
+  matching <- grepl(paste0("^index", ext), appFiles, ignore.case = TRUE)
+  if (!any(matching)) {
+    # no index file found, so pick the first one we find
+    matching <- grepl(ext, appFiles, ignore.case = TRUE)
+
+    if (!any(matching)) {
+      cli::cli_abort(c(
+        "Failed to determine {.arg appPrimaryDoc}.",
+        x = "No files matching {.str {ext}}."
+      ))
+    }
+  }
+
+  if (sum(matching) > 1) {
+    # if we have multiple matches, pick the first
+    appFiles[matching][[1]]
+  } else {
+    appFiles[matching]
+  }
 }
 
 appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory) {
