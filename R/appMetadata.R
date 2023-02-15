@@ -1,3 +1,63 @@
+appMetadata <- function(appDir,
+                        appFiles = NULL,
+                        appPrimaryDoc = NULL,
+                        quarto = NULL,
+                        contentCategory = NULL,
+                        isCloudServer = FALSE,
+                        metadata = list()) {
+
+  if (is.null(appFiles)) {
+    appFiles <- bundleFiles(appDir)
+  }
+
+  if (!is.null(contentCategory)) {
+    assetTypeName <- contentCategory
+  } else if (!is.null(appPrimaryDoc)) {
+    assetTypeName <- "document"
+  } else {
+    assetTypeName <- "application"
+  }
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc,
+    appFiles = appFiles,
+    quarto = quarto,
+    metadata = metadata
+  )
+  appMode <- inferAppMode(
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc,
+    files = appFiles,
+    quartoInfo = quartoInfo,
+    isCloudServer = isCloudServer
+  )
+  appPrimaryDoc <- inferAppPrimaryDoc(
+    appPrimaryDoc = appPrimaryDoc,
+    appFiles = appFiles,
+    appMode = appMode
+  )
+  hasParameters <- appHasParameters(
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc,
+    appMode = appMode,
+    contentCategory = contentCategory
+  )
+  documentsHavePython <- detectPythonInDocuments(
+    appDir = appDir,
+    files = appFiles
+  )
+
+  list(
+    assetTypeName = assetTypeName,
+    appMode = appMode,
+    appPrimaryDoc = appPrimaryDoc,
+    hasParameters = hasParameters,
+    documentsHavePython = documentsHavePython,
+    quartoInfo = quartoInfo
+  )
+}
+
 # infer the mode of the application from its layout
 # unless we're an API, in which case, we're API mode.
 inferAppMode <- function(appDir, appPrimaryDoc, files, quartoInfo, isCloudServer = FALSE) {

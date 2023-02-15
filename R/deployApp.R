@@ -520,37 +520,20 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
                       isCloudServer = FALSE, metadata = list(), image = NULL) {
   logger <- verboseLogger(verbose)
 
-  quartoInfo <- inferQuartoInfo(
+  logger("Inferring App mode and parameters")
+  metadata <- appMetadata(
     appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
     appFiles = appFiles,
+    appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
+    contentCategory = contentCategory,
+    isCloudServer = isCloudServer,
     metadata = metadata
   )
 
-  logger("Inferring App mode and parameters")
-  appMode <- inferAppMode(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      files = appFiles,
-      quartoInfo = quartoInfo,
-      isCloudServer = isCloudServer)
-  appPrimaryDoc <- inferAppPrimaryDoc(
-      appPrimaryDoc = appPrimaryDoc,
-      appFiles = appFiles,
-      appMode = appMode)
-  hasParameters <- appHasParameters(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      appMode = appMode,
-      contentCategory = contentCategory)
-  documentsHavePython <- detectPythonInDocuments(
-      appDir = appDir,
-      files = appFiles)
-
   # get application users (for non-document deployments)
   users <- NULL
-  if (is.null(appPrimaryDoc)) {
+  if (is.null(metadata$appPrimaryDoc)) {
     users <- suppressWarnings(authorizedUsers(appDir))
   }
 
@@ -559,25 +542,25 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   bundleDir <- bundleAppDir(
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc)
+      appPrimaryDoc = metadata$appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
   manifest <- createAppManifest(
       appDir = bundleDir,
-      appMode = appMode,
+      appMode = metadata$appMode,
       contentCategory = contentCategory,
-      hasParameters = hasParameters,
-      appPrimaryDoc = appPrimaryDoc,
+      hasParameters = metadata$hasParameters,
+      appPrimaryDoc = metadata$appPrimaryDoc,
       assetTypeName = assetTypeName,
       users = users,
       condaMode = condaMode,
       forceGenerate = forceGenerate,
       python = python,
-      documentsHavePython = documentsHavePython,
+      documentsHavePython = metadata$documentsHavePython,
       retainPackratDirectory = TRUE,
-      quartoInfo = quartoInfo,
+      quartoInfo = metadata$quartoInfo,
       isCloud = isCloudServer,
       image = image,
       verbose = verbose)
