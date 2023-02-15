@@ -58,3 +58,11 @@ havingFakeConfig <- function(expr) {
 
   eval(expr)
 }
+
+
+quartoPathOrSkip <- function() {
+  skip_on_cran()
+  quarto <- quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+  return(quarto)
+}

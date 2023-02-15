@@ -1,3 +1,11 @@
+fakeQuartoMetadata <- function(version, engines) {
+  # See quarto-r/R/publish.R lines 396 and 113.
+  metadata <- list()
+  metadata$quarto_version <- version
+  metadata$quarto_engines <- I(engines)
+  return(metadata)
+}
+
 test_that("Shiny R Markdown files are detected correctly", {
   expect_true(isShinyRmd("./shiny-rmds/shiny-rmd-dashes.Rmd"))
   expect_true(isShinyRmd("./shiny-rmds/shiny-rmd-dots.Rmd"))
@@ -128,4 +136,108 @@ test_that("inferAppMode", {
     "shiny.Rmd" = rmdRuntimeShinyPrerendered,
     "server.R" = NA
   )))
+})
+
+
+test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
+  quarto <- quartoPathOrSkip()
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-doc-none",
+    appPrimaryDoc = "quarto-doc-none.qmd",
+    appFiles = bundleFiles("quarto-doc-none"),
+    quarto = quarto,
+    metadata = list()
+  )
+  expect_named(quartoInfo, c("version", "engines"))
+  expect_equal(quartoInfo$engines, I(c("markdown")))
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-website-r",
+    appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
+    quarto = quarto,
+    metadata = list()
+  )
+  expect_named(quartoInfo, c("version", "engines"))
+  expect_equal(quartoInfo$engines, I(c("knitr")))
+})
+
+test_that("inferQuartoInfo extracts info from metadata when it is provided alone", {
+  quarto <- quartoPathOrSkip()
+
+  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-website-r",
+    appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
+    quarto = NULL,
+    metadata = metadata
+  )
+  expect_named(quartoInfo, c("version", "engines"))
+  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
+})
+
+test_that("inferQuartoInfo prefers using metadata over running quarto inspect itself when both are provided", {
+  quarto <- quartoPathOrSkip()
+
+  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "quarto-website-r",
+    appPrimaryDoc = NULL,
+    appFiles = bundleFiles("quarto-website-r"),
+    quarto = quarto,
+    metadata = metadata
+  )
+  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
+})
+
+test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quarto", {
+  quarto <- quartoPathOrSkip()
+
+  quartoInfo <- inferQuartoInfo(
+    appDir = "shinyapp-simple",
+    appPrimaryDoc = NULL,
+    appFiles = bundleFiles("shinyapp-simple"),
+    quarto = quarto,
+    metadata = list()
+  )
+  expect_null(quartoInfo)
+})
+
+test_that("quartoInspect identifies on Quarto projects", {
+  quarto <- quartoPathOrSkip()
+
+  inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
+  expect_true(all(c("quarto", "engines") %in% names(inspect)))
+
+  inspect <- NULL
+  inspect <- quartoInspect(appDir = "quarto-proj-r-shiny", quarto = quarto)
+  expect_true(all(c("quarto", "engines") %in% names(inspect)))
+})
+
+test_that("quartoInspect identifies Quarto documents", {
+  quarto <- quartoPathOrSkip()
+
+  inspect <- quartoInspect(
+    appDir = "quarto-doc-none",
+    appPrimaryDoc = "quarto-doc-none.qmd",
+    quarto = quarto
+  )
+  expect_true(all(c("quarto", "engines") %in% names(inspect)))
+})
+
+test_that("quartoInspect returns NULL on non-quarto Quarto content", {
+  quarto <- quartoPathOrSkip()
+
+  inspect <- quartoInspect(appDir = "shinyapp-simple", quarto = quarto)
+  expect_null(inspect)
+})
+
+test_that("quartoInspect returns null when no quarto is provided", {
+  quarto <- quartoPathOrSkip()
+
+  expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
 })
