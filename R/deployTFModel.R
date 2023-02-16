@@ -34,14 +34,9 @@
 #'
 #' @family Deployment functions
 #' @export
-deployTFModel <- function(modelDir,
-                          ...) {
-  if (!file.exists(modelDir)) {
-    stop("The model directory at '", modelDir, "' does not exist.")
-  }
-  if (!utils::file_test("-d", modelDir)) {
-    stop("The modelDir at '", modelDir, "' is not a directory.")
-  }
+deployTFModel <- function(modelDir, ...) {
+  check_directory(modelDir)
+
   # Checking for saved_model.pb is done in `lint-framework.R`
   deployApp(appDir = modelDir, ...)
 }

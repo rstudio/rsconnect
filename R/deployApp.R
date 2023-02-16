@@ -152,8 +152,7 @@ deployApp <- function(appDir = getwd(),
 
   condaMode <- FALSE
 
-  if (!isStringParam(appDir))
-    stop(stringParamErrorMessage("appDir"))
+  check_string(appDir)
 
   # respect log level
   logLevel <- match.arg(logLevel)
@@ -186,10 +185,8 @@ deployApp <- function(appDir = getwd(),
   }
 
   # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir)) {
-    stop(appDir, " does not exist")
-  }
+  check_directory(appDir)
+  appDir <- normalizePath(appDir)
 
   # create the full path that we'll deploy (append document if requested)
   appPath <- appDir
@@ -206,7 +203,7 @@ deployApp <- function(appDir = getwd(),
   # a single document in this case (this will call back to deployApp with a list
   # of supporting documents)
   rmdFile <- ""
-  if (!file.info(appDir)$isdir) {
+  if (!dirExists(appDir)) {
     if (grepl("\\.[Rq]md$", appDir, ignore.case = TRUE) ||
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, appTitle = appTitle,
@@ -223,12 +220,7 @@ deployApp <- function(appDir = getwd(),
   if (is.null(recordDir)) {
     recordDir <- appPath
   } else {
-    if (!file.exists(recordDir)) {
-      stop(recordDir, " does not exist")
-    }
-    if (!file.info(recordDir)$isdir) {
-      stop(recordDir, " must be a directory")
-    }
+    check_directory(recordDir)
   }
 
   # at verbose log level, generate header
@@ -265,11 +257,7 @@ deployApp <- function(appDir = getwd(),
       appFiles <- bundleFiles(appDir)
     } else {
       # manifest file provided, read it and apply
-      if (!isStringParam(appFileManifest))
-        stop(stringParamErrorMessage("appFileManifest"))
-      if (!file.exists(appFileManifest))
-        stop(appFileManifest, " was specified as a file manifest, but does ",
-             "not exist.")
+      check_file(appFileManifest)
 
       # read the filenames from the file
       manifestLines <- readLines(appFileManifest, warn = FALSE)
@@ -320,8 +308,7 @@ deployApp <- function(appDir = getwd(),
 
   }
 
-  if (!is.null(appName) && !isStringParam(appName))
-    stop(stringParamErrorMessage("appName"))
+  check_string(appName, allow_null = TRUE)
 
   # try to detect encoding from the RStudio project file
   .globals$encoding <- rstudioEncoding(appDir)

@@ -39,17 +39,13 @@ deploySite <- function(siteDir = getwd(),
     reason = "to deploy websites"
   )
 
+  # validate and normalize siteDir
+  check_directory(siteDir)
+  siteDir <- normalizePath(siteDir)
+
   # switch to siteDir for duration of this function
   oldwd <- setwd(siteDir)
   on.exit(setwd(oldwd), add = TRUE)
-
-  # validate and normalize siteDir
-  if (!isStringParam(siteDir))
-    stop(stringParamErrorMessage("siteDir"))
-  siteDir <- normalizePath(siteDir, mustWork = FALSE)
-  if (!file.exists(siteDir)) {
-    stop(siteDir, " does not exist")
-  }
 
   # discover the site generator
   siteGenerator <- rmarkdown::site_generator(siteDir)

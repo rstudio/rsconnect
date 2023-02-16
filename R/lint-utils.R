@@ -53,7 +53,7 @@ hasAbsolutePaths <- function(content) {
     any(
       grepl("^/|^[a-zA-Z]:/|^~", x, perl = TRUE) &
       file.exists(x) &
-      file.info(x)$isdir %in% FALSE &
+      !dirExists(x) &
       vapply(gregexpr("[~/]", x, perl = TRUE), USE.NAMES = FALSE, FUN.VALUE = numeric(1), length) >= 3
     )
   }))
