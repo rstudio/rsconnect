@@ -76,7 +76,8 @@ inferAppMode <- function(appDir,
     return("api")
   }
 
-  # single-file Shiny application
+  # TODO(HW): I think this special case should live in appMetadata so that
+  # inferAppMode no longer needs the `appPrimaryDoc` argument
   if (!is.null(appPrimaryDoc) &&
       tolower(tools::file_ext(appPrimaryDoc)) == "r") {
     return("shiny")
@@ -107,8 +108,8 @@ inferAppMode <- function(appDir,
   # We gate the deployment of content that appears to be Quarto behind the
   # presence of Quarto metadata. Rmd files can still be deployed as Quarto
   # content.
-  # HW: Isn't this going to be true in modern RStudio? So all Rmds will use
-  # quarto mode. Is that ok?
+  # TODO(HW): I think this logic should be moved into appMetdata() because this
+  # should also error if the user specified appMode = "quarto-shiny"
   if (requiresQuarto && is.null(quartoInfo)) {
     stop(paste(
       "Attempting to deploy Quarto content without Quarto metadata.",
@@ -302,6 +303,9 @@ inferQuartoInfo <- function(appDir, appPrimaryDoc, appFiles, quarto, metadata) {
     # - App modes are only used to gate primary doc inference; the behavior does
     #   not differ between app modes.
     # - inferAppPrimaryDoc() returns appPrimaryDoc() if it is not null.
+
+    # TODO(HW): eliminate this code by running inferAppPrimaryDoc() before
+    # inferQuartoInfo()
     tryCatch({
       appPrimaryDoc <- inferAppPrimaryDoc(
         appPrimaryDoc = appPrimaryDoc,
