@@ -70,6 +70,9 @@ inferAppMode <- function(appDir,
     appFiles <- bundleFiles(appDir)
   }
 
+  # TODO(HW): detection rules only apply to files in top-level directory
+  # Should make that explicit in the code
+
   # plumber API
   plumberFiles <- grep("^(plumber|entrypoint).r$", appFiles, ignore.case = TRUE, perl = TRUE)
   if (length(plumberFiles) > 0) {
