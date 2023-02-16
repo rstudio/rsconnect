@@ -16,7 +16,7 @@ rsconnectConfigDir <- function(subDir = NULL) {
 
   # If the configuration directory doesn't exist, see if there's an old one to
   # migrate
-  if (!dirExists("-d")) {
+  if (!dirExists(configDir)) {
 
     # For historical reasons too painful to enumerate here, there are not one
     # but *two* old locations for configuration files to check. If we find
