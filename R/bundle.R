@@ -826,3 +826,13 @@ name.all.repos <- function(repos) {
 availableCRANSourcePackages <- function() {
   available.packages("https://cran.rstudio.com/src/contrib", type = "source")
 }
+
+appUsesPython <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # No R-based, non-Quarto content uses Python by default.
+    # Looking for Python chunks in Rmd needs to happen separately.
+    return(FALSE)
+  }
+  # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
+  return("jupyter" %in% quartoInfo[["engines"]])
+}

@@ -357,27 +357,6 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
   return(inspect)
 }
 
-appUsesR <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # All non-Quarto content currently uses R by default.
-    # To support non-R content in rsconnect, we could inspect appmode here.
-    return(TRUE)
-  }
-  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
-  # Technically, "jupyter" content could support R.
-  return("knitr" %in% quartoInfo[["engines"]])
-}
-
-appUsesPython <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # No R-based, non-Quarto content uses Python by default.
-    # Looking for Python chunks in Rmd needs to happen separately.
-    return(FALSE)
-  }
-  # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
-  return("jupyter" %in% quartoInfo[["engines"]])
-}
-
 quarto_path <- function() {
   path_env <- Sys.getenv("QUARTO_PATH", unset = NA)
   if (!is.na(path_env)) {
@@ -396,3 +375,4 @@ quarto_path <- function() {
     return(NULL)
   }
 }
+

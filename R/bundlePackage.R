@@ -157,3 +157,14 @@ validatePackageSource <- function(pkg) {
 
   return()
 }
+
+appUsesR <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # All non-Quarto content currently uses R by default.
+    # To support non-R content in rsconnect, we could inspect appmode here.
+    return(TRUE)
+  }
+  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
+  # Technically, "jupyter" content could support R.
+  return("knitr" %in% quartoInfo[["engines"]])
+}
