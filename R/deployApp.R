@@ -521,7 +521,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
-  metadata <- appMetadata(
+  appMetadata <- appMetadata(
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
@@ -533,7 +533,7 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 
   # get application users (for non-document deployments)
   users <- NULL
-  if (is.null(metadata$appPrimaryDoc)) {
+  if (is.null(appMetadata$appPrimaryDoc)) {
     users <- suppressWarnings(authorizedUsers(appDir))
   }
 
@@ -542,25 +542,25 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   bundleDir <- bundleAppDir(
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = metadata$appPrimaryDoc)
+      appPrimaryDoc = appMetadata$appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
   manifest <- createAppManifest(
       appDir = bundleDir,
-      appMode = metadata$appMode,
+      appMode = appMetadata$appMode,
       contentCategory = contentCategory,
-      hasParameters = metadata$hasParameters,
-      appPrimaryDoc = metadata$appPrimaryDoc,
+      hasParameters = appMetadata$hasParameters,
+      appPrimaryDoc = appMetadata$appPrimaryDoc,
       assetTypeName = assetTypeName,
       users = users,
       condaMode = condaMode,
       forceGenerate = forceGenerate,
       python = python,
-      documentsHavePython = metadata$documentsHavePython,
+      documentsHavePython = appMetadata$documentsHavePython,
       retainPackratDirectory = TRUE,
-      quartoInfo = metadata$quartoInfo,
+      quartoInfo = appMetadata$quartoInfo,
       isCloud = isCloudServer,
       image = image,
       verbose = verbose)

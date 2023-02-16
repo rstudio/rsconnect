@@ -56,7 +56,7 @@ writeManifest <- function(appDir = getwd(),
     appFiles <- explodeFiles(appDir, appFiles)
   }
 
-  metadata <- appMetadata(
+  appMetadata <- appMetadata(
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
@@ -68,7 +68,7 @@ writeManifest <- function(appDir = getwd(),
   bundleDir <- bundleAppDir(
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = metadata$appPrimaryDoc)
+      appPrimaryDoc = appMetadata$appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   python <- getPython(python)
@@ -76,18 +76,18 @@ writeManifest <- function(appDir = getwd(),
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
       appDir = bundleDir,
-      appMode = metadata$appMode,
+      appMode = appMetadata$appMode,
       contentCategory = contentCategory,
-      hasParameters = metadata$hasParameters,
-      appPrimaryDoc = metadata$appPrimaryDoc,
+      hasParameters = appMetadata$hasParameters,
+      appPrimaryDoc = appMetadata$appPrimaryDoc,
       assetTypeName = "content",
       users = NULL,
       condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
-      documentsHavePython = metadata$documentsHavePython,
+      documentsHavePython = appMetadata$documentsHavePython,
       retainPackratDirectory = FALSE,
-      quartoInfo = metadata$quartoInfo,
+      quartoInfo = appMetadata$quartoInfo,
       isCloud = FALSE,
       image = image,
       verbose = verbose)

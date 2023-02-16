@@ -192,8 +192,8 @@ is_shiny_prerendered <- function(runtime, server = NULL) {
 
 # If deploying an R Markdown, Quarto, or static content, infer a primary
 # document if one is not already specified.
-  # Note: functionality in inferQuartoInfo() depends on primary doc inference
-  # working the same across app modes.
+# Note: functionality in inferQuartoInfo() depends on primary doc inference
+# working the same across app modes.
 inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
   if (!is.null(appPrimaryDoc)) {
     return(appPrimaryDoc)
