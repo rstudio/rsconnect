@@ -168,24 +168,23 @@ inferAppMode <- function(appDir,
 
 isShinyRmd <- function(filename) {
   yaml <- yamlFromRmd(filename)
-  if (!is.null(yaml)) {
-    runtime <- yaml[["runtime"]]
-    server <- yaml[["server"]]
-    if (!is.null(runtime) && grepl("^shiny", runtime)) {
-      # ...and "runtime: shiny", then it's a dynamic Rmd.
-      return(TRUE)
-    } else if (!is.null(server)) {
-      # HW: this block is untested - I suspect it's a legacy version
-      if (identical(server, "shiny")) {
-        return(TRUE)
-      } else if (is.list(server) && identical(server[["type"]], "shiny")) {
-        return(TRUE)
-      }
-    }
+  if (is.null(yaml)) {
+    return(FALSE)
   }
-  return(FALSE)
+  is_shiny_prerendered(yaml$runtime, yaml$server)
 }
-
+# Adapted from rmarkdown:::is_shiny_prerendered()
+is_shiny_prerendered <- function(runtime, server = NULL) {
+  if (!is.null(runtime) && grepl("^shiny", runtime)) {
+    TRUE
+  } else if (identical(server, "shiny")) {
+    TRUE
+  } else if (is.list(server) && identical(server[["type"]], "shiny")) {
+    TRUE
+  } else {
+    FALSE
+  }
+}
 
 # If deploying an R Markdown, Quarto, or static content, infer a primary
 # document if one is not already specified.

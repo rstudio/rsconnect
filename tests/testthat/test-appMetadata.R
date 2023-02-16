@@ -81,9 +81,17 @@ test_that("can infer mode for shiny quarto and rmd docs", {
 })
 
 test_that("Shiny R Markdown files are detected correctly", {
-  expect_true(isShinyRmd("./shiny-rmds/shiny-rmd-dashes.Rmd"))
-  expect_true(isShinyRmd("./shiny-rmds/shiny-rmd-dots.Rmd"))
-  expect_false(isShinyRmd("./shiny-rmds/non-shiny-rmd.Rmd"))
+  expect_true(isShinyRmd(test_path("shiny-rmds/shiny-rmd-dashes.Rmd")))
+  expect_true(isShinyRmd(test_path("shiny-rmds/shiny-rmd-dots.Rmd")))
+  expect_false(isShinyRmd(test_path("shiny-rmds/non-shiny-rmd.Rmd")))
+})
+
+test_that("shiny metadata process correctly", {
+  expect_false(is_shiny_prerendered(NULL, NULL))
+  expect_true(is_shiny_prerendered("shiny_prerendered", NULL))
+  expect_true(is_shiny_prerendered("shinyrmd", NULL))
+  expect_true(is_shiny_prerendered(NULL, "shiny"))
+  expect_true(is_shiny_prerendered(NULL, list(type = "shiny")))
 })
 
 test_that("can infer tensorflow models", {
