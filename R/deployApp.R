@@ -152,7 +152,7 @@ deployApp <- function(appDir = getwd(),
 
   condaMode <- FALSE
 
-  check_string(appDir)
+  check_directory(appDir)
 
   # respect log level
   logLevel <- match.arg(logLevel)
@@ -184,8 +184,7 @@ deployApp <- function(appDir = getwd(),
     on.exit(options(old_error), add = TRUE)
   }
 
-  # normalize appDir path and ensure it exists
-  check_directory(appDir)
+  # normalize appDir path
   appDir <- normalizePath(appDir)
 
   # create the full path that we'll deploy (append document if requested)
