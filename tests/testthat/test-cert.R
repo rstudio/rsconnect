@@ -32,7 +32,7 @@ test_that("certificates can be added", {
   # add the certificate
   addServerCertificate(
     name = "cert_test_b",
-    certificate = "certs/sample.crt",
+    certificate = test_path("certs/sample.crt"),
     quiet = TRUE
   )
 
@@ -40,7 +40,7 @@ test_that("certificates can be added", {
   info <- serverInfo("cert_test_b")
 
   # see if the cert we added is there
-  certLines <- paste(readLines("certs/sample.crt"), collapse = "\n")
+  certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
   expect_equal(certLines, info$certificate)
 })
 
@@ -51,12 +51,12 @@ test_that("certificates can't be attached to plain http servers", {
   expect_error(addServer(
     url = "http://localhost:4567",
     name = "cert_test_c",
-    certificate = "certs/sample.crt"
+    certificate = test_path("certs/sample.crt")
   ))
   addServer(url = "http://localhost:4567", name = "cert_test_d", quiet = TRUE)
   expect_error(addServerCertificate(
     name = "cert_test_d",
-    certificate = "certs/sample.crt"
+    certificate = test_path("certs/sample.crt")
   ))
 })
 
@@ -85,7 +85,7 @@ test_that("invalid certificates cannot be added", {
   expect_error(addServer(
     url = "https://localhost:4567/",
     name = "cert_test_e",
-    certificate = "certs/invalid.crt",
+    certificate = test_path("certs/invalid.crt"),
     quiet = TRUE
   ))
 })
@@ -97,7 +97,7 @@ test_that("multiple certificates can exist in the same file", {
   addServer(
     url = "https://localhost:4567/",
     name = "cert_test_f",
-    certificate = "certs/two-cas.crt",
+    certificate = test_path("certs/two-cas.crt"),
     quiet = TRUE
   )
 
@@ -105,7 +105,7 @@ test_that("multiple certificates can exist in the same file", {
   info <- serverInfo("cert_test_f")
 
   # compare with the contents of the cert we read
-  certLines <- paste(readLines("certs/two-cas.crt"), collapse = "\n")
+  certLines <- paste(readLines(test_path("certs/two-cas.crt")), collapse = "\n")
   expect_equal(certLines, info$certificate)
 })
 
@@ -120,7 +120,7 @@ test_that("certificates not used when making plain http connections", {
       port      = "80",
       path      = "apps"
     ),
-    authInfo = list(certificate = "certs/localhost.crt"),
+    authInfo = list(certificate = test_path("certs/localhost.crt")),
     "apps"
   )
   expect_equal(httpLastRequest$certificate, NULL)
@@ -137,7 +137,7 @@ test_that("certificates used when making https connections", {
       port      = "443",
       path      = "apps"
     ),
-    authInfo = list(certificate = "certs/localhost.crt"),
+    authInfo = list(certificate = test_path("certs/localhost.crt")),
     "apps"
   )
 
