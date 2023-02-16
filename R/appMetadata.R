@@ -339,22 +339,23 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
   if (is.null(quarto)) {
     return(NULL)
   }
-  inspect <- NULL
+
   # If "quarto inspect appDir" fails, we will try "quarto inspect
   # appPrimaryDoc", so that we can support single files as well as projects.
-  primaryDocPath <- file.path(appDir, appPrimaryDoc) # prior art: appHasParameters()
-  for (path in c(appDir, primaryDocPath)) {
+  paths <- c(appDir, file.path(appDir, appPrimaryDoc))
+
+  for (path in paths) {
     args <- c("inspect", path.expand(path))
-    tryCatch(
+    inspect <- tryCatch(
       {
-        inspectOutput <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
-        inspect <- jsonlite::fromJSON(inspectOutput)
+        json <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
+        parsed <- jsonlite::fromJSON(json)
+        return(parsed)
       },
-      error = function(e) e
+      error = function(e) NULL
     )
-    if (!is.null(inspect)) break
   }
-  return(inspect)
+  return(NULL)
 }
 
 quarto_path <- function() {
@@ -375,4 +376,3 @@ quarto_path <- function() {
     return(NULL)
   }
 }
-

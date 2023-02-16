@@ -1,12 +1,3 @@
-fakeQuartoMetadata <- function(version, engines) {
-  # See quarto-r/R/publish.R lines 396 and 113.
-  metadata <- list()
-  metadata$quarto_version <- version
-  metadata$quarto_engines <- I(engines)
-  return(metadata)
-}
-
-
 # appMetadata -------------------------------------------------------------
 
 test_that("clear error if no files", {
@@ -184,11 +175,19 @@ test_that("Rmd or qmd with python chunk has python", {
 
 # quarto ------------------------------------------------------------------
 
+fakeQuartoMetadata <- function(version, engines) {
+  # See quarto-r/R/publish.R lines 396 and 113.
+  metadata <- list()
+  metadata$quarto_version <- version
+  metadata$quarto_engines <- I(engines)
+  return(metadata)
+}
+
 test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
   quarto <- quartoPathOrSkip()
 
   quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-doc-none",
+    appDir = test_path("quarto-doc-none"),
     appPrimaryDoc = "quarto-doc-none.qmd",
     appFiles = bundleFiles("quarto-doc-none"),
     quarto = quarto,
@@ -198,7 +197,7 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   expect_equal(quartoInfo$engines, I(c("markdown")))
 
   quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-website-r",
+    appDir = test_path("quarto-website-r"),
     appPrimaryDoc = NULL,
     appFiles = bundleFiles("quarto-website-r"),
     quarto = quarto,
@@ -209,12 +208,10 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
 })
 
 test_that("inferQuartoInfo extracts info from metadata when it is provided alone", {
-  quarto <- quartoPathOrSkip()
-
   metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
 
   quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-website-r",
+    appDir = test_path("quarto-website-r"),
     appPrimaryDoc = NULL,
     appFiles = bundleFiles("quarto-website-r"),
     quarto = NULL,
@@ -230,7 +227,7 @@ test_that("inferQuartoInfo prefers using metadata over running quarto inspect it
   metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
 
   quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-website-r",
+    appDir = test_path("quarto-website-r"),
     appPrimaryDoc = NULL,
     appFiles = bundleFiles("quarto-website-r"),
     quarto = quarto,
@@ -243,7 +240,7 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
   quarto <- quartoPathOrSkip()
 
   quartoInfo <- inferQuartoInfo(
-    appDir = "shinyapp-simple",
+    appDir = test_path("shinyapp-simple"),
     appPrimaryDoc = NULL,
     appFiles = bundleFiles("shinyapp-simple"),
     quarto = quarto,
@@ -255,11 +252,16 @@ test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quart
 test_that("quartoInspect identifies on Quarto projects", {
   quarto <- quartoPathOrSkip()
 
-  inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
+  inspect <- quartoInspect(
+    appDir = test_path("quarto-website-r"),
+    quarto = quarto
+  )
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
 
-  inspect <- NULL
-  inspect <- quartoInspect(appDir = "quarto-proj-r-shiny", quarto = quarto)
+  inspect <- quartoInspect(
+    appDir = test_path("quarto-proj-r-shiny"),
+    quarto = quarto
+  )
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
 })
 
@@ -267,7 +269,7 @@ test_that("quartoInspect identifies Quarto documents", {
   quarto <- quartoPathOrSkip()
 
   inspect <- quartoInspect(
-    appDir = "quarto-doc-none",
+    appDir = test_path("quarto-doc-none"),
     appPrimaryDoc = "quarto-doc-none.qmd",
     quarto = quarto
   )
@@ -277,12 +279,13 @@ test_that("quartoInspect identifies Quarto documents", {
 test_that("quartoInspect returns NULL on non-quarto Quarto content", {
   quarto <- quartoPathOrSkip()
 
-  inspect <- quartoInspect(appDir = "shinyapp-simple", quarto = quarto)
+  inspect <- quartoInspect(
+    appDir = test_path("shinyapp-simple"),
+    quarto = quarto
+  )
   expect_null(inspect)
 })
 
 test_that("quartoInspect returns null when no quarto is provided", {
-  quarto <- quartoPathOrSkip()
-
   expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
 })
