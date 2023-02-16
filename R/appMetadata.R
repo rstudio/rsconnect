@@ -262,27 +262,25 @@ appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory = N
   FALSE
 }
 
+detectPythonInDocuments <- function(appDir, files = NULL) {
+  if (is.null(files)) {
+    # for testing
+    files <- bundleFiles(appDir)
+  }
 
-detectPythonInDocuments <- function(appDir, files) {
-  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE,
-                   value = TRUE)
-
-  if (length(rmdFiles) > 0) {
-    for (rmdFile in rmdFiles) {
-      if (documentHasPythonChunk(file.path(appDir, rmdFile))) {
-        return(TRUE)
-      }
+  rmdFiles <- grep("^[^/\\\\]+\\.[rq]md$", files, ignore.case = TRUE, perl = TRUE, value = TRUE)
+  for (rmdFile in rmdFiles) {
+    if (documentHasPythonChunk(file.path(appDir, rmdFile))) {
+      return(TRUE)
     }
   }
   return(FALSE)
 }
-
 documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
   return(length(matches) > 0)
 }
-
 
 
 # Attempt to gather Quarto version and engines, first from quarto inspect if a

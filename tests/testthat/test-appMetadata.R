@@ -160,6 +160,28 @@ test_that("otherwise look at yaml metadata", {
   expect_false(appHasParameters(dir, "index.Rmd", "rmd-shiny"))
 })
 
+
+# detectPythonInDocuments -------------------------------------------------
+
+test_that("dir without Rmds doesn't have have python", {
+  dir <- local_temp_app()
+  expect_false(detectPythonInDocuments(dir))
+
+  dir <- local_temp_app(list("foo.R" = ""))
+  expect_false(detectPythonInDocuments(dir))
+})
+
+test_that("Rmd or qmd with python chunk has python", {
+  dir <- local_temp_app(list("foo.qmd" = c("```{r}", "1+1", "````")))
+  expect_false(detectPythonInDocuments(dir))
+
+  dir <- local_temp_app(list("foo.Rmd" = c("```{python}", "1+1", "````")))
+  expect_true(detectPythonInDocuments(dir))
+
+  dir <- local_temp_app(list("foo.qmd" = c("```{python}", "1+1", "````")))
+  expect_true(detectPythonInDocuments(dir))
+})
+
 # quarto ------------------------------------------------------------------
 
 test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
