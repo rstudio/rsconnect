@@ -37,5 +37,5 @@ local_http_recorder <- function(env = caller_env()) {
 # avoid having tests overwrite the "official" configuration locations.
 local_temp_config <- function(env = caller_env()) {
   path <- withr::local_tempdir(.local_envir = env)
-  withr::local_envvar(R_USER_CONFIG_DIR = path, .local_envir = env())
+  withr::local_envvar(R_USER_CONFIG_DIR = path, .local_envir = env)
 }
