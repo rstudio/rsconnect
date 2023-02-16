@@ -308,7 +308,7 @@ registerCloudTokenSecret <- function(serverName,
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode = "0600")
+    Sys.chmod(path, mode = "0600")
 
   path
 }
