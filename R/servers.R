@@ -60,9 +60,9 @@ servers <- function(local = FALSE) {
   })
   locals <- do.call(rbind, parsed)
   if (local) {
-    locals
+    out <- locals
   } else {
-    serversList <- rbind(
+    out <- rbind(
       locals,
       as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
       as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
@@ -75,8 +75,9 @@ servers <- function(local = FALSE) {
         as.data.frame(cloudServerInfo("rstudio.cloud"), stringsAsFactors = FALSE)
       )
     }
-    serversList
   }
+  out$certificate <- secret(out$certificate)
+  out
 }
 
 serverConfigDir <- function() {

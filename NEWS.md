@@ -1,5 +1,9 @@
 # rsconnect 0.8.30 (development version)
 
+* `accountInfo()` and `servers()` now redacts sensitive information (secrets,
+  private keys, and certificates) to make it hard to accidentally reveal
+  such information in logs (#675).
+
 * The logic used by `deployApp()` for determining whether you publish a 
   new update or update an existing app has been simplified. Now `appName`,
   `account`, and `server` are used to find existing deployments. If none
