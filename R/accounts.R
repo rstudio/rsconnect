@@ -272,23 +272,45 @@ setAccountInfo <- function(name, token, secret,
   if (is.null(accountId))
     stop("Unable to determine account id for account named '", name, "'")
 
+  registerCloudTokenSecret(
+    serverName = serverInfo$name,
+    accountName = name,
+    userId = userId,
+    token = token,
+    secret = secret,
+  )
+  invisible()
+}
+
+registerCloudTokenSecret <- function(serverName,
+                                     accountName,
+                                     userId,
+                                     accountId,
+                                     token,
+                                     secret) {
   # get the path to the config file
-  configFile <- accountConfigFile(name, serverInfo$name)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
+  path <- accountConfigFile(accountName, serverName)
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
 
   # write the user info
-  write.dcf(list(name = name,
-                 userId = userId,
-                 accountId = accountId,
-                 token = token,
-                 secret = secret,
-                 server = serverInfo$name),
-            configFile,
-            width = 100)
+  write.dcf(
+    list(
+      name = accountName,
+      userId = userId,
+      accountId = accountName,
+      token = token,
+      secret = secret,
+      server = serverName
+    ),
+    path,
+    width = 100
+  )
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
     Sys.chmod(configFile, mode = "0600")
+
+  path
 }
 
 #' @rdname accounts
@@ -303,8 +325,13 @@ accountInfo <- function(name = NULL, server = NULL) {
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
-    info$private_key <- gsub("[[:space:]]", "", info$private_key)
+    info$private_key <- secret(gsub("[[:space:]]", "", info$private_key))
   }
+
+  if (!is.null(info$secret)) {
+    info$secret <- secret(info$secret)
+  }
+
   info
 }
 
@@ -486,4 +513,26 @@ accountInfoFromHostUrl <- function(hostUrl) {
   # return account info from the first one
   return(accountInfo(name = as.character(account[1, "name"]),
                      server = server))
+}
+
+
+secret <- function(x) {
+  stopifnot(is.character(x))
+  structure(x, class = "rsconnect_secret")
+}
+
+#' @export
+format.rsconnect_secret <- function(x, ...) {
+  paste0(substr(x, 1, 6), "... (redacted)")
+}
+
+#' @export
+print.rsconnect_secret <- function(x, ...) {
+  print(format(x))
+  invisible(x)
+}
+
+#' @export
+str.rsconnect_secret <- function(object, ...) {
+  cat(" ", format(object), "\n", sep = "")
 }
