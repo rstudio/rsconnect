@@ -131,6 +131,35 @@ test_that("errors if no files with needed extension", {
   })
 })
 
+# appHasParameters --------------------------------------------------------
+
+test_that("non-documents don't have parameters", {
+  dir <- local_temp_app(list("foo.R" = ""))
+
+  expect_false(appHasParameters(dir, "foo.R", "static"))
+  expect_false(appHasParameters(dir, "foo.R", "shiny"))
+})
+
+test_that("documents don't have parameters if part of a site", {
+  dir <- local_temp_app(list("index.Rmd" = c("---", "params: [1, 2]", "---")))
+
+  expect_false(appHasParameters(dir, "index.Rmd", "rmd-static", "site"))
+  expect_false(appHasParameters(dir, "index.Rmd", "qmd-shiny", "site"))
+})
+
+test_that("non-Rmd files don't have parameters", {
+  dir <- local_temp_app(list("app.r" = c("")))
+  expect_false(appHasParameters(dir, "app.R", "rmd-shiny"))
+})
+
+test_that("otherwise look at yaml metadata", {
+  dir <- local_temp_app(list("index.Rmd" = c("---", "params: [1, 2]", "---")))
+  expect_true(appHasParameters(dir, "index.Rmd", "rmd-shiny"))
+
+  dir <- local_temp_app(list("index.Rmd" = c("---", "params: ~", "---")))
+  expect_false(appHasParameters(dir, "index.Rmd", "rmd-shiny"))
+})
+
 # quarto ------------------------------------------------------------------
 
 test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {

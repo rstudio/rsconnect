@@ -196,8 +196,8 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
     return(appPrimaryDoc)
   }
 
-  # Non-document apps don't have primary _doc_
-  if (appMode %in% c("shiny", "api", "tensorflow-saved-model")) {
+  # Only documents and static apps don't have primary _doc_
+  if (!(appIsDocument(appMode) || appMode == "static")) {
     return(appPrimaryDoc)
   }
 
@@ -226,19 +226,22 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
   }
 }
 
-appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory) {
+appIsDocument <- function(appMode) {
+  appMode %in% c(
+    "rmd-static",
+    "rmd-shiny",
+    "quarto-static",
+    "quarto-shiny"
+  )
+}
+
+appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory = NULL) {
   # Only Rmd deployments are marked as having parameters. Shiny applications
   # may distribute an Rmd alongside app.R, but that does not cause the
   # deployment to be considered parameterized.
   #
   # https://github.com/rstudio/rsconnect/issues/246
-  parameterAppModes <- c(
-      "rmd-static",
-      "rmd-shiny",
-      "quarto-static",
-      "quarto-shiny"
-  )
-  if (!(appMode %in% parameterAppModes)) {
+  if (!(appIsDocument(appMode))) {
     return(FALSE)
   }
   # Sites don't ever have parameters
