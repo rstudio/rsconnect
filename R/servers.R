@@ -76,7 +76,9 @@ servers <- function(local = FALSE) {
       )
     }
   }
-  out$certificate <- secret(out$certificate)
+  if (!is.null(out$certificate)) {
+    out$certificate <- secret(out$certificate)
+  }
   out
 }
 
