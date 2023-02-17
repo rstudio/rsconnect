@@ -6,9 +6,7 @@ appMetadata <- function(appDir,
                         isCloudServer = FALSE,
                         metadata = list()) {
 
-  if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles)
 
   if (!is.null(contentCategory)) {
     assetTypeName <- contentCategory
@@ -159,15 +157,9 @@ inferAppMode <- function(appDir,
     return("tensorflow-saved-model")
   }
 
-  # no renderable content here; if there's at least one file, we can just serve
-  # it as static content
-  if (length(appFiles) > 0) {
-    return("static")
-  }
-
-  cli::cli_abort(
-    "No content to deploy; {.arg appFiles} is empty"
-  )
+  # no renderable content here and we know that there's at least one
+  # file or bundFiles() would have errored
+  "static"
 }
 
 isShinyRmd <- function(filename) {

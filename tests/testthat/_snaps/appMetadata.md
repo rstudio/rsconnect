@@ -3,7 +3,7 @@
     Code
       appMetadata(dir)
     Condition
-      Error in `inferAppMode()`:
+      Error in `standardizeAppFiles()`:
       ! No content to deploy; `appFiles` is empty
 
 # quarto docs require quarto

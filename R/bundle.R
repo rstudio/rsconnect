@@ -850,6 +850,13 @@ standardizeAppFiles <- function(appDir, appFiles = NULL, appFileManifest = NULL)
     # file list provided directly
     appFiles <- explodeFiles(appDir, appFiles)
   }
+
+  if (length(appFiles) == 0) {
+    cli::cli_abort(
+      "No content to deploy; {.arg appFiles} is empty"
+    )
+  }
+  appFiles
 }
 
 appUsesPython <- function(quartoInfo) {
