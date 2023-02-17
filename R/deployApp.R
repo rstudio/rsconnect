@@ -300,8 +300,6 @@ deployApp <- function(appDir = getwd(),
   displayStatus <- displayStatus(quiet)
   withStatus <- withStatus(quiet)
 
-  # initialize connect client
-
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
   # TODO(HW): I'm pretty sure target$server is already the correctvalue
