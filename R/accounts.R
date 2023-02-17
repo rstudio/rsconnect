@@ -36,8 +36,8 @@ accounts <- function(server = NULL) {
   # convert to a data frame
   servers <- dirname(accountnames)
   servers[servers == "."] <- "shinyapps.io"
-  servers <- fileLeaf(servers)
-  names <- fileLeaf(accountnames)
+  servers <- basename(servers)
+  names <- basename(accountnames)
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
