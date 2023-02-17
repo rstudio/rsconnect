@@ -88,7 +88,7 @@
 #' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
 #'   content. The provided Quarto binary will be used to run `quarto inspect`
 #'   to gather information about the content.
-#' @param appVisibility One of `NULL`, "private"`, or `"public"`; the
+#' @param appVisibility One of `NULL`, `"private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
 #' @param image Optional. The name of the image to use when building and

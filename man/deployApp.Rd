@@ -123,7 +123,8 @@ is \code{TRUE}.}
 content. The provided Quarto binary will be used to run \verb{quarto inspect}
 to gather information about the content.}
 
-\item{appVisibility}{One of \code{NULL}, "private"\verb{, or }"public"\verb{; the visibility of the deployment. When }NULL`, no change to visibility is
+\item{appVisibility}{One of \code{NULL}, \code{"private"}, or \code{"public"}; the
+visibility of the deployment. When \code{NULL}, no change to visibility is
 made. Currently has an effect only on deployments to shinyapps.io.}
 
 \item{image}{Optional. The name of the image to use when building and
