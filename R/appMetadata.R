@@ -8,14 +8,6 @@ appMetadata <- function(appDir,
 
   appFiles <- standardizeAppFiles(appDir, appFiles)
 
-  if (!is.null(contentCategory)) {
-    assetTypeName <- contentCategory
-  } else if (!is.null(appPrimaryDoc)) {
-    assetTypeName <- "document"
-  } else {
-    assetTypeName <- "application"
-  }
-
   # User has supplied quarto path or quarto package has supplied metdata
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
   hasQuarto <- !is.null(quarto) || !is.null(metadata$quarto_version)
@@ -49,6 +41,13 @@ appMetadata <- function(appDir,
     metadata = metadata
   )
 
+  if (!is.null(contentCategory)) {
+    assetTypeName <- contentCategory
+  } else if (!is.null(appPrimaryDoc)) {
+    assetTypeName <- "document"
+  } else {
+    assetTypeName <- "application"
+  }
 
   list(
     assetTypeName = assetTypeName,
