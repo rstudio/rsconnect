@@ -39,3 +39,22 @@ local_temp_config <- function(env = caller_env()) {
   path <- withr::local_tempdir(.local_envir = env)
   withr::local_envvar(R_USER_CONFIG_DIR = path, .local_envir = env)
 }
+
+
+quartoPathOrSkip <- function() {
+  skip_on_cran()
+  quarto <- quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+  return(quarto)
+}
+
+local_temp_app <- function(files = list(), env = caller_env()) {
+  dir <- withr::local_tempdir(.local_envir = env)
+
+  for (name in names(files)) {
+    content <- files[[name]]
+    writeLines(content, file.path(dir, name))
+  }
+
+  dir
+}
