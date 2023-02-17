@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `addConnectServer()` is slightly more robust to incorrect specification 
+  (#603).
+
 * `accountInfo()` and `servers()` now redacts sensitive information (secrets,
   private keys, and certificates) to make it hard to accidentally reveal
   such information in logs (#675).

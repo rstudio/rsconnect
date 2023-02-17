@@ -296,11 +296,12 @@ clientForAccount <- function(account) {
 }
 
 ensureConnectServerUrl <- function(url) {
+  # strip trailing /
+  url <- gsub("/$", "", url)
+
   # ensure 'url' ends with '/__api__'
   if (!grepl("/__api__$", url))
     url <- paste(url, "/__api__", sep = "")
 
-  # if we have duplicated leading slashes, remove them
-  url <- gsub("(/+__api__)$", "/__api__", url)
   url
 }
