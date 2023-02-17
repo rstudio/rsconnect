@@ -155,10 +155,13 @@ deployApp <- function(appDir = getwd(),
   if (!isStringParam(appDir))
     stop(stringParamErrorMessage("appDir"))
 
-  # respect log level
+  # set up logging helpers
   logLevel <- match.arg(logLevel)
   quiet <- identical(logLevel, "quiet")
   verbose <- identical(logLevel, "verbose")
+  logger <- verboseLogger(verbose)
+  displayStatus <- displayStatus(quiet)
+  withStatus <- withStatus(quiet)
 
   # run startup scripts to pick up any user options and establish pre/post deploy hooks
   runStartupScripts(appDir, logLevel)
@@ -233,7 +236,7 @@ deployApp <- function(appDir = getwd(),
 
   # at verbose log level, generate header
   if (verbose) {
-    cat("----- Deployment log started at ", as.character(Sys.time()), " -----\n")
+    logger("Deployment log started")
     cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
     cat("Session information: \n")
     print(utils::sessionInfo())
@@ -292,10 +295,6 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
 
-  # functions to show status (respects quiet param)
-  displayStatus <- displayStatus(quiet)
-  withStatus <- withStatus(quiet)
-
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
 
@@ -344,12 +343,9 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
-  logger <- verboseLogger(verbose)
-
   if (upload) {
     # create, and upload the bundle
-    if (verbose)
-      cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
+    logger("Bundle upload started")
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
 
@@ -419,9 +415,8 @@ deployApp <- function(appDir = getwd(),
                          " for ", assetTypeName, ": ", application$id,
                          " ...\n", sep = ""))
   }
-  if (verbose) {
-    cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
-  }
+
+  logger("Server deployment started")
 
   # wait for the deployment to complete (will raise an error if it can't)
   task <- client$deployApplication(application$id, bundle$id)
@@ -456,9 +451,7 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
-  if (verbose) {
-    cat("----- Deployment log finished at ", as.character(Sys.time()), " -----\n")
-  }
+  logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
 }
