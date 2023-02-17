@@ -33,9 +33,9 @@ bundlePackages <- function(appDir,
     unclass(utils::packageDescription(nm))
   })
 
-  # Connect will generally use the packrat/packrat.lock file; the data
-  # in the manifest is used primarily by shinyapps.io, which only supports
-  # Github remotes, not Bitbucket or Gitlab.
+  # Connect prefers that packrat/packrat.lock file, but will use the manifest
+  # if needed. shinyapps.io only uses the manifest, and only supports Github
+  # remotes, not Bitbucket or Gitlab.
   github_cols <- grep("Github", colnames(deps), perl = TRUE, value = TRUE)
   packages <- deps[c("Source", "Repository", github_cols, "description")]
   packages_list <- lapply(seq_len(nrow(packages)), function(i) {
