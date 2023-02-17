@@ -59,6 +59,7 @@ servers <- function(local = FALSE) {
     info
   })
   locals <- do.call(rbind, parsed)
+  locals <- as.data.frame(locals, stringAsFactors = FALSE)
   if (local) {
     out <- locals
   } else {
@@ -76,9 +77,7 @@ servers <- function(local = FALSE) {
       )
     }
   }
-  if (!is.null(out$certificate)) {
-    out$certificate <- secret(out$certificate)
-  }
+  out$certificate <- secret(out$certificate)
   out
 }
 
