@@ -153,6 +153,7 @@ deployApp <- function(appDir = getwd(),
   condaMode <- FALSE
 
   check_directory(appDir)
+  check_string(appName, allow_null = TRUE)
 
   # set up logging helpers
   logLevel <- match.arg(logLevel)
@@ -257,8 +258,6 @@ deployApp <- function(appDir = getwd(),
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
     showLintResults(appDir, lintResults, assetTypeName)
   }
-
-  check_string(appName, allow_null = TRUE)
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
