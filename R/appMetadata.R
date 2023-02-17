@@ -20,13 +20,6 @@ appMetadata <- function(appDir,
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
   hasQuarto <- !is.null(quarto) || !is.null(metadata$quarto_version)
 
-  quartoInfo <- inferQuartoInfo(
-    appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
-    appFiles = appFiles,
-    quarto = quarto,
-    metadata = metadata
-  )
   appMode <- inferAppMode(
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
@@ -49,6 +42,13 @@ appMetadata <- function(appDir,
     appDir = appDir,
     files = appFiles
   )
+  quartoInfo <- inferQuartoInfo(
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc,
+    quarto = quarto,
+    metadata = metadata
+  )
+
 
   list(
     assetTypeName = assetTypeName,
@@ -278,61 +278,36 @@ documentHasPythonChunk <- function(filename) {
   return(length(matches) > 0)
 }
 
-
-# Attempt to gather Quarto version and engines, first from quarto inspect if a
-# quarto executable is provided, and then from metadata.
-inferQuartoInfo <- function(appDir, appPrimaryDoc, appFiles, quarto, metadata) {
-  quartoInfo <- NULL
+inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
   if (!is.null(metadata$quarto_version)) {
-    # Prefer metadata, because that means someone already ran quarto inspect
-    quartoInfo <- list(
-      "version" = metadata[["quarto_version"]],
-      "engines" = metadata[["quarto_engines"]]
-    )
+    return(list(
+      version = metadata[["quarto_version"]],
+      engines = metadata[["quarto_engines"]]
+    ))
   }
-  if (is.null(quartoInfo) && !is.null(quarto)) {
-    # If we don't yet have Quarto details, run quarto inspect ourselves
 
-    # If no appPrimaryDoc has been provided, we will use the file that will be
-    # chosen if this deployment ends up with an R Markdown or Quarto app mode.
-    # This works because:
-
-    # - App modes are only used to gate primary doc inference; the behavior does
-    #   not differ between app modes.
-    # - inferAppPrimaryDoc() returns appPrimaryDoc() if it is not null.
-
-    # TODO(HW): eliminate this code by running inferAppPrimaryDoc() before
-    # inferQuartoInfo()
-    tryCatch({
-      appPrimaryDoc <- inferAppPrimaryDoc(
-        appPrimaryDoc = appPrimaryDoc,
-        appFiles = appFiles,
-        appMode = "quarto-static"
-      )
-    }, error = function(e) {}
-    )
-    inspect <- quartoInspect(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      quarto = quarto
-    )
-    if (!is.null(inspect)) {
-      quartoInfo <- list(
-        version = inspect[["quarto"]][["version"]],
-        engines = I(inspect[["engines"]])
-      )
-    }
-  }
-  return(quartoInfo)
-}
-
-
-# Run "quarto inspect" on the target and returns its output as a parsed object.
-quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL, quarto = NULL) {
   if (is.null(quarto)) {
     return(NULL)
   }
 
+  # If we don't yet have Quarto details, run quarto inspect ourselves
+  inspect <- quartoInspect(
+    quarto = quarto,
+    appDir = appDir,
+    appPrimaryDoc = appPrimaryDoc
+  )
+  if (is.null(inspect)) {
+    return(NULL)
+  }
+
+  list(
+    version = inspect[["quarto"]][["version"]],
+    engines = I(inspect[["engines"]])
+  )
+}
+
+# Run "quarto inspect" on the target and returns its output as a parsed object.
+quartoInspect <- function(quarto, appDir = NULL, appPrimaryDoc = NULL) {
   # If "quarto inspect appDir" fails, we will try "quarto inspect
   # appPrimaryDoc", so that we can support single files as well as projects.
   paths <- c(appDir, file.path(appDir, appPrimaryDoc))
