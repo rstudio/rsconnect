@@ -192,6 +192,9 @@ deployApp <- function(appDir = getwd(),
   appDir <- normalizePath(appDir)
 
   # create the full path that we'll deploy (append document if requested)
+  # TODO(HW): we use appPrimaryDoc here, but we have not inferred it yet
+  # so the appPath will different deneding on whether it's explicitly
+  # supplied or inferred from the files in the directory.
   appPath <- appDir
   if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
     appPath <- appSourceDoc
