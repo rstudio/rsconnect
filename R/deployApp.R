@@ -251,28 +251,7 @@ deployApp <- function(appDir = getwd(),
     assetTypeName <- "application"
   }
 
-  # build the list of files to deploy -- implicitly (directory contents),
-  # explicitly via list, or explicitly via manifest
-  if (is.null(appFiles)) {
-    if (is.null(appFileManifest)) {
-      # no files supplied at all, just bundle the whole directory
-      appFiles <- bundleFiles(appDir)
-    } else {
-      # manifest file provided, read it and apply
-      check_file(appFileManifest)
-
-      # read the filenames from the file
-      manifestLines <- readLines(appFileManifest, warn = FALSE)
-
-      # remove empty/comment lines and explode remaining
-      manifestLines <- manifestLines[nzchar(manifestLines)]
-      manifestLines <- manifestLines[!grepl("^#", manifestLines)]
-      appFiles <- explodeFiles(appDir, manifestLines)
-    }
-  } else {
-    # file list provided directly
-    appFiles <- explodeFiles(appDir, appFiles)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
