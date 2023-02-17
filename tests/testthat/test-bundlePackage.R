@@ -30,7 +30,8 @@ test_that("errors if dependencies aren't installed", {
     data.frame(
       Package = c("doesntexist1", "doesntexist2"),
       Source = "CRAN",
-      Repository = "https://cran.rstudio.com"
+      Repository = "https://cran.rstudio.com",
+      stringsAsFactors = FALSE
     )
   })
 
@@ -53,7 +54,8 @@ test_that("errors if can't find source", {
     data.frame(
       Package = "shiny",
       Source = NA,
-      Repository = NA
+      Repository = NA,
+      stringsAsFactors = FALSE
     )
   })
 

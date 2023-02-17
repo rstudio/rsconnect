@@ -986,7 +986,7 @@ findPackageRepoAndSource <- function(records, repos) {
       source <- NA
     }
     # validatePackageSource will emit a warning for packages with NA repository.
-    data.frame(Source = source, Repository = repository)
+    data.frame(Source = source, Repository = repository, stringsAsFactors = FALSE)
   })
   do.call("rbind", tmp)
 }
