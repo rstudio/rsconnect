@@ -45,15 +45,8 @@ rpubsUpload <- function(title,
                         id = NULL,
                         properties = list()) {
 
-  # validate inputs
-  if (!is.character(title))
-    stop("title must be specified")
-  if (nzchar(title) == FALSE)
-    stop("title pmust be a non-empty string")
-  if (!is.character(contentFile))
-    stop("contentFile parameter must be specified")
-  if (!file.exists(contentFile))
-    stop("specified contentFile does not exist")
+  check_string(title, allow_empty = FALSE)
+  check_file(contentFile)
   if (!is.list(properties))
     stop("properties paramater must be a named list")
 

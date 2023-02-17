@@ -1,9 +1,7 @@
 cleanupPasswordFile <- function(appDir) {
 
-  # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir) || !file.info(appDir)$isdir)
-    stop(appDir, " is not a valid directory", call. = FALSE)
+  check_directory(appDir)
+  appDir <- normalizePath(appDir)
 
   # get data dir from appDir
   dataDir <- file.path(appDir, "shinyapps")
@@ -280,15 +278,9 @@ validateEmail <- function(email) {
 }
 
 getPasswordFile <- function(appDir) {
-  if (!isStringParam(appDir))
-    stop(stringParamErrorMessage("appDir"))
+  check_directory(appDir)
 
-  # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir) || !file.info(appDir)$isdir)
-    stop(appDir, " is not a valid directory", call. = FALSE)
-
-  file.path(appDir, "shinyapps", "passwords.txt")
+  file.path(normalizePath(appDir), "shinyapps", "passwords.txt")
 }
 
 readPasswordFile <- function(path) {

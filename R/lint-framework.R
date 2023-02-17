@@ -71,14 +71,8 @@ applyLinter <- function(linter, ...) {
 ##'   in which case it's inferred (if possible) from the directory contents.
 ##' @export
 lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
-
-  if (!file.exists(project))
-    stop("No directory at path '", project, "'")
-
-  if (file.exists(project) && !isTRUE(file.info(project)$isdir))
-    stop("Path '", project, "' is not a directory")
-
-  project <- normalizePath(project, mustWork = TRUE, winslash = "/")
+  check_directory(project)
+  project <- normalizePath(project, winslash = "/")
 
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()

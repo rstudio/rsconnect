@@ -12,14 +12,6 @@ verboseLogger <- function(verbose) {
   }
 }
 
-isStringParam <- function(param) {
-  is.character(param) && (length(param) == 1)
-}
-
-stringParamErrorMessage <- function(param) {
-  paste(param, "must be a single element character vector")
-}
-
 regexExtract <- function(re, input) {
   match <- regexec(re, input)
   matchLoc <- match[1][[1]]
@@ -239,4 +231,35 @@ md5.as.string <- function(md5) {
 # Similar to rex::escape
 escapeRegex <- function(name) {
   gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", name, perl = TRUE)
+}
+
+check_file <- function(x,
+                            error_arg = caller_arg(x),
+                            error_call = caller_env()) {
+
+  check_string(
+    x,
+    allow_empty = FALSE,
+    error_arg = error_arg,
+    error_call = error_call
+  )
+  if (!file.exists(x)) {
+    cli::cli_abort(
+      "{.arg {error_arg}}, {.str {x}}, does not exist.",
+      call = error_call
+    )
+  }
+}
+
+check_directory <- function(x,
+                            error_arg = caller_arg(x),
+                            error_call = caller_env()) {
+
+  check_file(x, error_arg = error_arg, error_call = error_call)
+  if (!dirExists(x)) {
+    cli::cli_abort(
+      "{.arg {error_arg}}, {.str {x}}, is not a directory.",
+      call = error_call
+    )
+  }
 }
