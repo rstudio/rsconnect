@@ -29,7 +29,7 @@ test_that("can infer mode for shiny apps", {
 test_that("can infer mode for static quarto and rmd docs", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
   expect_equal(inferAppMode(dir), "rmd-static")
-  expect_equal(inferAppMode(dir, quartoInfo = list()), "quarto-static")
+  expect_equal(inferAppMode(dir, hasQuarto = TRUE), "quarto-static")
   # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
   expect_equal(inferAppMode(dir, isCloudServer = TRUE), "rmd-shiny")
 })
@@ -60,7 +60,7 @@ test_that("can infer mode for shiny quarto and rmd docs", {
 
   # And for quarto
   dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
-  expect_equal(inferAppMode(dir, quartoInfo = list()), "quarto-shiny")
+  expect_equal(inferAppMode(dir, hasQuarto = TRUE), "quarto-shiny")
 
   # can pair server.R with shiny runtime
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "server.R" = ""))

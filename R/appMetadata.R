@@ -16,6 +16,10 @@ appMetadata <- function(appDir,
     assetTypeName <- "application"
   }
 
+  # User has supplied quarto path or quarto package has supplied metdata
+  # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
+  hasQuarto <- !is.null(quarto) || !is.null(metadata$quarto_version)
+
   quartoInfo <- inferQuartoInfo(
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
@@ -27,7 +31,7 @@ appMetadata <- function(appDir,
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc,
     appFiles = appFiles,
-    quartoInfo = quartoInfo,
+    hasQuarto = hasQuarto,
     isCloudServer = isCloudServer
   )
   appPrimaryDoc <- inferAppPrimaryDoc(
@@ -61,7 +65,7 @@ appMetadata <- function(appDir,
 inferAppMode <- function(appDir,
                          appPrimaryDoc = NULL,
                          appFiles = NULL,
-                         quartoInfo = NULL,
+                         hasQuarto = FALSE,
                          isCloudServer = FALSE) {
 
   if (is.null(appFiles)) {
@@ -111,7 +115,7 @@ inferAppMode <- function(appDir,
   # content.
   # TODO(HW): I think this logic should be moved into appMetdata() because this
   # should also error if the user specified appMode = "quarto-shiny"
-  if (requiresQuarto && is.null(quartoInfo)) {
+  if (requiresQuarto && !hasQuarto) {
     stop(paste(
       "Attempting to deploy Quarto content without Quarto metadata.",
       "Please provide the path to a quarto binary to the 'quarto' argument."
@@ -121,7 +125,7 @@ inferAppMode <- function(appDir,
   # Shiny or Quarto documents with "server: shiny" in their YAML front matter
   # are rmd-shiny or quarto-shiny.
   if (any(shinyRmdFiles) || any(shinyQmdFiles)) {
-    if (!is.null(quartoInfo)) {
+    if (hasQuarto) {
       return("quarto-shiny")
     } else {
       return("rmd-shiny")
@@ -139,7 +143,7 @@ inferAppMode <- function(appDir,
   # Any non-Shiny R Markdown or Quarto documents are rendered content and get
   # rmd-static or quarto-static.
   if (length(rmdFiles) > 0 || length(qmdFiles) > 0) {
-    if (!is.null(quartoInfo)) {
+    if (hasQuarto) {
       return("quarto-static")
     } else {
       # For Shinyapps and posit.cloud, treat "rmd-static" app mode as "rmd-shiny" so that
