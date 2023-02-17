@@ -517,29 +517,19 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
 })
 
 test_that("writeManifest: Deploying a Quarto project without Quarto info in an error", {
-  missingQuartoInfoErrorText <- paste(
-    "Attempting to deploy Quarto content without Quarto metadata.",
-    "Please provide the path to a quarto binary to the 'quarto' argument."
-  )
-
   appDir <- test_path("quarto-website-r")
-  expect_error(
+  expect_snapshot(
     makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
-    missingQuartoInfoErrorText
+    error = TRUE
   )
 })
 
 test_that("writeManifest: Deploying a Quarto doc without Quarto info in an error", {
-  missingQuartoInfoErrorText <- paste(
-    "Attempting to deploy Quarto content without Quarto metadata.",
-    "Please provide the path to a quarto binary to the 'quarto' argument."
-  )
-
   appDir <- test_path("quarto-doc-none")
   appPrimaryDoc <- "quarto-doc-none.qmd"
-  expect_error(
+  expect_snapshot(
     makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL),
-    missingQuartoInfoErrorText
+    error = TRUE
   )
 })
 
