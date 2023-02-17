@@ -112,13 +112,10 @@ inferAppMode <- function(appDir,
 
   # We gate the deployment of content that appears to be Quarto behind the
   # presence of Quarto metadata. Rmd files can still be deployed as Quarto
-  # content.
-  # TODO(HW): I think this logic should be moved into appMetdata() because this
-  # should also error if the user specified appMode = "quarto-shiny"
   if (requiresQuarto && !hasQuarto) {
-    stop(paste(
-      "Attempting to deploy Quarto content without Quarto metadata.",
-      "Please provide the path to a quarto binary to the 'quarto' argument."
+    cli::cli_abort(c(
+      "Can't deploy Quarto content when {.arg quarto} is {.code NULL}.",
+      i = "Please supply a path to a quarto binary in {.arg quarto}."
     ))
   }
 

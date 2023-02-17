@@ -12,12 +12,14 @@
       inferAppMode(single_qmd)
     Condition
       Error in `inferAppMode()`:
-      ! Attempting to deploy Quarto content without Quarto metadata. Please provide the path to a quarto binary to the 'quarto' argument.
+      ! Can't deploy Quarto content when `quarto` is `NULL`.
+      i Please supply a path to a quarto binary in `quarto`.
     Code
       inferAppMode(rmd_and_quarto_yml)
     Condition
       Error in `inferAppMode()`:
-      ! Attempting to deploy Quarto content without Quarto metadata. Please provide the path to a quarto binary to the 'quarto' argument.
+      ! Can't deploy Quarto content when `quarto` is `NULL`.
+      i Please supply a path to a quarto binary in `quarto`.
 
 # errors if no files with needed extension
 
