@@ -954,6 +954,10 @@ findPackageRepoAndSource <- function(records, repos) {
     } else if (pkg %in% rownames(repo.packages)) {
       # capture CRAN-like repository
 
+      # If the name of a source-installed package matches a CRAN package,
+      # packrat automatically fills in the repository information. But that
+      # causes problems if you're working with a developement version that's
+      # newer than CRAN.
       repo_version <- package_version(repo.packages[pkg, "Version"])
       local_version <- package_version(records[i, "Version"])
       if (local_version <= repo_version) {
