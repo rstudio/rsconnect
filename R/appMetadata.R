@@ -8,9 +8,9 @@ appMetadata <- function(appDir,
 
   appFiles <- standardizeAppFiles(appDir, appFiles)
 
-  # User has supplied quarto path or quarto package has supplied metdata
+  # User has supplied quarto path or quarto package has supplied metadata
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
-  hasQuarto <- !is.null(quarto) || !is.null(metadata$quarto_version)
+  hasQuarto <- !is.null(quarto) || hasQuartoMetadata(metadata)
 
   appMode <- inferAppMode(
     appDir = appDir,
@@ -278,7 +278,7 @@ documentHasPythonChunk <- function(filename) {
 }
 
 inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
-  if (!is.null(metadata$quarto_version)) {
+  if (hasQuartoMetadata(metadata)) {
     return(list(
       version = metadata[["quarto_version"]],
       engines = metadata[["quarto_engines"]]
@@ -303,6 +303,10 @@ inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
     version = inspect[["quarto"]][["version"]],
     engines = I(inspect[["engines"]])
   )
+}
+
+hasQuartoMetadata <- function(x) {
+  !is.null(x$quarto_version)
 }
 
 # Run "quarto inspect" on the target and returns its output as a parsed object.
