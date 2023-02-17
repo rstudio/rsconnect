@@ -168,8 +168,8 @@ addConnectServer <- function(url, name = NULL, certificate = NULL,
 #' @rdname servers
 #' @export
 addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
-  if (!isStringParam(url))
-    stop(stringParamErrorMessage("url"))
+  check_string(url)
+  check_name(name, allow_null = TRUE)
 
   serverUrl <- parseHttpUrl(url)
 
@@ -222,8 +222,8 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
 #' @rdname servers
 #' @export
 removeServer <- function(name) {
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
+  check_string(name)
+
   configFile <- serverConfigFile(name)
   if (file.exists(configFile))
     unlink(configFile)
@@ -235,8 +235,7 @@ removeServer <- function(name) {
 #' @rdname servers
 #' @export
 serverInfo <- function(name) {
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
+  check_string(name)
 
   # there's no config file for Posit's hosted offerings
   if (identical(name, "shinyapps.io")) {

@@ -236,14 +236,10 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 setAccountInfo <- function(name, token, secret,
                            server = "shinyapps.io") {
 
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
-
-  if (!isStringParam(token))
-    stop(stringParamErrorMessage("token"))
-
-  if (!isStringParam(secret))
-    stop(stringParamErrorMessage("secret"))
+  check_string(name)
+  check_string(token)
+  check_string(secret)
+  check_string(server)
 
   # create connect client
   if (identical(server, cloudServerInfo(server)$name)) {
