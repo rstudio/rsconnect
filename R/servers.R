@@ -59,7 +59,7 @@ servers <- function(local = FALSE) {
     info
   })
   locals <- do.call(rbind, parsed)
-  locals <- as.data.frame(locals, stringAsFactors = FALSE)
+  locals <- as.data.frame(locals, stringsAsFactors = FALSE)
   if (local) {
     out <- locals
   } else {
