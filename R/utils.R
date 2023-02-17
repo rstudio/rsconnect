@@ -111,14 +111,6 @@ hr <- function(message = "", n = 80) {
   }
 }
 
-# return the leaf from a path (e.g. /foo/abc/def -> def)
-fileLeaf <- function(path) {
-  components <- strsplit(path, "/")
-  unlist(lapply(components, function(component) {
-    component[length(component)]
-  }))
-}
-
 # whether the given path points to an individual piece of content
 isDocumentPath <- function(path) {
   ext <- tolower(tools::file_ext(path))
