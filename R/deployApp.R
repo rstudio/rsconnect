@@ -88,7 +88,7 @@
 #' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
 #'   content. The provided Quarto binary will be used to run `quarto inspect`
 #'   to gather information about the content.
-#' @param appVisibility One of `NULL`, "private"`, or `"public"`; the
+#' @param appVisibility One of `NULL`, `"private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
 #' @param image Optional. The name of the image to use when building and
@@ -153,11 +153,15 @@ deployApp <- function(appDir = getwd(),
   condaMode <- FALSE
 
   check_directory(appDir)
+  check_string(appName, allow_null = TRUE)
 
-  # respect log level
+  # set up logging helpers
   logLevel <- match.arg(logLevel)
   quiet <- identical(logLevel, "quiet")
   verbose <- identical(logLevel, "verbose")
+  logger <- verboseLogger(verbose)
+  displayStatus <- displayStatus(quiet)
+  withStatus <- withStatus(quiet)
 
   # run startup scripts to pick up any user options and establish pre/post deploy hooks
   runStartupScripts(appDir, logLevel)
@@ -224,7 +228,7 @@ deployApp <- function(appDir = getwd(),
 
   # at verbose log level, generate header
   if (verbose) {
-    cat("----- Deployment log started at ", as.character(Sys.time()), " -----\n")
+    logger("Deployment log started")
     cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
     cat("Session information: \n")
     print(utils::sessionInfo())
@@ -248,86 +252,20 @@ deployApp <- function(appDir = getwd(),
     assetTypeName <- "application"
   }
 
-  # build the list of files to deploy -- implicitly (directory contents),
-  # explicitly via list, or explicitly via manifest
-  if (is.null(appFiles)) {
-    if (is.null(appFileManifest)) {
-      # no files supplied at all, just bundle the whole directory
-      appFiles <- bundleFiles(appDir)
-    } else {
-      # manifest file provided, read it and apply
-      check_file(appFileManifest)
-
-      # read the filenames from the file
-      manifestLines <- readLines(appFileManifest, warn = FALSE)
-
-      # remove empty/comment lines and explode remaining
-      manifestLines <- manifestLines[nzchar(manifestLines)]
-      manifestLines <- manifestLines[!grepl("^#", manifestLines)]
-      appFiles <- explodeFiles(appDir, manifestLines)
-    }
-  } else {
-    # file list provided directly
-    appFiles <- explodeFiles(appDir, appFiles)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
-
-    if (hasLint(lintResults)) {
-
-      if (interactive()) {
-        # if enabled, show warnings in friendly marker tab in addition to
-        # printing to console
-        if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
-            rstudioapi::hasFun("sourceMarkers"))
-        {
-          showRstudioSourceMarkers(appDir, lintResults)
-        }
-        message("The following potential problems were identified in the project files:\n")
-        printLinterResults(lintResults)
-        response <- readline("Do you want to proceed with deployment? [y/N]: ")
-        if (tolower(substring(response, 1, 1)) != "y") {
-          message("Cancelling deployment.")
-          return(invisible(lintResults))
-        }
-      } else {
-        message("The linter has identified potential problems in the project:\n")
-        printLinterResults(lintResults)
-#         message(
-#           "\nIf you believe these errors are spurious, run:\n\n",
-#           "\tdeployApp(lint = FALSE)\n\n",
-#           "to disable linting."
-#         )
-        message("If your ", assetTypeName, " fails to run post-deployment, ",
-                "please double-check these messages.")
-      }
-
-    }
-
+    showLintResults(appDir, lintResults, assetTypeName)
   }
-
-  check_string(appName, allow_null = TRUE)
-
-  # try to detect encoding from the RStudio project file
-  .globals$encoding <- rstudioEncoding(appDir)
-  on.exit(.globals$encoding <- NULL, add = TRUE)
-
-  # functions to show status (respects quiet param)
-  displayStatus <- displayStatus(quiet)
-  withStatus <- withStatus(quiet)
-
-  # initialize connect client
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
-  # TODO(HW): I'm pretty sure target$server is already the correctvalue
-  accountDetails <- accountInfo(target$account, target$server)
 
   # test for compatibility between account type and publish intent
-  if (isCloudServer(accountDetails$server)) {
+  if (isCloudServer(target$server)) {
     # Publishing an API to shinyapps.io will not currently end well
-    if (isShinyappsServer(accountDetails$server)) {
+    if (isShinyappsServer(target$server)) {
       if (identical(contentCategory, "api")) {
         stop("Plumber APIs are not currently supported on shinyapps.io; they ",
              "can only be published to Posit Connect or Posit Cloud.")
@@ -341,17 +279,10 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
+  accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
   if (verbose) {
-    urlstr <- serverInfo(accountDetails$server)$url
-    url <- parseHttpUrl(urlstr)
-    cat("Cookies:", "\n")
-    host <- getCookieHost(url)
-    if (exists(host, .cookieStore)) {
-      print(get(host, envir = .cookieStore))
-    } else {
-      print("None")
-    }
+    showCookies(serverInfo(accountDetails$server)$url)
   }
 
   # get the application to deploy (creates a new app on demand)
@@ -376,12 +307,9 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
-  logger <- verboseLogger(verbose)
-
   if (upload) {
     # create, and upload the bundle
-    if (verbose)
-      cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
+    logger("Bundle upload started")
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
 
@@ -451,9 +379,8 @@ deployApp <- function(appDir = getwd(),
                          " for ", assetTypeName, ": ", application$id,
                          " ...\n", sep = ""))
   }
-  if (verbose) {
-    cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
-  }
+
+  logger("Server deployment started")
 
   # wait for the deployment to complete (will raise an error if it can't)
   task <- client$deployApplication(application$id, bundle$id)
@@ -488,9 +415,7 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
-  if (verbose) {
-    cat("----- Deployment log finished at ", as.character(Sys.time()), " -----\n")
-  }
+  logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
 }

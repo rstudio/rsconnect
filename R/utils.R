@@ -1,5 +1,3 @@
-.globals <- new.env(parent = emptyenv())
-
 # Returns a logging function when enabled, a noop function otherwise.
 verboseLogger <- function(verbose) {
   if (verbose) {
@@ -111,37 +109,6 @@ hr <- function(message = "", n = 80) {
     hr <- paste(rep.int("#", n), collapse = "")
     cat(hr, sep = "", "\n")
   }
-}
-
-# this function was defined in the shiny package; in the unlikely event that
-# shiny:::checkEncoding() is not available, use a simplified version here
-checkEncoding2 <- function(file) {
-  tryCatch(
-    getFromNamespace("checkEncoding", "shiny")(file),
-    error = function(e) {
-      if (.Platform$OS.type != "windows") return("UTF-8")
-      x <- readLines(file, encoding = "UTF-8", warn = FALSE)
-      isUTF8 <- !any(is.na(iconv(x, "UTF-8")))
-      if (isUTF8) "UTF-8" else getOption("encoding")
-    }
-  )
-}
-
-# if shiny:::checkEncoding() gives UTF-8, use it, otherwise first consider
-# the RStudio project encoding, and eventually getOption("encoding")
-checkEncoding <- function(file) {
-  enc1 <- .globals$encoding
-  enc2 <- checkEncoding2(file)
-  if (enc2 == "UTF-8") return(enc2)
-  if (length(enc1)) enc1 else enc2
-}
-
-# read the Encoding field from the *.Rproj file
-rstudioEncoding <- function(dir) {
-  proj <- list.files(dir, "[.]Rproj$", full.names = TRUE)
-  if (length(proj) != 1L) return()  # there should be one and only one .Rproj
-  enc <- drop(readDcf(proj, "Encoding"))
-  enc[!is.na(enc)]
 }
 
 # whether the given path points to an individual piece of content
