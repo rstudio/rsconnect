@@ -56,37 +56,19 @@ writeManifest <- function(appDir = getwd(),
     appFiles <- explodeFiles(appDir, appFiles)
   }
 
-  quartoInfo <- inferQuartoInfo(
+  appMetadata <- appMetadata(
     appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
     appFiles = appFiles,
+    appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
-    metadata = list()
+    contentCategory = contentCategory,
   )
-
-  appMode <- inferAppMode(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      files = appFiles,
-      quartoInfo = quartoInfo)
-  appPrimaryDoc <- inferAppPrimaryDoc(
-      appPrimaryDoc = appPrimaryDoc,
-      appFiles = appFiles,
-      appMode = appMode)
-  hasParameters <- appHasParameters(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      appMode = appMode,
-      contentCategory = contentCategory)
-  documentsHavePython <- detectPythonInDocuments(
-      appDir = appDir,
-      files = appFiles)
 
   # copy files to bundle dir to stage
   bundleDir <- bundleAppDir(
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc)
+      appPrimaryDoc = appMetadata$appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   python <- getPython(python)
@@ -94,18 +76,18 @@ writeManifest <- function(appDir = getwd(),
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
       appDir = bundleDir,
-      appMode = appMode,
+      appMode = appMetadata$appMode,
       contentCategory = contentCategory,
-      hasParameters = hasParameters,
-      appPrimaryDoc = appPrimaryDoc,
+      hasParameters = appMetadata$hasParameters,
+      appPrimaryDoc = appMetadata$appPrimaryDoc,
       assetTypeName = "content",
       users = NULL,
       condaMode = condaMode,
       forceGenerate = forceGeneratePythonEnvironment,
       python = python,
-      documentsHavePython = documentsHavePython,
+      documentsHavePython = appMetadata$documentsHavePython,
       retainPackratDirectory = FALSE,
-      quartoInfo = quartoInfo,
+      quartoInfo = appMetadata$quartoInfo,
       isCloud = FALSE,
       image = image,
       verbose = verbose)
