@@ -314,3 +314,39 @@ collectSuggestions <- function(fileResults) {
   }))
 
 }
+
+showLintResults <- function(appDir, lintResults, assetTypeName) {
+  if (!hasLint(lintResults)) {
+    return(invisible())
+  }
+
+  if (interactive()) {
+    # if enabled, show warnings in friendly marker tab in addition to
+    # printing to console
+    if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
+        rstudioapi::hasFun("sourceMarkers"))
+    {
+      showRstudioSourceMarkers(appDir, lintResults)
+    }
+  }
+
+  message("The following potential problems were identified in the project files:\n")
+  printLinterResults(lintResults)
+
+  if (interactive()) {
+    response <- readline("Do you want to proceed with deployment? [y/N]: ")
+    if (tolower(substring(response, 1, 1)) != "y") {
+      cli::cli_abort("Cancelling deployment.")
+    }
+  } else {
+    # message(
+    #   "\nIf you believe these errors are spurious, run:\n\n",
+    #   "\tdeployApp(lint = FALSE)\n\n",
+    #   "to disable linting."
+    # )
+    message("If your ", assetTypeName, " fails to run post-deployment, ",
+            "please double-check these messages.")
+
+    invisible()
+  }
+}

@@ -286,38 +286,7 @@ deployApp <- function(appDir = getwd(),
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
-
-    if (hasLint(lintResults)) {
-
-      if (interactive()) {
-        # if enabled, show warnings in friendly marker tab in addition to
-        # printing to console
-        if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
-            rstudioapi::hasFun("sourceMarkers"))
-        {
-          showRstudioSourceMarkers(appDir, lintResults)
-        }
-        message("The following potential problems were identified in the project files:\n")
-        printLinterResults(lintResults)
-        response <- readline("Do you want to proceed with deployment? [y/N]: ")
-        if (tolower(substring(response, 1, 1)) != "y") {
-          message("Cancelling deployment.")
-          return(invisible(lintResults))
-        }
-      } else {
-        message("The linter has identified potential problems in the project:\n")
-        printLinterResults(lintResults)
-#         message(
-#           "\nIf you believe these errors are spurious, run:\n\n",
-#           "\tdeployApp(lint = FALSE)\n\n",
-#           "to disable linting."
-#         )
-        message("If your ", assetTypeName, " fails to run post-deployment, ",
-                "please double-check these messages.")
-      }
-
-    }
-
+    showLintResults(appDir, lintResults, assetTypeName)
   }
 
   if (!is.null(appName) && !isStringParam(appName))
