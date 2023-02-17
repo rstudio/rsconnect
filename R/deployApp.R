@@ -292,10 +292,6 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
 
-  # try to detect encoding from the RStudio project file
-  .globals$encoding <- rstudioEncoding(appDir)
-  on.exit(.globals$encoding <- NULL, add = TRUE)
-
   # functions to show status (respects quiet param)
   displayStatus <- displayStatus(quiet)
   withStatus <- withStatus(quiet)
