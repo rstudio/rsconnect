@@ -12,13 +12,20 @@ appMetadata <- function(appDir,
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
   hasQuarto <- !is.null(quarto) || hasQuartoMetadata(metadata)
 
-  appMode <- inferAppMode(
-    appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
-    appFiles = appFiles,
-    hasQuarto = hasQuarto,
-    isCloudServer = isCloudServer
-  )
+  # Generally we want to infer appPrimaryDoc from appMode, but there's one
+  # special case
+  if (!is.null(appPrimaryDoc) &&
+      tolower(tools::file_ext(appPrimaryDoc)) == "r") {
+    appMode <- "shiny"
+  } else {
+    appMode <- inferAppMode(
+      appDir = appDir,
+      appFiles = appFiles,
+      hasQuarto = hasQuarto,
+      isCloudServer = isCloudServer
+    )
+  }
+
   appPrimaryDoc <- inferAppPrimaryDoc(
     appPrimaryDoc = appPrimaryDoc,
     appFiles = appFiles,
@@ -62,7 +69,6 @@ appMetadata <- function(appDir,
 # infer the mode of the application from its layout
 # unless we're an API, in which case, we're API mode.
 inferAppMode <- function(appDir,
-                         appPrimaryDoc = NULL,
                          appFiles = NULL,
                          hasQuarto = FALSE,
                          isCloudServer = FALSE) {
@@ -78,13 +84,6 @@ inferAppMode <- function(appDir,
   plumberFiles <- grep("^(plumber|entrypoint).r$", appFiles, ignore.case = TRUE, perl = TRUE)
   if (length(plumberFiles) > 0) {
     return("api")
-  }
-
-  # TODO(HW): I think this special case should live in appMetadata so that
-  # inferAppMode no longer needs the `appPrimaryDoc` argument
-  if (!is.null(appPrimaryDoc) &&
-      tolower(tools::file_ext(appPrimaryDoc)) == "r") {
-    return("shiny")
   }
 
   # Shiny application using single-file app.R style.

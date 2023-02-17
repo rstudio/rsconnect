@@ -31,6 +31,12 @@ test_that("compute assetTypeName after infering other info", {
   expect_equal(metadata$assetTypeName, "application")
 })
 
+test_that("handles special case of appPrimaryDoc as R file", {
+  dir <- local_temp_app(list("foo.R" = ""))
+  metadata <- appMetadata(dir, appPrimaryDoc = "foo.R")
+  expect_equal(metadata$appMode, "shiny")
+})
+
 # inferAppMode ------------------------------------------------------------
 
 test_that("can infer mode for APIs", {
@@ -47,9 +53,6 @@ test_that("can infer mode for shiny apps", {
 
   dir <- local_temp_app(list("server.R" = ""))
   expect_equal(inferAppMode(dir), "shiny")
-
-  dir <- local_temp_app(list("foo.R" = ""))
-  expect_equal(inferAppMode(dir, "foo.R"), "shiny")
 })
 
 test_that("can infer mode for static quarto and rmd docs", {
