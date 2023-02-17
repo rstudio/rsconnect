@@ -18,9 +18,10 @@ appMetadata <- function(appDir,
       tolower(tools::file_ext(appPrimaryDoc)) == "r") {
     appMode <- "shiny"
   } else {
+    # Inference only uses top-level files
+    rootFiles <- appFiles[dirname(appFiles) == "."]
     appMode <- inferAppMode(
-      appDir = appDir,
-      appFiles = appFiles,
+      file.path(appDir, appFiles),
       hasQuarto = hasQuarto,
       isCloudServer = isCloudServer
     )
@@ -66,45 +67,37 @@ appMetadata <- function(appDir,
   )
 }
 
-# infer the mode of the application from its layout
-# unless we're an API, in which case, we're API mode.
-inferAppMode <- function(appDir,
-                         appFiles = NULL,
+# infer the mode of the application from files in the root dir
+inferAppMode <- function(appDirRootFiles,
                          hasQuarto = FALSE,
                          isCloudServer = FALSE) {
 
-  if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
+  matchingNames <- function(paths, pattern) {
+    idx <- grepl(pattern, basename(paths), ignore.case = TRUE, perl = TRUE)
+    paths[idx]
   }
 
-  # TODO(HW): detection rules only apply to files in top-level directory
-  # Should make that explicit in the code
-
   # plumber API
-  plumberFiles <- grep("^(plumber|entrypoint).r$", appFiles, ignore.case = TRUE, perl = TRUE)
+  plumberFiles <- matchingNames(appDirRootFiles, "^(plumber|entrypoint).r$")
   if (length(plumberFiles) > 0) {
     return("api")
   }
 
   # Shiny application using single-file app.R style.
-  appR <- grep("^app.r$", appFiles, ignore.case = TRUE, perl = TRUE)
+  appR <- matchingNames(appDirRootFiles, "^app.r$")
   if (length(appR) > 0) {
     return("shiny")
   }
 
-  # Determine if we have Rmd files, and if they use the Shiny runtime.
-  rmdFiles <- grep("^[^/\\\\]+\\.rmd$", appFiles, ignore.case = TRUE, perl = TRUE, value = TRUE)
-  shinyRmdFiles <- sapply(file.path(appDir, rmdFiles), isShinyRmd)
-
-  # Determine if we have qmd files, and if they use the Shiny runtime
-  qmdFiles <- grep("^[^/\\\\]+\\.qmd$", appFiles, ignore.case = TRUE, perl = TRUE, value = TRUE)
-  shinyQmdFiles <- sapply(file.path(appDir, qmdFiles), isShinyRmd)
+  rmdFiles <- matchingNames(appDirRootFiles, "\\.rmd$")
+  qmdFiles <- matchingNames(appDirRootFiles, "\\.qmd$")
 
   # We make Quarto requirement conditional on the presence of files that Quarto
   # can render and _quarto.yml, because keying off the presence of qmds
   # *or* _quarto.yml was causing deployment failures in static content.
   # https://github.com/rstudio/rstudio/issues/11444
-  hasQuartoYaml <- any(grepl("^_quarto.y(a)?ml$", x = appFiles, ignore.case = TRUE, perl = TRUE))
+  quartoYml <- matchingNames(appDirRootFiles, "^_quarto.y(a)?ml$")
+  hasQuartoYaml <- length(quartoYml) > 0
   hasQuartoCompatibleFiles <- length(qmdFiles) > 0 || length(rmdFiles > 0)
   requiresQuarto <- (hasQuartoCompatibleFiles && hasQuartoYaml) || length(qmdFiles) > 0
 
@@ -117,8 +110,9 @@ inferAppMode <- function(appDir,
     ))
   }
 
-  # Shiny or Quarto documents with "server: shiny" in their YAML front matter
-  # are rmd-shiny or quarto-shiny.
+  # Documents with "server: shiny" in their YAML front matter need shiny too
+  shinyRmdFiles <- sapply(rmdFiles, isShinyRmd)
+  shinyQmdFiles <- sapply(qmdFiles, isShinyRmd)
   if (any(shinyRmdFiles) || any(shinyQmdFiles)) {
     if (hasQuarto) {
       return("quarto-shiny")
@@ -130,7 +124,7 @@ inferAppMode <- function(appDir,
   # Shiny application using server.R; checked later than Rmd with shiny runtime
   # because server.R may contain the server code paired with a ShinyRmd and needs
   # to be run by rmarkdown::run (rmd-shiny).
-  serverR <- grep("^server.r$", appFiles, ignore.case = TRUE, perl = TRUE)
+  serverR <- matchingNames(appDirRootFiles, "^server.r$")
   if (length(serverR) > 0) {
     return("shiny")
   }
@@ -152,12 +146,12 @@ inferAppMode <- function(appDir,
   }
 
   # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
-  if (length(grep("(saved_model.pb|saved_model.pbtxt)$", appFiles, ignore.case = TRUE, perl = TRUE)) > 0) {
+  modelFiles <- matchingNames(appDirRootFiles, "^(saved_model.pb|saved_model.pbtxt)$")
+  if (length(modelFiles) > 0) {
     return("tensorflow-saved-model")
   }
 
-  # no renderable content here and we know that there's at least one
-  # file or bundFiles() would have errored
+  # no renderable content
   "static"
 }
 

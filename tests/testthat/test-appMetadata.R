@@ -40,32 +40,31 @@ test_that("handles special case of appPrimaryDoc as R file", {
 # inferAppMode ------------------------------------------------------------
 
 test_that("can infer mode for APIs", {
-  dir <- local_temp_app(list("plumber.R" = ""))
-  expect_equal(inferAppMode(dir), "api")
-
-  dir <- local_temp_app(list("entrypoint.R" = ""))
-  expect_equal(inferAppMode(dir), "api")
+  expect_equal(inferAppMode("plumber.R"), "api")
+  expect_equal(inferAppMode("entrypoint.R"), "api")
 })
 
 test_that("can infer mode for shiny apps", {
-  dir <- local_temp_app(list("app.R" = ""))
-  expect_equal(inferAppMode(dir), "shiny")
-
-  dir <- local_temp_app(list("server.R" = ""))
-  expect_equal(inferAppMode(dir), "shiny")
+  expect_equal(inferAppMode("app.R"), "shiny")
+  expect_equal(inferAppMode("server.R"), "shiny")
 })
 
 test_that("can infer mode for static quarto and rmd docs", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
-  expect_equal(inferAppMode(dir), "rmd-static")
-  expect_equal(inferAppMode(dir, hasQuarto = TRUE), "quarto-static")
+  paths <- list.files(dir, full.names = TRUE)
+
+  expect_equal(inferAppMode(paths), "rmd-static")
+  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-static")
   # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
-  expect_equal(inferAppMode(dir, isCloudServer = TRUE), "rmd-shiny")
+  expect_equal(inferAppMode(paths, isCloudServer = TRUE), "rmd-shiny")
 })
 
 test_that("quarto docs require quarto", {
-  single_qmd <- local_temp_app(list("foo.qmd" = ""))
-  rmd_and_quarto_yml <- local_temp_app(list("foo.Rmd" = "", "_quarto.yaml" = ""))
+  dir <- local_temp_app(list("foo.qmd" = ""))
+  single_qmd <- list.files(dir, full.names = TRUE)
+
+  dir <- local_temp_app(list("foo.Rmd" = "", "_quarto.yaml" = ""))
+  rmd_and_quarto_yml <- list.files(dir, full.names = TRUE)
 
   expect_snapshot(error = TRUE, {
     inferAppMode(single_qmd)
@@ -79,25 +78,31 @@ test_that("can infer mode for shiny quarto and rmd docs", {
   }
 
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
-  expect_equal(inferAppMode(dir), "rmd-shiny")
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "rmd-shiny")
 
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shinyrmd")))
-  expect_equal(inferAppMode(dir), "rmd-shiny")
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "rmd-shiny")
 
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny_prerendered")))
-  expect_equal(inferAppMode(dir), "rmd-shiny")
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "rmd-shiny")
 
   # And for quarto
   dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
-  expect_equal(inferAppMode(dir, hasQuarto = TRUE), "quarto-shiny")
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
 
   # can pair server.R with shiny runtime
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "server.R" = ""))
-  expect_equal(inferAppMode(dir), "rmd-shiny")
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "rmd-shiny")
 
   # Beats static rmarkdowns
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "foo.Rmd" = ""))
-  expect_equal(inferAppMode(dir), "rmd-shiny")
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "rmd-shiny")
 })
 
 test_that("Shiny R Markdown files are detected correctly", {
@@ -115,13 +120,11 @@ test_that("shiny metadata process correctly", {
 })
 
 test_that("can infer tensorflow models", {
-  dir <- local_temp_app(list("saved_model.pb" = ""))
-  expect_equal(inferAppMode(dir), "tensorflow-saved-model")
+  expect_equal(inferAppMode("saved_model.pb"), "tensorflow-saved-model")
 })
 
 test_that("otherwise, fallsback to static deploy", {
-  dir <- local_temp_app(list("a.html" = "", "b.html" = ""))
-  expect_equal(inferAppMode(dir), "static")
+  expect_equal(inferAppMode(c("a.html", "b.html")), "static")
 })
 
 # inferAppPrimaryDoc ------------------------------------------------------
