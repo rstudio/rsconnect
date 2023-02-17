@@ -298,13 +298,11 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
-  # TODO(HW): I'm pretty sure target$server is already the correctvalue
-  accountDetails <- accountInfo(target$account, target$server)
 
   # test for compatibility between account type and publish intent
-  if (isCloudServer(accountDetails$server)) {
+  if (isCloudServer(target$server)) {
     # Publishing an API to shinyapps.io will not currently end well
-    if (isShinyappsServer(accountDetails$server)) {
+    if (isShinyappsServer(target$server)) {
       if (identical(contentCategory, "api")) {
         stop("Plumber APIs are not currently supported on shinyapps.io; they ",
              "can only be published to Posit Connect or Posit Cloud.")
@@ -318,17 +316,10 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
+  accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
   if (verbose) {
-    urlstr <- serverInfo(accountDetails$server)$url
-    url <- parseHttpUrl(urlstr)
-    cat("Cookies:", "\n")
-    host <- getCookieHost(url)
-    if (exists(host, .cookieStore)) {
-      print(get(host, envir = .cookieStore))
-    } else {
-      print("None")
-    }
+    showCookies(serverInfo(accountDetails$server)$url)
   }
 
   # get the application to deploy (creates a new app on demand)
