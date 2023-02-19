@@ -8,5 +8,6 @@ test_that("servers() redacts the certificate", {
     certificate = test_path("certs/sample.crt"),
     quiet = TRUE
   )
+
   expect_snapshot(servers())
 })

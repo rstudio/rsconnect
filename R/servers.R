@@ -41,8 +41,7 @@
 #' }
 #' @export
 servers <- function(local = FALSE) {
-  configFiles <- list.files(serverConfigDir(), pattern = glob2rx("*.dcf"),
-                            full.names = TRUE)
+  configFiles <- serverConfigFiles()
   parsed <- lapply(configFiles, function(file) {
     info <- read.dcf(file)
 

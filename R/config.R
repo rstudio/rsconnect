@@ -143,6 +143,10 @@ serverConfigFile <- function(name) {
   )
 }
 
+serverConfigFiles <- function() {
+  list.files(serverConfigDir(), pattern = glob2rx("*.dcf"), full.names = TRUE)
+}
+
 # account -----------------------------------------------------------------
 
 accountConfigDir <- function() {
