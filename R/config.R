@@ -125,9 +125,8 @@ deploymentConfigFile <- function(appPath, name, account, server) {
   file.path(accountDir, paste0(name, ".dcf"))
 }
 
-# whether the given path points to an individual piece of content
+# Does the path point to an individual piece of content?
 isDocumentPath <- function(path) {
-  ext <- tolower(tools::file_ext(path))
-  !is.null(ext) && ext != ""
+  tools::file_ext(path) != ""
 }
 
