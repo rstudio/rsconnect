@@ -111,21 +111,6 @@ hr <- function(message = "", n = 80) {
   }
 }
 
-# whether the given path points to an individual piece of content
-isDocumentPath <- function(path) {
-  ext <- tolower(tools::file_ext(path))
-  !is.null(ext) && ext != ""
-}
-
-# given a path, return the directory under which rsconnect package state is
-# stored
-rsconnectRootPath <- function(appPath) {
-  if (isDocumentPath(appPath))
-    file.path(dirname(appPath), "rsconnect", "documents", basename(appPath))
-  else
-    file.path(appPath, "rsconnect")
-}
-
 dirExists <- function(x) {
   utils::file_test("-d", x)
 }

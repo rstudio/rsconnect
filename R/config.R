@@ -168,3 +168,30 @@ accountConfigFiles <- function(server = NULL) {
 
   list.files(path, pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE)
 }
+
+
+# deployments -------------------------------------------------------------
+
+# given a path, return the directory under which rsconnect package state is
+# stored
+deploymentConfigDir <- function(appPath) {
+  if (isDocumentPath(appPath)) {
+    file.path(dirname(appPath), "rsconnect", "documents", basename(appPath))
+  } else {
+    file.path(appPath, "rsconnect")
+  }
+}
+
+deploymentConfigFile <- function(appPath, name, account, server) {
+  accountDir <- file.path(deploymentConfigDir(appPath), server, account)
+  if (!file.exists(accountDir))
+    dir.create(accountDir, recursive = TRUE)
+  file.path(accountDir, paste0(name, ".dcf"))
+}
+
+# whether the given path points to an individual piece of content
+isDocumentPath <- function(path) {
+  ext <- tolower(tools::file_ext(path))
+  !is.null(ext) && ext != ""
+}
+
