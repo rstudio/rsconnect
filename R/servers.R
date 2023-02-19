@@ -81,15 +81,6 @@ servers <- function(local = FALSE) {
   out
 }
 
-serverConfigDir <- function() {
-  rsconnectConfigDir("servers")
-}
-
-serverConfigFile <- function(name) {
-  normalizePath(file.path(serverConfigDir(), paste(name, ".dcf", sep = "")),
-                mustWork = FALSE)
-}
-
 shinyappsServerInfo <- function() {
   info <- list(name = "shinyapps.io",
                certificate = inferCertificateContents(

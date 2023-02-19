@@ -129,3 +129,36 @@ applicationConfigDir <- function() {
     file.path(path, "R", "rsconnect")
   }
 }
+
+# server ------------------------------------------------------------------
+
+serverConfigDir <- function() {
+  rsconnectConfigDir("servers")
+}
+
+serverConfigFile <- function(name) {
+  normalizePath(
+    file.path(serverConfigDir(), paste(name, ".dcf", sep = "")),
+    mustWork = FALSE
+  )
+}
+
+# account -----------------------------------------------------------------
+
+accountsConfigDir <- function() {
+  rsconnectConfigDir("accounts")
+}
+
+accountConfigFile <- function(name, server = NULL) {
+  # if no server is specified, try to find an account with the given name
+  # associated with any server
+  if (is.null(server)) {
+    pat <- escapeRegex(paste0(name, ".dcf"))
+    return(normalizePath(list.files(accountsConfigDir(), pattern = pat,
+                                    recursive = TRUE, full.names = TRUE)))
+  }
+  normalizePath(
+    file.path(accountsConfigDir(), server, paste(name, ".dcf", sep = "")),
+    mustWork = FALSE
+  )
+}
