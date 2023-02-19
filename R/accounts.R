@@ -21,23 +21,13 @@
 #' @rdname accounts
 #' @export
 accounts <- function(server = NULL) {
-  path <- accountsConfigDir()
-  if (!is.null(server))
-    path <- file.path(path, server)
+  configPaths <- accountConfigFiles(server)
 
-  # get a raw list of accounts
-  accountnames <- file_path_sans_ext(list.files(path,
-    pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE))
+  names <- file_path_sans_ext(basename(configPaths))
 
-  if (length(accountnames) == 0) {
-    return(NULL)
-  }
-
-  # convert to a data frame
-  servers <- dirname(accountnames)
+  servers <- basename(dirname(configPaths))
   servers[servers == "."] <- "shinyapps.io"
-  servers <- basename(servers)
-  names <- basename(accountnames)
+
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 

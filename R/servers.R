@@ -70,9 +70,9 @@ servers <- function(local = FALSE) {
 
     # RStudio IDE requires a server whose name matches the server name on
     # previously configured accounts. Prevent breakage for pre-rebrand users.
-    if (!is.null(rsconnect::accounts(server = "rstudio.cloud"))) {
-      serversList <- rbind(
-        serversList,
+    if (nrow(accounts(server = "rstudio.cloud")) > 0) {
+      out <- rbind(
+        out,
         as.data.frame(cloudServerInfo("rstudio.cloud"), stringsAsFactors = FALSE)
       )
     }

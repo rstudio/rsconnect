@@ -145,13 +145,22 @@ serverConfigFile <- function(name) {
 
 # account -----------------------------------------------------------------
 
-accountsConfigDir <- function() {
+accountConfigDir <- function() {
   rsconnectConfigDir("accounts")
 }
 
 accountConfigFile <- function(name, server) {
   normalizePath(
-    file.path(accountsConfigDir(), server, paste(name, ".dcf", sep = "")),
+    file.path(accountConfigDir(), server, paste(name, ".dcf", sep = "")),
     mustWork = FALSE
   )
+}
+
+accountConfigFiles <- function(server = NULL) {
+  path <- accountConfigDir()
+  if (!is.null(server)) {
+    path <- file.path(path, server)
+  }
+
+  list.files(path, pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE)
 }
