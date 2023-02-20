@@ -184,7 +184,7 @@ isKnitrCacheDir <- function(files) {
   cache_rmd <- gsub("_cache$", ".Rmd", files)
   has_rmd <- tolower(cache_rmd) %in% tolower(files)
 
-  is_cache & has_rmd
+  ifelse(is_cache, has_rmd, FALSE)
 }
 
 enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
