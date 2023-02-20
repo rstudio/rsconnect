@@ -173,6 +173,8 @@ test_that("checks its inputs", {
 # detectLongNames ---------------------------------------------------------
 
 test_that("detectLongNames produces informative warning", {
+  skip_on_os("windows")
+
   dir <- local_temp_app(c("a.r" = "", "b.r" = "", "c.r" = ""))
   expect_snapshot(detectLongNames(dir, 0))
 })
