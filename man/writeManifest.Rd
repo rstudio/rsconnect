@@ -20,11 +20,9 @@ writeManifest(
 \item{appDir}{Directory containing application. Defaults to current working
 directory.}
 
-\item{appFiles}{The files and directories to bundle and deploy (only if
-\code{upload = TRUE}). Can be \code{NULL}, in which case all the files in the
-directory containing the application are bundled, with the exception of
-any listed in an \code{.rscignore} file. Takes precedence over
-\code{appFileManifest} if both are supplied.}
+\item{appFiles}{A character vector given relative paths to the files and
+directories to bundle and deploy. The default, \code{NULL}, will include all
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be
