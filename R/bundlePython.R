@@ -131,4 +131,3 @@ getCondaExeForPrefix <- function(prefix) {
   }
   conda
 }
-
