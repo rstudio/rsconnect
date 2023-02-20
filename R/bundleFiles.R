@@ -244,16 +244,25 @@ listBundleFiles <- function(appDir) {
 
 
 enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
-  if (totalSize > getOption("rsconnect.max.bundle.size")) {
-    stop("The directory ", appDir, " cannot be deployed because it is too ",
-         "large (the maximum size is ", getOption("rsconnect.max.bundle.size"),
-         " bytes). Remove some files or adjust the rsconnect.max.bundle.size ",
-         "option.", call. = FALSE)
-  } else if (totalFiles > getOption("rsconnect.max.bundle.files")) {
-    stop("The directory ", appDir, " cannot be deployed because it contains ",
-         "too many files (the maximum number of files is ",
-         getOption("rsconnect.max.bundle.files"), "). Remove some files or ",
-         "adjust the rsconnect.max.bundle.files option.", call. = TRUE)
+  maxSize <- getOption("rsconnect.max.bundle.size")
+  maxFiles <- getOption("rsconnect.max.bundle.files")
+
+  if (totalSize > maxSize) {
+    cli::cli_abort(c(
+      "{.arg appDir} ({.path {appDir}}) is too large to be deployed.",
+      x = "The maximum size is {maxSize} bytes.",
+      x = "This directory is {totalSize} bytes.",
+      i = " Remove some files or adjust the rsconnect.max.bundle.size option."
+    ))
+  }
+
+  if (totalFiles > maxFiles) {
+    cli::cli_abort(c(
+      "{.arg appDir} ({.path {appDir}}) is too large to be deployed.",
+      x = "The maximum number of files is {maxFiles}.",
+      x = "This directory containes {totalFiles} files.",
+      i = " Remove some files or adjust the rsconnect.max.bundle.files option."
+    ))
   }
 }
 
