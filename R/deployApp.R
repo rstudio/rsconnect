@@ -20,14 +20,12 @@
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
-#' @param appFiles The files and directories to bundle and deploy (only if
-#'   `upload = TRUE`). Can be `NULL`, in which case all the files in the
-#'   directory containing the application are bundled, with the exception of
-#'   any listed in an `.rscignore` file. Takes precedence over
-#'   `appFileManifest` if both are supplied.
-#' @param appFileManifest An alternate way to specify the files to be deployed;
-#'   a file containing the names of the files, one per line, relative to the
-#'   `appDir`.
+#' @param appFiles A character vector given relative paths to the files and
+#'   directories to bundle and deploy. The default, `NULL`, will include all
+#'   files in `appDir`, apart from any listed in an `.rscignore` file.
+#' @param appFileManifest An alternate way to specify the files to be deployed.
+#'   Should be a path to a file that contains the names of the files and
+#'   directories to deploy, one per line, relative to `appDir`.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
@@ -192,6 +190,9 @@ deployApp <- function(appDir = getwd(),
   appDir <- normalizePath(appDir)
 
   # create the full path that we'll deploy (append document if requested)
+  # TODO(HW): we use appPrimaryDoc here, but we have not inferred it yet
+  # so the appPath will different deneding on whether it's explicitly
+  # supplied or inferred from the files in the directory.
   appPath <- appDir
   if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
     appPath <- appSourceDoc

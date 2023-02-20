@@ -827,29 +827,58 @@ availableCRANSourcePackages <- function() {
   available.packages("https://cran.rstudio.com/src/contrib", type = "source")
 }
 
-standardizeAppFiles <- function(appDir, appFiles = NULL, appFileManifest = NULL) {
-  # build the list of files to deploy -- implicitly (directory contents),
-  # explicitly via list, or explicitly via manifest
-  if (is.null(appFiles)) {
-    if (is.null(appFileManifest)) {
-      # no files supplied at all, just bundle the whole directory
-      appFiles <- bundleFiles(appDir)
-    } else {
-      # manifest file provided, read it and apply
-      check_file(appFileManifest)
+# build the list of files to deploy -- implicitly (directory contents),
+# explicitly via list, or explicitly via manifest. Always returns paths
+# related to `appDir`
+standardizeAppFiles <- function(appDir,
+                                appFiles = NULL,
+                                appFileManifest = NULL,
+                                error_call = caller_env()) {
 
-      # read the filenames from the file
-      manifestLines <- readLines(appFileManifest, warn = FALSE)
+  check_exclusive(appFiles, appFileManifest, .require = FALSE, .call = error_call)
 
-      # remove empty/comment lines and explode remaining
-      manifestLines <- manifestLines[nzchar(manifestLines)]
-      manifestLines <- manifestLines[!grepl("^#", manifestLines)]
-      appFiles <- explodeFiles(appDir, manifestLines)
-    }
-  } else {
-    # file list provided directly
-    appFiles <- explodeFiles(appDir, appFiles)
+  no_content <- function(message) {
+    cli::cli_abort(
+      c(
+        "No content to deploy.",
+        x = message
+      ),
+      call = error_call,
+      .frame = caller_env()
+    )
   }
+
+  if (is.null(appFiles) && is.null(appFileManifest)) {
+    # no files supplied at all, just bundle the whole directory
+    appFiles <- bundleFiles(appDir)
+    if (length(appFiles) == 0) {
+      no_content("{.arg appDir} is empty.")
+    }
+  } else if (!is.null(appFiles)) {
+    check_character(appFiles, allow_null = TRUE, call = error_call)
+    appFiles <- explodeFiles(appDir, appFiles)
+    if (length(appFiles) == 0) {
+      no_content("{.arg appFiles} didn't match any files in {.arg appDir}.")
+    }
+  } else if (!is.null(appFileManifest)) {
+    check_file(appFileManifest, error_call = error_call)
+    appFiles <- readFileManifest(appFileManifest)
+    appFiles <- explodeFiles(appDir, appFiles)
+    if (length(appFiles) == 0) {
+      no_content("{.arg appFileManifest} contains no usable files.")
+    }
+  }
+
+  appFiles
+}
+
+readFileManifest <- function(appFileManifest, error_call = caller_env()) {
+  lines <- readLines(appFileManifest, warn = FALSE)
+
+  # remove empty/comment lines
+  lines <- lines[nzchar(lines)]
+  lines <- lines[!grepl("^#", lines)]
+  lines
 }
 
 appUsesPython <- function(quartoInfo) {

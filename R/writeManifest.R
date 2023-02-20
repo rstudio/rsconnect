@@ -3,40 +3,8 @@
 #' Given a directory content targeted for deployment, write a manifest.json into
 #' that directory describing the deployment requirements for that content.
 #'
-#' @param appDir Directory containing the content (Shiny application, R Markdown
-#'   document, etc).
-#'
-#' @param appFiles Optional. The full set of files and directories to be
-#'   included in future deployments of this content. Used when computing
-#'   dependency requirements. When `NULL`, all files in `appDir` are considered.
-#'
-#' @param appPrimaryDoc Optional. Specifies the primary document in a content
-#'   directory containing more than one. If `NULL`, the primary document is
-#'   inferred from the file list.
-#'
-#' @param contentCategory Optional. Specifies the kind of content being deployed
-#'   (e.g. `"plot"` or `"site"`).
-#'
-#' @param python Optional. Full path to a Python binary for use by `reticulate`.
-#'   The specified Python binary will be invoked to determine its version and to
-#'   list the Python packages installed in the environment. If `python = NULL`,
-#'   and `RETICULATE_PYTHON` is set in the environment, its value will be used.
-#'
-#' @param forceGeneratePythonEnvironment Optional. If an existing
-#'   `requirements.txt` file is found, it will be overwritten when this argument
-#'   is `TRUE`.
-#'
-#' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
-#'   content. The provided Quarto binary will be used to run `quarto inspect`
-#'   to gather information about the content.
-#'
-#' @param image Optional. The name of the image to use when building and
-#'   executing this content. If none is provided, Posit Connect will
-#'   attempt to choose an image based on the content requirements.
-#'
+#' @inheritParams deployApp
 #' @param verbose If TRUE, prints progress messages to the console
-#'
-#'
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
@@ -50,11 +18,7 @@ writeManifest <- function(appDir = getwd(),
 
   condaMode <- FALSE
 
-  if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
-  } else {
-    appFiles <- explodeFiles(appDir, appFiles)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles)
 
   appMetadata <- appMetadata(
     appDir = appDir,

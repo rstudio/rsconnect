@@ -3,6 +3,8 @@
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 
+* `accounts()` now returns a zero-row data frame if no accounts registered.
+
 * `accountInfo()` and `servers()` now redacts sensitive information (secrets,
   private keys, and certificates) to make it hard to accidentally reveal
   such information in logs (#675).
