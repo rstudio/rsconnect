@@ -492,16 +492,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
 }
 
 
-getPythonForTarget <- function(path, accountDetails) {
-  # python is enabled on Connect and posit.cloud, but not on Shinyapps
-  targetIsShinyapps <- isShinyappsServer(accountDetails$server)
-  pythonEnabled <- getOption("rsconnect.python.enabled", default = !targetIsShinyapps)
-  if (pythonEnabled) {
-    getPython(path)
-  } else {
-    NULL
-  }
-}
 
 
 # get the record for the application of the given name in the given account, or
