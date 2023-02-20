@@ -16,6 +16,22 @@
       ! Can't deploy Quarto content when `quarto` is `NULL`.
       i Please supply a path to a quarto binary in `quarto`.
 
+# removes renv/packrat activation
+
+    Code
+      tweakRProfile(path)
+      writeLines(readLines(path))
+    Output
+      # Line 1
+      # Modified by rsconnect package 0.8.29.1 on <NOW>:
+      # renv initialization disabled in published application
+      # source("renv/activate.R")
+      # Line 3
+      # Modified by rsconnect package 0.8.29.1 on <NOW>:
+      # Packrat initialization disabled in published application
+      # source("packrat/init.R")
+      # Line 5
+
 # can read all files from directory
 
     Code

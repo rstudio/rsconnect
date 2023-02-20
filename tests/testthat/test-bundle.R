@@ -644,6 +644,26 @@ test_that("tarImplementation: checks environment variable and option before usin
 })
 
 
+# tweakRProfile -----------------------------------------------------------
+
+test_that("removes renv/packrat activation", {
+  path <- withr::local_tempfile(lines = c(
+    "# Line 1",
+    'source("renv/activate.R")',
+    "# Line 3",
+    'source("packrat/init.R")',
+    "# Line 5"
+  ))
+
+  expect_snapshot(
+    {
+      tweakRProfile(path)
+      writeLines(readLines(path))
+    },
+    transform = function(x) gsub("on .+:", "on <NOW>:", x)
+  )
+})
+
 # standardAppFiles --------------------------------------------------------
 
 test_that("can read all files from directory", {
