@@ -646,6 +646,18 @@ test_that("tarImplementation: checks environment variable and option before usin
 
 # tweakRProfile -----------------------------------------------------------
 
+test_that(".Rprofile tweaked automatically", {
+  dir <- withr::local_tempdir()
+  writeLines('source("renv/activate.R")', file.path(dir, ".Rprofile"))
+
+  bundled <- bundleAppDir(dir, list.files(dir, all.files = TRUE))
+  expect_match(
+    readLines(file.path(bundled, ".Rprofile")),
+    "Modified by rsconnect",
+    all = FALSE
+  )
+})
+
 test_that("removes renv/packrat activation", {
   path <- withr::local_tempfile(lines = c(
     "# Line 1",
