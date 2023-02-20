@@ -23,6 +23,7 @@
 #' @param appFiles A character vector given relative paths to the files and
 #'   directories to bundle and deploy. The default, `NULL`, will include all
 #'   files in `appDir`, apart from any listed in an `.rscignore` file.
+#'   See [listBundleFiles()] for more details.
 #' @param appFileManifest An alternate way to specify the files to be deployed.
 #'   Should be a path to a file that contains the names of the files and
 #'   directories to deploy, one per line, relative to `appDir`.

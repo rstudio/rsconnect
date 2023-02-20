@@ -84,37 +84,30 @@ explodeFiles <- function(dir, files) {
 
 #' List Files to be Bundled
 #'
+#' @description
 #' Given a directory containing an application, returns the names of the files
-#' to be bundled in the application.
+#' that by default will be bundled in the application. It works similarly to
+#' a recursive directory listing from [list.files()] but:
+#'
+#' * If the total size of the files exceeds the maximum bundle size,
+#'   `listBundleFiles()` will error. The maximum bundle size is controlled by
+#'    the `rsconnect.max.bundle.size` option.
+#' *  If the total size number of files exceeds the maximum number to be
+#'    bundled, `listBundleFiles()` will error. The maximum number of files in
+#'    the bundle is controlled by the `rsconnect.max.bundle.files` option.
+#' *  Certain files and folders that don't need to be bundled, such as
+#'    those containing internal version control and RStudio state, are
+#'    automatically excluded.
+#' *  You can exclude additional files by listing them in in a `.rscignore`
+#'    file. This file must have one file or directory per line (with path
+#'    relative to the current directory). It doesn't support wildcards, or
+#'    ignoring files in subdirectories.
 #'
 #' @param appDir Directory containing the application.
-#'
-#' @details This function computes results similar to a recursive directory
-#' listing from [list.files()], with the following constraints:
-#'
-#' \enumerate{
-#' \item{If the total size of the files exceeds the maximum bundle size, no
-#'    more files are listed. The maximum bundle size is controlled by the
-#'    `rsconnect.max.bundle.size` option.}
-#' \item{If the total size number of files exceeds the maximum number to be
-#'    bundled, no more files are listed. The maximum number of files in the
-#'    bundle is controlled by the `rsconnect.max.bundle.files` option.}
-#' \item{Certain files and folders that don't need to be bundled, such as
-#'    those containing internal version control and RStudio state, are
-#'    excluded.}
-#' \item{In order to stop specific files in the working directory from being
-#'    listed in the bundle, the files must be listed in the .rscignore file.
-#'    This file must have one file or directory per line with no support for
-#'    wildcards.}
-#' }
-#'
 #' @return Returns a list containing the following elements:
-#'
-#' \tabular{ll}{
-#' `contents` \tab A list of the files to be bundled \cr
-#' `totalSize` \tab The total size of the files \cr
-#' }
-#'
+#' * `totalFiles`: Total number of files.
+#' * `totalSize`: Total size of the files (in bytes).
+#' * `contents`: Paths to bundle, relative to `appDir`.
 #' @export
 listBundleFiles <- function(appDir) {
   paths <- recursiveBundleFiles(appDir)
