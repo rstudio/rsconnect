@@ -38,26 +38,35 @@
   bundleDir
 }
 
-tweakRProfile <- function(to) {
-  origRprofile <- readLines(to)
-  msg <- paste0("# Modified by rsconnect package ", packageVersion("rsconnect"), " on ", Sys.time(), ":")
+tweakRProfile <- function(path) {
+  lines <- readLines(path)
 
-  packratReplacement <- paste(msg,
-                              "# Packrat initialization disabled in published application",
-                              '# source(\"packrat/init.R\")', sep = "\n")
-  renvReplacement <- paste(msg,
-                           "# renv initialization disabled in published application",
-                           '# source(\"renv/activate.R\")', sep = "\n")
-  newRprofile <- origRprofile
+  packratLines <- grep('source("packrat/init.R")', lines, fixed = TRUE)
+  if (length(packratLines) > 0) {
+    lines[packratLines] <- paste0(
+       "# Packrat initialization disabled in published application\n",
+       '# source("packrat/init.R")'
+      )
+  }
 
-  newRprofile <- gsub('source(\"packrat/init.R\")',
-                      packratReplacement,
-                      newRprofile, fixed = TRUE)
-  newRprofile <- gsub('source(\"renv/activate.R\")',
-                      renvReplacement,
-                      newRprofile, fixed = TRUE)
+  renvLines <- grep('source("renv/activate.R")', lines, fixed = TRUE)
+  if (length(renvLines) > 0) {
+    lines[renvLines] <- paste0(
+       "# renv initialization disabled in published application\n",
+       '# source("renv/activate.R")'
+      )
+  }
 
-  cat(newRprofile, file = to, sep = "\n")
+  if (length(renvLines) > 0 || length(packratLines) > 0) {
+    msg <-  sprintf(
+      "# Modified by rsconnect package %s on %s",
+      packageVersion("rsconnect"),
+      Sys.time()
+    )
+    lines <- c(msg, lines)
+  }
+
+  writeLines(lines, path)
 }
 
 isKnitrCacheDir <- function(subdir, contents) {

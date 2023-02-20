@@ -660,7 +660,7 @@ test_that("removes renv/packrat activation", {
       tweakRProfile(path)
       writeLines(readLines(path))
     },
-    transform = function(x) gsub("on .+:", "on <NOW>:", x)
+    transform = function(x) gsub("on \\d{4}.+", "on <NOW>", x)
   )
 })
 
