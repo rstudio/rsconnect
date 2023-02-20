@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `addConnectServer()` is slightly more robust to incorrect specification 
+  (#603).
+
 * `accounts()` now returns a zero-row data frame if no accounts registered.
 
 * `accountInfo()` and `servers()` now redacts sensitive information (secrets,
