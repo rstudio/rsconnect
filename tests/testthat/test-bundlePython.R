@@ -1,22 +1,18 @@
-test_that("getPython handles null python by checking RETICULATE_PYTHON", {
-  skip_on_cran()
-
-  withr::local_envvar(RETICULATE_PYTHON = "/usr/local/bin/python")
-  expect_equal(getPython(NULL), "/usr/local/bin/python")
-})
-
-test_that("getPython handles null python and empty RETICULATE_PYTHON by checking RETICULATE_PYTHON_FALLBACK", {
+test_that("getPython looks in argument, RETICULATE_PYTHON, then RETICULATE_PYTHON_FALLBACK", {
   skip_on_cran()
 
   withr::local_envvar(
-    RETICULATE_PYTHON = NA,
-    RETICULATE_PYTHON_FALLBACK = "/usr/local/bin/python"
+    RETICULATE_PYTHON = "~/python",
+    RETICULATE_PYTHON_FALLBACK = "~/fallback"
   )
-  expect_equal(getPython(NULL), "/usr/local/bin/python")
-})
+  expect_equal(getPython("~/supplied"), path.expand("~/supplied"))
+  expect_equal(getPython(NULL), path.expand("~/python"))
 
-test_that("getPython handles null python, empty RETICULATE_PYTHON, and empty RETICULATE_PYTHON_FALLBACK", {
-  skip_on_cran()
+  withr::local_envvar(
+    RETICULATE_PYTHON = NA,
+    RETICULATE_PYTHON_FALLBACK = "~/fallback"
+  )
+  expect_equal(getPython(NULL), path.expand("~/fallback"))
 
   withr::local_envvar(
     RETICULATE_PYTHON = NA,
@@ -25,56 +21,19 @@ test_that("getPython handles null python, empty RETICULATE_PYTHON, and empty RET
   expect_equal(getPython(NULL), NULL)
 })
 
-test_that("getPython expands paths", {
+test_that("rsconnect.python.enabled overrides getPythonForTarget() default", {
   skip_on_cran()
 
-  expect_equal(getPython("~/bin/python"), path.expand("~/bin/python"))
-})
-
-test_that("getPythonForTarget honors rsconnect.python.enabled = FALSE", {
-  skip_on_cran()
+  expect_equal(getPythonForTarget("p", list(server = "shinyapps.io")), NULL)
+  expect_equal(getPythonForTarget("p", list(server = "example.com")), "p")
 
   withr::local_options(rsconnect.python.enabled = FALSE)
-  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
-  expect_equal(result, NULL)
-})
-
-test_that("getPythonForTarget honors rsconnect.python.enabled = TRUE", {
-  skip_on_cran()
+  expect_equal(getPythonForTarget("p", list(server = "shinyapps.io")), NULL)
+  expect_equal(getPythonForTarget("p", list(server = "example.com")), NULL)
 
   withr::local_options(rsconnect.python.enabled = TRUE)
-  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
-  expect_equal(result, "/usr/bin/python")
-})
-
-test_that("getPythonForTarget defaults to enabled for Connect", {
-  skip_on_cran()
-
-  result <- getPythonForTarget(
-    "/usr/bin/python",
-    list(server = "connect.example.com")
-  )
-  expect_equal(result, "/usr/bin/python")
-})
-
-test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
-  skip_on_cran()
-
-  result <- getPythonForTarget(
-    "/usr/bin/python",
-    list(server = "shinyapps.io")
-  )
-  expect_equal(result, NULL)
-})
-
-test_that("getPythonForTarget defaults to enabled for rstudio.cloud", {
-  skip_on_cran()
-
-  result <- getPythonForTarget(
-    "/usr/bin/python",
-    list(server = "rstudio.cloud")
-  )
-  expect_equal(result, "/usr/bin/python")
+  expect_equal(getPythonForTarget("p", list(server = "shinyapps.io")), "p")
+  expect_equal(getPythonForTarget("p", list(server = "example.com")), "p")
 })
 
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {

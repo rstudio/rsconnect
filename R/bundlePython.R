@@ -40,13 +40,10 @@ appUsesPython <- function(quartoInfo) {
   }
 }
 
+# python is enabled on Connect and posit.cloud, but not on Shinyapps
 getPythonForTarget <- function(path, accountDetails) {
-  # python is enabled on Connect and posit.cloud, but not on Shinyapps
   targetIsShinyapps <- isShinyappsServer(accountDetails$server)
-  pythonEnabled <- getOption(
-    "rsconnect.python.enabled",
-    default = !targetIsShinyapps
-  )
+  pythonEnabled <- getOption("rsconnect.python.enabled", !targetIsShinyapps)
   if (pythonEnabled) {
     getPython(path)
   } else {
@@ -55,13 +52,21 @@ getPythonForTarget <- function(path, accountDetails) {
 }
 
 getPython <- function(path = NULL) {
-  if (is.null(path)) {
-    path <- Sys.getenv("RETICULATE_PYTHON", unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
-    if (path == "") {
-      return(NULL)
-    }
+  if (!is.null(path)) {
+    return(path.expand(path))
   }
-  path.expand(path)
+
+  path <- Sys.getenv("RETICULATE_PYTHON")
+  if (path != "") {
+    return(path.expand(path))
+  }
+
+  path <- Sys.getenv("RETICULATE_PYTHON_FALLBACK")
+  if (path != "") {
+    return(path.expand(path))
+  }
+
+  NULL
 }
 
 inferPythonEnv <- function(workdir,
