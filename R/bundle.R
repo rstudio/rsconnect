@@ -318,9 +318,15 @@ isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
 
-createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, condaMode,
-                              forceGenerate, python = NULL, documentsHavePython = FALSE,
+createAppManifest <- function(appDir,
+                              appMode,
+                              contentCategory,
+                              hasParameters,
+                              appPrimaryDoc,
+                              assetTypeName,
+                              users,
+                              pythonConfig = NULL,
+                              documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
                               isCloud = FALSE,
@@ -338,18 +344,15 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     verbose = verbose
   )
 
-  pyInfo <- NULL
-  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
-  if (needsPyInfo && !is.null(python)) {
-    pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
-    if (is.null(pyInfo$error)) {
-      # write the package list into requirements.txt/environment.yml file in the bundle dir
-      packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
-      cat(pyInfo$package_manager$contents, file = packageFile, sep = "\n")
-      pyInfo$package_manager$contents <- NULL
-    } else {
-      stop(paste("Error detecting python environment:", pyInfo$error), call. = FALSE)
-    }
+  needsPython <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
+  if (needsPython && !is.null(pythonConfig)) {
+    python <- pythonConfig(appDir)
+
+    packageFile <- file.path(appDir, python$package_manager$package_file)
+    cat(python$package_manager$contents, file = packageFile, sep = "\n")
+    python$package_manager$contents <- NULL
+  } else {
+    python <- NULL
   }
 
   if (!retainPackratDirectory) {
@@ -415,8 +418,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     manifest$quarto <- quartoInfo
   }
   # if there is python info for reticulate or Quarto, attach it
-  if (!is.null(pyInfo)) {
-    manifest$python <- pyInfo
+  if (!is.null(python)) {
+    manifest$python <- python
   }
   # if there are no packages set manifest$packages to NA (json null)
   if (length(packages) > 0) {

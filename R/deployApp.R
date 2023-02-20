@@ -148,8 +148,6 @@ deployApp <- function(appDir = getwd(),
                       image = NULL
                       ) {
 
-  condaMode <- FALSE
-
   check_directory(appDir)
   check_string(appName, allow_null = TRUE)
 
@@ -314,12 +312,22 @@ deployApp <- function(appDir = getwd(),
     withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
                      application$id), {
 
-      # python is enabled on Connect but not on Shinyapps
       python <- getPythonForTarget(python, accountDetails)
-      bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
-                              condaMode, forceGeneratePythonEnvironment, quarto,
-                              isCloudServer(accountDetails$server), metadata, image)
+      pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
+      bundlePath <- bundleApp(
+        target$appName,
+        appDir,
+        appFiles,
+        appPrimaryDoc,
+        assetTypeName,
+        contentCategory,
+        verbose,
+        pythonConfig,
+        quarto,
+        isCloudServer(accountDetails$server),
+        metadata,
+        image
+      )
 
       if (isCloudServer(accountDetails$server)) {
 
@@ -426,10 +434,18 @@ deployApp <- function(appDir = getwd(),
 # deployApp() instead of being exposed to the user. Returns the path to the
 # bundle directory, whereas writeManifest() returns nothing and deletes the
 # bundle directory after writing the manifest.
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
-                      contentCategory, verbose = FALSE, python = NULL,
-                      condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      isCloudServer = FALSE, metadata = list(), image = NULL) {
+bundleApp <- function(appName,
+                      appDir,
+                      appFiles,
+                      appPrimaryDoc,
+                      assetTypeName,
+                      contentCategory = NULL,
+                      verbose = FALSE,
+                      pythonConfig = NULL,
+                      quarto = NULL,
+                      isCloudServer = FALSE,
+                      metadata = list(),
+                      image = NULL) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -460,22 +476,21 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
   manifest <- createAppManifest(
-      appDir = bundleDir,
-      appMode = appMetadata$appMode,
-      contentCategory = contentCategory,
-      hasParameters = appMetadata$hasParameters,
-      appPrimaryDoc = appMetadata$appPrimaryDoc,
-      assetTypeName = assetTypeName,
-      users = users,
-      condaMode = condaMode,
-      forceGenerate = forceGenerate,
-      python = python,
-      documentsHavePython = appMetadata$documentsHavePython,
-      retainPackratDirectory = TRUE,
-      quartoInfo = appMetadata$quartoInfo,
-      isCloud = isCloudServer,
-      image = image,
-      verbose = verbose)
+    appDir = bundleDir,
+    appMode = appMetadata$appMode,
+    contentCategory = contentCategory,
+    hasParameters = appMetadata$hasParameters,
+    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    assetTypeName = assetTypeName,
+    users = users,
+    pythonConfig = pythonConfig,
+    documentsHavePython = appMetadata$documentsHavePython,
+    retainPackratDirectory = TRUE,
+    quartoInfo = appMetadata$quartoInfo,
+    isCloud = isCloudServer,
+    image = image,
+    verbose = verbose
+  )
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)

@@ -76,3 +76,11 @@ test_that("getPythonForTarget defaults to enabled for rstudio.cloud", {
   )
   expect_equal(result, "/usr/bin/python")
 })
+
+test_that("Rmd with reticulate as a dependency includes python in the manifest", {
+  skip_on_cran()
+
+  env <- inferPythonEnv(test_path("test-reticulate-rmds"), pythonPathOrSkip())
+  expect_named(env, c("version", "package_manager"))
+  expect_named(env$package_manager, c("name", "version", "package_file", "contents"))
+})

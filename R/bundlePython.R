@@ -1,3 +1,34 @@
+# Create anonymous function that we can later call to get all needed python
+# metdata for the manifest
+pythonConfigurator <- function(python,
+                               forceGenerate = FALSE,
+                               condaMode = FALSE) {
+
+  if (is.null(python)) {
+    return(NULL)
+  }
+
+  force(condaMode)
+  force(forceGenerate)
+
+  function(appDir) {
+    withCallingHandlers(
+      inferPythonEnv(
+        appDir,
+        python = python,
+        condaMode = condaMode,
+        forceGenerate = forceGenerate
+      ),
+      error = function(err) {
+        cli::cli_abort(
+          "Failed to detect python environment",
+          parent = err
+        )
+      }
+    )
+  }
+}
+
 appUsesPython <- function(quartoInfo) {
   if (is.null(quartoInfo)) {
     # No R-based, non-Quarto content uses Python by default.
@@ -23,7 +54,7 @@ getPythonForTarget <- function(path, accountDetails) {
   }
 }
 
-getPython <- function(path) {
+getPython <- function(path = NULL) {
   if (is.null(path)) {
     path <- Sys.getenv("RETICULATE_PYTHON", unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
     if (path == "") {
@@ -33,46 +64,52 @@ getPython <- function(path) {
   path.expand(path)
 }
 
-inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
+inferPythonEnv <- function(workdir,
+                           python = getPython(),
+                           condaMode = FALSE,
+                           forceGenerate = FALSE) {
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
-  args <- c(shQuote(env_py))
-  if (condaMode || forceGenerate) {
-    flags <- paste("-", ifelse(condaMode, "c", ""), ifelse(forceGenerate, "f", ""), sep = "")
-    args <- c(args, flags)
-  }
-  args <- c(args, shQuote(workdir))
+  args <- c(
+    shQuote(env_py),
+    if (condaMode) "-c",
+    if (forceGenerate) "-f",
+    shQuote(workdir)
+  )
 
-  tryCatch({
-    # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
-    # and verify that the user hasn't specified that they don't want their conda environment captured.
-    if (is_installed("reticulate") && reticulate::py_available(initialize = FALSE) &&
-       reticulate::py_config()$anaconda && !condaMode) {
-      prefix <- getCondaEnvPrefix(python)
-      conda <- getCondaExeForPrefix(prefix)
-      args <- c("run", "-p", prefix, python, args)
-      # conda run -p <prefix> python inst/resources/environment.py <flags> <dir>
-      output <- system2(command = conda, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
-    } else {
-      output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
-    }
-    environment <- jsonlite::fromJSON(output)
-    if (is.null(environment$error)) {
-      list(
-          version = environment$python,
-          package_manager = list(
-              name = environment$package_manager,
-              version = environment[[environment$package_manager]],
-              package_file = environment$filename,
-              contents = environment$contents))
-    }
-    else {
-      # return the error
-      environment
-    }
-  }, error = function(e) {
-    list(error = e$message)
-  })
+  # First check for reticulate. Then see if python is loaded in reticulate
+  # space, verify anaconda presence, and verify that the user hasn't specified
+  # that they don't want their conda environment captured.
+  hasConda <- is_installed("reticulate") &&
+    reticulate::py_available(initialize = FALSE) &&
+    reticulate::py_config()$anaconda &&
+    !condaMode
+
+  if (hasConda) {
+    prefix <- getCondaEnvPrefix(python)
+    conda <- getCondaExeForPrefix(prefix)
+    args <- c("run", "-p", prefix, python, args)
+    # conda run -p <prefix> python inst/resources/environment.py <flags> <dir>
+    output <- system2(command = conda, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
+  } else {
+    output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
+  }
+
+  environment <- jsonlite::fromJSON(output)
+  if (is.null(environment$error)) {
+
+    list(
+      version = environment$python,
+      package_manager = list(
+        name = environment$package_manager,
+        version = environment[[environment$package_manager]],
+        package_file = environment$filename,
+        contents = environment$contents
+      )
+    )
+  } else {
+    cli::cli_abort(environment$error)
+  }
 }
 
 getCondaEnvPrefix <- function(python) {
