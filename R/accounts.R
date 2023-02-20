@@ -21,23 +21,13 @@
 #' @rdname accounts
 #' @export
 accounts <- function(server = NULL) {
-  path <- accountsConfigDir()
-  if (!is.null(server))
-    path <- file.path(path, server)
+  configPaths <- accountConfigFiles(server)
 
-  # get a raw list of accounts
-  accountnames <- file_path_sans_ext(list.files(path,
-    pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE))
+  names <- file_path_sans_ext(basename(configPaths))
 
-  if (length(accountnames) == 0) {
-    return(NULL)
-  }
-
-  # convert to a data frame
-  servers <- dirname(accountnames)
+  servers <- basename(dirname(configPaths))
   servers[servers == "."] <- "shinyapps.io"
-  servers <- basename(servers)
-  names <- basename(accountnames)
+
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
@@ -446,23 +436,6 @@ registerUserToken <- function(serverName, accountName, userId, token,
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
     Sys.chmod(configFile, mode = "0600")
-}
-
-accountConfigFile <- function(name, server = NULL) {
-  # if no server is specified, try to find an account with the given name
-  # associated with any server
-  if (is.null(server)) {
-    pat <- escapeRegex(paste0(name, ".dcf"))
-    return(normalizePath(list.files(accountsConfigDir(), pattern = pat,
-                                    recursive = TRUE, full.names = TRUE)))
-  }
-  normalizePath(file.path(accountsConfigDir(), server,
-                          paste(name, ".dcf", sep = "")),
-                mustWork = FALSE)
-}
-
-accountsConfigDir <- function() {
-  rsconnectConfigDir("accounts")
 }
 
 missingAccountErrorMessage <- function(name) {
