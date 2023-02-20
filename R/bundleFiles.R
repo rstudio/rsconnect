@@ -58,11 +58,10 @@ explodeFiles <- function(dir, files) {
   exploded <- character()
   for (f in files) {
     target <- file.path(dir, f)
-    info <- file.info(target)
-    if (is.na(info$isdir)) {
-      # don't return this file; it doesn't appear to exist
+    if (!file.exists(target)) {
+      # doesn't exist
       next
-    } else if (isTRUE(info$isdir)) {
+    } else if (dirExists(target)) {
       # a directory; explode it
       contents <- list.files(
         target,
@@ -72,7 +71,7 @@ explodeFiles <- function(dir, files) {
       )
       exploded <- c(exploded, file.path(f, contents))
     } else {
-      # not a directory; an ordinary file
+      # must be an ordinary file
       exploded <- c(exploded, f)
     }
   }
@@ -82,127 +81,6 @@ explodeFiles <- function(dir, files) {
 
   exploded
 }
-
-bundleFiles <- function(appDir) {
-  files <- listBundleFiles(appDir)
-  enforceBundleLimits(appDir, files$totalSize, length(files$contents))
-  files$contents
-}
-
-
-
-# dir is the path for this step on our recursive walk.
-# depth is tracks the number of directories we have descended. depth==0 at the root.
-# totalSize is a running total of our encountered file sizes.
-# totalFiles is a running count of our encountered files.
-maxDirectoryList <- function(dir, depth, totalFiles, totalSize) {
-  # generate a list of files at this level
-  contents <- list.files(dir, recursive = FALSE, all.files = TRUE,
-                         include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
-
-  # At the root, some well-known files and directories are not included in the bundle.
-  if (depth == 0) {
-    contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
-    contents <- setdiff(contents, c(
-                                      ".DS_Store",
-                                      ".gitignore",
-                                      ".Rhistory",
-                                      "manifest.json",
-                                      "rsconnect",
-                                      "packrat",
-                                      "app_cache",
-                                      ".svn",
-                                      ".git",
-                                      ".quarto",
-                                      ".Rproj.user"
-                                  ))
-  }
-
-  # exclude renv files
-  contents <- setdiff(contents, c("renv", "renv.lock"))
-
-
-  # checks for .rscignore file and excludes the files and directories listed
-  if (".rscignore" %in% contents) {
-    ignoreContents <- readLines(".rscignore")
-    contents <- setdiff(
-      x = contents,
-      y = ignoreContents
-    )
-  }
-
-  # subdirContents contains all files encountered beneath this directory.
-  # Returned paths are relative to this directory.
-  subdirContents <- NULL
-
-  # Info for each file lets us know to recurse (directories) or aggregate (files).
-  infos <- file.info(file.path(dir, contents), extra_cols = FALSE)
-  row.names(infos) <- contents
-
-  for (name in contents) {
-    info <- infos[name, ]
-
-    if (isTRUE(info$isdir)) {
-      # Directories do not include their self-size in our counts.
-
-      # ignore knitr _cache directories
-      if (isKnitrCacheDir(name, contents)) {
-        next
-      }
-
-      # Recursively enumerate this directory.
-      dirList <- maxDirectoryList(file.path(dir, name), depth + 1, totalFiles, totalSize)
-
-      # Inherit the running totals from our child.
-      totalSize <- dirList$totalSize
-      totalFiles <- dirList$totalFiles
-
-      # Directories are not included, only their files.
-      subdirContents <- append(subdirContents, file.path(name, dirList$contents))
-
-    } else {
-      # This is a file. It counts and is included in our listing.
-      if (is.na(info$isdir)) {
-        cat(sprintf("File information for %s is not available; listing as a normal file.\n",
-                    file.path(dir, name)))
-      }
-
-      ourSize <- if (is.na(info$size)) { 0 } else { info$size }
-      totalSize <- totalSize + ourSize
-      totalFiles <- totalFiles + 1
-      subdirContents <- append(subdirContents, name)
-    }
-
-    # abort if we've reached the maximum size
-    if (totalSize > getOption("rsconnect.max.bundle.size"))
-      break
-
-    # abort if we've reached the maximum number of files
-    if (totalFiles > getOption("rsconnect.max.bundle.files"))
-      break
-  }
-
-  # totalSize - incoming size summed with all file sizes beneath this directory.
-  # totalFiles - incoming count summed with file count beneath this directory.
-  # contents - all files beneath this directory; paths relative to this directory.
-  list(
-      totalSize = totalSize,
-      totalFiles = totalFiles,
-      contents = subdirContents
-  )
-}
-
-
-isKnitrCacheDir <- function(subdir, contents) {
-  if (grepl("^.+_cache$", subdir)) {
-    stem <- substr(subdir, 1, nchar(subdir) - nchar("_cache"))
-    rmd <- paste0(stem, ".Rmd")
-    tolower(rmd) %in% tolower(contents)
-  } else {
-    FALSE
-  }
-}
-
 
 #' List Files to be Bundled
 #'
@@ -239,9 +117,75 @@ isKnitrCacheDir <- function(subdir, contents) {
 #'
 #' @export
 listBundleFiles <- function(appDir) {
-  maxDirectoryList(appDir, 0, 0, 0)
+  paths <- recursiveBundleFiles(appDir)
+
+  files <- length(paths)
+  size <- sum(file.info(file.path(appDir, paths))$size)
+
+  enforceBundleLimits(appDir, size, files)
+  list(
+    totalSize = size,
+    totalFiles = files,
+    contents = paths
+  )
 }
 
+bundleFiles <- function(appDir) {
+  listBundleFiles(appDir)$contents
+}
+
+recursiveBundleFiles <- function(dir, depth = 0) {
+  # generate a list of files at this level
+  contents <- list.files(dir, all.files = TRUE, no.. = TRUE, include.dirs = TRUE)
+
+  # exclude some well-known files/directories at root level
+  if (depth == 0) {
+    contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
+    contents <- setdiff(
+      contents,
+      c("manifest.json", "rsconnect", "packrat", "app_cache", ".Rproj.user")
+    )
+  }
+
+  # exclude renv files, knitr cache dirs, and another well-known files
+  contents <- setdiff(contents, c("renv", "renv.lock"))
+  contents <- contents[!isKnitrCacheDir(contents)]
+  contents <- setdiff(
+    contents,
+    c(".DS_Store", ".git", ".gitignore", ".quarto", ".Rhistory", ".svn")
+  )
+
+  # remove any files lines listed .rscignore
+  if (".rscignore" %in% contents) {
+    ignoreContents <- readLines(file.path(dir, ".rscignore"))
+    contents <- setdiff(contents, c(ignoreContents, ".rscignore"))
+  }
+
+  # Info for each file lets us know to recurse (directories) or aggregate (files).
+  is_dir <- dirExists(file.path(dir, contents))
+  names(is_dir) <- contents
+
+  children <- character()
+  for (name in contents) {
+    if (isTRUE(is_dir[[name]])) {
+      dirList <- recursiveBundleFiles(file.path(dir, name), depth + 1)
+      children <- append(children, file.path(name, dirList))
+    } else {
+      children <- append(children, name)
+    }
+  }
+
+  children
+}
+
+isKnitrCacheDir <- function(files) {
+  is_cache <- grepl("^.+_cache$", files)
+
+  cache_rmd <- gsub("_cache$", ".Rmd", files)
+  has_rmd <- tolower(cache_rmd) %in% tolower(files)
+
+  is_cache & has_rmd
+}
 
 enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
   maxSize <- getOption("rsconnect.max.bundle.size")

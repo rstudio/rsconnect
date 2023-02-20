@@ -1,40 +1,66 @@
 test_that("bundle directories are recursively enumerated", {
-  targetDir <- tempfile()
-  dir.create(targetDir)
-  on.exit(unlink(targetDir, recursive = TRUE))
+  dir <- withr::local_tempdir()
 
   # tree that resembles the case from https://github.com/rstudio/rsconnect/issues/464
   files <- c(
-      "app.R",
-      "index.htm",
-      "models/abcd/a_b_pt1/a/b/c1/1.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/2.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/3.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/4.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/5.RDS"
+    "app.R",
+    "index.htm",
+    "models/abcd/a_b_pt1/a/b/c1/1.RDS",
+    "models/abcd/a_b_pt1/a/b/c1/2.RDS",
+    "models/abcd/a_b_pt1/a/b/c1/3.RDS",
+    "models/abcd/a_b_pt1/a/b/c1/4.RDS",
+    "models/abcd/a_b_pt1/a/b/c1/5.RDS"
   )
+  dir.create(file.path(dir, "models/abcd/a_b_pt1/a/b/c1/"), recursive = TRUE)
+  file.create(file.path(dir, files))
 
-  # Create and write each file.
-  sapply(files, function(file) {
-    content <- c("this is the file named", file)
-    targetFile <- file.path(targetDir, file)
-    dir.create(dirname(targetFile), recursive = TRUE, showWarnings = FALSE)
-    writeLines(content, con = targetFile, sep = "\n")
-  })
-
-  infos <- file.info(file.path(targetDir, files))
-  totalSize <- sum(infos$size)
-  totalFiles <- length(files)
-
-  result <- listBundleFiles(targetDir)
+  size <- sum(file.info(file.path(dir, files))$size)
+  result <- listBundleFiles(dir)
 
   # Files are included in the list, count, and sizes, not directories.
   # Paths are enumerated relative to the target directory, not absolute paths.
   expect_identical(result$contents, files)
-  expect_equal(result$totalSize, totalSize)
-  expect_equal(result$totalFiles, totalFiles)
+  expect_equal(result$totalSize, size)
+  expect_equal(result$totalFiles, length(files))
 })
 
+test_that("ignores RStudio files", {
+  dir <- withr::local_tempdir()
+  file.create(file.path(dir, c("test.Rproj", ".Rproj.user", "rsconnect")))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
+test_that("ignores knitr cache directories", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "foo_cache"))
+  dir.create(file.path(dir, "bar_cache"))
+  file.create(file.path(dir, c("foo_cache", "bar_cache"), "contents"))
+  file.create(file.path(dir, c("foo.Rmd")))
+
+  expect_setequal(bundleFiles(dir), c("bar_cache/contents", "foo.Rmd"))
+})
+
+test_that("ignores files anywhere in path", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "a/b/c"), recursive = TRUE)
+  file.create(file.path(dir, c("x", "a/renv", "a/b/.gitignore", "a/b/c/.DS_Store")))
+
+  expect_equal(bundleFiles(dir), "x")
+})
+
+test_that("ignores files listed in .rscignore", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "a"), recursive = TRUE)
+  file.create(file.path(dir, c("x", "a/y")))
+  expect_setequal(bundleFiles(dir), c("x", "a/y"))
+
+  writeLines("x", file.path(dir, ".rscignore"))
+  expect_setequal(bundleFiles(dir), "a/y")
+
+  writeLines("y", file.path(dir, "a/.rscignore"))
+  expect_setequal(bundleFiles(dir), character())
+})
 
 # explodeFiles ------------------------------------------------------------
 
