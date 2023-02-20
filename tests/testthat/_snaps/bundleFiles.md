@@ -62,3 +62,14 @@
       Error:
       ! `appFileManifest`, "doestexist", does not exist.
 
+# detectLongNames produces informative warning
+
+    Code
+      detectLongNames(dir, 0)
+    Condition
+      Warning:
+      The bundle contains files with user/group names longer than 0.
+      x Files: 'a.r', 'b.r', and 'c.r'
+      x Long user and group names cause the internal R tar implementation to produce invalid archives
+      i Set the `rsconnect.tar` option or the `RSCONNECT_TAR` environment variable to the path to a tar executable.
+

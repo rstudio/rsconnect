@@ -169,3 +169,10 @@ test_that("checks its inputs", {
     standardizeAppFiles(dir, appFileManifest = "doestexist")
   })
 })
+
+# detectLongNames ---------------------------------------------------------
+
+test_that("detectLongNames produces informative warning", {
+  dir <- local_temp_app(c("a.r" = "", "b.r" = "", "c.r" = ""))
+  expect_snapshot(detectLongNames(dir, 0))
+})

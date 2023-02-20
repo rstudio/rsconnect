@@ -216,29 +216,31 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
 # https://github.com/rstudio/rsconnect/issues/446
 # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17871
 detectLongNames <- function(bundleDir, lengthLimit = 32) {
-  files <- list.files(bundleDir, recursive = TRUE, all.files = TRUE,
-                      include.dirs = TRUE, no.. = TRUE, full.names = FALSE)
-  for (f in files) {
-    info <- file.info(file.path(bundleDir, f))
+  files <- list.files(
+    bundleDir,
+    recursive = TRUE,
+    all.files = TRUE,
+    include.dirs = TRUE,
+    no.. = TRUE
+  )
 
+  info <- file.info(file.path(bundleDir, files))
+  ok <- (is.na(info$uname) | nchar(info$uname) <= lengthLimit) &
+    (is.na(info$grname) & nchar(info$grname) <= lengthLimit)
 
-    if (longerThan(info$uname, lengthLimit) || longerThan(info$grname, lengthLimit)) {
-      warning("The bundle contains files with user/group names having more than ", lengthLimit,
-              " characters: ", f, " is owned by ", info$uname, ":", info$grname, ". ",
-              "Long user and group names cause the internal R tar implementation to produce invalid archives. ",
-              "Set the rsconnect.tar option or the RSCONNECT_TAR environment variable to the path to ",
-              "a tar executable to use that implementation.")
-      return(invisible(TRUE))
-    }
+  if (all(ok)) {
+    return(invisible(FALSE))
   }
+
+  bad_files <- files[!ok]
+
+  cli::cli_warn(
+    c(
+      "The bundle contains files with user/group names longer than {lengthLimit}.",
+      x = "Files: {.path {bad_files}}",
+      x = "Long user and group names cause the internal R tar implementation to produce invalid archives",
+      i = "Set the {.code rsconnect.tar} option or the {.code RSCONNECT_TAR} environment variable to the path to a tar executable."
+    )
+  )
   return(invisible(FALSE))
-}
-
-# uname/grname is not always available.
-# https://github.com/wch/r-source/blob/8cf68878a1361d00ff2125db2e1ac7dc8f6c8009/src/library/utils/R/tar.R#L539-L549
-longerThan <- function(s, lim) {
-  if (!is.null(s) && !is.na(s)) {
-    return(nchar(s) > lim)
-  }
-  return(FALSE)
 }
