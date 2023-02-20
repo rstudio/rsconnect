@@ -579,3 +579,66 @@ test_that("tarImplementation: checks environment variable and option before usin
   # Neither set should use "internal"
   expect_equal(tar_implementation(NULL, NA), "internal")
 })
+
+
+# standardAppFiles --------------------------------------------------------
+
+test_that("can read all files from directory", {
+  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  expect_equal(standardizeAppFiles(dir), c("a.R", "b.R"))
+
+  dir <- local_temp_app()
+  expect_snapshot(standardizeAppFiles(dir), error = TRUE)
+})
+
+test_that("can read selected files from directory", {
+  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
+  # silently ignores files that aren't present
+  expect_equal(standardizeAppFiles(dir, c("b.R", "c.R")), "b.R")
+
+  expect_snapshot(standardizeAppFiles(dir, "c.R"), error = TRUE)
+})
+
+test_that("can read selected files from manifest", {
+  dir <- local_temp_app(list(
+    "a.R" = "",
+    "b.R" = "",
+    "manifest" = "b.R"
+  ))
+  expect_equal(
+    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    "b.R"
+  )
+
+  # silently ignores files that aren't present
+  dir <- local_temp_app(list(
+    "a.R" = "",
+    "b.R" = "",
+    "manifest" = c("b.R", "c.R")
+  ))
+  expect_equal(
+    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    "b.R"
+  )
+
+  # errors if no matching files
+  dir <- local_temp_app(list(
+    "a.R" = "",
+    "b.R" = "",
+    "manifest" = "c.R"
+  ))
+  expect_snapshot(
+    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    error = TRUE
+  )
+})
+
+test_that("checks its inputs", {
+  dir <- local_temp_app()
+  expect_snapshot(error = TRUE, {
+    standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
+    standardizeAppFiles(dir, appFiles = 1)
+    standardizeAppFiles(dir, appFileManifest = "doestexist")
+  })
+})
