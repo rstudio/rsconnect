@@ -3,8 +3,9 @@
     Code
       appMetadata(dir)
     Condition
-      Error in `standardizeAppFiles()`:
-      ! No content to deploy; `appFiles` is empty
+      Error in `appMetadata()`:
+      ! No content to deploy.
+      x `appDir` is empty.
 
 # quarto docs require quarto
 
