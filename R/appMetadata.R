@@ -69,7 +69,7 @@ appMetadata <- function(appDir,
 }
 
 # infer the mode of the application from files in the root dir
-inferAppMode <- function(appDirRootFiles,
+inferAppMode <- function(absoluteAppFiles,
                          hasQuarto = FALSE,
                          isCloudServer = FALSE) {
 
@@ -79,25 +79,25 @@ inferAppMode <- function(appDirRootFiles,
   }
 
   # plumber API
-  plumberFiles <- matchingNames(appDirRootFiles, "^(plumber|entrypoint).r$")
+  plumberFiles <- matchingNames(absoluteAppFiles, "^(plumber|entrypoint).r$")
   if (length(plumberFiles) > 0) {
     return("api")
   }
 
   # Shiny application using single-file app.R style.
-  appR <- matchingNames(appDirRootFiles, "^app.r$")
+  appR <- matchingNames(absoluteAppFiles, "^app.r$")
   if (length(appR) > 0) {
     return("shiny")
   }
 
-  rmdFiles <- matchingNames(appDirRootFiles, "\\.rmd$")
-  qmdFiles <- matchingNames(appDirRootFiles, "\\.qmd$")
+  rmdFiles <- matchingNames(absoluteAppFiles, "\\.rmd$")
+  qmdFiles <- matchingNames(absoluteAppFiles, "\\.qmd$")
 
   # We make Quarto requirement conditional on the presence of files that Quarto
   # can render and _quarto.yml, because keying off the presence of qmds
   # *or* _quarto.yml was causing deployment failures in static content.
   # https://github.com/rstudio/rstudio/issues/11444
-  quartoYml <- matchingNames(appDirRootFiles, "^_quarto.y(a)?ml$")
+  quartoYml <- matchingNames(absoluteAppFiles, "^_quarto.y(a)?ml$")
   hasQuartoYaml <- length(quartoYml) > 0
   hasQuartoCompatibleFiles <- length(qmdFiles) > 0 || length(rmdFiles > 0)
   requiresQuarto <- (hasQuartoCompatibleFiles && hasQuartoYaml) || length(qmdFiles) > 0
@@ -125,7 +125,7 @@ inferAppMode <- function(appDirRootFiles,
   # Shiny application using server.R; checked later than Rmd with shiny runtime
   # because server.R may contain the server code paired with a ShinyRmd and needs
   # to be run by rmarkdown::run (rmd-shiny).
-  serverR <- matchingNames(appDirRootFiles, "^server.r$")
+  serverR <- matchingNames(absoluteAppFiles, "^server.r$")
   if (length(serverR) > 0) {
     return("shiny")
   }
@@ -147,7 +147,7 @@ inferAppMode <- function(appDirRootFiles,
   }
 
   # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
-  modelFiles <- matchingNames(appDirRootFiles, "^(saved_model.pb|saved_model.pbtxt)$")
+  modelFiles <- matchingNames(absoluteAppFiles, "^(saved_model.pb|saved_model.pbtxt)$")
   if (length(modelFiles) > 0) {
     return("tensorflow-saved-model")
   }
