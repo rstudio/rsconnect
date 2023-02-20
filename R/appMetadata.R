@@ -8,8 +8,9 @@ appMetadata <- function(appDir,
 
   appFiles <- standardizeAppFiles(appDir, appFiles)
 
-  # User has supplied quarto path or quarto package has supplied metadata
+  # User has supplied quarto path or quarto package/IDE has supplied metadata
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
+  # https://github.com/rstudio/rstudio/blob/3d45a20307f650/src/cpp/session/modules/SessionRSConnect.cpp#L81-L123
   hasQuarto <- !is.null(quarto) || hasQuartoMetadata(metadata)
 
   # Generally we want to infer appPrimaryDoc from appMode, but there's one
