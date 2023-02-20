@@ -1,5 +1,12 @@
 # rsconnect 0.8.30 (development version)
 
+* `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
+  files (i.e. as documented) (#568). 
+
+* `listBundleFiles()` now errors when if the bundle is either too large 
+  or contains too many files, rather than silently truncating as previously 
+  (#684).
+
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 
