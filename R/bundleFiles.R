@@ -55,9 +55,7 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 # given a list of mixed files and directories, explodes the directories
 # recursively into their constituent files, and returns just a list of files
 explodeFiles <- function(dir, files) {
-  exploded <- c()
-  totalSize <- 0
-  totalFiles <- 0
+  exploded <- character()
   for (f in files) {
     target <- file.path(dir, f)
     info <- file.info(target)
@@ -66,31 +64,22 @@ explodeFiles <- function(dir, files) {
       next
     } else if (isTRUE(info$isdir)) {
       # a directory; explode it
-      contents <- list.files(target, full.names = FALSE, recursive = TRUE,
-                             include.dirs = FALSE)
-      contentPaths <- file.path(f, contents)
-      contentInfos <- file.info(contentPaths)
-
-      totalSize <- totalSize + sum(contentInfos$size, na.rm = TRUE)
-      totalFiles <- totalFiles + length(contentPaths)
-
-      exploded <- c(exploded, contentPaths)
+      contents <- list.files(
+        target,
+        full.names = FALSE,
+        recursive = TRUE,
+        include.dirs = FALSE
+      )
+      exploded <- c(exploded, file.path(f, contents))
     } else {
       # not a directory; an ordinary file
-
-      ourSize <- if (is.na(info$size)) { 0 } else { info$size }
-      totalSize <- totalSize + ourSize
-      totalFiles <- totalFiles + 1
-
       exploded <- c(exploded, f)
     }
-    # Limits are being enforced after processing each entry on the
-    # input. This means that an input directory needs to be fully
-    # enumerated before issuing an error. This is different from the
-    # approach by bundleFiles, which enforces limits while walking
-    # directories.
-    enforceBundleLimits(dir, totalSize, totalFiles)
   }
+
+  size <- sum(file.info(file.path(dir, exploded))$size, na.rm = TRUE)
+  enforceBundleLimits(dir, size, length(exploded))
+
   exploded
 }
 

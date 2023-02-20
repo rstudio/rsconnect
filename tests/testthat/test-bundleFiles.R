@@ -62,6 +62,25 @@ test_that("expands files and directory", {
   expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
 })
 
+test_that("enforces bundle limits", {
+  dir <- withr::local_tempdir()
+  file.create(file.path(dir, c("a", "b")))
+  writeLines(letters, file.path(dir, "c"))
+
+  withr::local_options(
+    rsconnect.max.bundle.files = 1,
+    rsconnect.max.bundle.size = 5
+  )
+  expect_snapshot(
+    {
+      explodeFiles(dir, c("a", "b"))
+      explodeFiles(dir, "c")
+    },
+    error = TRUE,
+    transform = function(x) gsub(dir, "<TEMPDIR>", x, fixed = TRUE)
+  )
+
+})
 
 # standardAppFiles --------------------------------------------------------
 
