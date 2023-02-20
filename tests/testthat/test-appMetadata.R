@@ -72,7 +72,7 @@ test_that("quarto docs require quarto", {
   })
 })
 
-test_that("can infer mode for shiny quarto and rmd docs", {
+test_that("can infer mode for shiny rmd docs", {
   yaml_runtime <- function(runtime) {
     c("---", paste0("runtime: ", runtime), "---")
   }
@@ -89,11 +89,6 @@ test_that("can infer mode for shiny quarto and rmd docs", {
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
 
-  # And for quarto
-  dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
-  paths <- list.files(dir, full.names = TRUE)
-  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
-
   # can pair server.R with shiny runtime
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "server.R" = ""))
   paths <- list.files(dir, full.names = TRUE)
@@ -103,6 +98,29 @@ test_that("can infer mode for shiny quarto and rmd docs", {
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "foo.Rmd" = ""))
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
+})
+
+test_that("can infer mode for shiny qmd docs", {
+  yaml_runtime <- function(runtime) {
+    c("---", paste0("runtime: ", runtime), "---")
+  }
+
+  dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
+
+  # Can force Rmd to use quarto
+  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
+
+  # Prefers quarto if both present
+  dir <- local_temp_app(list(
+    "index.Qmd" = yaml_runtime("shiny"),
+    "index.Rmd" = yaml_runtime("shiny")
+  ))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
 })
 
 test_that("Shiny R Markdown files are detected correctly", {
