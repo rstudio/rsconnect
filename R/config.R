@@ -129,4 +129,3 @@ deploymentConfigFile <- function(appPath, name, account, server) {
 isDocumentPath <- function(path) {
   tools::file_ext(path) != ""
 }
-

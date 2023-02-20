@@ -22,4 +22,3 @@ test_that("account file containing pattern characters found with server name", {
   dir <- accountConfigFile("hatter+mad@example.com", server = "complex")
   expect_equal(dir, expected)
 })
-
