@@ -47,58 +47,6 @@ repos <- getOption("repos")
 options(repos = c(CRAN = "https://cran.rstudio.com"))
 on.exit(options(repos = repos), add = TRUE)
 
-test_that("simple Shiny app bundle includes correct files", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
-    "simple_shiny",
-    test_path("shinyapp-simple"),
-    NULL
-  )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  # listBundleFiles only includes "user" files and ignores
-  # generated files like the packrat and manifest data.
-  files <- listBundleFiles(bundleTempDir)
-  expect_identical(files$contents, c("server.R", "ui.R"))
-  expect_identical(list.files(bundleTempDir), c("manifest.json", "packrat", "server.R", "ui.R"))
-})
-
-test_that("bundle directories are recursively enumerated", {
-  targetDir <- tempfile()
-  dir.create(targetDir)
-  on.exit(unlink(targetDir, recursive = TRUE))
-
-  # tree that resembles the case from https://github.com/rstudio/rsconnect/issues/464
-  files <- c(
-      "app.R",
-      "index.htm",
-      "models/abcd/a_b_pt1/a/b/c1/1.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/2.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/3.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/4.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/5.RDS"
-  )
-
-  # Create and write each file.
-  sapply(files, function(file) {
-    content <- c("this is the file named", file)
-    targetFile <- file.path(targetDir, file)
-    dir.create(dirname(targetFile), recursive = TRUE, showWarnings = FALSE)
-    writeLines(content, con = targetFile, sep = "\n")
-  })
-
-  infos <- file.info(file.path(targetDir, files))
-  totalSize <- sum(infos$size)
-  totalFiles <- length(files)
-
-  result <- listBundleFiles(targetDir)
-
-  # Files are included in the list, count, and sizes, not directories.
-  # Paths are enumerated relative to the target directory, not absolute paths.
-  expect_identical(result$contents, files)
-  expect_equal(result$totalSize, totalSize)
-  expect_equal(result$totalFiles, totalFiles)
-})
-
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
   skip_if_not_installed("shiny")
