@@ -35,6 +35,34 @@ test_that("bundle directories are recursively enumerated", {
   expect_equal(result$totalFiles, totalFiles)
 })
 
+
+# explodeFiles ------------------------------------------------------------
+
+test_that("returns relative paths", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "x"))
+  file.create(file.path(dir, "x", c("a", "b", "c")))
+
+  expect_equal(explodeFiles(dir, "x"), c("x/a", "x/b", "x/c"))
+})
+
+test_that("silently drops non-existent files", {
+  dir <- withr::local_tempdir()
+  file.create(file.path(dir, c("a", "b", "c")))
+
+  expect_equal(explodeFiles(dir, c("a", "d")), "a")
+})
+
+test_that("expands files and directory", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "x"))
+  file.create(file.path(dir, "x", c("a", "b")))
+  file.create(file.path(dir, "c"))
+
+  expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
+})
+
+
 # standardAppFiles --------------------------------------------------------
 
 test_that("can read all files from directory", {
