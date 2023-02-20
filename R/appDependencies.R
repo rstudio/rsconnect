@@ -5,8 +5,6 @@
 #' the application depends on; and for each of those packages what other
 #' packages they depend on.
 #' @inheritParams deployApp
-#' @param appDir Directory containing application. Defaults to current working
-#'   directory.
 #' @return Returns a data frame listing the package
 #'   dependencies detected for the application: \tabular{ll}{ `package`
 #'   \tab Name of package \cr `version` \tab Version of package\cr }
@@ -42,10 +40,7 @@
 #' @seealso [rsconnectPackages](Using Packages with rsconnect)
 #' @export
 appDependencies <- function(appDir = getwd(), appFiles = NULL) {
-  # if the list of files wasn't specified, generate it
-  if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles)
   bundleDir <- bundleAppDir(appDir, appFiles)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
