@@ -295,6 +295,7 @@ clientForAccount <- function(account) {
   }
 }
 
+# Return a URL that can be concatenated with sub-paths like /content
 ensureConnectServerUrl <- function(url) {
   # strip trailing /
   url <- gsub("/$", "", url)
