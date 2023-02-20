@@ -1,6 +1,7 @@
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
+  pythonConfig <- pythonConfigurator(python)
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       "application", NULL, python = python)
+                       "application", NULL, pythonConfig = pythonConfig)
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)
@@ -184,11 +185,7 @@ test_that("multiple shiny Rmd without index file have a generated one", {
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   bundleTempDir <- makeShinyBundleTempDir(
     "reticulated rmd",
@@ -211,11 +208,7 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
 test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   bundleTempDir <- makeShinyBundleTempDir(
     "reticulated rmd",
@@ -258,8 +251,8 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
   skip_on_cran()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  skip_if_not_installed("reticulate")
+  python <- pythonPathOrSkip()
 
   bundleTempDir <- makeShinyBundleTempDir(
     "plain rmd",
@@ -282,11 +275,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 test_that("writeManifest: Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, NULL, python = python)
@@ -302,11 +291,7 @@ test_that("writeManifest: Rmd with reticulate as a dependency includes python in
 test_that("writeManifest: Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, "implicit.Rmd", python = python)
@@ -330,8 +315,8 @@ test_that("writeManifest: Rmd without a python block doesn't include reticulate 
 
 test_that("writeManifest: Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
   skip_on_cran()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  skip_if_not_installed("reticulate")
+  python <- pythonPathOrSkip()
 
   manifest <- makeManifest("test-rmds", "simple.Rmd", python = python)
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -413,9 +398,9 @@ test_that("writeManifest: Quarto shiny project includes quarto in the manifest",
 })
 
 test_that("writeManifest: Quarto R + Python website includes quarto and python in the manifest", {
+  skip_if_not_installed("reticulate")
   quarto <- quartoPathOrSkip()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-r-py")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
@@ -429,9 +414,9 @@ test_that("writeManifest: Quarto R + Python website includes quarto and python i
 })
 
 test_that("writeManifest: Quarto Python-only website gets correct manifest data", {
+  skip_if_not_installed("reticulate")
   quarto <- quartoPathOrSkip()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-py")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
