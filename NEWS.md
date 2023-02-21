@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `showMetrics()` once again returns a correctly named data frame (#528).
+
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 
