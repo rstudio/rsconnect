@@ -130,7 +130,26 @@ bundleFiles <- function(appDir) {
 recursiveBundleFiles <- function(dir, depth = 0) {
   # generate a list of files at this level
   contents <- list.files(dir, all.files = TRUE, no.. = TRUE, include.dirs = TRUE)
+  contents <- ignoreBundleFiles(dir, contents, depth = depth)
 
+  # Info for each file lets us know to recurse (directories) or aggregate (files).
+  is_dir <- dirExists(file.path(dir, contents))
+  names(is_dir) <- contents
+
+  children <- character()
+  for (name in contents) {
+    if (isTRUE(is_dir[[name]])) {
+      dirList <- recursiveBundleFiles(file.path(dir, name), depth + 1)
+      children <- append(children, file.path(name, dirList))
+    } else {
+      children <- append(children, name)
+    }
+  }
+
+  children
+}
+
+ignoreBundleFiles <- function(dir, contents, depth = 0) {
   # exclude some well-known files/directories at root level
   if (depth == 0) {
     contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
@@ -154,21 +173,7 @@ recursiveBundleFiles <- function(dir, depth = 0) {
     contents <- setdiff(contents, c(ignoreContents, ".rscignore"))
   }
 
-  # Info for each file lets us know to recurse (directories) or aggregate (files).
-  is_dir <- dirExists(file.path(dir, contents))
-  names(is_dir) <- contents
-
-  children <- character()
-  for (name in contents) {
-    if (isTRUE(is_dir[[name]])) {
-      dirList <- recursiveBundleFiles(file.path(dir, name), depth + 1)
-      children <- append(children, file.path(name, dirList))
-    } else {
-      children <- append(children, name)
-    }
-  }
-
-  children
+  contents
 }
 
 isKnitrCacheDir <- function(files) {
