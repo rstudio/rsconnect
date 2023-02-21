@@ -219,7 +219,7 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 
   info <- file.info(file.path(bundleDir, files))
   ok <- (is.na(info$uname) | nchar(info$uname) <= lengthLimit) &
-    (is.na(info$grname) & nchar(info$grname) <= lengthLimit)
+    (is.na(info$grname) | nchar(info$grname) <= lengthLimit)
 
   if (all(ok)) {
     return(invisible(FALSE))
