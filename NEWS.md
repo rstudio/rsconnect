@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `applications()` now returns the application title, if available (#484).
+
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 
