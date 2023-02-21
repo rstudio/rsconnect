@@ -24,5 +24,5 @@ deployAPI <- function(api, ...) {
   check_directory(api)
 
   # Checking for entrypoint.R or plumber.R is done in `lint-framework.R`
-  deployApp(appDir = api, contentCategory = "api", ...)
+  deployApp(appDir = api, ...)
 }
