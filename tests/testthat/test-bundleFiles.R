@@ -1,5 +1,5 @@
 
-# standardAppFiles --------------------------------------------------------
+# standardizeAppFiles ------------------------------------------------------
 
 test_that("can read all files from directory", {
   dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
