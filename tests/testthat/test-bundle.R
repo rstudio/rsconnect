@@ -644,6 +644,46 @@ test_that("tarImplementation: checks environment variable and option before usin
 })
 
 
+# tweakRProfile -----------------------------------------------------------
+
+test_that(".Rprofile tweaked automatically", {
+  dir <- withr::local_tempdir()
+  writeLines('source("renv/activate.R")', file.path(dir, ".Rprofile"))
+
+  bundled <- bundleAppDir(dir, list.files(dir, all.files = TRUE))
+  expect_match(
+    readLines(file.path(bundled, ".Rprofile")),
+    "Modified by rsconnect",
+    all = FALSE
+  )
+})
+
+test_that(".Rprofile without renv/packrt left as is", {
+  lines <- c("1 + 1", "# Line 2", "library(foo)")
+  path <- withr::local_tempfile(lines = lines)
+
+  tweakRProfile(path)
+  expect_equal(readLines(path), lines)
+})
+
+test_that("removes renv/packrat activation", {
+  path <- withr::local_tempfile(lines = c(
+    "# Line 1",
+    'source("renv/activate.R")',
+    "# Line 3",
+    'source("packrat/init.R")',
+    "# Line 5"
+  ))
+
+  expect_snapshot(
+    {
+      tweakRProfile(path)
+      writeLines(readLines(path))
+    },
+    transform = function(x) gsub("on \\d{4}.+", "on <NOW>", x)
+  )
+})
+
 # standardAppFiles --------------------------------------------------------
 
 test_that("can read all files from directory", {
