@@ -1,3 +1,70 @@
+
+# standardAppFiles --------------------------------------------------------
+
+test_that("can read all files from directory", {
+  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  expect_equal(standardizeAppFiles(dir), c("a.R", "b.R"))
+  expect_equal(standardizeAppFiles(dir, NULL, NULL), c("a.R", "b.R"))
+
+  dir <- local_temp_app()
+  expect_snapshot(standardizeAppFiles(dir), error = TRUE)
+})
+
+test_that("can read selected files from directory", {
+  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
+  # silently ignores files that aren't present
+  expect_equal(standardizeAppFiles(dir, c("b.R", "c.R")), "b.R")
+
+  expect_snapshot(standardizeAppFiles(dir, "c.R"), error = TRUE)
+})
+
+test_that("can read selected files from manifest", {
+  dir <- local_temp_app(list(
+    "a.R" = "",
+    "b.R" = "",
+    "manifest" = "b.R"
+  ))
+  expect_equal(
+    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    "b.R"
+  )
+
+  # silently ignores files that aren't present
+  dir <- local_temp_app(list(
+    "a.R" = "",
+    "b.R" = "",
+    "manifest" = c("b.R", "c.R")
+  ))
+  expect_equal(
+    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    "b.R"
+  )
+
+  # errors if no matching files
+  dir <- local_temp_app(list(
+    "a.R" = "",
+    "b.R" = "",
+    "manifest" = "c.R"
+  ))
+  expect_snapshot(
+    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    error = TRUE
+  )
+})
+
+test_that("checks its inputs", {
+  dir <- local_temp_app()
+  expect_snapshot(error = TRUE, {
+    standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
+    standardizeAppFiles(dir, appFiles = 1)
+    standardizeAppFiles(dir, appFileManifest = "doestexist")
+  })
+})
+
+
+# listBundleFiles ---------------------------------------------------------
+
 test_that("bundle directories are recursively enumerated", {
   dir <- withr::local_tempdir()
 
@@ -88,7 +155,6 @@ test_that("expands files and directory", {
   expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
 })
 
-
 # enforceBundleLimits -----------------------------------------------------
 
 test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
@@ -128,69 +194,6 @@ test_that("generate nicely formatted messages", {
       x
     }
   )
-})
-
-# standardAppFiles --------------------------------------------------------
-
-test_that("can read all files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
-  expect_equal(standardizeAppFiles(dir), c("a.R", "b.R"))
-  expect_equal(standardizeAppFiles(dir, NULL, NULL), c("a.R", "b.R"))
-
-  dir <- local_temp_app()
-  expect_snapshot(standardizeAppFiles(dir), error = TRUE)
-})
-
-test_that("can read selected files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
-  expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
-  # silently ignores files that aren't present
-  expect_equal(standardizeAppFiles(dir, c("b.R", "c.R")), "b.R")
-
-  expect_snapshot(standardizeAppFiles(dir, "c.R"), error = TRUE)
-})
-
-test_that("can read selected files from manifest", {
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "b.R"
-  ))
-  expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    "b.R"
-  )
-
-  # silently ignores files that aren't present
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = c("b.R", "c.R")
-  ))
-  expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    "b.R"
-  )
-
-  # errors if no matching files
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "c.R"
-  ))
-  expect_snapshot(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    error = TRUE
-  )
-})
-
-test_that("checks its inputs", {
-  dir <- local_temp_app()
-  expect_snapshot(error = TRUE, {
-    standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
-    standardizeAppFiles(dir, appFiles = 1)
-    standardizeAppFiles(dir, appFileManifest = "doestexist")
-  })
 })
 
 # detectLongNames ---------------------------------------------------------

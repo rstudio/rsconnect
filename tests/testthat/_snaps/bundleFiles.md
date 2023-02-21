@@ -1,22 +1,3 @@
-# generate nicely formatted messages
-
-    Code
-      explodeFiles(dir, c("a", "b"))
-    Condition
-      Error in `enforceBundleLimits()`:
-      ! `appDir` ('<TEMPDIR>') is too large to be deployed.
-      x The maximum number of files is 1.
-      x This directory contains at least 2 files.
-      i Remove some files or adjust the rsconnect.max.bundle.files option.
-    Code
-      explodeFiles(dir, "c")
-    Condition
-      Error in `enforceBundleLimits()`:
-      ! `appDir` ('<TEMPDIR>') is too large to be deployed.
-      x The maximum size is 5 bytes.
-      x This directory is at least ?? bytes.
-      i Remove some files or adjust the rsconnect.max.bundle.size option.
-
 # can read all files from directory
 
     Code
@@ -61,6 +42,25 @@
     Condition
       Error:
       ! `appFileManifest`, "doestexist", does not exist.
+
+# generate nicely formatted messages
+
+    Code
+      explodeFiles(dir, c("a", "b"))
+    Condition
+      Error in `enforceBundleLimits()`:
+      ! `appDir` ('<TEMPDIR>') is too large to be deployed.
+      x The maximum number of files is 1.
+      x This directory contains at least 2 files.
+      i Remove some files or adjust the rsconnect.max.bundle.files option.
+    Code
+      explodeFiles(dir, "c")
+    Condition
+      Error in `enforceBundleLimits()`:
+      ! `appDir` ('<TEMPDIR>') is too large to be deployed.
+      x The maximum size is 5 bytes.
+      x This directory is at least ?? bytes.
+      i Remove some files or adjust the rsconnect.max.bundle.size option.
 
 # detectLongNames produces informative warning if needed
 
