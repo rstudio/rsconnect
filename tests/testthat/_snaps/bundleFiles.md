@@ -14,7 +14,7 @@
       Error in `enforceBundleLimits()`:
       ! `appDir` ('<TEMPDIR>') is too large to be deployed.
       x The maximum size is 5 bytes.
-      x This directory is 52 bytes.
+      x This directory is ?? bytes.
       i  Remove some files or adjust the rsconnect.max.bundle.size option.
 
 # can read all files from directory

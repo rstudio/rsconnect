@@ -103,7 +103,12 @@ test_that("enforces bundle limits", {
       explodeFiles(dir, "c")
     },
     error = TRUE,
-    transform = function(x) gsub(dir, "<TEMPDIR>", x, fixed = TRUE)
+    transform = function(x) {
+      x <- gsub(dir, "<TEMPDIR>", x, fixed = TRUE)
+      # file size is different on windows because of \r\n
+      x <- gsub("\\d{2,} bytes", "?? bytes", x)
+      x
+    }
   )
 
 })
