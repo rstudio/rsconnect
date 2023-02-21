@@ -658,6 +658,14 @@ test_that(".Rprofile tweaked automatically", {
   )
 })
 
+test_that(".Rprofile without renv/packrt left as is", {
+  lines <- c("1 + 1", "# Line 2", "library(foo)")
+  path <- withr::local_tempfile(lines = lines)
+
+  tweakRProfile(path)
+  expect_equal(readLines(path), lines)
+})
+
 test_that("removes renv/packrat activation", {
   path <- withr::local_tempfile(lines = c(
     "# Line 1",
