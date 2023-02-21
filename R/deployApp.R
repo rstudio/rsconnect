@@ -264,20 +264,10 @@ deployApp <- function(appDir = getwd(),
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
 
   # test for compatibility between account type and publish intent
-  if (isCloudServer(target$server)) {
-    # Publishing an API to shinyapps.io will not currently end well
-    if (isShinyappsServer(target$server)) {
-      if (identical(contentCategory, "api")) {
-        stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-             "can only be published to Posit Connect or Posit Cloud.")
-      }
-    }
-  } else {
-    if (identical(upload, FALSE)) {
-      # it is not possible to deploy to Connect without uploading
-      stop("Posit Connect does not support deploying without uploading. ",
-           "Specify upload=TRUE to upload and re-deploy your application.")
-    }
+  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+    # it is not possible to deploy to Connect without uploading
+    stop("Posit Connect does not support deploying without uploading. ",
+         "Specify upload=TRUE to upload and re-deploy your application.")
   }
 
   accountDetails <- accountInfo(target$account, target$server)
