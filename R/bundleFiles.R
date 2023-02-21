@@ -6,20 +6,20 @@ standardizeAppFiles <- function(appDir,
                                 appFileManifest = NULL,
                                 error_call = caller_env()) {
 
-  check_exclusive(appFiles, appFileManifest, .require = FALSE, .call = error_call)
 
   no_content <- function(message) {
     cli::cli_abort(
-      c(
-        "No content to deploy.",
-        x = message
-      ),
-      call = error_call,
-      .frame = caller_env()
+      c("No content to deploy.", x = message),
+      call = error_call
     )
   }
 
-  if (is.null(appFiles) && is.null(appFileManifest)) {
+  if (!is.null(appFiles) && !is.null(appFileManifest)) {
+    cli::cli_abort(
+      "Must specify at most one of {.arg appFiles} and {.arg appFileManifest}",
+      call = error_call
+    )
+  } else if (is.null(appFiles) && is.null(appFileManifest)) {
     # no files supplied at all, just bundle the whole directory
     appFiles <- bundleFiles(appDir)
     if (length(appFiles) == 0) {

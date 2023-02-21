@@ -118,6 +118,7 @@ test_that("enforces bundle limits", {
 test_that("can read all files from directory", {
   dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
   expect_equal(standardizeAppFiles(dir), c("a.R", "b.R"))
+  expect_equal(standardizeAppFiles(dir, NULL, NULL), c("a.R", "b.R"))
 
   dir <- local_temp_app()
   expect_snapshot(standardizeAppFiles(dir), error = TRUE)

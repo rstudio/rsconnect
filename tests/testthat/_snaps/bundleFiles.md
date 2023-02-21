@@ -50,7 +50,7 @@
       standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
     Condition
       Error:
-      ! Exactly one of `appFiles` or `appFileManifest` must be supplied.
+      ! Must specify at most one of `appFiles` and `appFileManifest`
     Code
       standardizeAppFiles(dir, appFiles = 1)
     Condition
