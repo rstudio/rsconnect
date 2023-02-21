@@ -8,6 +8,7 @@
 #' \tabular{ll}{
 #' `id`         \tab Application unique id \cr
 #' `name`       \tab Name of application \cr
+#' `title`       \tab Application title \cr
 #' `url`        \tab URL where application can be accessed \cr
 #'
 #' `status`     \tab Current status of application. Valid values are `pending`,
@@ -49,6 +50,7 @@ applications <- function(account = NULL, server = NULL) {
     c(
       "id",
       "name",
+      "title",
       "url",
       "build_status",
       "created_time",
@@ -74,6 +76,7 @@ applications <- function(account = NULL, server = NULL) {
       # set size and instance to NA since Connect doesn't return this info
       x$size <- NA
       x$instances <- NA
+      x$title <- x$title %||% NA_character_
       x
     })
   } else {
@@ -87,6 +90,7 @@ applications <- function(account = NULL, server = NULL) {
         x$instances <- NA
       x$deployment <- NULL
       x$guid <- NA
+      x$title <- NA_character_
       x
     })
   }
@@ -104,10 +108,8 @@ applications <- function(account = NULL, server = NULL) {
   })
 
   # convert to data frame
-  rbindWithoutFactors <- function(...) {
-    rbind.data.frame(..., stringsAsFactors = FALSE)
-  }
-  res <- do.call(rbindWithoutFactors, res)
+  res <- lapply(res, as.data.frame, stringsAsFactors = FALSE)
+  res <- do.call("rbind", res)
 
   # Ensure the Connect and ShinyApps.io data frames have same column names
   idx <- match("last_deployed_time", names(res))

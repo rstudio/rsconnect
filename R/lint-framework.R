@@ -306,7 +306,7 @@ collectSuggestions <- function(fileResults) {
 
 }
 
-showLintResults <- function(appDir, lintResults, assetTypeName) {
+showLintResults <- function(appDir, lintResults) {
   if (!hasLint(lintResults)) {
     return(invisible())
   }
@@ -335,7 +335,7 @@ showLintResults <- function(appDir, lintResults, assetTypeName) {
     #   "\tdeployApp(lint = FALSE)\n\n",
     #   "to disable linting."
     # )
-    message("If your ", assetTypeName, " fails to run post-deployment, ",
+    message("If your code fails to run post-deployment, ",
             "please double-check these messages.")
 
     invisible()

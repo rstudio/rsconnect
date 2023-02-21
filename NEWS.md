@@ -7,6 +7,8 @@
   or contains too many files, rather than silently truncating as previously 
   (#684).
 
+* `applications()` now returns the application title, if available (#484).
+
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 

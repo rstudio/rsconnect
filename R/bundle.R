@@ -31,29 +31,43 @@
 
     # ensure .Rprofile doesn't call packrat/init.R or renv/activate.R
     if (basename(to) == ".Rprofile") {
-      origRprofile <- readLines(to)
-      msg <- paste0("# Modified by rsconnect package ", packageVersion("rsconnect"), " on ", Sys.time(), ":")
-
-      packratReplacement <- paste(msg,
-                                  "# Packrat initialization disabled in published application",
-                                  '# source(\"packrat/init.R\")', sep = "\n")
-      renvReplacement <- paste(msg,
-                               "# renv initialization disabled in published application",
-                               '# source(\"renv/activate.R\")', sep = "\n")
-      newRprofile <- origRprofile
-      newRprofile <- gsub('source(\"packrat/init.R\")',
-                          packratReplacement,
-                          newRprofile, fixed = TRUE)
-      newRprofile <- gsub('source(\"renv/activate.R\")',
-                          renvReplacement,
-                          newRprofile, fixed = TRUE)
-      cat(newRprofile, file = to, sep = "\n")
+      tweakRProfile(to)
     }
 
   }
   bundleDir
 }
 
+tweakRProfile <- function(path) {
+  lines <- readLines(path)
+
+  packratLines <- grep('source("packrat/init.R")', lines, fixed = TRUE)
+  if (length(packratLines) > 0) {
+    lines[packratLines] <- paste0(
+       "# Packrat initialization disabled in published application\n",
+       '# source("packrat/init.R")'
+      )
+  }
+
+  renvLines <- grep('source("renv/activate.R")', lines, fixed = TRUE)
+  if (length(renvLines) > 0) {
+    lines[renvLines] <- paste0(
+       "# renv initialization disabled in published application\n",
+       '# source("renv/activate.R")'
+      )
+  }
+
+  if (length(renvLines) > 0 || length(packratLines) > 0) {
+    msg <-  sprintf(
+      "# Modified by rsconnect package %s on %s",
+      packageVersion("rsconnect"),
+      Sys.time()
+    )
+    lines <- c(msg, lines)
+  }
+
+  writeLines(lines, path)
+}
 
 # Writes a tar.gz file located at bundlePath containing all files in bundleDir.
 writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
@@ -165,7 +179,7 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, condaMode,
+                              appPrimaryDoc, users, condaMode,
                               forceGenerate, python = NULL, documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
@@ -177,7 +191,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   packages <- bundlePackages(
     appDir = appDir,
     appMode = appMode,
-    assetTypeName = assetTypeName,
     hasParameters = hasParameters,
     documentsHavePython = documentsHavePython,
     quartoInfo = quartoInfo,

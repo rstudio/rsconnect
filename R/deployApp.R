@@ -245,40 +245,21 @@ deployApp <- function(appDir = getwd(),
     preDeploy(appPath)
   }
 
-  # figure out what kind of thing we're deploying
-  if (!is.null(contentCategory)) {
-    assetTypeName <- contentCategory
-  } else if (!is.null(appPrimaryDoc)) {
-    assetTypeName <- "document"
-  } else {
-    assetTypeName <- "application"
-  }
-
   appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
-    showLintResults(appDir, lintResults, assetTypeName)
+    showLintResults(appDir, lintResults)
   }
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
 
   # test for compatibility between account type and publish intent
-  if (isCloudServer(target$server)) {
-    # Publishing an API to shinyapps.io will not currently end well
-    if (isShinyappsServer(target$server)) {
-      if (identical(contentCategory, "api")) {
-        stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-             "can only be published to Posit Connect or Posit Cloud.")
-      }
-    }
-  } else {
-    if (identical(upload, FALSE)) {
-      # it is not possible to deploy to Connect without uploading
-      stop("Posit Connect does not support deploying without uploading. ",
-           "Specify upload=TRUE to upload and re-deploy your application.")
-    }
+  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+    # it is not possible to deploy to Connect without uploading
+    stop("Posit Connect does not support deploying without uploading. ",
+         "Specify upload=TRUE to upload and re-deploy your application.")
   }
 
   accountDetails <- accountInfo(target$account, target$server)
@@ -288,7 +269,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # get the application to deploy (creates a new app on demand)
-  withStatus(paste0("Preparing to deploy ", assetTypeName), {
+  withStatus("Preparing to deploy", {
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
@@ -312,13 +293,12 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     # create, and upload the bundle
     logger("Bundle upload started")
-    withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
-                     application$id), {
+    withStatus(paste0("Uploading bundle (", application$id, ")"), {
 
       # python is enabled on Connect but not on Shinyapps
       python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
+                              appPrimaryDoc, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment, quarto,
                               isCloudServer(accountDetails$server), metadata, image)
 
@@ -378,7 +358,7 @@ deployApp <- function(appDir = getwd(),
 
   if (length(bundle$id) > 0 && nzchar(bundle$id)) {
     displayStatus(paste0("Deploying bundle: ", bundle$id,
-                         " for ", assetTypeName, ": ", application$id,
+                         " (", application$id, ")",
                          " ...\n", sep = ""))
   }
 
@@ -394,12 +374,10 @@ deployApp <- function(appDir = getwd(),
   Sys.sleep(0.10)
 
   deploymentSucceeded <- if (is.null(response$code) || response$code == 0) {
-    displayStatus(paste0(capitalize(assetTypeName), " successfully deployed ",
-                         "to ", application$url, "\n"))
+    displayStatus(paste0("Successfully deployed to ", application$url, "\n"))
     TRUE
   } else {
-    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
-                         "with error: ", response$error, "\n"))
+    displayStatus(paste0("Deployment failed with error: ", response$error, "\n"))
     FALSE
   }
 
@@ -427,7 +405,7 @@ deployApp <- function(appDir = getwd(),
 # deployApp() instead of being exposed to the user. Returns the path to the
 # bundle directory, whereas writeManifest() returns nothing and deletes the
 # bundle directory after writing the manifest.
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
+bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
                       isCloudServer = FALSE, metadata = list(), image = NULL) {
@@ -466,7 +444,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
       contentCategory = contentCategory,
       hasParameters = appMetadata$hasParameters,
       appPrimaryDoc = appMetadata$appPrimaryDoc,
-      assetTypeName = assetTypeName,
       users = users,
       condaMode = condaMode,
       forceGenerate = forceGenerate,

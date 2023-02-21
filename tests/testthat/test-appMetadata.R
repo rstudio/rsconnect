@@ -15,22 +15,6 @@ test_that("quarto affects mode inference", {
   expect_equal(metadata$appMode, "quarto-static")
 })
 
-test_that("asserTypeName derived from contentCategory if supplied", {
-  dir <- local_temp_app(list("foo.Rmd" = ""))
-  metadata <- appMetadata(dir, contentCategory = "site")
-  expect_equal(metadata$assetTypeName, "site")
-})
-
-test_that("compute assetTypeName after infering other info", {
-  dir <- local_temp_app(list("foo.Rmd" = ""))
-  metadata <- appMetadata(dir)
-  expect_equal(metadata$assetTypeName, "document")
-
-  dir <- local_temp_app(list("app.R" = ""))
-  metadata <- appMetadata(dir)
-  expect_equal(metadata$assetTypeName, "application")
-})
-
 test_that("handles special case of appPrimaryDoc as R file", {
   dir <- local_temp_app(list("foo.R" = ""))
   metadata <- appMetadata(dir, appPrimaryDoc = "foo.R")

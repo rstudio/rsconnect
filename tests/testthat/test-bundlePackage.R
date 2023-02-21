@@ -43,7 +43,7 @@ test_that("errors if dependencies aren't installed", {
   ))
 
   expect_snapshot(
-    bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset"),
+    bundlePackages(app_dir, appMode = "rmd-static"),
     error = TRUE
   )
 })
@@ -65,7 +65,7 @@ test_that("warns if can't find source", {
   ))
 
   expect_snapshot(
-    . <- bundlePackages(app_dir, appMode = "rmd-static", assetTypeName = "asset")
+    . <- bundlePackages(app_dir, appMode = "rmd-static")
   )
 })
 
