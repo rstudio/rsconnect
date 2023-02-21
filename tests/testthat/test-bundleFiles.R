@@ -88,7 +88,24 @@ test_that("expands files and directory", {
   expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
 })
 
-test_that("enforces bundle limits", {
+
+# enforceBundleLimits -----------------------------------------------------
+
+test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "a"))
+  file.create(file.path(dir, "a", letters))
+  dir.create(file.path(dir, "b"))
+  file.create(file.path(dir, "b", letters))
+
+  withr::local_options(rsconnect.max.bundle.files = 1)
+
+  # there are 52 files total, so eagerly implies we stop after one directory
+  expect_error(explodeFiles(dir, c("a", "b")), "at least 26")
+  expect_error(bundleFiles(dir), "at least 26")
+})
+
+test_that("generate nicely formatted messages", {
   dir <- withr::local_tempdir()
   file.create(file.path(dir, c("a", "b")))
   writeLines(letters, file.path(dir, "c"))
@@ -97,6 +114,7 @@ test_that("enforces bundle limits", {
     rsconnect.max.bundle.files = 1,
     rsconnect.max.bundle.size = 5
   )
+
   expect_snapshot(
     {
       explodeFiles(dir, c("a", "b"))
@@ -110,7 +128,6 @@ test_that("enforces bundle limits", {
       x
     }
   )
-
 })
 
 # standardAppFiles --------------------------------------------------------

@@ -56,6 +56,10 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 # recursively into their constituent files, and returns just a list of files
 explodeFiles <- function(dir, files) {
   exploded <- character()
+
+  totalFiles <- 0
+  totalSize <- 0
+
   for (f in files) {
     target <- file.path(dir, f)
     if (!file.exists(target)) {
@@ -63,21 +67,24 @@ explodeFiles <- function(dir, files) {
       next
     } else if (dirExists(target)) {
       # a directory; explode it
-      contents <- list.files(
+      contentPaths <- file.path(f, list.files(
         target,
-        full.names = FALSE,
         recursive = TRUE,
         include.dirs = FALSE
-      )
-      exploded <- c(exploded, file.path(f, contents))
+      ))
+
+      exploded <- c(exploded, contentPaths)
+      totalFiles <- totalFiles + length(contentPaths)
+      totalSize <- totalSize + sum(file_size(file.path(dir, contentPaths)))
     } else {
       # must be an ordinary file
       exploded <- c(exploded, f)
+      totalFiles <- totalFiles + 1
+      totalSize <- totalSize + file_size(target)
     }
-  }
 
-  size <- sum(file.info(file.path(dir, exploded))$size, na.rm = TRUE)
-  enforceBundleLimits(dir, size, length(exploded))
+    enforceBundleLimits(dir, totalFiles, totalSize)
+  }
 
   exploded
 }
@@ -110,43 +117,54 @@ explodeFiles <- function(dir, files) {
 #' * `contents`: Paths to bundle, relative to `appDir`.
 #' @export
 listBundleFiles <- function(appDir) {
-  paths <- recursiveBundleFiles(appDir)
-
-  files <- length(paths)
-  size <- sum(file.info(file.path(appDir, paths))$size)
-
-  enforceBundleLimits(appDir, size, files)
-  list(
-    totalSize = size,
-    totalFiles = files,
-    contents = paths
-  )
+  recursiveBundleFiles(appDir)
 }
 
 bundleFiles <- function(appDir) {
   listBundleFiles(appDir)$contents
 }
 
-recursiveBundleFiles <- function(dir, depth = 0) {
+recursiveBundleFiles <- function(dir,
+                                 root_dir = dir,
+                                 depth = 0,
+                                 totalFiles = 0,
+                                 totalSize = 0) {
   # generate a list of files at this level
   contents <- list.files(dir, all.files = TRUE, no.. = TRUE, include.dirs = TRUE)
   contents <- ignoreBundleFiles(dir, contents, depth = depth)
 
   # Info for each file lets us know to recurse (directories) or aggregate (files).
-  is_dir <- dirExists(file.path(dir, contents))
+  is_dir <- dir.exists(file.path(dir, contents))
   names(is_dir) <- contents
 
   children <- character()
   for (name in contents) {
     if (isTRUE(is_dir[[name]])) {
-      dirList <- recursiveBundleFiles(file.path(dir, name), depth + 1)
-      children <- append(children, file.path(name, dirList))
+      out <- recursiveBundleFiles(
+        dir = file.path(dir, name),
+        root_dir = root_dir,
+        totalFiles = totalFiles,
+        totalSize = totalSize,
+        depth = depth + 1
+      )
+
+      children <- append(children, file.path(name, out$contents))
+      totalFiles <- out$totalFiles
+      totalSize <- out$totalSize
     } else {
       children <- append(children, name)
+      totalFiles <- totalFiles + 1
+      totalSize <- totalSize + file_size(file.path(dir, name))
     }
   }
 
-  children
+  # Must eagerly
+  enforceBundleLimits(root_dir, totalFiles, totalSize)
+  list(
+    contents = children,
+    totalFiles = totalFiles,
+    totalSize = totalSize
+  )
 }
 
 ignoreBundleFiles <- function(dir, contents, depth = 0) {
@@ -185,7 +203,7 @@ isKnitrCacheDir <- function(files) {
   ifelse(is_cache, has_rmd, FALSE)
 }
 
-enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
+enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
   maxSize <- getOption("rsconnect.max.bundle.size")
   maxFiles <- getOption("rsconnect.max.bundle.files")
 
@@ -193,8 +211,8 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
     cli::cli_abort(c(
       "{.arg appDir} ({.path {appDir}}) is too large to be deployed.",
       x = "The maximum size is {maxSize} bytes.",
-      x = "This directory is {totalSize} bytes.",
-      i = " Remove some files or adjust the rsconnect.max.bundle.size option."
+      x = "This directory is at least {totalSize} bytes.",
+      i = "Remove some files or adjust the rsconnect.max.bundle.size option."
     ))
   }
 
@@ -202,8 +220,8 @@ enforceBundleLimits <- function(appDir, totalSize, totalFiles) {
     cli::cli_abort(c(
       "{.arg appDir} ({.path {appDir}}) is too large to be deployed.",
       x = "The maximum number of files is {maxFiles}.",
-      x = "This directory containes {totalFiles} files.",
-      i = " Remove some files or adjust the rsconnect.max.bundle.files option."
+      x = "This directory contains at least {totalFiles} files.",
+      i = "Remove some files or adjust the rsconnect.max.bundle.files option."
     ))
   }
 }
