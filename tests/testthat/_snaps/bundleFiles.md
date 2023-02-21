@@ -62,7 +62,7 @@
       Error:
       ! `appFileManifest`, "doestexist", does not exist.
 
-# detectLongNames produces informative warning
+# detectLongNames produces informative warning if needed
 
     Code
       detectLongNames(dir, 0)
