@@ -392,7 +392,7 @@ inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
 }
 
 createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, assetTypeName, users, condaMode,
+                              appPrimaryDoc, users, condaMode,
                               forceGenerate, python = NULL, documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
@@ -404,7 +404,6 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
   packages <- bundlePackages(
     appDir = appDir,
     appMode = appMode,
-    assetTypeName = assetTypeName,
     hasParameters = hasParameters,
     documentsHavePython = documentsHavePython,
     quartoInfo = quartoInfo,

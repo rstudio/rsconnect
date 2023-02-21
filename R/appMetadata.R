@@ -50,16 +50,7 @@ appMetadata <- function(appDir,
     metadata = metadata
   )
 
-  if (!is.null(contentCategory)) {
-    assetTypeName <- contentCategory
-  } else if (!is.null(appPrimaryDoc)) {
-    assetTypeName <- "document"
-  } else {
-    assetTypeName <- "application"
-  }
-
   list(
-    assetTypeName = assetTypeName,
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
     hasParameters = hasParameters,

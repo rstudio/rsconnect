@@ -1,6 +1,5 @@
 bundlePackages <- function(appDir,
                            appMode,
-                           assetTypeName,
                            hasParameters = FALSE,
                            documentsHavePython = FALSE,
                            quartoInfo = NULL,
@@ -51,7 +50,7 @@ bundlePackages <- function(appDir,
       errorMessages <- c(
         errorMessages,
         paste0(
-          capitalize(assetTypeName), " depends on package \"", name, "\"",
+          "Deployment depends on package \"", name, "\"",
           "but it is not installed. Please resolve before continuing."
         )
       )
