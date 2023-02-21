@@ -158,7 +158,6 @@ recursiveBundleFiles <- function(dir,
     }
   }
 
-  # Must eagerly
   enforceBundleLimits(root_dir, totalFiles, totalSize)
   list(
     contents = children,
