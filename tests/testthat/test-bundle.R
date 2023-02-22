@@ -1,7 +1,7 @@
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
   pythonConfig <- pythonConfigurator(python)
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       "application", NULL, pythonConfig = pythonConfig)
+                       NULL, pythonConfig = pythonConfig)
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)
@@ -15,6 +15,32 @@ makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, im
   manifestJson <- jsonlite::fromJSON(data)
   unlink(manifestFile)
   manifestJson
+}
+
+quarto_path <- function() {
+  path_env <- Sys.getenv("QUARTO_PATH", unset = NA)
+  if (!is.na(path_env)) {
+    return(path_env)
+  } else {
+    locations <- c(
+      "quarto", # Use PATH
+      "/usr/local/bin/quarto", # Location used by some installers
+      "/opt/quarto/bin/quarto", # Location used by some installers
+      "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # macOS IDE
+    )
+    for (location in locations) {
+      path <- unname(Sys.which(location))
+      if (nzchar(path)) return(path)
+    }
+    return(NULL)
+  }
+}
+
+quartoPathOrSkip <- function() {
+  skip_on_cran()
+  quarto <- quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+  return(quarto)
 }
 
 # avoid 'trying to use CRAN without setting a mirror' errors
@@ -494,6 +520,46 @@ test_that("tarImplementation: checks environment variable and option before usin
   expect_equal(tar_implementation(NULL, NA), "internal")
 })
 
+
+# tweakRProfile -----------------------------------------------------------
+
+test_that(".Rprofile tweaked automatically", {
+  dir <- withr::local_tempdir()
+  writeLines('source("renv/activate.R")', file.path(dir, ".Rprofile"))
+
+  bundled <- bundleAppDir(dir, list.files(dir, all.files = TRUE))
+  expect_match(
+    readLines(file.path(bundled, ".Rprofile")),
+    "Modified by rsconnect",
+    all = FALSE
+  )
+})
+
+test_that(".Rprofile without renv/packrt left as is", {
+  lines <- c("1 + 1", "# Line 2", "library(foo)")
+  path <- withr::local_tempfile(lines = lines)
+
+  tweakRProfile(path)
+  expect_equal(readLines(path), lines)
+})
+
+test_that("removes renv/packrat activation", {
+  path <- withr::local_tempfile(lines = c(
+    "# Line 1",
+    'source("renv/activate.R")',
+    "# Line 3",
+    'source("packrat/init.R")',
+    "# Line 5"
+  ))
+
+  expect_snapshot(
+    {
+      tweakRProfile(path)
+      writeLines(readLines(path))
+    },
+    transform = function(x) gsub("on \\d{4}.+", "on <NOW>", x)
+  )
+})
 
 # standardAppFiles --------------------------------------------------------
 

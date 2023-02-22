@@ -29,7 +29,7 @@ saveDeployment <- function(appPath,
     metadata
   )
 
-  path <- deploymentFile(appPath, name, fullServer$name, fullServer$server)
+  path <- deploymentConfigFile(appPath, name, fullServer$name, fullServer$server)
   writeDeploymentRecord(deployment, path)
 
   # also save to global history
@@ -88,42 +88,10 @@ writeDeploymentRecord <- function(record, filePath) {
 deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
                         serverFilter = NULL, excludeOrphaned = TRUE) {
 
+  migrateDeploymentsConfig(appPath)
+
   # calculate rsconnect dir
-  rsconnectDir <- rsconnectRootPath(appPath)
-
-  # calculate migration dir--all shinyapps deployment records go into the root
-  # folder since it wasn't possible to deploy individual docs using the
-  # shinyapps package
-  migrateRoot <- if (isDocumentPath(appPath)) dirname(appPath) else appPath
-
-  # migrate shinyapps package created records if necessary
-  shinyappsDir <- file.path(migrateRoot, "shinyapps")
-  if (file.exists(shinyappsDir)) {
-    migrateDir <- file.path(migrateRoot, "rsconnect")
-    for (shinyappsFile in list.files(shinyappsDir, glob2rx("*.dcf"),
-                                     recursive = TRUE)) {
-      # read deployment record
-      shinyappsDCF <- file.path(shinyappsDir, shinyappsFile)
-      deployment <- as.data.frame(readDcf(shinyappsDCF),
-                                  stringsAsFactors = FALSE)
-      deployment$server <- "shinyapps.io"
-
-      # write the new record
-      rsconnectDCF <- file.path(migrateDir, "shinyapps.io", shinyappsFile)
-      dir.create(dirname(rsconnectDCF), showWarnings = FALSE, recursive = TRUE)
-      write.dcf(deployment, rsconnectDCF)
-
-      # remove old DCF
-      file.remove(shinyappsDCF)
-    }
-
-    # remove shinyapps dir if it's completely empty
-    remainingFiles <- list.files(shinyappsDir,
-                                 recursive = TRUE,
-                                 all.files = TRUE)
-    if (length(remainingFiles) == 0)
-      unlink(shinyappsDir, recursive = TRUE)
-  }
+  rsconnectDir <- deploymentConfigDir(appPath)
 
   # build list of deployment records
   deploymentRecs <- deploymentRecord(name = character(),
@@ -204,13 +172,6 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
   }
 
   deploymentRecs
-}
-
-deploymentFile <- function(appPath, name, account, server) {
-  accountDir <- file.path(rsconnectRootPath(appPath), server, account)
-  if (!file.exists(accountDir))
-    dir.create(accountDir, recursive = TRUE)
-  file.path(accountDir, paste0(name, ".dcf"))
 }
 
 deploymentRecord <- function(name, title, username, account, server, hostUrl,
@@ -308,7 +269,7 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
                              account = NULL, server = NULL,
                              dryRun = FALSE, force = !interactive()) {
   if (is.null(name) && is.null(account) && is.null(server)) {
-    dcfDir <- rsconnectRootPath(appPath)
+    dcfDir <- deploymentConfigDir(appPath)
     if (dryRun)
       message("Would remove the directory ", dcfDir)
     else if (file.exists(dcfDir)) {
@@ -328,7 +289,7 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
            "Supply the name, account, and server of the deployment record to delete. ",
            "Supply NULL for all three to delete all deployment records.")
     }
-    dcf <- deploymentFile(appPath, name, account, server)
+    dcf <- deploymentConfigFile(appPath, name, account, server)
     if (dryRun)
       message("Would remove the file ", dcf)
     else if (file.exists(dcf)) {

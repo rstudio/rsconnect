@@ -16,6 +16,7 @@ Returns a data frame with the following columns:
 \tabular{ll}{
 \code{id}         \tab Application unique id \cr
 \code{name}       \tab Name of application \cr
+\code{title}       \tab Application title \cr
 \code{url}        \tab URL where application can be accessed \cr
 
 \code{status}     \tab Current status of application. Valid values are \code{pending},
