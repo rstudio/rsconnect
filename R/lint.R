@@ -11,19 +11,13 @@
 ##' @export
 lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   check_directory(project)
-  project <- normalizePath(project, winslash = "/")
+  files <- standardizeAppFiles(project, files)
 
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
   on.exit(setwd(owd))
   setwd(project)
 
-  files <- standardizeAppFiles(project, files)
-
-  # List the files that will be bundled
-  projectFiles <- file.path(project, files)  %relativeTo% project
-  projectFiles <- gsub("^\\./", "", projectFiles)
-  names(projectFiles) <- projectFiles
 
   # collect files
   checkAppLayout(".")
@@ -32,7 +26,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 
   # Identify all files that will be read in by one or more linters
   projectFilesToLint <- Reduce(union, lapply(linters, function(linter) {
-    getLinterApplicableFiles(linter, projectFiles)
+    getLinterApplicableFiles(linter, files)
   }))
 
   # Read in the files
@@ -69,7 +63,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
                                           projectContent[[file]],
                                           project = project,
                                           path = file,
-                                          files = projectFiles)
+                                          files = files)
         },
         error = function(e) {
           message("Failed to lint file '", file, "'")
@@ -223,28 +217,6 @@ collectSuggestions <- function(fileResults) {
     }))
   })
   Reduce(union, suggestions)
-}
-
-`%relativeTo%` <- function(paths, directory) {
-
-  nd <- nchar(directory)
-
-  unlist(lapply(paths, function(path) {
-    np <- nchar(path)
-    if (nd > np) {
-      warning("'", path, "' is not a subdirectory of '", directory, "'")
-      return(path)
-    }
-
-    if (substring(path, 1, nd) != directory) {
-      warning("'", path, "' is not a subdirectory of '", directory, "'")
-      return(path)
-    }
-
-    offset <- if (substring(directory, nd, nd) == "/") 1 else 2
-    substring(path, nd + offset, np)
-  }))
-
 }
 
 showLintResults <- function(appDir, lintResults) {
