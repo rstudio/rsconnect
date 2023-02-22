@@ -237,7 +237,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # invoke pre-deploy hook if we have one
-  runDeploymentHook(appPath, "rsconnect.pre.deploy", verbose = verbose)
+  runDeploymentHook(appDir, "rsconnect.pre.deploy", verbose = verbose)
 
   appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
@@ -247,7 +247,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
+  target <- deploymentTarget(recordDir, appName, appTitle, appId, account, server)
 
   # test for compatibility between account type and publish intent
   if (!isCloudServer(target$server) && identical(upload, FALSE)) {
@@ -353,7 +353,7 @@ deployApp <- function(appDir = getwd(),
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
-    runDeploymentHook(appPath, "rsconnect.post.deploy", verbose = verbose)
+    runDeploymentHook(appDir, "rsconnect.post.deploy", verbose = verbose)
   }
 
   logger("Deployment log finished")
@@ -378,7 +378,7 @@ needsVisibilityChange <- function(server, application, appVisibility = NULL) {
   cur != appVisibility
 }
 
-runDeploymentHook <- function(appPath, option, verbose = FALSE) {
+runDeploymentHook <- function(appDir, option, verbose = FALSE) {
   hook <- getOption(option)
   if (!is.function(hook)) {
     return()
@@ -387,7 +387,7 @@ runDeploymentHook <- function(appPath, option, verbose = FALSE) {
   if (verbose) {
     cat("Invoking `", option, "` hook\n", sep = "")
   }
-  hook(appPath)
+  hook(appDir)
 }
 
 
