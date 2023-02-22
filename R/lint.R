@@ -294,4 +294,3 @@ hasLint <- function(x) {
     })
   })))
 }
-
