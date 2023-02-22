@@ -237,13 +237,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # invoke pre-deploy hook if we have one
-  preDeploy <- getOption("rsconnect.pre.deploy")
-  if (is.function(preDeploy)) {
-    if (verbose) {
-      cat("Invoking pre-deploy hook rsconnect.pre.deploy\n")
-    }
-    preDeploy(appPath)
-  }
+  runDeploymentHook(appPath, "rsconnect.pre.deploy", verbose = verbose)
 
   appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
@@ -273,21 +267,15 @@ deployApp <- function(appDir = getwd(),
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
-  if (isCloudServer(accountDetails$server) && !is.null(appVisibility)) {
-    # Shinyapps defaults to public visibility.
-    # Other values should be set before data is deployed.
-    currentVisibility <- application$deployment$properties$application.visibility
-    if (is.null(currentVisibility)) {
-      currentVisibility <- "public"
-    }
-
-    if (!identical(appVisibility, currentVisibility)) {
-      withStatus(paste0("Setting visibility to ", appVisibility), {
-        client$setApplicationProperty(application$id,
-                                   "application.visibility",
-                                   appVisibility)
-      })
-    }
+  # Change _visibility_ before uploading data
+  if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
+    withStatus(paste0("Setting visibility to ", appVisibility), {
+      client$setApplicationProperty(
+        application$id,
+        "application.visibility",
+        appVisibility
+      )
+    })
   }
 
   if (upload) {
@@ -303,28 +291,7 @@ deployApp <- function(appDir = getwd(),
                               isCloudServer(accountDetails$server), metadata, image)
 
       if (isCloudServer(accountDetails$server)) {
-
-        # Step 1. Create presigned URL and register pending bundle.
-        bundleSize <- file.info(bundlePath)$size
-
-        # Generate a hex-encoded md5 hash.
-        checksum <- fileMD5.as.string(bundlePath)
-        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checksum)
-
-        logger("Starting upload now")
-        # Step 2. Upload Bundle to presigned URL
-        if (!uploadBundle(bundle, bundleSize, bundlePath)) {
-          stop("Could not upload file.")
-        }
-        logger("Upload complete")
-
-        # Step 3. Upload revise bundle status.
-        response <- client$updateBundleStatus(bundle$id, status = "ready")
-
-        # Step 4. Retrieve updated bundle post status change - which is required in subsequent
-        # areas of the code below.
-        bundle <- client$getBundle(bundle$id)
-
+        bundle <- uploadCloudBundle(client, application$id, bundlePath)
       } else {
         bundle <- client$uploadApplication(application$id, bundlePath)
       }
@@ -386,18 +353,41 @@ deployApp <- function(appDir = getwd(),
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
-    postDeploy <- getOption("rsconnect.post.deploy")
-    if (is.function(postDeploy)) {
-      if (verbose) {
-        cat("Invoking post-deploy hook rsconnect.post.deploy\n")
-      }
-      postDeploy(appPath)
-    }
+    runDeploymentHook(appPath, "rsconnect.post.deploy", verbose = verbose)
   }
 
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+# Shinyapps defaults to public visibility.
+# Other values should be set before data is deployed.
+needsVisibilityChange <- function(server, application, appVisibility = NULL) {
+  if (!isCloudServer(server)) {
+    return(FALSE)
+  }
+  if (is.null(appVisibility)) {
+    return(FALSE)
+  }
+
+  cur <- application$deployment$properties$application.visibility
+  if (is.null(cur)) {
+    cur <- "public"
+  }
+  cur != appVisibility
+}
+
+runDeploymentHook <- function(appPath, option, verbose = FALSE) {
+  hook <- getOption(option)
+  if (!is.function(hook)) {
+    return()
+  }
+
+  if (verbose) {
+    cat("Invoking `", option, "` hook\n", sep = "")
+  }
+  hook(appPath)
 }
 
 
