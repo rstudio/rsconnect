@@ -288,11 +288,12 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (upload) {
+    python <- getPythonForTarget(python, accountDetails)
+    pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
+
     # create, and upload the bundle
     logger("Bundle upload started")
     withStatus(paste0("Uploading bundle (", application$id, ")"), {
-      python <- getPythonForTarget(python, accountDetails)
-      pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
       bundlePath <- bundleApp(
         target$appName,
         appDir,
@@ -308,7 +309,6 @@ deployApp <- function(appDir = getwd(),
       )
 
       if (isCloudServer(accountDetails$server)) {
-
         # Step 1. Create presigned URL and register pending bundle.
         bundleSize <- file.info(bundlePath)$size
 
