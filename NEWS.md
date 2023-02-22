@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `showMetrics()` once again returns a correctly named data frame (#528).
+
 * `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
   files (i.e. as documented) (#568). 
 
