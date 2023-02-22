@@ -1,3 +1,7 @@
+test_that("lints give have useful print method", {
+  expect_snapshot(lint(test_path("shinyapp-with-absolute-paths")))
+})
+
 test_that("checkLayout() errors if primary doc & app.R", {
   dir <- local_temp_app(list(
     "app.R" = "",

@@ -62,7 +62,7 @@ test_that("The linter believes that the Shiny example apps are okay", {
 
     results <- lapply(examples, lint)
 
-    lints <- suppressMessages(lapply(results, printLinterResults))
+    expect_output(lints <- lapply(results, print))
     lapply(lints, function(project) {
       lapply(project, function(file) {
         lapply(file, function(linter) {

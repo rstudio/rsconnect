@@ -187,7 +187,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   })
   names(fileResults) <- lintedFiles
   class(fileResults) <- "linterResults"
-  invisible(fileResults)
+  fileResults
 }
 
 checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
@@ -240,42 +240,39 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
 }
 
 
-printLintHeader <- function(x) {
-  if (!length(x$message)) return(invisible(NULL))
-  dashSep <- paste(rep("-", nchar(x$file)), collapse = "")
-  header <- paste(dashSep, "\n",
-                  x$file, "\n",
-                  dashSep, "\n", sep = "")
-  message(paste(header, collapse = "\n"), appendLF = FALSE)
-  invisible(x)
+lintHeader <- function(file) {
+  dashSep <- paste(rep("-", nchar(file)), collapse = "")
+  header <- paste0(
+    dashSep, "\n",
+    file, "\n",
+    dashSep, "\n"
+  )
+  cat(paste(header, collapse = "\n"))
 }
 
-printLintBody <- function(x, ...) {
-  message(paste(x$message, collapse = "\n"), appendLF = FALSE)
-  invisible(x)
-}
+#' @export
+print.linterResults <- function(x, ...) {
+  if (!hasLint(x)) {
+    cat("No problems found\n")
+    return(invisible(x))
+  }
 
-printLintFooter <- function(x, ...) {
-  message(paste(collectSuggestions(x), collapse = "\n"))
-  invisible(x)
-}
-
-printLinterResults <- function(x, ...) {
   lapply(x, printLintList, ...)
-  printLintFooter(x)
+
+  cat(paste(collectSuggestions(x), collapse = "\n"))
+
   invisible(x)
 }
 
 printLintList <- function(x, ...) {
-  printLintHeader(x[[1]])
-  lapply(x, printLintBody, ...)
-  invisible(x)
-}
-
-printLint <- function(x, ...) {
-  printLintHeader(x)
-  printLintBody(x, ...)
-  invisible(x)
+  has_message <- vapply(x, function(x) length(x$message), integer(1))
+  if (!any(has_message)) {
+    return()
+  }
+  lintHeader(x[[1]]$file)
+  lapply(x, function(x) {
+    cat(paste(x$message, collapse = "\n"))
+  })
 }
 
 collectSuggestions <- function(fileResults) {
@@ -327,7 +324,7 @@ showLintResults <- function(appDir, lintResults) {
   }
 
   message("The following potential problems were identified in the project files:\n")
-  printLinterResults(lintResults)
+  print(lintResults)
 
   if (interactive()) {
     response <- readline("Do you want to proceed with deployment? [y/N]: ")
