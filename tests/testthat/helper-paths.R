@@ -25,7 +25,6 @@ quartoPathOrSkip <- function() {
   return(quarto)
 }
 
-
 quarto_path <- function() {
   path_env <- Sys.getenv("QUARTO_PATH", unset = NA)
   if (!is.na(path_env)) {
@@ -44,4 +43,3 @@ quarto_path <- function() {
     return(NULL)
   }
 }
-
