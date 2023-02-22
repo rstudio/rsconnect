@@ -272,21 +272,15 @@ deployApp <- function(appDir = getwd(),
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
-  if (isCloudServer(accountDetails$server) && !is.null(appVisibility)) {
-    # Shinyapps defaults to public visibility.
-    # Other values should be set before data is deployed.
-    currentVisibility <- application$deployment$properties$application.visibility
-    if (is.null(currentVisibility)) {
-      currentVisibility <- "public"
-    }
-
-    if (!identical(appVisibility, currentVisibility)) {
-      withStatus(paste0("Setting visibility to ", appVisibility), {
-        client$setApplicationProperty(application$id,
-                                   "application.visibility",
-                                   appVisibility)
-      })
-    }
+  # Change _visibility_ before uploading data
+  if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
+    withStatus(paste0("Setting visibility to ", appVisibility), {
+      client$setApplicationProperty(
+        application$id,
+        "application.visibility",
+        appVisibility
+      )
+    })
   }
 
   if (upload) {
@@ -377,6 +371,24 @@ deployApp <- function(appDir = getwd(),
 
   invisible(deploymentSucceeded)
 }
+
+# Shinyapps defaults to public visibility.
+# Other values should be set before data is deployed.
+needsVisibilityChange <- function(server, application, appVisibility = NULL) {
+  if (!isCloudServer(server)) {
+    return(FALSE)
+  }
+  if (is.null(appVisibility)) {
+    return(FALSE)
+  }
+
+  cur <- application$deployment$properties$application.visibility
+  if (is.null(cur)) {
+    cur <- "public"
+  }
+  cur != appVisibility
+}
+
 
 # Does almost exactly the same work as writeManifest(), but called within
 # deployApp() instead of being exposed to the user. Returns the path to the
