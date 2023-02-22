@@ -1,31 +1,19 @@
 # lints give have useful print method
 
     Code
-      lint(test_path("shinyapp-with-absolute-paths"))
+      lint(test_path("test-rmd-bad-case"))
     Output
-      ---------------------
-      ShinyPresentation.Rmd
-      ---------------------
-      The following lines contain absolute paths:
-      15: Here's some internal help: [Helpful Link](/Users/MrBurns/)
-      
-      The following lines contain invalid relative paths (resolved outside of project directory):
-      16: And another: [Favourite Goats](../../goats.txt)
-      
-      --------
-      server.R
-      --------
-      The following lines contain absolute paths:
-      15:     otherFile <- read.table("~/.rsconnect-tests/local-file.txt")
-      
+      ---------
+      index.Rmd
+      ---------
       The following lines contain paths to files not matching in case sensitivity:
-      31:     file <- read.csv("college.txt") ## bad    ['college.txt' -> 'College.txt']
+      29: ![](rstudio.svg)    ['rstudio.svg' -> 'RStudio.svg']
       
-      The following lines contain invalid relative paths (resolved outside of project directory):
-      16:     anotherFile <- readLines("../../foo.bar")
-      
-      Paths should be to files within the project directory.
       Filepaths are case-sensitive on deployment server.
+    Code
+      lint(test_path("shinyapp-appR"))
+    Output
+      No problems found
 
 # checkLayout() errors if primary doc & app.R
 

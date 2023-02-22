@@ -1,7 +1,9 @@
 test_that("lints give have useful print method", {
-  expect_snapshot(lint(test_path("shinyapp-with-absolute-paths")))
+  expect_snapshot({
+    lint(test_path("test-rmd-bad-case"))
+    lint(test_path("shinyapp-appR"))
+  })
 })
-
 
 test_that("The linter believes that the Shiny example apps are okay", {
 

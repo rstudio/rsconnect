@@ -1,26 +1,16 @@
-
 test_that("linter warns about absolute paths and relative paths", {
-
-  ## Create a local file that 'server.R' tries to use
-  testDir <- "~/.rsconnect-tests"
-  exists <- file.exists(testDir)
-
   dir.create("~/.rsconnect-tests", showWarnings = FALSE)
   file.create("~/.rsconnect-tests/local-file.txt")
+  withr::defer(unlink("~/.rsconnect-tests", recursive = TRUE))
 
-  serverPath <- list.files("shinyapp-with-absolute-paths",
-                           pattern = "server\\.R$")
+  result <- lint(test_path("shinyapp-with-absolute-paths"))
+  expect_snapshot(result)
 
-  result <- lint("shinyapp-with-absolute-paths")
-
-  absPathLintedIndices <- result[[serverPath]]$absolute.paths$indices
+  absPathLintedIndices <- result[["server.R"]]$absolute.paths$indices
   expect_identical(as.numeric(absPathLintedIndices), 15)
 
-  relPathLintedIndices <- result[[serverPath]]$invalid.relative.paths$indices
+  relPathLintedIndices <- result[["server.R"]]$invalid.relative.paths$indices
   expect_identical(as.numeric(relPathLintedIndices), 16)
-
-  if (!exists)
-    unlink(testDir, recursive = TRUE)
 })
 
 test_that("badRelativePaths identifies bad paths correctly", {
