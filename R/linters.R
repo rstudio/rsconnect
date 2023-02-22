@@ -194,9 +194,9 @@ addLinter("filepath.capitalization", linter(
         if (length(from[[regex]][[i]]))
           paste(collapse = ", ",
                 paste("[",
-                      shQuote(from[[regex]][[i]]),
+                      sQuote(from[[regex]][[i]]),
                       " -> ",
-                      shQuote(to[[regex]][[i]]),
+                      sQuote(to[[regex]][[i]]),
                       "]", sep = "")
           )
         else
