@@ -168,7 +168,7 @@ test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
 
   # there are 52 files total, so eagerly implies we stop after one directory
   expect_error(explodeFiles(dir, c("a", "b")), "at least 26")
-  expect_error(bundleFiles(dir), "at least 26")
+  expect_error(bundleFiles(dir), "at least 2")
 })
 
 test_that("generate nicely formatted messages", {

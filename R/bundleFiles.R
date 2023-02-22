@@ -54,6 +54,7 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 
 # given a list of mixed files and directories, explodes the directories
 # recursively into their constituent files, and returns just a list of files
+# with paths relative to `dir`
 explodeFiles <- function(dir, files) {
   exploded <- character()
 
@@ -63,10 +64,12 @@ explodeFiles <- function(dir, files) {
   for (f in files) {
     target <- file.path(dir, f)
     if (!file.exists(target)) {
+      # TODO: should we warn/error here since the user supplied this path?
       # doesn't exist
       next
     } else if (dirExists(target)) {
       # a directory; explode it
+      # TODO: this is potentially expensive if accidentally includes root dir.
       contentPaths <- file.path(f, list.files(
         target,
         recursive = TRUE,
@@ -125,7 +128,7 @@ bundleFiles <- function(appDir) {
 }
 
 recursiveBundleFiles <- function(dir,
-                                 root_dir = dir,
+                                 rootDir = dir,
                                  depth = 0,
                                  totalFiles = 0,
                                  totalSize = 0) {
@@ -142,7 +145,7 @@ recursiveBundleFiles <- function(dir,
     if (isTRUE(is_dir[[name]])) {
       out <- recursiveBundleFiles(
         dir = file.path(dir, name),
-        root_dir = root_dir,
+        rootDir = rootDir,
         totalFiles = totalFiles,
         totalSize = totalSize,
         depth = depth + 1
@@ -156,9 +159,10 @@ recursiveBundleFiles <- function(dir,
       totalFiles <- totalFiles + 1
       totalSize <- totalSize + file_size(file.path(dir, name))
     }
+
+    enforceBundleLimits(rootDir, totalFiles, totalSize)
   }
 
-  enforceBundleLimits(root_dir, totalFiles, totalSize)
   list(
     contents = children,
     totalFiles = totalFiles,
