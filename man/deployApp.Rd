@@ -37,7 +37,8 @@ directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.}
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
+See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 
 \item{appFileManifest}{An alternate way to specify the files to be deployed.
 Should be a path to a file that contains the names of the files and

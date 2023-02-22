@@ -79,10 +79,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   on.exit(setwd(owd))
   setwd(project)
 
-  # If the set of files wasn't specified, generate it
-  if (is.null(files)) {
-    files <- bundleFiles(project)
-  }
+  files <- standardizeAppFiles(project, files)
 
   # List the files that will be bundled
   projectFiles <- file.path(project, files)  %relativeTo% project

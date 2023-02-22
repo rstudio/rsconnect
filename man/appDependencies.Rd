@@ -12,7 +12,8 @@ directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.}
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
+See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 }
 \value{
 Returns a data frame listing the package
