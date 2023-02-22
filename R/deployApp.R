@@ -383,11 +383,8 @@ runDeploymentHook <- function(appPath, option, verbose = FALSE) {
     return()
   }
 
-  name <- gsub("rsconnect.", "", option, fixed = TRUE)
-  name <- gsub(".", "-", name, fixed = TRUE)
-
   if (verbose) {
-    cat("Invoking ", name, " hook ", option, "\n", sep = "")
+    cat("Invoking `", option, "` hook\n", sep = "")
   }
   hook(appPath)
 }

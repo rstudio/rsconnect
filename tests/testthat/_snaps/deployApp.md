@@ -3,5 +3,5 @@
     Code
       . <- runDeploymentHook("PATH", "rsconnect.pre.deploy", verbose = TRUE)
     Output
-      Invoking pre-deploy hook rsconnect.pre.deploy
+      Invoking `rsconnect.pre.deploy` hook
 
