@@ -254,3 +254,44 @@ showLintResults <- function(appDir, lintResults) {
     invisible()
   }
 }
+
+#' Construct a Linter Message
+#'
+#' Pretty-prints a linter message. Primarily used as a helper
+#' for constructing linter messages with [linter()].
+#'
+#' @param header A header message describing the linter.
+#' @param content The content of the file that was linted.
+#' @param lines The line numbers from `content` that contain lint.
+makeLinterMessage <- function(header, content, lines) {
+
+  lint <- attr(lines, "lint")
+
+  c(
+    paste0(header, ":"),
+    paste(lines, ": ",
+          content[lines],
+          if (!is.null(lint)) paste("    ", lint, sep = ""),
+          sep = ""),
+    "\n"
+  )
+}
+
+enumerate <- function(X, FUN, ...) {
+  FUN <- match.fun(FUN)
+  result <- vector("list", length(X))
+  for (i in seq_along(X)) {
+    result[[i]] <- FUN(X[[i]], i, ...)
+  }
+  names(result) <- names(X)
+  result
+}
+
+hasLint <- function(x) {
+  any(unlist(lapply(x, function(x) {
+    lapply(x, function(x) {
+      length(x$indices) > 0
+    })
+  })))
+}
+
