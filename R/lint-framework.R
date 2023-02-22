@@ -90,52 +90,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   names(projectFiles) <- projectFiles
 
   # collect files
-  appFilesBase <- tolower(list.files())
-  wwwFiles <- tolower(list.files("www/"))
-
-  # check for single-file app collision
-  if (!is.null(appPrimaryDoc) &&
-      tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
-      "app.r" %in% appFilesBase) {
-    stop("The project contains both a single-file Shiny application and a ",
-         "file named app.R; it must contain only one of these.")
-  }
-
-  # Do some checks for a valid application structure
-  satisfiedLayouts <- c(
-    shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
-    shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
-    app = any("app.r" %in% appFilesBase,
-              !is.null(appPrimaryDoc) &&
-                tolower(tools::file_ext(appPrimaryDoc)) == "r"),
-    Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
-    Qmd = any(grepl(glob2rx("*.qmd"), appFilesBase)),
-    static = any(grepl("(?:html?|pdf)$", appFilesBase)),
-    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
-    tensorflow = length(c(
-      Sys.glob(file.path(getwd(), "*", "saved_model.pb*")),
-      Sys.glob(file.path(getwd(), "saved_model.pb*"))
-      )) > 0
-  )
-
-  if (!any(satisfiedLayouts)) {
-    msg <- "Cancelling deployment: invalid project layout.
-            The project should have one of the following layouts:
-            1. 'server.R' and 'ui.R' in the application base directory,
-            2. 'server.R' and 'www/index.html' in the application base directory,
-            3. 'app.R' or a single-file Shiny .R file,
-            4. An R Markdown (.Rmd) or Quarto (.qmd) document,
-            5. A static HTML (.html) or PDF (.pdf) document.
-            6. 'plumber.R' API description .R file
-            7. 'entrypoint.R' plumber startup script
-            8. A tensorflow saved model"
-
-    # strip leading whitespace from the above
-    msg <- paste(collapse = "\n",
-                 gsub("^ *", "", unlist(strsplit(msg, "\n", fixed = TRUE))))
-
-    stop(msg)
-  }
+  checkAppLayout(".")
 
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
 
@@ -237,6 +192,56 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   class(fileResults) <- "linterResults"
   invisible(fileResults)
 }
+
+checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
+  appFilesBase <- tolower(list.files(appDir))
+  wwwFiles <- tolower(list.files(file.path(appDir, "www/")))
+
+  primaryIsRScript <- identical(tolower(tools::file_ext(appPrimaryDoc)), "r")
+
+  # check for single-file app collision
+  if (primaryIsRScript && "app.r" %in% appFilesBase) {
+    stop("The project contains both a single-file Shiny application and a ",
+         "file named app.R; it must contain only one of these.")
+  }
+
+  # Do some checks for a valid application structure
+  satisfiedLayouts <- c(
+    shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
+    shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
+    app = primaryIsRScript || any("app.r" %in% appFilesBase),
+    Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
+    Qmd = any(grepl(glob2rx("*.qmd"), appFilesBase)),
+    static = any(grepl("(?:html?|pdf)$", appFilesBase)),
+    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
+    tensorflow = length(c(
+      Sys.glob(file.path(appDir, "*", "saved_model.pb*")),
+      Sys.glob(file.path(appDir, "saved_model.pb*"))
+    )) > 0
+  )
+
+  if (any(satisfiedLayouts)) {
+    return()
+  }
+
+  msg <- "Cancelling deployment: invalid project layout.
+          The project should have one of the following layouts:
+          1. 'server.R' and 'ui.R' in the application base directory,
+          2. 'server.R' and 'www/index.html' in the application base directory,
+          3. 'app.R' or a single-file Shiny .R file,
+          4. An R Markdown (.Rmd) or Quarto (.qmd) document,
+          5. A static HTML (.html) or PDF (.pdf) document.
+          6. 'plumber.R' API description .R file
+          7. 'entrypoint.R' plumber startup script
+          8. A tensorflow saved model"
+
+  # strip leading whitespace from the above
+  msg <- paste(collapse = "\n",
+               gsub("^ *", "", unlist(strsplit(msg, "\n", fixed = TRUE))))
+
+  stop(msg)
+}
+
 
 printLintHeader <- function(x) {
   if (!length(x$message)) return(invisible(NULL))
