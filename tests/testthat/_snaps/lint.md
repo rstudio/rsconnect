@@ -15,6 +15,9 @@
       --------
       server.R
       --------
+      The following lines contain absolute paths:
+      15:     otherFile <- read.table("~/.rsconnect-tests/local-file.txt")
+      
       The following lines contain paths to files not matching in case sensitivity:
       31:     file <- read.csv("college.txt") ## bad    ['college.txt' -> 'College.txt']
       
