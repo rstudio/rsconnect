@@ -79,10 +79,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   on.exit(setwd(owd))
   setwd(project)
 
-  # If the set of files wasn't specified, generate it
-  if (is.null(files)) {
-    files <- bundleFiles(project)
-  }
+  files <- standardizeAppFiles(project, files)
 
   # List the files that will be bundled
   projectFiles <- file.path(project, files)  %relativeTo% project
@@ -309,7 +306,7 @@ collectSuggestions <- function(fileResults) {
 
 }
 
-showLintResults <- function(appDir, lintResults, assetTypeName) {
+showLintResults <- function(appDir, lintResults) {
   if (!hasLint(lintResults)) {
     return(invisible())
   }
@@ -338,7 +335,7 @@ showLintResults <- function(appDir, lintResults, assetTypeName) {
     #   "\tdeployApp(lint = FALSE)\n\n",
     #   "to disable linting."
     # )
-    message("If your ", assetTypeName, " fails to run post-deployment, ",
+    message("If your code fails to run post-deployment, ",
             "please double-check these messages.")
 
     invisible()

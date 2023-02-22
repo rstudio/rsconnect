@@ -50,16 +50,7 @@ appMetadata <- function(appDir,
     metadata = metadata
   )
 
-  if (!is.null(contentCategory)) {
-    assetTypeName <- contentCategory
-  } else if (!is.null(appPrimaryDoc)) {
-    assetTypeName <- "document"
-  } else {
-    assetTypeName <- "application"
-  }
-
   list(
-    assetTypeName = assetTypeName,
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
     hasParameters = hasParameters,
@@ -166,6 +157,28 @@ isShinyRmd <- function(filename) {
   }
   is_shiny_prerendered(yaml$runtime, yaml$server)
 }
+
+yamlFromRmd <- function(filename) {
+  lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
+  delim <- grep("^(---|\\.\\.\\.)\\s*$", lines)
+  if (length(delim) >= 2) {
+    # If at least two --- or ... lines were found...
+    if (delim[[1]] == 1 || all(grepl("^\\s*$", lines[1:delim[[1]]]))) {
+      # and the first is a ---
+      if (grepl("^---\\s*$", lines[delim[[1]]])) {
+        # ...and the first --- line is not preceded by non-whitespace...
+        if (diff(delim[1:2]) > 1) {
+          # ...and there is actually something between the two --- lines...
+          yamlData <- paste(lines[(delim[[1]] + 1):(delim[[2]] - 1)],
+                            collapse = "\n")
+          return(yaml::yaml.load(yamlData))
+        }
+      }
+    }
+  }
+  return(NULL)
+}
+
 # Adapted from rmarkdown:::is_shiny_prerendered()
 is_shiny_prerendered <- function(runtime, server = NULL) {
   if (!is.null(runtime) && grepl("^shiny", runtime)) {

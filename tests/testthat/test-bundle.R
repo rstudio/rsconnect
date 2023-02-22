@@ -1,6 +1,6 @@
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       "application", NULL, python = python)
+                       NULL, python = python)
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)
@@ -46,58 +46,6 @@ quartoPathOrSkip <- function() {
 repos <- getOption("repos")
 options(repos = c(CRAN = "https://cran.rstudio.com"))
 on.exit(options(repos = repos), add = TRUE)
-
-test_that("simple Shiny app bundle includes correct files", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
-    "simple_shiny",
-    test_path("shinyapp-simple"),
-    NULL
-  )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  # listBundleFiles only includes "user" files and ignores
-  # generated files like the packrat and manifest data.
-  files <- listBundleFiles(bundleTempDir)
-  expect_identical(files$contents, c("server.R", "ui.R"))
-  expect_identical(list.files(bundleTempDir), c("manifest.json", "packrat", "server.R", "ui.R"))
-})
-
-test_that("bundle directories are recursively enumerated", {
-  targetDir <- tempfile()
-  dir.create(targetDir)
-  on.exit(unlink(targetDir, recursive = TRUE))
-
-  # tree that resembles the case from https://github.com/rstudio/rsconnect/issues/464
-  files <- c(
-      "app.R",
-      "index.htm",
-      "models/abcd/a_b_pt1/a/b/c1/1.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/2.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/3.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/4.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/5.RDS"
-  )
-
-  # Create and write each file.
-  sapply(files, function(file) {
-    content <- c("this is the file named", file)
-    targetFile <- file.path(targetDir, file)
-    dir.create(dirname(targetFile), recursive = TRUE, showWarnings = FALSE)
-    writeLines(content, con = targetFile, sep = "\n")
-  })
-
-  infos <- file.info(file.path(targetDir, files))
-  totalSize <- sum(infos$size)
-  totalFiles <- length(files)
-
-  result <- listBundleFiles(targetDir)
-
-  # Files are included in the list, count, and sizes, not directories.
-  # Paths are enumerated relative to the target directory, not absolute paths.
-  expect_identical(result$contents, files)
-  expect_equal(result$totalSize, totalSize)
-  expect_equal(result$totalFiles, totalFiles)
-})
 
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
@@ -643,65 +591,42 @@ test_that("tarImplementation: checks environment variable and option before usin
   expect_equal(tar_implementation(NULL, NA), "internal")
 })
 
+# tweakRProfile -----------------------------------------------------------
 
-# standardAppFiles --------------------------------------------------------
+test_that(".Rprofile tweaked automatically", {
+  dir <- withr::local_tempdir()
+  writeLines('source("renv/activate.R")', file.path(dir, ".Rprofile"))
 
-test_that("can read all files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
-  expect_equal(standardizeAppFiles(dir), c("a.R", "b.R"))
-
-  dir <- local_temp_app()
-  expect_snapshot(standardizeAppFiles(dir), error = TRUE)
+  bundled <- bundleAppDir(dir, list.files(dir, all.files = TRUE))
+  expect_match(
+    readLines(file.path(bundled, ".Rprofile")),
+    "Modified by rsconnect",
+    all = FALSE
+  )
 })
 
-test_that("can read selected files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
-  expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
-  # silently ignores files that aren't present
-  expect_equal(standardizeAppFiles(dir, c("b.R", "c.R")), "b.R")
+test_that(".Rprofile without renv/packrt left as is", {
+  lines <- c("1 + 1", "# Line 2", "library(foo)")
+  path <- withr::local_tempfile(lines = lines)
 
-  expect_snapshot(standardizeAppFiles(dir, "c.R"), error = TRUE)
+  tweakRProfile(path)
+  expect_equal(readLines(path), lines)
 })
 
-test_that("can read selected files from manifest", {
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "b.R"
+test_that("removes renv/packrat activation", {
+  path <- withr::local_tempfile(lines = c(
+    "# Line 1",
+    'source("renv/activate.R")',
+    "# Line 3",
+    'source("packrat/init.R")',
+    "# Line 5"
   ))
-  expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    "b.R"
-  )
 
-  # silently ignores files that aren't present
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = c("b.R", "c.R")
-  ))
-  expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    "b.R"
-  )
-
-  # errors if no matching files
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "c.R"
-  ))
   expect_snapshot(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    error = TRUE
+    {
+      tweakRProfile(path)
+      writeLines(readLines(path))
+    },
+    transform = function(x) gsub("on \\d{4}.+", "on <NOW>", x)
   )
-})
-
-test_that("checks its inputs", {
-  dir <- local_temp_app()
-  expect_snapshot(error = TRUE, {
-    standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
-    standardizeAppFiles(dir, appFiles = 1)
-    standardizeAppFiles(dir, appFileManifest = "doestexist")
-  })
 })

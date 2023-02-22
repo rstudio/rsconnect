@@ -2,6 +2,15 @@
 
 * `showMetrics()` once again returns a correctly named data frame (#528).
 
+* `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
+  files (i.e. as documented) (#568). 
+
+* `listBundleFiles()` now errors when if the bundle is either too large 
+  or contains too many files, rather than silently truncating as previously 
+  (#684).
+
+* `applications()` now returns the application title, if available (#484).
+
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 
