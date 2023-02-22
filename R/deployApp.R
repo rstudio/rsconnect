@@ -302,28 +302,7 @@ deployApp <- function(appDir = getwd(),
                               isCloudServer(accountDetails$server), metadata, image)
 
       if (isCloudServer(accountDetails$server)) {
-
-        # Step 1. Create presigned URL and register pending bundle.
-        bundleSize <- file.info(bundlePath)$size
-
-        # Generate a hex-encoded md5 hash.
-        checksum <- fileMD5.as.string(bundlePath)
-        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checksum)
-
-        logger("Starting upload now")
-        # Step 2. Upload Bundle to presigned URL
-        if (!uploadBundle(bundle, bundleSize, bundlePath)) {
-          stop("Could not upload file.")
-        }
-        logger("Upload complete")
-
-        # Step 3. Upload revise bundle status.
-        response <- client$updateBundleStatus(bundle$id, status = "ready")
-
-        # Step 4. Retrieve updated bundle post status change - which is required in subsequent
-        # areas of the code below.
-        bundle <- client$getBundle(bundle$id)
-
+        bundle <- uploadCloudBundle(client, application$id, bundlePath)
       } else {
         bundle <- client$uploadApplication(application$id, bundlePath)
       }
@@ -398,7 +377,6 @@ deployApp <- function(appDir = getwd(),
 
   invisible(deploymentSucceeded)
 }
-
 
 # Does almost exactly the same work as writeManifest(), but called within
 # deployApp() instead of being exposed to the user. Returns the path to the
