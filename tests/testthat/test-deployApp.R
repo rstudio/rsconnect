@@ -16,3 +16,19 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
   expect_true(needsVisibilityChange("shinyapps.io", dummyApp(NULL), "private"))
   expect_true(needsVisibilityChange("shinyapps.io", dummyApp("public"), "private"))
 })
+
+test_that("deployHook executes function if set", {
+  expect_equal(
+    runDeploymentHook("PATH", "rsconnect.pre.deploy"),
+    NULL
+  )
+
+  withr::local_options(rsconnect.pre.deploy = function(path) path)
+  expect_equal(
+    runDeploymentHook("PATH", "rsconnect.pre.deploy"),
+    "PATH"
+  )
+  expect_snapshot(
+    . <- runDeploymentHook("PATH", "rsconnect.pre.deploy", verbose = TRUE)
+  )
+})

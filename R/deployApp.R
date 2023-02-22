@@ -236,13 +236,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # invoke pre-deploy hook if we have one
-  preDeploy <- getOption("rsconnect.pre.deploy")
-  if (is.function(preDeploy)) {
-    if (verbose) {
-      cat("Invoking pre-deploy hook rsconnect.pre.deploy\n")
-    }
-    preDeploy(appPath)
-  }
+  runDeploymentHook(appPath, "rsconnect.pre.deploy", verbose = verbose)
 
   appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
@@ -358,13 +352,7 @@ deployApp <- function(appDir = getwd(),
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
-    postDeploy <- getOption("rsconnect.post.deploy")
-    if (is.function(postDeploy)) {
-      if (verbose) {
-        cat("Invoking post-deploy hook rsconnect.post.deploy\n")
-      }
-      postDeploy(appPath)
-    }
+    runDeploymentHook(appPath, "rsconnect.post.deploy", verbose = verbose)
   }
 
   logger("Deployment log finished")
@@ -387,6 +375,21 @@ needsVisibilityChange <- function(server, application, appVisibility = NULL) {
     cur <- "public"
   }
   cur != appVisibility
+}
+
+runDeploymentHook <- function(appPath, option, verbose = FALSE) {
+  hook <- getOption(option)
+  if (!is.function(hook)) {
+    return()
+  }
+
+  name <- gsub("rsconnect.", "", option, fixed = TRUE)
+  name <- gsub(".", "-", name, fixed = TRUE)
+
+  if (verbose) {
+    cat("Invoking ", name, " hook ", option, "\n", sep = "")
+  }
+  hook(appPath)
 }
 
 
