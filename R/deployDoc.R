@@ -42,6 +42,7 @@ standardizeSingleDocDeployment <- function(path,
     reason = "to deploy individual R Markdown documents"
   )
   check_file(path, error_call = error_call, error_arg = error_arg)
+  path <- normalizePath(path)
 
   withStatus <- withStatus(quiet)
 
