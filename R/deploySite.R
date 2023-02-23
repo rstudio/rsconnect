@@ -81,9 +81,8 @@ deploySite <- function(siteDir = getwd(),
   }
 
   if (is.null(recordDir)) {
-    # recordDir should usually be an absolute path, but above we set the
-    # working directory to siteDir
-    recordDir <- if (file.exists("index.Rmd")) "index.Rmd" else "index.md"
+    name <- if (file.exists("index.Rmd")) "index.Rmd" else "index.md"
+    recordDir <- file.path(siteDir, name)
   }
 
   # deploy the site
