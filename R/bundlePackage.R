@@ -3,7 +3,8 @@ bundlePackages <- function(appDir,
                            hasParameters = FALSE,
                            documentsHavePython = FALSE,
                            quartoInfo = NULL,
-                           verbose = FALSE
+                           verbose = FALSE,
+                           error_call = caller_env()
                            ) {
   if (appMode %in% c("static", "tensorflow-saved-model")) {
     return(list())
@@ -23,86 +24,52 @@ bundlePackages <- function(appDir,
     documentsHavePython = documentsHavePython
   )
   deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
+  checkBundlePackages(deps, call = error_call)
 
-  packageMessages <- c()
-  errorMessages <- c()
-  packages <- list()
-
-  # construct package list from dependencies
-  for (i in seq_len(nrow(deps))) {
-    name <- deps[i, "Package"]
-
-    # get package info
-    info <- as.list(deps[i, c("Source", "Repository")])
-
-    # include github package info
-    info <- c(info, as.list(deps[i, grep("Github", colnames(deps), perl = TRUE, value = TRUE)]))
-
-    # get package description; note that we need to remove the
-    # packageDescription S3 class from the object or jsonlite will refuse to
-    # serialize it when building the manifest JSON
+  deps$description <- lapply(deps$Package, function(nm) {
+    # Remove packageDescription S3 class so jsonlite can serialize
     # TODO: should we get description from packrat/desc folder?
-    info$description <- suppressWarnings(unclass(utils::packageDescription(name)))
+    unclass(utils::packageDescription(nm))
+  })
 
-    # TODO(HW): should this code be removed? I don't see how it is ever reached
-    # if description is NA, application dependency may not be installed
-    if (is.na(info$description[1])) {
-      errorMessages <- c(
-        errorMessages,
-        paste0(
-          "Deployment depends on package \"", name, "\"",
-          "but it is not installed. Please resolve before continuing."
-        )
-      )
-      next
-    }
-
-    # validate package source (returns a message if there is a problem)
-    packageMessages <- c(packageMessages, validatePackageSource(deps[i, ]))
-
-    # good to go
-    packages[[name]] <- info
-  }
-
-  if (length(packageMessages)) {
-    # Advice to help resolve installed packages that are not available using the
-    # current set of configured repositories. Each package with a missing
-    # repository has already been printed (see snapshotDependencizes).
-    #
-    # This situation used to trigger an error (halting deployment), but was
-    # softened because:
-    #   * CRAN-archived packages are not visible to our available.packages
-    #     scanning.
-    #   * Source-installed packages may be available after a manual server-side
-    #     installation.
-    #
-    # That said, an incorrectly configured "repos" option is almost always the
-    # cause.
-    packageMessages <- c(
-      packageMessages,
-      paste0(
-        "Unable to determine the source location for some packages. ",
-        "Packages should be installed from a package repository like ",
-        "CRAN or a version control system. Check that ",
-        "options('repos') refers to a package repository containing ",
-        "the needed package versions."
-      )
-    )
-    warning(bullets(packageMessages), call. = FALSE, immediate. = TRUE)
-  }
-
-  if (length(errorMessages)) {
-    stop(bullets(errorMessages), call. = FALSE)
-  }
-
-  packages
+  # Connect prefers that packrat/packrat.lock file, but will use the manifest
+  # if needed. shinyapps.io only uses the manifest, and only supports Github
+  # remotes, not Bitbucket or Gitlab.
+  github_cols <- grep("Github", colnames(deps), perl = TRUE, value = TRUE)
+  packages <- deps[c("Source", "Repository", github_cols, "description")]
+  packages_list <- lapply(seq_len(nrow(packages)), function(i) {
+    as.list(packages[i, , drop = FALSE])
+  })
+  names(packages_list) <- deps$Package
+  packages_list
 }
 
-bullets <- function(x) {
-  bullets <- lapply(x, function(x) {
-    paste0(strwrap(x, initial = "* ", exdent = 2, width = 72), "\n", collapse = "")
-  })
-  paste0(bullets, "\n", collapse = "")
+checkBundlePackages <- function(deps, call = caller_env()) {
+  not_installed <- !vapply(deps$Package, is_installed, logical(1))
+  if (any(not_installed)) {
+    pkgs <- deps$Package[not_installed]
+    cli::cli_abort(
+      c(
+        "All packages used by the asset must be installed.",
+        x = "Missing packages: {.pkg {pkgs}}."
+      ),
+      call = call
+    )
+  }
+
+  unknown_source <- is.na(deps$Source)
+  if (any(unknown_source)) {
+    pkgs <- deps$Package[unknown_source]
+    cli::cli_warn(
+      c(
+        "Local packages must be installed from a supported source.",
+        x = "Unsupported packages: {.pkg {pkgs}}.",
+        i = "Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.",
+        i = "See {.fun rsconnect::appDependencies} for more details."
+      ),
+      call = call
+    )
+  }
 }
 
 ## check for extra dependencies uses
@@ -121,22 +88,6 @@ inferRPackageDependencies <- function(appMode,
     deps <- c(deps, "reticulate")
   }
   deps
-}
-
-validatePackageSource <- function(pkg) {
-  if (isSCMSource(pkg$Source)) {
-    return()
-  }
-
-  if (is.null(pkg$Repository) || is.na(pkg$Repository)) {
-    return(sprintf(
-      "May be unable to deploy package dependency '%s'; could not determine a repository URL for the source '%s'.",
-      pkg$Package,
-      pkg$Source
-    ))
-  }
-
-  return()
 }
 
 appUsesR <- function(quartoInfo) {

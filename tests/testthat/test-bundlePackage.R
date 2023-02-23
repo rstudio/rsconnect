@@ -30,7 +30,8 @@ test_that("errors if dependencies aren't installed", {
     data.frame(
       Package = c("doesntexist1", "doesntexist2"),
       Source = "CRAN",
-      Repository = "https://cran.rstudio.com"
+      Repository = "https://cran.rstudio.com",
+      stringsAsFactors = FALSE
     )
   })
 
@@ -52,8 +53,9 @@ test_that("warns if can't find source", {
   mockr::local_mock(snapshotRDependencies = function(...) {
     data.frame(
       Package = "shiny",
-      Source = "foo",
-      Repository = NA
+      Source = NA,
+      Repository = NA,
+      stringsAsFactors = FALSE
     )
   })
 
