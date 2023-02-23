@@ -505,12 +505,12 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
   }
 
   # Otherwise, see if there's an existing app with this name
-  apps <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  apps <- client$listApplications(accountInfo$accountId, filters = list(name = target$appName))
   if (length(apps) == 1) {
     # check that it's ok to to use it
     if (interactive() && !forceUpdate) {
       prompt <- paste0(
-        "Update application currently deployed at\n", app$url, "? [Y/n] "
+        "Update application currently deployed at\n", apps[[1]]$url, "? [Y/n] "
       )
       input <- readline(prompt)
       if (!input %in% c("y", "Y", ""))
