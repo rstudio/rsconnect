@@ -33,7 +33,7 @@
     Code
       inferRPackageDependencies("rmd-static", TRUE)
     Output
-      [1] "shiny"     "rmarkdown"
+      [1] "rmarkdown" "shiny"    
     Code
       inferRPackageDependencies("quarto-static")
     Output
