@@ -372,8 +372,3 @@ name.all.repos <- function(repos) {
   }, USE.NAMES = FALSE)
   repos
 }
-
-# get source packages from CRAN
-availableCRANSourcePackages <- function() {
-  available.packages("https://cran.rstudio.com/src/contrib", type = "source")
-}
