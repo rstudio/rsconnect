@@ -509,15 +509,20 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
   if (length(apps) == 1) {
     # check that it's ok to to use it
     if (interactive() && !forceUpdate) {
-      prompt <- paste0(
-        "There is a currently deployed app with name '", target$appName, "' at \n",
-        "<", apps[[1]]$url, ">\n",
-        "Do you want to update it? [Y/n] "
-      )
-      input <- readline(prompt)
+      cat("\n") # Escape from preparing to deploy line
+      cli::cli_inform(paste0(
+        "There is a currently deployed app with name {.str {target$appName}}",
+        " at {.url {apps[[1]]$url}}"
+      ))
+      input <- readline("Do you want to update it? [Y/n] ")
       if (input %in% c("y", "Y", "")) {
         return(apps[[1]])
       }
+
+      cli::cli_abort(c(
+        "Each item of content must have a unique {.arg appName}.",
+        i = "Set {.arg appName} to a new value."
+      ))
     }
   }
 
