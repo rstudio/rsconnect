@@ -397,56 +397,39 @@ findPackageRepoAndSource <- function(records, repos) {
 
   # Sources are created by packrat:
   # https://github.com/rstudio/packrat/blob/v0.9.0/R/pkg.R#L328
+  # if the package is in a named CRAN-like repository capture it
   tmp <- lapply(seq_len(nrow(records)), function(i) {
     pkg <- records[i, "Package"]
     source <- records[i, "Source"]
     repository <- NA
-    if (identical(source, "Bioconductor") && pkg %in% biocPackages) {
-      # installed from known Bioconductor repo
-      repository <- biocPackages[pkg, "Repository"]
-    } else if (source %in% c("github", "bitbucket", "gitlab")) {
-      # leave SCM packages alone.
-    } else if (source %in% c("CRAN", "CustomCRANLikeRepository")) {
-      if (!pkg %in% rownames(repo.packages)) {
-        # No record in available.packages(); so leave source/repository
-        # alone in the hope that its an archived package (#508)
-      } else {
-        repo_version <- package_version(repo.packages[pkg, "Version"])
-        local_version <- package_version(records[i, "Version"])
 
-        # If the name of a source-installed package matches a CRAN package,
-        # packrat automatically fills in the repository information. But that
-        # causes problems if you're working with a development version that's
-        # newer than CRAN.
-        if (local_version > repo_version) {
-          source <- NA
-        } else {
-          # Find this package in the set of available packages then use its
-          # contrib.url to map back to the configured repositories.
-          package.contrib <- repo.packages[pkg, "Repository"]
-          package.repo.index <- grepl(
-            repo.lookup$contrib.url,
-            package.contrib,
-            fixed = TRUE
-          )
-          package.repo <- repo.lookup[package.repo.index, ][1, ]
-          # If the incoming package comes from CRAN, keep the CRAN name in place
-          # even if that means using a different name than the repos list.
-          #
-          # The "cran" source is a well-known location for shinyapps.io.
-          #
-          # shinyapps.io isn't going to use the manifest-provided CRAN URL,
-          # but other consumers (Connect) will.
-          if (tolower(source) != "cran") {
-            source <- package.repo$name
-          }
-          repository <- package.repo$url
-        }
+    # capture Bioconcutor repository
+    if (identical(source, "Bioconductor")) {
+      if (pkg %in% biocPackages) {
+        repository <- biocPackages[pkg, "Repository"]
       }
-    } else {
-      # Unsupported source, like "source" (i.e. local install that doens't
-      # match name of CRAN package)
-      source <- NA
+    } else if (isSCMSource(source)) {
+      # leave source+SCM packages alone.
+    } else if (pkg %in% rownames(repo.packages)) {
+      # capture CRAN-like repository
+
+      # Find this package in the set of available packages then use its
+      # contrib.url to map back to the configured repositories.
+      package.contrib <- repo.packages[pkg, "Repository"]
+      package.repo.index <- vapply(repo.lookup$contrib.url,
+                                   function(url) grepl(url, package.contrib, fixed = TRUE), logical(1))
+      package.repo <- repo.lookup[package.repo.index, ][1, ]
+      # If the incoming package comes from CRAN, keep the CRAN name in place
+      # even if that means using a different name than the repos list.
+      #
+      # The "cran" source is a well-known location for shinyapps.io.
+      #
+      # shinyapps.io isn't going to use the manifest-provided CRAN URL,
+      # but other consumers (Connect) will.
+      if (tolower(source) != "cran") {
+        source <- package.repo$name
+      }
+      repository <- package.repo$url
     }
     # validatePackageSource will emit a warning for packages with NA repository.
     data.frame(Source = source, Repository = repository, stringsAsFactors = FALSE)

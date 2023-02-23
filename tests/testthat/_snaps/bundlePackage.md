@@ -7,15 +7,16 @@
       ! All packages used by the asset must be installed.
       x Missing packages: doesntexist1 and doesntexist2.
 
-# errors if can't find source
+# warns if can't find source
 
     Code
       . <- bundlePackages(app_dir, appMode = "rmd-static")
     Condition
-      Error:
-      ! Don't know how to install shiny package.
-      x Local packages must be installed from a supported source.
-      i See `rsconnect::appDependencies()` for details.
+      Warning:
+      Local packages must be installed from a supported source.
+      x Unsupported packages: shiny.
+      i Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.
+      i See `rsconnect::appDependencies()` for more details.
 
 # infers correct packages for each source
 

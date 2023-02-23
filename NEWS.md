@@ -1,10 +1,5 @@
 # rsconnect 0.8.30 (development version)
 
-* `deployApp()` now uses a stricter policy for determining whether or not
-  a local package can be successfully installed on the deployment server.
-  This means that you're more likely to get a clean failure prior to 
-  deployment (#659).
-
 * The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
   called with the content directory, not sometimes the path to a specific file
   (#696).
