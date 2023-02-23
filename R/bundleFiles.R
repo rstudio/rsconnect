@@ -52,46 +52,6 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
   lines
 }
 
-# given a list of mixed files and directories, explodes the directories
-# recursively into their constituent files, and returns just a list of files
-# with paths relative to `dir`
-explodeFiles <- function(dir, files) {
-  exploded <- character()
-
-  totalFiles <- 0
-  totalSize <- 0
-
-  for (f in files) {
-    target <- file.path(dir, f)
-    if (!file.exists(target)) {
-      # TODO: should we warn/error here since the user supplied this path?
-      # doesn't exist
-      next
-    } else if (dirExists(target)) {
-      # a directory; explode it
-      # TODO: this is potentially expensive if accidentally includes root dir.
-      contentPaths <- file.path(f, list.files(
-        target,
-        recursive = TRUE,
-        include.dirs = FALSE
-      ))
-
-      exploded <- c(exploded, contentPaths)
-      totalFiles <- totalFiles + length(contentPaths)
-      totalSize <- totalSize + sum(file_size(file.path(dir, contentPaths)))
-    } else {
-      # must be an ordinary file
-      exploded <- c(exploded, f)
-      totalFiles <- totalFiles + 1
-      totalSize <- totalSize + file_size(target)
-    }
-
-    enforceBundleLimits(dir, totalFiles, totalSize)
-  }
-
-  exploded
-}
-
 #' List Files to be Bundled
 #'
 #' @description
@@ -127,14 +87,25 @@ bundleFiles <- function(appDir) {
   listBundleFiles(appDir)$contents
 }
 
+explodeFiles <- function(dir, files) {
+  files <- files[file.exists(file.path(dir, files))]
+  recursiveBundleFiles(dir, contents = files, ignoreFiles = FALSE)$contents
+}
+
 recursiveBundleFiles <- function(dir,
+                                 contents = NULL,
                                  rootDir = dir,
                                  depth = 0,
                                  totalFiles = 0,
-                                 totalSize = 0) {
+                                 totalSize = 0,
+                                 ignoreFiles = TRUE) {
   # generate a list of files at this level
-  contents <- list.files(dir, all.files = TRUE, no.. = TRUE, include.dirs = TRUE)
-  contents <- ignoreBundleFiles(dir, contents, depth = depth)
+  if (is.null(contents)) {
+    contents <- list.files(dir, all.files = TRUE, no.. = TRUE)
+  }
+  if (ignoreFiles) {
+    contents <- ignoreBundleFiles(dir, contents, depth = depth)
+  }
 
   # Info for each file lets us know to recurse (directories) or aggregate (files).
   is_dir <- dir.exists(file.path(dir, contents))
@@ -148,7 +119,8 @@ recursiveBundleFiles <- function(dir,
         rootDir = rootDir,
         totalFiles = totalFiles,
         totalSize = totalSize,
-        depth = depth + 1
+        depth = depth + 1,
+        ignoreFiles = ignoreFiles
       )
 
       children <- append(children, file.path(name, out$contents))

@@ -155,6 +155,15 @@ test_that("expands files and directory", {
   expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
 })
 
+test_that("doesn't ignore user supplied files", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "x", "y"), recursive = TRUE)
+  file.create(file.path(dir, "x", "packrat"))
+  file.create(file.path(dir, "x", "y", "packrat"))
+
+  expect_equal(explodeFiles(dir, "x"), c("x/packrat", "x/y/packrat"))
+})
+
 # enforceBundleLimits -----------------------------------------------------
 
 test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
@@ -167,7 +176,7 @@ test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
   withr::local_options(rsconnect.max.bundle.files = 1)
 
   # there are 52 files total, so eagerly implies we stop after one directory
-  expect_error(explodeFiles(dir, c("a", "b")), "at least 26")
+  expect_error(explodeFiles(dir, c("a", "b")), "at least 2")
   expect_error(bundleFiles(dir), "at least 2")
 })
 
