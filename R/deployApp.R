@@ -505,18 +505,18 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
   }
 
   # Otherwise, see if there's an existing app with this name
-  apps <- client$listApplications(accountInfo$accountId, filters = list(name = target$appName))
-  if (length(apps) == 1) {
+  sameName <- getAppByName(client, accountInfo, target$appName)
+  if (!is.null(sameName)) {
     # check that it's ok to to use it
     if (interactive() && !forceUpdate) {
       cat("\n") # Escape from preparing to deploy line
       cli::cli_inform(paste0(
         "There is a currently deployed app with name {.str {target$appName}}",
-        " at {.url {apps[[1]]$url}}"
+        " at {.url {sameName$url}}"
       ))
       input <- readline("Do you want to update it? [Y/n] ")
       if (input %in% c("y", "Y", "")) {
-        return(apps[[1]])
+        return(sameName)
       }
 
       cli::cli_abort(c(
@@ -533,6 +533,12 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
     "shiny",
     accountInfo$accountId
   )
+}
+
+getAppByName <- function(client, accountInfo, name) {
+  # NOTE: returns a list with 0 or 1 elements
+  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(app)) app[[1]] else NULL
 }
 
 validURL <- function(url) {
