@@ -43,10 +43,10 @@
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @return A data frame with columns:
-#'   * `package`: package name.
-#'   * `version`: local version.
-#'   * `source`: where the package was installed from.
-#'   * `repository`: for CRAN and CRAN-like repositories, the url to the
+#'   * `Package`: package name.
+#'   * `Version`: local version.
+#'   * `Source`: where the package was installed from.
+#'   * `Repository`: for CRAN and CRAN-like repositories, the url to the
 #'      repo.
 #' @examples
 #' \dontrun{

@@ -18,10 +18,10 @@ See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 \value{
 A data frame with columns:
 \itemize{
-\item \code{package}: package name.
-\item \code{version}: local version.
-\item \code{source}: where the package was installed from.
-\item \code{repository}: for CRAN and CRAN-like repositories, the url to the
+\item \code{Package}: package name.
+\item \code{Version}: local version.
+\item \code{Source}: where the package was installed from.
+\item \code{Repository}: for CRAN and CRAN-like repositories, the url to the
 repo.
 }
 }
