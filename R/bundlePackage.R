@@ -109,36 +109,18 @@ bullets <- function(x) {
 inferRPackageDependencies <- function(appMode,
                                       hasParameters = FALSE,
                                       documentsHavePython = FALSE) {
-
-  deps <- c()
-  if (appMode == "rmd-static") {
-    if (hasParameters) {
-      # An Rmd with parameters needs shiny to run the customization app.
-      deps <- c(deps, "shiny")
-    }
-    deps <- c(deps, "rmarkdown")
-  }
-  if (appMode == "quarto-static") {
-    # Quarto documents need R when the knitr execution engine is used, not always.
-    deps <- c(deps, "rmarkdown")
-  }
-  if (appMode == "quarto-shiny") {
-    # Quarto Shiny documents are executed with rmarkdown::run
-    deps <- c(deps, "rmarkdown", "shiny")
-  }
-  if (appMode == "rmd-shiny") {
-    deps <- c(deps, "rmarkdown", "shiny")
-  }
-  if (appMode == "shiny") {
-    deps <- c(deps, "shiny")
-  }
-  if (appMode == "api") {
-    deps <- c(deps, "plumber")
-  }
+  deps <- switch(appMode,
+    "rmd-static" = c("rmarkdown", if (hasParameters) "shiny"),
+    "quarto-static" = "rmarkdown",
+    "quarto-shiny" = c("rmarkdown", "shiny"),
+    "rmd-shiny" = c("rmarkdown", "shiny"),
+    "shiny" = "shiny",
+    "api" = "plumber"
+  )
   if (documentsHavePython) {
     deps <- c(deps, "reticulate")
   }
-  unique(deps)
+  deps
 }
 
 validatePackageSource <- function(pkg) {
