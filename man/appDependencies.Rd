@@ -63,11 +63,6 @@ installed.
 You can overcome this problem with (e.g.) \code{requireNamespace(hexbin)}.
 This will tell rsconnect that your app needs the hexbin package, without
 otherwise affecting your code.
-
-Recursively detect all package dependencies for an application. This function
-parses all .R files in the application directory to determine what packages
-the application depends on; and for each of those packages what other
-packages they depend on.
 }
 
 \examples{
