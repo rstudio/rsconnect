@@ -510,13 +510,15 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
     # check that it's ok to to use it
     if (interactive() && !forceUpdate) {
       prompt <- paste0(
-        "Update application currently deployed at\n", apps[[1]]$url, "? [Y/n] "
+        "There is a currently deployed app with name '", target$appName, "' at \n",
+        "<", apps[[1]]$url, ">\n",
+        "Do you want to update it? [Y/n] "
       )
       input <- readline(prompt)
-      if (!input %in% c("y", "Y", ""))
-        stop("Application deployment cancelled", call. = FALSE)
+      if (input %in% c("y", "Y", "")) {
+        return(apps[[1]])
+      }
     }
-    return(apps[[1]])
   }
 
   # Otherwise, create a new app
