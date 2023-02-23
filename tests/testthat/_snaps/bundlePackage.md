@@ -18,6 +18,16 @@
       i Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.
       i See `rsconnect::appDependencies()` for more details.
 
+# clear error if can't run performPackratSnapshot()
+
+    Code
+      addPackratSnapshot("doesntexit")
+    Condition
+      Error in `addPackratSnapshot()`:
+      ! Failed to snapshot dependencies
+      Caused by error in `setwd()`:
+      ! cannot change working directory
+
 # infers correct packages for each source
 
     Code

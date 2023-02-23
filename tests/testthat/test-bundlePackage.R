@@ -71,6 +71,16 @@ test_that("warns if can't find source", {
   )
 })
 
+test_that("clear error if can't run performPackratSnapshot()", {
+  expect_snapshot(addPackratSnapshot("doesntexit"), error = TRUE)
+})
+
+test_that("cleans up implicit dependency files", {
+  dir <- withr::local_tempdir()
+  addPackratSnapshot(dir, "rlang")
+  expect_equal(list.files(dir), "packrat")
+})
+
 test_that("infers correct packages for each source", {
   # Simple regression test in preparation for refactoring
   expect_snapshot({
