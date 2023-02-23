@@ -470,15 +470,6 @@ getPythonForTarget <- function(path, accountDetails) {
   }
 }
 
-
-# get the record for the application of the given name in the given account, or
-# NULL if no application exists by that name
-getAppByName <- function(client, accountInfo, name) {
-  # NOTE: returns a list with 0 or 1 elements
-  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
-  if (length(app)) app[[1]] else NULL
-}
-
 # get the record for the application with the given ID in the given account;
 # this isn't used inside the package itself but is invoked from the RStudio IDE
 # to look up app details
@@ -508,34 +499,33 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
 }
 
 applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-
-  if (is.null(target$appId)) {
-    # list the existing applications for this account and see if we
-    # need to create a new application
-    app <- getAppByName(client, accountInfo, target$appName)
-  } else {
-    # we already know the app's id, so just retrieve the rest of the metadata
-    app <- client$getApplication(target$appId)
+  # Use appId from previous deployment
+  if (!is.null(target$appId)) {
+    return(client$getApplication(target$appId))
   }
 
-  # if there is no record of deploying this application locally however there
-  # is an application of that name already deployed then confirm
-  if (!is.null(target$appId) && !is.null(app) && interactive() && !forceUpdate) {
-    prompt <- paste("Update application currently deployed at\n", app$url,
-                    "? [Y/n] ", sep = "")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
-      stop("Application deployment cancelled", call. = FALSE)
+  # Otherwise, see if there's an existing app with this name
+  apps <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(apps) == 1) {
+    # check that it's ok to to use it
+    if (interactive() && !forceUpdate) {
+      prompt <- paste0(
+        "Update application currently deployed at\n", app$url, "? [Y/n] "
+      )
+      input <- readline(prompt)
+      if (!input %in% c("y", "Y", ""))
+        stop("Application deployment cancelled", call. = FALSE)
+    }
+    return(apps[[1]])
   }
 
-  # create the application if we need to
-  if (is.null(app)) {
-    app <- client$createApplication(target$appName, target$appTitle, "shiny",
-                                    accountInfo$accountId)
-  }
-
-  # return the application
-  app
+  # Otherwise, create a new app
+  client$createApplication(
+    target$appName,
+    target$appTitle,
+    "shiny",
+    accountInfo$accountId
+  )
 }
 
 validURL <- function(url) {
