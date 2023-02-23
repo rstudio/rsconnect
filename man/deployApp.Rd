@@ -35,15 +35,14 @@ deployApp(
 \item{appDir}{Directory containing application. Defaults to current working
 directory.}
 
-\item{appFiles}{The files and directories to bundle and deploy (only if
-\code{upload = TRUE}). Can be \code{NULL}, in which case all the files in the
-directory containing the application are bundled, with the exception of
-any listed in an \code{.rscignore} file. Takes precedence over
-\code{appFileManifest} if both are supplied.}
+\item{appFiles}{A character vector given relative paths to the files and
+directories to bundle and deploy. The default, \code{NULL}, will include all
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
+See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 
-\item{appFileManifest}{An alternate way to specify the files to be deployed;
-a file containing the names of the files, one per line, relative to the
-\code{appDir}.}
+\item{appFileManifest}{An alternate way to specify the files to be deployed.
+Should be a path to a file that contains the names of the files and
+directories to deploy, one per line, relative to \code{appDir}.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be
@@ -82,8 +81,11 @@ the local system prior to deployment. If \code{FALSE} then it is re-deployed
 using the last version that was uploaded. \code{FALSE} is only supported on
 shinyapps.io; \code{TRUE} is required on Posit Connect.}
 
-\item{recordDir}{Directory where publish record is written. Can be \code{NULL}
-in which case record will be written to the location specified with \code{appDir}.}
+\item{recordDir}{Directory where deployment record is written. The default,
+\code{NULL}, uses \code{appDir}, since this is usually where you want the deployment
+data to be stored. This argument is typically only needed when deploying
+a directory of static files since you want to store the record with the
+code that generated those files, not the files themselves.}
 
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in
@@ -123,7 +125,8 @@ is \code{TRUE}.}
 content. The provided Quarto binary will be used to run \verb{quarto inspect}
 to gather information about the content.}
 
-\item{appVisibility}{One of \code{NULL}, "private"\verb{, or }"public"\verb{; the visibility of the deployment. When }NULL`, no change to visibility is
+\item{appVisibility}{One of \code{NULL}, \code{"private"}, or \code{"public"}; the
+visibility of the deployment. When \code{NULL}, no change to visibility is
 made. Currently has an effect only on deployments to shinyapps.io.}
 
 \item{image}{Optional. The name of the image to use when building and

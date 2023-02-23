@@ -41,8 +41,7 @@
 #' }
 #' @export
 servers <- function(local = FALSE) {
-  configFiles <- list.files(serverConfigDir(), pattern = glob2rx("*.dcf"),
-                            full.names = TRUE)
+  configFiles <- serverConfigFiles()
   parsed <- lapply(configFiles, function(file) {
     info <- read.dcf(file)
 
@@ -59,33 +58,26 @@ servers <- function(local = FALSE) {
     info
   })
   locals <- do.call(rbind, parsed)
+  locals <- as.data.frame(locals, stringsAsFactors = FALSE)
   if (local) {
-    locals
+    out <- locals
   } else {
-    serversList <- rbind(
+    out <- rbind(
       locals,
       as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
       as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
 
     # RStudio IDE requires a server whose name matches the server name on
     # previously configured accounts. Prevent breakage for pre-rebrand users.
-    if (!is.null(rsconnect::accounts(server = "rstudio.cloud"))) {
-      serversList <- rbind(
-        serversList,
+    if (nrow(accounts(server = "rstudio.cloud")) > 0) {
+      out <- rbind(
+        out,
         as.data.frame(cloudServerInfo("rstudio.cloud"), stringsAsFactors = FALSE)
       )
     }
-    serversList
   }
-}
-
-serverConfigDir <- function() {
-  rsconnectConfigDir("servers")
-}
-
-serverConfigFile <- function(name) {
-  normalizePath(file.path(serverConfigDir(), paste(name, ".dcf", sep = "")),
-                mustWork = FALSE)
+  out$certificate <- secret(out$certificate)
+  out
 }
 
 shinyappsServerInfo <- function() {
@@ -168,8 +160,8 @@ addConnectServer <- function(url, name = NULL, certificate = NULL,
 #' @rdname servers
 #' @export
 addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
-  if (!isStringParam(url))
-    stop(stringParamErrorMessage("url"))
+  check_string(url)
+  check_name(name, allow_null = TRUE)
 
   serverUrl <- parseHttpUrl(url)
 
@@ -222,8 +214,8 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
 #' @rdname servers
 #' @export
 removeServer <- function(name) {
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
+  check_string(name)
+
   configFile <- serverConfigFile(name)
   if (file.exists(configFile))
     unlink(configFile)
@@ -235,8 +227,7 @@ removeServer <- function(name) {
 #' @rdname servers
 #' @export
 serverInfo <- function(name) {
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
+  check_string(name)
 
   # there's no config file for Posit's hosted offerings
   if (identical(name, "shinyapps.io")) {
@@ -294,12 +285,14 @@ clientForAccount <- function(account) {
   }
 }
 
+# Return a URL that can be concatenated with sub-paths like /content
 ensureConnectServerUrl <- function(url) {
+  # strip trailing /
+  url <- gsub("/$", "", url)
+
   # ensure 'url' ends with '/__api__'
   if (!grepl("/__api__$", url))
     url <- paste(url, "/__api__", sep = "")
 
-  # if we have duplicated leading slashes, remove them
-  url <- gsub("(/+__api__)$", "/__api__", url)
   url
 }

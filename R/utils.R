@@ -1,5 +1,3 @@
-.globals <- new.env(parent = emptyenv())
-
 # Returns a logging function when enabled, a noop function otherwise.
 verboseLogger <- function(verbose) {
   if (verbose) {
@@ -10,14 +8,6 @@ verboseLogger <- function(verbose) {
   } else {
     function(...) {}
   }
-}
-
-isStringParam <- function(param) {
-  is.character(param) && (length(param) == 1)
-}
-
-stringParamErrorMessage <- function(param) {
-  paste(param, "must be a single element character vector")
 }
 
 regexExtract <- function(re, input) {
@@ -121,60 +111,6 @@ hr <- function(message = "", n = 80) {
   }
 }
 
-# this function was defined in the shiny package; in the unlikely event that
-# shiny:::checkEncoding() is not available, use a simplified version here
-checkEncoding2 <- function(file) {
-  tryCatch(
-    getFromNamespace("checkEncoding", "shiny")(file),
-    error = function(e) {
-      if (.Platform$OS.type != "windows") return("UTF-8")
-      x <- readLines(file, encoding = "UTF-8", warn = FALSE)
-      isUTF8 <- !any(is.na(iconv(x, "UTF-8")))
-      if (isUTF8) "UTF-8" else getOption("encoding")
-    }
-  )
-}
-
-# if shiny:::checkEncoding() gives UTF-8, use it, otherwise first consider
-# the RStudio project encoding, and eventually getOption("encoding")
-checkEncoding <- function(file) {
-  enc1 <- .globals$encoding
-  enc2 <- checkEncoding2(file)
-  if (enc2 == "UTF-8") return(enc2)
-  if (length(enc1)) enc1 else enc2
-}
-
-# read the Encoding field from the *.Rproj file
-rstudioEncoding <- function(dir) {
-  proj <- list.files(dir, "[.]Rproj$", full.names = TRUE)
-  if (length(proj) != 1L) return()  # there should be one and only one .Rproj
-  enc <- drop(readDcf(proj, "Encoding"))
-  enc[!is.na(enc)]
-}
-
-# return the leaf from a path (e.g. /foo/abc/def -> def)
-fileLeaf <- function(path) {
-  components <- strsplit(path, "/")
-  unlist(lapply(components, function(component) {
-    component[length(component)]
-  }))
-}
-
-# whether the given path points to an individual piece of content
-isDocumentPath <- function(path) {
-  ext <- tolower(tools::file_ext(path))
-  !is.null(ext) && ext != ""
-}
-
-# given a path, return the directory under which rsconnect package state is
-# stored
-rsconnectRootPath <- function(appPath) {
-  if (isDocumentPath(appPath))
-    file.path(dirname(appPath), "rsconnect", "documents", basename(appPath))
-  else
-    file.path(appPath, "rsconnect")
-}
-
 dirExists <- function(x) {
   utils::file_test("-d", x)
 }
@@ -239,4 +175,41 @@ md5.as.string <- function(md5) {
 # Similar to rex::escape
 escapeRegex <- function(name) {
   gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", name, perl = TRUE)
+}
+
+check_file <- function(x,
+                            error_arg = caller_arg(x),
+                            error_call = caller_env()) {
+
+  check_string(
+    x,
+    allow_empty = FALSE,
+    error_arg = error_arg,
+    error_call = error_call
+  )
+  if (!file.exists(x)) {
+    cli::cli_abort(
+      "{.arg {error_arg}}, {.str {x}}, does not exist.",
+      call = error_call
+    )
+  }
+}
+
+check_directory <- function(x,
+                            error_arg = caller_arg(x),
+                            error_call = caller_env()) {
+
+  check_file(x, error_arg = error_arg, error_call = error_call)
+  if (!dirExists(x)) {
+    cli::cli_abort(
+      "{.arg {error_arg}}, {.str {x}}, is not a directory.",
+      call = error_call
+    )
+  }
+}
+
+file_size <- function(path) {
+  x <- file.info(path)$size
+  x[is.na(x)] <- 0
+  x
 }

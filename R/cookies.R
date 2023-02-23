@@ -195,3 +195,14 @@ getCookieHost <- function(requestURL) {
   }
   host
 }
+
+showCookies <- function(urlstr) {
+  url <- parseHttpUrl(urlstr)
+  cat("Cookies:", "\n")
+  host <- getCookieHost(url)
+  if (exists(host, .cookieStore)) {
+    print(get(host, envir = .cookieStore))
+  } else {
+    print("None")
+  }
+}

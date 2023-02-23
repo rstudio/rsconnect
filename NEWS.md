@@ -5,6 +5,30 @@
   This means that you're more likely to get a clean failure prior to 
   deployment (#659).
 
+* The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
+  called with the content directory, not sometimes the path to a specific file
+  (#696).
+
+* `showMetrics()` once again returns a correctly named data frame (#528).
+
+* `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
+  files (i.e. as documented) (#568). 
+
+* `listBundleFiles()` now errors when if the bundle is either too large 
+  or contains too many files, rather than silently truncating as previously 
+  (#684).
+
+* `applications()` now returns the application title, if available (#484).
+
+* `addConnectServer()` is slightly more robust to incorrect specification 
+  (#603).
+
+* `accounts()` now returns a zero-row data frame if no accounts registered.
+
+* `accountInfo()` and `servers()` now redacts sensitive information (secrets,
+  private keys, and certificates) to make it hard to accidentally reveal
+  such information in logs (#675).
+
 * The logic used by `deployApp()` for determining whether you publish a 
   new update or update an existing app has been simplified. Now `appName`,
   `account`, and `server` are used to find existing deployments. If none

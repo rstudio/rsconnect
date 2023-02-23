@@ -29,10 +29,7 @@ deployDoc <- function(doc, ...) {
     reason = "to deploy individual R Markdown documents"
   )
 
-  # validate inputs
-  if (!file.exists(doc)) {
-    stop("The document '", doc, "' does not exist.")
-  }
+  check_file(doc)
 
   # get qualified doc
   qualified_doc <- normalizePath(doc, winslash = "/")

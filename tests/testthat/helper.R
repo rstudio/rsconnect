@@ -3,10 +3,17 @@
 httpLastRequest <- list()
 
 # HTTP function which just saves the result for analysis
-httpTestRecorder <- function(protocol, host, port, method, path, headers,
-                             contentType = NULL, file = NULL, certificate = NULL,
-                             writer = NULL, timeout = NULL)
-{
+httpTestRecorder <- function(protocol,
+                             host,
+                             port,
+                             method,
+                             path,
+                             headers,
+                             contentType = NULL,
+                             file = NULL,
+                             certificate = NULL,
+                             writer = NULL,
+                             timeout = NULL) {
   httpLastRequest <<- list(
     protocol = protocol,
     host = host,
@@ -22,39 +29,32 @@ httpTestRecorder <- function(protocol, host, port, method, path, headers,
   )
 }
 
+local_http_recorder <- function(env = caller_env()) {
+  withr::local_options(rsconnect.http = httpTestRecorder, .local_envir = env)
+}
+
 # Create and use a directory as temporary replacement for R_USER_CONFIG_DIR to
 # avoid having tests overwrite the "official" configuration locations.
-#
-# test_that("some test", {
-#   havingFakeConfig({
-#     take_some_action(...)
-#     expect_something(...)
-#   })
-# })
-#
-# This function is similar in purpose to the run_tests function in
-# ../testthat.R, but uses per-test replacement location rather than a single
-# replacement location across all tests.
-#
-# Use this function when test state needs to be isolated from other tests.
-havingFakeConfig <- function(expr) {
-  # Calculate and create temporary state location
-  temp_config_dir <- tempfile("config-")
-  dir.create(temp_config_dir)
-
-  # Preserve incoming state
-  config <- Sys.getenv("R_USER_CONFIG_DIR")
+local_temp_config <- function(env = caller_env()) {
+  path <- withr::local_tempdir(.local_envir = env)
+  withr::local_envvar(R_USER_CONFIG_DIR = path, .local_envir = env)
+}
 
 
-  # Restore incoming state and remove temporary location on exit.
-  on.exit({
-    Sys.setenv(R_USER_CONFIG_DIR = config)
+quartoPathOrSkip <- function() {
+  skip_on_cran()
+  quarto <- quarto_path()
+  skip_if(is.null(quarto), "quarto cli is not installed")
+  return(quarto)
+}
 
-    unlink(temp_config_dir, recursive = TRUE)
-  }, add = TRUE)
+local_temp_app <- function(files = list(), env = caller_env()) {
+  dir <- withr::local_tempdir(.local_envir = env)
 
-  # Use temporary state while testing to avoid manipulating the actual state.
-  Sys.setenv(R_USER_CONFIG_DIR = temp_config_dir)
+  for (name in names(files)) {
+    content <- files[[name]]
+    writeLines(content, file.path(dir, name))
+  }
 
-  eval(expr)
+  dir
 }

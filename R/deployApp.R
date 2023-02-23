@@ -20,14 +20,13 @@
 #'
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
-#' @param appFiles The files and directories to bundle and deploy (only if
-#'   `upload = TRUE`). Can be `NULL`, in which case all the files in the
-#'   directory containing the application are bundled, with the exception of
-#'   any listed in an `.rscignore` file. Takes precedence over
-#'   `appFileManifest` if both are supplied.
-#' @param appFileManifest An alternate way to specify the files to be deployed;
-#'   a file containing the names of the files, one per line, relative to the
-#'   `appDir`.
+#' @param appFiles A character vector given relative paths to the files and
+#'   directories to bundle and deploy. The default, `NULL`, will include all
+#'   files in `appDir`, apart from any listed in an `.rscignore` file.
+#'   See [listBundleFiles()] for more details.
+#' @param appFileManifest An alternate way to specify the files to be deployed.
+#'   Should be a path to a file that contains the names of the files and
+#'   directories to deploy, one per line, relative to `appDir`.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
@@ -57,8 +56,11 @@
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
 #'   shinyapps.io; `TRUE` is required on Posit Connect.
-#' @param recordDir Directory where publish record is written. Can be `NULL`
-#'   in which case record will be written to the location specified with `appDir`.
+#' @param recordDir Directory where deployment record is written. The default,
+#'   `NULL`, uses `appDir`, since this is usually where you want the deployment
+#'   data to be stored. This argument is typically only needed when deploying
+#'   a directory of static files since you want to store the record with the
+#'   code that generated those files, not the files themselves.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called
@@ -88,7 +90,7 @@
 #' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
 #'   content. The provided Quarto binary will be used to run `quarto inspect`
 #'   to gather information about the content.
-#' @param appVisibility One of `NULL`, "private"`, or `"public"`; the
+#' @param appVisibility One of `NULL`, `"private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
 #' @param image Optional. The name of the image to use when building and
@@ -152,13 +154,16 @@ deployApp <- function(appDir = getwd(),
 
   condaMode <- FALSE
 
-  if (!isStringParam(appDir))
-    stop(stringParamErrorMessage("appDir"))
+  check_directory(appDir)
+  check_string(appName, allow_null = TRUE)
 
-  # respect log level
+  # set up logging helpers
   logLevel <- match.arg(logLevel)
   quiet <- identical(logLevel, "quiet")
   verbose <- identical(logLevel, "verbose")
+  logger <- verboseLogger(verbose)
+  displayStatus <- displayStatus(quiet)
+  withStatus <- withStatus(quiet)
 
   # run startup scripts to pick up any user options and establish pre/post deploy hooks
   runStartupScripts(appDir, logLevel)
@@ -185,13 +190,13 @@ deployApp <- function(appDir = getwd(),
     on.exit(options(old_error), add = TRUE)
   }
 
-  # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir)) {
-    stop(appDir, " does not exist")
-  }
+  # normalize appDir path
+  appDir <- normalizePath(appDir)
 
   # create the full path that we'll deploy (append document if requested)
+  # TODO(HW): we use appPrimaryDoc here, but we have not inferred it yet
+  # so the appPath will different deneding on whether it's explicitly
+  # supplied or inferred from the files in the directory.
   appPath <- appDir
   if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
     appPath <- appSourceDoc
@@ -206,7 +211,7 @@ deployApp <- function(appDir = getwd(),
   # a single document in this case (this will call back to deployApp with a list
   # of supporting documents)
   rmdFile <- ""
-  if (!file.info(appDir)$isdir) {
+  if (!dirExists(appDir)) {
     if (grepl("\\.[Rq]md$", appDir, ignore.case = TRUE) ||
         grepl("\\.html?$", appDir, ignore.case = TRUE)) {
       return(deployDoc(appDir, appName = appName, appTitle = appTitle,
@@ -223,212 +228,73 @@ deployApp <- function(appDir = getwd(),
   if (is.null(recordDir)) {
     recordDir <- appPath
   } else {
-    if (!file.exists(recordDir)) {
-      stop(recordDir, " does not exist")
-    }
-    if (!file.info(recordDir)$isdir) {
-      stop(recordDir, " must be a directory")
-    }
+    check_directory(recordDir)
   }
 
   # at verbose log level, generate header
   if (verbose) {
-    cat("----- Deployment log started at ", as.character(Sys.time()), " -----\n")
+    logger("Deployment log started")
     cat("Deploy command:", "\n", deparse(sys.call(1)), "\n\n")
     cat("Session information: \n")
     print(utils::sessionInfo())
   }
 
   # invoke pre-deploy hook if we have one
-  preDeploy <- getOption("rsconnect.pre.deploy")
-  if (is.function(preDeploy)) {
-    if (verbose) {
-      cat("Invoking pre-deploy hook rsconnect.pre.deploy\n")
-    }
-    preDeploy(appPath)
-  }
+  runDeploymentHook(appDir, "rsconnect.pre.deploy", verbose = verbose)
 
-  # figure out what kind of thing we're deploying
-  if (!is.null(contentCategory)) {
-    assetTypeName <- contentCategory
-  } else if (!is.null(appPrimaryDoc)) {
-    assetTypeName <- "document"
-  } else {
-    assetTypeName <- "application"
-  }
-
-  # build the list of files to deploy -- implicitly (directory contents),
-  # explicitly via list, or explicitly via manifest
-  if (is.null(appFiles)) {
-    if (is.null(appFileManifest)) {
-      # no files supplied at all, just bundle the whole directory
-      appFiles <- bundleFiles(appDir)
-    } else {
-      # manifest file provided, read it and apply
-      if (!isStringParam(appFileManifest))
-        stop(stringParamErrorMessage("appFileManifest"))
-      if (!file.exists(appFileManifest))
-        stop(appFileManifest, " was specified as a file manifest, but does ",
-             "not exist.")
-
-      # read the filenames from the file
-      manifestLines <- readLines(appFileManifest, warn = FALSE)
-
-      # remove empty/comment lines and explode remaining
-      manifestLines <- manifestLines[nzchar(manifestLines)]
-      manifestLines <- manifestLines[!grepl("^#", manifestLines)]
-      appFiles <- explodeFiles(appDir, manifestLines)
-    }
-  } else {
-    # file list provided directly
-    appFiles <- explodeFiles(appDir, appFiles)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
-
-    if (hasLint(lintResults)) {
-
-      if (interactive()) {
-        # if enabled, show warnings in friendly marker tab in addition to
-        # printing to console
-        if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
-            rstudioapi::hasFun("sourceMarkers"))
-        {
-          showRstudioSourceMarkers(appDir, lintResults)
-        }
-        message("The following potential problems were identified in the project files:\n")
-        printLinterResults(lintResults)
-        response <- readline("Do you want to proceed with deployment? [y/N]: ")
-        if (tolower(substring(response, 1, 1)) != "y") {
-          message("Cancelling deployment.")
-          return(invisible(lintResults))
-        }
-      } else {
-        message("The linter has identified potential problems in the project:\n")
-        printLinterResults(lintResults)
-#         message(
-#           "\nIf you believe these errors are spurious, run:\n\n",
-#           "\tdeployApp(lint = FALSE)\n\n",
-#           "to disable linting."
-#         )
-        message("If your ", assetTypeName, " fails to run post-deployment, ",
-                "please double-check these messages.")
-      }
-
-    }
-
+    showLintResults(appDir, lintResults)
   }
-
-  if (!is.null(appName) && !isStringParam(appName))
-    stop(stringParamErrorMessage("appName"))
-
-  # try to detect encoding from the RStudio project file
-  .globals$encoding <- rstudioEncoding(appDir)
-  on.exit(.globals$encoding <- NULL, add = TRUE)
-
-  # functions to show status (respects quiet param)
-  displayStatus <- displayStatus(quiet)
-  withStatus <- withStatus(quiet)
-
-  # initialize connect client
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
-  # TODO(HW): I'm pretty sure target$server is already the correctvalue
-  accountDetails <- accountInfo(target$account, target$server)
+  target <- deploymentTarget(recordDir, appName, appTitle, appId, account, server)
 
   # test for compatibility between account type and publish intent
-  if (isCloudServer(accountDetails$server)) {
-    # Publishing an API to shinyapps.io will not currently end well
-    if (isShinyappsServer(accountDetails$server)) {
-      if (identical(contentCategory, "api")) {
-        stop("Plumber APIs are not currently supported on shinyapps.io; they ",
-             "can only be published to Posit Connect or Posit Cloud.")
-      }
-    }
-  } else {
-    if (identical(upload, FALSE)) {
-      # it is not possible to deploy to Connect without uploading
-      stop("Posit Connect does not support deploying without uploading. ",
-           "Specify upload=TRUE to upload and re-deploy your application.")
-    }
+  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+    # it is not possible to deploy to Connect without uploading
+    stop("Posit Connect does not support deploying without uploading. ",
+         "Specify upload=TRUE to upload and re-deploy your application.")
   }
 
+  accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
   if (verbose) {
-    urlstr <- serverInfo(accountDetails$server)$url
-    url <- parseHttpUrl(urlstr)
-    cat("Cookies:", "\n")
-    host <- getCookieHost(url)
-    if (exists(host, .cookieStore)) {
-      print(get(host, envir = .cookieStore))
-    } else {
-      print("None")
-    }
+    showCookies(serverInfo(accountDetails$server)$url)
   }
 
   # get the application to deploy (creates a new app on demand)
-  withStatus(paste0("Preparing to deploy ", assetTypeName), {
+  withStatus("Preparing to deploy", {
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
   })
 
-  if (isCloudServer(accountDetails$server) && !is.null(appVisibility)) {
-    # Shinyapps defaults to public visibility.
-    # Other values should be set before data is deployed.
-    currentVisibility <- application$deployment$properties$application.visibility
-    if (is.null(currentVisibility)) {
-      currentVisibility <- "public"
-    }
-
-    if (!identical(appVisibility, currentVisibility)) {
-      withStatus(paste0("Setting visibility to ", appVisibility), {
-        client$setApplicationProperty(application$id,
-                                   "application.visibility",
-                                   appVisibility)
-      })
-    }
+  # Change _visibility_ before uploading data
+  if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
+    withStatus(paste0("Setting visibility to ", appVisibility), {
+      client$setApplicationProperty(
+        application$id,
+        "application.visibility",
+        appVisibility
+      )
+    })
   }
-
-  logger <- verboseLogger(verbose)
 
   if (upload) {
     # create, and upload the bundle
-    if (verbose)
-      cat("----- Bundle upload started at ", as.character(Sys.time()), " -----\n")
-    withStatus(paste0("Uploading bundle for ", assetTypeName, ": ",
-                     application$id), {
+    logger("Bundle upload started")
+    withStatus(paste0("Uploading bundle (", application$id, ")"), {
 
       # python is enabled on Connect but not on Shinyapps
       python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, assetTypeName, contentCategory, verbose, python,
+                              appPrimaryDoc, contentCategory, verbose, python,
                               condaMode, forceGeneratePythonEnvironment, quarto,
                               isCloudServer(accountDetails$server), metadata, image)
 
       if (isCloudServer(accountDetails$server)) {
-
-        # Step 1. Create presigned URL and register pending bundle.
-        bundleSize <- file.info(bundlePath)$size
-
-        # Generate a hex-encoded md5 hash.
-        checksum <- fileMD5.as.string(bundlePath)
-        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checksum)
-
-        logger("Starting upload now")
-        # Step 2. Upload Bundle to presigned URL
-        if (!uploadBundle(bundle, bundleSize, bundlePath)) {
-          stop("Could not upload file.")
-        }
-        logger("Upload complete")
-
-        # Step 3. Upload revise bundle status.
-        response <- client$updateBundleStatus(bundle$id, status = "ready")
-
-        # Step 4. Retrieve updated bundle post status change - which is required in subsequent
-        # areas of the code below.
-        bundle <- client$getBundle(bundle$id)
-
+        bundle <- uploadCloudBundle(client, application$id, bundlePath)
       } else {
         bundle <- client$uploadApplication(application$id, bundlePath)
       }
@@ -462,12 +328,11 @@ deployApp <- function(appDir = getwd(),
 
   if (length(bundle$id) > 0 && nzchar(bundle$id)) {
     displayStatus(paste0("Deploying bundle: ", bundle$id,
-                         " for ", assetTypeName, ": ", application$id,
+                         " (", application$id, ")",
                          " ...\n", sep = ""))
   }
-  if (verbose) {
-    cat("----- Server deployment started at ", as.character(Sys.time()), " -----\n")
-  }
+
+  logger("Server deployment started")
 
   # wait for the deployment to complete (will raise an error if it can't)
   task <- client$deployApplication(application$id, bundle$id)
@@ -479,12 +344,10 @@ deployApp <- function(appDir = getwd(),
   Sys.sleep(0.10)
 
   deploymentSucceeded <- if (is.null(response$code) || response$code == 0) {
-    displayStatus(paste0(capitalize(assetTypeName), " successfully deployed ",
-                         "to ", application$url, "\n"))
+    displayStatus(paste0("Successfully deployed to ", application$url, "\n"))
     TRUE
   } else {
-    displayStatus(paste0(capitalize(assetTypeName), " deployment failed ",
-                         "with error: ", response$error, "\n"))
+    displayStatus(paste0("Deployment failed with error: ", response$error, "\n"))
     FALSE
   }
 
@@ -493,20 +356,41 @@ deployApp <- function(appDir = getwd(),
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
-    postDeploy <- getOption("rsconnect.post.deploy")
-    if (is.function(postDeploy)) {
-      if (verbose) {
-        cat("Invoking post-deploy hook rsconnect.post.deploy\n")
-      }
-      postDeploy(appPath)
-    }
+    runDeploymentHook(appDir, "rsconnect.post.deploy", verbose = verbose)
+  }
+
+  logger("Deployment log finished")
+
+  invisible(deploymentSucceeded)
+}
+
+# Shinyapps defaults to public visibility.
+# Other values should be set before data is deployed.
+needsVisibilityChange <- function(server, application, appVisibility = NULL) {
+  if (!isCloudServer(server)) {
+    return(FALSE)
+  }
+  if (is.null(appVisibility)) {
+    return(FALSE)
+  }
+
+  cur <- application$deployment$properties$application.visibility
+  if (is.null(cur)) {
+    cur <- "public"
+  }
+  cur != appVisibility
+}
+
+runDeploymentHook <- function(appDir, option, verbose = FALSE) {
+  hook <- getOption(option)
+  if (!is.function(hook)) {
+    return()
   }
 
   if (verbose) {
-    cat("----- Deployment log finished at ", as.character(Sys.time()), " -----\n")
+    cat("Invoking `", option, "` hook\n", sep = "")
   }
-
-  invisible(deploymentSucceeded)
+  hook(appDir)
 }
 
 
@@ -514,43 +398,26 @@ deployApp <- function(appDir = getwd(),
 # deployApp() instead of being exposed to the user. Returns the path to the
 # bundle directory, whereas writeManifest() returns nothing and deletes the
 # bundle directory after writing the manifest.
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
+bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc,
                       contentCategory, verbose = FALSE, python = NULL,
                       condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
                       isCloudServer = FALSE, metadata = list(), image = NULL) {
   logger <- verboseLogger(verbose)
 
-  quartoInfo <- inferQuartoInfo(
+  logger("Inferring App mode and parameters")
+  appMetadata <- appMetadata(
     appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
     appFiles = appFiles,
+    appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
+    contentCategory = contentCategory,
+    isCloudServer = isCloudServer,
     metadata = metadata
   )
 
-  logger("Inferring App mode and parameters")
-  appMode <- inferAppMode(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      files = appFiles,
-      quartoInfo = quartoInfo,
-      isCloudServer = isCloudServer)
-  appPrimaryDoc <- inferAppPrimaryDoc(
-      appPrimaryDoc = appPrimaryDoc,
-      appFiles = appFiles,
-      appMode = appMode)
-  hasParameters <- appHasParameters(
-      appDir = appDir,
-      appPrimaryDoc = appPrimaryDoc,
-      appMode = appMode,
-      contentCategory = contentCategory)
-  documentsHavePython <- detectPythonInDocuments(
-      appDir = appDir,
-      files = appFiles)
-
   # get application users (for non-document deployments)
   users <- NULL
-  if (is.null(appPrimaryDoc)) {
+  if (is.null(appMetadata$appPrimaryDoc)) {
     users <- suppressWarnings(authorizedUsers(appDir))
   }
 
@@ -559,25 +426,24 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc, assetTypeName,
   bundleDir <- bundleAppDir(
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc)
+      appPrimaryDoc = appMetadata$appPrimaryDoc)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
   manifest <- createAppManifest(
       appDir = bundleDir,
-      appMode = appMode,
+      appMode = appMetadata$appMode,
       contentCategory = contentCategory,
-      hasParameters = hasParameters,
-      appPrimaryDoc = appPrimaryDoc,
-      assetTypeName = assetTypeName,
+      hasParameters = appMetadata$hasParameters,
+      appPrimaryDoc = appMetadata$appPrimaryDoc,
       users = users,
       condaMode = condaMode,
       forceGenerate = forceGenerate,
       python = python,
-      documentsHavePython = documentsHavePython,
+      documentsHavePython = appMetadata$documentsHavePython,
       retainPackratDirectory = TRUE,
-      quartoInfo = quartoInfo,
+      quartoInfo = appMetadata$quartoInfo,
       isCloud = isCloudServer,
       image = image,
       verbose = verbose)

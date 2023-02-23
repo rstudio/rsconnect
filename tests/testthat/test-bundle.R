@@ -1,6 +1,6 @@
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       "application", NULL, python = python)
+                       NULL, python = python)
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)
@@ -14,14 +14,6 @@ makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, im
   manifestJson <- jsonlite::fromJSON(data)
   unlink(manifestFile)
   manifestJson
-}
-
-fakeQuartoMetadata <- function(version, engines) {
-  # See quarto-r/R/publish.R lines 396 and 113.
-  metadata <- list()
-  metadata$quarto_version <- version
-  metadata$quarto_engines <- I(engines)
-  return(metadata)
 }
 
 quarto_path <- function() {
@@ -54,58 +46,6 @@ quartoPathOrSkip <- function() {
 repos <- getOption("repos")
 options(repos = c(CRAN = "https://cran.rstudio.com"))
 on.exit(options(repos = repos), add = TRUE)
-
-test_that("simple Shiny app bundle includes correct files", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
-    "simple_shiny",
-    test_path("shinyapp-simple"),
-    NULL
-  )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  # listBundleFiles only includes "user" files and ignores
-  # generated files like the packrat and manifest data.
-  files <- listBundleFiles(bundleTempDir)
-  expect_identical(files$contents, c("server.R", "ui.R"))
-  expect_identical(list.files(bundleTempDir), c("manifest.json", "packrat", "server.R", "ui.R"))
-})
-
-test_that("bundle directories are recursively enumerated", {
-  targetDir <- tempfile()
-  dir.create(targetDir)
-  on.exit(unlink(targetDir, recursive = TRUE))
-
-  # tree that resembles the case from https://github.com/rstudio/rsconnect/issues/464
-  files <- c(
-      "app.R",
-      "index.htm",
-      "models/abcd/a_b_pt1/a/b/c1/1.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/2.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/3.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/4.RDS",
-      "models/abcd/a_b_pt1/a/b/c1/5.RDS"
-  )
-
-  # Create and write each file.
-  sapply(files, function(file) {
-    content <- c("this is the file named", file)
-    targetFile <- file.path(targetDir, file)
-    dir.create(dirname(targetFile), recursive = TRUE, showWarnings = FALSE)
-    writeLines(content, con = targetFile, sep = "\n")
-  })
-
-  infos <- file.info(file.path(targetDir, files))
-  totalSize <- sum(infos$size)
-  totalFiles <- length(files)
-
-  result <- listBundleFiles(targetDir)
-
-  # Files are included in the list, count, and sizes, not directories.
-  # Paths are enumerated relative to the target directory, not absolute paths.
-  expect_identical(result$contents, files)
-  expect_equal(result$totalSize, totalSize)
-  expect_equal(result$totalFiles, totalFiles)
-})
 
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
@@ -486,74 +426,6 @@ test_that("quartoInspect returns null when no quarto is provided", {
   expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
 })
 
-test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
-  quarto <- quartoPathOrSkip()
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-doc-none",
-    appPrimaryDoc = "quarto-doc-none.qmd",
-    appFiles = bundleFiles("quarto-doc-none"),
-    quarto = quarto,
-    metadata = list()
-  )
-  expect_named(quartoInfo, c("version", "engines"))
-  expect_equal(quartoInfo$engines, I(c("markdown")))
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-website-r",
-    appPrimaryDoc = NULL,
-    appFiles = bundleFiles("quarto-website-r"),
-    quarto = quarto,
-    metadata = list()
-  )
-  expect_named(quartoInfo, c("version", "engines"))
-  expect_equal(quartoInfo$engines, I(c("knitr")))
-})
-
-test_that("inferQuartoInfo extracts info from metadata when it is provided alone", {
-  quarto <- quartoPathOrSkip()
-
-  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-website-r",
-    appPrimaryDoc = NULL,
-    appFiles = bundleFiles("quarto-website-r"),
-    quarto = NULL,
-    metadata = metadata
-  )
-  expect_named(quartoInfo, c("version", "engines"))
-  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
-})
-
-test_that("inferQuartoInfo prefers using metadata over running quarto inspect itself when both are provided", {
-  quarto <- quartoPathOrSkip()
-
-  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = "quarto-website-r",
-    appPrimaryDoc = NULL,
-    appFiles = bundleFiles("quarto-website-r"),
-    quarto = quarto,
-    metadata = metadata
-  )
-  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
-})
-
-test_that("inferQuartoInfo returns NULL when content cannot be rendered by Quarto", {
-  quarto <- quartoPathOrSkip()
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = "shinyapp-simple",
-    appPrimaryDoc = NULL,
-    appFiles = bundleFiles("shinyapp-simple"),
-    quarto = quarto,
-    metadata = list()
-  )
-  expect_null(quartoInfo)
-})
-
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
@@ -656,29 +528,19 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
 })
 
 test_that("writeManifest: Deploying a Quarto project without Quarto info in an error", {
-  missingQuartoInfoErrorText <- paste(
-    "Attempting to deploy Quarto content without Quarto metadata.",
-    "Please provide the path to a quarto binary to the 'quarto' argument."
-  )
-
   appDir <- test_path("quarto-website-r")
-  expect_error(
+  expect_snapshot(
     makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
-    missingQuartoInfoErrorText
+    error = TRUE
   )
 })
 
 test_that("writeManifest: Deploying a Quarto doc without Quarto info in an error", {
-  missingQuartoInfoErrorText <- paste(
-    "Attempting to deploy Quarto content without Quarto metadata.",
-    "Please provide the path to a quarto binary to the 'quarto' argument."
-  )
-
   appDir <- test_path("quarto-doc-none")
   appPrimaryDoc <- "quarto-doc-none.qmd"
-  expect_error(
+  expect_snapshot(
     makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL),
-    missingQuartoInfoErrorText
+    error = TRUE
   )
 })
 
@@ -727,4 +589,44 @@ test_that("tarImplementation: checks environment variable and option before usin
 
   # Neither set should use "internal"
   expect_equal(tar_implementation(NULL, NA), "internal")
+})
+
+# tweakRProfile -----------------------------------------------------------
+
+test_that(".Rprofile tweaked automatically", {
+  dir <- withr::local_tempdir()
+  writeLines('source("renv/activate.R")', file.path(dir, ".Rprofile"))
+
+  bundled <- bundleAppDir(dir, list.files(dir, all.files = TRUE))
+  expect_match(
+    readLines(file.path(bundled, ".Rprofile")),
+    "Modified by rsconnect",
+    all = FALSE
+  )
+})
+
+test_that(".Rprofile without renv/packrt left as is", {
+  lines <- c("1 + 1", "# Line 2", "library(foo)")
+  path <- withr::local_tempfile(lines = lines)
+
+  tweakRProfile(path)
+  expect_equal(readLines(path), lines)
+})
+
+test_that("removes renv/packrat activation", {
+  path <- withr::local_tempfile(lines = c(
+    "# Line 1",
+    'source("renv/activate.R")',
+    "# Line 3",
+    'source("packrat/init.R")',
+    "# Line 5"
+  ))
+
+  expect_snapshot(
+    {
+      tweakRProfile(path)
+      writeLines(readLines(path))
+    },
+    transform = function(x) gsub("on \\d{4}.+", "on <NOW>", x)
+  )
 })

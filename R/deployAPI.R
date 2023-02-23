@@ -14,22 +14,15 @@
 #'
 #' @family Deployment functions
 #' @export
-deployAPI <- function(api,
-                      ...) {
+deployAPI <- function(api, ...) {
   check_installed(
     "plumber",
     version = "0.3.2",
     reason = "to deploy plumber APIs"
   )
 
-  if (!file.exists(api)) {
-    stop("The api at '", api, "' does not exist.")
-  }
-  if (!utils::file_test("-d", api)) {
-    stop("The api at '", api, "' is not a directory.")
-  }
+  check_directory(api)
+
   # Checking for entrypoint.R or plumber.R is done in `lint-framework.R`
-  deployApp(appDir = api,
-            contentCategory = "api",
-            ...)
+  deployApp(appDir = api, ...)
 }

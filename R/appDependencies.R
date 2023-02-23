@@ -60,10 +60,7 @@
 #' @seealso [rsconnectPackages](Using Packages with rsconnect)
 #' @export
 appDependencies <- function(appDir = getwd(), appFiles = NULL) {
-  # if the list of files wasn't specified, generate it
-  if (is.null(appFiles)) {
-    appFiles <- bundleFiles(appDir)
-  }
+  appFiles <- standardizeAppFiles(appDir, appFiles)
   bundleDir <- bundleAppDir(appDir, appFiles)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 

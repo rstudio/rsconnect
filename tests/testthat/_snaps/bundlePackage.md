@@ -10,7 +10,7 @@
 # errors if can't find source
 
     Code
-      bundlePackages(app_dir, appMode = "rmd-static")
+      . <- bundlePackages(app_dir, appMode = "rmd-static")
     Condition
       Error:
       ! Don't know how to install shiny package.

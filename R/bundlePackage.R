@@ -1,6 +1,5 @@
 bundlePackages <- function(appDir,
                            appMode,
-                           assetTypeName,
                            hasParameters = FALSE,
                            documentsHavePython = FALSE,
                            quartoInfo = NULL,
@@ -76,7 +75,6 @@ checkBundlePackages <- function(deps, call = caller_env()) {
 inferRPackageDependencies <- function(appMode,
                                       hasParameters = FALSE,
                                       documentsHavePython = FALSE) {
-
   deps <- switch(appMode,
     "rmd-static" = c("rmarkdown", if (hasParameters) "shiny"),
     "quarto-static" = "rmarkdown",
@@ -85,8 +83,20 @@ inferRPackageDependencies <- function(appMode,
     "shiny" = "shiny",
     "api" = "plumber"
   )
+
   if (documentsHavePython) {
     deps <- c(deps, "reticulate")
   }
   deps
+}
+
+appUsesR <- function(quartoInfo) {
+  if (is.null(quartoInfo)) {
+    # All non-Quarto content currently uses R by default.
+    # To support non-R content in rsconnect, we could inspect appmode here.
+    return(TRUE)
+  }
+  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
+  # Technically, "jupyter" content could support R.
+  return("knitr" %in% quartoInfo[["engines"]])
 }

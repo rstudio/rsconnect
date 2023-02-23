@@ -21,23 +21,13 @@
 #' @rdname accounts
 #' @export
 accounts <- function(server = NULL) {
-  path <- accountsConfigDir()
-  if (!is.null(server))
-    path <- file.path(path, server)
+  configPaths <- accountConfigFiles(server)
 
-  # get a raw list of accounts
-  accountnames <- file_path_sans_ext(list.files(path,
-    pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE))
+  names <- file_path_sans_ext(basename(configPaths))
 
-  if (length(accountnames) == 0) {
-    return(NULL)
-  }
-
-  # convert to a data frame
-  servers <- dirname(accountnames)
+  servers <- basename(dirname(configPaths))
   servers[servers == "."] <- "shinyapps.io"
-  servers <- fileLeaf(servers)
-  names <- fileLeaf(accountnames)
+
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
@@ -236,14 +226,10 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 setAccountInfo <- function(name, token, secret,
                            server = "shinyapps.io") {
 
-  if (!isStringParam(name))
-    stop(stringParamErrorMessage("name"))
-
-  if (!isStringParam(token))
-    stop(stringParamErrorMessage("token"))
-
-  if (!isStringParam(secret))
-    stop(stringParamErrorMessage("secret"))
+  check_string(name)
+  check_string(token)
+  check_string(secret)
+  check_string(server)
 
   # create connect client
   if (identical(server, cloudServerInfo(server)$name)) {
@@ -272,23 +258,45 @@ setAccountInfo <- function(name, token, secret,
   if (is.null(accountId))
     stop("Unable to determine account id for account named '", name, "'")
 
+  registerCloudTokenSecret(
+    serverName = serverInfo$name,
+    accountName = name,
+    userId = userId,
+    token = token,
+    secret = secret,
+  )
+  invisible()
+}
+
+registerCloudTokenSecret <- function(serverName,
+                                     accountName,
+                                     userId,
+                                     accountId,
+                                     token,
+                                     secret) {
   # get the path to the config file
-  configFile <- accountConfigFile(name, serverInfo$name)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
+  path <- accountConfigFile(accountName, serverName)
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
 
   # write the user info
-  write.dcf(list(name = name,
-                 userId = userId,
-                 accountId = accountId,
-                 token = token,
-                 secret = secret,
-                 server = serverInfo$name),
-            configFile,
-            width = 100)
+  write.dcf(
+    list(
+      name = accountName,
+      userId = userId,
+      accountId = accountName,
+      token = token,
+      secret = secret,
+      server = serverName
+    ),
+    path,
+    width = 100
+  )
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode = "0600")
+    Sys.chmod(path, mode = "0600")
+
+  path
 }
 
 #' @rdname accounts
@@ -303,8 +311,13 @@ accountInfo <- function(name = NULL, server = NULL) {
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
-    info$private_key <- gsub("[[:space:]]", "", info$private_key)
+    info$private_key <- secret(gsub("[[:space:]]", "", info$private_key))
   }
+
+  if (!is.null(info$secret)) {
+    info$secret <- secret(info$secret)
+  }
+
   info
 }
 
@@ -425,23 +438,6 @@ registerUserToken <- function(serverName, accountName, userId, token,
     Sys.chmod(configFile, mode = "0600")
 }
 
-accountConfigFile <- function(name, server = NULL) {
-  # if no server is specified, try to find an account with the given name
-  # associated with any server
-  if (is.null(server)) {
-    pat <- escapeRegex(paste0(name, ".dcf"))
-    return(normalizePath(list.files(accountsConfigDir(), pattern = pat,
-                                    recursive = TRUE, full.names = TRUE)))
-  }
-  normalizePath(file.path(accountsConfigDir(), server,
-                          paste(name, ".dcf", sep = "")),
-                mustWork = FALSE)
-}
-
-accountsConfigDir <- function() {
-  rsconnectConfigDir("accounts")
-}
-
 missingAccountErrorMessage <- function(name) {
   paste("account named '", name, "' does not exist", sep = "")
 }
@@ -486,4 +482,26 @@ accountInfoFromHostUrl <- function(hostUrl) {
   # return account info from the first one
   return(accountInfo(name = as.character(account[1, "name"]),
                      server = server))
+}
+
+
+secret <- function(x) {
+  stopifnot(is.character(x))
+  structure(x, class = "rsconnect_secret")
+}
+
+#' @export
+format.rsconnect_secret <- function(x, ...) {
+  paste0(substr(x, 1, 6), "... (redacted)")
+}
+
+#' @export
+print.rsconnect_secret <- function(x, ...) {
+  print(format(x))
+  invisible(x)
+}
+
+#' @export
+str.rsconnect_secret <- function(object, ...) {
+  cat(" ", format(object), "\n", sep = "")
 }
