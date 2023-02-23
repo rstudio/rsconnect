@@ -171,6 +171,7 @@ deployApp <- function(appDir = getwd(),
       "{.arg appDir} must be a directory or a .Rmd, .Qmd, or .html file"
     )
   }
+  appDir <- normalizePath(appDir)
 
   check_string(appName, allow_null = TRUE)
 
@@ -206,9 +207,6 @@ deployApp <- function(appDir = getwd(),
     })
     on.exit(options(old_error), add = TRUE)
   }
-
-  # normalize appDir path
-  appDir <- normalizePath(appDir)
 
   # create the full path that we'll deploy (append document if requested)
   # TODO(HW): we use appPrimaryDoc here, but we have not inferred it yet
