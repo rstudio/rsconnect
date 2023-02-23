@@ -132,17 +132,11 @@ preservePackageDescriptions <- function(bundleDir) {
   invisible()
 }
 
-
-# Packrat Snapshots
-
-# There are three functions here that do a lot of work here.
-# snapshotRDependencies() calls addPackratSnapshot(), which calls
-# performPackratSnapshot().
-
-snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose = FALSE) {
+snapshotRDependencies <- function(appDir,
+                                  implicit_dependencies = c(),
+                                  verbose = FALSE) {
 
   # create a packrat "snapshot"
-
   addPackratSnapshot(appDir, implicit_dependencies, verbose = verbose)
 
   # TODO: should we care about lockfile version or packrat version?
@@ -241,14 +235,15 @@ findPackageRepoAndSource <- function(records, repos) {
   do.call("rbind", tmp)
 }
 
-addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
+addPackratSnapshot <- function(bundleDir,
+                               implicit_dependencies = character(),
+                               verbose = FALSE) {
   logger <- verboseLogger(verbose)
 
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
-
-  tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
   if (length(implicit_dependencies) > 0) {
+    tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
     # emit dependencies to file
     extraPkgDeps <- paste0("library(", implicit_dependencies, ")\n")
     writeLines(extraPkgDeps, tempDependencyFile)
@@ -272,17 +267,17 @@ addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose =
 }
 
 performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
-
   # move to the bundle directory
-  owd <- getwd()
+  owd <- setwd(bundleDir)
   on.exit(setwd(owd), add = TRUE)
-  setwd(bundleDir)
 
   # ensure we snapshot recommended packages
   srp <- packrat::opts$snapshot.recommended.packages()
   packrat::opts$snapshot.recommended.packages(TRUE, persist = FALSE)
-  on.exit(packrat::opts$snapshot.recommended.packages(srp, persist = FALSE),
-          add = TRUE)
+  on.exit(
+    packrat::opts$snapshot.recommended.packages(srp, persist = FALSE),
+    add = TRUE
+  )
 
   # Force renv dependency scanning within packrat unless the option has been
   # explicitly configured. This is a no-op for older versions of packrat.
@@ -292,29 +287,28 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
     on.exit(options(old), add = TRUE)
   }
 
-  # attempt to eagerly load the BiocInstaller or BiocManaager package if installed, to work around
-  # an issue where attempts to load the package could fail within a 'suppressMessages()' context
+  # attempt to eagerly load the BiocInstaller or BiocManaager package if
+  # installed, to work around an issue where attempts to load the package could
+  # fail within a 'suppressMessages()' context
   packages <- c("BiocManager", "BiocInstaller")
   for (package in packages) {
-    if (length(find.package(package, quiet = TRUE))) {
+    if (is_installed(package)) {
       requireNamespace(package, quietly = TRUE)
       break
     }
   }
 
-  # generate a snapshot
   suppressMessages(
-    packrat::.snapshotImpl(project = bundleDir,
-                           snapshot.sources = FALSE,
-                           fallback.ok = TRUE,
-                           verbose = verbose,
-                           implicit.packrat.dependency = FALSE,
-                           infer.dependencies = TRUE
-                           )
+    packrat::.snapshotImpl(
+      project = bundleDir,
+      snapshot.sources = FALSE,
+      fallback.ok = TRUE,
+      verbose = verbose,
+      implicit.packrat.dependency = FALSE
+    )
   )
 
-  # TRUE just to indicate success
-  TRUE
+  invisible()
 }
 
 snapshotLockFile <- function(appDir) {
