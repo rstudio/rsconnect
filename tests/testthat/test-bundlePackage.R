@@ -67,7 +67,7 @@ test_that("warns if can't find source", {
   ))
 
   expect_snapshot(
-    . <- bundlePackages(app_dir, appMode = "rmd-static"),
+    . <- bundlePackages(app_dir, appMode = "rmd-static")
   )
 })
 

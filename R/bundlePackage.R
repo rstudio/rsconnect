@@ -84,7 +84,6 @@ inferRPackageDependencies <- function(appMode,
     "shiny" = "shiny",
     "api" = "plumber"
   )
-
   if (documentsHavePython) {
     deps <- c(deps, "reticulate")
   }

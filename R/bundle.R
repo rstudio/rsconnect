@@ -399,10 +399,10 @@ findPackageRepoAndSource <- function(records, repos) {
   # https://github.com/rstudio/packrat/blob/v0.9.0/R/pkg.R#L328
   # if the package is in a named CRAN-like repository capture it
   tmp <- lapply(seq_len(nrow(records)), function(i) {
+
     pkg <- records[i, "Package"]
     source <- records[i, "Source"]
     repository <- NA
-
     # capture Bioconcutor repository
     if (identical(source, "Bioconductor")) {
       if (pkg %in% biocPackages) {
