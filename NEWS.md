@@ -1,7 +1,9 @@
 # rsconnect 0.8.30 (development version)
 
 * `deployApp()` excludes temporary backup files (names starting or ending 
-  with `~`) when automatically determining files to bundle (#111).
+  with `~`) when automatically determining files to bundle (#111) and 
+  excludes directories that are likely to be python virtual environments 
+  (#632).
 
 * The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
   called with the content directory, not sometimes the path to a specific file
