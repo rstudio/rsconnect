@@ -310,17 +310,13 @@ deployApp <- function(appDir = getwd(),
     # save the deployment info for subsequent updates--we do this before
     # attempting the deployment itself to make retry easy on failure.
     logger("Saving deployment record for ", target$appName, "-", target$username)
-    saveDeployment(recordDir,
-                   target$appName,
-                   target$appTitle,
-                   target$username,
-                   target$account,
-                   accountDetails$server,
-                   serverInfo(target$server)$hostUrl,
-                   application$id,
-                   bundle$id,
-                   application$url,
-                   metadata)
+    saveDeployment(
+      recordDir,
+      target = target,
+      application = application,
+      bundleId = bundle$id,
+      metadata = metadata
+    )
   } else {
     logger("Updating ", target$appName, ", owned by ", application$owner_username,
         ", from account", accountDetails$username)
