@@ -1,5 +1,9 @@
 # rsconnect 0.8.30 (development version)
 
+* The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
+  called with the content directory, not sometimes the path to a specific file
+  (#696).
+
 * `showMetrics()` once again returns a correctly named data frame (#528).
 
 * `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
