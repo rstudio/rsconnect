@@ -56,8 +56,11 @@
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
 #'   shinyapps.io; `TRUE` is required on Posit Connect.
-#' @param recordDir Directory where publish record is written. Can be `NULL`
-#'   in which case record will be written to the location specified with `appDir`.
+#' @param recordDir Directory where deployment record is written. The default,
+#'   `NULL`, uses `appDir`, since this is usually where you want the deployment
+#'   data to be stored. This argument is typically only needed when deploying
+#'   a directory of static files since you want to store the record with the
+#'   code that generated those files, not the files themselves.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called

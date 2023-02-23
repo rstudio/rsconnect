@@ -81,8 +81,11 @@ the local system prior to deployment. If \code{FALSE} then it is re-deployed
 using the last version that was uploaded. \code{FALSE} is only supported on
 shinyapps.io; \code{TRUE} is required on Posit Connect.}
 
-\item{recordDir}{Directory where publish record is written. Can be \code{NULL}
-in which case record will be written to the location specified with \code{appDir}.}
+\item{recordDir}{Directory where deployment record is written. The default,
+\code{NULL}, uses \code{appDir}, since this is usually where you want the deployment
+data to be stored. This argument is typically only needed when deploying
+a directory of static files since you want to store the record with the
+code that generated those files, not the files themselves.}
 
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in
