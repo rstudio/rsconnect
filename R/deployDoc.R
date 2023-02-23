@@ -23,39 +23,50 @@
 #' @family Deployment functions
 #' @export
 deployDoc <- function(doc, ...) {
+  doc <- standardizeSingleDocDeployment(doc)
+  deployApp(
+    appDir = doc$appDir,
+    appPrimaryDoc = doc$appPrimaryDoc,
+    appFiles = doc$appFiles,
+    ...
+  )
+}
+
+standardizeSingleDocDeployment <- function(path,
+                                           quiet = FALSE,
+                                           error_call = caller_env(),
+                                           error_arg = caller_arg(path)) {
   check_installed(
     "rmarkdown",
     version = "0.5.2",
     reason = "to deploy individual R Markdown documents"
   )
+  check_file(path, error_call = error_call, error_arg = error_arg)
 
-  check_file(doc)
+  withStatus <- withStatus(quiet)
 
-  # get qualified doc
-  qualified_doc <- normalizePath(doc, winslash = "/")
-
-  # see if this doc has runtime: shiny_prerendered, if it does then
-  # appFiles will be NULL (bundle the entire directory)
-  if (isShinyRmd(doc)) {
-    app_files <- NULL
+  if (isShinyRmd(path)) {
+    # deploy entire directory
+    appFiles <- NULL
+  } else if (isStaticFile(path)) {
+    # deploy file + dependenciy
+    withStatus("Discovering document dependencies", {
+      resources <- rmarkdown::find_external_resources(path)
+    })
+    appFiles <- c(basename(path), resources$path)
   } else {
-    # default to deploying just the single file specified
-    app_files <- basename(qualified_doc)
-
-    # if this document's type supports automated resource discovery, do that now,
-    # and add the discovered files to the deployment list
-    ext <- tolower(tools::file_ext(doc))
-    if (ext %in% c("rmd", "qmd", "html", "htm")) {
-      message("Discovering document dependencies... ", appendLF = FALSE)
-      res <- rmarkdown::find_external_resources(qualified_doc)
-      message("OK")
-      app_files <- c(app_files, res$path)
-    }
+    # deploy just the file
+    appFiles <- basename(path)
   }
 
-  # deploy the document with the discovered dependencies
-  deployApp(appDir = dirname(qualified_doc),
-            appFiles = app_files,
-            appPrimaryDoc = basename(qualified_doc),
-            ...)
+  list(
+    appDir = dirname(path),
+    appPrimaryDoc = basename(path),
+    appFiles = appFiles
+  )
+}
+
+isStaticFile <- function(path) {
+  ext <- tolower(tools::file_ext(path))
+  ext %in% c("rmd", "qmd", "html", "htm")
 }

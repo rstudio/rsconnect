@@ -18,8 +18,9 @@
 #' control to ensure that future you and other collaborators will publish
 #' to the same location.
 #'
-#' @param appDir Directory containing application. Defaults to current working
-#'   directory.
+#' @param appDir Either a directory containing an application (e.g. a Shiny app
+#'   or plumber API) or a path to a document, like an `.html`, `.Rmd`, or
+#'   `.Qmd`.  Defaults to the current working directory.
 #' @param appFiles A character vector given relative paths to the files and
 #'   directories to bundle and deploy. The default, `NULL`, will include all
 #'   files in `appDir`, apart from any listed in an `.rscignore` file.
@@ -154,7 +155,23 @@ deployApp <- function(appDir = getwd(),
 
   condaMode <- FALSE
 
-  check_directory(appDir)
+  check_string(appDir)
+  if (dirExists(appDir)) {
+    # ok
+  } else if (file.exists(appDir) && isStaticFile(appDir)) {
+    doc <- standardizeSingleDocDeployment(appDir)
+
+    appDir <- doc$appDir
+    appPrimaryDoc <- doc$appPrimaryDoc
+    if (is.null(appFiles) && is.null(appFileManifest)) {
+      appFiles <- doc$appFiles
+    }
+  } else {
+    cli::cli_abort(
+      "{.arg appDir} must be a directory or a .Rmd, .Qmd, or .html file"
+    )
+  }
+
   check_string(appName, allow_null = TRUE)
 
   # set up logging helpers
@@ -204,23 +221,6 @@ deployApp <- function(appDir = getwd(),
     appPath <- file.path(appPath, appPrimaryDoc)
     if (!file.exists(appPath)) {
       stop(appPath, " does not exist")
-    }
-  }
-
-  # if a specific file is named, make sure it's an Rmd or HTML, and just deploy
-  # a single document in this case (this will call back to deployApp with a list
-  # of supporting documents)
-  rmdFile <- ""
-  if (!dirExists(appDir)) {
-    if (grepl("\\.[Rq]md$", appDir, ignore.case = TRUE) ||
-        grepl("\\.html?$", appDir, ignore.case = TRUE)) {
-      return(deployDoc(appDir, appName = appName, appTitle = appTitle,
-                       account = account, server = server, upload = upload,
-                       recordDir = recordDir, launch.browser = launch.browser,
-                       logLevel = logLevel, lint = lint))
-    } else {
-      stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
-           "document.")
     }
   }
 
