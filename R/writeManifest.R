@@ -4,6 +4,8 @@
 #' that directory describing the deployment requirements for that content.
 #'
 #' @inheritParams deployApp
+#' @param appDir Path to an application directory. Defaults to the
+#'   working directory.
 #' @param verbose If TRUE, prints progress messages to the console
 #' @export
 writeManifest <- function(appDir = getwd(),

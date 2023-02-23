@@ -32,8 +32,9 @@ deployApp(
 )
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appDir}{Either a directory containing an application (e.g. a Shiny app
+or plumber API) or a path to a document, like an \code{.html}, \code{.Rmd}, or
+\code{.Qmd}.  Defaults to the working directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all

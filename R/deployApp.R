@@ -20,7 +20,7 @@
 #'
 #' @param appDir Either a directory containing an application (e.g. a Shiny app
 #'   or plumber API) or a path to a document, like an `.html`, `.Rmd`, or
-#'   `.Qmd`.  Defaults to the current working directory.
+#'   `.Qmd`.  Defaults to the working directory.
 #' @param appFiles A character vector given relative paths to the files and
 #'   directories to bundle and deploy. The default, `NULL`, will include all
 #'   files in `appDir`, apart from any listed in an `.rscignore` file.

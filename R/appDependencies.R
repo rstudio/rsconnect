@@ -4,6 +4,8 @@
 #' parses all .R files in the application directory to determine what packages
 #' the application depends on; and for each of those packages what other
 #' packages they depend on.
+#'
+#' @inheritParams writeManifest
 #' @inheritParams deployApp
 #' @return Returns a data frame listing the package
 #'   dependencies detected for the application: \tabular{ll}{ `package`
