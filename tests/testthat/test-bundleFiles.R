@@ -129,6 +129,14 @@ test_that("ignores files listed in .rscignore", {
   expect_setequal(bundleFiles(dir), character())
 })
 
+test_that("ignores temporary files", {
+  ignored <- ignoreBundleFiles(
+    dir = ".",
+    contents = c("foo.xlsx", "~$foo.xlsx", "foo.csv", "foo.csv~")
+  )
+  expect_equal(ignored, c("foo.xlsx", "foo.csv"))
+})
+
 # explodeFiles ------------------------------------------------------------
 
 test_that("returns relative paths", {

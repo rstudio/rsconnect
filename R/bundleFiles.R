@@ -187,6 +187,7 @@ ignoreBundleFiles <- function(dir, contents, depth = 0) {
     contents,
     c(".DS_Store", ".git", ".gitignore", ".quarto", ".Rhistory", ".svn")
   )
+  contents <- contents[!grepl("^~|~$", contents)]
 
   # remove any files lines listed .rscignore
   if (".rscignore" %in% contents) {
