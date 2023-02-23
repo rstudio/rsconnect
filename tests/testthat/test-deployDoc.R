@@ -8,7 +8,7 @@ test_that("turns appDir into appDir + appPrimarySourceDoc", {
   dir <- local_temp_app(list("foo.R" = ""))
 
   doc <- standardizeSingleDocDeployment(file.path(dir, "foo.R"))
-  expect_equal(doc$appDir, dir)
+  expect_equal(doc$appDir, normalizePath(dir))
   expect_equal(doc$appPrimaryDoc, "foo.R")
 })
 
