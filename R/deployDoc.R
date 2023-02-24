@@ -5,7 +5,7 @@
 #' `.pdf`).
 #'
 #' When deploying an `.Rmd`, `.Qmd`, or `.html`, `deployDoc()` will attempt to
-#' automaticaly discover depedencies using [rmarkdown::find_external_resources()].
+#' automatically discover dependencies using [rmarkdown::find_external_resources()].
 #' If you find that the document is missing dependencies, either specify the
 #' dependencies explicitly in the document (see
 #' [rmarkdown::find_external_resources()] for details), or call

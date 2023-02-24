@@ -18,7 +18,7 @@ Deploys a single R Markdown, Quarto document, or other file (e.g. \code{.html} o
 \code{.pdf}).
 
 When deploying an \code{.Rmd}, \code{.Qmd}, or \code{.html}, \code{deployDoc()} will attempt to
-automaticaly discover depedencies using \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}}.
+automatically discover dependencies using \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}}.
 If you find that the document is missing dependencies, either specify the
 dependencies explicitly in the document (see
 \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}} for details), or call
