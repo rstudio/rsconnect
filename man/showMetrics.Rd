@@ -26,7 +26,7 @@ for available series.}
 for available metrics.}
 
 \item{appDir}{A directory containing an application (e.g. a Shiny app
-or plumber API).}
+or plumber API). Defaults to the current directory.}
 
 \item{appName}{Name of application (names must be unique within an account).
 If not supplied on the first deploy, it will be generated from the base

@@ -19,7 +19,7 @@
 #' to the same location.
 #'
 #' @param appDir A directory containing an application (e.g. a Shiny app
-#'   or plumber API).
+#'   or plumber API). Defaults to the current directory.
 #' @param appFiles A character vector given relative paths to the files and
 #'   directories to bundle and deploy. The default, `NULL`, will include all
 #'   files in `appDir`, apart from any listed in an `.rscignore` file.
