@@ -1,3 +1,27 @@
+# appDir must be an existing directory
+
+    Code
+      deployApp(1)
+    Condition
+      Error in `deployApp()`:
+      ! `appDir` must be a single string, not the number 1.
+    Code
+      deployApp("doesntexist")
+    Condition
+      Error in `deployApp()`:
+      ! `appDir`, "doesntexist", does not exist.
+
+# single document appDir is deprecated
+
+    Code
+      deployApp("foo.Rmd")
+    Condition
+      Warning:
+      The `appDir` argument of `deployApp()` takes a directory, not a document, as of rsconnect 0.9.0.
+      i Please use `deployDoc()` instead.
+      Error in `deployDoc()`:
+      ! `doc`, "foo.Rmd", does not exist.
+
 # appPrimaryDoc must exist, if supplied
 
     Code
