@@ -1,5 +1,11 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp(appPrimaryDoc)` has been deprecated; it did the same job as 
+  `recordDir`.
+
+* `appDependencies()` now returns an additional column giving the Repository 
+  (#670)
+
 * The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
   called with the content directory, not sometimes the path to a specific file
   (#696).

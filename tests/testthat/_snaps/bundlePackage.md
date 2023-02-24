@@ -4,11 +4,8 @@
       bundlePackages(app_dir, appMode = "rmd-static")
     Condition
       Error:
-      ! * Deployment depends on package "doesntexist1"but it is not installed.
-        Please resolve before continuing.
-      
-      * Deployment depends on package "doesntexist2"but it is not installed.
-        Please resolve before continuing.
+      ! All packages used by the asset must be installed.
+      x Missing packages: doesntexist1 and doesntexist2.
 
 # warns if can't find source
 
@@ -16,13 +13,23 @@
       . <- bundlePackages(app_dir, appMode = "rmd-static")
     Condition
       Warning:
-      * May be unable to deploy package dependency 'shiny'; could not
-        determine a repository URL for the source 'foo'.
-      
-      * Unable to determine the source location for some packages. Packages
-        should be installed from a package repository like CRAN or a version
-        control system. Check that options('repos') refers to a package
-        repository containing the needed package versions.
+      Local packages must be installed from a supported source.
+      x Unsupported packages: shiny.
+      i Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.
+      i See `rsconnect::appDependencies()` for more details.
+
+# clear error if can't run performPackratSnapshot()
+
+    Code
+      addPackratSnapshot(dir, "doesntexist")
+    Condition
+      Warning in `FUN()`:
+      Package 'doesntexist' not available in repository or locally
+      Error in `addPackratSnapshot()`:
+      ! Failed to snapshot dependencies
+      Caused by error:
+      ! Unable to retrieve package records for the following packages:
+      - 'doesntexist'
 
 # infers correct packages for each source
 
@@ -33,7 +40,7 @@
     Code
       inferRPackageDependencies("rmd-static", TRUE)
     Output
-      [1] "shiny"     "rmarkdown"
+      [1] "rmarkdown" "shiny"    
     Code
       inferRPackageDependencies("quarto-static")
     Output
