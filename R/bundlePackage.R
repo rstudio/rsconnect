@@ -267,10 +267,6 @@ addPackratSnapshot <- function(bundleDir,
 }
 
 performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
-  # move to the bundle directory
-  owd <- setwd(bundleDir)
-  on.exit(setwd(owd), add = TRUE)
-
   # ensure we snapshot recommended packages
   srp <- packrat::opts$snapshot.recommended.packages()
   packrat::opts$snapshot.recommended.packages(TRUE, persist = FALSE)

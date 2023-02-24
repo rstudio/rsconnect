@@ -25,8 +25,8 @@
     Condition
       Error in `addPackratSnapshot()`:
       ! Failed to snapshot dependencies
-      Caused by error in `setwd()`:
-      ! cannot change working directory
+      Caused by error in `normalizePath()`:
+      ! path[1]="doesntexit": No such file or directory
 
 # infers correct packages for each source
 
