@@ -1,14 +1,12 @@
 # Create anonymous function that we can later call to get all needed python
 # metdata for the manifest
 pythonConfigurator <- function(python,
-                               forceGenerate = FALSE,
-                               condaMode = FALSE) {
+                               forceGenerate = FALSE) {
 
   if (is.null(python)) {
     return(NULL)
   }
 
-  force(condaMode)
   force(forceGenerate)
 
   function(appDir) {
@@ -16,7 +14,6 @@ pythonConfigurator <- function(python,
       inferPythonEnv(
         appDir,
         python = python,
-        condaMode = condaMode,
         forceGenerate = forceGenerate
       ),
       error = function(err) {
@@ -71,24 +68,18 @@ getPython <- function(path = NULL) {
 
 inferPythonEnv <- function(workdir,
                            python = getPython(),
-                           condaMode = FALSE,
                            forceGenerate = FALSE) {
   # run the python introspection script
   env_py <- system.file("resources/environment.py", package = "rsconnect")
   args <- c(
     shQuote(env_py),
-    if (condaMode) "-c",
     if (forceGenerate) "-f",
     shQuote(workdir)
   )
 
-  # First check for reticulate. Then see if python is loaded in reticulate
-  # space, verify anaconda presence, and verify that the user hasn't specified
-  # that they don't want their conda environment captured.
   hasConda <- is_installed("reticulate") &&
     reticulate::py_available(initialize = FALSE) &&
-    reticulate::py_config()$anaconda &&
-    !condaMode
+    reticulate::py_config()$anaconda
 
   if (hasConda) {
     prefix <- getCondaEnvPrefix(python)
