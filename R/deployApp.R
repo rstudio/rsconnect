@@ -310,7 +310,7 @@ deployApp <- function(appDir = getwd(),
     # attempting the deployment itself to make retry easy on failure.
     logger("Saving deployment record for ", target$appName, "-", target$username)
     saveDeployment(
-      recordDir,
+      recordPath,
       target = target,
       application = application,
       bundleId = bundle$id,
