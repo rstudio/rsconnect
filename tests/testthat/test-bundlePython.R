@@ -58,6 +58,7 @@ test_that("doesn't override existing requirements.txt by default", {
 
 test_that("throws error if environment.py fails", {
   skip_on_cran()
+  skip_on_os("windows")
 
   dir <- local_temp_app(list(requirements.txt = "\\"))
   Sys.chmod(file.path(dir, "requirements.txt"), "000")
