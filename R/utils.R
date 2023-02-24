@@ -207,3 +207,9 @@ check_directory <- function(x,
     )
   }
 }
+
+file_size <- function(path) {
+  x <- file.info(path)$size
+  x[is.na(x)] <- 0
+  x
+}

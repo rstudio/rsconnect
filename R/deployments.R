@@ -1,39 +1,31 @@
-
-saveDeployment <- function(appPath,
-                           name,
-                           title = NULL,
-                           username = NULL,
-                           account = NULL,
-                           server = NULL,
-                           hostUrl = NULL,
-                           appId,
-                           bundleId,
-                           url,
+saveDeployment <- function(recordDir,
+                           target,
+                           application,
+                           bundleId = NULL,
+                           hostUrl = serverInfo(target$server)$hostUrl,
                            metadata = list()) {
-
-  fullServer <- findAccount(account, server)
 
   # create the record to write to disk
   deployment <- deploymentRecord(
-    name,
-    title %||% "",
-    username %||% fullServer$name,
-    fullServer$name,
-    fullServer$server,
-    hostUrl,
-    appId,
-    bundleId,
-    url,
+    name = target$appName,
+    title = target$appTitle %||% "",
+    username = target$username,
+    account = target$account,
+    server = target$server,
+    hostUrl = hostUrl,
+    appId = application$id,
+    bundleId = bundleId,
+    url = application$url,
     when = as.numeric(Sys.time()),
     lastSyncTime = as.numeric(Sys.time()),
-    metadata
+    metadata = metadata
   )
 
-  path <- deploymentConfigFile(appPath, name, fullServer$name, fullServer$server)
+  path <- deploymentConfigFile(recordDir, target$appName, target$account, target$server)
   writeDeploymentRecord(deployment, path)
 
   # also save to global history
-  addToDeploymentHistory(appPath, deployment)
+  addToDeploymentHistory(recordDir, deployment)
 
   invisible(NULL)
 }
@@ -174,9 +166,18 @@ deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
   deploymentRecs
 }
 
-deploymentRecord <- function(name, title, username, account, server, hostUrl,
-                             appId, bundleId, url, when,
-                             lastSyncTime = as.numeric(Sys.time()), metadata = list()) {
+deploymentRecord <- function(name,
+                             title,
+                             username,
+                             account,
+                             server,
+                             hostUrl,
+                             appId,
+                             bundleId,
+                             url,
+                             when,
+                             lastSyncTime = as.numeric(Sys.time()),
+                             metadata = list()) {
 
   # find the username if not already supplied (may differ from account nickname)
   if (is.null(username) && length(account) > 0) {

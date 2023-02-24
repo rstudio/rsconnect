@@ -18,11 +18,12 @@
 #' control to ensure that future you and other collaborators will publish
 #' to the same location.
 #'
-#' @param appDir Directory containing application. Defaults to current working
-#'   directory.
+#' @param appDir A directory containing an application (e.g. a Shiny app
+#'   or plumber API). Defaults to the current directory.
 #' @param appFiles A character vector given relative paths to the files and
 #'   directories to bundle and deploy. The default, `NULL`, will include all
 #'   files in `appDir`, apart from any listed in an `.rscignore` file.
+#'   See [listBundleFiles()] for more details.
 #' @param appFileManifest An alternate way to specify the files to be deployed.
 #'   Should be a path to a file that contains the names of the files and
 #'   directories to deploy, one per line, relative to `appDir`.
@@ -30,10 +31,8 @@
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
 #'   being deployed.
-#' @param appSourceDoc If the application is composed of static files (e.g
-#'   HTML), this parameter indicates the source document, if any, as a fully
-#'   qualified path. Deployment information returned by [deployments()] is
-#'   associated with the source document.
+#' @param appSourceDoc `r lifecycle::badge("deprecated")` Please use
+#'   `recordDir` instead.
 #' @param appName Name of application (names must be unique within an account).
 #'   If not supplied on the first deploy, it will be generated from the base
 #'   name of `appDir` and `appTitle`, if supplied. On subsequent deploys,
@@ -55,8 +54,11 @@
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
 #'   shinyapps.io; `TRUE` is required on Posit Connect.
-#' @param recordDir Directory where publish record is written. Can be `NULL`
-#'   in which case record will be written to the location specified with `appDir`.
+#' @param recordDir Directory where deployment record is written. The default,
+#'   `NULL`, uses `appDir`, since this is usually where you want the deployment
+#'   data to be stored. This argument is typically only needed when deploying
+#'   a directory of static files since you want to store the record with the
+#'   code that generated those files, not the files themselves.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called
@@ -148,8 +150,49 @@ deployApp <- function(appDir = getwd(),
                       image = NULL
                       ) {
 
+  check_string(appDir)
+  if (isStaticFile(appDir) && !dirExists(appDir)) {
+    lifecycle::deprecate_warn(
+      when = "0.9.0",
+      what = "deployApp(appDir = 'takes a directory, not a document,')",
+      with = "deployDoc()"
+    )
+    return(deployDoc(
+      appDir,
+      appName = appName,
+      appTitle = appTitle,
+      account = account,
+      server = server,
+      upload = upload,
+      recordDir = recordDir,
+      launch.browser = launch.browser,
+      logLevel = logLevel,
+      lint = lint
+    ))
+  }
   check_directory(appDir)
+  appDir <- normalizePath(appDir)
+
   check_string(appName, allow_null = TRUE)
+
+  if (!is.null(appPrimaryDoc)) {
+    check_string(appPrimaryDoc)
+    if (!file.exists(file.path(appDir, appPrimaryDoc))) {
+      cli::cli_abort("`appPrimaryDoc` not found inside `appDir`")
+    }
+  }
+
+  if (!is.null(appSourceDoc)) {
+    lifecycle::deprecate_warn(
+      when = "0.9.0",
+      what = "deployApp(appSourceDoc)",
+      with = "deployApp(recordDir)",
+    )
+    check_directory(appSourceDoc)
+    recordDir <- appSourceDoc
+  } else if (!is.null(recordDir)) {
+    check_directory(recordDir)
+  }
 
   # set up logging helpers
   logLevel <- match.arg(logLevel)
@@ -184,47 +227,6 @@ deployApp <- function(appDir = getwd(),
     on.exit(options(old_error), add = TRUE)
   }
 
-  # normalize appDir path
-  appDir <- normalizePath(appDir)
-
-  # create the full path that we'll deploy (append document if requested)
-  # TODO(HW): we use appPrimaryDoc here, but we have not inferred it yet
-  # so the appPath will different deneding on whether it's explicitly
-  # supplied or inferred from the files in the directory.
-  appPath <- appDir
-  if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
-    appPath <- appSourceDoc
-  } else if (!is.null(appPrimaryDoc) && nchar(appPrimaryDoc) > 0) {
-    appPath <- file.path(appPath, appPrimaryDoc)
-    if (!file.exists(appPath)) {
-      stop(appPath, " does not exist")
-    }
-  }
-
-  # if a specific file is named, make sure it's an Rmd or HTML, and just deploy
-  # a single document in this case (this will call back to deployApp with a list
-  # of supporting documents)
-  rmdFile <- ""
-  if (!dirExists(appDir)) {
-    if (grepl("\\.[Rq]md$", appDir, ignore.case = TRUE) ||
-        grepl("\\.html?$", appDir, ignore.case = TRUE)) {
-      return(deployDoc(appDir, appName = appName, appTitle = appTitle,
-                       account = account, server = server, upload = upload,
-                       recordDir = recordDir, launch.browser = launch.browser,
-                       logLevel = logLevel, lint = lint))
-    } else {
-      stop(appDir, " must be a directory, an R Markdown document, or an HTML ",
-           "document.")
-    }
-  }
-
-  # directory for recording deployment
-  if (is.null(recordDir)) {
-    recordDir <- appPath
-  } else {
-    check_directory(recordDir)
-  }
-
   # at verbose log level, generate header
   if (verbose) {
     logger("Deployment log started")
@@ -234,13 +236,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # invoke pre-deploy hook if we have one
-  preDeploy <- getOption("rsconnect.pre.deploy")
-  if (is.function(preDeploy)) {
-    if (verbose) {
-      cat("Invoking pre-deploy hook rsconnect.pre.deploy\n")
-    }
-    preDeploy(appPath)
-  }
+  runDeploymentHook(appDir, "rsconnect.pre.deploy", verbose = verbose)
 
   appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
 
@@ -250,7 +246,8 @@ deployApp <- function(appDir = getwd(),
   }
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
+  recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
+  target <- deploymentTarget(recordPath, appName, appTitle, appId, account, server)
 
   # test for compatibility between account type and publish intent
   if (!isCloudServer(target$server) && identical(upload, FALSE)) {
@@ -268,23 +265,23 @@ deployApp <- function(appDir = getwd(),
   # get the application to deploy (creates a new app on demand)
   withStatus("Preparing to deploy", {
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
+    saveDeployment(
+      recordPath,
+      target = target,
+      application = application,
+      metadata = metadata
+    )
   })
 
-  if (isCloudServer(accountDetails$server) && !is.null(appVisibility)) {
-    # Shinyapps defaults to public visibility.
-    # Other values should be set before data is deployed.
-    currentVisibility <- application$deployment$properties$application.visibility
-    if (is.null(currentVisibility)) {
-      currentVisibility <- "public"
-    }
-
-    if (!identical(appVisibility, currentVisibility)) {
-      withStatus(paste0("Setting visibility to ", appVisibility), {
-        client$setApplicationProperty(application$id,
-                                   "application.visibility",
-                                   appVisibility)
-      })
-    }
+  # Change _visibility_ before uploading data
+  if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
+    withStatus(paste0("Setting visibility to ", appVisibility), {
+      client$setApplicationProperty(
+        application$id,
+        "application.visibility",
+        appVisibility
+      )
+    })
   }
 
   if (upload) {
@@ -309,56 +306,22 @@ deployApp <- function(appDir = getwd(),
       )
 
       if (isCloudServer(accountDetails$server)) {
-        # Step 1. Create presigned URL and register pending bundle.
-        bundleSize <- file.info(bundlePath)$size
-
-        # Generate a hex-encoded md5 hash.
-        checksum <- fileMD5.as.string(bundlePath)
-        bundle <- client$createBundle(application$id, "application/x-tar", bundleSize, checksum)
-
-        logger("Starting upload now")
-        # Step 2. Upload Bundle to presigned URL
-        if (!uploadBundle(bundle, bundleSize, bundlePath)) {
-          stop("Could not upload file.")
-        }
-        logger("Upload complete")
-
-        # Step 3. Upload revise bundle status.
-        response <- client$updateBundleStatus(bundle$id, status = "ready")
-
-        # Step 4. Retrieve updated bundle post status change - which is required in subsequent
-        # areas of the code below.
-        bundle <- client$getBundle(bundle$id)
-
+        bundle <- uploadCloudBundle(client, application$id, bundlePath)
       } else {
         bundle <- client$uploadApplication(application$id, bundlePath)
       }
     })
+
+    saveDeployment(
+      recordPath,
+      target = target,
+      application = application,
+      bundleId = bundle$id,
+      metadata = metadata
+    )
   } else {
     # redeploy current bundle
     bundle <- application$deployment$bundle
-  }
-
-  # write a deployment record only if this is the account that owns the content
-  if (is.null(application$owner_username) ||
-      accountDetails$username == application$owner_username) {
-    # save the deployment info for subsequent updates--we do this before
-    # attempting the deployment itself to make retry easy on failure.
-    logger("Saving deployment record for ", target$appName, "-", target$username)
-    saveDeployment(recordDir,
-                   target$appName,
-                   target$appTitle,
-                   target$username,
-                   target$account,
-                   accountDetails$server,
-                   serverInfo(target$server)$hostUrl,
-                   application$id,
-                   bundle$id,
-                   application$url,
-                   metadata)
-  } else {
-    logger("Updating ", target$appName, ", owned by ", application$owner_username,
-        ", from account", accountDetails$username)
   }
 
   if (length(bundle$id) > 0 && nzchar(bundle$id)) {
@@ -391,18 +354,53 @@ deployApp <- function(appDir = getwd(),
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
-    postDeploy <- getOption("rsconnect.post.deploy")
-    if (is.function(postDeploy)) {
-      if (verbose) {
-        cat("Invoking post-deploy hook rsconnect.post.deploy\n")
-      }
-      postDeploy(appPath)
-    }
+    runDeploymentHook(appDir, "rsconnect.post.deploy", verbose = verbose)
   }
 
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+findRecordPath <- function(appDir,
+                           recordDir = NULL,
+                           appPrimaryDoc = NULL) {
+  if (!is.null(recordDir)) {
+    recordDir
+  } else if (!is.null(appPrimaryDoc)) {
+    file.path(appDir, appPrimaryDoc)
+  } else {
+    appDir
+  }
+}
+
+# Shinyapps defaults to public visibility.
+# Other values should be set before data is deployed.
+needsVisibilityChange <- function(server, application, appVisibility = NULL) {
+  if (!isCloudServer(server)) {
+    return(FALSE)
+  }
+  if (is.null(appVisibility)) {
+    return(FALSE)
+  }
+
+  cur <- application$deployment$properties$application.visibility
+  if (is.null(cur)) {
+    cur <- "public"
+  }
+  cur != appVisibility
+}
+
+runDeploymentHook <- function(appDir, option, verbose = FALSE) {
+  hook <- getOption(option)
+  if (!is.function(hook)) {
+    return()
+  }
+
+  if (verbose) {
+    cat("Invoking `", option, "` hook\n", sep = "")
+  }
+  hook(appDir)
 }
 
 
@@ -482,15 +480,6 @@ bundleApp <- function(appName,
 
 
 
-
-# get the record for the application of the given name in the given account, or
-# NULL if no application exists by that name
-getAppByName <- function(client, accountInfo, name) {
-  # NOTE: returns a list with 0 or 1 elements
-  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
-  if (length(app)) app[[1]] else NULL
-}
-
 # get the record for the application with the given ID in the given account;
 # this isn't used inside the package itself but is invoked from the RStudio IDE
 # to look up app details
@@ -520,34 +509,49 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
 }
 
 applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-
-  if (is.null(target$appId)) {
-    # list the existing applications for this account and see if we
-    # need to create a new application
-    app <- getAppByName(client, accountInfo, target$appName)
-  } else {
-    # we already know the app's id, so just retrieve the rest of the metadata
+  # Use appId from previous deployment, if it still exists
+  if (!is.null(target$appId)) {
     app <- client$getApplication(target$appId)
+    if (!is.null(app)) {
+      return(app)
+    }
   }
 
-  # if there is no record of deploying this application locally however there
-  # is an application of that name already deployed then confirm
-  if (!is.null(target$appId) && !is.null(app) && interactive() && !forceUpdate) {
-    prompt <- paste("Update application currently deployed at\n", app$url,
-                    "? [Y/n] ", sep = "")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
-      stop("Application deployment cancelled", call. = FALSE)
+  # Otherwise, see if there's an existing app with this name
+  sameName <- getAppByName(client, accountInfo, target$appName)
+  if (!is.null(sameName)) {
+    # check that it's ok to to use it
+    if (interactive() && !forceUpdate) {
+      cat("\n") # Escape from preparing to deploy line
+      cli::cli_inform(paste0(
+        "There is a currently deployed app with name {.str {target$appName}}",
+        " at {.url {sameName$url}}"
+      ))
+      input <- readline("Do you want to update it? [Y/n] ")
+      if (input %in% c("y", "Y", "")) {
+        return(sameName)
+      }
+
+      cli::cli_abort(c(
+        "Each item of content must have a unique {.arg appName}.",
+        i = "Set {.arg appName} to a new value."
+      ))
+    }
   }
 
-  # create the application if we need to
-  if (is.null(app)) {
-    app <- client$createApplication(target$appName, target$appTitle, "shiny",
-                                    accountInfo$accountId)
-  }
+  # Otherwise, create a new app
+  client$createApplication(
+    target$appName,
+    target$appTitle,
+    "shiny",
+    accountInfo$accountId
+  )
+}
 
-  # return the application
-  app
+getAppByName <- function(client, accountInfo, name) {
+  # NOTE: returns a list with 0 or 1 elements
+  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(app)) app[[1]] else NULL
 }
 
 validURL <- function(url) {

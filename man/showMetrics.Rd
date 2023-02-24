@@ -10,7 +10,7 @@ showMetrics(
   appDir = getwd(),
   appName = NULL,
   account = NULL,
-  server = NULL,
+  server = "shinyapps.io",
   from = NULL,
   until = NULL,
   interval = NULL
@@ -25,10 +25,13 @@ for available series.}
 \href{https://docs.posit.co/shinyapps.io/metrics.html#ApplicationMetrics}{shinyapps.io documentation}
 for available metrics.}
 
-\item{appDir}{Directory containing application. Defaults to
-current working directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.}
 
-\item{appName}{Name of application}
+\item{appName}{Name of application (names must be unique within an account).
+If not supplied on the first deploy, it will be generated from the base
+name of \code{appDir} and \code{appTitle}, if supplied. On subsequent deploys,
+it will use the previously stored value.}
 
 \item{account, server}{Uniquely identify a remote server with either your
 user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
@@ -44,8 +47,6 @@ delta such as "2d" or "3w").}
 will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").}
 }
 \description{
-Show application metrics of a currently deployed application
-}
-\note{
+Show application metrics of a currently deployed application.
 This function only works for ShinyApps servers.
 }

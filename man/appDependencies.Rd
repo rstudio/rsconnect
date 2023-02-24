@@ -2,7 +2,7 @@
 % Please edit documentation in R/appDependencies.R
 \name{appDependencies}
 \alias{appDependencies}
-\title{Detect Application Dependencies}
+\title{Detect application dependencies}
 \usage{
 appDependencies(appDir = getwd(), appFiles = NULL)
 }
@@ -12,42 +12,59 @@ directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.}
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
+See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 }
 \value{
-Returns a data frame listing the package
-dependencies detected for the application: \tabular{ll}{ \code{package}
-\tab Name of package \cr \code{version} \tab Version of package\cr }
+A data frame with columns:
+\itemize{
+\item \code{Package}: package name.
+\item \code{Version}: local version.
+\item \code{Source}: where the package was installed from.
+\item \code{Repository}: for CRAN and CRAN-like repositories, the url to the
+repo.
+}
 }
 \description{
-Recursively detect all package dependencies for an application. This function
-parses all .R files in the application directory to determine what packages
-the application depends on; and for each of those packages what other
-packages they depend on.
+\code{appDependencies()} recursively detects all R package dependencies for an
+application by parsing all \code{.R} and \code{.Rmd} files and looking for calls
+to \code{library()}, \code{require()}, \code{requireNamespace()}, \code{::}, and so on.
+It then adds all recursive dependencies to create a complete manifest of
+package packages need to be installed to run the app.
 }
-\details{
-Dependencies are determined by parsing application source code and
-looking for calls to \code{library}, \code{require}, \code{::}, and
-\code{:::}.
-
-Recursive dependencies are detected by examining the \code{Depends},
-\code{Imports}, and \code{LinkingTo} fields of the packages immediately
-dependend on by the application.
+\section{Remote installation}{
+When deployed, the app must first install all of these packages, and
+rsconnect does its best to ensure that all the packages have the same
+version as you are running locally. It knows how to install packages from
+the following sources:
+\itemize{
+\item CRAN (\code{CRAN}) and CRAN-like repositories (\code{CustomCRANLikeRepository}).
+\item BioConductor (\code{Bioconductor})
+\item Packages installed from GitHub (\code{github}), GitLab (\code{gitlab}), or
+BitBucket (\code{bitbucket}).
 }
-\note{
-Since the \code{Suggests} field is not included when determining
-recursive dependencies of packages, it's possible that not every package
-required to run your application will be detected.
 
-In this case, you can force a package to be included dependency by
-inserting call(s) to \code{require} within your source directory. This code
-need not actually execute, for example you could create a standalone file
-named \code{dependencies.R} with the following code: \cr \cr
-\code{require(xts)} \cr \code{require(colorspace)} \cr
-
-This will force the \code{xts} and \code{colorspace} packages to be
-installed along with the rest of your application when it is deployed.
+It does not know how to install packages that you have built and installed
+locally so if you attempt to deploy an app that depends on such a package
+it will fail. To resolve this issue, you'll need to install from a known
+source.
 }
+
+\section{Suggested packages}{
+The \code{Suggests} field is not included when determining recursive dependencies,
+so it's possible that not every package required to run your application will
+be detected.
+
+For example, ggplot2's \code{geom_hex()} requires the hexbin package to be
+installed, but it is only suggested by ggplot2. So if you app uses
+\code{geom_hex()} it will fail, reporting that the hexbin package is not
+installed.
+
+You can overcome this problem with (e.g.) \code{requireNamespace(hexbin)}.
+This will tell rsconnect that your app needs the hexbin package, without
+otherwise affecting your code.
+}
+
 \examples{
 \dontrun{
 

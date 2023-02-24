@@ -32,12 +32,13 @@ deployApp(
 )
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.}
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
+See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 
 \item{appFileManifest}{An alternate way to specify the files to be deployed.
 Should be a path to a file that contains the names of the files and
@@ -48,10 +49,8 @@ parameter indicates the primary one, as a path relative to \code{appDir}. Can be
 \code{NULL}, in which case the primary document is inferred from the contents
 being deployed.}
 
-\item{appSourceDoc}{If the application is composed of static files (e.g
-HTML), this parameter indicates the source document, if any, as a fully
-qualified path. Deployment information returned by \code{\link[=deployments]{deployments()}} is
-associated with the source document.}
+\item{appSourceDoc}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use
+\code{recordDir} instead.}
 
 \item{appName}{Name of application (names must be unique within an account).
 If not supplied on the first deploy, it will be generated from the base
@@ -80,8 +79,11 @@ the local system prior to deployment. If \code{FALSE} then it is re-deployed
 using the last version that was uploaded. \code{FALSE} is only supported on
 shinyapps.io; \code{TRUE} is required on Posit Connect.}
 
-\item{recordDir}{Directory where publish record is written. Can be \code{NULL}
-in which case record will be written to the location specified with \code{appDir}.}
+\item{recordDir}{Directory where deployment record is written. The default,
+\code{NULL}, uses \code{appDir}, since this is usually where you want the deployment
+data to be stored. This argument is typically only needed when deploying
+a directory of static files since you want to store the record with the
+code that generated those files, not the files themselves.}
 
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in

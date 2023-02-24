@@ -1,6 +1,6 @@
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
-deploymentTarget <- function(appPath = ".",
+deploymentTarget <- function(recordPath = ".",
                              appName = NULL,
                              appTitle = NULL,
                              appId = NULL,
@@ -9,7 +9,7 @@ deploymentTarget <- function(appPath = ".",
                              error_call = caller_env()) {
 
   appDeployments <- deployments(
-    appPath = appPath,
+    appPath = recordPath,
     nameFilter = appName,
     accountFilter = account,
     serverFilter = server
@@ -18,13 +18,12 @@ deploymentTarget <- function(appPath = ".",
   if (nrow(appDeployments) == 0) {
     fullAccount <- findAccount(account, server)
     if (is.null(appName)) {
-      appName <- generateAppName(appTitle, appPath, account, unique = FALSE)
+      appName <- generateAppName(appTitle, recordPath, account, unique = FALSE)
     }
 
     createDeploymentTarget(
-      appPath,
       appName,
-      appTitle %||% "",
+      appTitle,
       appId,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
@@ -32,7 +31,6 @@ deploymentTarget <- function(appPath = ".",
     )
   } else if (nrow(appDeployments) == 1) {
     createDeploymentTarget(
-      appPath,
       appDeployments$name,
       appTitle %||% appDeployments$title,
       appDeployments$appId,
@@ -55,8 +53,7 @@ deploymentTarget <- function(appPath = ".",
   }
 }
 
-createDeploymentTarget <- function(appPath,
-                                   appName,
+createDeploymentTarget <- function(appName,
                                    appTitle,
                                    appId,
                                    username,
@@ -64,7 +61,7 @@ createDeploymentTarget <- function(appPath,
                                    server) {
   list(
     appName = appName,
-    appTitle = appTitle,
+    appTitle = appTitle %||% "",
     appId = appId,
     username = username,
     account = account,

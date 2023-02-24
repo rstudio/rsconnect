@@ -1,5 +1,33 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` is more aggressive about saving deployment data, which should
+  make it less likely that you need to repeat yourself after a failed 
+  deployment. In particular, it now saves both before and after uploading the
+  contents (#677) and it saves when you're updating content originally created
+  by someone else (#270).
+  
+* `deployApp("foo.Rmd")` has been deprecated. It was never documented, and
+  it does the same job as `deployDoc()` (#698).
+
+* `deployApp(appPrimaryDoc)` has been deprecated; it did the same job as 
+  `recordDir`.
+
+* `appDependencies()` now returns an additional column giving the Repository 
+  (#670)
+
+* The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
+  called with the content directory, not sometimes the path to a specific file
+  (#696).
+
+* `showMetrics()` once again returns a correctly named data frame (#528).
+
+* `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
+  files (i.e. as documented) (#568). 
+
+* `listBundleFiles()` now errors when if the bundle is either too large 
+  or contains too many files, rather than silently truncating as previously 
+  (#684).
+
 * `applications()` now returns the application title, if available (#484).
 
 * `addConnectServer()` is slightly more robust to incorrect specification 

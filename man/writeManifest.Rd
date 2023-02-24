@@ -17,12 +17,13 @@ writeManifest(
 )
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.}
+files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
+See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be
