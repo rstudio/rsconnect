@@ -353,6 +353,13 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
     sapply(repos, "[[", 1)
   )
 
+  # get packages records defined in the lockfile
+  records <- utils::tail(df, -1)
+  records[c("Source", "Repository")] <- findPackageRepoAndSource(records, repos)
+  records
+}
+
+findPackageRepoAndSource <- function(records, repos) {
   # read available.packages filters (allow user to override if necessary;
   # this is primarily to allow debugging)
   #
@@ -361,10 +368,7 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
   # in use can still be marked as available on CRAN -- for example, currently
   # the package "foreign" requires "R (>= 4.0.0)" but older versions of R
   # can still successfully install older versions from the CRAN archive
-  filters <- getOption(
-    "available_packages_filters",
-    default = c("duplicates")
-  )
+  filters <- getOption("available_packages_filters", default = "duplicates")
 
   # get Bioconductor repos if any
   biocRepos <- repos[grep("BioC", names(repos), perl = TRUE, value = TRUE)]
@@ -388,11 +392,11 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
     name = names(named.repos),
     url = as.character(named.repos),
     contrib.url = contrib.url(named.repos, type = "source"),
-    stringsAsFactors = FALSE)
+    stringsAsFactors = FALSE
+  )
 
-  # get packages records defined in the lockfile
-  records <- utils::tail(df, -1)
-
+  # Sources are created by packrat:
+  # https://github.com/rstudio/packrat/blob/v0.9.0/R/pkg.R#L328
   # if the package is in a named CRAN-like repository capture it
   tmp <- lapply(seq_len(nrow(records)), function(i) {
 
@@ -428,10 +432,9 @@ snapshotRDependencies <- function(appDir, implicit_dependencies = c(), verbose =
       repository <- package.repo$url
     }
     # validatePackageSource will emit a warning for packages with NA repository.
-    data.frame(Source = source, Repository = repository)
+    data.frame(Source = source, Repository = repository, stringsAsFactors = FALSE)
   })
-  records[, c("Source", "Repository")] <- do.call("rbind", tmp)
-  return(records)
+  do.call("rbind", tmp)
 }
 
 addPackratSnapshot <- function(bundleDir, implicit_dependencies = c(), verbose = FALSE) {
