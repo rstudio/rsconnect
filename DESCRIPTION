@@ -5,6 +5,8 @@ Title: Deploy Docs, Apps, and APIs to Posit Connect, shinyapps.io, and
 Version: 0.8.29-1
 Authors@R: c(
     person("Aron", "Atkins", , "aron@posit.co", role = c("aut", "cre")),
+    person("Toph", "Allen", , "toph@posit.co", role = "aut"),
+    person("Hadley", "Wickham", , "hadley@posit.co", role = "aut"),
     person("Jonathan", "McPherson", , "jonathan@posit.co", role = "aut"),
     person("JJ", "Allaire", role = "aut"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
