@@ -85,7 +85,11 @@ test_that("warns if can't find source", {
 test_that("clear error if can't run performPackratSnapshot()", {
   dir <- withr::local_tempdir()
 
-  expect_snapshot(addPackratSnapshot(dir, "doesntexist"), error = TRUE)
+  expect_snapshot(
+    addPackratSnapshot(dir, "doesntexist"),
+    error = TRUE,
+    transform = function(x) gsub('"', "'", x, fixed = TRUE)
+  )
 })
 
 test_that("cleans up implicit dependency files", {
