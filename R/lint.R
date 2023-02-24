@@ -20,7 +20,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 
 
   # collect files
-  checkAppLayout(".")
+  checkAppLayout(".", appPrimaryDoc = appPrimaryDoc)
 
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
 
