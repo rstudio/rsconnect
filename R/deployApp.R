@@ -267,6 +267,12 @@ deployApp <- function(appDir = getwd(),
   # get the application to deploy (creates a new app on demand)
   withStatus("Preparing to deploy", {
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
+    saveDeployment(
+      recordPath,
+      target = target,
+      application = application,
+      metadata = metadata
+    )
   })
 
   # Change _visibility_ before uploading data
@@ -284,7 +290,6 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     logger("Bundle upload started")
     withStatus(paste0("Uploading bundle (", application$id, ")"), {
-
       # python is enabled on Connect but not on Shinyapps
       python <- getPythonForTarget(python, accountDetails)
       bundlePath <- bundleApp(target$appName, appDir, appFiles,
@@ -298,27 +303,17 @@ deployApp <- function(appDir = getwd(),
         bundle <- client$uploadApplication(application$id, bundlePath)
       }
     })
-  } else {
-    # redeploy current bundle
-    bundle <- application$deployment$bundle
-  }
 
-  # write a deployment record only if this is the account that owns the content
-  if (is.null(application$owner_username) ||
-      accountDetails$username == application$owner_username) {
-    # save the deployment info for subsequent updates--we do this before
-    # attempting the deployment itself to make retry easy on failure.
-    logger("Saving deployment record for ", target$appName, "-", target$username)
     saveDeployment(
-      recordDir,
+      recordPath,
       target = target,
       application = application,
       bundleId = bundle$id,
       metadata = metadata
     )
   } else {
-    logger("Updating ", target$appName, ", owned by ", application$owner_username,
-        ", from account", accountDetails$username)
+    # redeploy current bundle
+    bundle <- application$deployment$bundle
   }
 
   if (length(bundle$id) > 0 && nzchar(bundle$id)) {
