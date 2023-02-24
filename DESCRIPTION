@@ -18,6 +18,7 @@ Imports:
     curl,
     digest,
     jsonlite,
+    lifecycle,
     openssl (>= 2.0.0),
     packrat (>= 0.6),
     rlang (>= 1.0.0),

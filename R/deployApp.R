@@ -32,10 +32,8 @@
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
 #'   being deployed.
-#' @param appSourceDoc If the application is composed of static files (e.g
-#'   HTML), this parameter indicates the source document, if any, as a fully
-#'   qualified path. Deployment information returned by [deployments()] is
-#'   associated with the source document.
+#' @param appSourceDoc `r lifecycle::badge("deprecated")` Please use
+#'   `recordDir` instead.
 #' @param appName Name of application (names must be unique within an account).
 #'   If not supplied on the first deploy, it will be generated from the base
 #'   name of `appDir` and `appTitle`, if supplied. On subsequent deploys,
@@ -175,6 +173,25 @@ deployApp <- function(appDir = getwd(),
 
   check_string(appName, allow_null = TRUE)
 
+  if (!is.null(appPrimaryDoc)) {
+    check_string(appPrimaryDoc)
+    if (!file.exists(file.path(appDir, appPrimaryDoc))) {
+      cli::cli_abort("`appPrimaryDoc` not found inside `appDir`")
+    }
+  }
+
+  if (!is.null(appSourceDoc)) {
+    lifecycle::deprecate_warn(
+      when = "0.9.0",
+      what = "deployApp(appSourceDoc)",
+      with = "deployApp(recordDir)",
+    )
+    check_directory(appSourceDoc)
+    recordDir <- appSourceDoc
+  } else if (!is.null(recordDir)) {
+    check_directory(recordDir)
+  }
+
   # set up logging helpers
   logLevel <- match.arg(logLevel)
   quiet <- identical(logLevel, "quiet")
@@ -208,27 +225,6 @@ deployApp <- function(appDir = getwd(),
     on.exit(options(old_error), add = TRUE)
   }
 
-  # create the full path that we'll deploy (append document if requested)
-  # TODO(HW): we use appPrimaryDoc here, but we have not inferred it yet
-  # so the appPath will different deneding on whether it's explicitly
-  # supplied or inferred from the files in the directory.
-  appPath <- appDir
-  if (!is.null(appSourceDoc) && nchar(appSourceDoc) > 0) {
-    appPath <- appSourceDoc
-  } else if (!is.null(appPrimaryDoc) && nchar(appPrimaryDoc) > 0) {
-    appPath <- file.path(appPath, appPrimaryDoc)
-    if (!file.exists(appPath)) {
-      stop(appPath, " does not exist")
-    }
-  }
-
-  # directory for recording deployment
-  if (is.null(recordDir)) {
-    recordDir <- appPath
-  } else {
-    check_directory(recordDir)
-  }
-
   # at verbose log level, generate header
   if (verbose) {
     logger("Deployment log started")
@@ -248,7 +244,8 @@ deployApp <- function(appDir = getwd(),
   }
 
   # determine the deployment target and target account info
-  target <- deploymentTarget(recordDir, appName, appTitle, appId, account, server)
+  recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
+  target <- deploymentTarget(recordPath, appName, appTitle, appId, account, server)
 
   # test for compatibility between account type and publish intent
   if (!isCloudServer(target$server) && identical(upload, FALSE)) {
@@ -308,7 +305,7 @@ deployApp <- function(appDir = getwd(),
     # save the deployment info for subsequent updates--we do this before
     # attempting the deployment itself to make retry easy on failure.
     logger("Saving deployment record for ", target$appName, "-", target$username)
-    saveDeployment(recordDir,
+    saveDeployment(recordPath,
                    target$appName,
                    target$appTitle,
                    target$username,
@@ -360,6 +357,18 @@ deployApp <- function(appDir = getwd(),
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+findRecordPath <- function(appDir,
+                           recordDir = NULL,
+                           appPrimaryDoc = NULL) {
+  if (!is.null(recordDir)) {
+    recordDir
+  } else if (!is.null(appPrimaryDoc)) {
+    file.path(appDir, appPrimaryDoc)
+  } else {
+    appDir
+  }
 }
 
 # Shinyapps defaults to public visibility.

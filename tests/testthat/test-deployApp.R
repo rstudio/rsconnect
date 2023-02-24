@@ -1,3 +1,37 @@
+test_that("appPrimaryDoc must exist, if supplied", {
+  dir <- local_temp_app()
+
+  expect_snapshot(error = TRUE, {
+    deployApp(dir, appPrimaryDoc = c("foo.Rmd", "bar.Rmd"))
+    deployApp(dir, appPrimaryDoc = "foo.Rmd")
+  })
+})
+test_that("recordDoc must exist, if supplied", {
+  dir <- local_temp_app()
+
+  expect_snapshot(error = TRUE, {
+    deployApp(dir, recordDir = "doesntexist")
+  })
+})
+
+test_that("appSourceDoc is deprecated & checks path", {
+  dir <- local_temp_app()
+
+  expect_snapshot(error = TRUE, {
+    deployApp(dir, appSourceDoc = "records")
+  })
+})
+
+# record directory --------------------------------------------------------
+
+test_that("findRecordPath() uses recordDir, then appPrimaryDoc, then appDir", {
+  expect_equal(findRecordPath("a"), "a")
+  expect_equal(findRecordPath("a", recordDir = "b"), "b")
+  expect_equal(findRecordPath("a", appPrimaryDoc = "c"), "a/c")
+})
+
+# app visibility ----------------------------------------------------------
+
 test_that("needsVisibilityChange() returns FALSE when no change needed", {
 
   dummyApp <- function(visibility) {
@@ -18,6 +52,7 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
 })
 
 test_that("deployHook executes function if set", {
+  withr::local_options(rsconnect.pre.deploy = NULL)
   expect_equal(
     runDeploymentHook("PATH", "rsconnect.pre.deploy"),
     NULL
