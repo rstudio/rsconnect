@@ -292,17 +292,17 @@ deployApp <- function(appDir = getwd(),
     logger("Bundle upload started")
     withStatus(paste0("Uploading bundle (", application$id, ")"), {
       bundlePath <- bundleApp(
-        target$appName,
-        appDir,
-        appFiles,
-        appPrimaryDoc,
-        contentCategory,
-        verbose,
-        pythonConfig,
-        quarto,
-        isCloudServer(accountDetails$server),
-        metadata,
-        image
+        appName = target$appName,
+        appDir = appDir,
+        appFiles = appFiles,
+        appPrimaryDoc = appPrimaryDoc,
+        contentCategory = contentCategory,
+        verbose = verbose,
+        pythonConfig = pythonConfig,
+        quarto = quarto,
+        isCloudServer = isCloudServer(accountDetails$server),
+        metadata = metadata,
+        image = image
       )
 
       if (isCloudServer(accountDetails$server)) {
