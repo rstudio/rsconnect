@@ -508,9 +508,12 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
 }
 
 applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-  # Use appId from previous deployment
+  # Use appId from previous deployment, if it still exists
   if (!is.null(target$appId)) {
-    return(client$getApplication(target$appId))
+    app <- client$getApplication(target$appId)
+    if (!is.null(app)) {
+      return(app)
+    }
   }
 
   # Otherwise, see if there's an existing app with this name
