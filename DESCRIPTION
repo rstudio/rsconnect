@@ -1,7 +1,7 @@
 Type: Package
 Package: rsconnect
-Title: Deployment Interface for R Markdown Documents and Shiny
-    Applications
+Title: Deploy Docs, Apps, and APIs to Posit Connect, shinyapps.io, and
+    RPubs
 Version: 0.8.29-1
 Authors@R: c(
     person("Aron", "Atkins", , "aron@posit.co", role = c("aut", "cre")),
