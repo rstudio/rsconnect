@@ -21,12 +21,15 @@
 # clear error if can't run performPackratSnapshot()
 
     Code
-      addPackratSnapshot("doesntexit")
+      addPackratSnapshot(dir, "doesntexist")
     Condition
+      Warning in `FUN()`:
+      Package 'doesntexist' not available in repository or locally
       Error in `addPackratSnapshot()`:
       ! Failed to snapshot dependencies
-      Caused by error in `normalizePath()`:
-      ! path[1]="doesntexit": No such file or directory
+      Caused by error:
+      ! Unable to retrieve package records for the following packages:
+      - 'doesntexist'
 
 # infers correct packages for each source
 
