@@ -18,9 +18,8 @@
 #' control to ensure that future you and other collaborators will publish
 #' to the same location.
 #'
-#' @param appDir Either a directory containing an application (e.g. a Shiny app
-#'   or plumber API) or a path to a document, like an `.html`, `.Rmd`, or
-#'   `.Qmd`.  Defaults to the working directory.
+#' @param appDir A directory containing an application (e.g. a Shiny app
+#'   or plumber API).
 #' @param appFiles A character vector given relative paths to the files and
 #'   directories to bundle and deploy. The default, `NULL`, will include all
 #'   files in `appDir`, apart from any listed in an `.rscignore` file.
@@ -154,21 +153,26 @@ deployApp <- function(appDir = getwd(),
   condaMode <- FALSE
 
   check_string(appDir)
-  if (dirExists(appDir)) {
-    # ok
-  } else if (file.exists(appDir) && isStaticFile(appDir)) {
-    doc <- standardizeSingleDocDeployment(appDir)
-
-    appDir <- doc$appDir
-    appPrimaryDoc <- doc$appPrimaryDoc
-    if (is.null(appFiles) && is.null(appFileManifest)) {
-      appFiles <- doc$appFiles
-    }
-  } else {
-    cli::cli_abort(
-      "{.arg appDir} must be a directory or a .Rmd, .Qmd, or .html file"
+  if (isStaticFile(appDir) && !dirExists(appDir)) {
+    lifecycle::deprecate_warn(
+      when = "0.9.0",
+      what = "deployApp(appDir = 'takes a directory, not a document,')",
+      with = "deployDoc()"
     )
+    return(deployDoc(
+      appDir,
+      appName = appName,
+      appTitle = appTitle,
+      account = account,
+      server = server,
+      upload = upload,
+      recordDir = recordDir,
+      launch.browser = launch.browser,
+      logLevel = logLevel,
+      lint = lint
+    ))
   }
+  check_directory(appDir)
   appDir <- normalizePath(appDir)
 
   check_string(appName, allow_null = TRUE)

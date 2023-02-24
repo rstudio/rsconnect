@@ -57,7 +57,6 @@ showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server =
 #' Show application metrics of a currently deployed application.
 #' This function only works for ShinyApps servers.
 #'
-#' @inheritParams writeManifest
 #' @param metricSeries Metric series to query. Refer to the
 #'   [shinyapps.io documentation](<https://docs.posit.co/shinyapps.io/metrics.html#ApplicationMetrics>)
 #'   for available series.

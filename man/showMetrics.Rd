@@ -25,8 +25,8 @@ for available series.}
 \href{https://docs.posit.co/shinyapps.io/metrics.html#ApplicationMetrics}{shinyapps.io documentation}
 for available metrics.}
 
-\item{appDir}{Path to an application directory. Defaults to the
-working directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API).}
 
 \item{appName}{Name of application (names must be unique within an account).
 If not supplied on the first deploy, it will be generated from the base

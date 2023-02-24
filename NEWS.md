@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp("foo.Rmd")` has been deprecated. It was never documented, and
+  it does the same job as `deployDoc()` (#698).
+
 * `deployApp(appPrimaryDoc)` has been deprecated; it did the same job as 
   `recordDir`.
 
