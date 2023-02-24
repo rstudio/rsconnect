@@ -307,17 +307,13 @@ deployApp <- function(appDir = getwd(),
     # save the deployment info for subsequent updates--we do this before
     # attempting the deployment itself to make retry easy on failure.
     logger("Saving deployment record for ", target$appName, "-", target$username)
-    saveDeployment(recordPath,
-                   target$appName,
-                   target$appTitle,
-                   target$username,
-                   target$account,
-                   accountDetails$server,
-                   serverInfo(target$server)$hostUrl,
-                   application$id,
-                   bundle$id,
-                   application$url,
-                   metadata)
+    saveDeployment(
+      recordDir,
+      target = target,
+      application = application,
+      bundleId = bundle$id,
+      metadata = metadata
+    )
   } else {
     logger("Updating ", target$appName, ", owned by ", application$owner_username,
         ", from account", accountDetails$username)
@@ -483,15 +479,6 @@ getPythonForTarget <- function(path, accountDetails) {
   }
 }
 
-
-# get the record for the application of the given name in the given account, or
-# NULL if no application exists by that name
-getAppByName <- function(client, accountInfo, name) {
-  # NOTE: returns a list with 0 or 1 elements
-  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
-  if (length(app)) app[[1]] else NULL
-}
-
 # get the record for the application with the given ID in the given account;
 # this isn't used inside the package itself but is invoked from the RStudio IDE
 # to look up app details
@@ -521,34 +508,49 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
 }
 
 applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-
-  if (is.null(target$appId)) {
-    # list the existing applications for this account and see if we
-    # need to create a new application
-    app <- getAppByName(client, accountInfo, target$appName)
-  } else {
-    # we already know the app's id, so just retrieve the rest of the metadata
+  # Use appId from previous deployment, if it still exists
+  if (!is.null(target$appId)) {
     app <- client$getApplication(target$appId)
+    if (!is.null(app)) {
+      return(app)
+    }
   }
 
-  # if there is no record of deploying this application locally however there
-  # is an application of that name already deployed then confirm
-  if (!is.null(target$appId) && !is.null(app) && interactive() && !forceUpdate) {
-    prompt <- paste("Update application currently deployed at\n", app$url,
-                    "? [Y/n] ", sep = "")
-    input <- readline(prompt)
-    if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
-      stop("Application deployment cancelled", call. = FALSE)
+  # Otherwise, see if there's an existing app with this name
+  sameName <- getAppByName(client, accountInfo, target$appName)
+  if (!is.null(sameName)) {
+    # check that it's ok to to use it
+    if (interactive() && !forceUpdate) {
+      cat("\n") # Escape from preparing to deploy line
+      cli::cli_inform(paste0(
+        "There is a currently deployed app with name {.str {target$appName}}",
+        " at {.url {sameName$url}}"
+      ))
+      input <- readline("Do you want to update it? [Y/n] ")
+      if (input %in% c("y", "Y", "")) {
+        return(sameName)
+      }
+
+      cli::cli_abort(c(
+        "Each item of content must have a unique {.arg appName}.",
+        i = "Set {.arg appName} to a new value."
+      ))
+    }
   }
 
-  # create the application if we need to
-  if (is.null(app)) {
-    app <- client$createApplication(target$appName, target$appTitle, "shiny",
-                                    accountInfo$accountId)
-  }
+  # Otherwise, create a new app
+  client$createApplication(
+    target$appName,
+    target$appTitle,
+    "shiny",
+    accountInfo$accountId
+  )
+}
 
-  # return the application
-  app
+getAppByName <- function(client, accountInfo, name) {
+  # NOTE: returns a list with 0 or 1 elements
+  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(app)) app[[1]] else NULL
 }
 
 validURL <- function(url) {

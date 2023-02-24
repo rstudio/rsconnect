@@ -59,19 +59,31 @@ test_that("errors if multiple deployments", {
   app_dir <- withr::local_tempdir()
   saveDeployment(
     app_dir,
-    name = "test",
-    server = "foo1",
-    appId = "1",
-    bundleId = "abc",
-    url = "http://example.com"
+    target = createDeploymentTarget(
+      appName = "test",
+      appTitle = "old title",
+      appId = "x",
+      server = "foo1",
+      username = "ron",
+      account = "ron"
+    ),
+    application = list(id = NA, url = NA),
+    bundleId = NA,
+    hostUrl = NA
   )
   saveDeployment(
     app_dir,
-    name = "test",
-    server = "foo2",
-    appId = "2",
-    bundleId = "abc",
-    url = "http://example.com"
+    target = createDeploymentTarget(
+      appName = "test",
+      appTitle = "old title",
+      appId = "x",
+      server = "foo2",
+      username = "ron",
+      account = "ron"
+    ),
+    application = list(id = NA, url = NA),
+    bundleId = NA,
+    hostUrl = NA
   )
 
   expect_snapshot(error = TRUE, {
@@ -87,10 +99,17 @@ test_that("succeeds if there's a single existing deployment", {
   file.create(file.path(app_dir, "app.R"))
   saveDeployment(
     app_dir,
-    name = "test",
-    appId = "1",
-    bundleId = "abc",
-    url = "http://example.com"
+    target = createDeploymentTarget(
+      appName = "test",
+      appTitle = "old title",
+      appId = "x",
+      server = "bar",
+      username = "ron",
+      account = "ron"
+    ),
+    application = list(id = "1", url = NA),
+    bundleId = 1,
+    hostUrl = NA
   )
 
   target <- deploymentTarget(app_dir)
@@ -109,11 +128,17 @@ test_that("new title overrides existing title", {
   file.create(file.path(app_dir, "app.R"))
   saveDeployment(
     app_dir,
-    name = "test",
-    title = "old title",
-    appId = "1",
-    bundleId = "abc",
-    url = "http://example.com"
+    target = createDeploymentTarget(
+      appName = "test",
+      appTitle = "old title",
+      appId = "x",
+      server = "bar",
+      username = NA,
+      account = "ron"
+    ),
+    application = list(id = "1", url = NA),
+    bundleId = 1,
+    hostUrl = NA
   )
 
   target <- deploymentTarget(app_dir)
@@ -157,11 +182,17 @@ test_that("on first deploy only, title affects app name", {
 
   saveDeployment(
     app_dir,
-    name = "my_title",
-    title = "my title",
-    appId = "1",
-    bundleId = "",
-    url = ""
+    target = createDeploymentTarget(
+      appName = "my_title",
+      appTitle = "my title",
+      appId = "x",
+      server = "bar",
+      username = "ron",
+      account = "ron"
+    ),
+    application = list(id = "1", url = NA),
+    bundleId = 1,
+    hostUrl = NA
   )
   target <- deploymentTarget(app_dir, appTitle = "my new title")
   expect_equal(target$appName, "my_title")
