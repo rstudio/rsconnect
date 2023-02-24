@@ -137,7 +137,7 @@ createAppManifest <- function(appDir,
     python <- pythonConfig(appDir)
 
     packageFile <- file.path(appDir, python$package_manager$package_file)
-    cat(python$package_manager$contents, file = packageFile, sep = "\n")
+    writeLines(python$package_manager$contents, packageFile)
     python$package_manager$contents <- NULL
   } else {
     python <- NULL
