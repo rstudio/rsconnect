@@ -61,7 +61,7 @@ standardizeSingleDocDeployment <- function(path,
   }
 
   list(
-    appDir = dirname(path),
+    appDir = normalizePath(dirname(path)),
     appPrimaryDoc = basename(path),
     appFiles = appFiles
   )
