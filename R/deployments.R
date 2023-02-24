@@ -1,7 +1,7 @@
 saveDeployment <- function(recordDir,
                            target,
                            application,
-                           bundleId,
+                           bundleId = NULL,
                            hostUrl = serverInfo(target$server)$hostUrl,
                            metadata = list()) {
 
