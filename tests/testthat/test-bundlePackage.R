@@ -25,6 +25,17 @@ test_that("includes inferred dependencies", {
   expect_true("shiny" %in% names(out))
 })
 
+test_that("recommended packages are snapshotted", {
+  app_dir <- withr::local_tempdir()
+  writeLines(con = file.path(app_dir, "index.Rmd"), c(
+    "```{r}",
+    "library(MASS)",
+    "```"
+  ))
+  out <- bundlePackages(app_dir, appMode = "rmd-static", hasParameters = TRUE)
+  expect_true("MASS" %in% names(out))
+})
+
 test_that("errors if dependencies aren't installed", {
   mockr::local_mock(snapshotRDependencies = function(...) {
     data.frame(

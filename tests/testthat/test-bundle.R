@@ -87,19 +87,6 @@ test_that("single-file Shiny app bundle is runnable", {
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
 
-test_that("recommended packages are snapshotted", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
-    "MASS",
-    test_path("project-MASS"),
-    "MASS.R"
-  )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
-  deps <- packrat:::readLockFilePackages(lockfile)
-  expect_true("MASS" %in% names(deps))
-})
-
 test_that("simple Rmd as primary not identified as parameterized when parameterized Rmd in bundle", {
   skip_on_cran()
   bundleTempDir <- makeShinyBundleTempDir(
