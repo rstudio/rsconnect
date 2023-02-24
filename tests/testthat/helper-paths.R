@@ -1,11 +1,9 @@
 pythonPathOrSkip <- function() {
   skip_if_not_installed("reticulate")
 
-  path <- getPython()
-  if (is.null(path)) {
-    skip("`getPython()` can't find python")
+  if (!reticulate::py_available(TRUE)) {
+    skip("python not found by reticulate")
   }
-
   path <- reticulate::py_config()$python
 
   pipMissing <- system2(path, "-m pip help", stdout = NULL, stderr = NULL)
