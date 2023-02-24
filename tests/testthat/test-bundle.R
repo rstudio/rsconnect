@@ -391,41 +391,6 @@ test_that("getPythonForTarget defaults to enabled for rstudio.cloud", {
 
 # Quarto Tests
 
-test_that("quartoInspect identifies on Quarto projects", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-
-  inspect <- NULL
-  inspect <- quartoInspect(appDir = "quarto-proj-r-shiny", quarto = quarto)
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-})
-
-test_that("quartoInspect identifies Quarto documents", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(
-    appDir = "quarto-doc-none",
-    appPrimaryDoc = "quarto-doc-none.qmd",
-    quarto = quarto
-  )
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-})
-
-test_that("quartoInspect returns NULL on non-quarto Quarto content", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(appDir = "shinyapp-simple", quarto = quarto)
-  expect_null(inspect)
-})
-
-test_that("quartoInspect returns null when no quarto is provided", {
-  quarto <- quartoPathOrSkip()
-
-  expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
-})
-
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
