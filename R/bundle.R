@@ -130,7 +130,9 @@ createAppManifest <- function(appDir,
     verbose = verbose
   )
 
-  needsPython <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
+  needsPython <- documentsHavePython ||
+    "jupyter" %in% quartoInfo$engines ||
+    "reticulate" %in% names(packages)
   if (needsPython && !is.null(pythonConfig)) {
     python <- pythonConfig(appDir)
 

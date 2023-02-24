@@ -26,17 +26,6 @@ pythonConfigurator <- function(python,
   }
 }
 
-appUsesPython <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # No R-based, non-Quarto content uses Python by default.
-    # Looking for Python chunks in Rmd needs to happen separately.
-    FALSE
-  } else {
-    # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
-    "jupyter" %in% quartoInfo[["engines"]]
-  }
-}
-
 # python is enabled on Connect and posit.cloud, but not on Shinyapps
 getPythonForTarget <- function(path, accountDetails) {
   targetIsShinyapps <- isShinyappsServer(accountDetails$server)
