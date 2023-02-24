@@ -150,8 +150,6 @@ deployApp <- function(appDir = getwd(),
                       image = NULL
                       ) {
 
-  condaMode <- FALSE
-
   check_string(appDir)
   if (isStaticFile(appDir) && !dirExists(appDir)) {
     lifecycle::deprecate_warn(
@@ -287,15 +285,25 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (upload) {
+    python <- getPythonForTarget(python, accountDetails)
+    pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
+
     # create, and upload the bundle
     logger("Bundle upload started")
     withStatus(paste0("Uploading bundle (", application$id, ")"), {
-      # python is enabled on Connect but not on Shinyapps
-      python <- getPythonForTarget(python, accountDetails)
-      bundlePath <- bundleApp(target$appName, appDir, appFiles,
-                              appPrimaryDoc, contentCategory, verbose, python,
-                              condaMode, forceGeneratePythonEnvironment, quarto,
-                              isCloudServer(accountDetails$server), metadata, image)
+      bundlePath <- bundleApp(
+        appName = target$appName,
+        appDir = appDir,
+        appFiles = appFiles,
+        appPrimaryDoc = appPrimaryDoc,
+        contentCategory = contentCategory,
+        verbose = verbose,
+        pythonConfig = pythonConfig,
+        quarto = quarto,
+        isCloudServer = isCloudServer(accountDetails$server),
+        metadata = metadata,
+        image = image
+      )
 
       if (isCloudServer(accountDetails$server)) {
         bundle <- uploadCloudBundle(client, application$id, bundlePath)
@@ -400,10 +408,17 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 # deployApp() instead of being exposed to the user. Returns the path to the
 # bundle directory, whereas writeManifest() returns nothing and deletes the
 # bundle directory after writing the manifest.
-bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc,
-                      contentCategory, verbose = FALSE, python = NULL,
-                      condaMode = FALSE, forceGenerate = FALSE, quarto = NULL,
-                      isCloudServer = FALSE, metadata = list(), image = NULL) {
+bundleApp <- function(appName,
+                      appDir,
+                      appFiles,
+                      appPrimaryDoc,
+                      contentCategory = NULL,
+                      verbose = FALSE,
+                      pythonConfig = NULL,
+                      quarto = NULL,
+                      isCloudServer = FALSE,
+                      metadata = list(),
+                      image = NULL) {
   logger <- verboseLogger(verbose)
 
   logger("Inferring App mode and parameters")
@@ -434,21 +449,20 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc,
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")
   manifest <- createAppManifest(
-      appDir = bundleDir,
-      appMode = appMetadata$appMode,
-      contentCategory = contentCategory,
-      hasParameters = appMetadata$hasParameters,
-      appPrimaryDoc = appMetadata$appPrimaryDoc,
-      users = users,
-      condaMode = condaMode,
-      forceGenerate = forceGenerate,
-      python = python,
-      documentsHavePython = appMetadata$documentsHavePython,
-      retainPackratDirectory = TRUE,
-      quartoInfo = appMetadata$quartoInfo,
-      isCloud = isCloudServer,
-      image = image,
-      verbose = verbose)
+    appDir = bundleDir,
+    appMode = appMetadata$appMode,
+    contentCategory = contentCategory,
+    hasParameters = appMetadata$hasParameters,
+    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    users = users,
+    pythonConfig = pythonConfig,
+    documentsHavePython = appMetadata$documentsHavePython,
+    retainPackratDirectory = TRUE,
+    quartoInfo = appMetadata$quartoInfo,
+    isCloud = isCloudServer,
+    image = image,
+    verbose = verbose
+  )
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
@@ -465,16 +479,6 @@ bundleApp <- function(appName, appDir, appFiles, appPrimaryDoc,
 }
 
 
-getPythonForTarget <- function(path, accountDetails) {
-  # python is enabled on Connect and posit.cloud, but not on Shinyapps
-  targetIsShinyapps <- isShinyappsServer(accountDetails$server)
-  pythonEnabled <- getOption("rsconnect.python.enabled", default = !targetIsShinyapps)
-  if (pythonEnabled) {
-    getPython(path)
-  } else {
-    NULL
-  }
-}
 
 # get the record for the application with the given ID in the given account;
 # this isn't used inside the package itself but is invoked from the RStudio IDE

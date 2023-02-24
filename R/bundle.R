@@ -105,82 +105,15 @@ isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
 
-getCondaEnvPrefix <- function(python) {
-  prefix <- dirname(dirname(python))
-  if (!file.exists(file.path(prefix, "conda-meta"))) {
-    stop(paste("Python from", python, "does not look like a conda environment: cannot find `conda-meta`"))
-  }
-  prefix
-}
-
-getCondaExeForPrefix <- function(prefix) {
-  miniconda <- dirname(dirname(prefix))
-  conda <- file.path(miniconda, "bin", "conda")
-  if (isWindows()) {
-    conda <- paste(conda, ".exe", sep = "")
-  }
-  if (!file.exists(conda)) {
-    stop(paste("Conda env prefix", prefix, "does not have the `conda` command line interface."))
-  }
-  conda
-}
-
-getPython <- function(path) {
-  if (is.null(path)) {
-    path <- Sys.getenv("RETICULATE_PYTHON",
-                       unset = Sys.getenv("RETICULATE_PYTHON_FALLBACK"))
-    if (path == "") {
-      return(NULL)
-    }
-  }
-  path.expand(path)
-}
-
-inferPythonEnv <- function(workdir, python, condaMode, forceGenerate) {
-  # run the python introspection script
-  env_py <- system.file("resources/environment.py", package = "rsconnect")
-  args <- c(shQuote(env_py))
-  if (condaMode || forceGenerate) {
-    flags <- paste("-", ifelse(condaMode, "c", ""), ifelse(forceGenerate, "f", ""), sep = "")
-    args <- c(args, flags)
-  }
-  args <- c(args, shQuote(workdir))
-
-  tryCatch({
-    # First check for reticulate. Then see if python is loaded in reticulate space, verify anaconda presence,
-    # and verify that the user hasn't specified that they don't want their conda environment captured.
-    if ("reticulate" %in% rownames(installed.packages()) && reticulate::py_available(initialize = FALSE) &&
-       reticulate::py_config()$anaconda && !condaMode) {
-      prefix <- getCondaEnvPrefix(python)
-      conda <- getCondaExeForPrefix(prefix)
-      args <- c("run", "-p", prefix, python, args)
-      # conda run -p <prefix> python inst/resources/environment.py <flags> <dir>
-      output <- system2(command = conda, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
-    } else {
-      output <- system2(command = python, args = args, stdout = TRUE, stderr = NULL, wait = TRUE)
-    }
-    environment <- jsonlite::fromJSON(output)
-    if (is.null(environment$error)) {
-      list(
-          version = environment$python,
-          package_manager = list(
-              name = environment$package_manager,
-              version = environment[[environment$package_manager]],
-              package_file = environment$filename,
-              contents = environment$contents))
-    }
-    else {
-      # return the error
-      environment
-    }
-  }, error = function(e) {
-    list(error = e$message)
-  })
-}
-
-createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
-                              appPrimaryDoc, users, condaMode,
-                              forceGenerate, python = NULL, documentsHavePython = FALSE,
+createAppManifest <- function(appDir,
+                              appMode,
+                              contentCategory,
+                              hasParameters,
+                              appPrimaryDoc,
+                              assetTypeName,
+                              users,
+                              pythonConfig = NULL,
+                              documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
                               quartoInfo = NULL,
                               isCloud = FALSE,
@@ -197,18 +130,17 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     verbose = verbose
   )
 
-  pyInfo <- NULL
-  needsPyInfo <- appUsesPython(quartoInfo) || "reticulate" %in% names(packages)
-  if (needsPyInfo && !is.null(python)) {
-    pyInfo <- inferPythonEnv(appDir, python, condaMode, forceGenerate)
-    if (is.null(pyInfo$error)) {
-      # write the package list into requirements.txt/environment.yml file in the bundle dir
-      packageFile <- file.path(appDir, pyInfo$package_manager$package_file)
-      cat(pyInfo$package_manager$contents, file = packageFile, sep = "\n")
-      pyInfo$package_manager$contents <- NULL
-    } else {
-      stop(paste("Error detecting python environment:", pyInfo$error), call. = FALSE)
-    }
+  needsPython <- documentsHavePython ||
+    "jupyter" %in% quartoInfo$engines ||
+    "reticulate" %in% names(packages)
+  if (needsPython && !is.null(pythonConfig)) {
+    python <- pythonConfig(appDir)
+
+    packageFile <- file.path(appDir, python$package_manager$package_file)
+    writeLines(python$package_manager$contents, packageFile)
+    python$package_manager$contents <- NULL
+  } else {
+    python <- NULL
   }
 
   if (!retainPackratDirectory) {
@@ -274,8 +206,8 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     manifest$quarto <- quartoInfo
   }
   # if there is python info for reticulate or Quarto, attach it
-  if (!is.null(pyInfo)) {
-    manifest$python <- pyInfo
+  if (!is.null(python)) {
+    manifest$python <- python
   }
   # if there are no packages set manifest$packages to NA (json null)
   if (length(packages) > 0) {
@@ -296,14 +228,4 @@ createAppManifest <- function(appDir, appMode, contentCategory, hasParameters,
     manifest$users <- NA
   }
   manifest
-}
-
-appUsesPython <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # No R-based, non-Quarto content uses Python by default.
-    # Looking for Python chunks in Rmd needs to happen separately.
-    return(FALSE)
-  }
-  # Python is a direct consequence of the "jupyter" engine; not "knitr" or "markdown".
-  return("jupyter" %in% quartoInfo[["engines"]])
 }
