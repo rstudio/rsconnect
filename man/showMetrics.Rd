@@ -28,10 +28,13 @@ for available metrics.}
 \item{appDir}{A directory containing an application (e.g. a Shiny app
 or plumber API). Defaults to the current directory.}
 
-\item{appName}{Name of application (names must be unique within an account).
-If not supplied on the first deploy, it will be generated from the base
-name of \code{appDir} and \code{appTitle}, if supplied. On subsequent deploys,
-it will use the previously stored value.}
+\item{appName}{Application name, a string consisting of letters, numbers,
+\verb{_} and \code{-}. The application name is used to identify applications on a
+server, so much be unique.
+
+If not specified, the first deployment will be automatically it from the
+\code{appDir} for directory and website, and from the \code{appPrimaryDoc} for
+document. On subsequent deploys, it will use the previously stored value.}
 
 \item{account, server}{Uniquely identify a remote server with either your
 user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the

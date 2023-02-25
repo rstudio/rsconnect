@@ -24,7 +24,8 @@ test_that("succeeds if app is fully specified", {
     appName = "test",
     appTitle = "mytitle",
     appId = "123",
-    account = "ron"
+    account = "ron",
+    quiet = TRUE
   )
   expect_equal(target$appId, "123")
 })
@@ -49,7 +50,12 @@ test_that("handles accounts if only server specified", {
 
   expect_snapshot(deploymentTarget(app_dir, server = "foo"), error = TRUE)
 
-  target <- deploymentTarget(app_dir, server = "foo", account = "ron")
+  target <- deploymentTarget(
+    app_dir,
+    server = "foo",
+    account = "ron",
+    quiet = TRUE
+  )
   expect_equal(target$username, "ron")
 })
 
@@ -112,7 +118,7 @@ test_that("succeeds if there's a single existing deployment", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, quiet = TRUE)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
 
@@ -141,7 +147,7 @@ test_that("new title overrides existing title", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, quiet = TRUE)
   expect_equal(target$appTitle, "old title")
 
   target <- deploymentTarget(app_dir, appTitle = "new title")
@@ -151,10 +157,15 @@ test_that("new title overrides existing title", {
 test_that("succeeds if there are no deployments and a single account", {
   mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
 
-  app_dir <- withr::local_tempdir()
+  dir <- withr::local_tempdir()
+  app_dir <- file.path(dir, "my_app")
+  dir.create(app_dir)
   file.create(file.path(app_dir, "app.R"))
 
-  target <- deploymentTarget(app_dir)
+  expect_snapshot(
+    target <- deploymentTarget(app_dir)
+  )
+  expect_equal(target$appName, "my_app")
   expect_equal(target$username, "ron")
 
   target <- deploymentTarget(app_dir, appName = "foo")
@@ -167,18 +178,15 @@ test_that("default title is the empty string", {
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, quiet = TRUE)
   expect_equal(target$appTitle, "")
 })
 
-test_that("on first deploy only, title affects app name", {
+test_that("deploy can update title", {
   mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
-
-  target <- deploymentTarget(app_dir, appTitle = "my title")
-  expect_equal(target$appName, "my_title")
 
   saveDeployment(
     app_dir,
@@ -196,4 +204,21 @@ test_that("on first deploy only, title affects app name", {
   )
   target <- deploymentTarget(app_dir, appTitle = "my new title")
   expect_equal(target$appName, "my_title")
+})
+
+# defaultAppName ----------------------------------------------------------
+
+test_that("defaultAppName works with sites, documents, and directories", {
+  expect_equal(defaultAppName("foo/bar.Rmd"), "bar")
+  expect_equal(defaultAppName("foo/index.html"), "foo")
+  expect_equal(defaultAppName("foo/bar"), "bar")
+})
+
+test_that("defaultAppName reifies appNames for shinyApps", {
+  expect_equal(defaultAppName("a b c", "shinyapps.io"), "a_b_c")
+  expect_equal(defaultAppName("a!b!c", "shinyapps.io"), "a_b_c")
+  expect_equal(defaultAppName("a  b  c", "shinyapps.io"), "a_b_c")
+
+  long_name <- strrep("abcd", 64 / 4)
+  expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
 })

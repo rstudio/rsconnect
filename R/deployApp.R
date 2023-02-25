@@ -33,10 +33,13 @@
 #'   being deployed.
 #' @param appSourceDoc `r lifecycle::badge("deprecated")` Please use
 #'   `recordDir` instead.
-#' @param appName Name of application (names must be unique within an account).
-#'   If not supplied on the first deploy, it will be generated from the base
-#'   name of `appDir` and `appTitle`, if supplied. On subsequent deploys,
-#'   it will use the previously stored value.
+#' @param appName Application name, a string consisting of letters, numbers,
+#'   `_` and `-`. The application name is used to identify applications on a
+#'   server, so much be unique.
+#'
+#'   If not specified, the first deployment will be automatically it from the
+#'   `appDir` for directory and website, and from the `appPrimaryDoc` for
+#'   document. On subsequent deploys, it will use the previously stored value.
 #' @param appTitle Free-form descriptive title of application. Optional; if
 #'   supplied, will often be displayed in favor of the name. If ommitted,
 #'   on second and subsequent deploys, the title will be unchanged.
@@ -247,7 +250,15 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  target <- deploymentTarget(recordPath, appName, appTitle, appId, account, server)
+  target <- deploymentTarget(
+    recordPath = recordPath,
+    appName = appName,
+    appTitle = appTitle,
+    appId = appId,
+    account = account,
+    server = server,
+    quiet = quiet
+  )
 
   # test for compatibility between account type and publish intent
   if (!isCloudServer(target$server) && identical(upload, FALSE)) {
@@ -269,7 +280,7 @@ deployApp <- function(appDir = getwd(),
       recordPath,
       target = target,
       application = application,
-      metadata = metadata
+      metadata = metadata,
     )
   })
 

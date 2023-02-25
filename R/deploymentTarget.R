@@ -6,6 +6,7 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              account = NULL,
                              server = NULL,
+                             quiet = FALSE,
                              error_call = caller_env()) {
 
   appDeployments <- deployments(
@@ -18,7 +19,12 @@ deploymentTarget <- function(recordPath = ".",
   if (nrow(appDeployments) == 0) {
     fullAccount <- findAccount(account, server)
     if (is.null(appName)) {
-      appName <- generateAppName(appTitle, recordPath, account, unique = FALSE)
+      appName <- defaultAppName(recordPath, fullAccount$server)
+      if (!quiet) {
+        cli::cli_inform("Using {.arg appName} {.str {appName}}")
+      }
+    } else {
+      check_string(appName, call = error_call)
     }
 
     createDeploymentTarget(
@@ -67,4 +73,30 @@ createDeploymentTarget <- function(appName,
     account = account,
     server = server
   )
+}
+
+defaultAppName <- function(recordPath, server = NULL) {
+  if (isDocumentPath(recordPath)) {
+    name <- file_path_sans_ext(basename(recordPath))
+    if (name == "index") {
+      # deploying a website; use name of parent directory
+      name <- basename(dirname(recordPath))
+    } else {
+      # deploying a document
+    }
+  } else {
+    # deploying a directory
+    name <- basename(recordPath)
+  }
+
+  if (isShinyappsServer(server)) {
+    # Replace non-alphanumerics with underscores, trim to length 64
+    name <- tolower(gsub("[^[:alnum:]_-]+", "_", name, perl = TRUE))
+    name <- gsub("_+", "_", name)
+    if (nchar(name) > 64) {
+      name <- substr(name, 1, 64)
+    }
+  }
+
+  name
 }

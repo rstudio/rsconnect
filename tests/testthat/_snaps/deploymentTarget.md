@@ -72,3 +72,10 @@
       i Known servers: "foo1" and "foo2".
       i Known account names: "ron".
 
+# succeeds if there are no deployments and a single account
+
+    Code
+      target <- deploymentTarget(app_dir)
+    Message
+      Using `appName` "my_app"
+

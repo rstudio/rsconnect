@@ -1,5 +1,13 @@
 #' Generate Application Name
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function has been deprecated since we no longer believe that using the
+#' title to generate the name is a sound approach, and if the app name is
+#' already present, it's better for you to come up with your own unique name
+#' than relying on an automated algorithm.
+#'
 #' Generate a short name (identifier) for an application given an application
 #' title.
 #'
@@ -22,6 +30,7 @@
 #' (note that it is not guaranteed to be unique on the server). This behavior
 #' can be disabled by setting `unique = FALSE`.
 #'
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #' # Generate a short name for a sample application
@@ -30,6 +39,8 @@
 #' @export
 
 generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = TRUE) {
+  lifecycle::deprecate_warn("0.9.0", "generateAppName()")
+
   munge <- function(title) {
     # safe default if no title specified
     if (is.null(title)) {
