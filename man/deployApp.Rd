@@ -32,8 +32,8 @@ deployApp(
 )
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
@@ -49,10 +49,8 @@ parameter indicates the primary one, as a path relative to \code{appDir}. Can be
 \code{NULL}, in which case the primary document is inferred from the contents
 being deployed.}
 
-\item{appSourceDoc}{If the application is composed of static files (e.g
-HTML), this parameter indicates the source document, if any, as a fully
-qualified path. Deployment information returned by \code{\link[=deployments]{deployments()}} is
-associated with the source document.}
+\item{appSourceDoc}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use
+\code{recordDir} instead.}
 
 \item{appName}{Name of application (names must be unique within an account).
 If not supplied on the first deploy, it will be generated from the base

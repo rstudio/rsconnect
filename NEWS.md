@@ -1,5 +1,17 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` is more aggressive about saving deployment data, which should
+  make it less likely that you need to repeat yourself after a failed 
+  deployment. In particular, it now saves both before and after uploading the
+  contents (#677) and it saves when you're updating content originally created
+  by someone else (#270).
+  
+* `deployApp("foo.Rmd")` has been deprecated. It was never documented, and
+  it does the same job as `deployDoc()` (#698).
+
+* `deployApp(appPrimaryDoc)` has been deprecated; it did the same job as 
+  `recordDir`.
+
 * `appDependencies()` now returns an additional column giving the Repository 
   (#670)
 
