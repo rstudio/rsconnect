@@ -110,19 +110,24 @@ accountConfigFiles <- function(server = NULL) {
 
 # given a path, return the directory under which rsconnect package state is
 # stored
-deploymentConfigDir <- function(appPath) {
-  if (isDocumentPath(appPath)) {
-    file.path(dirname(appPath), "rsconnect", "documents", basename(appPath))
+deploymentConfigDir <- function(recordPath) {
+  if (isDocumentPath(recordPath)) {
+    file.path(dirname(recordPath), "rsconnect", "documents", basename(recordPath))
   } else {
-    file.path(appPath, "rsconnect")
+    file.path(recordPath, "rsconnect")
   }
 }
 
-deploymentConfigFile <- function(appPath, name, account, server) {
-  accountDir <- file.path(deploymentConfigDir(appPath), server, account)
+deploymentConfigFile <- function(recordPath, name, account, server) {
+  accountDir <- file.path(deploymentConfigDir(recordPath), server, account)
   if (!file.exists(accountDir))
     dir.create(accountDir, recursive = TRUE)
   file.path(accountDir, paste0(name, ".dcf"))
+}
+
+deployConfigFiles <- function(recordPath) {
+  dir <- deploymentConfigDir(recordPath)
+  list.files(dir, glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE)
 }
 
 # Does the path point to an individual piece of content?
