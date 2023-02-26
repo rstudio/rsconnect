@@ -213,3 +213,23 @@ file_size <- function(path) {
   x[is.na(x)] <- 0
   x
 }
+
+rbind_fill <- function(dfs, col_names = character()) {
+  if (length(dfs) == 0) {
+    df <- rep(list(logical(0)), length(col_names))
+    names(df) <- col_names
+    return(as.data.frame(df))
+  }
+
+
+  all_names <- unique(unlist(lapply(dfs, names)))
+  all_names <- union(col_names, all_names)
+
+  add_missing_cols <- function(df) {
+    df[setdiff(all_names, names(df))] <- NA
+    df
+  }
+
+  complete <- lapply(dfs, add_missing_cols)
+  do.call("rbind", complete)
+}
