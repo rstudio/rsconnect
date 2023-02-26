@@ -13,10 +13,9 @@ test_that("can read all files from directory", {
 test_that("can read selected files from directory", {
   dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
   expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
-  # silently ignores files that aren't present
-  expect_equal(standardizeAppFiles(dir, c("b.R", "c.R")), "b.R")
-
-  expect_snapshot(standardizeAppFiles(dir, "c.R"), error = TRUE)
+  expect_snapshot(out <- standardizeAppFiles(dir, c("b.R", "c.R")))
+  expect_equal(out, "b.R")
+  expect_snapshot(standardizeAppFiles(dir, character()), error = TRUE)
 })
 
 test_that("can read selected files from manifest", {
@@ -30,22 +29,19 @@ test_that("can read selected files from manifest", {
     "b.R"
   )
 
-  # silently ignores files that aren't present
   dir <- local_temp_app(list(
     "a.R" = "",
     "b.R" = "",
     "manifest" = c("b.R", "c.R")
   ))
-  expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    "b.R"
+  expect_snapshot(
+    out <- standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
   )
+  expect_equal(out, "b.R")
 
   # errors if no matching files
   dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "c.R"
+    "manifest" = ""
   ))
   expect_snapshot(
     standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
@@ -157,11 +153,12 @@ test_that("returns relative paths", {
   expect_equal(explodeFiles(dir, "x"), c("x/a", "x/b", "x/c"))
 })
 
-test_that("silently drops non-existent files", {
+test_that("drops drops non-existent files with warning", {
   dir <- withr::local_tempdir()
   file.create(file.path(dir, c("a", "b", "c")))
 
-  expect_equal(explodeFiles(dir, c("a", "d")), "a")
+  expect_snapshot(out <- explodeFiles(dir, c("a", "d")))
+  expect_equal(out, "a")
 })
 
 test_that("expands files and directory", {

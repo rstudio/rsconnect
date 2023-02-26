@@ -27,14 +27,14 @@ standardizeAppFiles <- function(appDir,
     }
   } else if (!is.null(appFiles)) {
     check_character(appFiles, allow_null = TRUE, call = error_call)
-    appFiles <- explodeFiles(appDir, appFiles)
+    appFiles <- explodeFiles(appDir, appFiles, "appFiles")
     if (length(appFiles) == 0) {
       no_content("{.arg appFiles} didn't match any files in {.arg appDir}.")
     }
   } else if (!is.null(appFileManifest)) {
     check_file(appFileManifest, error_call = error_call)
     appFiles <- readFileManifest(appFileManifest)
-    appFiles <- explodeFiles(appDir, appFiles)
+    appFiles <- explodeFiles(appDir, appFiles, "appFileManifest")
     if (length(appFiles) == 0) {
       no_content("{.arg appFileManifest} contains no usable files.")
     }
@@ -87,8 +87,17 @@ bundleFiles <- function(appDir) {
   listBundleFiles(appDir)$contents
 }
 
-explodeFiles <- function(dir, files) {
-  files <- files[file.exists(file.path(dir, files))]
+explodeFiles <- function(dir, files, error_arg = "appFiles") {
+  missing <- !file.exists(file.path(dir, files))
+  if (any(missing)) {
+    cli::cli_warn(c(
+      "All files listed in {.arg {error_arg}} must exist.",
+      "Problems: {.file {files[missing]}}"
+    ))
+
+    files <- files[!missing]
+  }
+
   recursiveBundleFiles(dir, contents = files, ignoreFiles = FALSE)$contents
 }
 
