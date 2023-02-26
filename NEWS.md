@@ -3,7 +3,9 @@
 * `deployApp()` excludes temporary backup files (names starting or ending 
   with `~`) when automatically determining files to bundle (#111) and 
   excludes directories that are likely to be python virtual environments 
-  (#632).
+  (#632). Additionally, ignore rules are always now applied to all directories;
+  previously some (like `.Rproj.user` and `"manifest.json"`) were only applied
+  to the root directory.
 
 * The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
   called with the content directory, not sometimes the path to a specific file

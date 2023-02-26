@@ -129,12 +129,11 @@ bundleFiles <- function(appDir) {
 
 recursiveBundleFiles <- function(dir,
                                  rootDir = dir,
-                                 depth = 0,
                                  totalFiles = 0,
                                  totalSize = 0) {
   # generate a list of files at this level
   contents <- list.files(dir, all.files = TRUE, no.. = TRUE, include.dirs = TRUE)
-  contents <- ignoreBundleFiles(dir, contents, depth = depth)
+  contents <- ignoreBundleFiles(dir, contents)
 
   # Info for each file lets us know to recurse (directories) or aggregate (files).
   is_dir <- dir.exists(file.path(dir, contents))
@@ -147,8 +146,7 @@ recursiveBundleFiles <- function(dir,
         dir = file.path(dir, name),
         rootDir = rootDir,
         totalFiles = totalFiles,
-        totalSize = totalSize,
-        depth = depth + 1
+        totalSize = totalSize
       )
 
       children <- append(children, file.path(name, out$contents))
@@ -170,32 +168,27 @@ recursiveBundleFiles <- function(dir,
   )
 }
 
-ignoreBundleFiles <- function(dir, contents, depth = 0) {
-  # exclude some well-known files/directories at root level
-  if (depth == 0) {
-    contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
-    contents <- setdiff(contents, c("manifest.json", "app_cache", ".Rproj.user"))
-  }
-
+ignoreBundleFiles <- function(dir, contents) {
   ignore <- c(
     # rsconnect packages
-    "rsconnect", "rsconnect-python",
+    "rsconnect", "rsconnect-python", "manifest.json",
     # packrat + renv,
     "renv", "renv.lock", "packrat",
     # version control
     ".git", ".gitignore", ".svn",
-    # R
-    ".Rhistory",
+    # R/RStudio
+    ".Rhistory", ".Rproj.user",
     # python virtual envs
     # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d66411f736da6edc29fcf44ed/rsconnect/bundle.py#L37-L50
     ".env", "env", ".venv", "venv",  "__pycache__/",
     # other
-    ".DS_Store",  ".quarto"
+    ".DS_Store", ".quarto", "app_cache"
   )
   contents <- setdiff(contents, ignore)
   contents <- contents[!isKnitrCacheDir(contents)]
   contents <- contents[!isPythonEnv(dir, contents)]
   contents <- contents[!grepl("^~|~$", contents)]
+  contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
 
   # remove any files lines listed .rscignore
   if (".rscignore" %in% contents) {
