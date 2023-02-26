@@ -129,6 +129,24 @@ test_that("ignores files listed in .rscignore", {
   expect_setequal(bundleFiles(dir), character())
 })
 
+test_that("ignores temporary files", {
+  ignored <- ignoreBundleFiles(
+    dir = ".",
+    contents = c("foo.xlsx", "~$foo.xlsx", "foo.csv", "foo.csv~")
+  )
+  expect_equal(ignored, c("foo.xlsx", "foo.csv"))
+})
+
+test_that("ignores python virtual envs", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "test", "bin"), recursive = TRUE)
+  file.create(file.path(dir, "test", "bin", "python"))
+  dir.create(file.path(dir, "venv"))
+  file.create(file.path(dir, "venv", "somefile"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
 # explodeFiles ------------------------------------------------------------
 
 test_that("returns relative paths", {
