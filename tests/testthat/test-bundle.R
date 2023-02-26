@@ -1,6 +1,7 @@
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
+  pythonConfig <- pythonConfigurator(python)
   tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       NULL, python = python)
+                       NULL, pythonConfig = pythonConfig)
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)
@@ -14,32 +15,6 @@ makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, im
   manifestJson <- jsonlite::fromJSON(data)
   unlink(manifestFile)
   manifestJson
-}
-
-quarto_path <- function() {
-  path_env <- Sys.getenv("QUARTO_PATH", unset = NA)
-  if (!is.na(path_env)) {
-    return(path_env)
-  } else {
-    locations <- c(
-      "quarto", # Use PATH
-      "/usr/local/bin/quarto", # Location used by some installers
-      "/opt/quarto/bin/quarto", # Location used by some installers
-      "/Applications/RStudio.app/Contents/MacOS/quarto/bin/quarto" # macOS IDE
-    )
-    for (location in locations) {
-      path <- unname(Sys.which(location))
-      if (nzchar(path)) return(path)
-    }
-    return(NULL)
-  }
-}
-
-quartoPathOrSkip <- function() {
-  skip_on_cran()
-  quarto <- quarto_path()
-  skip_if(is.null(quarto), "quarto cli is not installed")
-  return(quarto)
 }
 
 # avoid 'trying to use CRAN without setting a mirror' errors
@@ -85,19 +60,6 @@ test_that("single-file Shiny app bundle is runnable", {
   )
   on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
-})
-
-test_that("recommended packages are snapshotted", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
-    "MASS",
-    test_path("project-MASS"),
-    "MASS.R"
-  )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  lockfile <- file.path(bundleTempDir, "packrat/packrat.lock")
-  deps <- packrat:::readLockFilePackages(lockfile)
-  expect_true("MASS" %in% names(deps))
 })
 
 test_that("simple Rmd as primary not identified as parameterized when parameterized Rmd in bundle", {
@@ -158,11 +120,7 @@ test_that("multiple shiny Rmd without index file have a generated one", {
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   bundleTempDir <- makeShinyBundleTempDir(
     "reticulated rmd",
@@ -185,11 +143,7 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
 test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   bundleTempDir <- makeShinyBundleTempDir(
     "reticulated rmd",
@@ -232,8 +186,8 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
   skip_on_cran()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  skip_if_not_installed("reticulate")
+  python <- pythonPathOrSkip()
 
   bundleTempDir <- makeShinyBundleTempDir(
     "plain rmd",
@@ -256,11 +210,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 test_that("writeManifest: Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, NULL, python = python)
@@ -276,11 +226,7 @@ test_that("writeManifest: Rmd with reticulate as a dependency includes python in
 test_that("writeManifest: Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
-
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
-  pipMissing <- system2(python, "-m pip help", stdout = NULL, stderr = NULL)
-  skip_if(pipMissing != 0, "pip module is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, "implicit.Rmd", python = python)
@@ -304,8 +250,8 @@ test_that("writeManifest: Rmd without a python block doesn't include reticulate 
 
 test_that("writeManifest: Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
   skip_on_cran()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  skip_if_not_installed("reticulate")
+  python <- pythonPathOrSkip()
 
   manifest <- makeManifest("test-rmds", "simple.Rmd", python = python)
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -318,113 +264,7 @@ test_that("writeManifest: Rmd without a python block doesn't include reticulate 
   expect_true(any(grepl("simple.Rmd", filenames, fixed = TRUE)), filenames)
 })
 
-test_that("getPython handles null python by checking RETICULATE_PYTHON", {
-  skip_on_cran()
-
-  Sys.setenv(RETICULATE_PYTHON = "/usr/local/bin/python")
-  expect_equal(getPython(NULL), "/usr/local/bin/python")
-  Sys.unsetenv("RETICULATE_PYTHON")
-})
-
-test_that("getPython handles null python and empty RETICULATE_PYTHON by checking RETICULATE_PYTHON_FALLBACK", {
-  skip_on_cran()
-
-  Sys.unsetenv("RETICULATE_PYTHON")
-  Sys.setenv(RETICULATE_PYTHON_FALLBACK = "/usr/local/bin/python")
-  expect_equal(getPython(NULL), "/usr/local/bin/python")
-})
-
-test_that("getPython handles null python, empty RETICULATE_PYTHON, and empty RETICULATE_PYTHON_FALLBACK", {
-  skip_on_cran()
-
-  Sys.unsetenv("RETICULATE_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
-  expect_equal(getPython(NULL), NULL)
-})
-
-test_that("getPython expands paths", {
-  skip_on_cran()
-
-  result <- getPython("~/bin/python")
-  expect_true(result != "~/bin/python")
-  expect_match(result, "*/bin/python")
-})
-
-test_that("getPythonForTarget honors rsconnect.python.enabled = FALSE", {
-  skip_on_cran()
-
-  options(rsconnect.python.enabled = FALSE)
-  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
-  expect_equal(result, NULL)
-  options(rsconnect.python.enabled = NULL)
-})
-
-test_that("getPythonForTarget honors rsconnect.python.enabled = TRUE", {
-  skip_on_cran()
-
-  options(rsconnect.python.enabled = TRUE)
-  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
-  expect_equal(result, "/usr/bin/python")
-  options(rsconnect.python.enabled = NULL)
-})
-
-test_that("getPythonForTarget defaults to enabled for Connect", {
-  skip_on_cran()
-
-  result <- getPythonForTarget("/usr/bin/python", list(server = "connect.example.com"))
-  expect_equal(result, "/usr/bin/python")
-})
-
-test_that("getPythonForTarget defaults to disabled for shinyapps.io", {
-  skip_on_cran()
-
-  result <- getPythonForTarget("/usr/bin/python", list(server = "shinyapps.io"))
-  expect_equal(result, NULL)
-})
-
-test_that("getPythonForTarget defaults to enabled for rstudio.cloud", {
-  skip_on_cran()
-
-  result <- getPythonForTarget("/usr/bin/python", list(server = "rstudio.cloud"))
-  expect_equal(result, "/usr/bin/python")
-})
-
 # Quarto Tests
-
-test_that("quartoInspect identifies on Quarto projects", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(appDir = "quarto-website-r", quarto = quarto)
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-
-  inspect <- NULL
-  inspect <- quartoInspect(appDir = "quarto-proj-r-shiny", quarto = quarto)
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-})
-
-test_that("quartoInspect identifies Quarto documents", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(
-    appDir = "quarto-doc-none",
-    appPrimaryDoc = "quarto-doc-none.qmd",
-    quarto = quarto
-  )
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-})
-
-test_that("quartoInspect returns NULL on non-quarto Quarto content", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(appDir = "shinyapp-simple", quarto = quarto)
-  expect_null(inspect)
-})
-
-test_that("quartoInspect returns null when no quarto is provided", {
-  quarto <- quartoPathOrSkip()
-
-  expect_null(quartoInspect(appDir = "quarto-website-r", quarto = NULL))
-})
 
 test_that("writeManifest: Quarto website includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
@@ -495,9 +335,9 @@ test_that("writeManifest: Quarto shiny project includes quarto in the manifest",
 })
 
 test_that("writeManifest: Quarto R + Python website includes quarto and python in the manifest", {
+  skip_if_not_installed("reticulate")
   quarto <- quartoPathOrSkip()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-r-py")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
@@ -511,9 +351,9 @@ test_that("writeManifest: Quarto R + Python website includes quarto and python i
 })
 
 test_that("writeManifest: Quarto Python-only website gets correct manifest data", {
+  skip_if_not_installed("reticulate")
   quarto <- quartoPathOrSkip()
-  python <- Sys.which("python")
-  skip_if(python == "", "python is not installed")
+  python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-py")
   manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)

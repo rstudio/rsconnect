@@ -23,7 +23,7 @@ deploymentTarget <- function(recordPath = ".",
 
     createDeploymentTarget(
       appName,
-      appTitle %||% "",
+      appTitle,
       appId,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
@@ -61,7 +61,7 @@ createDeploymentTarget <- function(appName,
                                    server) {
   list(
     appName = appName,
-    appTitle = appTitle,
+    appTitle = appTitle %||% "",
     appId = appId,
     username = username,
     account = account,

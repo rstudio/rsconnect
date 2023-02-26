@@ -16,8 +16,6 @@ writeManifest <- function(appDir = getwd(),
                           image = NULL,
                           verbose = FALSE) {
 
-  condaMode <- FALSE
-
   appFiles <- standardizeAppFiles(appDir, appFiles)
 
   appMetadata <- appMetadata(
@@ -36,6 +34,7 @@ writeManifest <- function(appDir = getwd(),
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   python <- getPython(python)
+  pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
@@ -45,9 +44,7 @@ writeManifest <- function(appDir = getwd(),
       hasParameters = appMetadata$hasParameters,
       appPrimaryDoc = appMetadata$appPrimaryDoc,
       users = NULL,
-      condaMode = condaMode,
-      forceGenerate = forceGeneratePythonEnvironment,
-      python = python,
+      pythonConfig = pythonConfig,
       documentsHavePython = appMetadata$documentsHavePython,
       retainPackratDirectory = FALSE,
       quartoInfo = appMetadata$quartoInfo,

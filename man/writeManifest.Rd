@@ -17,8 +17,8 @@ writeManifest(
 )
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.}
 
 \item{appFiles}{A character vector given relative paths to the files and
 directories to bundle and deploy. The default, \code{NULL}, will include all
