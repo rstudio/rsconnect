@@ -95,7 +95,6 @@ explodeFiles <- function(dir, files) {
 recursiveBundleFiles <- function(dir,
                                  contents = NULL,
                                  rootDir = dir,
-                                 depth = 0,
                                  totalFiles = 0,
                                  totalSize = 0,
                                  ignoreFiles = TRUE) {
@@ -104,7 +103,7 @@ recursiveBundleFiles <- function(dir,
     contents <- list.files(dir, all.files = TRUE, no.. = TRUE)
   }
   if (ignoreFiles) {
-    contents <- ignoreBundleFiles(dir, contents, depth = depth)
+    contents <- ignoreBundleFiles(dir, contents)
   }
 
   # Info for each file lets us know to recurse (directories) or aggregate (files).
@@ -119,7 +118,6 @@ recursiveBundleFiles <- function(dir,
         rootDir = rootDir,
         totalFiles = totalFiles,
         totalSize = totalSize,
-        depth = depth + 1,
         ignoreFiles = ignoreFiles
       )
 
@@ -142,23 +140,27 @@ recursiveBundleFiles <- function(dir,
   )
 }
 
-ignoreBundleFiles <- function(dir, contents, depth = 0) {
-  # exclude some well-known files/directories at root level
-  if (depth == 0) {
-    contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
-    contents <- setdiff(
-      contents,
-      c("manifest.json", "rsconnect", "packrat", "app_cache", ".Rproj.user")
-    )
-  }
-
-  # exclude renv files, knitr cache dirs, and another well-known files
-  contents <- setdiff(contents, c("renv", "renv.lock"))
-  contents <- contents[!isKnitrCacheDir(contents)]
-  contents <- setdiff(
-    contents,
-    c(".DS_Store", ".git", ".gitignore", ".quarto", ".Rhistory", ".svn")
+ignoreBundleFiles <- function(dir, contents) {
+  ignore <- c(
+    # rsconnect packages
+    "rsconnect", "rsconnect-python", "manifest.json",
+    # packrat + renv,
+    "renv", "renv.lock", "packrat",
+    # version control
+    ".git", ".gitignore", ".svn",
+    # R/RStudio
+    ".Rhistory", ".Rproj.user",
+    # python virtual envs
+    # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d66411f736da6edc29fcf44ed/rsconnect/bundle.py#L37-L50
+    ".env", "env", ".venv", "venv",  "__pycache__/",
+    # other
+    ".DS_Store", ".quarto", "app_cache"
   )
+  contents <- setdiff(contents, ignore)
+  contents <- contents[!isKnitrCacheDir(contents)]
+  contents <- contents[!isPythonEnv(dir, contents)]
+  contents <- contents[!grepl("^~|~$", contents)]
+  contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
 
   # remove any files lines listed .rscignore
   if (".rscignore" %in% contents) {
@@ -176,6 +178,11 @@ isKnitrCacheDir <- function(files) {
   has_rmd <- tolower(cache_rmd) %in% tolower(files)
 
   ifelse(is_cache, has_rmd, FALSE)
+}
+
+# https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d6/rsconnect/bundle.py#L541-L543
+isPythonEnv <- function(dir, files) {
+  file.exists(file.path(dir, files, "bin", "python"))
 }
 
 enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
