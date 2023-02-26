@@ -170,6 +170,17 @@ test_that("expands files and directory", {
   expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
 })
 
+test_that("can include nested files/directories", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "x", "y"), recursive = TRUE)
+  file.create(file.path(dir, "x", c("a", "b", "c")))
+  file.create(file.path(dir, "x", "y", c("d", "e")))
+
+  expect_equal(explodeFiles(dir, "x/a"), "x/a")
+  expect_equal(explodeFiles(dir, "x/y"), c("x/y/d", "x/y/e"))
+  expect_equal(explodeFiles(dir, c("x/a", "x/y/d")), c("x/a", "x/y/d"))
+})
+
 test_that("doesn't ignore user supplied files", {
   dir <- withr::local_tempdir()
   dir.create(file.path(dir, "x", "y"), recursive = TRUE)
