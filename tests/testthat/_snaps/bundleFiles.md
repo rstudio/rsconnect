@@ -10,13 +10,31 @@
 # can read selected files from directory
 
     Code
-      standardizeAppFiles(dir, "c.R")
+      out <- standardizeAppFiles(dir, c("b.R", "c.R"))
+    Condition
+      Warning:
+      All files listed in `appFiles` must exist.
+      Problems: 'c.R'
+
+---
+
+    Code
+      standardizeAppFiles(dir, character())
     Condition
       Error:
       ! No content to deploy.
       x `appFiles` didn't match any files in `appDir`.
 
 # can read selected files from manifest
+
+    Code
+      out <- standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest"))
+    Condition
+      Warning:
+      All files listed in `appFileManifest` must exist.
+      Problems: 'c.R'
+
+---
 
     Code
       standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest"))
@@ -42,6 +60,15 @@
     Condition
       Error:
       ! `appFileManifest`, "doestexist", does not exist.
+
+# drops drops non-existent files with warning
+
+    Code
+      out <- explodeFiles(dir, c("a", "d"))
+    Condition
+      Warning:
+      All files listed in `appFiles` must exist.
+      Problems: 'd'
 
 # generate nicely formatted messages
 

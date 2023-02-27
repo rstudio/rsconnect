@@ -13,10 +13,9 @@ test_that("can read all files from directory", {
 test_that("can read selected files from directory", {
   dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
   expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
-  # silently ignores files that aren't present
-  expect_equal(standardizeAppFiles(dir, c("b.R", "c.R")), "b.R")
-
-  expect_snapshot(standardizeAppFiles(dir, "c.R"), error = TRUE)
+  expect_snapshot(out <- standardizeAppFiles(dir, c("b.R", "c.R")))
+  expect_equal(out, "b.R")
+  expect_snapshot(standardizeAppFiles(dir, character()), error = TRUE)
 })
 
 test_that("can read selected files from manifest", {
@@ -30,22 +29,19 @@ test_that("can read selected files from manifest", {
     "b.R"
   )
 
-  # silently ignores files that aren't present
   dir <- local_temp_app(list(
     "a.R" = "",
     "b.R" = "",
     "manifest" = c("b.R", "c.R")
   ))
-  expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
-    "b.R"
+  expect_snapshot(
+    out <- standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
   )
+  expect_equal(out, "b.R")
 
   # errors if no matching files
   dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "c.R"
+    "manifest" = ""
   ))
   expect_snapshot(
     standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
@@ -157,11 +153,12 @@ test_that("returns relative paths", {
   expect_equal(explodeFiles(dir, "x"), c("x/a", "x/b", "x/c"))
 })
 
-test_that("silently drops non-existent files", {
+test_that("drops drops non-existent files with warning", {
   dir <- withr::local_tempdir()
   file.create(file.path(dir, c("a", "b", "c")))
 
-  expect_equal(explodeFiles(dir, c("a", "d")), "a")
+  expect_snapshot(out <- explodeFiles(dir, c("a", "d")))
+  expect_equal(out, "a")
 })
 
 test_that("expands files and directory", {
@@ -171,6 +168,26 @@ test_that("expands files and directory", {
   file.create(file.path(dir, "c"))
 
   expect_equal(explodeFiles(dir, c("x", "c")), c("x/a", "x/b", "c"))
+})
+
+test_that("can include nested files/directories", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "x", "y"), recursive = TRUE)
+  file.create(file.path(dir, "x", c("a", "b", "c")))
+  file.create(file.path(dir, "x", "y", c("d", "e")))
+
+  expect_equal(explodeFiles(dir, "x/a"), "x/a")
+  expect_equal(explodeFiles(dir, "x/y"), c("x/y/d", "x/y/e"))
+  expect_equal(explodeFiles(dir, c("x/a", "x/y/d")), c("x/a", "x/y/d"))
+})
+
+test_that("doesn't ignore user supplied files", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "x", "y"), recursive = TRUE)
+  file.create(file.path(dir, "x", "packrat"))
+  file.create(file.path(dir, "x", "y", "packrat"))
+
+  expect_equal(explodeFiles(dir, "x"), c("x/packrat", "x/y/packrat"))
 })
 
 # enforceBundleLimits -----------------------------------------------------
@@ -185,7 +202,7 @@ test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
   withr::local_options(rsconnect.max.bundle.files = 1)
 
   # there are 52 files total, so eagerly implies we stop after one directory
-  expect_error(explodeFiles(dir, c("a", "b")), "at least 26")
+  expect_error(explodeFiles(dir, c("a", "b")), "at least 2")
   expect_error(bundleFiles(dir), "at least 2")
 })
 

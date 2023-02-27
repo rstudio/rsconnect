@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
+  files that don't exist, rather than silently ignoring them (#706).
+
 * `deployApp()` excludes temporary backup files (names starting or ending 
   with `~`) when automatically determining files to bundle (#111) and 
   excludes directories that are likely to be python virtual environments 
