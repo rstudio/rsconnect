@@ -3,22 +3,25 @@ detectLocale <- function() {
     locales <- strsplit(Sys.getlocale("LC_CTYPE"), ".", fixed = TRUE)[[1]]
     locales[[1]]
   } else {
-    # Possible values listed at https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/70feba9f-294e-491e-b6eb-56532684c37f
-    locales <- HCU_registry_key("Control Panel\\International")$LocaleName
-
-    if (is.null(locale)) {
-      # Otherwise fall back US English
-      locale <- "en-US"
-    }
-    gsub("-", "_", locale)
+    tryCatch(windowsLocale(), error = function(err) "en_US")
   }
 }
 
-HCU_registry_key <- function(key, default = NULL) {
-  tryCatch(
-    utils::readRegistry(key, hive = "HCU"),
-    error = function(err) {
-      default
-    }
-  )
+# Possible values
+# listed at https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid
+windowsLocale <- function() {
+  key <- utils::readRegistry("Control Panel\\International", hive = "HCU")
+  normalizeLocale(key$LocaleName)
+}
+
+# Remove script tag, if present
+normalizeLocale <- function(x) {
+  pieces <- strsplit(x, "-")[[1]]
+  all_upper <- pieces[pieces == toupper(pieces)]
+
+  if (length(all_upper) == 0) {
+    pieces[[1]]
+  } else {
+    paste0(pieces[[1]], "_", all_upper[[1]])
+  }
 }
