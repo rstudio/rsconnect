@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* Locale detection has been improved on windows (#233).
+
 * `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
   files that don't exist, rather than silently ignoring them (#706).
 
