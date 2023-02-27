@@ -5,7 +5,7 @@
 \title{List Application Deployments}
 \usage{
 deployments(
-  appPath,
+  appPath = ".",
   nameFilter = NULL,
   accountFilter = NULL,
   serverFilter = NULL,
