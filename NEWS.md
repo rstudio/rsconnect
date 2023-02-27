@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployments()` now formats `when` and `lastSyncTime` as date-times (#714).
+
 * `deployApp()` is more aggressive about saving deployment data, which should
   make it less likely that you need to repeat yourself after a failed 
   deployment. In particular, it now saves both before and after uploading the
