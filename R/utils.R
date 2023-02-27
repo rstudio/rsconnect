@@ -231,5 +231,6 @@ rbind_fill <- function(dfs, col_names = character()) {
   }
 
   complete <- lapply(dfs, add_missing_cols)
-  do.call("rbind", complete)
+  out <- do.call("rbind", complete)
+  out[all_names]
 }
