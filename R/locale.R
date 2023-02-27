@@ -3,14 +3,12 @@ detectLocale <- function() {
     locales <- strsplit(Sys.getlocale("LC_CTYPE"), ".", fixed = TRUE)[[1]]
     locales[[1]]
   } else {
-    locale <- HCU_registry_key("Control Panel\\International\\User Profile")$Languages[[1]]
+    # Possible values listed at https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/70feba9f-294e-491e-b6eb-56532684c37f
+    locales <- HCU_registry_key("Control Panel\\International")$LocaleName
+
     if (is.null(locale)) {
-      # Try approach that works on Windows 7
-      locales <- HCU_registry_key("Control Panel\\International")$LocaleName
-      if (is.null(locale)) {
-        # Otherwise fall back US English
-        locale <- "en-US"
-      }
+      # Otherwise fall back US English
+      locale <- "en-US"
     }
     gsub("-", "_", locale)
   }
