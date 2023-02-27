@@ -2,6 +2,16 @@
 
 * `deployments()` now formats `when` and `lastSyncTime` as date-times (#714).
 
+* `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
+  files that don't exist, rather than silently ignoring them (#706).
+
+* `deployApp()` excludes temporary backup files (names starting or ending 
+  with `~`) when automatically determining files to bundle (#111) and 
+  excludes directories that are likely to be python virtual environments 
+  (#632). Additionally, ignore rules are always now applied to all directories;
+  previously some (like `.Rproj.user` and `"manifest.json"`) were only applied
+  to the root directory.
+
 * `deployApp()` is more aggressive about saving deployment data, which should
   make it less likely that you need to repeat yourself after a failed 
   deployment. In particular, it now saves both before and after uploading the
