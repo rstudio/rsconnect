@@ -28,7 +28,7 @@ test_that("file_path_sans_ext removes extensions", {
 # rbind_fill --------------------------------------------------------------
 
 test_that("adds missing columns", {
-  dfs <- list(data.frame(x = 1) , data.frame(y = 2))
+  dfs <- list(data.frame(x = 1), data.frame(y = 2))
   out <- rbind_fill(dfs)
   expect_equal(out, data.frame(x = c(1, NA), y = c(NA, 2)))
 })
@@ -46,4 +46,3 @@ test_that("uses col_names if no inputs", {
     data.frame(x = logical(), y = logical())
   )
 })
-
