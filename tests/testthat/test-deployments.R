@@ -72,3 +72,25 @@ test_that("deployments() can excludes orphans", {
   out <- deployments(dir, excludeOrphaned = FALSE)
   expect_equal(nrow(out), 1)
 })
+
+test_that("can read/write metadata", {
+  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
+  dir <- local_temp_app()
+  saveDeployment(
+    dir,
+    createDeploymentTarget(
+      appName = "my-app",
+      appTitle = "",
+      appId = 10,
+      account = "foo",
+      username = "foo",
+      server = "bar"
+    ),
+    application = list(),
+    hostUrl = NA,
+    metadata = list(meta1 = "one", meta2 = "two")
+  )
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$meta1, "one")
+  expect_equal(out$meta2, "two")
+})
