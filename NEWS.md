@@ -5,6 +5,8 @@
   about the deployment, like the app name, account & server, and which files
   are included in the bundle (#669).
 
+* Locale detection has been improved on windows (#233).
+
 * `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
   files that don't exist, rather than silently ignoring them (#706).
 
