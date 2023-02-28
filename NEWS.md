@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` now advertises which startup scripts are run at the normal
+  `logLevel`, and it evaluates each script in its own environment (#542).
+
 * `deployments()` now formats `when` and `lastSyncTime` as date-times (#714).
 
 * `deployApp()` now derives `appName` from `appDir` and `appPrimaryDoc`, 

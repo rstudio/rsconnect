@@ -205,7 +205,7 @@ deployApp <- function(appDir = getwd(),
   displayStatus <- displayStatus(quiet)
 
   # run startup scripts to pick up any user options and establish pre/post deploy hooks
-  runStartupScripts(appDir, logLevel)
+  runStartupScripts(appDir, quiet = quiet, verbose = verbose)
 
   # at verbose log level, turn on all tracing options implicitly for the
   # duration of the call
@@ -611,22 +611,22 @@ openURL <- function(client, application, launch.browser, on.failure, deploymentS
     # or open no url if things failed
 }
 
-runStartupScripts <- function(appDir, logLevel) {
+runStartupScripts <- function(appDir, quiet = FALSE, verbose = FALSE) {
   scripts <- c(
     # the site-wide startup script
     file.path(R.home("etc"), "rsconnect.site"),
     # the user startup script
     path.expand("~/.rsconnect_profile"),
     # a startup script specific to this application
-    file.path(appDir, ".rsconnect_profile"))
+    file.path(appDir, ".rsconnect_profile")
+  )
+  scripts <- scripts[file.exists(scripts)]
 
   # iterate over the startup scripts
   for (script in scripts) {
-    if (file.exists(script)) {
-      if (logLevel == "verbose") {
-        cat("----- Sourcing startup script", script, "-----\n")
-      }
-      source(file = script, verbose = (logLevel == "verbose"))
-    }
+    taskStart(quiet, "Running {script}")
+
+    env <- new_environment(parent = globalenv())
+    source(script, verbose = verbose, local = env)
   }
 }
