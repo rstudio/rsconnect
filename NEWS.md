@@ -5,9 +5,6 @@
   It now only simplifies the path if you are publishing to shinyapps.io,
   since its restrictions on application names are much tighter than those
   of Posit Connect.
-  
-* `generateAppName()` has been deprecated as using the `appTitle` to generate
-  the `appName` leads to confusion if you later try to change the title.
 
 * `deployApp()` is more aggressive about saving deployment data, which should
   make it less likely that you need to repeat yourself after a failed 

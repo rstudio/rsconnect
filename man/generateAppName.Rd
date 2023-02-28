@@ -20,13 +20,6 @@ or an individual document. Optional.}
 Returns a valid short name for the application.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-
-This function has been deprecated since we no longer believe that using the
-title to generate the name is a sound approach, and if the app name is
-already present, it's better for you to come up with your own unique name
-than relying on an automated algorithm.
-
 Generate a short name (identifier) for an application given an application
 title.
 }
