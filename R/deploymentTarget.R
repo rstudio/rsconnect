@@ -6,6 +6,7 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              account = NULL,
                              server = NULL,
+                             quiet = FALSE,
                              error_call = caller_env()) {
 
   appDeployments <- deployments(
@@ -20,6 +21,10 @@ deploymentTarget <- function(recordPath = ".",
     if (is.null(appName)) {
       appName <- generateAppName(appTitle, recordPath, account, unique = FALSE)
     }
+    if (!quiet) {
+      dest <- accountId(fullAccount$name, fullAccount$server)
+      cli::cli_alert_info("Deploying {.val {appName}} to {.val {dest}}")
+    }
 
     createDeploymentTarget(
       appName,
@@ -30,6 +35,12 @@ deploymentTarget <- function(recordPath = ".",
       fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
+    if (!quiet) {
+      name <- appDeployments$name
+      dest <- accountId(appDeployments$username, appDeployments$server)
+      cli::cli_alert_info("Re-deploying {.val {name}} to {.val {dest}}")
+    }
+
     createDeploymentTarget(
       appDeployments$name,
       appTitle %||% appDeployments$title,

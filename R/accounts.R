@@ -505,3 +505,7 @@ print.rsconnect_secret <- function(x, ...) {
 str.rsconnect_secret <- function(object, ...) {
   cat(" ", format(object), "\n", sep = "")
 }
+
+accountId <- function(account, server) {
+  paste0(account, "@", server)
+}

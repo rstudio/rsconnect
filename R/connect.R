@@ -163,15 +163,17 @@ connectClient <- function(service, authInfo) {
       while (TRUE) {
         path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
         response <- handleResponse(GET(service, authInfo, path))
+        messages <- unlist(response$status)
 
-        labeledMessage <- function(msg) {
-          message(paste("[Connect]", msg))
-        }
+        # Strip timestamps, if found
+        timestamp_re <- "\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
+        messages <- gsub(timestamp_re, "", messages)
 
-        if (length(response$status) > 0) {
-          lapply(response$status, labeledMessage)
-          start <- response$last_status
-        }
+        # Made headers more prominent.
+        heading <- grepl("^# ", messages)
+        messages[heading] <- cli::style_bold(messages[heading])
+        cat(paste0(messages, "\n", collapse = ""))
+
         if (length(response$finished) > 0 && response$finished) {
           return(response)
         }

@@ -227,5 +227,6 @@ createAppManifest <- function(appDir,
   } else {
     manifest$users <- NA
   }
+
   manifest
 }

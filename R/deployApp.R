@@ -191,7 +191,7 @@ deployApp <- function(appDir = getwd(),
     check_directory(appSourceDoc)
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
-    check_directory(recordDir)
+    check_file(recordDir)
   }
 
   # set up logging helpers
@@ -245,6 +245,10 @@ deployApp <- function(appDir = getwd(),
     showLintResults(appDir, lintResults)
   }
 
+  if (!quiet) {
+    cli::cat_rule("Preparing for deployment")
+  }
+
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
   target <- deploymentTarget(recordPath, appName, appTitle, appId, account, server)
@@ -263,7 +267,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   # get the application to deploy (creates a new app on demand)
-  withStatus("Preparing to deploy", {
+  withStatus("Finding application", {
     application <- applicationForTarget(client, accountDetails, target, forceUpdate)
     saveDeployment(
       recordPath,
@@ -288,23 +292,26 @@ deployApp <- function(appDir = getwd(),
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+    if (!quiet) {
+      cli::cli_alert_info("Bundling files: {.file {appFiles}}")
+    }
+    bundlePath <- bundleApp(
+      appName = target$appName,
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc,
+      contentCategory = contentCategory,
+      verbose = verbose,
+      pythonConfig = pythonConfig,
+      quarto = quarto,
+      isCloudServer = isCloudServer(accountDetails$server),
+      metadata = metadata,
+      image = image
+    )
+
     # create, and upload the bundle
     logger("Bundle upload started")
-    withStatus(paste0("Uploading bundle (", application$id, ")"), {
-      bundlePath <- bundleApp(
-        appName = target$appName,
-        appDir = appDir,
-        appFiles = appFiles,
-        appPrimaryDoc = appPrimaryDoc,
-        contentCategory = contentCategory,
-        verbose = verbose,
-        pythonConfig = pythonConfig,
-        quarto = quarto,
-        isCloudServer = isCloudServer(accountDetails$server),
-        metadata = metadata,
-        image = image
-      )
-
+    withStatus("Uploading bundle", {
       if (isCloudServer(accountDetails$server)) {
         bundle <- uploadCloudBundle(client, application$id, bundlePath)
       } else {
@@ -324,29 +331,28 @@ deployApp <- function(appDir = getwd(),
     bundle <- application$deployment$bundle
   }
 
-  if (length(bundle$id) > 0 && nzchar(bundle$id)) {
-    displayStatus(paste0("Deploying bundle: ", bundle$id,
-                         " (", application$id, ")",
-                         " ...\n", sep = ""))
-  }
-
   logger("Server deployment started")
-
   # wait for the deployment to complete (will raise an error if it can't)
+
+  if (!quiet) {
+    cli::cat_rule("Deploying bundle")
+  }
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   response <- client$waitForTask(taskId, quiet)
+  if (!quiet) {
+    cli::cat_rule("Deployment complete")
+  }
 
   # wait 1/10th of a second for any queued output get picked by RStudio
   # before emitting the final status, to ensure it's the last line the user sees
   Sys.sleep(0.10)
 
-  deploymentSucceeded <- if (is.null(response$code) || response$code == 0) {
-    displayStatus(paste0("Successfully deployed to ", application$url, "\n"))
-    TRUE
+  deploymentSucceeded <- is.null(response$code) || response$code == 0
+  if (deploymentSucceeded) {
+    cli::cli_alert_success("Successfully deployed to {.url {application$url}}")
   } else {
-    displayStatus(paste0("Deployment failed with error: ", response$error, "\n"))
-    FALSE
+    cli::cli_alert_danger("Deployment failed with error: {repsonse$error}")
   }
 
   if (!quiet)
@@ -477,8 +483,6 @@ bundleApp <- function(appName,
   writeBundle(bundleDir, bundlePath)
   bundlePath
 }
-
-
 
 # get the record for the application with the given ID in the given account;
 # this isn't used inside the package itself but is invoked from the RStudio IDE
