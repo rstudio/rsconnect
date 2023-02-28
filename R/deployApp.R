@@ -280,7 +280,7 @@ deployApp <- function(appDir = getwd(),
       recordPath,
       target = target,
       application = application,
-      metadata = metadata,
+      metadata = metadata
     )
   })
 
