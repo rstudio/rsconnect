@@ -5,22 +5,18 @@ saveDeployment <- function(recordDir,
                            hostUrl = serverInfo(target$server)$hostUrl,
                            metadata = list()) {
 
-  # create the record to write to disk
   deployment <- deploymentRecord(
     name = target$appName,
-    title = target$appTitle %||% "",
+    title = target$appTitle,
     username = target$username,
     account = target$account,
     server = target$server,
     hostUrl = hostUrl,
-    appId = application$id %||% NA,
+    appId = application$id,
     bundleId = bundleId,
-    url = application$url %||% NA,
-    when = as.numeric(Sys.time()),
-    lastSyncTime = as.numeric(Sys.time()),
+    url = application$url,
     metadata = metadata
   )
-
   path <- deploymentConfigFile(recordDir, target$appName, target$account, target$server)
   writeDeploymentRecord(deployment, path)
 
@@ -89,11 +85,7 @@ deployments <- function(appPath = ".",
   dcf <- lapply(paths, readDcf)
   dcf <- lapply(dcf, as.data.frame, stringsAsFactors = FALSE)
 
-  fields <- c(
-    "name", "title", "username", "account", "server", "hostUrl", "appId",
-    "bundleId", "url", "when", "lastSyncTime"
-  )
-  deployments <- rbind_fill(dcf, fields)
+  deployments <- rbind_fill(dcf, deploymentFields)
   deployments$when <- .POSIXct(deployments$when)
   deployments$lastSyncTime <- .POSIXct(deployments$lastSyncTime)
   deployments$deploymentFile <- paths
@@ -121,76 +113,55 @@ deployments <- function(appPath = ".",
   deployments[ok, , drop = FALSE]
 }
 
+deploymentFields <- c(
+  "name", "title", "username", "account", "server", "hostUrl", "appId",
+  "bundleId", "url", "when", "lastSyncTime"
+)
+
 deploymentRecord <- function(name,
                              title,
                              username,
                              account,
                              server,
-                             hostUrl,
-                             appId,
-                             bundleId,
-                             url,
-                             when,
+                             hostUrl = NULL,
+                             appId = NULL,
+                             bundleId = NULL,
+                             url = NULL,
+                             when = as.numeric(Sys.time()),
                              lastSyncTime = as.numeric(Sys.time()),
                              metadata = list()) {
 
-  # find the username if not already supplied (may differ from account nickname)
-  if (is.null(username) && length(account) > 0) {
-    # default to empty
-    username <- ""
-    userinfo <- NULL
-    try({ userInfo <- accountInfo(account, server) }, silent = TRUE)
-    if (!is.null(userinfo$username))
-      username <- userinfo$username
-  }
-
-  # find host information
-  if (is.null(hostUrl) && length(server) > 0) {
-    hostUrl <- ""
-    serverinfo <- NULL
-    try({ serverinfo <- serverInfo(server) }, silent = TRUE)
-    if (!is.null(serverinfo$url))
-      hostUrl <- serverinfo$url
-  }
-
-  # compose the standard set of fields and append any requested
-  as.data.frame(c(
-      list(name = name,
-           title = if (is.null(title)) "" else title,
-           username = username,
-           account = account,
-           server = server,
-           hostUrl = hostUrl,
-           appId = appId,
-           bundleId = if (is.null(bundleId)) "" else bundleId,
-           url = url,
-           when = when,
-           lastSyncTime = lastSyncTime),
-      metadata),
-    stringsAsFactors = FALSE)
+  standard <- list(
+    name = name,
+    title = title %||% "",
+    username = username,
+    account = account,
+    server = server,
+    hostUrl = hostUrl %||% "",
+    appId = appId %||% "",
+    bundleId = bundleId %||% "",
+    url = url %||% "",
+    when = when,
+    lastSyncTime = lastSyncTime
+  )
+  c(standard, metadata)
 }
 
-
-deploymentHistoryDir <- function() {
-  rsconnectConfigDir("deployments")
-}
-
+# Workbench uses to show a list of recently deployed content on user dashboard
 addToDeploymentHistory <- function(appPath, deploymentRecord) {
-
-  # path to deployments files
-  history <- file.path(deploymentHistoryDir(), "history.dcf")
-  newHistory <- file.path(deploymentHistoryDir(), "history.new.dcf")
-
   # add the appPath to the deploymentRecord
   deploymentRecord$appPath <- appPath
 
   # write new history file
-  write.dcf(deploymentRecord, newHistory, width = 4096)
-  cat("\n", file = newHistory, append = TRUE)
+  newHistory <- deploymentHistoryPath(new = TRUE)
+  writeDeploymentRecord(deploymentRecord, newHistory)
 
+  history <- deploymentHistoryPath()
   # append existing history to new history
-  if (file.exists(history))
+  if (file.exists(history)) {
+    cat("\n", file = newHistory, append = TRUE)
     file.append(newHistory, history)
+  }
 
   # overwrite with new history
   file.rename(newHistory, history)
