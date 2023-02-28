@@ -1,5 +1,10 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` output has been thorougly reviewed and tweaked. As well as 
+  general polish it now gives you more information about what it has discovered
+  about the deployment, like the app name, account & server, and which files
+  are included in the bundle (#669).
+
 * `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
   files that don't exist, rather than silently ignoring them (#706).
 
