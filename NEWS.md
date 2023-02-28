@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployments()` now formats `when` and `lastSyncTime` as date-times (#714).
+
 * `deployApp()` now derives `appName` from `appDir` and `appPrimaryDoc`, 
   never using the title (#538). It now only simplifies the path if you are 
   publishing to shinyapps.io, since its restrictions on application names are 

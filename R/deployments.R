@@ -13,9 +13,9 @@ saveDeployment <- function(recordDir,
     account = target$account,
     server = target$server,
     hostUrl = hostUrl,
-    appId = application$id,
+    appId = application$id %||% NA,
     bundleId = bundleId,
-    url = application$url,
+    url = application$url %||% NA,
     when = as.numeric(Sys.time()),
     lastSyncTime = as.numeric(Sys.time()),
     metadata = metadata
@@ -77,93 +77,48 @@ writeDeploymentRecord <- function(record, filePath) {
 #' @seealso [applications()] to get a list of deployments from the
 #'   server, and [deployApp()] to create a new deployment.
 #' @export
-deployments <- function(appPath, nameFilter = NULL, accountFilter = NULL,
-                        serverFilter = NULL, excludeOrphaned = TRUE) {
+deployments <- function(appPath = ".",
+                        nameFilter = NULL,
+                        accountFilter = NULL,
+                        serverFilter = NULL,
+                        excludeOrphaned = TRUE) {
 
   migrateDeploymentsConfig(appPath)
+  paths <- deploymentConfigFiles(appPath)
 
-  # calculate rsconnect dir
-  rsconnectDir <- deploymentConfigDir(appPath)
+  dcf <- lapply(paths, readDcf)
+  dcf <- lapply(dcf, as.data.frame, stringsAsFactors = FALSE)
 
-  # build list of deployment records
-  deploymentRecs <- deploymentRecord(name = character(),
-                                     title = character(),
-                                     username = character(),
-                                     account = character(),
-                                     server = character(),
-                                     hostUrl = character(),
-                                     appId = character(),
-                                     bundleId = character(),
-                                     url = character(),
-                                     when = numeric(),
-                                     lastSyncTime = numeric())
+  fields <- c(
+    "name", "title", "username", "account", "server", "hostUrl", "appId",
+    "bundleId", "url", "when", "lastSyncTime"
+  )
+  deployments <- rbind_fill(dcf, fields)
+  deployments$when <- .POSIXct(deployments$when)
+  deployments$lastSyncTime <- .POSIXct(deployments$lastSyncTime)
+  deployments$deploymentFile <- paths
 
-  # get list of active accounts
-  activeAccounts <- accounts()
-
-  for (deploymentFile in list.files(rsconnectDir, glob2rx("*.dcf"),
-                                    recursive = TRUE)) {
-
-    # derive account and server name from deployment record location
-    account <- basename(dirname(deploymentFile))
-    server <- basename(dirname(dirname(deploymentFile)))
-
-    # apply optional server filter
-    if (!is.null(serverFilter) && !identical(serverFilter, server))
-      next
-
-    # apply optional account filter
-    if (!is.null(accountFilter) && !identical(accountFilter, account))
-      next
-
-    # apply optional name filter
-    name <- file_path_sans_ext(basename(deploymentFile))
-    if (!is.null(nameFilter) && !identical(nameFilter, name))
-      next
-
-    # exclude orphaned if requested (note that the virtual server "rpubs.com"
-    # is always considered to be registered)
-    if (excludeOrphaned && server != "rpubs.com") {
-      # orphaned by definition if we have no accounts registered
-      if (is.null(activeAccounts) || identical(nrow(activeAccounts), 0))
-        next
-
-      # filter by account name and then by server
-      matchingAccounts <- activeAccounts[activeAccounts[["name"]] == account, ]
-      matchingAccounts <-
-        matchingAccounts[matchingAccounts[["server"]] == server, ]
-
-      # if there's no account with the given name and server, consider this
-      # record to be an orphan
-      if (nrow(matchingAccounts) == 0)
-        next
-    }
-
-    # parse file
-    deployment <- as.data.frame(readDcf(file.path(rsconnectDir, deploymentFile)),
-                                stringsAsFactors = FALSE)
-
-    # fill in any columns missing in this record
-    missingCols <- setdiff(colnames(deploymentRecs), colnames(deployment))
-    if (length(missingCols) > 0) {
-      deployment[, missingCols] <- NA
-    }
-
-    # if this record contains any columns that aren't present everywhere, add
-    # them
-    extraCols <- setdiff(colnames(deployment), colnames(deploymentRecs))
-    if (length(extraCols) > 0 && nrow(deploymentRecs) > 0) {
-      deploymentRecs[, extraCols] <- NA
-    }
-
-    # record the deployment file for metadata management
-    deployment$deploymentFile <- file.path(rsconnectDir, deploymentFile)
-
-    # append to record set to return
-    deploymentRecs <- rbind(deploymentRecs, deployment)
+  # Apply filters
+  ok <- rep(TRUE, nrow(deployments))
+  if (!is.null(nameFilter)) {
+    ok <- ok & deployments$name == nameFilter
+  }
+  if (!is.null(accountFilter)) {
+    ok <- ok & deployments$account == accountFilter
+  }
+  if (!is.null(serverFilter)) {
+    ok <- ok & deployments$server == serverFilter
+  }
+  if (excludeOrphaned) {
+    activeAccounts <- accounts()
+    activeAccountServers <- paste0(activeAccounts$server, "@", activeAccounts$name)
+    accountServer <- paste0(deployments$server, "@", deployments$account)
+    okServer <- deployments$server == "rpubs.com" |
+      accountServer %in% activeAccountServers
+    ok <- ok & okServer
   }
 
-  deploymentRecs
+  deployments[ok, , drop = FALSE]
 }
 
 deploymentRecord <- function(name,
