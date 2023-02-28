@@ -75,7 +75,7 @@ defaultAppName <- function(recordPath, server = NULL) {
   if (isDocumentPath(recordPath)) {
     name <- file_path_sans_ext(basename(recordPath))
     if (name == "index") {
-      # deploying a website; use name of parent directory
+      # parent directory will give more informative name
       name <- basename(dirname(recordPath))
     } else {
       # deploying a document
