@@ -30,17 +30,6 @@ displayStatus <- function(quiet) {
   }
 }
 
-withStatus <- function(quiet) {
-  quiet <- quiet || httpDiagnosticsEnabled()
-  function(status, code) {
-    if (!quiet)
-      cat(status, "...", sep = "")
-    force(code)
-    if (!quiet)
-      cat("DONE\n")
-  }
-}
-
 httpDiagnosticsEnabled <- function() {
   return(getOption("rsconnect.http.trace", FALSE) ||
          getOption("rsconnect.http.verbose", FALSE))
