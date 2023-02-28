@@ -84,7 +84,7 @@ deployments <- function(appPath = ".",
                         excludeOrphaned = TRUE) {
 
   migrateDeploymentsConfig(appPath)
-  paths <- deployConfigFiles(appPath)
+  paths <- deploymentConfigFiles(appPath)
 
   dcf <- lapply(paths, readDcf)
   dcf <- lapply(dcf, as.data.frame, stringsAsFactors = FALSE)

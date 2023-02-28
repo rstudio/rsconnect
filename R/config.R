@@ -125,7 +125,7 @@ deploymentConfigFile <- function(recordPath, name, account, server) {
   file.path(accountDir, paste0(name, ".dcf"))
 }
 
-deployConfigFiles <- function(recordPath) {
+deploymentConfigFiles <- function(recordPath) {
   dir <- deploymentConfigDir(recordPath)
   list.files(dir, glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE)
 }
