@@ -194,7 +194,7 @@ deployApp <- function(appDir = getwd(),
     check_directory(appSourceDoc)
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
-    check_directory(recordDir)
+    check_file(recordDir)
   }
 
   # set up logging helpers
@@ -203,7 +203,6 @@ deployApp <- function(appDir = getwd(),
   verbose <- identical(logLevel, "verbose")
   logger <- verboseLogger(verbose)
   displayStatus <- displayStatus(quiet)
-  withStatus <- withStatus(quiet)
 
   # run startup scripts to pick up any user options and establish pre/post deploy hooks
   runStartupScripts(appDir, logLevel)
@@ -248,6 +247,10 @@ deployApp <- function(appDir = getwd(),
     showLintResults(appDir, lintResults)
   }
 
+  if (!quiet) {
+    cli::cat_rule("Preparing for deployment")
+  }
+
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
   target <- deploymentTarget(
@@ -273,54 +276,55 @@ deployApp <- function(appDir = getwd(),
   }
 
   # get the application to deploy (creates a new app on demand)
-  withStatus("Preparing to deploy", {
-    application <- applicationForTarget(client, accountDetails, target, forceUpdate)
-    saveDeployment(
-      recordPath,
-      target = target,
-      application = application,
-      metadata = metadata
-    )
-  })
+  taskStart(quiet, "Looking up application on server...")
+  application <- applicationForTarget(client, accountDetails, target, forceUpdate)
+  saveDeployment(
+    recordPath,
+    target = target,
+    application = application,
+    metadata = metadata
+  )
+  taskComplete(quiet, "Found application with id {.val {application$id}}")
 
   # Change _visibility_ before uploading data
   if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
-    withStatus(paste0("Setting visibility to ", appVisibility), {
-      client$setApplicationProperty(
-        application$id,
-        "application.visibility",
-        appVisibility
-      )
-    })
+    taskStart(quiet, "Setting visibility to {appVisibility}...")
+    client$setApplicationProperty(
+      application$id,
+      "application.visibility",
+      appVisibility
+    )
+    taskComplete(quiet, "Visibility updated")
   }
 
   if (upload) {
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
-    # create, and upload the bundle
-    logger("Bundle upload started")
-    withStatus(paste0("Uploading bundle (", application$id, ")"), {
-      bundlePath <- bundleApp(
-        appName = target$appName,
-        appDir = appDir,
-        appFiles = appFiles,
-        appPrimaryDoc = appPrimaryDoc,
-        contentCategory = contentCategory,
-        verbose = verbose,
-        pythonConfig = pythonConfig,
-        quarto = quarto,
-        isCloudServer = isCloudServer(accountDetails$server),
-        metadata = metadata,
-        image = image
-      )
+    taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
+    bundlePath <- bundleApp(
+      appName = target$appName,
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc,
+      contentCategory = contentCategory,
+      verbose = verbose,
+      pythonConfig = pythonConfig,
+      quarto = quarto,
+      isCloudServer = isCloudServer(accountDetails$server),
+      metadata = metadata,
+      image = image
+    )
+    taskComplete(quiet, "Bundling complete")
 
-      if (isCloudServer(accountDetails$server)) {
-        bundle <- uploadCloudBundle(client, application$id, bundlePath)
-      } else {
-        bundle <- client$uploadApplication(application$id, bundlePath)
-      }
-    })
+    # create, and upload the bundle
+    taskStart(quiet, "Uploading bundle...")
+    if (isCloudServer(accountDetails$server)) {
+      bundle <- uploadCloudBundle(client, application$id, bundlePath)
+    } else {
+      bundle <- client$uploadApplication(application$id, bundlePath)
+    }
+    taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
 
     saveDeployment(
       recordPath,
@@ -334,29 +338,26 @@ deployApp <- function(appDir = getwd(),
     bundle <- application$deployment$bundle
   }
 
-  if (length(bundle$id) > 0 && nzchar(bundle$id)) {
-    displayStatus(paste0("Deploying bundle: ", bundle$id,
-                         " (", application$id, ")",
-                         " ...\n", sep = ""))
+  if (!quiet) {
+    cli::cat_rule("Deploying to server")
   }
-
-  logger("Server deployment started")
-
-  # wait for the deployment to complete (will raise an error if it can't)
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
+  # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)
+  if (!quiet) {
+    cli::cat_rule("Deployment complete")
+  }
 
   # wait 1/10th of a second for any queued output get picked by RStudio
   # before emitting the final status, to ensure it's the last line the user sees
   Sys.sleep(0.10)
 
-  deploymentSucceeded <- if (is.null(response$code) || response$code == 0) {
-    displayStatus(paste0("Successfully deployed to ", application$url, "\n"))
-    TRUE
+  deploymentSucceeded <- is.null(response$code) || response$code == 0
+  if (deploymentSucceeded) {
+    cli::cli_alert_success("Successfully deployed to {.url {application$url}}")
   } else {
-    displayStatus(paste0("Deployment failed with error: ", response$error, "\n"))
-    FALSE
+    cli::cli_alert_danger("Deployment failed with error: {response$error}")
   }
 
   if (!quiet)
@@ -370,6 +371,15 @@ deployApp <- function(appDir = getwd(),
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+taskStart <- function(quiet, message, .envir = caller_env()) {
+  if (quiet) return()
+  cli::cli_alert_info(message, .envir = .envir)
+}
+taskComplete <- function(quiet, message, .envir = caller_env()) {
+  if (quiet) return()
+  cli::cli_alert_success(message, .envir = .envir)
 }
 
 findRecordPath <- function(appDir,
@@ -488,8 +498,6 @@ bundleApp <- function(appName,
   bundlePath
 }
 
-
-
 # get the record for the application with the given ID in the given account;
 # this isn't used inside the package itself but is invoked from the RStudio IDE
 # to look up app details
@@ -532,7 +540,6 @@ applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
   if (!is.null(sameName)) {
     # check that it's ok to to use it
     if (interactive() && !forceUpdate) {
-      cat("\n") # Escape from preparing to deploy line
       cli::cli_inform(paste0(
         "There is a currently deployed app with name {.str {target$appName}}",
         " at {.url {sameName$url}}"

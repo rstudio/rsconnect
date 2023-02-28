@@ -76,4 +76,13 @@
 
     Code
       target <- deploymentTarget(app_dir)
+    Message
+      i Deploying "my_app" to "ron@bar"
+
+---
+
+    Code
+      target <- deploymentTarget(app_dir, appName = "foo")
+    Message
+      i Deploying "foo" to "ron@bar"
 

@@ -24,7 +24,8 @@ test_that("succeeds if app is fully specified", {
     appName = "test",
     appTitle = "mytitle",
     appId = "123",
-    account = "ron"
+    account = "ron",
+    quiet = TRUE
   )
   expect_equal(target$appId, "123")
 })
@@ -52,7 +53,8 @@ test_that("handles accounts if only server specified", {
   target <- deploymentTarget(
     app_dir,
     server = "foo",
-    account = "ron"
+    account = "ron",
+    quiet = TRUE
   )
   expect_equal(target$username, "ron")
 })
@@ -116,11 +118,11 @@ test_that("succeeds if there's a single existing deployment", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, quiet = TRUE)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
 
-  target <- deploymentTarget(app_dir, appName = "test")
+  target <- deploymentTarget(app_dir, appName = "test", quiet = TRUE)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
 })
@@ -145,10 +147,10 @@ test_that("new title overrides existing title", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, quiet = TRUE)
   expect_equal(target$appTitle, "old title")
 
-  target <- deploymentTarget(app_dir, appTitle = "new title")
+  target <- deploymentTarget(app_dir, appTitle = "new title", quiet = TRUE)
   expect_equal(target$appTitle, "new title")
 })
 
@@ -166,7 +168,9 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(target$appName, "my_app")
   expect_equal(target$username, "ron")
 
-  target <- deploymentTarget(app_dir, appName = "foo")
+  expect_snapshot(
+    target <- deploymentTarget(app_dir, appName = "foo")
+  )
   expect_equal(target$username, "ron")
 })
 
@@ -176,7 +180,7 @@ test_that("default title is the empty string", {
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, quiet = TRUE)
   expect_equal(target$appTitle, "")
 })
 
@@ -200,7 +204,7 @@ test_that("deploy can update title", {
     bundleId = 1,
     hostUrl = NA
   )
-  target <- deploymentTarget(app_dir, appTitle = "my new title")
+  target <- deploymentTarget(app_dir, appTitle = "my new title", quiet = TRUE)
   expect_equal(target$appName, "my_title")
 })
 

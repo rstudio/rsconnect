@@ -5,6 +5,11 @@
   publishing to shinyapps.io, since its restrictions on application names are 
   much tighter than those of Posit Connect.
 
+* `deployApp()` output has been thorougly reviewed and tweaked. As well as 
+  general polish it now gives you more information about what it has discovered
+  about the deployment, like the app name, account & server, and which files
+  are included in the bundle (#669).
+
 * Locale detection has been improved on windows (#233).
 
 * `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
