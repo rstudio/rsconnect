@@ -352,7 +352,7 @@ deployApp <- function(appDir = getwd(),
   if (deploymentSucceeded) {
     cli::cli_alert_success("Successfully deployed to {.url {application$url}}")
   } else {
-    cli::cli_alert_danger("Deployment failed with error: {repsonse$error}")
+    cli::cli_alert_danger("Deployment failed with error: {response$error}")
   }
 
   if (!quiet)
