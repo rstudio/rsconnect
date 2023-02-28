@@ -1,5 +1,10 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` now derives `appName` from `appDir` and `appPrimaryDoc`, 
+  never using the title (#538). It now only simplifies the path if you are 
+  publishing to shinyapps.io, since its restrictions on application names are 
+  much tighter than those of Posit Connect.
+
 * `deployApp()` output has been thorougly reviewed and tweaked. As well as 
   general polish it now gives you more information about what it has discovered
   about the deployment, like the app name, account & server, and which files

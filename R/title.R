@@ -1,5 +1,6 @@
 #' Generate Application Name
 #'
+#' @description
 #' Generate a short name (identifier) for an application given an application
 #' title.
 #'
@@ -22,6 +23,7 @@
 #' (note that it is not guaranteed to be unique on the server). This behavior
 #' can be disabled by setting `unique = FALSE`.
 #'
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #' # Generate a short name for a sample application
