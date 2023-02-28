@@ -76,6 +76,4 @@
 
     Code
       target <- deploymentTarget(app_dir)
-    Message
-      Using `appName` "my_app"
 

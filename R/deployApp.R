@@ -256,8 +256,7 @@ deployApp <- function(appDir = getwd(),
     appTitle = appTitle,
     appId = appId,
     account = account,
-    server = server,
-    quiet = quiet
+    server = server
   )
 
   # test for compatibility between account type and publish intent

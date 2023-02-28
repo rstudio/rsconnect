@@ -6,7 +6,6 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              account = NULL,
                              server = NULL,
-                             quiet = FALSE,
                              error_call = caller_env()) {
 
   appDeployments <- deployments(
@@ -20,9 +19,6 @@ deploymentTarget <- function(recordPath = ".",
     fullAccount <- findAccount(account, server)
     if (is.null(appName)) {
       appName <- defaultAppName(recordPath, fullAccount$server)
-      if (!quiet) {
-        cli::cli_inform("Using {.arg appName} {.str {appName}}")
-      }
     } else {
       check_string(appName, call = error_call)
     }

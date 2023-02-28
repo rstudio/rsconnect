@@ -24,8 +24,7 @@ test_that("succeeds if app is fully specified", {
     appName = "test",
     appTitle = "mytitle",
     appId = "123",
-    account = "ron",
-    quiet = TRUE
+    account = "ron"
   )
   expect_equal(target$appId, "123")
 })
@@ -53,8 +52,7 @@ test_that("handles accounts if only server specified", {
   target <- deploymentTarget(
     app_dir,
     server = "foo",
-    account = "ron",
-    quiet = TRUE
+    account = "ron"
   )
   expect_equal(target$username, "ron")
 })
@@ -118,7 +116,7 @@ test_that("succeeds if there's a single existing deployment", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir, quiet = TRUE)
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
 
@@ -147,7 +145,7 @@ test_that("new title overrides existing title", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir, quiet = TRUE)
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appTitle, "old title")
 
   target <- deploymentTarget(app_dir, appTitle = "new title")
@@ -178,7 +176,7 @@ test_that("default title is the empty string", {
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
 
-  target <- deploymentTarget(app_dir, quiet = TRUE)
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appTitle, "")
 })
 
