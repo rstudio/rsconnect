@@ -44,16 +44,14 @@ standardizeSingleDocDeployment <- function(path,
   check_file(path, error_call = error_call, error_arg = error_arg)
   path <- normalizePath(path)
 
-  withStatus <- withStatus(quiet)
-
   if (isShinyRmd(path)) {
     # deploy entire directory
     appFiles <- NULL
   } else if (isStaticFile(path)) {
-    # deploy file + dependenciy
-    withStatus("Discovering document dependencies", {
-      resources <- rmarkdown::find_external_resources(path)
-    })
+    taskStart(quiet, "Discovering document dependencies...")
+    resources <- rmarkdown::find_external_resources(path)
+    taskComplete(quiet, "Document dependencies discovered")
+
     appFiles <- c(basename(path), resources$path)
   } else {
     # deploy just the file
