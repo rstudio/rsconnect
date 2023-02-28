@@ -40,3 +40,4 @@ can be disabled by setting \code{unique = FALSE}.
 generateAppName("My Father's Country", "~/fathers-country", "myacct")
 }
 }
+\keyword{internal}

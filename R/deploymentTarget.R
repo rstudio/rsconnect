@@ -6,6 +6,7 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              account = NULL,
                              server = NULL,
+                             quiet = FALSE,
                              error_call = caller_env()) {
 
   appDeployments <- deployments(
@@ -18,7 +19,13 @@ deploymentTarget <- function(recordPath = ".",
   if (nrow(appDeployments) == 0) {
     fullAccount <- findAccount(account, server)
     if (is.null(appName)) {
-      appName <- generateAppName(appTitle, recordPath, account, unique = FALSE)
+      appName <- defaultAppName(recordPath, fullAccount$server)
+    } else {
+      check_string(appName, call = error_call)
+    }
+    if (!quiet) {
+      dest <- accountId(fullAccount$name, fullAccount$server)
+      cli::cli_alert_info("Deploying {.val {appName}} to {.val {dest}}")
     }
 
     createDeploymentTarget(
@@ -30,6 +37,12 @@ deploymentTarget <- function(recordPath = ".",
       fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
+    if (!quiet) {
+      name <- appDeployments$name
+      dest <- accountId(appDeployments$username, appDeployments$server)
+      cli::cli_alert_info("Re-deploying {.val {name}} to {.val {dest}}")
+    }
+
     createDeploymentTarget(
       appDeployments$name,
       appTitle %||% appDeployments$title,
@@ -67,4 +80,30 @@ createDeploymentTarget <- function(appName,
     account = account,
     server = server
   )
+}
+
+defaultAppName <- function(recordPath, server = NULL) {
+  if (isDocumentPath(recordPath)) {
+    name <- file_path_sans_ext(basename(recordPath))
+    if (name == "index") {
+      # parent directory will give more informative name
+      name <- basename(dirname(recordPath))
+    } else {
+      # deploying a document
+    }
+  } else {
+    # deploying a directory
+    name <- basename(recordPath)
+  }
+
+  if (isShinyappsServer(server)) {
+    # Replace non-alphanumerics with underscores, trim to length 64
+    name <- tolower(gsub("[^[:alnum:]_-]+", "_", name, perl = TRUE))
+    name <- gsub("_+", "_", name)
+    if (nchar(name) > 64) {
+      name <- substr(name, 1, 64)
+    }
+  }
+
+  name
 }

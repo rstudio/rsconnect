@@ -52,10 +52,13 @@ being deployed.}
 \item{appSourceDoc}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use
 \code{recordDir} instead.}
 
-\item{appName}{Name of application (names must be unique within an account).
-If not supplied on the first deploy, it will be generated from the base
-name of \code{appDir} and \code{appTitle}, if supplied. On subsequent deploys,
-it will use the previously stored value.}
+\item{appName}{Application name, a string consisting of letters, numbers,
+\verb{_} and \code{-}. The application name is used to identify applications on a
+server, so much be unique.
+
+If not specified, the first deployment will be automatically it from the
+\code{appDir} for directory and website, and from the \code{appPrimaryDoc} for
+document. On subsequent deploys, it will use the previously stored value.}
 
 \item{appTitle}{Free-form descriptive title of application. Optional; if
 supplied, will often be displayed in favor of the name. If ommitted,

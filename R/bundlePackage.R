@@ -38,7 +38,9 @@ bundlePackages <- function(appDir,
   github_cols <- grep("Github", colnames(deps), perl = TRUE, value = TRUE)
   packages <- deps[c("Source", "Repository", github_cols, "description")]
   packages_list <- lapply(seq_len(nrow(packages)), function(i) {
-    as.list(packages[i, , drop = FALSE])
+    out <- as.list(packages[i, , drop = FALSE])
+    out$description <- out$description[[1]]
+    out
   })
   names(packages_list) <- deps$Package
   packages_list
