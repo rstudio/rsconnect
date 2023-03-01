@@ -2,12 +2,34 @@ test_that("deployments() works empty data frame if no deployments", {
   dir <- local_temp_app()
   out <- deployments(dir)
   expect_s3_class(out, "data.frame")
+  expect_named(out, c(deploymentFields, "deploymentFile"))
   expect_equal(nrow(out), 0)
 })
 
+test_that("combines fields across deployments", {
+  local_temp_config()
+  dir <- local_temp_app()
+
+  writeDeploymentRecord(
+    list(x = 1),
+    deploymentConfigFile(dir, "app1", "account", "server")
+  )
+  writeDeploymentRecord(
+    list(y = 1),
+    deploymentConfigFile(dir, "app2", "account", "server")
+  )
+
+  out <- deployments(dir)
+  expect_s3_class(out, "data.frame")
+  expect_named(out, c(deploymentFields, "x", "y", "deploymentFile"))
+  expect_equal(nrow(out), 2)
+})
+
 test_that("deployments() can filter", {
+  local_temp_config()
   mockr::local_mock(accounts = fakeAccounts(c("foo", "bar"), c("foo", "bar")))
   dir <- local_temp_app()
+
   saveDeployment(
     dir,
     createDeploymentTarget(
@@ -19,7 +41,7 @@ test_that("deployments() can filter", {
       server = "foo"
     ),
     application = list(),
-    hostUrl = NA
+    hostUrl = NULL
   )
   saveDeployment(
     dir,
@@ -32,7 +54,7 @@ test_that("deployments() can filter", {
       server = "bar"
     ),
     application = list(id = "123"),
-    hostUrl = NA
+    hostUrl = NULL
   )
 
   out <- deployments(dir)
@@ -64,7 +86,7 @@ test_that("deployments() can excludes orphans", {
       server = "bar1"
     ),
     application = list(),
-    hostUrl = NA
+    hostUrl = NULL
   )
   out <- deployments(dir)
   expect_equal(nrow(out), 0)
@@ -74,8 +96,10 @@ test_that("deployments() can excludes orphans", {
 })
 
 test_that("can read/write metadata", {
+  local_temp_config()
   mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
   dir <- local_temp_app()
+
   saveDeployment(
     dir,
     createDeploymentTarget(
@@ -87,10 +111,46 @@ test_that("can read/write metadata", {
       server = "bar"
     ),
     application = list(),
-    hostUrl = NA,
+    hostUrl = NULL,
     metadata = list(meta1 = "one", meta2 = "two")
   )
   out <- deployments(dir, excludeOrphaned = FALSE)
   expect_equal(out$meta1, "one")
   expect_equal(out$meta2, "two")
+})
+
+test_that("saveDeployment appends to global history", {
+  local_temp_config()
+
+  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
+  dir <- local_temp_app()
+
+  saveDeployment(
+    dir,
+    createDeploymentTarget(
+      appName = "my-app",
+      appTitle = "",
+      appId = 10,
+      account = "foo",
+      username = "foo",
+      server = "bar"
+    ),
+    application = list(),
+    hostUrl = NULL
+  )
+
+  history <- read.dcf(deploymentHistoryPath())
+  expect_equal(nrow(history), 1)
+  expect_setequal(colnames(history), c(deploymentFields, "appPath"))
+})
+
+test_that("addToDeploymentHistory() adds needed new lines", {
+  local_temp_config()
+
+  expect_snapshot({
+    addToDeploymentHistory("path", list(x = 1))
+    writeLines(readLines(deploymentHistoryPath()))
+    addToDeploymentHistory("path", list(x = 2))
+    writeLines(readLines(deploymentHistoryPath()))
+  })
 })

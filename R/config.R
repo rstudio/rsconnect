@@ -108,6 +108,13 @@ accountConfigFiles <- function(server = NULL) {
 
 # deployments -------------------------------------------------------------
 
+deploymentHistoryPath <- function(new = FALSE) {
+  file.path(
+    rsconnectConfigDir("deployments"),
+    paste0("history", if (new) ".new", ".dcf")
+  )
+}
+
 # given a path, return the directory under which rsconnect package state is
 # stored
 deploymentConfigDir <- function(recordPath) {
