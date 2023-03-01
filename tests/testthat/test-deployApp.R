@@ -35,6 +35,14 @@ test_that("appSourceDoc is deprecated & checks path", {
   })
 })
 
+test_that("startup scripts are logged by default", {
+  dir <- local_temp_app()
+  withr::local_dir(dir)
+  writeLines("1 + 1", file.path(dir, ".rsconnect_profile"))
+
+  expect_snapshot(runStartupScripts("."))
+})
+
 # record directory --------------------------------------------------------
 
 test_that("findRecordPath() uses recordDir, then appPrimaryDoc, then appDir", {

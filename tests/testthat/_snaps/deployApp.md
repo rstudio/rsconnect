@@ -54,6 +54,13 @@
       Error in `deployApp()`:
       ! `appSourceDoc`, "records", does not exist.
 
+# startup scripts are logged by default
+
+    Code
+      runStartupScripts(".")
+    Message
+      i Running ./.rsconnect_profile
+
 # deployHook executes function if set
 
     Code
