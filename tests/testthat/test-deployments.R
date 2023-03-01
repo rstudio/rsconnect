@@ -143,3 +143,14 @@ test_that("saveDeployment appends to global history", {
   expect_equal(nrow(history), 1)
   expect_setequal(colnames(history), c(deploymentFields, "appPath"))
 })
+
+test_that("addToDeploymentHistory() adds needed new lines", {
+  local_temp_config()
+
+  expect_snapshot({
+    addToDeploymentHistory("path", list(x = 1))
+    writeLines(readLines(deploymentHistoryPath()))
+    addToDeploymentHistory("path", list(x = 2))
+    writeLines(readLines(deploymentHistoryPath()))
+  })
+})

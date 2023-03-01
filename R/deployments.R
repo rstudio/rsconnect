@@ -165,6 +165,7 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 
   # overwrite with new history
   file.rename(newHistory, history)
+  invisible()
 }
 
 #' Forget Application Deployment
