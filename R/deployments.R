@@ -1,36 +1,3 @@
-saveDeployment <- function(recordDir,
-                           target,
-                           application,
-                           bundleId = NULL,
-                           hostUrl = serverInfo(target$server)$hostUrl,
-                           metadata = list()) {
-
-  deployment <- deploymentRecord(
-    name = target$appName,
-    title = target$appTitle,
-    username = target$username,
-    account = target$account,
-    server = target$server,
-    hostUrl = hostUrl,
-    appId = application$id,
-    bundleId = bundleId,
-    url = application$url,
-    metadata = metadata
-  )
-  path <- deploymentConfigFile(recordDir, target$appName, target$account, target$server)
-  writeDeploymentRecord(deployment, path)
-
-  # also save to global history
-  addToDeploymentHistory(recordDir, deployment)
-
-  invisible(NULL)
-}
-
-writeDeploymentRecord <- function(record, filePath) {
-  # use a long width so URLs don't line-wrap
-  write.dcf(record, filePath, width = 4096)
-}
-
 #' List Application Deployments
 #'
 #' List deployment records for a given application.
@@ -118,6 +85,34 @@ deploymentFields <- c(
   "bundleId", "url", "when", "lastSyncTime"
 )
 
+saveDeployment <- function(recordDir,
+                           target,
+                           application,
+                           bundleId = NULL,
+                           hostUrl = serverInfo(target$server)$hostUrl,
+                           metadata = list()) {
+
+  deployment <- deploymentRecord(
+    name = target$appName,
+    title = target$appTitle,
+    username = target$username,
+    account = target$account,
+    server = target$server,
+    hostUrl = hostUrl,
+    appId = application$id,
+    bundleId = bundleId,
+    url = application$url,
+    metadata = metadata
+  )
+  path <- deploymentConfigFile(recordDir, target$appName, target$account, target$server)
+  writeDeploymentRecord(deployment, path)
+
+  # also save to global history
+  addToDeploymentHistory(recordDir, deployment)
+
+  invisible(NULL)
+}
+
 deploymentRecord <- function(name,
                              title,
                              username,
@@ -145,6 +140,11 @@ deploymentRecord <- function(name,
     lastSyncTime = lastSyncTime
   )
   c(standard, metadata)
+}
+
+writeDeploymentRecord <- function(record, filePath) {
+  # use a long width so URLs don't line-wrap
+  write.dcf(record, filePath, width = 4096)
 }
 
 # Workbench uses to show a list of recently deployed content on user dashboard
