@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
+  been necessary, for quite some time (#106, #109).
+
 * `deployApp()` now advertises which startup scripts are run at the normal
   `logLevel`, and it evaluates each script in its own environment (#542).
 

@@ -104,19 +104,6 @@ test_that("primary doc can be inferred (and non-parameterized dispite an include
   expect_equal(manifest$metadata$has_parameters, FALSE)
 })
 
-test_that("multiple shiny Rmd without index file have a generated one", {
-  skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
-    "rmd primary",
-    test_path("shiny-rmds"),
-    NULL
-  )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
-  manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
-  expect_equal(manifest$metadata$appmode, "rmd-shiny")
-  expect_true(file.exists(file.path(bundleTempDir, "index.htm")))
-})
-
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")

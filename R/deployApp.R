@@ -487,10 +487,6 @@ bundleApp <- function(appName,
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
-  # if necessary write an index.htm for shinydoc deployments
-  logger("Writing Rmd index if necessary")
-  indexFiles <- writeRmdIndex(appName, bundleDir)
-
   # create the bundle and return its path
   logger("Compressing the bundle")
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
