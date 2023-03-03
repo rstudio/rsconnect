@@ -223,3 +223,7 @@ rbind_fill <- function(dfs, col_names = character()) {
   out <- do.call("rbind", complete)
   out[all_names]
 }
+
+normalizePath <- function(path, mustWork = FALSE) {
+  base::normalizePath(path, winslash = "/", mustWork = mustWork)
+}
