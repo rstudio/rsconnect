@@ -143,7 +143,7 @@ findUnique <- function(x, existing) {
   i <- 1
   name <- paste0(x, "-", i)
 
-  while(name %in% existing) {
+  while (name %in% existing) {
     i <- i + 1
     name <- paste0(x, "-", i)
   }
