@@ -20,13 +20,12 @@
 #'
 #' @param appDir A directory containing an application (e.g. a Shiny app
 #'   or plumber API). Defaults to the current directory.
-#' @param appFiles A character vector given relative paths to the files and
-#'   directories to bundle and deploy. The default, `NULL`, will include all
-#'   files in `appDir`, apart from any listed in an `.rscignore` file.
-#'   See [listBundleFiles()] for more details.
-#' @param appFileManifest An alternate way to specify the files to be deployed.
-#'   Should be a path to a file that contains the names of the files and
-#'   directories to deploy, one per line, relative to `appDir`.
+#' @param appFiles,appFileManifest Use `appFiles` to specify a
+#'   character vector of files to bundle in the app or `appManifestFiles`
+#'   to provide a path to a file containing a list of such files. If neither
+#'   are supplied, will bundle all files in `appDir`, apart from standard
+#'   exclusions and files listed in a `.rscignore` file. See
+#'   [standardizeAppFiles()] for more details.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents

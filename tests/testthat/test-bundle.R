@@ -8,8 +8,8 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL
   bundleTempDir
 }
 
-makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, image = NULL) {
-  writeManifest(appDir, NULL, appPrimaryDoc, NULL, python = python, quarto = quarto, image = image)
+makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
+  writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ...)
   manifestFile <- file.path(appDir, "manifest.json")
   data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
   manifestJson <- jsonlite::fromJSON(data)
@@ -200,7 +200,7 @@ test_that("writeManifest: Rmd with reticulate as a dependency includes python in
   python <- pythonPathOrSkip()
 
   appDir <- test_path("test-reticulate-rmds")
-  manifest <- makeManifest(appDir, NULL, python = python)
+  manifest <- makeManifest(appDir, python = python)
   requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
   on.exit(unlink(requirements_file))
@@ -229,7 +229,7 @@ test_that("writeManifest: Rmd with reticulate as an inferred dependency includes
 test_that("writeManifest: Rmd without a python block doesn't include reticulate or python in the manifest", {
   skip_on_cran()
 
-  manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd", python = NULL)
+  manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd")
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_null(manifest$python)
@@ -257,7 +257,7 @@ test_that("writeManifest: Quarto website includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("quarto-website-r")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
+  manifest <- makeManifest(appDir, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -268,8 +268,7 @@ test_that("writeManifest: Quarto document includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("quarto-doc-none")
-  appPrimaryDoc <- "quarto-doc-none.qmd"
-  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+  manifest <- makeManifest(appDir, "quarto-doc-none.qmd", quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "markdown")
@@ -280,8 +279,7 @@ test_that("writeManifest: Specifying quarto arg includes quarto in the manifest,
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("quarto-doc-none")
-  appPrimaryDoc <- NULL
-  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+  manifest <- makeManifest(appDir, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "markdown")
@@ -292,8 +290,7 @@ test_that("writeManifest: Specifying quarto arg includes quarto in the manifest,
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("shiny-rmds")
-  appPrimaryDoc <- NULL
-  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+  manifest <- makeManifest(appDir, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -304,8 +301,8 @@ test_that("writeManifest: specifying quarto arg with non-quarto app does not inc
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("shinyapp-singleR")
-  appPrimaryDoc <- "single.R"
-  manifest <- makeManifest(appDir, appPrimaryDoc, quarto = quarto)
+  appPrimaryDoc <-
+  manifest <- makeManifest(appDir, "single.R", quarto = quarto)
 
   expect_null(manifest$quarto)
 })
@@ -314,7 +311,7 @@ test_that("writeManifest: Quarto shiny project includes quarto in the manifest",
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("quarto-proj-r-shiny")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
+  manifest <- makeManifest(appDir, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -327,7 +324,7 @@ test_that("writeManifest: Quarto R + Python website includes quarto and python i
   python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-r-py")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
+  manifest <- makeManifest(appDir, python = python, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -343,7 +340,7 @@ test_that("writeManifest: Quarto Python-only website gets correct manifest data"
   python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-py")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
+  manifest <- makeManifest(appDir, python = python, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "jupyter")

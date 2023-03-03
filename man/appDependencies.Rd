@@ -10,10 +10,8 @@ appDependencies(appDir = getwd(), appFiles = NULL)
 \item{appDir}{Directory containing application. Defaults to current working
 directory.}
 
-\item{appFiles}{A character vector given relative paths to the files and
-directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
-See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
+\item{appFiles}{A character vector giving relative paths to the files to
+include in the deployed bundle.}
 }
 \value{
 A data frame with columns:

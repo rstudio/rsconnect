@@ -18,22 +18,13 @@ Returns a list containing the following elements:
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
+\code{listBundleFiles()} has been superseded in favour of \code{\link[=standardizeAppFiles]{standardizeAppFiles()}}.
+
 Given a directory containing an application, returns the names of the files
 that by default will be bundled in the application. It works similarly to
-a recursive directory listing from \code{\link[=list.files]{list.files()}} but:
-\itemize{
-\item If the total size of the files exceeds the maximum bundle size,
-\code{listBundleFiles()} will error. The maximum bundle size is controlled by
-the \code{rsconnect.max.bundle.size} option.
-\item If the total size number of files exceeds the maximum number to be
-bundled, \code{listBundleFiles()} will error. The maximum number of files in
-the bundle is controlled by the \code{rsconnect.max.bundle.files} option.
-\item Certain files and folders that don't need to be bundled, such as
-those containing internal version control and RStudio state, are
-automatically excluded.
-\item You can exclude additional files by listing them in in a \code{.rscignore}
-file. This file must have one file or directory per line (with path
-relative to the current directory). It doesn't support wildcards, or
-ignoring files in subdirectories.
+a recursive directory listing from \code{\link[=list.files]{list.files()}} but enforces bundle sizes
+as described in \code{\link[=standardizeAppFiles]{standardizeAppFiles()}}
 }
-}
+\keyword{internal}

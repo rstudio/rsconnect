@@ -35,14 +35,12 @@ deployApp(
 \item{appDir}{A directory containing an application (e.g. a Shiny app
 or plumber API). Defaults to the current directory.}
 
-\item{appFiles}{A character vector given relative paths to the files and
-directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
-See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
-
-\item{appFileManifest}{An alternate way to specify the files to be deployed.
-Should be a path to a file that contains the names of the files and
-directories to deploy, one per line, relative to \code{appDir}.}
+\item{appFiles, appFileManifest}{Use \code{appFiles} to specify a
+character vector of files to bundle in the app or \code{appManifestFiles}
+to provide a path to a file containing a list of such files. If neither
+are supplied, will bundle all files in \code{appDir}, apart from standard
+exclusions and files listed in a \code{.rscignore} file. See
+\code{\link[=standardizeAppFiles]{standardizeAppFiles()}} for more details.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be

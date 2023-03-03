@@ -39,7 +39,7 @@
 #' This will tell rsconnect that your app needs the hexbin package, without
 #' otherwise affecting your code.
 #'
-#' @inheritParams deployApp
+#' @inheritParams standardizeAppFiles
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
 #' @return A data frame with columns:

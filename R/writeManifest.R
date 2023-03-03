@@ -8,6 +8,7 @@
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
+                          appFileManifest = NULL,
                           appPrimaryDoc = NULL,
                           contentCategory = NULL,
                           python = NULL,
@@ -16,7 +17,11 @@ writeManifest <- function(appDir = getwd(),
                           image = NULL,
                           verbose = FALSE) {
 
-  appFiles <- standardizeAppFiles(appDir, appFiles)
+  appFiles <- standardizeAppFiles(
+    appDir,
+    appFiles = appFiles,
+    appFileManifest = appFileManifest
+  )
 
   appMetadata <- appMetadata(
     appDir = appDir,

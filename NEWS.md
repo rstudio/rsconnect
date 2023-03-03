@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* New `standardizeAppFiles()`, which supsersedes `listBundleFiles()`.
+
 * Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
   been necessary, for quite some time (#106, #109).
 
