@@ -38,7 +38,7 @@ test_that("regular rmd deploys file and dependencies", {
 
 test_that("regular rmd deploys .Rprofile, if present", {
   dir <- local_temp_app(list(
-    "foo.Rmd" ="",
+    "foo.Rmd" = "",
     ".Rprofile" = ""
   ))
 
