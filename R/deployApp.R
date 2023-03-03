@@ -76,9 +76,12 @@
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
 #'   [deployments()].
-#' @param forceUpdate If `TRUE`, update any previously-deployed app without
-#'   asking. If `FALSE`, ask to update. If unset, defaults to the value of
-#'   `getOption("rsconnect.force.update.apps", FALSE)`.
+#' @param forceUpdate What should happen if there's no deployment record for
+#'   the app, but there's an app with the same name on the server? If `TRUE`,
+#'   will always update the previously-deployed app. If `FALSE`, will ask
+#'   the user what to do, or fail if not in an interactive context.
+#'
+#'   Defaults to the value of `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
 #'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
@@ -259,8 +262,16 @@ deployApp <- function(appDir = getwd(),
     appTitle = appTitle,
     appId = appId,
     account = account,
-    server = server
+    server = server,
+    forceUpdate = forceUpdate
   )
+  if (is.null(target$application)) {
+    dest <- accountId(target$username, target$server)
+    taskComplete(quiet, "Re-deploying {.val {target$name}} to {.val {dest}}")
+  } else {
+    dest <- accountId(target$username, target$server)
+    taskComplete(quiet, "Deploying {.val {target$name}} to {.val {dest}}")
+  }
 
   # test for compatibility between account type and publish intent
   if (!isCloudServer(target$server) && identical(upload, FALSE)) {
@@ -275,16 +286,26 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
-  # get the application to deploy (creates a new app on demand)
-  taskStart(quiet, "Looking up application on server...")
-  application <- applicationForTarget(client, accountDetails, target, forceUpdate)
+  if (!is.null(target$appId)) {
+    application <- taskStart(quiet, "Looking up application with id {.val {application$id}}...")
+    application <- client$getApplication(target$appId)
+    taskComplete(quiet, "Found application")
+  } else {
+    taskStart(quiet, "Creating application on server...")
+    client$createApplication(
+      target$appName,
+      target$appTitle,
+      "shiny",
+      accountInfo$accountId
+    )
+    taskComplete(quiet, "Created application with id {.val {application$id}}")
+  }
   saveDeployment(
     recordPath,
     target = target,
     application = application,
     metadata = metadata
   )
-  taskComplete(quiet, "Found application with id {.val {application$id}}")
 
   # Change _visibility_ before uploading data
   if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
@@ -520,45 +541,6 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
   # create the appropriate client and fetch the application
   client <- clientForAccount(accountDetails)
   client$getApplication(id)
-}
-
-applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-  # Use appId from previous deployment, if it still exists
-  if (!is.null(target$appId)) {
-    app <- client$getApplication(target$appId)
-    if (!is.null(app)) {
-      return(app)
-    }
-  }
-
-  # Otherwise, see if there's an existing app with this name
-  sameName <- getAppByName(client, accountInfo, target$appName)
-  if (!is.null(sameName)) {
-    # check that it's ok to to use it
-    if (interactive() && !forceUpdate) {
-      cli::cli_inform(paste0(
-        "There is a currently deployed app with name {.str {target$appName}}",
-        " at {.url {sameName$url}}"
-      ))
-      input <- readline("Do you want to update it? [Y/n] ")
-      if (input %in% c("y", "Y", "")) {
-        return(sameName)
-      }
-
-      cli::cli_abort(c(
-        "Each item of content must have a unique {.arg appName}.",
-        i = "Set {.arg appName} to a new value."
-      ))
-    }
-  }
-
-  # Otherwise, create a new app
-  client$createApplication(
-    target$appName,
-    target$appTitle,
-    "shiny",
-    accountInfo$accountId
-  )
 }
 
 getAppByName <- function(client, accountInfo, name) {

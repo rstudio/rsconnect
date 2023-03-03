@@ -6,7 +6,7 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              account = NULL,
                              server = NULL,
-                             quiet = FALSE,
+                             forceUpdate = FALSE,
                              error_call = caller_env()) {
 
   appDeployments <- deployments(
@@ -23,9 +23,21 @@ deploymentTarget <- function(recordPath = ".",
     } else {
       check_string(appName, call = error_call)
     }
-    if (!quiet) {
-      dest <- accountId(fullAccount$name, fullAccount$server)
-      cli::cli_alert_info("Deploying {.val {appName}} to {.val {dest}}")
+
+    # Have we previously deployed elsewhere?
+    if (is.null(appId)) {
+      existing <- applications(fullAccount$name, fullAccount$server)
+      if (appName %in% existing$name) {
+        thisApp <- existing[appName %in% existing$name, , drop = FALSE]
+        uniqueName <- findUnique(appName, existing$name)
+
+        if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
+          appId <- thisApp$id
+          appName <- thisApp$name
+        } else {
+          appName <- uniqueName
+        }
+      }
     }
 
     createDeploymentTarget(
@@ -37,12 +49,6 @@ deploymentTarget <- function(recordPath = ".",
       fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
-    if (!quiet) {
-      name <- appDeployments$name
-      dest <- accountId(appDeployments$username, appDeployments$server)
-      cli::cli_alert_info("Re-deploying {.val {name}} to {.val {dest}}")
-    }
-
     createDeploymentTarget(
       appDeployments$name,
       appTitle %||% appDeployments$title,
@@ -103,6 +109,43 @@ defaultAppName <- function(recordPath, server = NULL) {
     if (nchar(name) > 64) {
       name <- substr(name, 1, 64)
     }
+  }
+
+  name
+}
+
+shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
+  if (forceUpdate) {
+    return(TRUE)
+  }
+
+  message <- c(
+    "Discovered a previously deployed app named {.str {application$name}}",
+    "(View it at {.url {application$url}})"
+  )
+
+  not_interactive <- c(
+    i = "Set `forceUpdate = TRUE` to update it",
+    i = "Supply a unique `appName` to deploy a new application"
+  )
+
+  choices <- c(
+    "Update the existing app",
+    "Create a new app with automatically generated name ({.str {uniqueName}})",
+    "Abort this deployment and supply a custom `appName`"
+  )
+
+  cli_menu(message, not_interactive, choices, quit = 3) == 1
+}
+
+
+findUnique <- function(x, existing) {
+  i <- 1
+  name <- paste0(x, "-", i)
+
+  while(name %in% existing) {
+    i <- i + 1
+    name <- paste0(x, "-", i)
   }
 
   name
