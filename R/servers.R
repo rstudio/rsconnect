@@ -220,19 +220,19 @@ serverInfo <- function(name) {
 
   # there's no config file for Posit's hosted offerings
   if (identical(name, "shinyapps.io")) {
-    return(shinyappsServerInfo())
+    info <- shinyappsServerInfo()
+  } else if (identical(name, cloudServerInfo(name)$name)) {
+    info <- cloudServerInfo(name)
+  } else {
+    configFile <- serverConfigFile(name)
+    if (!file.exists(configFile))
+      stop(missingServerErrorMessage(name))
+
+    serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
+    info <- as.list(serverDcf)
   }
 
-  if (identical(name, cloudServerInfo(name)$name)) {
-    return(cloudServerInfo(name))
-  }
-
-  configFile <- serverConfigFile(name)
-  if (!file.exists(configFile))
-    stop(missingServerErrorMessage(name))
-
-  serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
-  info <- as.list(serverDcf)
+  info$certificate <- secret(info$certificate)
   info
 }
 

@@ -20,6 +20,13 @@ test_that("servers() redacts the certificate", {
   expect_snapshot(servers())
 })
 
+test_that("serverInfo() redacts the certificate", {
+  expect_snapshot({
+    str(serverInfo("posit.cloud"))
+    str(serverInfo("shinyapps.io"))
+  })
+})
+
 test_that("normalizes connect urls", {
   expected <- "https://myserver.com/__api__"
 
