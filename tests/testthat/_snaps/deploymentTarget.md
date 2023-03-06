@@ -59,18 +59,18 @@
       Error:
       ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
-      i Known application names: "test".
-      i Known servers: "server1.com" and "server2.com".
-      i Known account names: "ron".
+      Known applications:
+      * test (ron@server1.com): <http://server1.com/test>
+      * test (ron@server2.com): <http://server2.com/test>
     Code
       deploymentTarget(app_dir)
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
-      i Known application names: "test".
-      i Known servers: "server1.com" and "server2.com".
-      i Known account names: "ron".
+      Known applications:
+      * test (ron@server1.com): <http://server1.com/test>
+      * test (ron@server2.com): <http://server2.com/test>
 
 ---
 
@@ -79,8 +79,8 @@
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?
-      1: test (ron@server1.com)
-      2: test (ron@server2.com)
+      1: test (ron@server1.com): <http://server1.com/test>
+      2: test (ron@server2.com): <http://server2.com/test>
       Selection: 1
 
 # shouldUpdateApp errors when non-interactive

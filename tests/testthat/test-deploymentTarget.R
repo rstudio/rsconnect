@@ -74,7 +74,7 @@ test_that("errors/prompts if multiple deployments", {
       username = "ron",
       account = "ron"
     ),
-    application = list(id = NA, url = NA),
+    application = list(id = NA, url = "http://server1.com/test"),
     bundleId = NA,
     hostUrl = NA
   )
@@ -88,7 +88,7 @@ test_that("errors/prompts if multiple deployments", {
       username = "ron",
       account = "ron"
     ),
-    application = list(id = NA, url = NA),
+    application = list(id = NA, url = "http://server2.com/test"),
     bundleId = NA,
     hostUrl = NA
   )

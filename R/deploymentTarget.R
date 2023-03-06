@@ -49,42 +49,26 @@ deploymentTarget <- function(recordPath = ".",
       fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
-    createDeploymentTarget(
-      appDeployments$name,
-      appTitle %||% appDeployments$title,
-      appDeployments$appId,
-      # if username not previously recorded, use current account
-      appDeployments$username %||% appDeployments$account,
-      appDeployments$account,
-      appDeployments$server
-    )
+    updateDeploymentTarget(appDeployments, appTitle)
   } else {
-    choices <- paste0(
-      appDeployments$name,
-      " (", accountId(appDeployments$account, appDeployments$server), ")"
+    apps <- paste0(
+      appDeployments$name, " ",
+      "(", accountId(appDeployments$account, appDeployments$server), "): ",
+      "{.url ", appDeployments$url, "}"
     )
     not_interactive <- c(
       "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
-      i = "Known application names: {.str {unique(appDeployments$name)}}.",
-      i = "Known servers: {.str {unique(appDeployments$server)}}.",
-      i = "Known account names: {.str {unique(appDeployments$account)}}."
+      "Known applications:",
+      set_names(apps, "*")
     )
     idx <- cli_menu(
       "This directory has been previously deployed in multiple places.",
       "Which deployment do you want to use?",
-      choices = choices,
+      choices = apps,
       not_interactive = not_interactive,
       error_call = error_call
     )
-    createDeploymentTarget(
-      appDeployments$name[[idx]],
-      appTitle %||% appDeployments$title[[idx]],
-      appDeployments$appId[[idx]],
-      # if username not previously recorded, use current account
-      appDeployments$username[[idx]] %||% appDeployments$account[[idx]],
-      appDeployments$account[[idx]],
-      appDeployments$server[[idx]]
-    )
+    updateDeploymentTarget(appDeployments[idx, ], appTitle)
   }
 }
 
@@ -101,6 +85,18 @@ createDeploymentTarget <- function(appName,
     username = username,
     account = account,
     server = server
+  )
+}
+
+updateDeploymentTarget <- function(previous, appTitle = NULL) {
+  createDeploymentTarget(
+    previous$name,
+    appTitle %||% previous$title,
+    previous$appId,
+    # if username not previously recorded, use current account
+    previous$username %||% previous$account,
+    previous$account,
+    previous$server
   )
 }
 
