@@ -190,4 +190,3 @@ validateUserRecord <- function(record) {
   }
   record
 }
-
