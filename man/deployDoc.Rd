@@ -18,10 +18,10 @@ Deploys a single R Markdown, Quarto document, or other file (e.g. \code{.html} o
 \code{.pdf}).
 
 When deploying an \code{.Rmd}, \code{.Qmd}, or \code{.html}, \code{deployDoc()} will attempt to
-automatically discover dependencies using \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}}.
-If you find that the document is missing dependencies, either specify the
-dependencies explicitly in the document (see
-\code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}} for details), or call
+automatically discover dependencies using \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}},
+and include an \code{.Rprofile} if present. If you find that the document is
+missing dependencies, either specify the dependencies explicitly in the
+document (see \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}} for details), or call
 \code{\link[=deployApp]{deployApp()}} directly and specify your own file list in \code{appFiles}.
 }
 \examples{
