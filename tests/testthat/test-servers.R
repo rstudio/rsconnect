@@ -49,3 +49,31 @@ test_that("cloud server info is modern if invalid", {
   server <- cloudServerInfo("someones.connect.server")
   expect_equal(server$name, "posit.cloud")
 })
+
+# findServer --------------------------------------------------------------
+
+test_that("findServer() errors if no servers", {
+  local_temp_config()
+  expect_snapshot(findServer(), error = TRUE)
+})
+
+test_that("findServer() picks server if only one present", {
+  mockr::local_mock(
+    servers = function(...) data.frame(name = "myserver")
+  )
+  expect_equal(findServer(), "myserver")
+})
+
+test_that("findServer() errors/prompts of multiple servers present", {
+  mockr::local_mock(
+    servers = function(...) data.frame(name = c("myserver", "yourserver"))
+  )
+  expect_snapshot(findServer(), error = TRUE)
+
+  withr::local_options(
+    rlang_interactive = TRUE,
+    cli_prompt = "2"
+  )
+  expect_snapshot(out <- findServer())
+  expect_equal(out, "yourserver")
+})

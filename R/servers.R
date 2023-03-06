@@ -49,16 +49,13 @@ servers <- function(local = FALSE) {
     if (identical(nrow(info), 0L))
       return(NULL)
 
-    # provide empty certificate if not specified in DCF (only if we also have a URL)
-    if (!("certificate" %in% colnames(info))) {
-      info <- cbind(info, certificate = "")
-    }
-
     # return parsed server info
     info
   })
-  locals <- do.call(rbind, parsed)
-  locals <- as.data.frame(locals, stringsAsFactors = FALSE)
+
+  parsed <- lapply(parsed, as.data.frame, stringsAsFactors = FALSE)
+  locals <- rbind_fill(parsed, c("name", "url", "certificate"))
+
   if (local) {
     out <- locals
   } else {
@@ -105,7 +102,7 @@ cloudServerInfo <- function(name = "posit.cloud") {
 #' @export
 discoverServers <- function(quiet = FALSE) {
   # TODO: Better discovery mechanism?
-  discovered <- getOption("rsconnect.local_servers", "http://localhost:3939/__api__")
+  discovered <- getOption("rsconnect.local_servers", NULL)
 
   # get the URLs of the known servers, and silently add any that aren't yet
   # present
@@ -123,30 +120,26 @@ discoverServers <- function(quiet = FALSE) {
   invisible(introduced)
 }
 
-getDefaultServer <- function(local = FALSE, prompt = TRUE) {
-   existing <- servers(local)
-   # if there are no existing servers, silently try to discover one to work with
-   if (length(existing) == 0 || nrow(existing) == 0) {
-     discoverServers(quiet = TRUE)
-     existing <- servers(local)
-   }
+findServer <- function(prompt = TRUE) {
+  existing <- servers(local = TRUE)
+  # if there are no existing servers, silently try to discover
+  if (length(existing) == 0 || nrow(existing) == 0) {
+    discoverServers(quiet = TRUE)
+    existing <- servers(local = TRUE)
+  }
 
-   # if exactly one server exists, return it
-   if (nrow(existing) == 1) {
-     return(list(name = as.character(existing[, "name"]),
-                 url = as.character(existing[, "url"])))
-   }
-
-   # no default server, prompt if there are multiple choices
-  if (nrow(existing) > 1 && prompt && interactive()) {
-    name <- as.character(existing[1, "name"])
-    message("Registered servers: ", paste(existing[, "name"], collapse = ", "))
-    input <- readline(paste0(
-      "Which server (default '", name, "')? "))
-    if (nchar(input) > 0) {
-      name <- input
-    }
-    return(serverInfo(name))
+  if (length(existing) == 0 || nrow(existing) == 0) {
+    cli::cli_abort("No local servers have been registered")
+  } else if (nrow(existing) == 1) {
+    existing$name
+  } else {
+    idx <- cli_menu(
+      "Multiple servers found.",
+      "Which one do you want to use?",
+      c(i = "Use {.arg server} to pick one of {.str {existing$name}}."),
+      choices = existing$name
+    )
+    existing$name[idx]
   }
 }
 
