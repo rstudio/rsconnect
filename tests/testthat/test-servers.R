@@ -59,14 +59,18 @@ test_that("findServer() errors if no servers", {
 
 test_that("findServer() picks server if only one present", {
   mockr::local_mock(
-    servers = function(...) data.frame(name = "myserver")
+    servers = function(...) {
+      data.frame(name = "myserver", stringsAsFactors = FALSE)
+    }
   )
   expect_equal(findServer(), "myserver")
 })
 
 test_that("findServer() errors/prompts of multiple servers present", {
   mockr::local_mock(
-    servers = function(...) data.frame(name = c("myserver", "yourserver"))
+    servers = function(...) {
+      data.frame(name = c("myserver", "yourserver"), stringsAsFactors = FALSE)
+    }
   )
   expect_snapshot(findServer(), error = TRUE)
 
