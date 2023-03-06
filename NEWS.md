@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
+  same directory as the document.
+
 * Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
   been necessary, for quite some time (#106, #109).
 

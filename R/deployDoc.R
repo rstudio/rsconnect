@@ -5,10 +5,10 @@
 #' `.pdf`).
 #'
 #' When deploying an `.Rmd`, `.Qmd`, or `.html`, `deployDoc()` will attempt to
-#' automatically discover dependencies using [rmarkdown::find_external_resources()].
-#' If you find that the document is missing dependencies, either specify the
-#' dependencies explicitly in the document (see
-#' [rmarkdown::find_external_resources()] for details), or call
+#' automatically discover dependencies using [rmarkdown::find_external_resources()],
+#' and include an `.Rprofile` if present. If you find that the document is
+#' missing dependencies, either specify the dependencies explicitly in the
+#' document (see [rmarkdown::find_external_resources()] for details), or call
 #' [deployApp()] directly and specify your own file list in `appFiles`.
 #'
 #' @param doc Path to the document to deploy.
@@ -53,6 +53,11 @@ standardizeSingleDocDeployment <- function(path,
     taskComplete(quiet, "Document dependencies discovered")
 
     appFiles <- c(basename(path), resources$path)
+
+    if (file.exists(file.path(dirname(path), ".Rprofile"))) {
+      appFiles <- c(appFiles, ".Rprofile")
+    }
+    appFiles
   } else {
     # deploy just the file
     appFiles <- basename(path)
