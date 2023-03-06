@@ -218,7 +218,6 @@ removeServer <- function(name) {
 serverInfo <- function(name) {
   check_string(name)
 
-  # there's no config file for Posit's hosted offerings
   if (identical(name, "shinyapps.io")) {
     info <- shinyappsServerInfo()
   } else if (identical(name, cloudServerInfo(name)$name)) {
