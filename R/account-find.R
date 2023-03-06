@@ -66,17 +66,29 @@ findAccount <- function(accountName = NULL, server = NULL, error_call = caller_e
     }
   } else {
     theseAccounts <- accounts
+
     if (nrow(theseAccounts) > 1) {
-      cli::cli_abort(
-        c(
+      if (is_interactive()) {
+        ids <- accountId(accounts$name, accounts$server)
+        choice <- cli_menu(
           "Found multiple accounts.",
-          "Please disambiguate by setting {.arg server} and/or {.arg account}.",
-          i = "Available servers: {.str {unique(theseAccounts$server)}}.",
-          i = "Available account names: {.str {unique(theseAccounts$name)}}."
-        ),
-        call = error_call
-      )
+          "Which one do you want to use?",
+          ids
+        )
+        theseAccounts <- theseAccounts[choice, , drop = FALSE]
+      } else {
+        cli::cli_abort(
+          c(
+            "Found multiple accounts.",
+            "Please disambiguate by setting {.arg server} and/or {.arg account}.",
+            i = "Available servers: {.str {unique(theseAccounts$server)}}.",
+            i = "Available account names: {.str {unique(theseAccounts$name)}}."
+          ),
+          call = error_call
+        )
+      }
     }
+
   }
   as.list(theseAccounts)
 }

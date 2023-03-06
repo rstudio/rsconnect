@@ -51,8 +51,10 @@
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
-#'   user `account`, the `server` name, or both. Use [accounts()] to see the
-#'   full list of available options.
+#'   user `account`, the `server` name, or both. If neither are supplied, and
+#'   there are multiple options, you'll be prompted to pick one.
+#'
+#'   Use [accounts()] to see the full list of available options.
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
