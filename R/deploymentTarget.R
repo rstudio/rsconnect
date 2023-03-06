@@ -124,10 +124,7 @@ shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
     "(View it at {.url {application$url}})"
   )
 
-  not_interactive <- c(
-    i = "Set `forceUpdate = TRUE` to update it.",
-    i = "Supply a unique `appName` to deploy a new application."
-  )
+  prompt <- "What do you want to do?"
 
   choices <- c(
     "Update the existing app.",
@@ -135,7 +132,12 @@ shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
     "Abort this deployment and supply a custom `appName`."
   )
 
-  cli_menu(message, not_interactive, choices, quit = 3) == 1
+  not_interactive <- c(
+    i = "Set `forceUpdate = TRUE` to update it.",
+    i = "Supply a unique `appName` to deploy a new application."
+  )
+
+  cli_menu(message, prompt, choices, not_interactive, quit = 3) == 1
 }
 
 

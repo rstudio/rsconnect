@@ -91,9 +91,9 @@
       Discovered a previously deployed app named "my_app"
       (View it at <https://example.com>)
       What do you want to do?
-      1 Update the existing app.
-      2 Create a new app with automatically generated name ("my_app-1").
-      3 Abort this deployment and supply a custom `appName`.
+      1: Update the existing app.
+      2: Create a new app with automatically generated name ("my_app-1").
+      3: Abort this deployment and supply a custom `appName`.
       Selection: 1
     Code
       two <- shouldUpdateApp(app, "my_app-1")
@@ -101,9 +101,9 @@
       Discovered a previously deployed app named "my_app"
       (View it at <https://example.com>)
       What do you want to do?
-      1 Update the existing app.
-      2 Create a new app with automatically generated name ("my_app-1").
-      3 Abort this deployment and supply a custom `appName`.
+      1: Update the existing app.
+      2: Create a new app with automatically generated name ("my_app-1").
+      3: Abort this deployment and supply a custom `appName`.
       Selection: 2
     Code
       three <- shouldUpdateApp(app, "my_app-1")
@@ -111,9 +111,9 @@
       Discovered a previously deployed app named "my_app"
       (View it at <https://example.com>)
       What do you want to do?
-      1 Update the existing app.
-      2 Create a new app with automatically generated name ("my_app-1").
-      3 Abort this deployment and supply a custom `appName`.
+      1: Update the existing app.
+      2: Create a new app with automatically generated name ("my_app-1").
+      3: Abort this deployment and supply a custom `appName`.
       Selection: 3
     Condition
       Error:
