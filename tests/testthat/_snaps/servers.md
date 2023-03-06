@@ -36,3 +36,17 @@
       2: yourserver
       Selection: 2
 
+# findServer checks server name
+
+    Code
+      findServer(1)
+    Condition
+      Error:
+      ! `server` must be a single string, not the number 1.
+    Code
+      findServer("foo")
+    Condition
+      Error in `findServer()`:
+      ! Can't find `server` with name "foo".
+      i Known servers are "shinyapps.io" and "posit.cloud".
+

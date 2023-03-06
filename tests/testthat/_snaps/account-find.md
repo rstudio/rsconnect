@@ -33,7 +33,7 @@
     Condition
       Error:
       ! Can't find any accounts with `server` = "unknown".
-      i Available servers: "server".
+      i Known servers are "server".
     Code
       findAccount("unknown", "unknown")
     Condition
@@ -64,7 +64,7 @@
       Error:
       ! Found multiple accounts for `server` = "y".
       Please disambiguate by setting `account`.
-      i Available account names: "a" and "b".
+      i Known account names are "a" and "b".
 
 # prompted to pick account in interactive environment
 

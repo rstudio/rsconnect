@@ -14,7 +14,7 @@
     Condition
       Error in `deploymentTarget()`:
       ! Can't find any accounts with `server` = "unknown".
-      i Available servers: "bar".
+      i Known servers are "bar".
     Code
       deploymentTarget(account = "john")
     Condition
@@ -49,7 +49,7 @@
       Error in `deploymentTarget()`:
       ! Found multiple accounts for `server` = "foo".
       Please disambiguate by setting `account`.
-      i Available account names: "ron" and "john".
+      i Known account names are "ron" and "john".
 
 # errors/prompts if multiple deployments
 

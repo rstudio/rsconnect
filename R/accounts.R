@@ -52,7 +52,7 @@ accounts <- function(server = NULL) {
 #' @family Account functions
 #' @export
 connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE) {
-  server <- server %||% findServer()
+  server <- findServer(server)
   target <- serverInfo(server)
 
   if (is.null(target)) {
@@ -118,7 +118,7 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
 #' @export
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
-  server <- server %||% findServer()
+  server <- findServer(server)
   target <- serverInfo(server)
 
   if (is.null(target)) {

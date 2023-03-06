@@ -102,7 +102,7 @@ cloudServerInfo <- function(name = "posit.cloud") {
 #' @export
 discoverServers <- function(quiet = FALSE) {
   # TODO: Better discovery mechanism?
-  discovered <- getOption("rsconnect.local_servers", NULL)
+  discovered <- getOption("rsconnect.local_servers", "http://localhost:3939/__api__")
 
   # get the URLs of the known servers, and silently add any that aren't yet
   # present
@@ -120,26 +120,36 @@ discoverServers <- function(quiet = FALSE) {
   invisible(introduced)
 }
 
-findServer <- function(prompt = TRUE) {
-  existing <- servers(local = TRUE)
-  # if there are no existing servers, silently try to discover
-  if (length(existing) == 0 || nrow(existing) == 0) {
-    discoverServers(quiet = TRUE)
-    existing <- servers(local = TRUE)
-  }
+findServer <- function(server = NULL,
+                       error_call = caller_env()) {
 
-  if (length(existing) == 0 || nrow(existing) == 0) {
-    cli::cli_abort("No local servers have been registered")
-  } else if (nrow(existing) == 1) {
-    existing$name
+  if (!is.null(server)) {
+    check_string(server, call = error_call)
+
+    existing <- servers()
+    if (!server %in% existing$name) {
+      cli::cli_abort(c(
+        "Can't find {.arg server} with name {.str {server}}.",
+        i = "Known servers are {.str {existing$name}}."
+      ))
+    }
+    server
   } else {
-    idx <- cli_menu(
-      "Multiple servers found.",
-      "Which one do you want to use?",
-      c(i = "Use {.arg server} to pick one of {.str {existing$name}}."),
-      choices = existing$name
-    )
-    existing$name[idx]
+    existing <- servers(local = TRUE)
+
+    if (length(existing) == 0 || nrow(existing) == 0) {
+      cli::cli_abort("No local servers have been registered")
+    } else if (nrow(existing) == 1) {
+      existing$name
+    } else {
+      idx <- cli_menu(
+        "Multiple servers found.",
+        "Which one do you want to use?",
+        c(i = "Use {.arg server} to pick one of {.str {existing$name}}."),
+        choices = existing$name
+      )
+      existing$name[idx]
+    }
   }
 }
 

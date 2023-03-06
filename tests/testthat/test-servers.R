@@ -81,3 +81,13 @@ test_that("findServer() errors/prompts of multiple servers present", {
   expect_snapshot(out <- findServer())
   expect_equal(out, "yourserver")
 })
+
+test_that("findServer checks server name", {
+  local_temp_config()
+
+  expect_snapshot(error = TRUE, {
+    findServer(1)
+    findServer("foo")
+  })
+
+})
