@@ -51,26 +51,37 @@
       Please disambiguate by setting `account`.
       i Available account names: "ron" and "john".
 
-# errors if multiple deployments
+# errors/prompts if multiple deployments
 
     Code
       deploymentTarget(app_dir, appName = "test")
     Condition
       Error:
-      ! This app has been previously deployed in multiple places.
+      ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
       i Known application names: "test".
-      i Known servers: "foo1" and "foo2".
+      i Known servers: "server1.com" and "server2.com".
       i Known account names: "ron".
     Code
       deploymentTarget(app_dir)
     Condition
       Error:
-      ! This app has been previously deployed in multiple places.
+      ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
       i Known application names: "test".
-      i Known servers: "foo1" and "foo2".
+      i Known servers: "server1.com" and "server2.com".
       i Known account names: "ron".
+
+---
+
+    Code
+      out <- deploymentTarget(app_dir)
+    Message
+      This directory has been previously deployed in multiple places.
+      Which deployment do you want to use?
+      1: test (ron@server1.com)
+      2: test (ron@server2.com)
+      Selection: 1
 
 # shouldUpdateApp errors when non-interactive
 

@@ -5,9 +5,14 @@ cli_menu <- function(header,
                      choices,
                      not_interactive = choices,
                      quit = integer(),
-                     .envir = caller_env()) {
+                     .envir = caller_env(),
+                     error_call = caller_env()) {
   if (!is_interactive()) {
-    cli::cli_abort(c(header, not_interactive), .envir = .envir)
+    cli::cli_abort(
+      c(header, not_interactive),
+      .envir = .envir,
+      call = error_call
+    )
   }
   choices <- sapply(choices, cli::format_inline, .envir = .envir, USE.NAMES = FALSE)
 
@@ -29,12 +34,12 @@ cli_menu <- function(header,
 
   selected <- as.integer(selected)
   if (selected %in% c(0, quit)) {
-    if (interactive()) {
+    if (is_testing()) {
+      cli::cli_abort("Quiting...", call = NULL)
+    } else {
       cli::cli_alert_danger("Quiting...")
       # simulate user pressing Ctrl + C
       invokeRestart("abort", cnd)
-    } else {
-      cli::cli_abort("Quiting...", call = NULL)
     }
   }
   selected
@@ -51,4 +56,8 @@ cli_readline <- function(prompt) {
   } else {
     readline("Selection: ")
   }
+}
+
+is_testing <- function() {
+  identical(Sys.getenv("TESTTHAT"), "true")
 }

@@ -59,15 +59,31 @@ deploymentTarget <- function(recordPath = ".",
       appDeployments$server
     )
   } else {
-    cli::cli_abort(
-      c(
-        "This app has been previously deployed in multiple places.",
-        "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
-        i = "Known application names: {.str {unique(appDeployments$name)}}.",
-        i = "Known servers: {.str {unique(appDeployments$server)}}.",
-        i = "Known account names: {.str {unique(appDeployments$account)}}."
-      ),
-      call = error_call
+    choices <- paste0(
+      appDeployments$name,
+      " (", accountId(appDeployments$account, appDeployments$server), ")"
+    )
+    not_interactive <- c(
+      "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
+      i = "Known application names: {.str {unique(appDeployments$name)}}.",
+      i = "Known servers: {.str {unique(appDeployments$server)}}.",
+      i = "Known account names: {.str {unique(appDeployments$account)}}."
+    )
+    idx <- cli_menu(
+      "This directory has been previously deployed in multiple places.",
+      "Which deployment do you want to use?",
+      choices = choices,
+      not_interactive = not_interactive,
+      error_call = error_call
+    )
+    createDeploymentTarget(
+      appDeployments$name[[idx]],
+      appTitle %||% appDeployments$title[[idx]],
+      appDeployments$appId[[idx]],
+      # if username not previously recorded, use current account
+      appDeployments$username[[idx]] %||% appDeployments$account[[idx]],
+      appDeployments$account[[idx]],
+      appDeployments$server[[idx]]
     )
   }
 }
