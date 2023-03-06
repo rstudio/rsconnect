@@ -1,43 +1,3 @@
-userRecord <- function(email, username, first_name, last_name, password) {
-  list(
-    email = email,
-    username = username,
-    first_name = first_name,
-    last_name = last_name,
-    password = password
-  )
-}
-
-prettyPasteFields <- function(message, fields) {
-  header <- paste(message, ":\n- ", sep = "")
-  body <- paste(strwrap(paste(shQuote(fields), collapse = ", ")),
-                collapse = "\n")
-  paste(header, body, sep = "")
-}
-
-validateUserRecord <- function(record) {
-  requiredFields <- c("email", "username", "first_name", "last_name", "password")
-  missingFields <- setdiff(requiredFields, names(record))
-  extraFields <- setdiff(names(record), requiredFields)
-
-  ## Construct error message if necessary
-  msg <- NULL
-  if (length(missingFields)) {
-    msg <- prettyPasteFields("The following required fields are missing",
-                             missingFields)
-  }
-  if (length(extraFields)) {
-    msg <- paste(msg, prettyPasteFields("The following extraneous fields were found",
-                                        extraFields))
-  }
-
-  if (!is.null(msg)) {
-    stop(msg)
-  }
-  record
-}
-
-# return a list of functions that can be used to interact with connect
 connectClient <- function(service, authInfo) {
   service <- parseHttpUrl(service)
 
@@ -190,51 +150,44 @@ connectClient <- function(service, authInfo) {
 
 }
 
-listRequest <- function(service, authInfo, path, query, listName, page = 100,
-                       max = NULL) {
+# userRecord --------------------------------------------------------------
 
-  # accumulate multiple pages of results
-  offset <- 0
-  results <- list()
+userRecord <- function(email, username, first_name, last_name, password) {
+  list(
+    email = email,
+    username = username,
+    first_name = first_name,
+    last_name = last_name,
+    password = password
+  )
+}
 
-  while (TRUE) {
+prettyPasteFields <- function(message, fields) {
+  header <- paste(message, ":\n- ", sep = "")
+  body <- paste(strwrap(paste(shQuote(fields), collapse = ", ")),
+                collapse = "\n")
+  paste(header, body, sep = "")
+}
 
-    # add query params
-    pathWithQuery <- paste(path, "?", query,
-                           "&count=", page,
-                           "&offset=", offset,
-                           sep = "")
+validateUserRecord <- function(record) {
+  requiredFields <- c("email", "username", "first_name", "last_name", "password")
+  missingFields <- setdiff(requiredFields, names(record))
+  extraFields <- setdiff(names(record), requiredFields)
 
-    # make request and append the results
-    response <- handleResponse(GET(service, authInfo, pathWithQuery))
-    results <- append(results, response[[listName]])
-
-    # update the offset
-    offset <- offset + response$count
-
-    # get all results if no max was specified
-    if (is.null(max)) {
-      max <- response$total
-    }
-
-    # exit if we've got them all
-    if (length(results) >= response$total || length(results) >= max)
-      break
+  ## Construct error message if necessary
+  msg <- NULL
+  if (length(missingFields)) {
+    msg <- prettyPasteFields("The following required fields are missing",
+                             missingFields)
+  }
+  if (length(extraFields)) {
+    msg <- paste(msg, prettyPasteFields("The following extraneous fields were found",
+                                        extraFields))
   }
 
-  return(results)
-}
-
-filterQuery <- function(param, value, operator = NULL) {
-  if (is.null(operator)) {
-    op <- ":"
-  } else {
-    op <- paste(":", operator, ":", sep = "")
+  if (!is.null(msg)) {
+    stop(msg)
   }
-  q <- paste("filter=", param, op, value, sep = "")
-  return(q)
+  record
 }
 
-isContentType <- function(response, contentType) {
-  grepl(contentType, response$contentType, fixed = TRUE)
-}

@@ -273,18 +273,6 @@ missingServerErrorMessage <- function(name) {
   paste0("server named '", name, "' does not exist")
 }
 
-clientForAccount <- function(account) {
-
-  # determine appropriate server information for account
-  if (isCloudServer(account$server)) {
-    constructor <- lucidClientForAccount(account)
-  } else {
-    serverInfo <- serverInfo(account$server)
-    account$certificate <- serverInfo$certificate
-    connectClient(serverInfo$url, account)
-  }
-}
-
 # Return a URL that can be concatenated with sub-paths like /content
 ensureConnectServerUrl <- function(url) {
   # strip trailing /
