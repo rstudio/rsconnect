@@ -28,7 +28,7 @@ deploymentTarget <- function(recordPath = ".",
     if (is.null(appId)) {
       existing <- applications(fullAccount$name, fullAccount$server)
       if (appName %in% existing$name) {
-        thisApp <- existing[appName %in% existing$name, , drop = FALSE]
+        thisApp <- existing[appName == existing$name, , drop = FALSE]
         uniqueName <- findUnique(appName, existing$name)
 
         if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
@@ -125,14 +125,14 @@ shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
   )
 
   not_interactive <- c(
-    i = "Set `forceUpdate = TRUE` to update it",
-    i = "Supply a unique `appName` to deploy a new application"
+    i = "Set `forceUpdate = TRUE` to update it.",
+    i = "Supply a unique `appName` to deploy a new application."
   )
 
   choices <- c(
-    "Update the existing app",
-    "Create a new app with automatically generated name ({.str {uniqueName}})",
-    "Abort this deployment and supply a custom `appName`"
+    "Update the existing app.",
+    "Create a new app with automatically generated name ({.str {uniqueName}}).",
+    "Abort this deployment and supply a custom `appName`."
   )
 
   cli_menu(message, not_interactive, choices, quit = 3) == 1

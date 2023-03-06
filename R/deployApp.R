@@ -265,12 +265,12 @@ deployApp <- function(appDir = getwd(),
     server = server,
     forceUpdate = forceUpdate
   )
-  if (is.null(target$application)) {
+  if (is.null(target$appId)) {
     dest <- accountId(target$username, target$server)
-    taskComplete(quiet, "Re-deploying {.val {target$name}} to {.val {dest}}")
+    taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
   } else {
     dest <- accountId(target$username, target$server)
-    taskComplete(quiet, "Deploying {.val {target$name}} to {.val {dest}}")
+    taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 
   # test for compatibility between account type and publish intent
@@ -286,19 +286,19 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
-  if (!is.null(target$appId)) {
-    application <- taskStart(quiet, "Looking up application with id {.val {application$id}}...")
-    application <- client$getApplication(target$appId)
-    taskComplete(quiet, "Found application")
-  } else {
+  if (is.null(target$appId)) {
     taskStart(quiet, "Creating application on server...")
-    client$createApplication(
+    application <- client$createApplication(
       target$appName,
       target$appTitle,
       "shiny",
       accountInfo$accountId
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
+  } else {
+    application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
+    application <- client$getApplication(target$appId)
+    taskComplete(quiet, "Found application")
   }
   saveDeployment(
     recordPath,
