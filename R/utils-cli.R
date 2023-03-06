@@ -54,7 +54,7 @@ cli_readline <- function(prompt) {
     options(cli_prompt = testing[-1])
     selected
   } else {
-    readline("Selection: ")
+    readline(prompt)
   }
 }
 
