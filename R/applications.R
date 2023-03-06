@@ -209,7 +209,7 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   # determine the log target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account, server)
   accountDetails <- accountInfo(target$account, target$server)
-  client <- lucidClientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -280,9 +280,7 @@ syncAppMetadata <- function(appPath) {
       next
     }
 
-    account <- rsconnect::accountInfo(deploys[i, "account"],
-                                      server = deploys[i, "server"])
-
+    account <- accountInfo(deploys[i, "account"], deploys[i, "server"])
     connect <- clientForAccount(account)
 
     application <- NULL

@@ -1,6 +1,4 @@
 connectClient <- function(service, authInfo) {
-  service <- parseHttpUrl(service)
-
   list(
 
     ## Server settings API

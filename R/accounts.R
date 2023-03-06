@@ -223,25 +223,14 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #'
 #' @family Account functions
 #' @export
-setAccountInfo <- function(name, token, secret,
-                           server = "shinyapps.io") {
-
+setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(name)
   check_string(token)
   check_string(secret)
   check_string(server)
 
-  # create connect client
-  if (identical(server, cloudServerInfo(server)$name)) {
-    serverInfo <- cloudServerInfo(server)
-  } else {
-    serverInfo <- shinyappsServerInfo()
-  }
-  authInfo <- list(token = token,
-                   secret = secret,
-                   certificate = serverInfo$certificate,
-                   server = serverInfo$name)
-  lucid <- lucidClientForAccount(authInfo)
+  account <- list(token = token, secret = secret, server = server)
+  lucid <- clientForAccount(account)
 
   # get user Id
   userId <- lucid$currentUser()$id
