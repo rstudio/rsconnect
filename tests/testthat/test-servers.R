@@ -1,3 +1,11 @@
+test_that("servers() can return 0 row data frame", {
+  local_temp_config()
+
+  out <- servers(local = TRUE)
+  expect_equal(nrow(out), 0)
+  expect_named(out, c("name", "url", "certificate"))
+})
+
 test_that("servers() redacts the certificate", {
   local_temp_config()
 

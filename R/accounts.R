@@ -486,7 +486,7 @@ accountInfoFromHostUrl <- function(hostUrl) {
 
 
 secret <- function(x) {
-  stopifnot(is.character(x))
+  stopifnot(is.character(x) || all(is.na(x)))
   structure(x, class = "rsconnect_secret")
 }
 
