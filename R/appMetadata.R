@@ -68,8 +68,9 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
 
   # check for single-file app collision
   if (primaryIsRScript && "app.r" %in% appFilesBase) {
-    stop("The project contains both a single-file Shiny application and a ",
-         "file named app.R; it must contain only one of these.")
+    cli::cli_abort(
+      "Project must not contain both {.file app.R} and a single-file Shiny app."
+    )
   }
 
   # Do some checks for a valid application structure
@@ -91,22 +92,18 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
     return()
   }
 
-  msg <- "Cancelling deployment: invalid project layout.
-          The project should have one of the following layouts:
-          1. 'server.R' and 'ui.R' in the application base directory,
-          2. 'server.R' and 'www/index.html' in the application base directory,
-          3. 'app.R' or a single-file Shiny .R file,
-          4. An R Markdown (.Rmd) or Quarto (.qmd) document,
-          5. A static HTML (.html) or PDF (.pdf) document.
-          6. 'plumber.R' API description .R file
-          7. 'entrypoint.R' plumber startup script
-          8. A tensorflow saved model"
-
-  # strip leading whitespace from the above
-  msg <- paste(collapse = "\n",
-               gsub("^ *", "", unlist(strsplit(msg, "\n", fixed = TRUE))))
-
-  stop(msg)
+  cli::cli_abort(c(
+    "Cancelling deployment: invalid project layout.",
+    i = "The project should have one of the following layouts:",
+    " " = "1. 'server.R' and 'ui.R' in the application base directory.",
+    " " = "2. 'server.R' and 'www/index.html' in the application base directory.",
+    " " = "3. 'app.R' or a single-file Shiny .R file.",
+    " " = "4. An R Markdown (.Rmd) or Quarto (.qmd) document.",
+    " " = "5. A static HTML (.html) or PDF (.pdf) document.",
+    " " = "6. 'plumber.R' API description .R file.",
+    " " = "7. 'entrypoint.R' plumber startup script.",
+    " " = "8. A tensorflow saved model."
+  ))
 }
 
 
