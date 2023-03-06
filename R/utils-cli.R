@@ -29,7 +29,13 @@ cli_menu <- function(header,
 
   selected <- as.integer(selected)
   if (selected %in% c(0, quit)) {
-    cli::cli_abort("Quiting...", call = NULL)
+    if (interactive()) {
+      cli::cli_alert_danger("Quiting...")
+      # simulate user pressing Ctrl + C
+      invokeRestart("abort", cnd)
+    } else {
+      cli::cli_abort("Quiting...", call = NULL)
+    }
   }
   selected
 }
