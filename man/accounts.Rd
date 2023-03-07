@@ -38,7 +38,6 @@ previously registered accounts.
 \seealso{
 Other Account functions: 
 \code{\link{connectApiUser}()},
-\code{\link{connectUser}()},
 \code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

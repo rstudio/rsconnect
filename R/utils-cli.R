@@ -14,7 +14,6 @@ cli_menu <- function(header,
       call = error_call
     )
   }
-  choices <- sapply(choices, cli::format_inline, .envir = .envir, USE.NAMES = FALSE)
 
   choices <- paste0(cli::style_bold(seq_along(choices)), ": ", choices)
   cli::cli_inform(

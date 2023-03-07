@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `connectApiUser()` now clearly requires an `apiKey` (#741).
+
 * `deployApp()` now generates an interactive prompt to select 
   `account`/`server` (if no previous deployments) or 
   `appName`/`account`/`server` (if multiple previous deployments) (#691). 
