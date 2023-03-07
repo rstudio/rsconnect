@@ -25,3 +25,11 @@
        $ certificate: Amazon... (redacted)
        $ url        : chr "https://api.shinyapps.io/v1"
 
+# serverInfo() errors if server not present
+
+    Code
+      serverInfo("foo")
+    Condition
+      Error in `serverInfo()`:
+      ! Can't find server "foo".
+

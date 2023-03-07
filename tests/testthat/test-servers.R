@@ -27,6 +27,12 @@ test_that("serverInfo() redacts the certificate", {
   })
 })
 
+test_that("serverInfo() errors if server not present", {
+  local_temp_config()
+
+  expect_snapshot(serverInfo("foo"), error = TRUE)
+})
+
 test_that("normalizes connect urls", {
   expected <- "https://myserver.com/__api__"
 

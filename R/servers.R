@@ -224,8 +224,9 @@ serverInfo <- function(name) {
     info <- cloudServerInfo(name)
   } else {
     configFile <- serverConfigFile(name)
-    if (!file.exists(configFile))
-      stop(missingServerErrorMessage(name))
+    if (!file.exists(configFile)) {
+      cli::cli_abort("Can't find server {.str {name}}.")
+    }
 
     serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
     info <- as.list(serverDcf)
@@ -255,10 +256,6 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
     message("Certificate added to server '", name, "'")
 
   invisible(NULL)
-}
-
-missingServerErrorMessage <- function(name) {
-  paste0("server named '", name, "' does not exist")
 }
 
 # Return a URL that can be concatenated with sub-paths like /content
