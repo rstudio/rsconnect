@@ -33,3 +33,45 @@
       Error in `serverInfo()`:
       ! Can't find server "foo".
 
+# findServer() errors if no servers
+
+    Code
+      findServer()
+    Condition
+      Error in `findServer()`:
+      ! No local servers have been registered
+
+# findServer() errors/prompts of multiple servers present
+
+    Code
+      findServer()
+    Condition
+      Error in `findServer()`:
+      ! Multiple servers found.
+      i Use `server` to pick one of "myserver" and "yourserver".
+
+---
+
+    Code
+      out <- findServer()
+    Message
+      Multiple servers found.
+      Which one do you want to use?
+      1: myserver
+      2: yourserver
+      Selection: 2
+
+# findServer checks server name
+
+    Code
+      findServer(1)
+    Condition
+      Error:
+      ! `server` must be a single string, not the number 1.
+    Code
+      findServer("foo")
+    Condition
+      Error in `findServer()`:
+      ! Can't find `server` with name "foo".
+      i Known servers are "shinyapps.io" and "posit.cloud".
+

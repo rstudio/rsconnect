@@ -60,8 +60,8 @@ test_that("handles accounts if only server specified", {
   expect_equal(target$username, "ron")
 })
 
-test_that("errors if multiple deployments", {
-  mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
+test_that("errors/prompts if multiple deployments", {
+  mockr::local_mock(accounts = fakeAccounts("ron", c("server1.com", "server2.com")))
 
   app_dir <- withr::local_tempdir()
   saveDeployment(
@@ -70,11 +70,11 @@ test_that("errors if multiple deployments", {
       appName = "test",
       appTitle = "old title",
       appId = "x",
-      server = "foo1",
+      server = "server1.com",
       username = "ron",
       account = "ron"
     ),
-    application = list(id = NA, url = NA),
+    application = list(id = NA, url = "http://server1.com/test"),
     bundleId = NA,
     hostUrl = NA
   )
@@ -84,11 +84,11 @@ test_that("errors if multiple deployments", {
       appName = "test",
       appTitle = "old title",
       appId = "x",
-      server = "foo2",
+      server = "server2.com",
       username = "ron",
       account = "ron"
     ),
-    application = list(id = NA, url = NA),
+    application = list(id = NA, url = "http://server2.com/test"),
     bundleId = NA,
     hostUrl = NA
   )
@@ -97,6 +97,13 @@ test_that("errors if multiple deployments", {
     deploymentTarget(app_dir, appName = "test")
     deploymentTarget(app_dir)
   })
+
+  withr::local_options(
+    rlang_interactive = TRUE,
+    cli_prompt = "1"
+  )
+  expect_snapshot(out <- deploymentTarget(app_dir))
+  expect_equal(out$appName, "test")
 })
 
 test_that("succeeds if there's a single existing deployment", {

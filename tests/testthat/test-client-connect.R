@@ -22,7 +22,7 @@ test_that("Users API", {
   skip("connect user test skipped.")
 
   ## rm db/*.db
-  server <- getDefaultServer(local = TRUE)
+  server <- serverInfo(findServer())
 
   connect <- connectClient(server$url, list())
   id <- paste(as.hexmode(sample(256, bytes) - 1), collapse = "")

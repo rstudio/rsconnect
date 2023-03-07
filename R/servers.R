@@ -117,25 +117,36 @@ discoverServers <- function(quiet = FALSE) {
   invisible(introduced)
 }
 
-getDefaultServer <- function(local = FALSE, prompt = TRUE) {
-   existing <- servers(local)
+findServer <- function(server = NULL,
+                       error_call = caller_env()) {
 
-   # if exactly one server exists, return it
-   if (nrow(existing) == 1) {
-     return(list(name = as.character(existing[, "name"]),
-                 url = as.character(existing[, "url"])))
-   }
+  if (!is.null(server)) {
+    check_string(server, call = error_call)
 
-   # no default server, prompt if there are multiple choices
-  if (nrow(existing) > 1 && prompt && interactive()) {
-    name <- as.character(existing[1, "name"])
-    message("Registered servers: ", paste(existing[, "name"], collapse = ", "))
-    input <- readline(paste0(
-      "Which server (default '", name, "')? "))
-    if (nchar(input) > 0) {
-      name <- input
+    existing <- servers()
+    if (!server %in% existing$name) {
+      cli::cli_abort(c(
+        "Can't find {.arg server} with name {.str {server}}.",
+        i = "Known servers are {.str {existing$name}}."
+      ))
     }
-    return(serverInfo(name))
+    server
+  } else {
+    existing <- servers(local = TRUE)
+
+    if (length(existing) == 0 || nrow(existing) == 0) {
+      cli::cli_abort("No local servers have been registered")
+    } else if (nrow(existing) == 1) {
+      existing$name
+    } else {
+      idx <- cli_menu(
+        "Multiple servers found.",
+        "Which one do you want to use?",
+        c(i = "Use {.arg server} to pick one of {.str {existing$name}}."),
+        choices = existing$name
+      )
+      existing$name[idx]
+    }
   }
 }
 

@@ -52,12 +52,8 @@ accounts <- function(server = NULL) {
 #' @family Account functions
 #' @export
 connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE) {
-  # if server isn't specified, look up the default
-  if (is.null(server)) {
-    target <- getDefaultServer(local = TRUE)
-  } else {
-    target <- serverInfo(server)
-  }
+  server <- findServer(server)
+  target <- serverInfo(server)
 
   if (is.null(target)) {
     stop("You must specify a server to connect to.")
@@ -122,12 +118,8 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
 #' @export
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
-  # if server isn't specified, look up the default
-  if (is.null(server)) {
-    target <- getDefaultServer(local = TRUE)
-  } else {
-    target <- serverInfo(server)
-  }
+  server <- findServer(server)
+  target <- serverInfo(server)
 
   if (is.null(target)) {
     stop("You must specify a server to connect to.")

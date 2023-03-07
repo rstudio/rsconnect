@@ -49,26 +49,26 @@ deploymentTarget <- function(recordPath = ".",
       fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
-    createDeploymentTarget(
-      appDeployments$name,
-      appTitle %||% appDeployments$title,
-      appDeployments$appId,
-      # if username not previously recorded, use current account
-      appDeployments$username %||% appDeployments$account,
-      appDeployments$account,
-      appDeployments$server
-    )
+    updateDeploymentTarget(appDeployments, appTitle)
   } else {
-    cli::cli_abort(
-      c(
-        "This app has been previously deployed in multiple places.",
-        "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
-        i = "Known application names: {.str {unique(appDeployments$name)}}.",
-        i = "Known servers: {.str {unique(appDeployments$server)}}.",
-        i = "Known account names: {.str {unique(appDeployments$account)}}."
-      ),
-      call = error_call
+    apps <- paste0(
+      appDeployments$name, " ",
+      "(", accountId(appDeployments$account, appDeployments$server), "): ",
+      "{.url ", appDeployments$url, "}"
     )
+    not_interactive <- c(
+      "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
+      "Known applications:",
+      set_names(apps, "*")
+    )
+    idx <- cli_menu(
+      "This directory has been previously deployed in multiple places.",
+      "Which deployment do you want to use?",
+      choices = apps,
+      not_interactive = not_interactive,
+      error_call = error_call
+    )
+    updateDeploymentTarget(appDeployments[idx, ], appTitle)
   }
 }
 
@@ -85,6 +85,18 @@ createDeploymentTarget <- function(appName,
     username = username,
     account = account,
     server = server
+  )
+}
+
+updateDeploymentTarget <- function(previous, appTitle = NULL) {
+  createDeploymentTarget(
+    previous$name,
+    appTitle %||% previous$title,
+    previous$appId,
+    # if username not previously recorded, use current account
+    previous$username %||% previous$account,
+    previous$account,
+    previous$server
   )
 }
 
@@ -124,10 +136,7 @@ shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
     "(View it at {.url {application$url}})"
   )
 
-  not_interactive <- c(
-    i = "Set `forceUpdate = TRUE` to update it.",
-    i = "Supply a unique `appName` to deploy a new application."
-  )
+  prompt <- "What do you want to do?"
 
   choices <- c(
     "Update the existing app.",
@@ -135,7 +144,12 @@ shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
     "Abort this deployment and supply a custom `appName`."
   )
 
-  cli_menu(message, not_interactive, choices, quit = 3) == 1
+  not_interactive <- c(
+    i = "Set `forceUpdate = TRUE` to update it.",
+    i = "Supply a unique `appName` to deploy a new application."
+  )
+
+  cli_menu(message, prompt, choices, not_interactive, quit = 3) == 1
 }
 
 

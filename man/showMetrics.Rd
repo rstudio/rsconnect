@@ -37,8 +37,10 @@ If not specified, the first deployment will be automatically it from the
 document. On subsequent deploys, it will use the previously stored value.}
 
 \item{account, server}{Uniquely identify a remote server with either your
-user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
-full list of available options.}
+user \code{account}, the \code{server} name, or both. If neither are supplied, and
+there are multiple options, you'll be prompted to pick one.
+
+Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
 \item{from}{Date range starting timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").}
