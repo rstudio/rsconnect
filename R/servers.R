@@ -1,15 +1,12 @@
 #' Server Management Functions
 #'
-#' Functions to manage the list of known servers to which
-#' \pkg{rsconnect} can deploy and manage applications.
+#' @description
+#' These functions manage the list of known servers:
 #'
-#' Register a server with `addServer` or `discoverServers` (the latter
-#' is useful only if your administrator has configured server autodiscovery).
-#' Once a server is registered, you can connect to an account on the server
-#' using [connectUser()].
-#'
-#' The `servers` and `serverInfo` functions are provided for viewing
-#' previously registered servers.
+#' * `addServer()` registers a server. Once it has been registered, you
+#'   can connect to an account on the server using [connectUser()].
+#' * `servers()` lists known servers.
+#' * `serverInfo()` get information about a given server.
 #'
 #' Servers for `shinyapps.io` and `posit.cloud` are always registered.
 #'
@@ -18,10 +15,8 @@
 #' @param url Server's URL. Should look like `http://servername/` or
 #'  `http://servername:port/`.
 #' @param local Return only local servers (i.e. not `shinyapps.io`)
-#' @param certificate Optional; a path a certificate file to be used when making
-#'   SSL connections to the server. The file's contents are copied and stored by
-#'   the \pkg{rsconnect} package. Can also be a character vector containing the
-#'   certificate's contents.
+#' @param certificate Optional. Either a path to certificate file or a
+#'   character vector containing the certificate's contents.
 #' @param quiet Suppress output and prompts where possible.
 #' @return
 #' `servers` returns a data frame with registered server names and URLs.
@@ -41,31 +36,18 @@
 #' }
 #' @export
 servers <- function(local = FALSE) {
-  configFiles <- serverConfigFiles()
-  parsed <- lapply(configFiles, function(file) {
-    info <- read.dcf(file)
+  parsed <- lapply(serverConfigFiles(), read.dcf)
+  parsed <- lapply(parsed, as.data.frame, stringsAsFactors = FALSE)
+  locals <- rbind_fill(parsed, c("name", "url", "certificate"))
 
-    # empty if no contents
-    if (identical(nrow(info), 0L))
-      return(NULL)
-
-    # provide empty certificate if not specified in DCF (only if we also have a URL)
-    if (!("certificate" %in% colnames(info))) {
-      info <- cbind(info, certificate = "")
-    }
-
-    # return parsed server info
-    info
-  })
-  locals <- do.call(rbind, parsed)
-  locals <- as.data.frame(locals, stringsAsFactors = FALSE)
   if (local) {
     out <- locals
   } else {
     out <- rbind(
       locals,
       as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
-      as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE))
+      as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE)
+    )
 
     # RStudio IDE requires a server whose name matches the server name on
     # previously configured accounts. Prevent breakage for pre-rebrand users.
@@ -81,11 +63,13 @@ servers <- function(local = FALSE) {
 }
 
 shinyappsServerInfo <- function() {
-  info <- list(name = "shinyapps.io",
-               certificate = inferCertificateContents(
-                 system.file("cert/shinyapps.io.pem", package = "rsconnect")),
-               url = getOption("rsconnect.shinyapps_url",
-                               "https://api.shinyapps.io/v1"))
+  list(
+    name = "shinyapps.io",
+    certificate = inferCertificateContents(
+      system.file("cert/shinyapps.io.pem", package = "rsconnect")
+    ),
+    url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1")
+  )
 }
 
 cloudServerInfo <- function(name = "posit.cloud") {
@@ -94,17 +78,27 @@ cloudServerInfo <- function(name = "posit.cloud") {
   if (!is.element(name, c("posit.cloud", "rstudio.cloud"))) {
     name <- "posit.cloud"
   }
-  info <- list(name = name,
-               certificate = inferCertificateContents(
-                 system.file("cert/shinyapps.io.pem", package = "rsconnect")),
-               url = getOption("rsconnect.shinyapps_url",
-                               "https://api.shinyapps.io/v1"))
+  list(
+    name = name,
+    certificate = inferCertificateContents(
+      system.file("cert/shinyapps.io.pem", package = "rsconnect")
+    ),
+    url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1")
+  )
 }
 
-#' @rdname servers
+#' Discover servers automatically
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function has never worked usefully, so has been removed.
+#'
 #' @export
+#' @keywords internal
 discoverServers <- function(quiet = FALSE) {
-  # TODO: Better discovery mechanism?
+  lifecycle::deprecate_warn("0.9.0", "discoverServers()")
+
   discovered <- getOption("rsconnect.local_servers", "http://localhost:3939/__api__")
 
   # get the URLs of the known servers, and silently add any that aren't yet
@@ -125,11 +119,6 @@ discoverServers <- function(quiet = FALSE) {
 
 getDefaultServer <- function(local = FALSE, prompt = TRUE) {
    existing <- servers(local)
-   # if there are no existing servers, silently try to discover one to work with
-   if (length(existing) == 0 || nrow(existing) == 0) {
-     discoverServers(quiet = TRUE)
-     existing <- servers(local)
-   }
 
    # if exactly one server exists, return it
    if (nrow(existing) == 1) {
@@ -229,21 +218,21 @@ removeServer <- function(name) {
 serverInfo <- function(name) {
   check_string(name)
 
-  # there's no config file for Posit's hosted offerings
   if (identical(name, "shinyapps.io")) {
-    return(shinyappsServerInfo())
+    info <- shinyappsServerInfo()
+  } else if (identical(name, cloudServerInfo(name)$name)) {
+    info <- cloudServerInfo(name)
+  } else {
+    configFile <- serverConfigFile(name)
+    if (!file.exists(configFile)) {
+      cli::cli_abort("Can't find server {.str {name}}.")
+    }
+
+    serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
+    info <- as.list(serverDcf)
   }
 
-  if (identical(name, cloudServerInfo(name)$name)) {
-    return(cloudServerInfo(name))
-  }
-
-  configFile <- serverConfigFile(name)
-  if (!file.exists(configFile))
-    stop(missingServerErrorMessage(name))
-
-  serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
-  info <- as.list(serverDcf)
+  info$certificate <- secret(info$certificate)
   info
 }
 
@@ -267,10 +256,6 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
     message("Certificate added to server '", name, "'")
 
   invisible(NULL)
-}
-
-missingServerErrorMessage <- function(name) {
-  paste0("server named '", name, "' does not exist")
 }
 
 # Return a URL that can be concatenated with sub-paths like /content

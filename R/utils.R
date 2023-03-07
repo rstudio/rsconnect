@@ -215,7 +215,7 @@ rbind_fill <- function(dfs, col_names = character()) {
   all_names <- union(col_names, all_names)
 
   add_missing_cols <- function(df) {
-    df[setdiff(all_names, names(df))] <- NA
+    df[setdiff(all_names, names(df))] <- rep(NA, nrow(df))
     df
   }
 

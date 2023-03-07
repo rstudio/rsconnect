@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `discoverServer()` has been deprecated; it never worked.
+
 * `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
   same directory as the document.
 

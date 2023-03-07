@@ -2,7 +2,6 @@
 % Please edit documentation in R/servers.R
 \name{servers}
 \alias{servers}
-\alias{discoverServers}
 \alias{addConnectServer}
 \alias{addServer}
 \alias{removeServer}
@@ -11,8 +10,6 @@
 \title{Server Management Functions}
 \usage{
 servers(local = FALSE)
-
-discoverServers(quiet = FALSE)
 
 addConnectServer(url, name = NULL, certificate = NULL, quiet = FALSE)
 
@@ -27,35 +24,29 @@ addServerCertificate(name, certificate, quiet = FALSE)
 \arguments{
 \item{local}{Return only local servers (i.e. not \code{shinyapps.io})}
 
-\item{quiet}{Suppress output and prompts where possible.}
-
 \item{url}{Server's URL. Should look like \verb{http://servername/} or
 \verb{http://servername:port/}.}
 
 \item{name}{Optional nickname for the server. If none is given, the nickname
 is inferred from the server's hostname.}
 
-\item{certificate}{Optional; a path a certificate file to be used when making
-SSL connections to the server. The file's contents are copied and stored by
-the \pkg{rsconnect} package. Can also be a character vector containing the
-certificate's contents.}
+\item{certificate}{Optional. Either a path to certificate file or a
+character vector containing the certificate's contents.}
+
+\item{quiet}{Suppress output and prompts where possible.}
 }
 \value{
 \code{servers} returns a data frame with registered server names and URLs.
 \code{serverInfo} returns a list with details for a particular server.
 }
 \description{
-Functions to manage the list of known servers to which
-\pkg{rsconnect} can deploy and manage applications.
+These functions manage the list of known servers:
+\itemize{
+\item \code{addServer()} registers a server. Once it has been registered, you
+can connect to an account on the server using \code{\link[=connectUser]{connectUser()}}.
+\item \code{servers()} lists known servers.
+\item \code{serverInfo()} get information about a given server.
 }
-\details{
-Register a server with \code{addServer} or \code{discoverServers} (the latter
-is useful only if your administrator has configured server autodiscovery).
-Once a server is registered, you can connect to an account on the server
-using \code{\link[=connectUser]{connectUser()}}.
-
-The \code{servers} and \code{serverInfo} functions are provided for viewing
-previously registered servers.
 
 Servers for \code{shinyapps.io} and \code{posit.cloud} are always registered.
 }

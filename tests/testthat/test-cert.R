@@ -15,7 +15,7 @@ test_that("certificates can be saved", {
 
   # compare with the contents of the cert we read
   certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
-  expect_equal(certLines, info$certificate)
+  expect_equal(info$certificate, secret(certLines))
 })
 
 test_that("certificates can be added", {
@@ -41,7 +41,7 @@ test_that("certificates can be added", {
 
   # see if the cert we added is there
   certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
-  expect_equal(certLines, info$certificate)
+  expect_equal(info$certificate, secret(certLines))
 })
 
 test_that("certificates can't be attached to plain http servers", {
@@ -106,7 +106,7 @@ test_that("multiple certificates can exist in the same file", {
 
   # compare with the contents of the cert we read
   certLines <- paste(readLines(test_path("certs/two-cas.crt")), collapse = "\n")
-  expect_equal(certLines, info$certificate)
+  expect_equal(info$certificate, secret(certLines))
 })
 
 test_that("certificates not used when making plain http connections", {
