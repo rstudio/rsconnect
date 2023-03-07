@@ -1,7 +1,14 @@
 makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
-  pythonConfig <- pythonConfigurator(python)
-  tarfile <- bundleApp(appName, appDir, bundleFiles(appDir), appPrimaryDoc,
-                       NULL, pythonConfig = pythonConfig)
+  appFiles <- bundleFiles(appDir)
+  appMetadata <- appMetadata(appDir, appFiles, appPrimaryDoc = appPrimaryDoc)
+
+  tarfile <- bundleApp(
+    appName,
+    appDir,
+    appFiles = appFiles,
+    appMetadata = appMetadata,
+    pythonConfig = pythonConfigurator(python)
+  )
   bundleTempDir <- tempfile()
   utils::untar(tarfile, exdir = bundleTempDir)
   unlink(tarfile)

@@ -324,18 +324,25 @@ deployApp <- function(appDir = getwd(),
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+    logger("Inferring App mode and parameters")
+    appMetadata <- appMetadata(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto,
+      contentCategory = contentCategory,
+      isCloudServer = isCloudServer(accountDetails$server),
+      metadata = metadata
+    )
+
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
       appName = target$appName,
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc,
-      contentCategory = contentCategory,
+      appMetadata = appMetadata,
       verbose = verbose,
       pythonConfig = pythonConfig,
-      quarto = quarto,
-      isCloudServer = isCloudServer(accountDetails$server),
-      metadata = metadata,
       image = image
     )
     taskComplete(quiet, "Bundling complete")
@@ -454,26 +461,11 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 bundleApp <- function(appName,
                       appDir,
                       appFiles,
-                      appPrimaryDoc,
-                      contentCategory = NULL,
+                      appMetadata,
                       verbose = FALSE,
                       pythonConfig = NULL,
-                      quarto = NULL,
-                      isCloudServer = FALSE,
-                      metadata = list(),
                       image = NULL) {
   logger <- verboseLogger(verbose)
-
-  logger("Inferring App mode and parameters")
-  appMetadata <- appMetadata(
-    appDir = appDir,
-    appFiles = appFiles,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    contentCategory = contentCategory,
-    isCloudServer = isCloudServer,
-    metadata = metadata
-  )
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -494,7 +486,7 @@ bundleApp <- function(appName,
   manifest <- createAppManifest(
     appDir = bundleDir,
     appMode = appMetadata$appMode,
-    contentCategory = contentCategory,
+    contentCategory = appMetadata$contentCategory,
     hasParameters = appMetadata$hasParameters,
     appPrimaryDoc = appMetadata$appPrimaryDoc,
     users = users,
@@ -502,7 +494,7 @@ bundleApp <- function(appName,
     documentsHavePython = appMetadata$documentsHavePython,
     retainPackratDirectory = TRUE,
     quartoInfo = appMetadata$quartoInfo,
-    isCloud = isCloudServer,
+    isCloud = appMetadata$isCloudServer,
     image = image,
     verbose = verbose
   )
