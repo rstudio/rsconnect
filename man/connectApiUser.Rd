@@ -32,14 +32,12 @@ after the app is started, with the app URL as a parameter.}
 \description{
 \code{connectUser()} and \code{connectApiUser()} connect your Posit Connect account to
 the rsconnect package so that it can deploy and manage applications on
-your behalf. \code{connectApiUser()} uses an API key sent in the HTTP headers,
-instead of a token. This is less secure but may be necessary when the client
-is behind a proxy or otherwise unable to authenticate using a token.
+your behalf.
 
-\code{connectUser()} needs to be run in an interactive session because it
-requires you to interactively authenticate to the Posit Connect server.
-\code{connectApiUser()} requires an API key copy-and-pasted from the API keys
-found in your account settings.
+\code{connectUser()} is the easiest place to start because it allows you to
+authenticate in-browser to your Posit Connect server. \code{connectApiUser()} is
+appropriate for non-interactive settings; you'll need to copy-and-paste the
+API key from your account settings.
 }
 \seealso{
 Other Account functions: 

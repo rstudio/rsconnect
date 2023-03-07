@@ -36,14 +36,12 @@ accounts <- function(server = NULL) {
 #' @description
 #' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
 #' the rsconnect package so that it can deploy and manage applications on
-#' your behalf. `connectApiUser()` uses an API key sent in the HTTP headers,
-#' instead of a token. This is less secure but may be necessary when the client
-#' is behind a proxy or otherwise unable to authenticate using a token.
+#' your behalf.
 #'
-#' `connectUser()` needs to be run in an interactive session because it
-#' requires you to interactively authenticate to the Posit Connect server.
-#' `connectApiUser()` requires an API key copy-and-pasted from the API keys
-#' found in your account settings.
+#' `connectUser()` is the easiest place to start because it allows you to
+#' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
+#' appropriate for non-interactive settings; you'll need to copy-and-paste the
+#' API key from your account settings.
 #'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.
