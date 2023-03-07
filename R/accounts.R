@@ -56,23 +56,19 @@ accounts <- function(server = NULL) {
 #' @export
 connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE) {
   server <- findServer(server)
-  target <- serverInfo(server)
-
   user <- getAuthedUser(server, apiKey = apiKey)
-  if (is.null(user)) {
-    stop("Unable to fetch user data for provided API key")
-  }
 
   registerUserApiKey(
-    serverName = target$name,
+    serverName = server,
     accountName = account %||% user$username,
     userId = user$id,
     apiKey = apiKey
   )
 
   if (!quiet) {
-    message("\nAccount registered successfully: ", account)
+    message("Account registered successfully: ", account %||% user$username)
   }
+  invisible()
 }
 
 #' @rdname connectApiUser
@@ -80,7 +76,6 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
   server <- findServer(server)
-  target <- serverInfo(server)
 
   # generate a token and send it to the server
   token <- getAuthToken(server)
@@ -121,7 +116,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   }
 
   registerUserToken(
-    serverName = target$name,
+    serverName = server,
     accountName = user$username,
     userId = user$id,
     token = token$token,
@@ -132,6 +127,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
     message("Account registered successfully: ", user$first_name, " ",
             user$last_name, " (", user$username, ")")
   }
+  invisible()
 }
 
 #' Register account on shinyapps.io or posit.cloud
@@ -282,10 +278,7 @@ getAuthToken <- function(server, userId = 0) {
 #
 # this function is used by the RStudio IDE as part of the workflow which
 # attaches a new Connect account.
-getAuthedUser <- function(server,
-                          token = NULL,
-                          apiKey = NULL) {
-
+getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
   if (!xor(is.null(token), is.null(apiKey))) {
     cli::cli_abort("Must supply exactly one of {.arg token} and {.arg apiKey}")
   }
