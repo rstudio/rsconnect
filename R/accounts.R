@@ -54,25 +54,21 @@ accounts <- function(server = NULL) {
 #'   account.
 #' @family Account functions
 #' @export
-connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE) {
+connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE) {
   server <- findServer(server)
-  target <- serverInfo(server)
-
-  user <- getAuthedUser(serverUrl = target$url, apiKey = apiKey)
-  if (is.null(user)) {
-    stop("Unable to fetch user data for provided API key")
-  }
+  user <- getAuthedUser(server, apiKey = apiKey)
 
   registerUserApiKey(
-    serverName = target$name,
-    accountName = account,
+    serverName = server,
+    accountName = account %||% user$username,
     userId = user$id,
     apiKey = apiKey
   )
 
   if (!quiet) {
-    message("\nAccount registered successfully: ", account)
+    message("Account registered successfully: ", account %||% user$username)
   }
+  invisible()
 }
 
 #' @rdname connectApiUser
@@ -80,10 +76,9 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet =
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
   server <- findServer(server)
-  target <- serverInfo(server)
 
   # generate a token and send it to the server
-  token <- getAuthToken(target$name)
+  token <- getAuthToken(server)
   if (!quiet) {
     message("A browser window should open; if it doesn't, you may authenticate ",
             "manually by visiting ", token$claim_url, ".")
@@ -98,10 +93,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   # keep trying to authenticate until we're successful
   repeat {
     Sys.sleep(1)
-    user <- getAuthedUser(serverUrl = target$url,
-                          token = token$token,
-                          privateKey = token$private_key,
-                          serverCertificate = target$certificate)
+    user <- getAuthedUser(server, token = token)
     if (!is.null(user))
       break
   }
@@ -124,7 +116,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   }
 
   registerUserToken(
-    serverName = target$name,
+    serverName = server,
     accountName = user$username,
     userId = user$id,
     token = token$token,
@@ -135,6 +127,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
     message("Account registered successfully: ", user$first_name, " ",
             user$last_name, " (", user$username, ")")
   }
+  invisible()
 }
 
 #' Register account on shinyapps.io or posit.cloud
@@ -262,24 +255,21 @@ removeAccount <- function(name = NULL, server = NULL) {
 #    from the server a URL at which the token can be claimed
 # 3) returns the token ID, private key, and claim URL
 getAuthToken <- function(server, userId = 0) {
-  if (missing(server) || is.null(server)) {
-    stop("You must specify a server to connect to.")
-  }
-  target <- serverInfo(server)
-
   # generate a token and push it to the server
   token <- generateToken()
-  connect <- connectClient(service = target$url,
-                           authInfo = list(certificate = target$certificate))
-  response <- connect$addToken(list(token = token$token,
-                                    public_key = token$public_key,
-                                    user_id = as.integer(userId)))
+  client <- clientForAccount(list(server = server))
+  response <- client$addToken(list(
+    token = token$token,
+    public_key = token$public_key,
+    user_id = as.integer(userId)
+  ))
 
   # return the generated token and the information needed to claim it
   list(
     token = token$token,
-    private_key = token$private_key,
-    claim_url = response$token_claim_url)
+    private_key = secret(token$private_key),
+    claim_url = response$token_claim_url
+  )
 }
 
 # given a server URL and auth parameters, return the user
@@ -288,27 +278,25 @@ getAuthToken <- function(server, userId = 0) {
 #
 # this function is used by the RStudio IDE as part of the workflow which
 # attaches a new Connect account.
-getAuthedUser <- function(serverUrl,
-                          token = NULL,
-                          privateKey = NULL,
-                          serverCertificate = NULL,
-                          apiKey = NULL) {
-  authInfo <- NULL
-  if (!is.null(apiKey)) {
-    authInfo <- list(apiKey = apiKey)
-  } else {
-    authInfo <- list(token = token,
-                     private_key = as.character(privateKey),
-                     certificate = serverCertificate)
+getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
+  if (!xor(is.null(token), is.null(apiKey))) {
+    cli::cli_abort("Must supply exactly one of {.arg token} and {.arg apiKey}")
   }
 
-  # form a temporary client from the authInfo
-  connect <- connectClient(service = ensureConnectServerUrl(serverUrl), authInfo)
+  account <- list(server = server)
+  if (!is.null(apiKey)) {
+    account$apiKey <- apiKey
+  } else {
+    account$token <- token$token
+    account$private_key <- token$private_key
+  }
+
+  client <- clientForAccount(account)
 
   # attempt to fetch the user
   user <- NULL
   tryCatch({
-    user <- connect$currentUser()
+    user <- client$currentUser()
   }, error = function(e) {
     if (length(grep("HTTP 500", e$message)) == 0) {
       stop(e)
@@ -324,10 +312,12 @@ getUserFromRawToken <- function(serverUrl,
                                 token,
                                 privateKey,
                                 serverCertificate = NULL) {
-  getAuthedUser(serverUrl = serverUrl,
-                token = token,
-                privateKey = privateKey,
-                serverCertificate = serverCertificate)
+
+  # Look up server name from url
+  servers <- server()
+  server <- servers$name[servers$url == serverUrl]
+
+  getAuthedUser(server, token = list(token = token, private_key = privateKey))
 }
 
 registerUserApiKey <- function(serverName, accountName, userId, apiKey) {

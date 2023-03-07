@@ -5,7 +5,7 @@
 \alias{connectUser}
 \title{Register account on Posit Connect}
 \usage{
-connectApiUser(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE)
+connectApiUser(account = NULL, server = NULL, apiKey, quiet = FALSE)
 
 connectUser(
   account = NULL,
