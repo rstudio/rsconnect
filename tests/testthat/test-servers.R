@@ -42,33 +42,37 @@ test_that("normalizes connect urls", {
   expect_equal(ensureConnectServerUrl("https://myserver.com/__api__/"), expected)
 })
 
-test_that("servers list", {
-  allServers <- servers()$name
-  predefinedServers <- c()
-  for (server in allServers) {
-    if (identical(server, shinyappsServerInfo()$name)) {
-      predefinedServers <- append(predefinedServers, server)
-    }
-    if (identical(server, cloudServerInfo()$name)) {
-      predefinedServers <- append(predefinedServers, server)
-    }
-  }
-  expect_length(predefinedServers, 2)
-  expect_true(is.element("posit.cloud", predefinedServers))
-  expect_true(is.element("shinyapps.io", predefinedServers))
+# cloud servers -----------------------------------------------------------
+
+test_that("All hosted product names are identified as cloud", {
+  expect_true(isCloudServer("shinyapps.io"))
+  expect_true(isCloudServer("rstudio.cloud"))
+  expect_true(isCloudServer("posit.cloud"))
+  expect_false(isCloudServer("connect.internal"))
+})
+
+test_that("predefined servers includes cloud and shinyapps", {
+  local_temp_config()
+  registerUserToken("rstudio.cloud", "john", "123", "TOKEN", "SECRET")
+  expect_true("rstudio.cloud" %in% servers()$name)
+})
+
+test_that("predefined servers includes rstudio.cloud if needed", {
+  local_temp_config()
+
+  out <- servers()
+  expect_equal(nrow(out), 2)
+  expect_named(out, c("name", "url", "certificate"))
+  expect_setequal(out$name, c("posit.cloud", "shinyapps.io"))
 })
 
 test_that("cloud server info matches name given if valid", {
   rstudioServer <- serverInfo("rstudio.cloud")
   expect_equal(rstudioServer$name, "rstudio.cloud")
-
-  rstudioServer <- serverInfo("posit.cloud")
-  expect_equal(rstudioServer$name, "posit.cloud")
 })
 
-test_that("cloud server info is modern if invalid", {
-  server <- cloudServerInfo("someones.connect.server")
-  expect_equal(server$name, "posit.cloud")
+test_that("cloud server errors if not cloud server", {
+  expect_snapshot(cloudServerInfo("foo"), error = TRUE)
 })
 
 # findServer --------------------------------------------------------------

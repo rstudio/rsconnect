@@ -356,11 +356,6 @@ missingAccountErrorMessage <- function(name) {
   paste("account named '", name, "' does not exist", sep = "")
 }
 
-isCloudServer <- function(server) {
-  identical(server, "shinyapps.io") ||
-    identical(server, cloudServerInfo(server)$name)
-}
-
 isShinyappsServer <- function(server) {
   identical(server, "shinyapps.io")
 }
