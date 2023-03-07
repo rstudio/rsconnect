@@ -4,7 +4,7 @@
 \alias{connectApiUser}
 \title{Connect Api User Account}
 \usage{
-connectApiUser(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE)
+connectApiUser(account = NULL, server = NULL, apiKey, quiet = FALSE)
 }
 \arguments{
 \item{account}{A name for the account to connect. Optional.}
