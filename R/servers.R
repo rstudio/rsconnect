@@ -1,40 +1,22 @@
-#' Server Management Functions
+#' Server metadata
 #'
-#' @description
-#' These functions manage the list of known servers:
+#' `servers()` lists all known servers; `serverInfo()` gets metadata about
+#' a specific server. Cloud servers `shinyapps.io` and `posit.cloud` are always
+#' automatically registered and available.
 #'
-#' * `addServer()` registers a server. Once it has been registered, you
-#'   can connect to an account on the server using [connectUser()].
-#' * `servers()` lists known servers.
-#' * `serverInfo()` get information about a given server.
-#'
-#' Servers for `shinyapps.io` and `posit.cloud` are always registered.
-#'
-#' @param name Optional nickname for the server. If none is given, the nickname
-#'   is inferred from the server's hostname.
-#' @param url Server's URL. Should look like `http://servername/` or
-#'  `http://servername:port/`.
-#' @param local Return only local servers (i.e. not `shinyapps.io`)
-#' @param certificate Optional. Either a path to certificate file or a
-#'   character vector containing the certificate's contents.
-#' @param quiet Suppress output and prompts where possible.
+#' @param name Server name. If omitted, you'll be prompted to pick a server.
+#' @param local Return only local servers? (i.e. not automatically registered
+#'   cloud servers)
 #' @return
-#' `servers` returns a data frame with registered server names and URLs.
-#' `serverInfo` returns a list with details for a particular server.
-#' @rdname servers
-#' @examples
-#' \dontrun{
-#'
-#' # register a local server
-#' addServer("http://myrsconnect/", "myserver")
-#'
-#' # list servers
-#' servers(local = TRUE)
-#'
-#' # connect to an account on the server
-#' connectUser(server = "myserver")
-#' }
+#' `servers()` returns a data frame with registered server names and URLs.
+#' `serverInfo()` returns a list with details for a particular server.
 #' @export
+#' @examples
+#' # List all registered servers
+#' servers()
+#'
+#' # Get information about a server
+#' serverInfo("posit.cloud")
 servers <- function(local = FALSE) {
   parsed <- lapply(serverConfigFiles(), read.dcf)
   parsed <- lapply(parsed, as.data.frame, stringsAsFactors = FALSE)
@@ -57,6 +39,36 @@ servers <- function(local = FALSE) {
   out
 }
 
+#' @rdname servers
+#' @export
+serverInfo <- function(name = NULL) {
+  name <- findServer(name)
+
+  if (isCloudServer(name)) {
+    info <- cloudServerInfo(name)
+  } else {
+    configFile <- serverConfigFile(name)
+    serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
+    info <- as.list(serverDcf)
+  }
+
+  info$certificate <- secret(info$certificate)
+  info
+}
+
+serverNames <- function(local = FALSE) {
+  names <- gsub("\\.dcf$", "", basename(serverConfigFiles()))
+  if (!local) {
+    names <- c(names, "shinyapps.io", "posit.cloud")
+
+    if (nrow(accounts(server = "rstudio.cloud") > 0)) {
+      names <- c(names, "rstudio.cloud")
+    }
+  }
+
+  names
+}
+
 cloudServers <- c("shinyapps.io", "posit.cloud", "rstudio.cloud")
 
 isCloudServer <- function(server) {
@@ -66,13 +78,12 @@ isCloudServer <- function(server) {
 cloudServerInfo <- function(name) {
   name <- arg_match0(name, cloudServers)
 
-  data.frame(
+  list(
     name = name,
     url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1"),
     certificate = inferCertificateContents(
       system.file("cert/shinyapps.io.pem", package = "rsconnect")
-    ),
-    stringsAsFactors = FALSE
+    )
   )
 }
 
@@ -112,11 +123,11 @@ findServer <- function(server = NULL,
   if (!is.null(server)) {
     check_string(server, call = error_call)
 
-    existing <- servers()
-    if (!server %in% existing$name) {
+    existing <- serverNames()
+    if (!server %in% existing) {
       cli::cli_abort(c(
         "Can't find {.arg server} with name {.str {server}}.",
-        i = "Known servers are {.str {existing$name}}."
+        i = "Known servers are {.str {existing}}."
       ))
     }
     server
@@ -139,14 +150,44 @@ findServer <- function(server = NULL,
   }
 }
 
-#' @rdname servers
+#' Server management
+#'
+#' @description
+#' These functions manage the list of known servers:
+#'
+#' * `addServer()` registers a server.
+#' * `addConnectServer()` registers a Posit connect server. Once it has been
+#'   registered, you can connect to an account on the server using
+#'   [connectUser()].
+#' * `removeServer()` removes a server from the registry.
+#' * `addServerCertificate()` adds a certificate to a server.
+#'
+#' @param name Optional nickname for the server. If none is given, the nickname
+#'   is inferred from the server's hostname.
+#' @param url Server's URL. Should look like `http://servername/` or
+#'  `http://servername:port/`.
+#' @param certificate Optional. Either a path to certificate file or a
+#'   character vector containing the certificate's contents.
+#' @param quiet Suppress output and prompts where possible.
 #' @export
+#' @examples
+#' \dontrun{
+#'
+#' # register a local server
+#' addServer("http://myrsconnect/", "myserver")
+#'
+#' # list servers
+#' servers(local = TRUE)
+#'
+#' # connect to an account on the server
+#' connectUser(server = "myserver")
+#' }
 addConnectServer <- function(url, name = NULL, certificate = NULL,
                              quiet = FALSE) {
   addServer(ensureConnectServerUrl(url), name, certificate, quiet)
 }
 
-#' @rdname servers
+#' @rdname addConnectServer
 #' @export
 addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
   check_string(url)
@@ -200,41 +241,16 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
   }
 }
 
-#' @rdname servers
+#' @rdname addConnectServer
 #' @export
-removeServer <- function(name) {
-  check_string(name)
+removeServer <- function(name = NULL) {
+  name <- findServer(name)
 
   configFile <- serverConfigFile(name)
-  if (file.exists(configFile))
-    unlink(configFile)
-  else
-    warning("The server '", name, "' is not currently registered.")
+  unlink(configFile)
 }
 
-
-#' @rdname servers
-#' @export
-serverInfo <- function(name) {
-  check_string(name)
-
-  if (isCloudServer(name)) {
-    info <- as.list(cloudServerInfo(name))
-  } else {
-    configFile <- serverConfigFile(name)
-    if (!file.exists(configFile)) {
-      cli::cli_abort("Can't find server {.str {name}}.")
-    }
-
-    serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
-    info <- as.list(serverDcf)
-  }
-
-  info$certificate <- secret(info$certificate)
-  info
-}
-
-#' @rdname servers
+#' @rdname addConnectServer
 #' @export
 addServerCertificate <- function(name, certificate, quiet = FALSE) {
   # read the existing server information (throws an error on failure)

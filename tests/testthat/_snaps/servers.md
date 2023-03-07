@@ -30,8 +30,9 @@
     Code
       serverInfo("foo")
     Condition
-      Error in `serverInfo()`:
-      ! Can't find server "foo".
+      Error in `findServer()`:
+      ! Can't find `server` with name "foo".
+      i Known servers are "shinyapps.io" and "posit.cloud".
 
 # cloud server errors if not cloud server
 
