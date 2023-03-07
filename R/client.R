@@ -1,32 +1,15 @@
 clientForAccount <- function(account) {
-
-  # determine appropriate server information for account
-  if (isCloudServer(account$server)) {
-    constructor <- lucidClientForAccount(account)
-  } else {
-    serverInfo <- serverInfo(account$server)
-    account$certificate <- serverInfo$certificate
-    connectClient(serverInfo$url, account)
-  }
-}
-
-lucidClientForAccount <- function(account) {
-  authInfo <- account
-
-  # determine appropriate server information for account
-  if (account$server == cloudServerInfo(account$server)$name) {
-    serverInfo <- cloudServerInfo(account$server)
-    constructor <- cloudClient
-  } else {
-    serverInfo <- shinyappsServerInfo()
-    constructor <- shinyAppsClient
-  }
-
-  # promote certificate into auth info
-  authInfo$certificate <- serverInfo$certificate
+  serverInfo <- serverInfo(account$server)
+  account$certificate <- serverInfo$certificate
   serverUrl <- parseHttpUrl(serverInfo$url)
 
-  constructor(serverUrl, authInfo)
+  if (isShinyappsServer(account$server)) {
+    shinyAppsClient(serverUrl, account)
+  } else if (account$server == cloudServerInfo(account$server)$name) {
+    cloudClient(serverUrl, account)
+  } else {
+    connectClient(serverUrl, account)
+  }
 }
 
 listRequest <- function(service, authInfo, path, query, listName, page = 100,
