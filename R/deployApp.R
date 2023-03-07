@@ -485,16 +485,10 @@ bundleApp <- function(appName,
   logger("Generate manifest.json")
   manifest <- createAppManifest(
     appDir = bundleDir,
-    appMode = appMetadata$appMode,
-    contentCategory = appMetadata$contentCategory,
-    hasParameters = appMetadata$hasParameters,
-    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    appMetadata = appMetadata,
     users = users,
     pythonConfig = pythonConfig,
-    documentsHavePython = appMetadata$documentsHavePython,
     retainPackratDirectory = TRUE,
-    quartoInfo = appMetadata$quartoInfo,
-    isCloud = appMetadata$isCloudServer,
     image = image,
     verbose = verbose
   )
