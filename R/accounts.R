@@ -31,114 +31,56 @@ accounts <- function(server = NULL) {
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
-#' Connect Api User Account
+#' Register account on Posit Connect
+#
+#' @description
+#' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
+#' the rsconnect package so that it can deploy and manage applications on
+#' your behalf.
 #'
-#' Connect a user account to the package using an API key for authentication
-#' so that it can be used to deploy and manage
-#' applications on behalf of the account.
+#' `connectUser()` is the easiest place to start because it allows you to
+#' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
+#' appropriate for non-interactive settings; you'll need to copy-and-paste the
+#' API key from your account settings.
 #'
-#' @param account A name for the account to connect. Optional.
-#' @param server The server to connect to. Optional if there is only one server
-#'   registered.
+#' @param account A name for the account to connect.
+#' @param server The server to connect to.
+#' @param launch.browser If true, the system's default web browser will be
+#'   launched automatically after the app is started. Defaults to `TRUE` in
+#'   interactive sessions only. If a function is passed, it will be called
+#'   after the app is started, with the app URL as a parameter.
 #' @param apiKey The API key used to authenticate the user
 #' @param quiet Whether or not to show messages and prompts while connecting the
 #'   account.
-#'
-#' @details This function configures the user to connect using an apiKey in
-#' the http auth headers instead of a token. This is less secure but may
-#' be necessary when the client is behind a proxy or otherwise unable to
-#' authenticate using a token.
-#'
 #' @family Account functions
 #' @export
 connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE) {
   server <- findServer(server)
   target <- serverInfo(server)
 
-  if (is.null(target)) {
-    stop("You must specify a server to connect to.")
-  }
-
-  # if account is specified and we already know about the account, get the User
-  # ID so we can prefill authentication fields
-  userId <- 0
-  userAccounts <- accounts(target$name)
-  if (!is.null(account) && !is.null(userAccounts)) {
-    if (account %in% userAccounts[, "name"]) {
-      accountDetails <- accountInfo(account, target$name)
-      userId <- accountDetails$accountId
-      if (!quiet) {
-        message("The account '",  account, "' is already registered; ",
-                "attempting to reconnect it.")
-      }
-    }
-  }
-
-  user <- getAuthedUser(serverUrl = target$url,
-                        apiKey = apiKey)
-
+  user <- getAuthedUser(serverUrl = target$url, apiKey = apiKey)
   if (is.null(user)) {
     stop("Unable to fetch user data for provided API key")
   }
 
-  # write the user info
-  registerUserApiKey(serverName = target$name,
-                    accountName = account,
-                    userId = user$id,
-                    apiKey = apiKey)
+  registerUserApiKey(
+    serverName = target$name,
+    accountName = account,
+    userId = user$id,
+    apiKey = apiKey
+  )
 
   if (!quiet) {
     message("\nAccount registered successfully: ", account)
   }
 }
 
-#' Connect User Account
-#'
-#' Connect a user account to the package so that it can be used to deploy and
-#' manage applications on behalf of the account.
-#'
-#' @param account A name for the account to connect. Optional.
-#' @param launch.browser If true, the system's default web browser will be
-#'   launched automatically after the app is started. Defaults to `TRUE` in
-#'   interactive sessions only. If a function is passed, it will be called
-#'   after the app is started, with the app URL as a paramter.
-#' @param server The server to connect to. Optional if there is only one server
-#'   registered.
-#' @param quiet Whether or not to show messages and prompts while connecting the
-#'   account.
-#'
-#' @details When this function is invoked, a web browser will be opened to a
-#'   page on the target server where you will be prompted to enter your
-#'   credentials. Upon successful authentication, your local installation of
-#'   \pkg{rsconnect} and your server account will be paired, and you'll
-#'   be able to deploy and manage applications using the package without further
-#'   prompts for credentials.
-#'
-#' @family Account functions
+#' @rdname connectApiUser
 #' @export
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
   server <- findServer(server)
   target <- serverInfo(server)
-
-  if (is.null(target)) {
-    stop("You must specify a server to connect to.")
-  }
-
-  # if account is specified and we already know about the account, get the User
-  # ID so we can prefill authentication fields
-  userId <- 0
-  userAccounts <- accounts(target$name)
-  if (!is.null(account) && !is.null(userAccounts)) {
-    if (account %in% userAccounts[, "name"]) {
-      accountDetails <- accountInfo(account, target$name)
-      userId <- accountDetails$accountId
-      if (!quiet) {
-        message("The account '",  account, "' is already registered; ",
-                "attempting to reconnect it.")
-      }
-    }
-  }
 
   # generate a token and send it to the server
   token <- getAuthToken(target$name)
@@ -181,12 +123,13 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
     }
   }
 
-  # write the user info
-  registerUserToken(serverName = target$name,
-                    accountName = user$username,
-                    userId = user$id,
-                    token = token$token,
-                    privateKey = token$private_key)
+  registerUserToken(
+    serverName = target$name,
+    accountName = user$username,
+    userId = user$id,
+    token = token$token,
+    privateKey = token$private_key
+  )
 
   if (!quiet) {
     message("Account registered successfully: ", user$first_name, " ",
@@ -194,7 +137,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   }
 }
 
-#' Set ShinyApps or Posit Cloud Account Info
+#' Register account on shinyapps.io or posit.cloud
 #'
 #' Configure a ShinyApps or Posit Cloud account for publishing from this system.
 #'
