@@ -4,6 +4,8 @@
   `account`/`server` (if no previous deployments) or 
   `appName`/`account`/`server` (if multiple previous deployments) (#691). 
 
+* `discoverServer()` has been deprecated; it never worked.
+
 * `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
   same directory as the document.
 

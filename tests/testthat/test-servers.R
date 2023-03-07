@@ -1,3 +1,11 @@
+test_that("servers() can return 0 row data frame", {
+  local_temp_config()
+
+  out <- servers(local = TRUE)
+  expect_equal(nrow(out), 0)
+  expect_named(out, c("name", "url", "certificate"))
+})
+
 test_that("servers() redacts the certificate", {
   local_temp_config()
 
@@ -10,6 +18,19 @@ test_that("servers() redacts the certificate", {
   )
 
   expect_snapshot(servers())
+})
+
+test_that("serverInfo() redacts the certificate", {
+  expect_snapshot({
+    str(serverInfo("posit.cloud"))
+    str(serverInfo("shinyapps.io"))
+  })
+})
+
+test_that("serverInfo() errors if server not present", {
+  local_temp_config()
+
+  expect_snapshot(serverInfo("foo"), error = TRUE)
 })
 
 test_that("normalizes connect urls", {

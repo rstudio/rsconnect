@@ -46,3 +46,8 @@ test_that("uses col_names if no inputs", {
     data.frame(x = logical(), y = logical())
   )
 })
+
+test_that("can work with empty data frames", {
+  out <- rbind_fill(list(data.frame(x = 1), data.frame()))
+  expect_equal(out, data.frame(x = 1))
+})

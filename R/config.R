@@ -74,8 +74,7 @@ serverConfigDir <- function() {
 
 serverConfigFile <- function(name) {
   normalizePath(
-    file.path(serverConfigDir(), paste(name, ".dcf", sep = "")),
-    mustWork = FALSE
+    file.path(serverConfigDir(), paste(name, ".dcf", sep = ""))
   )
 }
 
@@ -91,8 +90,7 @@ accountConfigDir <- function() {
 
 accountConfigFile <- function(name, server) {
   normalizePath(
-    file.path(accountConfigDir(), server, paste(name, ".dcf", sep = "")),
-    mustWork = FALSE
+    file.path(accountConfigDir(), server, paste(name, ".dcf", sep = ""))
   )
 }
 

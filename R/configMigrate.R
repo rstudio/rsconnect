@@ -62,7 +62,7 @@ oldApplicationConfigDir <- function(appName) {
   }
 
   # normalize path
-  normalizePath(configDir, mustWork = FALSE)
+  normalizePath(configDir)
 }
 
 # deployments -------------------------------------------------------------
