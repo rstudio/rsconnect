@@ -230,14 +230,14 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(server)
 
   account <- list(token = token, secret = secret, server = server)
-  lucid <- clientForAccount(account)
+  client <- clientForAccount(account)
 
   # get user Id
-  userId <- lucid$currentUser()$id
+  userId <- client$currentUser()$id
 
   # get account id
   accountId <- NULL
-  accounts <- lucid$accountsForUser(userId)
+  accounts <- client$accountsForUser(userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
       accountId <- account$id
