@@ -1,6 +1,10 @@
 connectClient <- function(service, authInfo) {
   list(
 
+    service = function() {
+      "connect"
+    },
+
     ## Server settings API
 
     serverSettings = function() {
