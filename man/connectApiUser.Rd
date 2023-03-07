@@ -3,7 +3,7 @@
 \name{connectApiUser}
 \alias{connectApiUser}
 \alias{connectUser}
-\title{Connect user account}
+\title{Register account on Posit Connect}
 \usage{
 connectApiUser(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE)
 

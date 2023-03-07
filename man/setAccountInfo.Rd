@@ -2,7 +2,7 @@
 % Please edit documentation in R/accounts.R
 \name{setAccountInfo}
 \alias{setAccountInfo}
-\title{Set ShinyApps or Posit Cloud Account Info}
+\title{Register account on shinyapps.io or posit.cloud}
 \usage{
 setAccountInfo(name, token, secret, server = "shinyapps.io")
 }

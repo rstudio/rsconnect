@@ -31,7 +31,7 @@ accounts <- function(server = NULL) {
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
-#' Connect user account
+#' Register account on Posit Connect
 #
 #' @description
 #' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
@@ -139,7 +139,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   }
 }
 
-#' Set ShinyApps or Posit Cloud Account Info
+#' Register account on shinyapps.io or posit.cloud
 #'
 #' Configure a ShinyApps or Posit Cloud account for publishing from this system.
 #'
