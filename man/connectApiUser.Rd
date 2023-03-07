@@ -27,7 +27,7 @@ account.}
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in
 interactive sessions only. If a function is passed, it will be called
-after the app is started, with the app URL as a paramater.}
+after the app is started, with the app URL as a parameter.}
 }
 \description{
 \code{connectUser()} and \code{connectApiUser()} connect your Posit Connect account to
@@ -36,7 +36,10 @@ your behalf. \code{connectApiUser()} uses an API key sent in the HTTP headers,
 instead of a token. This is less secure but may be necessary when the client
 is behind a proxy or otherwise unable to authenticate using a token.
 
-Both functions, will
+\code{connectUser()} needs to be run in an interactive session because it
+requires you to interactively authenticate to the Posit Connect server.
+\code{connectApiUser()} requires an API key copy-and-pasted from the API keys
+found in your account settings.
 }
 \seealso{
 Other Account functions: 

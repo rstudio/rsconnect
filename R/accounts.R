@@ -40,14 +40,17 @@ accounts <- function(server = NULL) {
 #' instead of a token. This is less secure but may be necessary when the client
 #' is behind a proxy or otherwise unable to authenticate using a token.
 #'
-#' Both functions, will
+#' `connectUser()` needs to be run in an interactive session because it
+#' requires you to interactively authenticate to the Posit Connect server.
+#' `connectApiUser()` requires an API key copy-and-pasted from the API keys
+#' found in your account settings.
 #'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called
-#'   after the app is started, with the app URL as a paramater.
+#'   after the app is started, with the app URL as a parameter.
 #' @param apiKey The API key used to authenticate the user
 #' @param quiet Whether or not to show messages and prompts while connecting the
 #'   account.
