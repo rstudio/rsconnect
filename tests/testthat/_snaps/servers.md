@@ -15,15 +15,15 @@
     Output
       List of 3
        $ name       : chr "posit.cloud"
-       $ certificate: Amazon... (redacted)
        $ url        : chr "https://api.shinyapps.io/v1"
+       $ certificate: Amazon... (redacted)
     Code
       str(serverInfo("shinyapps.io"))
     Output
       List of 3
        $ name       : chr "shinyapps.io"
-       $ certificate: Amazon... (redacted)
        $ url        : chr "https://api.shinyapps.io/v1"
+       $ certificate: Amazon... (redacted)
 
 # serverInfo() errors if server not present
 
@@ -32,6 +32,14 @@
     Condition
       Error in `serverInfo()`:
       ! Can't find server "foo".
+
+# cloud server errors if not cloud server
+
+    Code
+      cloudServerInfo("foo")
+    Condition
+      Error in `cloudServerInfo()`:
+      ! `name` must be one of "shinyapps.io", "posit.cloud", or "rstudio.cloud", not "foo".
 
 # findServer() errors if no servers
 

@@ -159,7 +159,7 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 # streams application logs from ShinyApps
 streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   # build the URL
-  url <- paste0(shinyappsServerInfo()$url, "/applications/", applicationId,
+  url <- paste0(serverInfo("shinyapps.io")$url, "/applications/", applicationId,
                 "/logs?", "count=", entries, "&tail=1")
   parsed <- parseHttpUrl(url)
 

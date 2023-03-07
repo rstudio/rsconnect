@@ -38,52 +38,41 @@
 servers <- function(local = FALSE) {
   parsed <- lapply(serverConfigFiles(), read.dcf)
   parsed <- lapply(parsed, as.data.frame, stringsAsFactors = FALSE)
-  locals <- rbind_fill(parsed, c("name", "url", "certificate"))
+  out <- rbind_fill(parsed, c("name", "url", "certificate"))
 
-  if (local) {
-    out <- locals
-  } else {
+  if (!local) {
     out <- rbind(
-      locals,
-      as.data.frame(shinyappsServerInfo(), stringsAsFactors = FALSE),
-      as.data.frame(cloudServerInfo(), stringsAsFactors = FALSE)
+      out,
+      cloudServerInfo("shinyapps.io"),
+      cloudServerInfo("posit.cloud")
     )
 
     # RStudio IDE requires a server whose name matches the server name on
     # previously configured accounts. Prevent breakage for pre-rebrand users.
     if (nrow(accounts(server = "rstudio.cloud")) > 0) {
-      out <- rbind(
-        out,
-        as.data.frame(cloudServerInfo("rstudio.cloud"), stringsAsFactors = FALSE)
-      )
+      out <- rbind(out, cloudServerInfo("rstudio.cloud"))
     }
   }
   out$certificate <- secret(out$certificate)
   out
 }
 
-shinyappsServerInfo <- function() {
-  list(
-    name = "shinyapps.io",
-    certificate = inferCertificateContents(
-      system.file("cert/shinyapps.io.pem", package = "rsconnect")
-    ),
-    url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1")
-  )
+cloudServers <- c("shinyapps.io", "posit.cloud", "rstudio.cloud")
+
+isCloudServer <- function(server) {
+  server %in% cloudServers
 }
 
-cloudServerInfo <- function(name = "posit.cloud") {
-  # We encode the current and prior product names here and call this function to
-  # see if a configured server identifier references the cloud product.
-  if (!is.element(name, c("posit.cloud", "rstudio.cloud"))) {
-    name <- "posit.cloud"
-  }
-  list(
+cloudServerInfo <- function(name) {
+  name <- arg_match0(name, cloudServers)
+
+  data.frame(
     name = name,
+    url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1"),
     certificate = inferCertificateContents(
       system.file("cert/shinyapps.io.pem", package = "rsconnect")
     ),
-    url = getOption("rsconnect.shinyapps_url", "https://api.shinyapps.io/v1")
+    stringsAsFactors = FALSE
   )
 }
 
@@ -229,10 +218,8 @@ removeServer <- function(name) {
 serverInfo <- function(name) {
   check_string(name)
 
-  if (identical(name, "shinyapps.io")) {
-    info <- shinyappsServerInfo()
-  } else if (identical(name, cloudServerInfo(name)$name)) {
-    info <- cloudServerInfo(name)
+  if (isCloudServer(name)) {
+    info <- as.list(cloudServerInfo(name))
   } else {
     configFile <- serverConfigFile(name)
     if (!file.exists(configFile)) {
