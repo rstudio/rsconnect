@@ -239,21 +239,21 @@ httpRequestWithBody <- function(service,
     writeChar(content, file, eos = NULL, useBytes = TRUE)
   }
 
-  url <- buildUrl(service$path, path, query)
+  path <- buildPath(service$path, path, query)
   headers <- c(headers, authHeaders1(authInfo, method, url, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
   http <- httpFunction()
   http(
-    service$protocol,
-    service$host,
-    service$port,
-    method,
-    url,
-    headers,
-    contentType,
-    file,
+    protocol = service$protocol,
+    host = service$host,
+    port = service$port,
+    method = method,
+    path = path,
+    headers = headers,
+    contentType = contentType,
+    contentFile = file,
     certificate = certificate
   )
 }
@@ -266,19 +266,19 @@ httpRequest <- function(service,
                         headers = list(),
                         timeout = NULL) {
 
-  url <- buildUrl(service$path, path, query)
+  path <- buildPath(service$path, path, query)
   headers <- c(headers, authHeaders2(authInfo, method, url))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
   http <- httpFunction()
   http(
-    service$protocol,
-    service$host,
-    service$port,
-    method,
-    url,
-    headers,
+    protocol = service$protocol,
+    host = service$host,
+    port = service$port,
+    method = method,
+    path = path,
+    headers = headers,
     timeout = timeout,
     certificate = certificate
   )
@@ -326,7 +326,7 @@ queryString <- function(elements) {
   return(result)
 }
 
-buildUrl <- function(apiPath, path, query = NULL) {
+buildPath <- function(apiPath, path, query = NULL) {
   # prepend the service path
   url <- paste(apiPath, path, sep = "")
 
