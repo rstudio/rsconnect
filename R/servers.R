@@ -190,6 +190,7 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
     if (!out$valid) {
       cli::cli_abort("{.arg url} does not appear to be a Posit Connect server.")
     }
+    url <- out$url
   }
 
   serverUrl <- parseHttpUrl(url)
