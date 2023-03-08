@@ -3,11 +3,11 @@ userAgent <- function() {
 }
 
 parseHttpUrl <- function(urlText) {
-
   matches <- regexec("(http|https)://([^:/#?]+)(?::(\\d+))?(.*)", urlText)
   components <- regmatches(urlText, matches)[[1]]
-  if (length(components) == 0)
+  if (length(components) == 0) {
     stop("Invalid url: ", urlText)
+  }
 
   url <- list()
   url$protocol <- components[[2]]
@@ -19,19 +19,21 @@ parseHttpUrl <- function(urlText) {
 
 parseHttpHeader <- function(header) {
   split <- strsplit(header, ": ")[[1]]
-  if (length(split) == 2)
+  if (length(split) == 2) {
     return(list(name = split[1], value = split[2]))
-  else
+  } else {
     return(NULL)
+  }
 }
 
 parseHttpStatusCode <- function(statusLine) {
   # extract status code; needs to deal with HTTP/1.0, HTTP/1.1, and HTTP/2
   statusCode <- regexExtract("HTTP/[0-9]+\\.?[0-9]* ([0-9]+).*", statusLine)
-  if (is.null(statusCode))
+  if (is.null(statusCode)) {
     return(-1)
-  else
+  } else {
     return(as.integer(statusCode))
+  }
 }
 
 # @param request A list containing protocol, host, port, method, and path fields
@@ -48,21 +50,25 @@ readHttpResponse <- function(request, conn) {
   setCookies <- NULL
   repeat {
     resp <- readLines(conn, 1)
-    if (nzchar(resp) == 0)
+    if (nzchar(resp) == 0) {
       break()
+    }
 
     header <- parseHttpHeader(resp)
-    if (!is.null(header))
-    {
+    if (!is.null(header)) {
       name <- tolower(header$name)
-      if (name == "content-type")
+      if (name == "content-type") {
         contentType <- header$value
-      if (name == "content-length")
+      }
+      if (name == "content-length") {
         contentLength <- as.integer(header$value)
-      if (name == "location")
+      }
+      if (name == "location") {
         location <- header$value
-      if (name == "set-cookie")
+      }
+      if (name == "set-cookie") {
         setCookies <- c(setCookies, header$value)
+      }
     }
   }
 
@@ -75,20 +81,25 @@ readHttpResponse <- function(request, conn) {
     content <- paste(readLines(con = conn), collapse = "\n")
   } else {
     # we know the content length, so read exactly that many bytes
-    content <- rawToChar(readBin(con = conn, what = "raw",
-                                 n = contentLength))
+    content <- rawToChar(readBin(
+      con = conn, what = "raw",
+      n = contentLength
+    ))
   }
 
   # emit JSON trace if requested
-  if (httpTraceJson() && identical(contentType, "application/json"))
+  if (httpTraceJson() && identical(contentType, "application/json")) {
     cat(paste0(">> ", content, "\n"))
+  }
 
   # return list
-  list(req         = request,
-       status      = statusCode,
-       location    = location,
-       contentType = contentType,
-       content     = content)
+  list(
+    req = request,
+    status = statusCode,
+    location = location,
+    contentType = contentType,
+    content = content
+  )
 }
 
 
@@ -103,25 +114,29 @@ httpTraceJson <- function() {
 httpTrace <- function(method, path, time) {
   if (getOption("rsconnect.http.trace", FALSE)) {
     cat(method, " ", path, " ", as.integer(time[["elapsed"]] * 1000), "ms\n",
-        sep = "")
+      sep = ""
+    )
   }
 }
 
 httpFunction <- function() {
   httpType <- getOption("rsconnect.http", "libcurl")
-  if (identical("libcurl", httpType))
+  if (identical("libcurl", httpType)) {
     httpLibCurl
-  else if (identical("rcurl", httpType))
+  } else if (identical("rcurl", httpType)) {
     httpRCurl
-  else if (identical("curl",  httpType))
+  } else if (identical("curl", httpType)) {
     httpCurl
-  else if (identical("internal", httpType))
+  } else if (identical("internal", httpType)) {
     httpInternal
-  else if (is.function(httpType))
+  } else if (is.function(httpType)) {
     httpType
-  else
-    stop(paste("Invalid http option specified:", httpType,
-               ". Valid values are libcurl, rcurl, curl, and internal"))
+  } else {
+    stop(paste(
+      "Invalid http option specified:", httpType,
+      ". Valid values are libcurl, rcurl, curl, and internal"
+    ))
+  }
 }
 
 POST_JSON <- function(service,
@@ -131,12 +146,13 @@ POST_JSON <- function(service,
                       query = NULL,
                       headers = list()) {
   POST(service,
-       authInfo,
-       path,
-       query,
-       "application/json",
-       content = toJSON(json, pretty = TRUE, digits = 30),
-       headers = headers)
+    authInfo,
+    path,
+    query,
+    "application/json",
+    content = toJSON(json, pretty = TRUE, digits = 30),
+    headers = headers
+  )
 }
 
 PUT_JSON <- function(service,
@@ -146,12 +162,13 @@ PUT_JSON <- function(service,
                      query = NULL,
                      headers = list()) {
   PUT(service,
-      authInfo,
-      path,
-      query,
-      "application/json",
-      content = toJSON(json, pretty = TRUE, digits = 30),
-      headers = headers)
+    authInfo,
+    path,
+    query,
+    "application/json",
+    content = toJSON(json, pretty = TRUE, digits = 30),
+    headers = headers
+  )
 }
 
 POST <- function(service,
@@ -162,14 +179,13 @@ POST <- function(service,
                  file = NULL,
                  content = NULL,
                  headers = list()) {
-
   # check if the request needs a body
   if ((is.null(file) && is.null(content))) {
-      # no file or content, don't include a body with the request
-      httpRequest(service, authInfo, "POST", path, query, headers)
+    # no file or content, don't include a body with the request
+    httpRequest(service, authInfo, "POST", path, query, headers)
   } else {
-      # include the request's data in the body
-      httpRequestWithBody(service, authInfo, "POST", path, query, contentType, file, content, headers)
+    # include the request's data in the body
+    httpRequestWithBody(service, authInfo, "POST", path, query, contentType, file, content, headers)
   }
 }
 
@@ -202,19 +218,20 @@ DELETE <- function(service,
 }
 
 httpRequestWithBody <- function(service,
-                         authInfo,
-                         method,
-                         path,
-                         query = NULL,
-                         contentType = NULL,
-                         file = NULL,
-                         content = NULL,
-                         headers = list()) {
-
-  if ((is.null(file) && is.null(content)))
+                                authInfo,
+                                method,
+                                path,
+                                query = NULL,
+                                contentType = NULL,
+                                file = NULL,
+                                content = NULL,
+                                headers = list()) {
+  if ((is.null(file) && is.null(content))) {
     stop("You must specify either the file or content parameter.")
-  if ((!is.null(file) && !is.null(content)))
+  }
+  if ((!is.null(file) && !is.null(content))) {
     stop("You must specify either the file or content parameter but not both.")
+  }
 
   # prepend the service path
   url <- paste(service$path, path, sep = "")
@@ -229,7 +246,7 @@ httpRequestWithBody <- function(service,
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
     file <- tempfile()
-    writeChar(content, file,  eos = NULL, useBytes = TRUE)
+    writeChar(content, file, eos = NULL, useBytes = TRUE)
   }
 
   # if this request is to be authenticated, sign it
@@ -244,20 +261,22 @@ httpRequestWithBody <- function(service,
 
   # set up certificate tempfile if using https
   certificate <- NULL
-  if (identical(service$protocol, "https"))
+  if (identical(service$protocol, "https")) {
     certificate <- createCertificateFile(authInfo$certificate)
+  }
 
   # perform request
   http <- httpFunction()
   http(service$protocol,
-       service$host,
-       service$port,
-       method,
-       url,
-       headers,
-       contentType,
-       file,
-       certificate = certificate)
+    service$host,
+    service$port,
+    method,
+    url,
+    headers,
+    contentType,
+    file,
+    certificate = certificate
+  )
 }
 
 httpRequest <- function(...) {
@@ -272,7 +291,6 @@ httpInvokeRequest <- function(service,
                               headers = list(),
                               timeout = NULL,
                               http) {
-
   # prepend the service path
   url <- paste(service$path, path, sep = "")
 
@@ -300,22 +318,23 @@ httpInvokeRequest <- function(service,
 
   # set up certificate tempfile if using https
   certificate <- NULL
-  if (identical(service$protocol, "https"))
+  if (identical(service$protocol, "https")) {
     certificate <- createCertificateFile(authInfo$certificate)
+  }
 
   # perform method
   http(service$protocol,
-       service$host,
-       service$port,
-       method,
-       url,
-       headers,
-       timeout = timeout,
-       certificate = certificate)
+    service$host,
+    service$port,
+    method,
+    url,
+    headers,
+    timeout = timeout,
+    certificate = certificate
+  )
 }
 
 rfc2616Date <- function(time = Sys.time()) {
-
   # capure current locale
   loc <- Sys.getlocale("LC_TIME")
 
@@ -336,7 +355,9 @@ urlDecode <- function(x) {
 }
 
 urlEncode <- function(x) {
-  if (inherits(x, "AsIs")) return(x)
+  if (inherits(x, "AsIs")) {
+    return(x)
+  }
   RCurl::curlEscape(x)
 }
 
@@ -395,7 +416,9 @@ signatureHeaders <- function(authInfo, method, path, file) {
 
     # sign request using local private key
     private_key <- openssl::read_key(
-        openssl::base64_decode(authInfo$private_key), der = TRUE)
+      openssl::base64_decode(authInfo$private_key),
+      der = TRUE
+    )
 
     # OpenSSL defaults to sha1 hash function (which is what we need)
     rawsig <- openssl::signature_create(charToRaw(canonicalRequest), key = private_key)
