@@ -48,7 +48,11 @@ test_http_POST_empty <- function() {
 test_http_POST_file <- function() {
   service <- httpbin_service()
 
-  path <- withr::local_tempfile(lines = c("1", "2", "3"))
+  path <- withr::local_tempfile()
+  con <- file(path, "wb")
+  writeLines(c("1", "2", "3"), con = con)
+  close(con)
+
   resp <- POST(
     service,
     authInfo = NULL,
