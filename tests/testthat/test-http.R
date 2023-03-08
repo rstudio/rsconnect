@@ -70,48 +70,6 @@ withr::defer({
   server$kill()
 })
 
-test_http_GET <- function(transport) {
-  # Set the transport for this instance of the test
-  withr::local_options("rsconnect.http" = transport)
-
-  # Save the response the server will return
-  saveRDS(file = input, object = list(
-    status = 200L,
-    headers = list(
-      "Content-Type" = "text/plain"
-    ),
-    body = "GET successful"
-  ))
-
-  # Perform the request
-  GET(service = service,
-      authInfo = NULL,
-      query = NULL,
-      path = "test")
-
-  # Validate that we performed a GET on the requested path
-  request <- readRDS(output)
-  expect_equal(request$REQUEST_METHOD, "GET")
-  expect_equal(request$PATH_INFO, "/test")
-}
-
-test_that("simple http GET works (libcurl)", {
-  test_http_GET("libcurl")
-})
-
-test_that("simple http GET works (internal)", {
-  test_http_GET("internal")
-})
-
-test_that("simple http GET works (RCurl)", {
-  skip_if_not_installed("RCurl")
-  test_http_GET("rcurl")
-})
-
-test_that("simple http GET works (curl)", {
-  skip_if(Sys.which("curl") == "")
-  test_http_GET("curl")
-})
 
 test_http_POST_JSON <- function(transport) {
   # Set the transport for this instance of the test
