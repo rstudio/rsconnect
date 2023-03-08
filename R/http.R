@@ -279,18 +279,14 @@ httpRequestWithBody <- function(service,
   )
 }
 
-httpRequest <- function(...) {
-  httpInvokeRequest(..., http = httpFunction())
-}
-
-httpInvokeRequest <- function(service,
-                              authInfo,
-                              method,
-                              path,
-                              query,
-                              headers = list(),
-                              timeout = NULL,
-                              http) {
+httpRequest <- function(service,
+                        authInfo,
+                        method,
+                        path,
+                        query,
+                        headers = list(),
+                        timeout = NULL,
+                        http = httpFunction()) {
   # prepend the service path
   url <- paste(service$path, path, sep = "")
 
