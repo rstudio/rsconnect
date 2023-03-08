@@ -9,7 +9,7 @@
 \usage{
 addConnectServer(url, name = NULL, certificate = NULL, quiet = FALSE)
 
-addServer(url, name = NULL, certificate = NULL, quiet = FALSE)
+addServer(url, name = NULL, certificate = NULL, validate = TRUE, quiet = FALSE)
 
 removeServer(name = NULL)
 
@@ -26,6 +26,9 @@ is inferred from the server's hostname.}
 character vector containing the certificate's contents.}
 
 \item{quiet}{Suppress output and prompts where possible.}
+
+\item{validate}{Validate that \code{url} actually points to a Posit Connect
+server?}
 }
 \description{
 These functions manage the list of known servers:

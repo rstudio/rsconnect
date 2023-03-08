@@ -158,6 +158,8 @@ findServer <- function(server = NULL,
 #'  `http://servername:port/`.
 #' @param certificate Optional. Either a path to certificate file or a
 #'   character vector containing the certificate's contents.
+#' @param validate Validate that `url` actually points to a Posit Connect
+#'   server?
 #' @param quiet Suppress output and prompts where possible.
 #' @export
 #' @examples
@@ -179,13 +181,18 @@ addConnectServer <- function(url, name = NULL, certificate = NULL,
 
 #' @rdname addConnectServer
 #' @export
-addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
+addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, quiet = FALSE) {
   check_string(url)
   check_name(name, allow_null = TRUE)
 
-  serverUrl <- parseHttpUrl(url)
+  if (validate) {
+    out <- validateConnectUrl(url, certificate)
+    if (!out$valid) {
+      cli::cli_abort("{.arg url} does not appear to be a Posit Connect server.")
+    }
+  }
 
-  # TODO: test server by hitting URL and getting config?
+  serverUrl <- parseHttpUrl(url)
 
   # if no name is supplied for the server, make one up based on the host portion
   # of its URL
@@ -230,6 +237,17 @@ addServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
     message("Server '", name,  "' added successfully: ", url)
   }
 }
+
+addTestServer <- function(url, name, certificate = NULL) {
+  addServer(
+    url = url,
+    name = name,
+    certificate = certificate,
+    validate = FALSE,
+    quiet = TRUE
+  )
+}
+
 
 #' @rdname addConnectServer
 #' @export

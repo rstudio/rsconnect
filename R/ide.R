@@ -9,6 +9,20 @@
 # the URL may be specified with or without the protocol and port; this function
 # will try both http and https and follow any redirects given by the server.
 validateServerUrl <- function(url, certificate = NULL) {
+
+  valid <- validateConnectUrl(url, certificate)
+
+  if (valid$ok)  {
+    c(
+      list(valid = TRUE, url = valid$url, name = findLocalServer(url)),
+      valid$response
+    )
+  } else {
+    valid
+  }
+}
+
+validateConnectUrl <- function(url, certificate = NULL) {
   tryAllProtocols <- TRUE
 
   if (!grepl("://", url, fixed = TRUE))
@@ -58,6 +72,10 @@ validateServerUrl <- function(url, certificate = NULL) {
         next
       }
       response <- handleResponse(httpResponse)
+      if (!isContentType(httpResponse, "application/json")) {
+        response <- NULL
+        errMessage <- "Endpoint did not return JSON"
+      }
 
       # got a real response; stop trying now
       retry <- FALSE
@@ -77,15 +95,11 @@ validateServerUrl <- function(url, certificate = NULL) {
       retry <<- FALSE
     })
   }
+
   if (is.null(response)) {
-    list(
-      valid = FALSE,
-      message = errMessage)
+    list(valid = FALSE, message = errMessage)
   } else {
-    c(list(valid = TRUE,
-           url = url,
-           name = findLocalServer(url)),
-      response)
+    list(valid = TRUE, url = url, response = response)
   }
 }
 
@@ -110,8 +124,8 @@ findLocalServer <- function(url) {
   # name
   name <- findServerByUrl(url)
   if (is.null(name)) {
-    addConnectServer(url = url, name = NULL, certificate = NULL,
-                     quiet = TRUE)
+    addServer(url = url, name = NULL, certificate = NULL,
+                     quiet = TRUE, validate = FALSE)
     findServerByUrl(url)
   } else {
     name
