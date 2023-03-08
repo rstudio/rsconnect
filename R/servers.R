@@ -18,23 +18,12 @@
 #' # Get information about a server
 #' serverInfo("posit.cloud")
 servers <- function(local = FALSE) {
-  parsed <- lapply(serverConfigFiles(), read.dcf)
-  parsed <- lapply(parsed, as.data.frame, stringsAsFactors = FALSE)
-  out <- rbind_fill(parsed, c("name", "url", "certificate"))
+  servers <- serverNames(local)
 
-  if (!local) {
-    out <- rbind(
-      out,
-      cloudServerInfo("shinyapps.io"),
-      cloudServerInfo("posit.cloud")
-    )
+  info <- lapply(servers, serverInfo)
+  info <- lapply(info, as.data.frame, stringsAsFactors = FALSE)
 
-    # RStudio IDE requires a server whose name matches the server name on
-    # previously configured accounts. Prevent breakage for pre-rebrand users.
-    if (nrow(accounts(server = "rstudio.cloud")) > 0) {
-      out <- rbind(out, cloudServerInfo("rstudio.cloud"))
-    }
-  }
+  out <- rbind_fill(info, c("name", "url", "certificate"))
   out$certificate <- secret(out$certificate)
   out
 }
