@@ -27,3 +27,23 @@ discoverServers <- function(quiet = FALSE) {
   }
   invisible(introduced)
 }
+
+#' Add a server
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function does the same thing as [addServer()] so has been removed.
+#'
+#' @export
+#' @inheritParams addServer
+#' @keywords internal
+addConnectServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
+  lifecycle::deprecate_warn("0.9.0", "addConnectServer()", "addServer()")
+  addServer(
+    ensureConnectServerUrl(url),
+    name = name,
+    certificate = certificate,
+    quiet = quiet
+  )
+}

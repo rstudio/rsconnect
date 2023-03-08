@@ -115,17 +115,16 @@ findServer <- function(server = NULL,
 #' @description
 #' These functions manage the list of known servers:
 #'
-#' * `addServer()` registers a server.
-#' * `addConnectServer()` registers a Posit connect server. Once it has been
+#' * `addServer()` registers a Posit connect server. Once it has been
 #'   registered, you can connect to an account on the server using
 #'   [connectUser()].
 #' * `removeServer()` removes a server from the registry.
 #' * `addServerCertificate()` adds a certificate to a server.
 #'
+#' @param url URL for the server. Can be a bare hostname like
+#'   `connect.mycompany.com` or a url like `http://posit.mycompany.com/connect`.
 #' @param name Optional nickname for the server. If none is given, the nickname
 #'   is inferred from the server's hostname.
-#' @param url Server's URL. Should look like `http://servername/` or
-#'  `http://servername:port/`.
 #' @param certificate Optional. Either a path to certificate file or a
 #'   character vector containing the certificate's contents.
 #' @param validate Validate that `url` actually points to a Posit Connect
@@ -134,7 +133,6 @@ findServer <- function(server = NULL,
 #' @export
 #' @examples
 #' \dontrun{
-#'
 #' # register a local server
 #' addServer("http://myrsconnect/", "myserver")
 #'
@@ -144,12 +142,6 @@ findServer <- function(server = NULL,
 #' # connect to an account on the server
 #' connectUser(server = "myserver")
 #' }
-addConnectServer <- function(url, name = NULL, certificate = NULL,
-                             quiet = FALSE) {
-  addServer(ensureConnectServerUrl(url), name, certificate, quiet)
-}
-
-#' @rdname addConnectServer
 #' @export
 addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, quiet = FALSE) {
   check_string(url)
@@ -169,7 +161,7 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
   # of its URL
   if (is.null(name)) {
     name <- serverUrl$host
-    if (!quiet && interactive()) {
+    if (!quiet && is_interactive()) {
       input <- readline(paste0(
         "Enter a nickname for this server (default '", name, "'): "))
       if (nchar(input) > 0) {
@@ -219,8 +211,7 @@ addTestServer <- function(url, name, certificate = NULL) {
   )
 }
 
-
-#' @rdname addConnectServer
+#' @rdname addServer
 #' @export
 removeServer <- function(name = NULL) {
   name <- findServer(name)
@@ -229,7 +220,7 @@ removeServer <- function(name = NULL) {
   unlink(configFile)
 }
 
-#' @rdname addConnectServer
+#' @rdname addServer
 #' @export
 addServerCertificate <- function(name, certificate, quiet = FALSE) {
   # read the existing server information (throws an error on failure)
