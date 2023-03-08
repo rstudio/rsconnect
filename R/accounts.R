@@ -417,6 +417,17 @@ str.rsconnect_secret <- function(object, ...) {
   cat(" ", format(object), "\n", sep = "")
 }
 
+#' @export
+as.data.frame.rsconnect_secret <- function(x,
+                                           ...) {
+  structure(
+    list(x),
+    row.names = .set_row_names(length(x)),
+    class = "data.frame"
+  )
+}
+
+
 accountId <- function(account, server) {
   paste0(account, "@", server)
 }

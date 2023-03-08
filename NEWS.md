@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `serverInfo()` and `removeServer()` no longer require a `server` when 
+  called interactively.
+
 * `connectApiUser()` now clearly requires an `apiKey` (#741).
 
 * `deployApp()` now generates an interactive prompt to select 

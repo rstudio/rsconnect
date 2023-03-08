@@ -10,11 +10,10 @@ test_that("servers() redacts the certificate", {
   local_temp_config()
 
   # add a server with a sample certificate
-  addServer(
+  addTestServer(
     url = "https://localhost:4567/",
     name = "cert_test_a",
-    certificate = test_path("certs/sample.crt"),
-    quiet = TRUE
+    certificate = test_path("certs/sample.crt")
   )
 
   expect_snapshot(servers())
@@ -42,6 +41,17 @@ test_that("normalizes connect urls", {
   expect_equal(ensureConnectServerUrl("https://myserver.com/__api__/"), expected)
 })
 
+
+# addServer ---------------------------------------------------------------
+
+test_that("addServer() normalises url", {
+  local_temp_config()
+
+  addServer("connect.rstudioservices.com", name = "connect", quiet = TRUE)
+  info <- serverInfo("connect")
+  expect_equal(info$url, "https://connect.rstudioservices.com/__api__")
+})
+
 # cloud servers -----------------------------------------------------------
 
 test_that("All hosted product names are identified as cloud", {
@@ -53,12 +63,6 @@ test_that("All hosted product names are identified as cloud", {
 
 test_that("predefined servers includes cloud and shinyapps", {
   local_temp_config()
-  registerUserToken("rstudio.cloud", "john", "123", "TOKEN", "SECRET")
-  expect_true("rstudio.cloud" %in% servers()$name)
-})
-
-test_that("predefined servers includes rstudio.cloud if needed", {
-  local_temp_config()
 
   out <- servers()
   expect_equal(nrow(out), 2)
@@ -66,7 +70,15 @@ test_that("predefined servers includes rstudio.cloud if needed", {
   expect_setequal(out$name, c("posit.cloud", "shinyapps.io"))
 })
 
+test_that("predefined servers includes rstudio.cloud if needed", {
+  local_temp_config()
+  registerUserToken("rstudio.cloud", "john", "123", "TOKEN", "SECRET")
+  expect_true("rstudio.cloud" %in% servers()$name)
+})
+
 test_that("cloud server info matches name given if valid", {
+  registerUserToken("rstudio.cloud", "john", "123", "TOKEN", "SECRET")
+
   rstudioServer <- serverInfo("rstudio.cloud")
   expect_equal(rstudioServer$name, "rstudio.cloud")
 })
