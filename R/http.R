@@ -233,41 +233,20 @@ httpRequestWithBody <- function(service,
     stop("You must specify either the file or content parameter but not both.")
   }
 
-  # prepend the service path
-  url <- paste(service$path, path, sep = "")
-
-  # append the query
-  if (!is.null(query)) {
-    # URL encode query args
-    query <- utils::URLencode(query)
-    url <- paste(url, "?", query, sep = "")
-  }
-
   # if we have content then write it to a temp file before posting
   if (!is.null(content)) {
     file <- tempfile()
     writeChar(content, file, eos = NULL, useBytes = TRUE)
   }
 
-  # if this request is to be authenticated, sign it
-  if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
-    sigHeaders <- signatureHeaders(authInfo, method, url, file)
-    headers <- append(headers, sigHeaders)
-  } else if (!is.null(authInfo$apiKey)) {
-    headers <- append(headers, apiKeyAuthHeaders(authInfo$apiKey))
-  } else {
-    headers <- append(headers, bogusSignatureHeaders())
-  }
-
-  # set up certificate tempfile if using https
-  certificate <- NULL
-  if (identical(service$protocol, "https")) {
-    certificate <- createCertificateFile(authInfo$certificate)
-  }
+  url <- buildUrl(service$path, path, query)
+  headers <- c(headers, authHeaders1(authInfo, method, url, file))
+  certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
   http <- httpFunction()
-  http(service$protocol,
+  http(
+    service$protocol,
     service$host,
     service$port,
     method,
@@ -287,39 +266,14 @@ httpRequest <- function(service,
                         headers = list(),
                         timeout = NULL,
                         http = httpFunction()) {
-  # prepend the service path
-  url <- paste(service$path, path, sep = "")
 
-  # append the query
-  if (!is.null(query)) {
-    # URL encode query args
-    query <- utils::URLencode(query)
-    url <- paste(url, "?", query, sep = "")
-  }
-
-  # the request should be authenticated if there's any auth specified
-  # other than the server certificate
-  if (length(authInfo) > 0 && !identical(names(authInfo), "certificate")) {
-    if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
-      sigHeaders <- signatureHeaders(authInfo, method, url, NULL)
-      headers <- append(headers, sigHeaders)
-    } else if (!is.null(authInfo$apiKey)) {
-      headers <- append(headers, apiKeyAuthHeaders(authInfo$apiKey))
-    } else {
-      headers <- append(headers, bogusSignatureHeaders())
-    }
-  } else {
-    headers <- append(headers, bogusSignatureHeaders())
-  }
-
-  # set up certificate tempfile if using https
-  certificate <- NULL
-  if (identical(service$protocol, "https")) {
-    certificate <- createCertificateFile(authInfo$certificate)
-  }
+  url <- buildUrl(service$path, path, query)
+  headers <- c(headers, authHeaders2(authInfo, method, url))
+  certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform method
-  http(service$protocol,
+  http(
+    service$protocol,
     service$host,
     service$port,
     method,
@@ -329,6 +283,7 @@ httpRequest <- function(service,
     certificate = certificate
   )
 }
+
 
 rfc2616Date <- function(time = Sys.time()) {
   # capure current locale
@@ -370,6 +325,58 @@ queryString <- function(elements) {
   }
   return(result)
 }
+
+buildUrl <- function(apiPath, path, query = NULL) {
+  # prepend the service path
+  url <- paste(apiPath, path, sep = "")
+
+  # append the query
+  if (!is.null(query)) {
+    # URL encode query args
+    query <- utils::URLencode(query)
+    url <- paste(url, "?", query, sep = "")
+  }
+
+  url
+}
+
+requestCertificate <- function(protocol, certificate = NULL) {
+  if (identical(protocol, "https")) {
+    createCertificateFile(certificate)
+  } else {
+    NULL
+  }
+}
+
+# Auth --------------------------------------------------------------------
+
+authHeaders1 <- function(authInfo, method, url, file) {
+  if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
+    signatureHeaders(authInfo, method, url, file)
+  } else if (!is.null(authInfo$apiKey)) {
+    apiKeyAuthHeaders(authInfo$apiKey)
+  } else {
+    bogusSignatureHeaders()
+  }
+}
+
+authHeaders2 <- function(authInfo, method, url, file = NULL) {
+  # the request should be authenticated if there's any auth specified
+  # other than the server certificate
+  if (length(authInfo) > 0 && !identical(names(authInfo), "certificate")) {
+    if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
+      signatureHeaders(authInfo, method, url, NULL)
+    } else if (!is.null(authInfo$apiKey)) {
+      apiKeyAuthHeaders(authInfo$apiKey)
+    } else {
+      bogusSignatureHeaders()
+    }
+  } else {
+    bogusSignatureHeaders()
+  }
+}
+
+
 
 apiKeyAuthHeaders <- function(apiKey) {
   list(`Authorization` = paste("Key", apiKey))
