@@ -23,3 +23,14 @@ test_http_GET <- function() {
   contents <- handleResponse(resp)
   expect_equal(contents$path, "/get")
 }
+
+test_http_POST_JSON <- function() {
+  service <- httpbin_service()
+
+  # Perform the request
+  body <- list(a = 1, b = 2, c = 3)
+  resp <- POST_JSON(service, authInfo = NULL, path = "anything", json = body)
+
+  contents <- handleResponse(resp)
+  expect_equal(contents$json, body)
+}
