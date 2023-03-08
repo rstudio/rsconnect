@@ -264,14 +264,14 @@ httpRequest <- function(service,
                         path,
                         query,
                         headers = list(),
-                        timeout = NULL,
-                        http = httpFunction()) {
+                        timeout = NULL) {
 
   url <- buildUrl(service$path, path, query)
   headers <- c(headers, authHeaders2(authInfo, method, url))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
-  # perform method
+  # perform request
+  http <- httpFunction()
   http(
     service$protocol,
     service$host,
