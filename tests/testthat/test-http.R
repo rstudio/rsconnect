@@ -70,57 +70,6 @@ withr::defer({
   server$kill()
 })
 
-test_http_POST_file <- function(transport) {
-  # Set the transport for this instance of the test
-  old <- options("rsconnect.http" = transport)
-  on.exit(options(old), add = TRUE)
-
-  # Save the response the server will return
-  saveRDS(file = input, object = list(
-    status = 200L,
-    headers = list(
-      "Content-Type" = "text/plain"
-    ),
-    body = "POST successful"
-  ))
-
-  # Perform the request
-  write(c("1", "2", "3"), datafile)
-  POST(service = service,
-       authInfo = NULL,
-       path = "test",
-       contentType = "text/plain",
-       file = datafile,
-       content = NULL)
-
-  # Validate HTTP method
-  request <- readRDS(output)
-  expect_equal(request$REQUEST_METHOD, "POST")
-
-  # Validate body contents
-  expect(request$body == "1\n2\n3",
-         failure_message =
-           paste0("Unexpected request body '", request$body, "', with transport ", transport))
-}
-
-test_that("posting file works (libcurl)", {
-  test_http_POST_file("libcurl")
-})
-
-test_that("posting file works (internal)", {
-  test_http_POST_file("internal")
-})
-
-test_that("posting file works (RCurl)", {
-  skip_if_not_installed("RCurl")
-  test_http_POST_file("rcurl")
-})
-
-test_that("posting file works (curl)", {
-  skip_if(Sys.which("curl") == "")
-  test_http_POST_file("curl")
-})
-
 test_http_api_headers <- function(transport) {
   # Set the transport for this instance of the test
   old <- options("rsconnect.http" = transport)

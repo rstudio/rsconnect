@@ -45,31 +45,19 @@ test_http_POST_empty <- function() {
   expect_equal(contents$json, set_names(list()))
 }
 
-test_http_POST_file <- function(transport) {
+test_http_POST_file <- function() {
+  service <- httpbin_service()
 
-  # Save the response the server will return
-  saveRDS(file = input, object = list(
-    status = 200L,
-    headers = list(
-      "Content-Type" = "text/plain"
-    ),
-    body = "POST successful"
-  ))
+  path <- withr::local_tempfile(lines = c("1", "2", "3"))
+  resp <- POST(
+    service,
+    authInfo = NULL,
+    path = "post",
+    contentType = "text/plain",
+    file = path
+  )
+  expect_equal(resp$status, 200)
 
-  # Perform the request
-  write(c("1", "2", "3"), datafile)
-  POST(service = service,
-       authInfo = NULL,
-       path = "test",
-       contentType = "text/plain",
-       file = datafile,
-       content = NULL)
-
-  # Validate HTTP method
-  request <- readRDS(output)
-  expect_equal(request$REQUEST_METHOD, "POST")
-
-  # Validate body contents
-  expect(request$body == "1\n2\n3",
-         failure_message =
-           paste0("Unexpected request body '", request$body, "', with transport ", transport))
+  contents <- handleResponse(resp)
+  expect_equal(contents$data, "1\n2\n3\n")
+}
