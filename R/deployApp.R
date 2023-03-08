@@ -275,8 +275,9 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 
+  isCloudServer <- isCloudServer(target$server)
   # test for compatibility between account type and publish intent
-  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+  if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
@@ -331,7 +332,7 @@ deployApp <- function(appDir = getwd(),
       appPrimaryDoc = appPrimaryDoc,
       quarto = quarto,
       contentCategory = contentCategory,
-      isCloudServer = isCloudServer(accountDetails$server),
+      isCloudServer = isCloudServer,
       metadata = metadata
     )
 
@@ -343,6 +344,7 @@ deployApp <- function(appDir = getwd(),
       appMetadata = appMetadata,
       verbose = verbose,
       pythonConfig = pythonConfig,
+      isCloudServer = isCloudServer,
       image = image
     )
     taskComplete(quiet, "Bundling complete")
@@ -464,6 +466,7 @@ bundleApp <- function(appName,
                       appMetadata,
                       verbose = FALSE,
                       pythonConfig = NULL,
+                      isCloudServer = FALSE,
                       image = NULL) {
   logger <- verboseLogger(verbose)
 
@@ -489,6 +492,7 @@ bundleApp <- function(appName,
     users = users,
     pythonConfig = pythonConfig,
     retainPackratDirectory = TRUE,
+    isCloudServer = isCloudServer,
     image = image,
     verbose = verbose
   )

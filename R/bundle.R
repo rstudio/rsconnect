@@ -110,6 +110,7 @@ createAppManifest <- function(appDir,
                               users = NULL,
                               pythonConfig = NULL,
                               retainPackratDirectory = TRUE,
+                              isCloudServer = FALSE,
                               image = NULL,
                               verbose = FALSE) {
 
@@ -195,7 +196,7 @@ createAppManifest <- function(appDir,
   }
 
   # indicate whether this is a quarto app/doc
-  if (!is.null(appMetadata$quartoInfo) && !appMetadata$isCloudServer) {
+  if (!is.null(appMetadata$quartoInfo) && !isCloudServer) {
     manifest$quarto <- appMetadata$quartoInfo
   }
   # if there is python info for reticulate or Quarto, attach it

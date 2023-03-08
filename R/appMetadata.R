@@ -56,8 +56,7 @@ appMetadata <- function(appDir,
     hasParameters = hasParameters,
     contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
-    quartoInfo = quartoInfo,
-    isCloudServer = isCloudServer
+    quartoInfo = quartoInfo
   )
 }
 
