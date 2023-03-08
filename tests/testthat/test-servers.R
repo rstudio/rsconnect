@@ -10,11 +10,10 @@ test_that("servers() redacts the certificate", {
   local_temp_config()
 
   # add a server with a sample certificate
-  addServer(
+  addTestServer(
     url = "https://localhost:4567/",
     name = "cert_test_a",
-    certificate = test_path("certs/sample.crt"),
-    quiet = TRUE
+    certificate = test_path("certs/sample.crt")
   )
 
   expect_snapshot(servers())
@@ -40,6 +39,17 @@ test_that("normalizes connect urls", {
   expect_equal(ensureConnectServerUrl("https://myserver.com/"), expected)
   expect_equal(ensureConnectServerUrl("https://myserver.com/__api__"), expected)
   expect_equal(ensureConnectServerUrl("https://myserver.com/__api__/"), expected)
+})
+
+
+# addServer ---------------------------------------------------------------
+
+test_that("addServer() normalises url", {
+  local_temp_config()
+
+  addServer("connect.rstudioservices.com", name = "connect", quiet = TRUE)
+  info <- serverInfo("connect")
+  expect_equal(info$url, "https://connect.rstudioservices.com/__api__")
 })
 
 # cloud servers -----------------------------------------------------------
