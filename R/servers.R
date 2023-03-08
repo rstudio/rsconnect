@@ -31,7 +31,7 @@ servers <- function(local = FALSE) {
 #' @rdname servers
 #' @export
 serverInfo <- function(name = NULL) {
-  name <- findServer(name)
+  name <- findServer(name, local = FALSE)
 
   if (isCloudServer(name)) {
     info <- cloudServerInfo(name)
@@ -107,6 +107,7 @@ discoverServers <- function(quiet = FALSE) {
 }
 
 findServer <- function(server = NULL,
+                       local = TRUE,
                        error_call = caller_env()) {
 
   if (!is.null(server)) {
@@ -121,7 +122,7 @@ findServer <- function(server = NULL,
     }
     server
   } else {
-    existing <- servers(local = TRUE)
+    existing <- servers(local = local)
 
     if (length(existing) == 0 || nrow(existing) == 0) {
       cli::cli_abort("No local servers have been registered")
