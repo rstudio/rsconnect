@@ -1,27 +1,21 @@
-
 # These functions are intended to be called primarily by the RStudio IDE.
 
-# attempts to validate a server URL by hitting a known configuration endpoint
-# (which does not require authentication). returns a list containing (valid =
-# TRUE) and server settings, or a list containing (valid = FALSE) and an error
-# message.
-#
-# the URL may be specified with or without the protocol and port; this function
-# will try both http and https and follow any redirects given by the server.
+# This function is poorly named because as well as validating the server
+# url it will also register the server if needed.
 validateServerUrl <- function(url, certificate = NULL) {
-
   valid <- validateConnectUrl(url, certificate)
 
   if (valid$ok)  {
-    c(
-      list(valid = TRUE, url = valid$url, name = findLocalServer(url)),
-      valid$response
-    )
+    name <- findAndRegisterLocalServer(url)
+    c(list(valid = TRUE, url = valid$url, name = name), valid$response)
   } else {
     valid
   }
 }
 
+# Validate a connect server URL by hitting a known configuration endpoint
+# The URL may be specified with or without the protocol and port; this function
+# will try both http and https and follow any redirects given by the server.
 validateConnectUrl <- function(url, certificate = NULL) {
   tryAllProtocols <- TRUE
 
@@ -106,13 +100,10 @@ validateConnectUrl <- function(url, certificate = NULL) {
 # given a server URL, returns that server's short name. if the server is not
 # currently registered, the server is registered and the short name of the newly
 # registered server is returned.
-findLocalServer <- function(url) {
-  # make sure the url has the current API suffix
-  url <- ensureConnectServerUrl(url)
-
+findAndRegisterLocalServer <- function(url) {
   # helper to find a server given its URL
   findServerByUrl <- function(name) {
-    allServers <- as.data.frame(rsconnect::servers(local = TRUE))
+    allServers <- rsconnect::servers(local = TRUE)
     match <- allServers[allServers$url == url, , drop = FALSE]
     if (nrow(match) == 0)
       NULL
