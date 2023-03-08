@@ -275,8 +275,9 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 
+  isCloudServer <- isCloudServer(target$server)
   # test for compatibility between account type and publish intent
-  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+  if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
@@ -324,18 +325,26 @@ deployApp <- function(appDir = getwd(),
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+    logger("Inferring App mode and parameters")
+    appMetadata <- appMetadata(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto,
+      contentCategory = contentCategory,
+      isCloudServer = isCloudServer,
+      metadata = metadata
+    )
+
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
       appName = target$appName,
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc,
-      contentCategory = contentCategory,
+      appMetadata = appMetadata,
       verbose = verbose,
       pythonConfig = pythonConfig,
-      quarto = quarto,
-      isCloudServer = isCloudServer(accountDetails$server),
-      metadata = metadata,
+      isCloudServer = isCloudServer,
       image = image
     )
     taskComplete(quiet, "Bundling complete")
@@ -454,26 +463,12 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 bundleApp <- function(appName,
                       appDir,
                       appFiles,
-                      appPrimaryDoc,
-                      contentCategory = NULL,
+                      appMetadata,
                       verbose = FALSE,
                       pythonConfig = NULL,
-                      quarto = NULL,
                       isCloudServer = FALSE,
-                      metadata = list(),
                       image = NULL) {
   logger <- verboseLogger(verbose)
-
-  logger("Inferring App mode and parameters")
-  appMetadata <- appMetadata(
-    appDir = appDir,
-    appFiles = appFiles,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    contentCategory = contentCategory,
-    isCloudServer = isCloudServer,
-    metadata = metadata
-  )
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -493,16 +488,11 @@ bundleApp <- function(appName,
   logger("Generate manifest.json")
   manifest <- createAppManifest(
     appDir = bundleDir,
-    appMode = appMetadata$appMode,
-    contentCategory = contentCategory,
-    hasParameters = appMetadata$hasParameters,
-    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    appMetadata = appMetadata,
     users = users,
     pythonConfig = pythonConfig,
-    documentsHavePython = appMetadata$documentsHavePython,
     retainPackratDirectory = TRUE,
-    quartoInfo = appMetadata$quartoInfo,
-    isCloud = isCloudServer,
+    isCloudServer = isCloudServer,
     image = image,
     verbose = verbose
   )

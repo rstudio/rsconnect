@@ -54,6 +54,7 @@ appMetadata <- function(appDir,
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
     hasParameters = hasParameters,
+    contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
     quartoInfo = quartoInfo
   )
