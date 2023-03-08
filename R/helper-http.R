@@ -61,3 +61,13 @@ test_http_POST_file <- function() {
   contents <- handleResponse(resp)
   expect_equal(contents$data, "1\n2\n3\n")
 }
+
+test_http_headers <- function() {
+  service <- httpbin_service()
+
+  resp <- GET(service, authInfo = list(apiKey = "abc123"), path = "get")
+  expect_equal(resp$status, 200)
+
+  contents <- handleResponse(resp)
+  expect_equal(contents$headers$Authorization, "Key abc123")
+}

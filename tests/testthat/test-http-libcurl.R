@@ -5,4 +5,5 @@ test_that("basic HTTP methods work", {
   test_http_POST_JSON()
   test_http_POST_empty()
   test_http_POST_file()
+  test_http_headers()
 })
