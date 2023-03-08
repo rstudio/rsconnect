@@ -294,7 +294,7 @@ deployApp <- function(appDir = getwd(),
       target$appName,
       target$appTitle,
       "shiny",
-      accountInfo$accountId
+      accountDetails$accountId
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
