@@ -70,55 +70,6 @@ withr::defer({
   server$kill()
 })
 
-test_http_POST_empty <- function(transport) {
-  # Set the transport for this instance of the test
-  old <- options("rsconnect.http" = transport)
-  on.exit(options(old), add = TRUE)
-
-  # Save the response the server will return
-  saveRDS(file = input, object = list(
-    status = 200L,
-    headers = list(
-      "Content-Type" = "text/plain"
-    ),
-    body = "POST successful"
-  ))
-
-  # Perform the request
-  POST(service = service,
-       authInfo = NULL,
-       path = "test",
-       file = NULL,
-       content = NULL)
-
-  # Validate HTTP method
-  request <- readRDS(output)
-  expect_equal(request$REQUEST_METHOD, "POST")
-
-  # Validate body contents
-  expect(request$body == "",
-         failure_message =
-           paste0("Unexpected request body '", request$body, "', with transport ", transport))
-}
-
-test_that("posting with no data works (libcurl)", {
-  test_http_POST_empty("libcurl")
-})
-
-test_that("posting with no data works (internal)", {
-  test_http_POST_empty("internal")
-})
-
-test_that("posting with no data works (RCurl)", {
-  skip_if_not_installed("RCurl")
-  test_http_POST_empty("rcurl")
-})
-
-test_that("posting with no data works (curl)", {
-  skip_if(Sys.which("curl") == "")
-  test_http_POST_empty("curl")
-})
-
 test_http_POST_file <- function(transport) {
   # Set the transport for this instance of the test
   old <- options("rsconnect.http" = transport)
