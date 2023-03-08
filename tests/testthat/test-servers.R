@@ -41,6 +41,17 @@ test_that("normalizes connect urls", {
   expect_equal(ensureConnectServerUrl("https://myserver.com/__api__/"), expected)
 })
 
+
+# addServer ---------------------------------------------------------------
+
+test_that("addServer() normalises url", {
+  local_temp_config()
+
+  addServer("connect.rstudioservices.com", name = "connect", quiet = TRUE)
+  info <- serverInfo("connect")
+  expect_equal(info$url, "https://connect.rstudioservices.com/__api__")
+})
+
 # cloud servers -----------------------------------------------------------
 
 test_that("All hosted product names are identified as cloud", {
