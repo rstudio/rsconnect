@@ -50,7 +50,7 @@ serverNames <- function(local = FALSE) {
   if (!local) {
     names <- c(names, "shinyapps.io", "posit.cloud")
 
-    if (nrow(accounts(server = "rstudio.cloud") > 0)) {
+    if (nrow(accounts(server = "rstudio.cloud")) > 0) {
       names <- c(names, "rstudio.cloud")
     }
   }
