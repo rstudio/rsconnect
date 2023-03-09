@@ -45,7 +45,7 @@ test_that("throws useful errors when request fails", {
     req = service,
     status = 400,
     contentType = "text/html",
-    content = '<body>Failed</body>'
+    content = "<body>Failed</body>"
   )
 
   expect_snapshot(error = TRUE, {
@@ -81,5 +81,4 @@ test_that("throws useful errors when request fails with empty body", {
     handleResponse(resp_json)
     handleResponse(resp_html)
   })
-
 })
