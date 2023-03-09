@@ -258,6 +258,15 @@ httpRequestWithBody <- function(service,
   )
 }
 
+#' @param authInfo Typically an object created by `accountInfo()` augmented
+#'   with the `certificate` from the corresponding `serverInfo()`.
+#'
+#'   There are three different fields used for auth:
+#'   * `secret`: set in `setAccountInfo()`
+#'   * `private_key`: set in `connectUser()`
+#'   * `apiKey`: set in `connectApiUser()`
+#'
+#' @noRd
 httpRequest <- function(service,
                         authInfo,
                         method,
@@ -267,7 +276,7 @@ httpRequest <- function(service,
                         timeout = NULL) {
 
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders2(authInfo, method, url))
+  headers <- c(headers, authHeaders(authInfo, method, url))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
