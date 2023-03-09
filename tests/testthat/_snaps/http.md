@@ -15,49 +15,56 @@
        $ X-Auth-Signature  : chr "tqz4HGcSmuWKIGzIj42OEkwYZQzfJBdrUynlBQKSEEok2zMFZwsgEpEzU8PzpoeMEmcX5+Cr1IuDLLASz0ivAQ=="
        $ X-Content-Checksum: chr "1B2M2Y8AsgTpgAmY7PhCfg=="
 
-# throws useful errors when request fails
+# includes body in error if available
 
     Code
       handleResponse(resp_text)
     Condition
       Error:
-      ! HTTP 400
-       http://example.com/error
+      ! <http://example.com/error> failed with HTTP status 400
       Failed
     Code
       handleResponse(resp_json)
     Condition
       Error:
-      ! HTTP 400
-       http://example.com/error
+      ! <http://example.com/error> failed with HTTP status 400
       failed
     Code
       handleResponse(resp_html)
     Condition
       Error:
-      ! HTTP 400
-       http://example.com/error
+      ! <http://example.com/error> failed with HTTP status 400
       Failed
 
-# throws useful errors when request fails with empty body
+# but still gives got error if no body
 
     Code
       handleResponse(resp_text)
     Condition
       Error:
-      ! HTTP 400
-       http://example.com/error
+      ! <http://example.com/error> failed with HTTP status 400
     Code
       handleResponse(resp_json)
     Condition
       Error:
-      ! HTTP 400
-       http://example.com/error
-      Unexpected json response: 
+      ! <http://example.com/error> failed with HTTP status 400
+      Unexpected json response:
     Code
       handleResponse(resp_html)
     Condition
       Error:
-      ! HTTP 400
-       http://example.com/error
+      ! <http://example.com/error> failed with HTTP status 400
+
+# errors contain method
+
+    Code
+      GET(service, list(), path = "status/404")
+    Condition
+      Error in `GET()`:
+      ! <http://127.0.0.1:{port}/status/404> failed with HTTP status 404
+    Code
+      POST(service, list(), path = "status/403")
+    Condition
+      Error in `POST()`:
+      ! <http://127.0.0.1:{port}/status/403> failed with HTTP status 403
 

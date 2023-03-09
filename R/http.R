@@ -14,7 +14,8 @@ httpRequest <- function(service,
                         path,
                         query,
                         headers = list(),
-                        timeout = NULL) {
+                        timeout = NULL,
+                        error_call = caller_env()) {
 
   path <- buildPath(service$path, path, query)
   headers <- c(headers, authHeaders(authInfo, method, url))
@@ -32,7 +33,7 @@ httpRequest <- function(service,
     timeout = timeout,
     certificate = certificate
   )
-  handleResponse(httpResponse)
+  handleResponse(httpResponse, error_call = error_call)
 }
 
 httpRequestWithBody <- function(service,
@@ -43,7 +44,8 @@ httpRequestWithBody <- function(service,
                                 contentType = NULL,
                                 file = NULL,
                                 content = NULL,
-                                headers = list()) {
+                                headers = list(),
+                                error_call = caller_env()) {
   if ((is.null(file) && is.null(content))) {
     stop("You must specify either the file or content parameter.")
   }
@@ -74,16 +76,18 @@ httpRequestWithBody <- function(service,
     contentFile = file,
     certificate = certificate
   )
-  handleResponse(httpResponse)
+  handleResponse(httpResponse, error_call = error_call)
 }
 
-handleResponse <- function(response) {
+handleResponse <- function(response, error_call = caller_env()) {
   reportError <- function(msg) {
-    stop("HTTP ", response$status, "\n",
-      response$req$method, " ", response$req$protocol, "://",
-      response$req$host, response$req$port, response$req$path, "\n",
-      msg,
-      call. = FALSE
+    req <- response$req
+    url <- paste0(req$protocol, "://", req$host, req$port, req$path)
+
+    cli::cli_abort(
+      c("<{url}> failed with HTTP status {response$status}", msg),
+      class = c(paste0("rsconnect_http_", response$status), "rsconnect_http"),
+      call = error_call
     )
   }
 
