@@ -11,7 +11,11 @@ test_that("basic HTTP methods work", {
 test_that("can stream PUT content from disk", {
   service <- httpbin_service()
 
-  path <- withr::local_tempfile(lines = c("1", "2", "3"))
+  path <- withr::local_tempfile()
+  con <- file(path, "wb")
+  writeLines(c("1", "2", "3"), con = con)
+  close(con)
+
   resp <- PUT(
     service,
     authInfo = NULL,
