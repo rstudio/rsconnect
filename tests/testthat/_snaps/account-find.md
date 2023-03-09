@@ -33,7 +33,7 @@
     Condition
       Error:
       ! Can't find any accounts with `server` = "unknown".
-      i Available servers: "server".
+      i Known servers are "server".
     Code
       findAccount("unknown", "unknown")
     Condition
@@ -41,7 +41,7 @@
       ! Can't find account with `name` = "unknown" and `server` = "unknown"
       i Call `accounts()` to see available options.
 
-# error if ambiguous accounts
+# error if ambiguous accounts in non-interactive environment
 
     Code
       findAccount()
@@ -64,5 +64,17 @@
       Error:
       ! Found multiple accounts for `server` = "y".
       Please disambiguate by setting `account`.
-      i Available account names: "a" and "b".
+      i Known account names are "a" and "b".
+
+# prompted to pick account in interactive environment
+
+    Code
+      out <- findAccount()
+    Message
+      Found multiple accounts.
+      Which one do you want to use?
+      1: a@x
+      2: a@y
+      3: b@y
+      Selection: 2
 

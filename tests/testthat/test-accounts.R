@@ -1,10 +1,3 @@
-test_that("All hosted product names are identified as cloud", {
-  expect_true(isCloudServer("shinyapps.io"))
-  expect_true(isCloudServer("rstudio.cloud"))
-  expect_true(isCloudServer("posit.cloud"))
-  expect_false(isCloudServer("connect.internal"))
-})
-
 test_that("no accounts returns empty data frame", {
   local_temp_config()
 

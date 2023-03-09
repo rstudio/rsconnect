@@ -50,8 +50,10 @@
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
-#'   user `account`, the `server` name, or both. Use [accounts()] to see the
-#'   full list of available options.
+#'   user `account`, the `server` name, or both. If neither are supplied, and
+#'   there are multiple options, you'll be prompted to pick one.
+#'
+#'   Use [accounts()] to see the full list of available options.
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
@@ -75,9 +77,12 @@
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
 #'   [deployments()].
-#' @param forceUpdate If `TRUE`, update any previously-deployed app without
-#'   asking. If `FALSE`, ask to update. If unset, defaults to the value of
-#'   `getOption("rsconnect.force.update.apps", FALSE)`.
+#' @param forceUpdate What should happen if there's no deployment record for
+#'   the app, but there's an app with the same name on the server? If `TRUE`,
+#'   will always update the previously-deployed app. If `FALSE`, will ask
+#'   the user what to do, or fail if not in an interactive context.
+#'
+#'   Defaults to the value of `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
 #'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
@@ -258,11 +263,20 @@ deployApp <- function(appDir = getwd(),
     appTitle = appTitle,
     appId = appId,
     account = account,
-    server = server
+    server = server,
+    forceUpdate = forceUpdate
   )
+  if (is.null(target$appId)) {
+    dest <- accountId(target$username, target$server)
+    taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
+  } else {
+    dest <- accountId(target$username, target$server)
+    taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
+  }
 
+  isCloudServer <- isCloudServer(target$server)
   # test for compatibility between account type and publish intent
-  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+  if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
@@ -274,16 +288,26 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
-  # get the application to deploy (creates a new app on demand)
-  taskStart(quiet, "Looking up application on server...")
-  application <- applicationForTarget(client, accountDetails, target, forceUpdate)
+  if (is.null(target$appId)) {
+    taskStart(quiet, "Creating application on server...")
+    application <- client$createApplication(
+      target$appName,
+      target$appTitle,
+      "shiny",
+      accountDetails$accountId
+    )
+    taskComplete(quiet, "Created application with id {.val {application$id}}")
+  } else {
+    application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
+    application <- client$getApplication(target$appId)
+    taskComplete(quiet, "Found application")
+  }
   saveDeployment(
     recordPath,
     target = target,
     application = application,
     metadata = metadata
   )
-  taskComplete(quiet, "Found application with id {.val {application$id}}")
 
   # Change _visibility_ before uploading data
   if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
@@ -300,18 +324,26 @@ deployApp <- function(appDir = getwd(),
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+    logger("Inferring App mode and parameters")
+    appMetadata <- appMetadata(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto,
+      contentCategory = contentCategory,
+      isCloudServer = isCloudServer,
+      metadata = metadata
+    )
+
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
       appName = target$appName,
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc,
-      contentCategory = contentCategory,
+      appMetadata = appMetadata,
       verbose = verbose,
       pythonConfig = pythonConfig,
-      quarto = quarto,
-      isCloudServer = isCloudServer(accountDetails$server),
-      metadata = metadata,
+      isCloudServer = isCloudServer,
       image = image
     )
     taskComplete(quiet, "Bundling complete")
@@ -430,26 +462,12 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 bundleApp <- function(appName,
                       appDir,
                       appFiles,
-                      appPrimaryDoc,
-                      contentCategory = NULL,
+                      appMetadata,
                       verbose = FALSE,
                       pythonConfig = NULL,
-                      quarto = NULL,
                       isCloudServer = FALSE,
-                      metadata = list(),
                       image = NULL) {
   logger <- verboseLogger(verbose)
-
-  logger("Inferring App mode and parameters")
-  appMetadata <- appMetadata(
-    appDir = appDir,
-    appFiles = appFiles,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    contentCategory = contentCategory,
-    isCloudServer = isCloudServer,
-    metadata = metadata
-  )
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -469,16 +487,11 @@ bundleApp <- function(appName,
   logger("Generate manifest.json")
   manifest <- createAppManifest(
     appDir = bundleDir,
-    appMode = appMetadata$appMode,
-    contentCategory = contentCategory,
-    hasParameters = appMetadata$hasParameters,
-    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    appMetadata = appMetadata,
     users = users,
     pythonConfig = pythonConfig,
-    documentsHavePython = appMetadata$documentsHavePython,
     retainPackratDirectory = TRUE,
-    quartoInfo = appMetadata$quartoInfo,
-    isCloud = isCloudServer,
+    isCloudServer = isCloudServer,
     image = image,
     verbose = verbose
   )
@@ -519,45 +532,6 @@ getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
   # create the appropriate client and fetch the application
   client <- clientForAccount(accountDetails)
   client$getApplication(id)
-}
-
-applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-  # Use appId from previous deployment, if it still exists
-  if (!is.null(target$appId)) {
-    app <- client$getApplication(target$appId)
-    if (!is.null(app)) {
-      return(app)
-    }
-  }
-
-  # Otherwise, see if there's an existing app with this name
-  sameName <- getAppByName(client, accountInfo, target$appName)
-  if (!is.null(sameName)) {
-    # check that it's ok to to use it
-    if (interactive() && !forceUpdate) {
-      cli::cli_inform(paste0(
-        "There is a currently deployed app with name {.str {target$appName}}",
-        " at {.url {sameName$url}}"
-      ))
-      input <- readline("Do you want to update it? [Y/n] ")
-      if (input %in% c("y", "Y", "")) {
-        return(sameName)
-      }
-
-      cli::cli_abort(c(
-        "Each item of content must have a unique {.arg appName}.",
-        i = "Set {.arg appName} to a new value."
-      ))
-    }
-  }
-
-  # Otherwise, create a new app
-  client$createApplication(
-    target$appName,
-    target$appTitle,
-    "shiny",
-    accountInfo$accountId
-  )
 }
 
 getAppByName <- function(client, accountInfo, name) {

@@ -2,6 +2,24 @@
 
 * New `standardizeAppFiles()`, which supsersedes `listBundleFiles()`.
 
+* `addConnectServer()` has been deprecated because it does the same
+  thing as `addServer()`.
+
+* `serverInfo()` and `removeServer()` no longer require a `server` when 
+  called interactively.
+
+* `connectApiUser()` now clearly requires an `apiKey` (#741).
+
+* `deployApp()` now generates an interactive prompt to select 
+  `account`/`server` (if no previous deployments) or 
+  `appName`/`account`/`server` (if multiple previous deployments) (#691). 
+
+* `discoverServer()` has been deprecated; it never worked.
+
+* `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
+  same directory as the document.
+
+>>>>>>> 972dc8d0b47d72da36bc9149cfc510b495e89457
 * Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
   been necessary, for quite some time (#106, #109).
 

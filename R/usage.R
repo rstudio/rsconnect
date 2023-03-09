@@ -18,8 +18,6 @@ showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server =
                       usageType = "hours", from = NULL, until = NULL, interval = NULL) {
 
   accountDetails <- accountInfo(account, server)
-
-  # intialize client
   api <- clientForAccount(accountDetails)
 
   # resolve application
@@ -82,8 +80,6 @@ showMetrics <- function(metricSeries,
                         interval = NULL) {
 
   accountDetails <- accountInfo(account, server)
-
-  # intialize client
   api <- clientForAccount(accountDetails)
 
   # resolve application
@@ -125,8 +121,6 @@ showMetrics <- function(metricSeries,
 accountUsage <- function(account = NULL, server = NULL, usageType = "hours",
                          from = NULL, until = NULL, interval = NULL) {
   accountDetails <- accountInfo(account, server)
-
-  # intialize client
   api <- clientForAccount(accountDetails)
 
   # get application usage

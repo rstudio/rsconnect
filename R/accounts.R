@@ -31,125 +31,54 @@ accounts <- function(server = NULL) {
   data.frame(name = names, server = servers, stringsAsFactors = FALSE)
 }
 
-#' Connect Api User Account
+#' Register account on Posit Connect
+#
+#' @description
+#' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
+#' the rsconnect package so that it can deploy and manage applications on
+#' your behalf.
 #'
-#' Connect a user account to the package using an API key for authentication
-#' so that it can be used to deploy and manage
-#' applications on behalf of the account.
+#' `connectUser()` is the easiest place to start because it allows you to
+#' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
+#' appropriate for non-interactive settings; you'll need to copy-and-paste the
+#' API key from your account settings.
 #'
-#' @param account A name for the account to connect. Optional.
-#' @param server The server to connect to. Optional if there is only one server
-#'   registered.
-#' @param apiKey The API key used to authenticate the user
-#' @param quiet Whether or not to show messages and prompts while connecting the
-#'   account.
-#'
-#' @details This function configures the user to connect using an apiKey in
-#' the http auth headers instead of a token. This is less secure but may
-#' be necessary when the client is behind a proxy or otherwise unable to
-#' authenticate using a token.
-#'
-#' @family Account functions
-#' @export
-connectApiUser <- function(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE) {
-  # if server isn't specified, look up the default
-  if (is.null(server)) {
-    target <- getDefaultServer(local = TRUE)
-  } else {
-    target <- serverInfo(server)
-  }
-
-  if (is.null(target)) {
-    stop("You must specify a server to connect to.")
-  }
-
-  # if account is specified and we already know about the account, get the User
-  # ID so we can prefill authentication fields
-  userId <- 0
-  userAccounts <- accounts(target$name)
-  if (!is.null(account) && !is.null(userAccounts)) {
-    if (account %in% userAccounts[, "name"]) {
-      accountDetails <- accountInfo(account, target$name)
-      userId <- accountDetails$accountId
-      if (!quiet) {
-        message("The account '",  account, "' is already registered; ",
-                "attempting to reconnect it.")
-      }
-    }
-  }
-
-  user <- getAuthedUser(serverUrl = target$url,
-                        apiKey = apiKey)
-
-  if (is.null(user)) {
-    stop("Unable to fetch user data for provided API key")
-  }
-
-  # write the user info
-  registerUserApiKey(serverName = target$name,
-                    accountName = account,
-                    userId = user$id,
-                    apiKey = apiKey)
-
-  if (!quiet) {
-    message("\nAccount registered successfully: ", account)
-  }
-}
-
-#' Connect User Account
-#'
-#' Connect a user account to the package so that it can be used to deploy and
-#' manage applications on behalf of the account.
-#'
-#' @param account A name for the account to connect. Optional.
+#' @param account A name for the account to connect.
+#' @param server The server to connect to.
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called
-#'   after the app is started, with the app URL as a paramter.
-#' @param server The server to connect to. Optional if there is only one server
-#'   registered.
+#'   after the app is started, with the app URL as a parameter.
+#' @param apiKey The API key used to authenticate the user
 #' @param quiet Whether or not to show messages and prompts while connecting the
 #'   account.
-#'
-#' @details When this function is invoked, a web browser will be opened to a
-#'   page on the target server where you will be prompted to enter your
-#'   credentials. Upon successful authentication, your local installation of
-#'   \pkg{rsconnect} and your server account will be paired, and you'll
-#'   be able to deploy and manage applications using the package without further
-#'   prompts for credentials.
-#'
 #' @family Account functions
+#' @export
+connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE) {
+  server <- findServer(server)
+  user <- getAuthedUser(server, apiKey = apiKey)
+
+  registerUserApiKey(
+    serverName = server,
+    accountName = account %||% user$username,
+    userId = user$id,
+    apiKey = apiKey
+  )
+
+  if (!quiet) {
+    message("Account registered successfully: ", account %||% user$username)
+  }
+  invisible()
+}
+
+#' @rdname connectApiUser
 #' @export
 connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
-  # if server isn't specified, look up the default
-  if (is.null(server)) {
-    target <- getDefaultServer(local = TRUE)
-  } else {
-    target <- serverInfo(server)
-  }
-
-  if (is.null(target)) {
-    stop("You must specify a server to connect to.")
-  }
-
-  # if account is specified and we already know about the account, get the User
-  # ID so we can prefill authentication fields
-  userId <- 0
-  userAccounts <- accounts(target$name)
-  if (!is.null(account) && !is.null(userAccounts)) {
-    if (account %in% userAccounts[, "name"]) {
-      accountDetails <- accountInfo(account, target$name)
-      userId <- accountDetails$accountId
-      if (!quiet) {
-        message("The account '",  account, "' is already registered; ",
-                "attempting to reconnect it.")
-      }
-    }
-  }
+  server <- findServer(server)
 
   # generate a token and send it to the server
-  token <- getAuthToken(target$name)
+  token <- getAuthToken(server)
   if (!quiet) {
     message("A browser window should open; if it doesn't, you may authenticate ",
             "manually by visiting ", token$claim_url, ".")
@@ -164,10 +93,7 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   # keep trying to authenticate until we're successful
   repeat {
     Sys.sleep(1)
-    user <- getAuthedUser(serverUrl = target$url,
-                          token = token$token,
-                          privateKey = token$private_key,
-                          serverCertificate = target$certificate)
+    user <- getAuthedUser(server, token = token)
     if (!is.null(user))
       break
   }
@@ -189,20 +115,22 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
     }
   }
 
-  # write the user info
-  registerUserToken(serverName = target$name,
-                    accountName = user$username,
-                    userId = user$id,
-                    token = token$token,
-                    privateKey = token$private_key)
+  registerUserToken(
+    serverName = server,
+    accountName = user$username,
+    userId = user$id,
+    token = token$token,
+    privateKey = token$private_key
+  )
 
   if (!quiet) {
     message("Account registered successfully: ", user$first_name, " ",
             user$last_name, " (", user$username, ")")
   }
+  invisible()
 }
 
-#' Set ShinyApps or Posit Cloud Account Info
+#' Register account on shinyapps.io or posit.cloud
 #'
 #' Configure a ShinyApps or Posit Cloud account for publishing from this system.
 #'
@@ -223,32 +151,21 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
 #'
 #' @family Account functions
 #' @export
-setAccountInfo <- function(name, token, secret,
-                           server = "shinyapps.io") {
-
+setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(name)
   check_string(token)
   check_string(secret)
   check_string(server)
 
-  # create connect client
-  if (identical(server, cloudServerInfo(server)$name)) {
-    serverInfo <- cloudServerInfo(server)
-  } else {
-    serverInfo <- shinyappsServerInfo()
-  }
-  authInfo <- list(token = token,
-                   secret = secret,
-                   certificate = serverInfo$certificate,
-                   server = serverInfo$name)
-  lucid <- lucidClientForAccount(authInfo)
+  account <- list(token = token, secret = secret, server = server)
+  client <- clientForAccount(account)
 
   # get user Id
-  userId <- lucid$currentUser()$id
+  userId <- client$currentUser()$id
 
   # get account id
   accountId <- NULL
-  accounts <- lucid$accountsForUser(userId)
+  accounts <- client$accountsForUser(userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
       accountId <- account$id
@@ -338,24 +255,21 @@ removeAccount <- function(name = NULL, server = NULL) {
 #    from the server a URL at which the token can be claimed
 # 3) returns the token ID, private key, and claim URL
 getAuthToken <- function(server, userId = 0) {
-  if (missing(server) || is.null(server)) {
-    stop("You must specify a server to connect to.")
-  }
-  target <- serverInfo(server)
-
   # generate a token and push it to the server
   token <- generateToken()
-  connect <- connectClient(service = target$url,
-                           authInfo = list(certificate = target$certificate))
-  response <- connect$addToken(list(token = token$token,
-                                    public_key = token$public_key,
-                                    user_id = as.integer(userId)))
+  client <- clientForAccount(list(server = server))
+  response <- client$addToken(list(
+    token = token$token,
+    public_key = token$public_key,
+    user_id = as.integer(userId)
+  ))
 
   # return the generated token and the information needed to claim it
   list(
     token = token$token,
-    private_key = token$private_key,
-    claim_url = response$token_claim_url)
+    private_key = secret(token$private_key),
+    claim_url = response$token_claim_url
+  )
 }
 
 # given a server URL and auth parameters, return the user
@@ -364,27 +278,25 @@ getAuthToken <- function(server, userId = 0) {
 #
 # this function is used by the RStudio IDE as part of the workflow which
 # attaches a new Connect account.
-getAuthedUser <- function(serverUrl,
-                          token = NULL,
-                          privateKey = NULL,
-                          serverCertificate = NULL,
-                          apiKey = NULL) {
-  authInfo <- NULL
-  if (!is.null(apiKey)) {
-    authInfo <- list(apiKey = apiKey)
-  } else {
-    authInfo <- list(token = token,
-                     private_key = as.character(privateKey),
-                     certificate = serverCertificate)
+getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
+  if (!xor(is.null(token), is.null(apiKey))) {
+    cli::cli_abort("Must supply exactly one of {.arg token} and {.arg apiKey}")
   }
 
-  # form a temporary client from the authInfo
-  connect <- connectClient(service = ensureConnectServerUrl(serverUrl), authInfo)
+  account <- list(server = server)
+  if (!is.null(apiKey)) {
+    account$apiKey <- apiKey
+  } else {
+    account$token <- token$token
+    account$private_key <- token$private_key
+  }
+
+  client <- clientForAccount(account)
 
   # attempt to fetch the user
   user <- NULL
   tryCatch({
-    user <- connect$currentUser()
+    user <- client$currentUser()
   }, error = function(e) {
     if (length(grep("HTTP 500", e$message)) == 0) {
       stop(e)
@@ -400,10 +312,12 @@ getUserFromRawToken <- function(serverUrl,
                                 token,
                                 privateKey,
                                 serverCertificate = NULL) {
-  getAuthedUser(serverUrl = serverUrl,
-                token = token,
-                privateKey = privateKey,
-                serverCertificate = serverCertificate)
+
+  # Look up server name from url
+  servers <- server()
+  server <- servers$name[servers$url == serverUrl]
+
+  getAuthedUser(server, token = list(token = token, private_key = privateKey))
 }
 
 registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
@@ -442,11 +356,6 @@ missingAccountErrorMessage <- function(name) {
   paste("account named '", name, "' does not exist", sep = "")
 }
 
-isCloudServer <- function(server) {
-  identical(server, "shinyapps.io") ||
-    identical(server, cloudServerInfo(server)$name)
-}
-
 isShinyappsServer <- function(server) {
   identical(server, "shinyapps.io")
 }
@@ -482,28 +391,6 @@ accountInfoFromHostUrl <- function(hostUrl) {
   # return account info from the first one
   return(accountInfo(name = as.character(account[1, "name"]),
                      server = server))
-}
-
-
-secret <- function(x) {
-  stopifnot(is.character(x))
-  structure(x, class = "rsconnect_secret")
-}
-
-#' @export
-format.rsconnect_secret <- function(x, ...) {
-  paste0(substr(x, 1, 6), "... (redacted)")
-}
-
-#' @export
-print.rsconnect_secret <- function(x, ...) {
-  print(format(x))
-  invisible(x)
-}
-
-#' @export
-str.rsconnect_secret <- function(object, ...) {
-  cat(" ", format(object), "\n", sep = "")
 }
 
 accountId <- function(account, server) {

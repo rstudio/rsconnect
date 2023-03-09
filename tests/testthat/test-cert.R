@@ -1,13 +1,11 @@
 test_that("certificates can be saved", {
   local_temp_config()
-  local_http_recorder()
 
   # add a server with a sample certificate
-  addServer(
+  addTestServer(
     url = "https://localhost:4567/",
     name = "cert_test_a",
-    certificate = test_path("certs/sample.crt"),
-    quiet = TRUE
+    certificate = test_path("certs/sample.crt")
   )
 
   # read it back
@@ -15,21 +13,14 @@ test_that("certificates can be saved", {
 
   # compare with the contents of the cert we read
   certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
-  expect_equal(certLines, info$certificate)
+  expect_equal(info$certificate, secret(certLines))
 })
 
 test_that("certificates can be added", {
   local_temp_config()
-  local_http_recorder()
 
-  # add a server without a certificate
-  addServer(
-    url = "https://localhost:4567/",
-    name = "cert_test_b",
-    quiet = TRUE
-  )
-
-  # add the certificate
+  # add a server without a certificate then add the certificate
+  addTestServer(url = "https://localhost:4567/", name = "cert_test_b")
   addServerCertificate(
     name = "cert_test_b",
     certificate = test_path("certs/sample.crt"),
@@ -41,19 +32,18 @@ test_that("certificates can be added", {
 
   # see if the cert we added is there
   certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
-  expect_equal(certLines, info$certificate)
+  expect_equal(info$certificate, secret(certLines))
 })
 
 test_that("certificates can't be attached to plain http servers", {
   local_temp_config()
-  local_http_recorder()
 
-  expect_error(addServer(
+  expect_error(addTestServer(
     url = "http://localhost:4567",
     name = "cert_test_c",
     certificate = test_path("certs/sample.crt")
   ))
-  addServer(url = "http://localhost:4567", name = "cert_test_d", quiet = TRUE)
+  addTestServer(url = "http://localhost:4567", name = "cert_test_d")
   expect_error(addServerCertificate(
     name = "cert_test_d",
     certificate = test_path("certs/sample.crt")
@@ -62,7 +52,6 @@ test_that("certificates can't be attached to plain http servers", {
 
 test_that("system and server cert stores are concatenated", {
   local_temp_config()
-  local_http_recorder()
 
   # use a dummy CA bundle
   withr::local_options(rsconnect.ca.bundle = test_path("certs/store.crt"))
@@ -80,25 +69,21 @@ test_that("system and server cert stores are concatenated", {
 
 test_that("invalid certificates cannot be added", {
   local_temp_config()
-  local_http_recorder()
 
-  expect_error(addServer(
+  expect_error(addTestServer(
     url = "https://localhost:4567/",
     name = "cert_test_e",
-    certificate = test_path("certs/invalid.crt"),
-    quiet = TRUE
+    certificate = test_path("certs/invalid.crt")
   ))
 })
 
 test_that("multiple certificates can exist in the same file", {
   local_temp_config()
-  local_http_recorder()
 
-  addServer(
+  addTestServer(
     url = "https://localhost:4567/",
     name = "cert_test_f",
-    certificate = test_path("certs/two-cas.crt"),
-    quiet = TRUE
+    certificate = test_path("certs/two-cas.crt")
   )
 
   # read it back
@@ -106,7 +91,7 @@ test_that("multiple certificates can exist in the same file", {
 
   # compare with the contents of the cert we read
   certLines <- paste(readLines(test_path("certs/two-cas.crt")), collapse = "\n")
-  expect_equal(certLines, info$certificate)
+  expect_equal(info$certificate, secret(certLines))
 })
 
 test_that("certificates not used when making plain http connections", {

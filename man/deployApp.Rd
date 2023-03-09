@@ -72,8 +72,10 @@ this as it will be automatically taken from the deployment record on disk.}
 \code{"plot"} or \code{"site"}).}
 
 \item{account, server}{Uniquely identify a remote server with either your
-user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
-full list of available options.}
+user \code{account}, the \code{server} name, or both. If neither are supplied, and
+there are multiple options, you'll be prompted to pick one.
+
+Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
@@ -105,9 +107,12 @@ potentially problematic code?}
 record. These fields will be returned on subsequent calls to
 \code{\link[=deployments]{deployments()}}.}
 
-\item{forceUpdate}{If \code{TRUE}, update any previously-deployed app without
-asking. If \code{FALSE}, ask to update. If unset, defaults to the value of
-\code{getOption("rsconnect.force.update.apps", FALSE)}.}
+\item{forceUpdate}{What should happen if there's no deployment record for
+the app, but there's an app with the same name on the server? If \code{TRUE},
+will always update the previously-deployed app. If \code{FALSE}, will ask
+the user what to do, or fail if not in an interactive context.
+
+Defaults to the value of \code{getOption("rsconnect.force.update.apps", FALSE)}.}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 Required if \code{reticulate} is a dependency of the app being deployed.
