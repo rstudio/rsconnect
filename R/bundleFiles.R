@@ -2,23 +2,24 @@
 #'
 #' @description
 #' Given an app directory, and optional `appFiles` and `appFileManifest`
-#' arguments, returns vector of paths to bundle in the app.
+#' arguments, returns vector of paths to bundle in the app. (Note that
+#' documents follow a different strategy; see [deployDoc()] for details.)
 #'
 #' When neither `appFiles` nor `appFileManifest` is supplied,
 #' `listDeploymentFiles()` will include all files under `appDir`, apart
 #' from the following:
 #'
 #' *  Certain files and folders that don't need to be bundled, such as
-#'    like version control, internal config, and RStudio state, are
-#'    automatically excluded.
+#'    version control directories, internal config files, and RStudio state,
+#'    are automatically excluded.
 #'
 #' *  You can exclude additional files by listing them in in a `.rscignore`
 #'    file. This file must have one file or directory per line (with path
 #'    relative to the current directory). It doesn't support wildcards, or
 #'    ignoring files in subdirectories.
 #'
-#' `listDeploymentFiles()` will error if the total file size exceeds the
-#' maximum bundle size (as controlled by option `rsconnect.max.bundle.size`),
+#' `listDeploymentFiles()` will throw an error if the total file size exceeds
+#' the maximum bundle size (as controlled by option `rsconnect.max.bundle.size`),
 #' or the number of files exceeds the maximum file limit (as controlled by
 #' option `rsconnect.max.bundle.files`). This prevents you from accidentally
 #' bundling a very large direcfory (i.e. you home directory).

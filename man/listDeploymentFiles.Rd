@@ -30,23 +30,24 @@ Character of paths to bundle, relative to \code{appDir}.
 }
 \description{
 Given an app directory, and optional \code{appFiles} and \code{appFileManifest}
-arguments, returns vector of paths to bundle in the app.
+arguments, returns vector of paths to bundle in the app. (Note that
+documents follow a different strategy; see \code{\link[=deployDoc]{deployDoc()}} for details.)
 
 When neither \code{appFiles} nor \code{appFileManifest} is supplied,
 \code{listDeploymentFiles()} will include all files under \code{appDir}, apart
 from the following:
 \itemize{
 \item Certain files and folders that don't need to be bundled, such as
-like version control, internal config, and RStudio state, are
-automatically excluded.
+version control directories, internal config files, and RStudio state,
+are automatically excluded.
 \item You can exclude additional files by listing them in in a \code{.rscignore}
 file. This file must have one file or directory per line (with path
 relative to the current directory). It doesn't support wildcards, or
 ignoring files in subdirectories.
 }
 
-\code{listDeploymentFiles()} will error if the total file size exceeds the
-maximum bundle size (as controlled by option \code{rsconnect.max.bundle.size}),
+\code{listDeploymentFiles()} will throw an error if the total file size exceeds
+the maximum bundle size (as controlled by option \code{rsconnect.max.bundle.size}),
 or the number of files exceeds the maximum file limit (as controlled by
 option \code{rsconnect.max.bundle.files}). This prevents you from accidentally
 bundling a very large direcfory (i.e. you home directory).
