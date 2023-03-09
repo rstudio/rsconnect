@@ -196,7 +196,6 @@ deployApp <- function(appDir = getwd(),
       what = "deployApp(appSourceDoc)",
       with = "deployApp(recordDir)",
     )
-    check_directory(appSourceDoc)
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
     check_file(recordDir)
