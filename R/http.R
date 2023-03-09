@@ -14,7 +14,8 @@ httpRequest <- function(service,
                         path,
                         query,
                         headers = list(),
-                        timeout = NULL) {
+                        timeout = NULL,
+                        error_call = caller_env()) {
 
   path <- buildPath(service$path, path, query)
   headers <- c(headers, authHeaders(authInfo, method, path))
@@ -22,7 +23,7 @@ httpRequest <- function(service,
 
   # perform request
   http <- httpFunction()
-  http(
+  httpResponse <- http(
     protocol = service$protocol,
     host = service$host,
     port = service$port,
@@ -32,6 +33,7 @@ httpRequest <- function(service,
     timeout = timeout,
     certificate = certificate
   )
+  handleResponse(httpResponse, error_call = error_call)
 }
 
 httpRequestWithBody <- function(service,
@@ -42,7 +44,8 @@ httpRequestWithBody <- function(service,
                                 contentType = NULL,
                                 file = NULL,
                                 content = NULL,
-                                headers = list()) {
+                                headers = list(),
+                                error_call = caller_env()) {
   if ((is.null(file) && is.null(content))) {
     stop("You must specify either the file or content parameter.")
   }
@@ -62,7 +65,7 @@ httpRequestWithBody <- function(service,
 
   # perform request
   http <- httpFunction()
-  http(
+  httpResponse <- http(
     protocol = service$protocol,
     host = service$host,
     port = service$port,
@@ -73,6 +76,65 @@ httpRequestWithBody <- function(service,
     contentFile = file,
     certificate = certificate
   )
+  handleResponse(httpResponse, error_call = error_call)
+}
+
+handleResponse <- function(response, error_call = caller_env()) {
+  reportError <- function(msg) {
+    req <- response$req
+    url <- paste0(req$protocol, "://", req$host, req$port, req$path)
+
+    cli::cli_abort(
+      c("<{url}> failed with HTTP status {response$status}", msg),
+      class = c(paste0("rsconnect_http_", response$status), "rsconnect_http"),
+      call = error_call
+    )
+  }
+
+  if (isContentType(response, "application/json")) {
+    # parse json responses
+    if (nzchar(response$content)) {
+      json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
+    } else {
+      json <- list()
+    }
+
+    if (response$status %in% 200:399) {
+      out <- json
+    } else if (!is.null(json$error)) {
+      reportError(json$error)
+    } else {
+      reportError(paste("Unexpected json response:", response$content))
+    }
+  } else if (isContentType(response, "text/html")) {
+    # extract body of html responses
+    body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
+    if (response$status >= 200 && response$status < 400) {
+      # Good response, return the body if we have one, or the content if not
+      if (!is.null(body)) {
+        out <- body
+      } else {
+        out <- response$content
+      }
+    } else {
+      # Error response
+      if (!is.null(body)) {
+        reportError(body)
+      } else {
+        reportError(response$content)
+      }
+    }
+  } else {
+    # otherwise just dump the whole thing
+    if (response$status %in% 200:399) {
+      out <- response$content
+    } else {
+      reportError(response$content)
+    }
+  }
+
+  attr(out, "httpResponse") <- response
+  out
 }
 
 # Wrappers for HTTP methods -----------------------------------------------

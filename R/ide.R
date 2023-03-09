@@ -47,11 +47,12 @@ validateConnectUrl <- function(url, certificate = NULL) {
   retry <- TRUE
   while (retry) {
     tryCatch({
-      httpResponse <- GET(parseHttpUrl(url),
+      response <- GET(parseHttpUrl(url),
                           list(certificate = certificate),
                           settingsEndpoint,
                           timeout = getOption("rsconnect.http.timeout", 10))
 
+      httpResponse <- attr(response, "httpResponse")
       # check for redirect
       if (httpResponse$status == 307 &&
           !is.null(httpResponse$location)) {
@@ -65,7 +66,6 @@ validateConnectUrl <- function(url, certificate = NULL) {
         }
         next
       }
-      response <- handleResponse(httpResponse)
       if (!isContentType(httpResponse, "application/json")) {
         response <- NULL
         errMessage <- "Endpoint did not return JSON"

@@ -27,6 +27,8 @@ httpTestRecorder <- function(protocol,
     writer = writer,
     timeout = timeout
   )
+
+  list(status = 200, content = "", contentType = "plain/text")
 }
 
 local_http_recorder <- function(env = caller_env()) {

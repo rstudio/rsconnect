@@ -290,21 +290,14 @@ getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
     account$token <- token$token
     account$private_key <- token$private_key
   }
-
   client <- clientForAccount(account)
 
-  # attempt to fetch the user
-  user <- NULL
-  tryCatch({
-    user <- client$currentUser()
-  }, error = function(e) {
-    if (length(grep("HTTP 500", e$message)) == 0) {
-      stop(e)
-    }
-  })
-
-  # return the user we found
-  user
+  # server returns 500 "Token is unclaimed error" while waiting for
+  # interactive auth to complete
+  tryCatch(
+    client$currentUser(),
+    rsconnect_http_500 = function(err) NULL
+  )
 }
 
 # passthrough function for compatibility with old IDE versions

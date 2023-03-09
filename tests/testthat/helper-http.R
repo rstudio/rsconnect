@@ -17,11 +17,9 @@ test_http_GET <- function() {
 
   # Perform the request
   resp <- GET(service, authInfo = NULL, path = "get")
-  expect_equal(resp$status, 200)
-  expect_equal(resp$contentType, "application/json")
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$path, "/get")
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(attr(resp, "httpResponse")$contentType, "application/json")
+  expect_equal(resp$path, "/get")
 }
 
 test_http_POST_JSON <- function() {
@@ -29,20 +27,16 @@ test_http_POST_JSON <- function() {
 
   body <- list(a = 1, b = 2, c = 3)
   resp <- POST_JSON(service, authInfo = NULL, path = "post", json = body)
-  expect_equal(resp$status, 200)
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$json, body)
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(resp$json, body)
 }
 
 test_http_POST_empty <- function() {
   service <- httpbin_service()
 
   resp <- POST(service, authInfo = NULL, path = "post")
-  expect_equal(resp$status, 200)
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$json, set_names(list()))
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(resp$json, set_names(list()))
 }
 
 test_http_POST_file <- function() {
@@ -60,24 +54,18 @@ test_http_POST_file <- function() {
     contentType = "text/plain",
     file = path
   )
-  expect_equal(resp$status, 200)
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$data, "1\n2\n3\n")
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(resp$data, "1\n2\n3\n")
 }
 
 test_http_headers <- function() {
   service <- httpbin_service()
 
   resp <- GET(service, authInfo = list(apiKey = "abc123"), path = "get")
-  expect_equal(resp$status, 200)
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$headers$Authorization, "Key abc123")
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(resp$headers$Authorization, "Key abc123")
 
   resp <- POST(service, authInfo = list(apiKey = "abc123"), path = "post")
-  expect_equal(resp$status, 200)
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$headers$Authorization, "Key abc123")
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(resp$headers$Authorization, "Key abc123")
 }
