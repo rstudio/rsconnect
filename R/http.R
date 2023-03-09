@@ -78,63 +78,60 @@ httpRequestWithBody <- function(service,
 }
 
 handleResponse <- function(response, jsonFilter = NULL) {
-
-  # function to report errors
   reportError <- function(msg) {
     stop("HTTP ", response$status, "\n",
-         response$req$method, " ",  response$req$protocol, "://",
-         response$req$host, response$req$port, response$req$path, "\n",
-         msg, call. = FALSE)
+      response$req$method, " ", response$req$protocol, "://",
+      response$req$host, response$req$port, response$req$path, "\n",
+      msg,
+      call. = FALSE
+    )
   }
 
-  # json responses
   if (isContentType(response, "application/json")) {
-
+    # parse json responses
     if (nzchar(response$content)) {
       json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
     } else {
       json <- list()
     }
 
-    if (response$status %in% 200:399)
-      if (!is.null(jsonFilter))
+    if (response$status %in% 200:399) {
+      if (!is.null(jsonFilter)) {
         out <- jsonFilter(json)
-      else
+      } else {
         out <- json
-    else if (!is.null(json$error))
+      }
+    } else if (!is.null(json$error)) {
       reportError(json$error)
-    else
+    } else {
       reportError(paste("Unexpected json response:", response$content))
-  }
-
-  # for html responses we can attempt to extract the body
-  else if (isContentType(response, "text/html")) {
-
+    }
+  } else if (isContentType(response, "text/html")) {
+    # extract body of html responses
     body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
     if (response$status >= 200 && response$status < 400) {
       # Good response, return the body if we have one, or the content if not
       if (!is.null(body)) {
         out <- body
-      } else{
+      } else {
         out <- response$content
       }
     } else {
       # Error response
-      if (!is.null(body))
+      if (!is.null(body)) {
         reportError(body)
-      else
+      } else {
         reportError(response$content)
+      }
+    }
+  } else {
+    # otherwise just dump the whole thing
+    if (response$status %in% 200:399) {
+      out <- response$content
+    } else {
+      reportError(response$content)
     }
   }
-
-  # otherwise just dump the whole thing
-  else {
-    if (response$status %in% 200:399)
-      out <- response$content
-    else
-      reportError(response$content)
-  }
-
 
   attr(out, "httpResponse") <- response
   out
