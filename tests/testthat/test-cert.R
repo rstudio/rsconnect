@@ -1,6 +1,5 @@
 test_that("certificates can be saved", {
   local_temp_config()
-  local_http_recorder()
 
   # add a server with a sample certificate
   addTestServer(
@@ -19,7 +18,6 @@ test_that("certificates can be saved", {
 
 test_that("certificates can be added", {
   local_temp_config()
-  local_http_recorder()
 
   # add a server without a certificate then add the certificate
   addTestServer(url = "https://localhost:4567/", name = "cert_test_b")
@@ -39,7 +37,6 @@ test_that("certificates can be added", {
 
 test_that("certificates can't be attached to plain http servers", {
   local_temp_config()
-  local_http_recorder()
 
   expect_error(addTestServer(
     url = "http://localhost:4567",
@@ -55,7 +52,6 @@ test_that("certificates can't be attached to plain http servers", {
 
 test_that("system and server cert stores are concatenated", {
   local_temp_config()
-  local_http_recorder()
 
   # use a dummy CA bundle
   withr::local_options(rsconnect.ca.bundle = test_path("certs/store.crt"))
@@ -73,7 +69,6 @@ test_that("system and server cert stores are concatenated", {
 
 test_that("invalid certificates cannot be added", {
   local_temp_config()
-  local_http_recorder()
 
   expect_error(addTestServer(
     url = "https://localhost:4567/",
@@ -84,7 +79,6 @@ test_that("invalid certificates cannot be added", {
 
 test_that("multiple certificates can exist in the same file", {
   local_temp_config()
-  local_http_recorder()
 
   addTestServer(
     url = "https://localhost:4567/",
