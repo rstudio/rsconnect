@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `addConnectServer()` has been deprecated because it does the same
+  thing as `addServer()`.
+
 * `serverInfo()` and `removeServer()` no longer require a `server` when 
   called interactively.
 
