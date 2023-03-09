@@ -2,27 +2,15 @@ test_that("non-R apps don't have packages", {
   app_dir <- withr::local_tempdir()
   out <- bundlePackages(app_dir, appMode = "static")
   expect_equal(out, list())
-
-  out <- bundlePackages(app_dir, appMode = "", quartoInfo = list(engines = "blather"))
-  expect_equal(out, list())
 })
 
 test_that("returns list of package details", {
-  app_dir <- withr::local_tempdir()
-  out <- bundlePackages(app_dir, appMode = "api", hasParameters = TRUE)
-
+  app_dir <- local_temp_app(list("foo.Rmd" = ""))
+  out <- bundlePackages(app_dir)
   expect_type(out, "list")
 
   common <- c("Source", "Repository", "description")
   expect_equal(setdiff(common, names(out[[1]])), character())
-})
-
-test_that("includes inferred dependencies", {
-  app_dir <- withr::local_tempdir()
-  out <- bundlePackages(app_dir, appMode = "rmd-static", hasParameters = TRUE)
-
-  expect_true("rmarkdown" %in% names(out))
-  expect_true("shiny" %in% names(out))
 })
 
 test_that("recommended packages are snapshotted", {
@@ -32,7 +20,7 @@ test_that("recommended packages are snapshotted", {
     "library(MASS)",
     "```"
   ))
-  out <- bundlePackages(app_dir, appMode = "rmd-static", hasParameters = TRUE)
+  out <- bundlePackages(app_dir)
   expect_true("MASS" %in% names(out))
 })
 
@@ -96,18 +84,4 @@ test_that("cleans up implicit dependency files", {
   dir <- withr::local_tempdir()
   addPackratSnapshot(dir, "rlang")
   expect_equal(list.files(dir), "packrat")
-})
-
-test_that("infers correct packages for each source", {
-  # Simple regression test in preparation for refactoring
-  expect_snapshot({
-    inferRPackageDependencies("rmd-static")
-    inferRPackageDependencies("rmd-static", TRUE)
-    inferRPackageDependencies("quarto-static")
-    inferRPackageDependencies("quarto-shiny")
-    inferRPackageDependencies("rmd-shiny")
-    inferRPackageDependencies("shiny")
-    inferRPackageDependencies("api")
-    inferRPackageDependencies("api", documentsHavePython = TRUE)
-  })
 })

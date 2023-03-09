@@ -27,7 +27,8 @@ repo.
 \code{appDependencies()} recursively detects all R package dependencies for an
 application by parsing all \code{.R} and \code{.Rmd} files and looking for calls
 to \code{library()}, \code{require()}, \code{requireNamespace()}, \code{::}, and so on.
-It then adds all recursive dependencies to create a complete manifest of
+It then adds implicit dependencies (i.e. an \code{.Rmd} requires Rmarkdown)
+and adds all recursive dependencies to create a complete manifest of
 package packages need to be installed to run the app.
 }
 \section{Remote installation}{

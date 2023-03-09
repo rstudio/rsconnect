@@ -1,29 +1,12 @@
-bundlePackages <- function(appDir,
+bundlePackages <- function(bundleDir,
                            appMode,
-                           hasParameters = FALSE,
-                           documentsHavePython = FALSE,
-                           quartoInfo = NULL,
+                           extraPackages = character(),
                            verbose = FALSE,
-                           error_call = caller_env()
-                           ) {
-  if (appMode %in% c("static", "tensorflow-saved-model")) {
+                           error_call = caller_env()) {
+  deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
+  if (nrow(deps) == 0) {
     return(list())
   }
-
-  # Skip snapshotting R dependencies if an app does not use R. Some
-  # dependencies seem to be found based on the presence of Bioconductor
-  # packages in the user's environment.
-  if (!appUsesR(quartoInfo)) {
-    return(list())
-  }
-
-  # detect dependencies including inferred dependencies
-  inferredRDependencies <- inferRPackageDependencies(
-    appMode = appMode,
-    hasParameters = hasParameters,
-    documentsHavePython = documentsHavePython
-  )
-  deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
   checkBundlePackages(deps, call = error_call)
 
   deps$description <- lapply(deps$Package, function(nm) {
@@ -73,36 +56,6 @@ checkBundlePackages <- function(deps, call = caller_env()) {
     )
   }
 }
-
-## check for extra dependencies uses
-inferRPackageDependencies <- function(appMode,
-                                      hasParameters = FALSE,
-                                      documentsHavePython = FALSE) {
-  deps <- switch(appMode,
-    "rmd-static" = c("rmarkdown", if (hasParameters) "shiny"),
-    "quarto-static" = "rmarkdown",
-    "quarto-shiny" = c("rmarkdown", "shiny"),
-    "rmd-shiny" = c("rmarkdown", "shiny"),
-    "shiny" = "shiny",
-    "api" = "plumber"
-  )
-  if (documentsHavePython) {
-    deps <- c(deps, "reticulate")
-  }
-  deps
-}
-
-appUsesR <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # All non-Quarto content currently uses R by default.
-    # To support non-R content in rsconnect, we could inspect appmode here.
-    return(TRUE)
-  }
-  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
-  # Technically, "jupyter" content could support R.
-  return("knitr" %in% quartoInfo[["engines"]])
-}
-
 
 preservePackageDescriptions <- function(bundleDir) {
   # Copy all the DESCRIPTION files we're relying on into packrat/desc.

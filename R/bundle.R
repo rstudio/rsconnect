@@ -114,15 +114,17 @@ createAppManifest <- function(appDir,
                               image = NULL,
                               verbose = FALSE) {
 
-  # provide package entries for all dependencies
-  packages <- bundlePackages(
-    appDir = appDir,
-    appMode = appMetadata$appMode,
-    hasParameters = appMetadata$hasParameters,
-    documentsHavePython = appMetadata$documentsHavePython,
-    quartoInfo = appMetadata$quartoInfo,
-    verbose = verbose
-  )
+  if (needsR(appMetadata)) {
+    extraPackages <- inferRPackageDependencies(appMetadata)
+    # provide package entries for all dependencies
+    packages <- bundlePackages(
+      bundleDir = appDir,
+      extraPackages = extraPackages,
+      verbose = verbose
+    )
+  } else {
+    packages <- list()
+  }
 
   needsPython <- appMetadata$documentsHavePython ||
     "jupyter" %in% appMetadata$quartoInfo$engines ||
