@@ -391,6 +391,7 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
   }
 }
 
+# https://github.com/rstudio/connect/wiki/token-authentication#request-signing-rsconnect
 signatureHeaders <- function(authInfo, method, path, file = NULL) {
   # headers to return
   headers <- list()
