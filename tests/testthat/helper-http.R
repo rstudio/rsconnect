@@ -74,4 +74,10 @@ test_http_headers <- function() {
 
   contents <- handleResponse(resp)
   expect_equal(contents$headers$Authorization, "Key abc123")
+
+  resp <- POST(service, authInfo = list(apiKey = "abc123"), path = "post")
+  expect_equal(resp$status, 200)
+
+  contents <- handleResponse(resp)
+  expect_equal(contents$headers$Authorization, "Key abc123")
 }
