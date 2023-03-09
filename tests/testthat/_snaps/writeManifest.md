@@ -1,7 +1,7 @@
 # Deploying a Quarto project without Quarto info in an error
 
     Code
-      makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL)
+      makeManifest(appDir, quarto = NULL)
     Condition
       Error in `inferAppMode()`:
       ! Can't deploy Quarto content when `quarto` is `NULL`.
@@ -10,7 +10,7 @@
 # Deploying a Quarto doc without Quarto info in an error
 
     Code
-      makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL)
+      makeManifest(appDir, appPrimaryDoc = appPrimaryDoc)
     Condition
       Error in `inferAppMode()`:
       ! Can't deploy Quarto content when `quarto` is `NULL`.

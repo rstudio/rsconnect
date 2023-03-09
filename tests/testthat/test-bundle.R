@@ -15,6 +15,15 @@ makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL
   bundleTempDir
 }
 
+makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
+  writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ...)
+  manifestFile <- file.path(appDir, "manifest.json")
+  data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
+  manifestJson <- jsonlite::fromJSON(data)
+  unlink(manifestFile)
+  manifestJson
+}
+
 # avoid 'trying to use CRAN without setting a mirror' errors
 repos <- getOption("repos")
 options(repos = c(CRAN = "https://cran.rstudio.com"))

@@ -11,7 +11,7 @@
 ##' @export
 lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   check_directory(project)
-  files <- standardizeAppFiles(project, files)
+  files <- listDeploymentFiles(project, files)
 
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
