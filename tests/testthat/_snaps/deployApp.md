@@ -52,7 +52,8 @@
       The `appSourceDoc` argument of `deployApp()` is deprecated as of rsconnect 0.9.0.
       i Please use the `recordDir` argument instead.
       Error in `deployApp()`:
-      ! `appSourceDoc`, "records", does not exist.
+      ! No content to deploy.
+      x `appDir` is empty.
 
 # startup scripts are logged by default
 
