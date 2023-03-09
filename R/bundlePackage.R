@@ -1,34 +1,17 @@
-bundlePackages <- function(appDir,
+bundlePackages <- function(bundleDir,
                            appMode,
-                           hasParameters = FALSE,
-                           documentsHavePython = FALSE,
-                           quartoInfo = NULL,
+                           extraPackages = character(),
                            verbose = FALSE,
-                           error_call = caller_env()
-                           ) {
-  if (appMode %in% c("static", "tensorflow-saved-model")) {
+                           error_call = caller_env()) {
+  deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
+  if (nrow(deps) == 0) {
     return(list())
   }
-
-  # Skip snapshotting R dependencies if an app does not use R. Some
-  # dependencies seem to be found based on the presence of Bioconductor
-  # packages in the user's environment.
-  if (!appUsesR(quartoInfo)) {
-    return(list())
-  }
-
-  # detect dependencies including inferred dependencies
-  inferredRDependencies <- inferRPackageDependencies(
-    appMode = appMode,
-    hasParameters = hasParameters,
-    documentsHavePython = documentsHavePython
-  )
-  deps <- snapshotRDependencies(appDir, inferredRDependencies, verbose = verbose)
   checkBundlePackages(deps, call = error_call)
 
+  copyPackageDescriptions(bundleDir, deps$Package)
   deps$description <- lapply(deps$Package, function(nm) {
     # Remove packageDescription S3 class so jsonlite can serialize
-    # TODO: should we get description from packrat/desc folder?
     unclass(utils::packageDescription(nm))
   })
 
@@ -74,63 +57,15 @@ checkBundlePackages <- function(deps, call = caller_env()) {
   }
 }
 
-## check for extra dependencies uses
-inferRPackageDependencies <- function(appMode,
-                                      hasParameters = FALSE,
-                                      documentsHavePython = FALSE) {
-  deps <- switch(appMode,
-    "rmd-static" = c("rmarkdown", if (hasParameters) "shiny"),
-    "quarto-static" = "rmarkdown",
-    "quarto-shiny" = c("rmarkdown", "shiny"),
-    "rmd-shiny" = c("rmarkdown", "shiny"),
-    "shiny" = "shiny",
-    "api" = "plumber"
-  )
-  if (documentsHavePython) {
-    deps <- c(deps, "reticulate")
-  }
-  deps
-}
-
-appUsesR <- function(quartoInfo) {
-  if (is.null(quartoInfo)) {
-    # All non-Quarto content currently uses R by default.
-    # To support non-R content in rsconnect, we could inspect appmode here.
-    return(TRUE)
-  }
-  # R is used only supported with the "knitr" engine, not "jupyter" or "markdown"
-  # Technically, "jupyter" content could support R.
-  return("knitr" %in% quartoInfo[["engines"]])
-}
-
-
-preservePackageDescriptions <- function(bundleDir) {
-  # Copy all the DESCRIPTION files we're relying on into packrat/desc.
-  # That directory will contain one file for each package, e.g.
-  # packrat/desc/shiny will be the shiny package's DESCRIPTION.
-  #
-  # The server will use this to calculate package hashes. We don't want
-  # to rely on hashes calculated by our version of packrat, because the
-  # server may be running a different version.
-  lockFilePath <- snapshotLockFile(bundleDir)
+# Copy all the DESCRIPTION files we're relying on into packrat/desc.
+# That directory will contain one file for each package, e.g.
+# packrat/desc/shiny will be the shiny package's DESCRIPTION.
+copyPackageDescriptions <- function(bundleDir, packages) {
   descDir <- file.path(bundleDir, "packrat", "desc")
-  tryCatch({
-    dir.create(descDir)
-    records <- utils::tail(read.dcf(lockFilePath), -1)
-    lapply(seq_len(nrow(records)), function(i) {
-      pkgName <- records[i, "Package"]
-      descFile <- system.file("DESCRIPTION", package = pkgName)
-      if (!file.exists(descFile)) {
-        stop("Couldn't find DESCRIPTION file for ", pkgName)
-      }
-      file.copy(descFile, file.path(descDir, pkgName))
-    })
-  }, error = function(e) {
-    warning("Unable to package DESCRIPTION files: ", conditionMessage(e), call. = FALSE)
-    if (dirExists(descDir)) {
-      unlink(descDir, recursive = TRUE)
-    }
-  })
+  dir.create(descDir, showWarnings = FALSE, recursive = TRUE)
+
+  descPaths <- file.path(find.package(packages), "DESCRIPTION")
+  file.copy(descPaths, file.path(descDir, packages))
   invisible()
 }
 
@@ -264,7 +199,6 @@ addPackratSnapshot <- function(bundleDir,
   )
   logger("Completed performing packrat snapshot")
 
-  preservePackageDescriptions(bundleDir)
   invisible()
 }
 

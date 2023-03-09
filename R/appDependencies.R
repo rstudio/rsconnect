@@ -4,7 +4,8 @@
 #' `appDependencies()` recursively detects all R package dependencies for an
 #' application by parsing all `.R` and `.Rmd` files and looking for calls
 #' to `library()`, `require()`, `requireNamespace()`, `::`, and so on.
-#' It then adds all recursive dependencies to create a complete manifest of
+#' It then adds implicit dependencies (i.e. an `.Rmd` requires Rmarkdown)
+#' and adds all recursive dependencies to create a complete manifest of
 #' package packages need to be installed to run the app.
 #'
 #' # Remote installation
@@ -61,9 +62,48 @@
 #' @export
 appDependencies <- function(appDir = getwd(), appFiles = NULL) {
   appFiles <- listDeploymentFiles(appDir, appFiles)
+  appMetadata <- appMetadata(appDir, appFiles = appFiles)
+  if (!needsR(appMetadata)) {
+    return(data.frame(
+      Package = character(),
+      Version = character(),
+      Source = character(),
+      Repository = character(),
+      stringsAsFactors = FALSE
+    ))
+  }
+
   bundleDir <- bundleAppDir(appDir, appFiles)
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
-  deps <- snapshotRDependencies(bundleDir)
+  extraPackages <- inferRPackageDependencies(appMetadata)
+  deps <- snapshotRDependencies(bundleDir, extraPackages)
   deps[c("Package", "Version", "Source", "Repository")]
+}
+
+needsR <- function(appMetadata) {
+  if (appMetadata$appMode %in% c("static", "tensorflow-saved-model")) {
+    return(FALSE)
+  }
+
+  # All non-Quarto content currently uses R by default.
+  # Currently R is only supported by the "knitr" engine, not "jupyter" or
+  # "markdown"
+  is.null(appMetadata$quartoInfo) ||
+    "knitr" %in% appMetadata$quartoInfo[["engines"]]
+}
+
+inferRPackageDependencies <- function(appMetadata) {
+  deps <- switch(appMetadata$appMode,
+    "rmd-static" = c("rmarkdown", if (appMetadata$hasParameters) "shiny"),
+    "quarto-static" = "rmarkdown",
+    "quarto-shiny" = c("rmarkdown", "shiny"),
+    "rmd-shiny" = c("rmarkdown", "shiny"),
+    "shiny" = "shiny",
+    "api" = "plumber"
+  )
+  if (appMetadata$documentsHavePython) {
+    deps <- c(deps, "reticulate")
+  }
+  deps
 }
