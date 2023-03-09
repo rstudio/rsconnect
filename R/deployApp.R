@@ -191,11 +191,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (!is.null(appSourceDoc)) {
-    lifecycle::deprecate_warn(
-      when = "0.9.0",
-      what = "deployApp(appSourceDoc)",
-      with = "deployApp(recordDir)",
-    )
+    # Used by IDE so can't deprecate
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
     check_file(recordDir)
