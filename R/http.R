@@ -77,7 +77,7 @@ httpRequestWithBody <- function(service,
   handleResponse(httpResponse)
 }
 
-handleResponse <- function(response, jsonFilter = NULL) {
+handleResponse <- function(response) {
   reportError <- function(msg) {
     stop("HTTP ", response$status, "\n",
       response$req$method, " ", response$req$protocol, "://",
@@ -96,11 +96,7 @@ handleResponse <- function(response, jsonFilter = NULL) {
     }
 
     if (response$status %in% 200:399) {
-      if (!is.null(jsonFilter)) {
-        out <- jsonFilter(json)
-      } else {
-        out <- json
-      }
+      out <- json
     } else if (!is.null(json$error)) {
       reportError(json$error)
     } else {
