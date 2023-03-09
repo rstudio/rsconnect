@@ -1,11 +1,5 @@
-makeManifest <- function(appDir, appPrimaryDoc, python = NULL, quarto = NULL, image = NULL) {
-  writeManifest(
-    appDir,
-    appPrimaryDoc = appPrimaryDoc,
-    python = python,
-    quarto = quarto,
-    image = image
-  )
+makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
+  writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ...)
   manifestFile <- file.path(appDir, "manifest.json")
   data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
   manifestJson <- jsonlite::fromJSON(data)
@@ -19,7 +13,7 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   python <- pythonPathOrSkip()
 
   appDir <- test_path("test-reticulate-rmds")
-  manifest <- makeManifest(appDir, NULL, python = python)
+  manifest <- makeManifest(appDir, python = python)
   requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
   on.exit(unlink(requirements_file))
@@ -76,7 +70,7 @@ test_that("Quarto website includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("quarto-website-r")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
+  manifest <- makeManifest(appDir, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -133,7 +127,7 @@ test_that("Quarto shiny project includes quarto in the manifest", {
   quarto <- quartoPathOrSkip()
 
   appDir <- test_path("quarto-proj-r-shiny")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, quarto = quarto)
+  manifest <- makeManifest(appDir, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -146,7 +140,7 @@ test_that("Quarto R + Python website includes quarto and python in the manifest"
   python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-r-py")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
+  manifest <- makeManifest(appDir, python = python, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
@@ -162,7 +156,7 @@ test_that("Quarto Python-only website gets correct manifest data", {
   python <- pythonPathOrSkip()
 
   appDir <- test_path("quarto-website-py")
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, python = python, quarto = quarto)
+  manifest <- makeManifest(appDir, python = python, quarto = quarto)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "jupyter")
@@ -175,17 +169,14 @@ test_that("Quarto Python-only website gets correct manifest data", {
 
 test_that("Deploying a Quarto project without Quarto info in an error", {
   appDir <- test_path("quarto-website-r")
-  expect_snapshot(
-    makeManifest(appDir, appPrimaryDoc = NULL, quarto = NULL),
-    error = TRUE
-  )
+  expect_snapshot(makeManifest(appDir, quarto = NULL), error = TRUE)
 })
 
 test_that("Deploying a Quarto doc without Quarto info in an error", {
   appDir <- test_path("quarto-doc-none")
   appPrimaryDoc <- "quarto-doc-none.qmd"
   expect_snapshot(
-    makeManifest(appDir, appPrimaryDoc = appPrimaryDoc, quarto = NULL),
+    makeManifest(appDir, appPrimaryDoc = appPrimaryDoc),
     error = TRUE
   )
 })
@@ -202,7 +193,7 @@ test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {
 
 test_that("Deploying static content with _quarto.yaml succeeds without quartoInfo", {
 
-  manifest <- makeManifest(test_path("static-with-quarto-yaml"), NULL, quarto = NULL)
+  manifest <- makeManifest(test_path("static-with-quarto-yaml"))
 
   expect_equal(manifest$metadata$appmode, "static")
 })
@@ -210,9 +201,9 @@ test_that("Deploying static content with _quarto.yaml succeeds without quartoInf
 test_that("Sets environment.image in the manifest if one is provided", {
   appDir <- test_path("shinyapp-simple")
 
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL, image = "rstudio/content-base:latest")
+  manifest <- makeManifest(appDir, image = "rstudio/content-base:latest")
   expect_equal(manifest$environment$image, "rstudio/content-base:latest")
 
-  manifest <- makeManifest(appDir, appPrimaryDoc = NULL)
+  manifest <- makeManifest(appDir)
   expect_null(manifest$environment)
 })

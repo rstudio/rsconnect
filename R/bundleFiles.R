@@ -1,7 +1,40 @@
-# build the list of files to deploy -- implicitly (directory contents),
-# explicitly via list, or explicitly via manifest. Always returns paths
-# related to `appDir`
-standardizeAppFiles <- function(appDir,
+#' Gather files to be bundled with an app
+#'
+#' @description
+#' Given an app directory, and optional `appFiles` and `appFileManifest`
+#' arguments, returns vector of paths to bundle in the app. (Note that
+#' documents follow a different strategy; see [deployDoc()] for details.)
+#'
+#' When neither `appFiles` nor `appFileManifest` is supplied,
+#' `listDeploymentFiles()` will include all files under `appDir`, apart
+#' from the following:
+#'
+#' *  Certain files and folders that don't need to be bundled, such as
+#'    version control directories, internal config files, and RStudio state,
+#'    are automatically excluded.
+#'
+#' *  You can exclude additional files by listing them in in a `.rscignore`
+#'    file. This file must have one file or directory per line (with path
+#'    relative to the current directory). It doesn't support wildcards, or
+#'    ignoring files in subdirectories.
+#'
+#' `listDeploymentFiles()` will throw an error if the total file size exceeds
+#' the maximum bundle size (as controlled by option `rsconnect.max.bundle.size`),
+#' or the number of files exceeds the maximum file limit (as controlled by
+#' option `rsconnect.max.bundle.files`). This prevents you from accidentally
+#' bundling a very large direcfory (i.e. you home directory).
+#'
+#' @inheritParams deployApp
+#' @param appFiles A character vector giving relative paths to the files to
+#'   include in the deployed bundle.
+#' @param appFileManifest An alternate way to specify the files to be deployed.
+#'   Should be a path to a file that contains the names of the files and
+#'   directories to deploy, one per line, relative to `appDir`.
+#' @param error_call The call or environment for error reporting; expert
+#'   use only.
+#' @return Character of paths to bundle, relative to `appDir`.
+#' @export
+listDeploymentFiles <- function(appDir,
                                 appFiles = NULL,
                                 appFileManifest = NULL,
                                 error_call = caller_env()) {
@@ -55,23 +88,14 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 #' List Files to be Bundled
 #'
 #' @description
+#' `r lifecycle::badge("superseded")`
+#'
+#' `listBundleFiles()` has been superseded in favour of [listDeploymentFiles()].
+#'
 #' Given a directory containing an application, returns the names of the files
 #' that by default will be bundled in the application. It works similarly to
-#' a recursive directory listing from [list.files()] but:
-#'
-#' * If the total size of the files exceeds the maximum bundle size,
-#'   `listBundleFiles()` will error. The maximum bundle size is controlled by
-#'    the `rsconnect.max.bundle.size` option.
-#' *  If the total size number of files exceeds the maximum number to be
-#'    bundled, `listBundleFiles()` will error. The maximum number of files in
-#'    the bundle is controlled by the `rsconnect.max.bundle.files` option.
-#' *  Certain files and folders that don't need to be bundled, such as
-#'    those containing internal version control and RStudio state, are
-#'    automatically excluded.
-#' *  You can exclude additional files by listing them in in a `.rscignore`
-#'    file. This file must have one file or directory per line (with path
-#'    relative to the current directory). It doesn't support wildcards, or
-#'    ignoring files in subdirectories.
+#' a recursive directory listing from [list.files()] but enforces bundle sizes
+#' as described in [listDeploymentFiles()]
 #'
 #' @param appDir Directory containing the application.
 #' @return Returns a list containing the following elements:
@@ -79,6 +103,7 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 #' * `totalSize`: Total size of the files (in bytes).
 #' * `contents`: Paths to bundle, relative to `appDir`.
 #' @export
+#' @keywords internal
 listBundleFiles <- function(appDir) {
   recursiveBundleFiles(appDir)
 }

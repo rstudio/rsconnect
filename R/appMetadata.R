@@ -6,7 +6,7 @@ appMetadata <- function(appDir,
                         isCloudServer = FALSE,
                         metadata = list()) {
 
-  appFiles <- standardizeAppFiles(appDir, appFiles)
+  appFiles <- listDeploymentFiles(appDir, appFiles)
 
   # User has supplied quarto path or quarto package/IDE has supplied metadata
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121

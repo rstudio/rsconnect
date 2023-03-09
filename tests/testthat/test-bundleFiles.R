@@ -1,21 +1,21 @@
 
-# standardizeAppFiles ------------------------------------------------------
+# listDeploymentFiles ------------------------------------------------------
 
 test_that("can read all files from directory", {
   dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
-  expect_equal(standardizeAppFiles(dir), c("a.R", "b.R"))
-  expect_equal(standardizeAppFiles(dir, NULL, NULL), c("a.R", "b.R"))
+  expect_equal(listDeploymentFiles(dir), c("a.R", "b.R"))
+  expect_equal(listDeploymentFiles(dir, NULL, NULL), c("a.R", "b.R"))
 
   dir <- local_temp_app()
-  expect_snapshot(standardizeAppFiles(dir), error = TRUE)
+  expect_snapshot(listDeploymentFiles(dir), error = TRUE)
 })
 
 test_that("can read selected files from directory", {
   dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
-  expect_equal(standardizeAppFiles(dir, "b.R"), "b.R")
-  expect_snapshot(out <- standardizeAppFiles(dir, c("b.R", "c.R")))
+  expect_equal(listDeploymentFiles(dir, "b.R"), "b.R")
+  expect_snapshot(out <- listDeploymentFiles(dir, c("b.R", "c.R")))
   expect_equal(out, "b.R")
-  expect_snapshot(standardizeAppFiles(dir, character()), error = TRUE)
+  expect_snapshot(listDeploymentFiles(dir, character()), error = TRUE)
 })
 
 test_that("can read selected files from manifest", {
@@ -25,7 +25,7 @@ test_that("can read selected files from manifest", {
     "manifest" = "b.R"
   ))
   expect_equal(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
     "b.R"
   )
 
@@ -35,7 +35,7 @@ test_that("can read selected files from manifest", {
     "manifest" = c("b.R", "c.R")
   ))
   expect_snapshot(
-    out <- standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    out <- listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
   )
   expect_equal(out, "b.R")
 
@@ -44,7 +44,7 @@ test_that("can read selected files from manifest", {
     "manifest" = ""
   ))
   expect_snapshot(
-    standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
     error = TRUE
   )
 })
@@ -52,9 +52,9 @@ test_that("can read selected files from manifest", {
 test_that("checks its inputs", {
   dir <- local_temp_app()
   expect_snapshot(error = TRUE, {
-    standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
-    standardizeAppFiles(dir, appFiles = 1)
-    standardizeAppFiles(dir, appFileManifest = "doestexist")
+    listDeploymentFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
+    listDeploymentFiles(dir, appFiles = 1)
+    listDeploymentFiles(dir, appFileManifest = "doestexist")
   })
 })
 

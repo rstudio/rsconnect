@@ -18,7 +18,7 @@ httpRequest <- function(service,
                         error_call = caller_env()) {
 
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders(authInfo, method, url))
+  headers <- c(headers, authHeaders(authInfo, method, path))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
@@ -60,7 +60,7 @@ httpRequestWithBody <- function(service,
   }
 
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders(authInfo, method, url, file))
+  headers <- c(headers, authHeaders(authInfo, method, path, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
@@ -344,9 +344,9 @@ requestCertificate <- function(protocol, certificate = NULL) {
   }
 }
 
-authHeaders <- function(authInfo, method, url, file = NULL) {
+authHeaders <- function(authInfo, method, path, file = NULL) {
   if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
-    signatureHeaders(authInfo, method, url, file)
+    signatureHeaders(authInfo, method, path, file)
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
   } else {
