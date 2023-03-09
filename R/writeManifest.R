@@ -17,7 +17,7 @@ writeManifest <- function(appDir = getwd(),
                           image = NULL,
                           verbose = FALSE) {
 
-  appFiles <- standardizeAppFiles(
+  appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,
     appFileManifest = appFileManifest

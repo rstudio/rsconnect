@@ -26,7 +26,7 @@ reference:
     contents :
     - writeManifest
     - matches("[Dd]eploy")
-    - standardizeAppFiles
+    - listDeploymentFiles
 
   - title: Servers
     desc : ~

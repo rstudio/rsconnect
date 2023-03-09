@@ -25,7 +25,7 @@
 #'   to provide a path to a file containing a list of such files. If neither
 #'   are supplied, will bundle all files in `appDir`, apart from standard
 #'   exclusions and files listed in a `.rscignore` file. See
-#'   [standardizeAppFiles()] for more details.
+#'   [listDeploymentFiles()] for more details.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
@@ -244,7 +244,7 @@ deployApp <- function(appDir = getwd(),
   # invoke pre-deploy hook if we have one
   runDeploymentHook(appDir, "rsconnect.pre.deploy", verbose = verbose)
 
-  appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
+  appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)

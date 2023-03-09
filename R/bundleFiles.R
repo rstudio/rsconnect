@@ -5,7 +5,7 @@
 #' arguments, returns vector of paths to bundle in the app.
 #'
 #' When neither `appFiles` nor `appFileManifest` is supplied,
-#' `standardizeAppFiles()` will include all files under `appDir`, apart
+#' `listDeploymentFiles()` will include all files under `appDir`, apart
 #' from the following:
 #'
 #' *  Certain files and folders that don't need to be bundled, such as
@@ -17,7 +17,7 @@
 #'    relative to the current directory). It doesn't support wildcards, or
 #'    ignoring files in subdirectories.
 #'
-#' `standardizeAppFiles()` will error if the total file size exceeds the
+#' `listDeploymentFiles()` will error if the total file size exceeds the
 #' maximum bundle size (as controlled by option `rsconnect.max.bundle.size`),
 #' or the number of files exceeds the maximum file limit (as controlled by
 #' option `rsconnect.max.bundle.files`). This prevents you from accidentally
@@ -33,7 +33,7 @@
 #'   use only.
 #' @return Character of paths to bundle, relative to `appDir`.
 #' @export
-standardizeAppFiles <- function(appDir,
+listDeploymentFiles <- function(appDir,
                                 appFiles = NULL,
                                 appFileManifest = NULL,
                                 error_call = caller_env()) {
@@ -89,12 +89,12 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 #' @description
 #' `r lifecycle::badge("superseded")`
 #'
-#' `listBundleFiles()` has been superseded in favour of [standardizeAppFiles()].
+#' `listBundleFiles()` has been superseded in favour of [listDeploymentFiles()].
 #'
 #' Given a directory containing an application, returns the names of the files
 #' that by default will be bundled in the application. It works similarly to
 #' a recursive directory listing from [list.files()] but enforces bundle sizes
-#' as described in [standardizeAppFiles()]
+#' as described in [listDeploymentFiles()]
 #'
 #' @param appDir Directory containing the application.
 #' @return Returns a list containing the following elements:

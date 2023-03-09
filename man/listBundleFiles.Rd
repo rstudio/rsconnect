@@ -20,11 +20,11 @@ Returns a list containing the following elements:
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 
-\code{listBundleFiles()} has been superseded in favour of \code{\link[=standardizeAppFiles]{standardizeAppFiles()}}.
+\code{listBundleFiles()} has been superseded in favour of \code{\link[=listDeploymentFiles]{listDeploymentFiles()}}.
 
 Given a directory containing an application, returns the names of the files
 that by default will be bundled in the application. It works similarly to
 a recursive directory listing from \code{\link[=list.files]{list.files()}} but enforces bundle sizes
-as described in \code{\link[=standardizeAppFiles]{standardizeAppFiles()}}
+as described in \code{\link[=listDeploymentFiles]{listDeploymentFiles()}}
 }
 \keyword{internal}

@@ -1,6 +1,6 @@
 # rsconnect 0.8.30 (development version)
 
-* New `standardizeAppFiles()`, which supsersedes `listBundleFiles()`.
+* New `listDeploymentFiles()`, which supsersedes `listBundleFiles()`.
 
 * `addConnectServer()` has been deprecated because it does the same
   thing as `addServer()`.
