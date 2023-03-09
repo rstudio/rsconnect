@@ -9,9 +9,9 @@ bundlePackages <- function(bundleDir,
   }
   checkBundlePackages(deps, call = error_call)
 
+  copyPackageDescriptions(bundleDir, deps$Package)
   deps$description <- lapply(deps$Package, function(nm) {
     # Remove packageDescription S3 class so jsonlite can serialize
-    # TODO: should we get description from packrat/desc folder?
     unclass(utils::packageDescription(nm))
   })
 
@@ -57,33 +57,15 @@ checkBundlePackages <- function(deps, call = caller_env()) {
   }
 }
 
-preservePackageDescriptions <- function(bundleDir) {
-  # Copy all the DESCRIPTION files we're relying on into packrat/desc.
-  # That directory will contain one file for each package, e.g.
-  # packrat/desc/shiny will be the shiny package's DESCRIPTION.
-  #
-  # The server will use this to calculate package hashes. We don't want
-  # to rely on hashes calculated by our version of packrat, because the
-  # server may be running a different version.
-  lockFilePath <- snapshotLockFile(bundleDir)
+# Copy all the DESCRIPTION files we're relying on into packrat/desc.
+# That directory will contain one file for each package, e.g.
+# packrat/desc/shiny will be the shiny package's DESCRIPTION.
+copyPackageDescriptions <- function(bundleDir, packages) {
   descDir <- file.path(bundleDir, "packrat", "desc")
-  tryCatch({
-    dir.create(descDir)
-    records <- utils::tail(read.dcf(lockFilePath), -1)
-    lapply(seq_len(nrow(records)), function(i) {
-      pkgName <- records[i, "Package"]
-      descFile <- system.file("DESCRIPTION", package = pkgName)
-      if (!file.exists(descFile)) {
-        stop("Couldn't find DESCRIPTION file for ", pkgName)
-      }
-      file.copy(descFile, file.path(descDir, pkgName))
-    })
-  }, error = function(e) {
-    warning("Unable to package DESCRIPTION files: ", conditionMessage(e), call. = FALSE)
-    if (dirExists(descDir)) {
-      unlink(descDir, recursive = TRUE)
-    }
-  })
+  dir.create(descDir, showWarnings = FALSE, recursive = TRUE)
+
+  descPaths <- file.path(find.package(packages), "DESCRIPTION")
+  file.copy(descPaths, file.path(descDir, packages))
   invisible()
 }
 
@@ -217,7 +199,6 @@ addPackratSnapshot <- function(bundleDir,
   )
   logger("Completed performing packrat snapshot")
 
-  preservePackageDescriptions(bundleDir)
   invisible()
 }
 
