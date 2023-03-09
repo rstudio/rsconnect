@@ -23,8 +23,6 @@ test_that("can stream PUT content from disk", {
     contentType = "text/plain",
     file = path
   )
-  expect_equal(resp$status, 200)
-
-  contents <- handleResponse(resp)
-  expect_equal(contents$data, "1\n2\n3\n")
+  expect_equal(attr(resp, "httpResponse")$status, 200)
+  expect_equal(resp$data, "1\n2\n3\n")
 })

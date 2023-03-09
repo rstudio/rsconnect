@@ -25,7 +25,7 @@ listRequest <- function(service, authInfo, path, query, listName, page = 100,
     queryWithList <- paste(query, "&count=", page, "&offset=", offset, sep = "")
 
     # make request and append the results
-    response <- handleResponse(GET(service, authInfo, path, queryWithList))
+    response <- GET(service, authInfo, path, queryWithList)
     results <- append(results, response[[listName]])
 
     # update the offset

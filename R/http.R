@@ -22,7 +22,7 @@ httpRequest <- function(service,
 
   # perform request
   http <- httpFunction()
-  http(
+  httpResponse <- http(
     protocol = service$protocol,
     host = service$host,
     port = service$port,
@@ -32,6 +32,7 @@ httpRequest <- function(service,
     timeout = timeout,
     certificate = certificate
   )
+  handleResponse(httpResponse)
 }
 
 httpRequestWithBody <- function(service,
@@ -62,7 +63,7 @@ httpRequestWithBody <- function(service,
 
   # perform request
   http <- httpFunction()
-  http(
+  httpResponse <- http(
     protocol = service$protocol,
     host = service$host,
     port = service$port,
@@ -73,6 +74,7 @@ httpRequestWithBody <- function(service,
     contentFile = file,
     certificate = certificate
   )
+  handleResponse(httpResponse)
 }
 
 handleResponse <- function(response, jsonFilter = NULL) {
@@ -96,9 +98,9 @@ handleResponse <- function(response, jsonFilter = NULL) {
 
     if (response$status %in% 200:399)
       if (!is.null(jsonFilter))
-        jsonFilter(json)
+        out <- jsonFilter(json)
       else
-        json
+        out <- json
     else if (!is.null(json$error))
       reportError(json$error)
     else
@@ -112,9 +114,9 @@ handleResponse <- function(response, jsonFilter = NULL) {
     if (response$status >= 200 && response$status < 400) {
       # Good response, return the body if we have one, or the content if not
       if (!is.null(body)) {
-        body
+        out <- body
       } else{
-        response$content
+        out <- response$content
       }
     } else {
       # Error response
@@ -128,10 +130,14 @@ handleResponse <- function(response, jsonFilter = NULL) {
   # otherwise just dump the whole thing
   else {
     if (response$status %in% 200:399)
-      response$content
+      out <- response$content
     else
       reportError(response$content)
   }
+
+
+  attr(out, "httpResponse") <- response
+  out
 }
 
 # Wrappers for HTTP methods -----------------------------------------------

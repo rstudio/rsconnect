@@ -8,35 +8,28 @@ connectClient <- function(service, authInfo) {
     ## Server settings API
 
     serverSettings = function() {
-      handleResponse(GET(service, authInfo, file.path("/server_settings")))
+      GET(service, authInfo, file.path("/server_settings"))
     },
 
     ## User API
 
     addUser = function(userRecord) {
       userRecord <- validateUserRecord(userRecord)
-      handleResponse(POST_JSON(service,
-                               authInfo,
-                               "/users",
-                               userRecord))
+      POST_JSON(service, authInfo, "/users", userRecord)
     },
 
     getUser = function(userId) {
-      handleResponse(GET(service, authInfo,
-                         file.path("/users", userId)))
+      GET(service, authInfo, file.path("/users", userId))
     },
 
     currentUser = function() {
-      handleResponse(GET(service, authInfo, "/users/current"))
+      GET(service, authInfo, "/users/current")
     },
 
     ## Tokens API
 
     addToken = function(token) {
-      handleResponse(POST_JSON(service,
-                               authInfo,
-                               "/tokens",
-                               token))
+      POST_JSON(service, authInfo, "/tokens", token)
     },
 
     ## Applications API
@@ -61,70 +54,63 @@ connectClient <- function(service, authInfo) {
 
       # RSC doesn't currently use the template or account ID
       # parameters; they exist for compatibility with lucid.
-      handleResponse(POST_JSON(service,
-                               authInfo,
-                               "/applications",
-                               details))
+      POST_JSON(service, authInfo, "/applications", details)
     },
 
     terminateApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/terminate", sep = "")
-      handleResponse(POST_JSON(service, authInfo, path, list()))
+      POST_JSON(service, authInfo, path, list())
     },
 
     uploadApplication = function(appId, bundlePath) {
       path <- file.path("/applications", appId, "upload")
-      handleResponse(POST(service, authInfo, path,
-                          contentType = "application/x-gzip",
-                          file = bundlePath))
+      POST(
+        service,
+        authInfo,
+        path,
+        contentType = "application/x-gzip",
+        file = bundlePath
+      )
     },
 
     deployApplication = function(applicationId, bundleId = NULL) {
       path <- paste("/applications/", applicationId, "/deploy", sep = "")
       json <- list()
       json$bundle <- as.numeric(bundleId)
-      handleResponse(POST_JSON(service, authInfo, path, json))
+      POST_JSON(service, authInfo, path, json)
     },
 
     configureApplication = function(applicationId) {
-      handleResponse(GET(service, authInfo, paste(
-        "/applications/", applicationId, "/config", sep = "")))
+      GET(service, authInfo, paste(
+        "/applications/", applicationId, "/config", sep = ""))
     },
 
     getApplication = function(applicationId) {
-      handleResponse(GET(service, authInfo, paste0("/applications/",
-                                                   applicationId)))
+      GET(service, authInfo, paste0("/applications/", applicationId))
     },
 
     ## Tasks API
 
     listTasks = function() {
       path <- "/tasks"
-      handleResponse(GET(service,
-                         authInfo,
-                         path))
+      GET(service, authInfo, path)
     },
 
     getTask = function(taskId) {
       path <- file.path("/tasks", taskId)
-      handleResponse(GET(service,
-                         authInfo,
-                         path))
+      GET(service, authInfo, path)
     },
 
     killTask = function(taskId) {
       path <- file.path("/tasks", taskId, "kill")
-      handleResponse(POST_JSON(service,
-                               authInfo,
-                               path,
-                               list()))
+      POST_JSON(service, authInfo, path, list())
     },
 
     waitForTask = function(taskId, quiet) {
       start <- 0
       while (TRUE) {
         path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
-        response <- handleResponse(GET(service, authInfo, path))
+        response <- GET(service, authInfo, path)
 
         if (length(response$status) > 0) {
           messages <- unlist(response$status)

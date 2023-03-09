@@ -2,7 +2,7 @@ cloudClient <- function(service, authInfo) {
   list(
 
     status = function() {
-      handleResponse(GET(service, authInfo,  "/internal/status"))
+      GET(service, authInfo,  "/internal/status")
     },
 
     service = function() {
@@ -10,7 +10,7 @@ cloudClient <- function(service, authInfo) {
     },
 
     currentUser = function() {
-      handleResponse(GET(service, authInfo, "/users/current/"))
+      GET(service, authInfo, "/users/current/")
     },
 
     accountsForUser = function(userId) {
@@ -31,19 +31,19 @@ cloudClient <- function(service, authInfo) {
         query$until <- until
       if (!is.null(interval))
         query$interval <- interval
-      handleResponse(GET(service, authInfo, path, queryString(query)))
+      GET(service, authInfo, path, queryString(query))
     },
 
     getBundle = function(bundleId) {
       path <- paste("/bundles/", bundleId, sep = "")
-      handleResponse(GET(service, authInfo, path))
+      GET(service, authInfo, path)
     },
 
     updateBundleStatus = function(bundleId, status) {
       path <- paste("/bundles/", bundleId, "/status", sep = "")
       json <- list()
       json$status <- status
-      handleResponse(POST_JSON(service, authInfo, path, json))
+      POST_JSON(service, authInfo, path, json)
     },
 
     createBundle = function(application, content_type, content_length, checksum) {
@@ -52,7 +52,7 @@ cloudClient <- function(service, authInfo) {
       json$content_type <- content_type
       json$content_length <- content_length
       json$checksum <- checksum
-      handleResponse(POST_JSON(service, authInfo, "/bundles", json))
+      POST_JSON(service, authInfo, "/bundles", json)
     },
 
     listApplications = function(accountId, filters = list()) {
@@ -66,12 +66,12 @@ cloudClient <- function(service, authInfo) {
 
     getApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, sep = "")
-      application <- handleResponse(GET(service, authInfo, path))
+      application <- GET(service, authInfo, path)
 
       output_id <- application$content_id
       path <- paste("/content/", output_id, sep = "")
 
-      applications_output <- handleResponse(GET(service, authInfo, path))
+      applications_output <- GET(service, authInfo, path)
       application$url <- applications_output$url
       application
     },
@@ -86,13 +86,13 @@ cloudClient <- function(service, authInfo) {
         query$until <- until
       if (!is.null(interval))
         query$interval <- interval
-      handleResponse(GET(service, authInfo, path, paste(m, queryString(query), sep = "&")))
+      GET(service, authInfo, path, paste(m, queryString(query), sep = "&"))
     },
 
     getLogs = function(applicationId, entries = 50) {
       path <- paste0("/applications/", applicationId, "/logs")
       query <- paste0("count=", entries, "&tail=0")
-      handleResponse(GET(service, authInfo, path, query))
+      GET(service, authInfo, path, query)
     },
 
     createApplication = function(name, title, template, accountId) {
@@ -103,21 +103,21 @@ cloudClient <- function(service, authInfo) {
       if (currentApplicationId != "") {
         print("Found application...")
         path <- paste("/applications/", currentApplicationId, sep = "")
-        current_application <- handleResponse(GET(service, authInfo, path))
+        current_application <- GET(service, authInfo, path)
         project_id <- current_application$content_id
 
         # in case the source cloud project is a temporary copy, there is no
         # content id. The output will be published without a space id.
         if (!is.null(project_id)) {
           path <- paste("/content/", project_id, sep = "")
-          current_project <- handleResponse(GET(service, authInfo, path))
+          current_project <- GET(service, authInfo, path)
           json$project <- current_project$id
           json$space <- current_project$space_id
         }
       }
-      output <- handleResponse(POST_JSON(service, authInfo, "/outputs", json))
+      output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste("/applications/", output$source_id, sep = "")
-      application <- handleResponse(GET(service, authInfo, path))
+      application <- GET(service, authInfo, path)
       # this swaps the "application url" for the "content url". So we end up redirecting to the right spot after deployment.
       application$url <- output$url
       application
@@ -125,7 +125,7 @@ cloudClient <- function(service, authInfo) {
 
     listApplicationProperties = function(applicationId) {
       path <- paste("/applications/", applicationId, "/properties/", sep = "")
-      handleResponse(GET(service, authInfo, path))
+      GET(service, authInfo, path)
     },
 
     setApplicationProperty = function(applicationId, propertyName,
@@ -135,7 +135,7 @@ cloudClient <- function(service, authInfo) {
       v <- list()
       v$value <- propertyValue
       query <- paste("force=", if (force) "1" else "0", sep = "")
-      handleResponse(PUT_JSON(service, authInfo, path, v, query))
+      PUT_JSON(service, authInfo, path, v, query)
     },
 
     unsetApplicationProperty = function(applicationId, propertyName,
@@ -143,16 +143,18 @@ cloudClient <- function(service, authInfo) {
       path <- paste("/applications/", applicationId, "/properties/",
                     propertyName, sep = "")
       query <- paste("force=", if (force) "1" else "0", sep = "")
-      handleResponse(DELETE(service, authInfo, path, query))
+      DELETE(service, authInfo, path, query)
     },
 
     uploadApplication = function(applicationId, bundlePath) {
       path <- paste("/applications/", applicationId, "/upload", sep = "")
-      handleResponse(POST(service,
-                          authInfo,
-                          path,
-                          contentType = "application/x-gzip",
-                          file = bundlePath))
+      POST(
+        service,
+        authInfo,
+        path,
+        contentType = "application/x-gzip",
+        file = bundlePath
+      )
     },
 
     deployApplication = function(applicationId, bundleId = NULL) {
@@ -162,17 +164,17 @@ cloudClient <- function(service, authInfo) {
         json$bundle <- as.numeric(bundleId)
       else
         json$rebuild <- FALSE
-      handleResponse(POST_JSON(service, authInfo, path, json))
+      POST_JSON(service, authInfo, path, json)
     },
 
     terminateApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/terminate", sep = "")
-      handleResponse(POST(service, authInfo, path))
+      POST(service, authInfo, path)
     },
 
     purgeApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, "/purge", sep = "")
-      handleResponse(POST(service, authInfo, path))
+      POST(service, authInfo, path)
     },
 
     inviteApplicationUser = function(applicationId, email,
@@ -185,19 +187,19 @@ cloudClient <- function(service, authInfo) {
         json$invite_email <- invite_email
       if (!is.null(invite_email_message))
         json$invite_email_message <- invite_email_message
-      handleResponse(POST_JSON(service, authInfo, path, json))
+      POST_JSON(service, authInfo, path, json)
     },
 
     addApplicationUser = function(applicationId, userId) {
       path <- paste("/applications/", applicationId, "/authorization/users/",
                     userId, sep = "")
-      handleResponse(PUT(service, authInfo, path, NULL))
+      PUT(service, authInfo, path, NULL)
     },
 
     removeApplicationUser = function(applicationId, userId) {
       path <- paste("/applications/", applicationId, "/authorization/users/",
                     userId, sep = "")
-      handleResponse(DELETE(service, authInfo, path, NULL))
+      DELETE(service, authInfo, path)
     },
 
     listApplicationAuthorization = function(applicationId) {
@@ -236,12 +238,12 @@ cloudClient <- function(service, authInfo) {
 
     getTaskInfo = function(taskId) {
       path <- paste("/tasks/", taskId, sep = "")
-      handleResponse(GET(service, authInfo, path))
+      GET(service, authInfo, path)
     },
 
     getTaskLogs = function(taskId) {
       path <- paste("/tasks/", taskId, "/logs/", sep = "")
-      handleResponse(GET(service, authInfo, path))
+      GET(service, authInfo, path)
     },
 
     waitForTask = function(taskId, quiet = FALSE) {
@@ -256,7 +258,7 @@ cloudClient <- function(service, authInfo) {
       while (TRUE) {
 
         # check status
-        status <- handleResponse(GET(service, authInfo, path))
+        status <- GET(service, authInfo, path)
 
         # display status to the user if it changed
         if (!identical(lastStatus, status$description)) {
