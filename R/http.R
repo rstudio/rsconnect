@@ -240,7 +240,7 @@ httpRequestWithBody <- function(service,
   }
 
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders1(authInfo, method, url, file))
+  headers <- c(headers, authHeaders(authInfo, method, url, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
@@ -359,43 +359,18 @@ requestCertificate <- function(protocol, certificate = NULL) {
 
 # Auth --------------------------------------------------------------------
 
-authHeaders1 <- function(authInfo, method, url, file) {
+authHeaders <- function(authInfo, method, url, file = NULL) {
   if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     signatureHeaders(authInfo, method, url, file)
   } else if (!is.null(authInfo$apiKey)) {
-    apiKeyAuthHeaders(authInfo$apiKey)
+    list(`Authorization` = paste("Key", authInfo$apiKey))
   } else {
-    bogusSignatureHeaders()
+    # The value doesn't actually matter here, but the header needs to be set.
+    list(`X-Auth-Token` = "anonymous-access")
   }
 }
 
-authHeaders2 <- function(authInfo, method, url, file = NULL) {
-  # the request should be authenticated if there's any auth specified
-  # other than the server certificate
-  if (length(authInfo) > 0 && !identical(names(authInfo), "certificate")) {
-    if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
-      signatureHeaders(authInfo, method, url, NULL)
-    } else if (!is.null(authInfo$apiKey)) {
-      apiKeyAuthHeaders(authInfo$apiKey)
-    } else {
-      bogusSignatureHeaders()
-    }
-  } else {
-    bogusSignatureHeaders()
-  }
-}
-
-
-
-apiKeyAuthHeaders <- function(apiKey) {
-  list(`Authorization` = paste("Key", apiKey))
-}
-
-bogusSignatureHeaders <- function() {
-  list(`X-Auth-Token` = "anonymous-access") # The value doesn't actually matter here, but the header needs to be set.
-}
-
-signatureHeaders <- function(authInfo, method, path, file) {
+signatureHeaders <- function(authInfo, method, path, file = NULL) {
   # headers to return
   headers <- list()
 
