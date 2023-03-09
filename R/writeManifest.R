@@ -38,19 +38,13 @@ writeManifest <- function(appDir = getwd(),
 
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
-      appDir = bundleDir,
-      appMode = appMetadata$appMode,
-      contentCategory = contentCategory,
-      hasParameters = appMetadata$hasParameters,
-      appPrimaryDoc = appMetadata$appPrimaryDoc,
-      users = NULL,
-      pythonConfig = pythonConfig,
-      documentsHavePython = appMetadata$documentsHavePython,
-      retainPackratDirectory = FALSE,
-      quartoInfo = appMetadata$quartoInfo,
-      isCloud = FALSE,
-      image = image,
-      verbose = verbose)
+    appDir = bundleDir,
+    appMetadata = appMetadata,
+    pythonConfig = pythonConfig,
+    retainPackratDirectory = FALSE,
+    image = image,
+    verbose = verbose
+  )
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
