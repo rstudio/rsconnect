@@ -105,19 +105,10 @@ httpLibCurl <- function(protocol,
 
   # make the request
   response <- NULL
-  time <- system.time(gcFirst = FALSE, tryCatch({
-      # fetch the response into a raw buffer in memory
-      response <- curl::curl_fetch_memory(url, handle = handle)
-    },
-    error = function(e, ...) {
-      # ignore errors resulting from timeout or user abort
-      if (identical(e$message, "Callback aborted") ||
-          identical(e$message, "transfer closed with outstanding read data remaining"))
-        return(NULL)
-      # bubble remaining errors through
-      else
-        stop(e)
-    }))
+  time <- system.time(
+    response <- curl::curl_fetch_memory(url, handle = handle),
+    gcFirst = FALSE
+  )
   httpTrace(method, path, time)
 
   # get list of HTTP response headers
