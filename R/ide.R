@@ -147,3 +147,61 @@ showRstudioSourceMarkers <- function(basePath, lint) {
                       basePath = basePath,
                       autoSelect = "first")
 }
+
+# getAppById() -----------------------------------------------------------------
+
+# Called here:
+# https://github.com/rstudio/rstudio/blob/ee56d49b0fca5f3d7c3f5214a4010355d1bb0212/src/gwt/src/org/rstudio/studio/client/rsconnect/ui/RSConnectDeploy.java#L699
+
+# get the record for the application with the given ID in the given account;
+# this isn't used inside the package itself but is invoked from the RStudio IDE
+# to look up app details
+getAppById <- function(id, account, server, hostUrl) {
+
+  accountDetails <- NULL
+  tryCatch({
+    # attempt to look up the account locally
+    accountDetails <- accountInfo(account, server)
+  }, error = function(e) {
+    # we'll retry below
+  })
+
+  if (is.null(accountDetails)) {
+    if (is.null(hostUrl)) {
+      # rethrow if no host url to go on
+      stop("No account '", account, "' found and no host URL specified.",
+           call. = FALSE)
+    }
+
+    # no account details yet, look up from the host URL if we have one
+    accountDetails <- accountInfoFromHostUrl(hostUrl)
+  }
+
+  # create the appropriate client and fetch the application
+  client <- clientForAccount(accountDetails)
+  client$getApplication(id)
+}
+
+accountInfoFromHostUrl <- function(hostUrl) {
+  # get the list of all registered servers
+  servers <- servers()
+
+  # filter to just those matching the given host url
+  server <- servers[as.character(servers$url) == hostUrl, ]
+  if (nrow(server) < 1) {
+    stop("No server with the URL ", hostUrl, " is registered.", call. = FALSE)
+  }
+
+  # extract server name
+  server <- as.character(server[1, "name"])
+
+  # now find accounts with the given server
+  account <- accounts(server = server)
+  if (is.null(account) || nrow(account) < 1) {
+    stop("No accounts registered with server ", server, call. = FALSE)
+  }
+
+  # return account info from the first one
+  return(accountInfo(name = as.character(account[1, "name"]),
+                     server = server))
+}
