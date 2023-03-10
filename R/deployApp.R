@@ -59,7 +59,6 @@
 #'   You can find the `appId` in the following places:
 #'   * On shinyapps.io, it's the `id` listed on the applications page.
 #'   * For Posit Connect, it's `guid` from the info tab on the content page.
-#'   * For posit.cloud, it's the number at the end of the url.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your

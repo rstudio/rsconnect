@@ -74,7 +74,6 @@ You can find the \code{appId} in the following places:
 \itemize{
 \item On shinyapps.io, it's the \code{id} listed on the applications page.
 \item For Posit Connect, it's \code{guid} from the info tab on the content page.
-\item For posit.cloud, it's the number at the end of the url.
 }}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
