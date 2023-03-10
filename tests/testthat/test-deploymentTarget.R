@@ -13,22 +13,6 @@ test_that("errors if unknown account or server", {
   })
 })
 
-test_that("succeeds if app is fully specified", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
-
-  app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
-
-  target <- deploymentTarget(
-    app_dir,
-    appName = "test",
-    appTitle = "mytitle",
-    appId = "123",
-    account = "ron"
-  )
-  expect_equal(target$appId, "123")
-})
-
 test_that("errors if no previous deployments and multiple accounts", {
   mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
 

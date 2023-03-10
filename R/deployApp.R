@@ -4,19 +4,25 @@
 #' [RMarkdown][rmarkdown::rmarkdown-package] document, a plumber API, or HTML
 #' content to a server.
 #'
-#' ## Updating existing apps
+#' ## Deployment records
 #'
-#' If you have previously deployed an app, `deployApp()` will do its best to
-#' update the existing deployment. In the simple case where you have only one
-#' deployment in `appDir`, this should just work with the default arguments.
-#' If you want multiple deployments to the same server, supply `appName`.
-#' If you want multiple deployments to different servers, use `account` and/or
-#' `server`.
+#' When deploying an app, `deployApp()` will save a deployment record that
+#' makes it easy to update the app on server from your local source code. This
+#' generally means that you need to only need to supply important arguments
+#' (e.g. `appName`, `appTitle`, `server`/`account`) on the first deploy, and
+#' rsconnect will reuse the same settings on subsequent deploys.
 #'
-#' The metadata needs to make this work is stored in the `rsconnect/` directory
-#' beneath `appDir`. You should generally check these files into version
-#' control to ensure that future you and other collaborators will publish
-#' to the same location.
+#' The metadata needs to make this work is stored in `{appDir}/rsconnect/`.
+#' You should generally check these files into version control to ensure that
+#' future you and other collaborators will publish to the same location.
+#'
+#' If you have lost this directory, all is not lost, as `deployApp()` will
+#' attempt to rediscover existing deployments. This is easiest if you are
+#' updating an app that you created, as you can just supply the `appName`
+#' (and `server`/`account` if you have multiple accounts) and `deployApp()`
+#' will find the existing application account. If you need to update an app
+#' that was created by someone else (that you have write permission) for, you'll
+#' instead need to supply the `appId`.
 #'
 #' @param appDir A directory containing an application (e.g. a Shiny app
 #'   or plumber API). Defaults to the current directory.
@@ -42,11 +48,18 @@
 #' @param appTitle Free-form descriptive title of application. Optional; if
 #'   supplied, will often be displayed in favor of the name. If ommitted,
 #'   on second and subsequent deploys, the title will be unchanged.
-#' @param appId If updating an application, the ID of the application being
-#'   updated. For shinyapps.io, this the `id` listed on your applications
-#'   page. For Posit Connect, this is the `guid` that you can find on the
-#'   info tab on the content page. Generally, you should not need to supply
-#'   this as it will be automatically taken from the deployment record on disk.
+#' @param appId Use this to deploy to an exact known application, ignoring all
+#'   existing deployment records and `appName`.
+#'
+#'   You can use this to update an existing application that is missing a
+#'   deployment record. If you're re-deploying an application that you
+#'   created it's generally easier to use `appName`; `appId` is best reserved
+#'   for re-deploying apps created by someone else.
+#'
+#'   You can find the `appId` in the following places:
+#'   * On shinyapps.io, it's the `id` listed on the applications page.
+#'   * For Posit Connect, it's `guid` from the info tab on the content page.
+#'   * For posit.cloud, it's the number at the end of the url.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
@@ -252,15 +265,27 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  target <- deploymentTarget(
-    recordPath = recordPath,
-    appName = appName,
-    appTitle = appTitle,
-    appId = appId,
-    account = account,
-    server = server,
-    forceUpdate = forceUpdate
-  )
+  if (is.null(appId)) {
+    target <- deploymentTarget(
+      recordPath = recordPath,
+      appName = appName,
+      appTitle = appTitle,
+      account = account,
+      server = server,
+      forceUpdate = forceUpdate
+    )
+  } else {
+    if (!is.null(appName)) {
+      cli::cli_warn("{.arg appName} is ignored when {.arg appId} is set")
+    }
+
+    target <- deploymentTargetForApp(
+      appId = appId,
+      appTitle = appTitle,
+      account = account,
+      server = server
+    )
+  }
   if (is.null(target$appId)) {
     dest <- accountId(target$username, target$server)
     taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
