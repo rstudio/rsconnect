@@ -3,7 +3,6 @@
 deploymentTarget <- function(recordPath = ".",
                              appName = NULL,
                              appTitle = NULL,
-                             appId = NULL,
                              account = NULL,
                              server = NULL,
                              forceUpdate = FALSE,
@@ -24,19 +23,18 @@ deploymentTarget <- function(recordPath = ".",
       check_string(appName, call = error_call)
     }
 
+    appId <- NULL
     # Have we previously deployed elsewhere?
-    if (is.null(appId)) {
-      existing <- applications(fullAccount$name, fullAccount$server)
-      if (appName %in% existing$name) {
-        thisApp <- existing[appName == existing$name, , drop = FALSE]
-        uniqueName <- findUnique(appName, existing$name)
+    existing <- applications(fullAccount$name, fullAccount$server)
+    if (appName %in% existing$name) {
+      thisApp <- existing[appName == existing$name, , drop = FALSE]
+      uniqueName <- findUnique(appName, existing$name)
 
-        if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
-          appId <- thisApp$id
-          appName <- thisApp$name
-        } else {
-          appName <- uniqueName
-        }
+      if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
+        appId <- thisApp$id
+        appName <- thisApp$name
+      } else {
+        appName <- uniqueName
       }
     }
 
@@ -70,6 +68,29 @@ deploymentTarget <- function(recordPath = ".",
     )
     updateDeploymentTarget(appDeployments[idx, ], appTitle)
   }
+}
+
+deploymentTargetForApp <- function(appId,
+                                   appTitle = NULL,
+                                   account = NULL,
+                                   server = NULL) {
+  accountDetails <- accountInfo(account, server)
+  client <- clientForAccount(accountDetails)
+
+  withCallingHandlers(
+    application <- client$getApplication(appId),
+    rsconnect_http = function(err) {
+      cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
+    }
+  )
+  createDeploymentTarget(
+    application$name,
+    application$title %||% appTitle,
+    application$id,
+    application$owner_username,
+    accountDetails$username,
+    accountDetails$server
+  )
 }
 
 createDeploymentTarget <- function(appName,
