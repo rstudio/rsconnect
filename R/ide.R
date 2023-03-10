@@ -157,6 +157,9 @@ showRstudioSourceMarkers <- function(basePath, lint) {
 # this isn't used inside the package itself but is invoked from the RStudio IDE
 # to look up app details
 getAppById <- function(id, account, server, hostUrl) {
+  check_string(account)
+  check_string(server)
+  check_string(hostUrl)
 
   accountDetails <- NULL
   tryCatch({
