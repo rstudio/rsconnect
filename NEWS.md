@@ -1,5 +1,7 @@
 # rsconnect 0.8.30 (development version)
 
+* `appDependencies()` includes implicit dependencies.
+
 * New `listDeploymentFiles()`, which supsersedes `listBundleFiles()`.
 
 * `addConnectServer()` has been deprecated because it does the same
@@ -19,7 +21,6 @@
 * `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
   same directory as the document.
 
->>>>>>> 972dc8d0b47d72da36bc9149cfc510b495e89457
 * Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
   been necessary, for quite some time (#106, #109).
 
