@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* rsconnect now follows redirects, which should make it more robust to your
+  server moving to a new url (#674).
+
 * `appDependencies()` includes implicit dependencies.
 
 * New `listDeploymentFiles()`, which supsersedes `listBundleFiles()`.
