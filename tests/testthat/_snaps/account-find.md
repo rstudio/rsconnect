@@ -27,13 +27,13 @@
     Condition
       Error:
       ! Can't find any accounts with `account` = "unknown".
-      i Available account names: "name".
+      i Available account names: "albert".
     Code
       findAccount(NULL, "unknown")
     Condition
       Error:
       ! Can't find any accounts with `server` = "unknown".
-      i Known servers are "server".
+      i Known servers are "example.com".
     Code
       findAccount("unknown", "unknown")
     Condition

@@ -74,15 +74,9 @@ deploymentTargetForApp <- function(appId,
                                    appTitle = NULL,
                                    account = NULL,
                                    server = NULL) {
-  accountDetails <- accountInfo(account, server)
-  client <- clientForAccount(accountDetails)
+  accountDetails <- findAccount(account, server)
+  application <- getApplication(accountDetails$account, accountDetails$server)
 
-  withCallingHandlers(
-    application <- client$getApplication(appId),
-    rsconnect_http = function(err) {
-      cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
-    }
-  )
   createDeploymentTarget(
     application$name,
     application$title %||% appTitle,

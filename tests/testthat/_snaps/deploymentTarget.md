@@ -49,7 +49,7 @@
       Error in `deploymentTarget()`:
       ! Found multiple accounts for `server` = "foo".
       Please disambiguate by setting `account`.
-      i Known account names are "ron" and "john".
+      i Known account names are "john" and "ron".
 
 # errors/prompts if multiple deployments
 

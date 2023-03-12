@@ -13,7 +13,7 @@ test_that("shinyapps accounts create shinyapps clients", {
 test_that("connect accounts create connect clients", {
   local_temp_config()
 
-  addTestServer("http://example.com", "example.com")
+  addTestServer("example.com")
   account <- list(server = "example.com")
   client <- clientForAccount(account)
   expect_equal(client$service(), "connect")

@@ -27,7 +27,10 @@ test_that("combines fields across deployments", {
 
 test_that("deployments() can filter", {
   local_temp_config()
-  mockr::local_mock(accounts = fakeAccounts(c("foo", "bar"), c("foo", "bar")))
+  addTestServer("foo")
+  addTestServer("bar")
+  addTestAccount("foo", "foo")
+  addTestAccount("bar", "bar")
   dir <- local_temp_app()
 
   saveDeployment(
@@ -73,7 +76,10 @@ test_that("deployments() can filter", {
 })
 
 test_that("deployments() can excludes orphans", {
-  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("foo", "bar")
+
   dir <- local_temp_app()
   saveDeployment(
     dir,
@@ -97,7 +103,8 @@ test_that("deployments() can excludes orphans", {
 
 test_that("can read/write metadata", {
   local_temp_config()
-  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
+  addTestServer("bar")
+  addTestAccount("foo", "bar")
   dir <- local_temp_app()
 
   saveDeployment(
@@ -121,8 +128,9 @@ test_that("can read/write metadata", {
 
 test_that("saveDeployment appends to global history", {
   local_temp_config()
+  addTestServer("foo")
+  addTestAccount("bar", "foo")
 
-  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
   dir <- local_temp_app()
 
   saveDeployment(

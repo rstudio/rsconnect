@@ -238,6 +238,10 @@ accountInfo <- function(name = NULL, server = NULL) {
   info
 }
 
+hasAccount <- function(name, server) {
+  file.exists(accountConfigFile(name, server))
+}
+
 #' @rdname accounts
 #' @export
 removeAccount <- function(name = NULL, server = NULL) {
