@@ -81,6 +81,8 @@ httpLibCurl <- function(protocol,
 
     curl::handle_setopt(
       handle,
+      noprogress = fileLength <= 10 * 1024^2,
+      upload_buffersize = 1024^2,
       upload = TRUE,
       infilesize_large = fileLength,
       readfunction = function(nbytes, ...) {

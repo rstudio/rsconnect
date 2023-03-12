@@ -341,7 +341,8 @@ deployApp <- function(appDir = getwd(),
       isCloudServer = isCloudServer,
       image = image
     )
-    taskComplete(quiet, "Bundling complete")
+    size <- prettyunits::pretty_bytes(file_size(bundlePath))
+    taskComplete(quiet, "Created {size} bundle")
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
