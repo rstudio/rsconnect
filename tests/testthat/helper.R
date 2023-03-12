@@ -74,4 +74,3 @@ addTestServer <- function(name = NULL, url = "http://example.com", certificate =
     quiet = TRUE
   )
 }
-
