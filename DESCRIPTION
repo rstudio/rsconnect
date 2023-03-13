@@ -28,7 +28,6 @@ Imports:
     lifecycle,
     openssl (>= 2.0.0),
     packrat (>= 0.6),
-    prettyunits,
     rlang (>= 1.0.0),
     rstudioapi (>= 0.5),
     tools,
