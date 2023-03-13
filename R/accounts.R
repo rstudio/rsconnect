@@ -157,6 +157,13 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(secret)
   check_string(server)
 
+  if (secret == "<SECRET>") {
+    cli::cli_abort(c(
+      "You've copied and pasted the wrong thing.",
+      i ="Either click 'Show secret' or 'Copy to clipboard'."
+    ))
+  }
+
   account <- list(token = token, secret = secret, server = server)
   client <- clientForAccount(account)
 

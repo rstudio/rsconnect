@@ -18,3 +18,12 @@
        $ server     : chr "example.com"
        $ private_key: THISIS... (redacted)
 
+# setAccountInfo() gives nice error on bad copy and paste
+
+    Code
+      setAccountInfo("name", "token", "<SECRET>")
+    Condition
+      Error in `setAccountInfo()`:
+      ! You've copied and pasted the wrong thing.
+      i Either click 'Show secret' or 'Copy to clipboard'.
+
