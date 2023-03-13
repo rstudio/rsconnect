@@ -47,10 +47,13 @@ validateConnectUrl <- function(url, certificate = NULL) {
   retry <- TRUE
   while (retry) {
     tryCatch({
+      # HTTP requests can take longer on Windows, so set a larger timeout
+      timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
+
       response <- GET(parseHttpUrl(url),
                           list(certificate = certificate),
                           settingsEndpoint,
-                          timeout = getOption("rsconnect.http.timeout", 10))
+                          timeout = timeout)
 
       httpResponse <- attr(response, "httpResponse")
       # check for redirect
