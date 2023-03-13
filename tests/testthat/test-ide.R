@@ -17,3 +17,14 @@ test_that("validateConnectUrl() follows redirects", {
   api_url <- "https://connect.rstudioservices.com:443/__api__"
   expect_equal(validateConnectUrl("http://connect.rstudioservices.com")$url, api_url)
 })
+
+test_that("getAppById() fails where expected", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("susan")
+
+  expect_snapshot(error = TRUE, {
+    getAppById("123", "susan", "unknown", "unknown.com")
+    getAppById("123", "robert", "unknown", "http://example.com")
+  })
+})

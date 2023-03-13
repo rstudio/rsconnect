@@ -6,13 +6,14 @@ test_that("validates its arguments", {
 })
 
 test_that("error if no accounts", {
-  mockr::local_mock(accounts = fakeAccounts(character(), character()))
-
+  local_temp_config()
   expect_snapshot(findAccount(), error = TRUE)
 })
 
 test_that("error if no matching account", {
-  mockr::local_mock(accounts = fakeAccounts("name", "server"))
+  local_temp_config()
+  addTestServer()
+  addTestAccount("albert")
 
   expect_snapshot(error = TRUE, {
     findAccount("unknown", NULL)
@@ -22,7 +23,12 @@ test_that("error if no matching account", {
 })
 
 test_that("error if ambiguous accounts in non-interactive environment", {
-  mockr::local_mock(accounts = fakeAccounts(c("a", "a", "b"), c("x", "y", "y")))
+  local_temp_config()
+  addTestServer("a")
+  addTestServer("b")
+  addTestAccount("a", "x")
+  addTestAccount("a", "y")
+  addTestAccount("b", "y")
 
   expect_snapshot(error = TRUE, {
     findAccount()
@@ -32,11 +38,17 @@ test_that("error if ambiguous accounts in non-interactive environment", {
 })
 
 test_that("prompted to pick account in interactive environment", {
+  local_temp_config()
+  addTestServer("a")
+  addTestServer("b")
+  addTestAccount("a", "x")
+  addTestAccount("a", "y")
+  addTestAccount("b", "y")
+
   withr::local_options(
     rlang_interactive = TRUE,
     cli_prompt = "2"
   )
-  mockr::local_mock(accounts = fakeAccounts(c("a", "a", "b"), c("x", "y", "y")))
 
   expect_snapshot({
     out <- findAccount()
@@ -45,7 +57,9 @@ test_that("prompted to pick account in interactive environment", {
 })
 
 test_that("returns account + server when uniquely identified", {
-  mockr::local_mock(accounts = fakeAccounts("a", "x"))
+  local_temp_config()
+  addTestServer("a")
+  addTestAccount("a", "x")
 
   expect_equal(findAccount(NULL, NULL), list(name = "a", server = "x"))
   expect_equal(findAccount("a", NULL), list(name = "a", server = "x"))

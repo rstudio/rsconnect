@@ -29,12 +29,13 @@ validateConnectUrl <- function(url, certificate = NULL) {
   is_http <- grepl("^http://", url)
 
   GET_server_settings <- function(url) {
+    timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
     auth_info <- list(certificate = inferCertificateContents(certificate))
     GET(
       parseHttpUrl(url),
       auth_info,
       "/server_settings",
-      timeout = getOption("rsconnect.http.timeout", 10)
+      timeout = timeout
     )
   }
 
@@ -107,4 +108,32 @@ showRstudioSourceMarkers <- function(basePath, lint) {
                       markers = markers,
                       basePath = basePath,
                       autoSelect = "first")
+}
+
+# getAppById() -----------------------------------------------------------------
+
+# https://github.com/rstudio/rstudio/blob/ee56d49b0fca5f3d7c3f5214a4010355d1bb0212/src/gwt/src/org/rstudio/studio/client/rsconnect/ui/RSConnectDeploy.java#L699
+
+getAppById <- function(id, account, server, hostUrl) {
+  check_string(account)
+  check_string(server)
+  check_string(hostUrl)
+
+  if (!hasAccount(account, server)) {
+    # If can't find record for account + server, try hostUrl
+    servers <- servers()
+    matches <- servers$url == hostUrl
+    if (any(matches)) {
+      server <- servers$name[which(matches)[[1]]]
+      if (!hasAccount(account, server)) {
+        cli::cli_abort(
+          "Can't find account {.str {account}} on server {.str {server}}."
+        )
+      }
+    } else {
+      cli::cli_abort("Can't find server with url {.str {hostUrl}}.")
+    }
+  }
+
+  getApplication(account, server, id)
 }

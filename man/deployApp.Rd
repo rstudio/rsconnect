@@ -62,11 +62,19 @@ document. On subsequent deploys, it will use the previously stored value.}
 supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.}
 
-\item{appId}{If updating an application, the ID of the application being
-updated. For shinyapps.io, this the \code{id} listed on your applications
-page. For Posit Connect, this is the \code{guid} that you can find on the
-info tab on the content page. Generally, you should not need to supply
-this as it will be automatically taken from the deployment record on disk.}
+\item{appId}{Use this to deploy to an exact known application, ignoring all
+existing deployment records and \code{appName}.
+
+You can use this to update an existing application that is missing a
+deployment record. If you're re-deploying an application that you
+created it's generally easier to use \code{appName}; \code{appId} is best reserved
+for re-deploying apps created by someone else.
+
+You can find the \code{appId} in the following places:
+\itemize{
+\item On shinyapps.io, it's the \code{id} listed on the applications page.
+\item For Posit Connect, it's \code{guid} from the info tab on the content page.
+}}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"} or \code{"site"}).}
@@ -143,19 +151,25 @@ Deploy a \link[shiny:shiny-package]{shiny} application, an
 content to a server.
 }
 \details{
-\subsection{Updating existing apps}{
+\subsection{Deployment records}{
 
-If you have previously deployed an app, \code{deployApp()} will do its best to
-update the existing deployment. In the simple case where you have only one
-deployment in \code{appDir}, this should just work with the default arguments.
-If you want multiple deployments to the same server, supply \code{appName}.
-If you want multiple deployments to different servers, use \code{account} and/or
-\code{server}.
+When deploying an app, \code{deployApp()} will save a deployment record that
+makes it easy to update the app on server from your local source code. This
+generally means that you need to only need to supply important arguments
+(e.g. \code{appName}, \code{appTitle}, \code{server}/\code{account}) on the first deploy, and
+rsconnect will reuse the same settings on subsequent deploys.
 
-The metadata needs to make this work is stored in the \verb{rsconnect/} directory
-beneath \code{appDir}. You should generally check these files into version
-control to ensure that future you and other collaborators will publish
-to the same location.
+The metadata needs to make this work is stored in \verb{\{appDir\}/rsconnect/}.
+You should generally check these files into version control to ensure that
+future you and other collaborators will publish to the same location.
+
+If you have lost this directory, all is not lost, as \code{deployApp()} will
+attempt to rediscover existing deployments. This is easiest if you are
+updating an app that you created, as you can just supply the \code{appName}
+(and \code{server}/\code{account} if you have multiple accounts) and \code{deployApp()}
+will find the existing application account. If you need to update an app
+that was created by someone else (that you have write permission) for, you'll
+instead need to supply the \code{appId}.
 }
 }
 \examples{

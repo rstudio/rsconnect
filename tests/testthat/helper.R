@@ -52,3 +52,25 @@ local_temp_app <- function(files = list(), env = caller_env()) {
 
   dir
 }
+
+# Servers and accounts ----------------------------------------------------
+
+addTestAccount <- function(account, server = "example.com", userId = account) {
+  registerUserToken(server, account, userId, "", "")
+}
+
+addTestServer <- function(name = NULL, url = "http://example.com", certificate = NULL) {
+
+  if (is.null(name)) {
+    serverUrl <- parseHttpUrl(url)
+    name <- serverUrl$host
+  }
+
+  addServer(
+    url = url,
+    name = name,
+    certificate = certificate,
+    validate = FALSE,
+    quiet = TRUE
+  )
+}

@@ -132,6 +132,18 @@ resolveApplication <- function(accountDetails, appName) {
   stopWithApplicationNotFound(appName)
 }
 
+getApplication <- function(account, server, appId) {
+  accountDetails <- accountInfo(account, server)
+  client <- clientForAccount(accountDetails)
+
+  withCallingHandlers(
+    client$getApplication(appId),
+    rsconnect_http = function(err) {
+      cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
+    }
+  )
+}
+
 stopWithApplicationNotFound <- function(appName) {
   stop(paste("No application named '", appName, "' is currently deployed",
              sep = ""), call. = FALSE)

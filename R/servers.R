@@ -201,16 +201,6 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
   }
 }
 
-addTestServer <- function(url, name, certificate = NULL) {
-  addServer(
-    url = url,
-    name = name,
-    certificate = certificate,
-    validate = FALSE,
-    quiet = TRUE
-  )
-}
-
 #' @rdname addServer
 #' @export
 removeServer <- function(name = NULL) {
