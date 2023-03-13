@@ -34,7 +34,7 @@ httpRequest <- function(service,
     certificate = certificate
   )
 
-  while (httpResponse$status >= 300 && httpResponse$status < 400) {
+  while (isRedirect(httpResponse$status)) {
     service <- parseHttpUrl(httpResponse$location)
     httpResponse <- http(
       protocol = service$protocol,
@@ -91,9 +91,9 @@ httpRequestWithBody <- function(service,
     contentFile = file,
     certificate = certificate
   )
-  while (httpResponse$status >= 300 && httpResponse$status < 400) {
+  while (isRedirect(httpResponse$status)) {
     # This is a simplification of the spec, since we should preserve
-    # the method for 307 and 308
+    # the method for 307 and 308, but that's unlikely to arise for our apps
     # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
     service <- parseHttpUrl(httpResponse$location)
     authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
@@ -110,6 +110,10 @@ httpRequestWithBody <- function(service,
   }
 
   handleResponse(httpResponse, error_call = error_call)
+}
+
+isRedirect <- function(status) {
+  status %in% c(301, 302, 307, 308)
 }
 
 handleResponse <- function(response, error_call = caller_env()) {
