@@ -79,9 +79,11 @@ httpLibCurl <- function(protocol,
     con <- file(contentFile, "rb")
     on.exit(if (!is.null(con)) close(con), add = TRUE)
 
+    progress <- is_interactive() && fileLength >= 10 * 1024^2
+
     curl::handle_setopt(
       handle,
-      noprogress = fileLength <= 10 * 1024^2,
+      noprogress = !progress,
       upload = TRUE,
       infilesize_large = fileLength,
       readfunction = function(nbytes, ...) {
