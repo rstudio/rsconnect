@@ -31,8 +31,9 @@ createCurlHandle <- function(timeout, certificate) {
   if (httpVerbose())
     curl::handle_setopt(handle, verbose = TRUE)
 
-  # turn off CURLOPT_FOLLOWLOCATION. the curl package makes this the default for new handles, but it
-  # causes a hang when attempting to follow some responses from shinyapps.io.
+  # suppress curl's automatically handling of redirects, since we have to
+  # handle ourselves in httpRequest()/httpRequestWithBody() due to our
+  # specialised auth needs
   curl::handle_setopt(handle, followlocation = FALSE)
 
   # return the newly created handle
@@ -78,40 +79,25 @@ httpLibCurl <- function(protocol,
     con <- file(contentFile, "rb")
     on.exit(if (!is.null(con)) close(con), add = TRUE)
 
-    if (identical(method, "POST")) {
-      # for POST operations, send all the file's content up at once. this is necessary because some
-      # POST endpoints return 3xx status codes, which require a seekfunction in order to replay the
-      # payload (the curl package does not currently allow specifying seekfunctions from R)
-      curl::handle_setopt(handle,
-                          post = TRUE,
-                          postfields = readBin(con,
-                                               what = "raw",
-                                               n = fileLength),
-                          postfieldsize_large = fileLength)
-    } else if (identical(method, "PUT")) {
-      # for PUT operations, which are often used for larger content (bundle uploads), stream the
-      # file from disk instead of reading it from memory
-      curl::handle_setopt(handle,
-                          upload = TRUE,
-                          infilesize_large = fileLength)
+    progress <- is_interactive() && fileLength >= 10 * 1024^2
 
-      curl::handle_setopt(handle,
-        readfunction = function(nbytes, ...) {
-           if (is.null(con)) {
-             return(raw())
-           }
-           bin <- readBin(con, "raw", nbytes)
-           if (length(bin) < nbytes) {
-             close(con)
-             con <<- NULL
-           }
-           bin
-        })
-    } else {
-      # why was a file specified for this endpoint?
-      warning("Content file specified, but not used because the '", method, "' request ",
-              "type does not accept a body.")
-    }
+    curl::handle_setopt(
+      handle,
+      noprogress = !progress,
+      upload = TRUE,
+      infilesize_large = fileLength,
+      readfunction = function(nbytes, ...) {
+        if (is.null(con)) {
+          return(raw())
+        }
+        bin <- readBin(con, "raw", nbytes)
+        if (length(bin) < nbytes) {
+          close(con)
+          con <<- NULL
+        }
+        bin
+      }
+    )
   }
 
   # ensure we're using the requested method
@@ -122,19 +108,10 @@ httpLibCurl <- function(protocol,
 
   # make the request
   response <- NULL
-  time <- system.time(gcFirst = FALSE, tryCatch({
-      # fetch the response into a raw buffer in memory
-      response <- curl::curl_fetch_memory(url, handle = handle)
-    },
-    error = function(e, ...) {
-      # ignore errors resulting from timeout or user abort
-      if (identical(e$message, "Callback aborted") ||
-          identical(e$message, "transfer closed with outstanding read data remaining"))
-        return(NULL)
-      # bubble remaining errors through
-      else
-        stop(e)
-    }))
+  time <- system.time(
+    response <- curl::curl_fetch_memory(url, handle = handle),
+    gcFirst = FALSE
+  )
   httpTrace(method, path, time)
 
   # get list of HTTP response headers

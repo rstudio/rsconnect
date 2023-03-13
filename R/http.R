@@ -33,6 +33,21 @@ httpRequest <- function(service,
     timeout = timeout,
     certificate = certificate
   )
+
+  while (isRedirect(httpResponse$status)) {
+    service <- parseHttpUrl(httpResponse$location)
+    httpResponse <- http(
+      protocol = service$protocol,
+      host = service$host,
+      port = service$port,
+      method = method,
+      path = service$path,
+      headers = headers,
+      timeout = timeout,
+      certificate = certificate
+    )
+  }
+
   handleResponse(httpResponse, error_call = error_call)
 }
 
@@ -60,7 +75,7 @@ httpRequestWithBody <- function(service,
   }
 
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders(authInfo, method, path, file))
+  authed_headers <- c(headers, authHeaders(authInfo, method, path, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
@@ -71,18 +86,39 @@ httpRequestWithBody <- function(service,
     port = service$port,
     method = method,
     path = path,
-    headers = headers,
+    headers = authed_headers,
     contentType = contentType,
     contentFile = file,
     certificate = certificate
   )
+  while (isRedirect(httpResponse$status)) {
+    # This is a simplification of the spec, since we should preserve
+    # the method for 307 and 308, but that's unlikely to arise for our apps
+    # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
+    service <- parseHttpUrl(httpResponse$location)
+    authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
+    httpResponse <- http(
+      protocol = service$protocol,
+      host = service$host,
+      port = service$port,
+      method = "GET",
+      path = service$path,
+      headers = authed_headers,
+      certificate = certificate
+    )
+    httpResponse
+  }
+
   handleResponse(httpResponse, error_call = error_call)
+}
+
+isRedirect <- function(status) {
+  status %in% c(301, 302, 307, 308)
 }
 
 handleResponse <- function(response, error_call = caller_env()) {
   reportError <- function(msg) {
-    req <- response$req
-    url <- paste0(req$protocol, "://", req$host, req$port, req$path)
+    url <- buildHttpUrl(response$req)
 
     cli::cli_abort(
       c("<{url}> failed with HTTP status {response$status}", msg),
@@ -295,6 +331,10 @@ parseHttpUrl <- function(urlText) {
   url
 }
 
+buildHttpUrl <- function(x) {
+  paste0(x$protocol, "://", x$host, x$port, x$path)
+}
+
 urlDecode <- function(x) {
   curl::curl_unescape(x)
 }
@@ -355,6 +395,7 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
   }
 }
 
+# https://github.com/rstudio/connect/wiki/token-authentication#request-signing-rsconnect
 signatureHeaders <- function(authInfo, method, path, file = NULL) {
   # headers to return
   headers <- list()

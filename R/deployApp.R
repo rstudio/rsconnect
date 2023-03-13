@@ -365,7 +365,8 @@ deployApp <- function(appDir = getwd(),
       isCloudServer = isCloudServer,
       image = image
     )
-    taskComplete(quiet, "Bundling complete")
+    size <- format(file_size(bundlePath), big.mark = ",")
+    taskComplete(quiet, "Created {size}b bundle")
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")

@@ -17,87 +17,46 @@ validateServerUrl <- function(url, certificate = NULL) {
 # The URL may be specified with or without the protocol and port; this function
 # will try both http and https and follow any redirects given by the server.
 validateConnectUrl <- function(url, certificate = NULL) {
-  tryAllProtocols <- TRUE
-
-  if (!grepl("://", url, fixed = TRUE))
-  {
+  # Add protocol if missing, assuming https except for local installs
+  if (!grepl("://", url, fixed = TRUE)) {
     if (grepl(":3939", url, fixed = TRUE)) {
-      # assume http for default (local) connect installations
       url <- paste0("http://", url)
     } else {
-      # assume https elsewhere
       url <- paste0("https://", url)
     }
   }
-
-  # if the URL ends with a port number, don't try http/https on the same port
-  if (grepl(":\\d+/?$", url)) {
-    tryAllProtocols <- FALSE
-  }
-
-  settingsEndpoint <- "/server_settings"
   url <- ensureConnectServerUrl(url)
+  is_http <- grepl("^http://", url)
 
-  # populate certificate if supplied
-  certificate <- inferCertificateContents(certificate)
+  GET_server_settings <- function(url) {
+    timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
+    auth_info <- list(certificate = inferCertificateContents(certificate))
+    GET(
+      parseHttpUrl(url),
+      auth_info,
+      "/server_settings",
+      timeout = timeout
+    )
+  }
 
-  # begin trying URLs to discover the correct one
   response <- NULL
-  errMessage <- ""
-  retry <- TRUE
-  while (retry) {
-    tryCatch({
-      # HTTP requests can take longer on Windows, so set a larger timeout
-      timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
-
-      response <- GET(parseHttpUrl(url),
-                          list(certificate = certificate),
-                          settingsEndpoint,
-                          timeout = timeout)
-
-      httpResponse <- attr(response, "httpResponse")
-      # check for redirect
-      if (httpResponse$status == 307 &&
-          !is.null(httpResponse$location)) {
-
-        # we were served a redirect; try again with the new URL
-        url <- httpResponse$location
-        if (substring(url, (nchar(url) - nchar(settingsEndpoint)) + 1)   ==
-            settingsEndpoint) {
-          # chop /server_settings from the redirect path to get the raw API path
-          url <- substring(url, 1, nchar(url) - nchar(settingsEndpoint))
-        }
-        next
-      }
-      if (!isContentType(httpResponse, "application/json")) {
-        response <- NULL
-        errMessage <- "Endpoint did not return JSON"
-      }
-
-      # got a real response; stop trying now
-      retry <- FALSE
-    }, error = function(e) {
-      if (inherits(e, "OPERATION_TIMEDOUT") && tryAllProtocols) {
-        # if the operation timed out on one protocol, try the other one (note
-        # that we don't do this if a port is specified)
-        if (substring(url, 1, 7) == "http://") {
-          url <<- paste0("https://", substring(url, 8))
-        } else if (substring(url, 1, 8) == "https://") {
-          url <<- paste0("http://", substring(url, 9))
-        }
-        tryAllProtocols <<- FALSE
-        return()
-      }
-      errMessage <<- e$message
-      retry <<- FALSE
-    })
+  cnd <- catch_cnd(response <- GET_server_settings(url), "error")
+  if (is_http && cnd_inherits(cnd, "OPERATION_TIMEDOUT")) {
+    url <- gsub("^http://", "https://", url)
+    cnd <- catch_cnd(response <- GET_server_settings(url), "error")
   }
 
-  if (is.null(response)) {
-    list(valid = FALSE, message = errMessage)
-  } else {
-    list(valid = TRUE, url = url, response = response)
+  if (!is.null(cnd)) {
+    return(list(valid = FALSE, message = conditionMessage(cnd)))
   }
+
+  httpResponse <- attr(response, "httpResponse")
+  if (!isContentType(httpResponse, "application/json")) {
+    return(list(valid = FALSE, message = "Endpoint did not return JSON"))
+  }
+
+  url <- gsub("/server_settings$", "", buildHttpUrl(httpResponse$req))
+  list(valid = TRUE, url = url, response = response)
 }
 
 # given a server URL, returns that server's short name. if the server is not
