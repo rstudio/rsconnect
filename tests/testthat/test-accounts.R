@@ -29,4 +29,3 @@ test_that("secrets are hidden from casual inspection", {
     accountInfo("3")$apiKey
   })
 })
-

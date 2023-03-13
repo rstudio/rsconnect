@@ -153,5 +153,3 @@ getUserFromRawToken <- function(serverUrl,
 
   getAuthedUser(server, token = list(token = token, private_key = privateKey))
 }
-
-
