@@ -525,34 +525,6 @@ bundleApp <- function(appName,
   bundlePath
 }
 
-# get the record for the application with the given ID in the given account;
-# this isn't used inside the package itself but is invoked from the RStudio IDE
-# to look up app details
-getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
-  accountDetails <- NULL
-  tryCatch({
-    # attempt to look up the account locally
-    accountDetails <- accountInfo(account, server)
-  }, error = function(e) {
-    # we'll retry below
-  })
-
-  if (is.null(accountDetails)) {
-    if (is.null(hostUrl)) {
-      # rethrow if no host url to go on
-      stop("No account '", account, "' found and no host URL specified.",
-           call. = FALSE)
-    }
-
-    # no account details yet, look up from the host URL if we have one
-    accountDetails <- accountInfoFromHostUrl(hostUrl)
-  }
-
-  # create the appropriate client and fetch the application
-  client <- clientForAccount(accountDetails)
-  client$getApplication(id)
-}
-
 getAppByName <- function(client, accountInfo, name) {
   # NOTE: returns a list with 0 or 1 elements
   app <- client$listApplications(accountInfo$accountId, filters = list(name = name))

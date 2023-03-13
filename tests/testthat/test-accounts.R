@@ -7,6 +7,16 @@ test_that("no accounts returns empty data frame", {
   )
 })
 
+test_that("hasAccounts works", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("john")
+
+  expect_true(hasAccount("john", "example.com"))
+  expect_false(hasAccount("john", "example2.com"))
+  expect_false(hasAccount("mary", "example.com"))
+})
+
 test_that("secrets are hidden from casual inspection", {
   local_temp_config()
   registerUserToken("example.com", "john", "userId", "token", "THIS IS A SECRET")

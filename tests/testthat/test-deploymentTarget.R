@@ -1,11 +1,13 @@
 test_that("errors if no accounts", {
-  mockr::local_mock(accounts = fakeAccounts(character(), character()))
+  local_temp_config()
 
   expect_snapshot(deploymentTarget(), error = TRUE)
 })
 
 test_that("errors if unknown account or server", {
-  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("foo", "bar")
 
   expect_snapshot(error = TRUE, {
     deploymentTarget(server = "unknown")
@@ -14,7 +16,11 @@ test_that("errors if unknown account or server", {
 })
 
 test_that("errors if no previous deployments and multiple accounts", {
-  mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
+  local_temp_config()
+  addTestServer("foo1")
+  addTestServer("foo2")
+  addTestAccount("ron", "foo1")
+  addTestAccount("ron", "foo2")
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -26,8 +32,11 @@ test_that("errors if no previous deployments and multiple accounts", {
 })
 
 test_that("handles accounts if only server specified", {
+  local_temp_config()
+  addTestServer("foo")
+  addTestAccount("ron", "foo")
+  addTestAccount("john", "foo")
   mockr::local_mock(
-    accounts = fakeAccounts(c("ron", "john"), "foo"),
     applications = function(...) data.frame()
   )
 
@@ -45,7 +54,11 @@ test_that("handles accounts if only server specified", {
 })
 
 test_that("errors/prompts if multiple deployments", {
-  mockr::local_mock(accounts = fakeAccounts("ron", c("server1.com", "server2.com")))
+  local_temp_config()
+  addTestServer("server1.com")
+  addTestServer("server2.com")
+  addTestAccount("ron", "server1.com")
+  addTestAccount("ron", "server2.com")
 
   app_dir <- withr::local_tempdir()
   saveDeployment(
@@ -91,8 +104,10 @@ test_that("errors/prompts if multiple deployments", {
 })
 
 test_that("succeeds if there's a single existing deployment", {
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
   mockr::local_mock(
-    accounts = fakeAccounts("ron", "bar"),
     applications = function(...) data.frame()
   )
 
@@ -123,8 +138,10 @@ test_that("succeeds if there's a single existing deployment", {
 })
 
 test_that("new title overrides existing title", {
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
   mockr::local_mock(
-    accounts = fakeAccounts("ron", "bar"),
     applications = function(...) data.frame()
   )
 
@@ -153,8 +170,10 @@ test_that("new title overrides existing title", {
 })
 
 test_that("succeeds if there are no deployments and a single account", {
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
   mockr::local_mock(
-    accounts = fakeAccounts("ron", "bar"),
     applications = function(...) data.frame()
   )
 
@@ -172,8 +191,10 @@ test_that("succeeds if there are no deployments and a single account", {
 })
 
 test_that("default title is the empty string", {
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
   mockr::local_mock(
-    accounts = fakeAccounts("ron", "bar"),
     applications = function(...) data.frame()
   )
 
@@ -185,7 +206,9 @@ test_that("default title is the empty string", {
 })
 
 test_that("deploy can update title", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -209,8 +232,10 @@ test_that("deploy can update title", {
 })
 
 test_that("can look up existing application on server", {
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
   mockr::local_mock(
-    accounts = fakeAccounts("ron", "bar"),
     applications = function(...) data.frame(
       name = "my_app",
       id = 123,
@@ -229,7 +254,6 @@ test_that("can look up existing application on server", {
   # TODO: Minimise when we switch to testhat::local_mocked_bindings
   # and can progressively modify the same environment
   mockr::local_mock(
-    accounts = fakeAccounts("ron", "bar"),
     applications = function(...) data.frame(
       name = "my_app",
       id = 123,
