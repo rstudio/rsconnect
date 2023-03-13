@@ -11,10 +11,14 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 [![R-CMD-check](https://github.com/rstudio/rsconnect/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/rsconnect/actions)
 <!-- badges: end -->
 
-An R package used for deploying applications to [Posit
+rsconnect makes it easy to publish your Shiny apps, RMarkdown and quarto
+documents, and plumbr APIs to [Posit
 Connect](https://posit.co/products/enterprise/connect/),
 [ShinyApps.io](https://www.shinyapps.io/), and [Posit
-Cloud](https://posit.cloud/).
+Cloud](https://posit.cloud/) from R.
+
+(If you’re looking for the python equivalent, try
+[rsconnect-python](https://pypi.org/project/rsconnect-python/))
 
 ## Installation
 
@@ -32,21 +36,33 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("rstudio/rsconnect")
 ```
 
-## Example
+## Setup
 
-To get started using ShinyApps check out the [Getting Started
-Guide](https://shiny.rstudio.com/articles/shinyapps.html).
+To use rsconnect, you first need to teach it about the server you want
+to publish to. If you use the RStudio IDE, the easiest way to get set up
+is to use the publishing dialog, which you can find by clicking the
+“Tools” menu, then selecting “Global options”, then clicking
+“Publishing”. Click “Connect” to add new servers.
 
-For more information using Posit Connect, see the [Posit Connect User
-Guide](https://docs.posit.co/connect/user/index.html).
+You can also connect from any R session by running a little code:
 
-Publishing to Posit Cloud is currently in closed beta and requires
-access to an enabled account on Posit Cloud. Premium, Instructor, and
-Organization account holders can request to participate. See [Posit
-Cloud’s Announcement](https://posit.cloud/learn/whats-new#publishing)
-for more information and to request access.
+- For shinyapps.io, go to your [tokens
+  page](https://www.shinyapps.io/admin/#/tokens) and click “Add Token”,
+  then follow the instructions to copy and paste the appropriate call to
+  `setAccountInfo()`. Learn more in the [Getting Started
+  Guide](https://www.shinyapps.io/admin/#/tokens).
 
-## Legal Stuff
+- For Posit Connect, first use `addServer()` to register your server
+  with rsconnect, then call either `connectUser()` or
+  `connectApiUser()`. `connectUser()` is a bit simpler if you’re in an
+  interactive session; `connectApiUser()` works anywhere but requires a
+  you to copy and paste an API key from your user profile.
 
-TensorFlow, the TensorFlow logo and any related marks are trademarks of
-Google Inc., and are not affiliated with Posit Software, PBC
+- For Posit Cloud, login, then click your name in the top-right corner,
+  click “Account”, then click “Tokens” in the navbar at the top of the
+  page. Click “New Token”, then “Copy” next to the token you just
+  created, and then follow the instructions to copy and paste the
+  appropriate call to `setAccountInfo()`.
+
+Now that you’re setup you can use `deployApp()`, `deployDoc()`, and
+friends to publish your apps, documentations, APIs and more.
