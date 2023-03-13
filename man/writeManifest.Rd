@@ -2,7 +2,7 @@
 % Please edit documentation in R/writeManifest.R
 \name{writeManifest}
 \alias{writeManifest}
-\title{Create a manifest.json describing deployment requirements.}
+\title{Create a \code{manifest.json} for Git-backed content}
 \usage{
 writeManifest(
   appDir = getwd(),
@@ -33,8 +33,8 @@ parameter indicates the primary one, as a path relative to \code{appDir}. Can be
 \code{NULL}, in which case the primary document is inferred from the contents
 being deployed.}
 
-\item{contentCategory}{Optional; the kind of content being deployed (e.g.
-\code{"plot"} or \code{"site"}).}
+\item{contentCategory}{Set this to \code{"site"} if you'd deploy with
+\code{\link[=deploySite]{deploySite()}}; otherwise leave as is.}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 Required if \code{reticulate} is a dependency of the app being deployed.
@@ -58,6 +58,12 @@ attempt to choose an image based on the content requirements.}
 \item{verbose}{If TRUE, prints progress messages to the console}
 }
 \description{
-Given a directory content targeted for deployment, write a manifest.json into
-that directory describing the deployment requirements for that content.
+Use \code{writeManifest()} to generate a \code{manifest.json} and then commit it to
+git to activate
+\href{https://docs.posit.co/connect/user/git-backed/}{Git-Backed content}
+for Posit Connect.
+
+\code{manifest.json} contains a list of all files in the app along with their
+dependencies, so you will need to re-run \code{writeManifest()} when either of
+these change.
 }
