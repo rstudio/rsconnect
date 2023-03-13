@@ -96,17 +96,6 @@ httpLibCurl <- function(protocol,
         bin
       }
     )
-
-    if (length(curl::curl_options("upload_buffersize")) > 0) {
-      # Conditionally set larger buffer size: not available with CRAN curl
-      # because built on OS X 10.13, which has libcurl 7.54.0 and this needs
-      # 7.62.0
-      curl::handle_setopt(
-        handle,
-        upload_buffersize = 1024^2
-      )
-    }
-
   }
 
   # ensure we're using the requested method
