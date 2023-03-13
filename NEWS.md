@@ -1,5 +1,11 @@
 # rsconnect 0.8.30 (development version)
 
+* Uploading large files to rpubs works once more (#450).
+
+* `deployApp()` includes some new conveniences for large uploads including
+  reporting the size of the bundle you're uploading and (if interative) a
+  progress bar (#754).
+
 * rsconnect now follows redirects, which should make it more robust to your
   server moving to a new url (#674).
 
