@@ -294,3 +294,26 @@ hasLint <- function(x) {
     })
   })))
 }
+
+activeEncoding <- function(project = getwd()) {
+
+  defaultEncoding <- getOption("encoding")
+  if (identical(defaultEncoding, "native.enc"))
+    defaultEncoding <- "unknown"
+
+  # attempt to locate .Rproj file
+  files <- list.files(project, full.names = TRUE)
+  rprojFile <- grep("\\.Rproj$", files, value = TRUE)
+  if (length(rprojFile) != 1)
+    return(defaultEncoding)
+
+  # read the file
+  contents <- readLines(rprojFile, warn = FALSE, encoding = "UTF-8")
+  encodingLine <- grep("^Encoding:", contents, value = TRUE)
+  if (length(encodingLine) != 1)
+    return(defaultEncoding)
+
+  # remove "Encoding:" prefix
+  sub("^Encoding:\\s*", "", encodingLine)
+
+}

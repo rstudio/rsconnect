@@ -254,9 +254,9 @@ shinyAppsClient <- function(service, authInfo) {
             return(NULL)
           } else {
             # always show task log on error
-            hr("Begin Task Log")
+            cli::cat_rule("Begin Task Log", line = "#")
             taskLog(taskId, authInfo$name, authInfo$server, output = "stderr")
-            hr("End Task Log")
+            cli::cat_rule("End Task Log", line = "#")
             stop(status$error, call. = FALSE)
           }
         }

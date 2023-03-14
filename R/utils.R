@@ -35,36 +35,6 @@ httpDiagnosticsEnabled <- function() {
          getOption("rsconnect.http.verbose", FALSE))
 }
 
-readPassword <- function(prompt) {
-  if (rstudioapi::hasFun("askForPassword")) {
-    password <- rstudioapi::askForPassword(prompt)
-  } else {
-
-    os <- Sys.info()[["sysname"]]
-
-    echoOff <- function() {
-      if (identical(os, "Darwin") || identical(os, "Linux")) {
-        #system("stty cbreak -echo <&2")
-      } else {
-        # TODO: disable echo on Windows
-      }
-    }
-
-    echoOn <- function() {
-      if (identical(os, "Darwin") || identical(os, "Linux")) {
-        #system("stty echo")
-      } else {
-        # TODO: enable echo on Windows
-      }
-    }
-
-    echoOff()
-    password <- readline(prompt)
-    echoOn()
-  }
-  return(password)
-}
-
 # wrapper around read.dcf to workaround LC_CTYPE bug
 readDcf <- function(...) {
   loc <- Sys.getlocale("LC_CTYPE")
@@ -81,57 +51,8 @@ file_path_sans_ext <- function(x, compression = FALSE) {
   sub("(.+)\\.[[:alnum:]]+$", "\\1", x)
 }
 
-#' Generate a line with embedded message
-#'
-#' Generates a message, surrounded with `#`, that extends
-#' up to length `n`.
-#' @param message A string (single-line message).
-#' @param n The total number length of the generated string --
-#'   the message is padded with `#` up to length `n`.
-#' @noRd
-hr <- function(message = "", n = 80) {
-  if (nzchar(message)) {
-    r <- as.integer((n - nchar(message) - 2) / 2)
-    hr <- paste(rep.int("#", r), collapse = "")
-    cat(hr, message, hr, sep = " ", "\n")
-  } else {
-    hr <- paste(rep.int("#", n), collapse = "")
-    cat(hr, sep = "", "\n")
-  }
-}
-
 dirExists <- function(x) {
   utils::file_test("-d", x)
-}
-
-capitalize <- function(x) {
-  if (nchar(x) == 0)
-    x
-  else
-    paste0(toupper(substr(x, 1, 1)), substring(x, 2))
-}
-
-activeEncoding <- function(project = getwd()) {
-
-  defaultEncoding <- getOption("encoding")
-  if (identical(defaultEncoding, "native.enc"))
-    defaultEncoding <- "unknown"
-
-  # attempt to locate .Rproj file
-  files <- list.files(project, full.names = TRUE)
-  rprojFile <- grep("\\.Rproj$", files, value = TRUE)
-  if (length(rprojFile) != 1)
-    return(defaultEncoding)
-
-  # read the file
-  contents <- readLines(rprojFile, warn = FALSE, encoding = "UTF-8")
-  encodingLine <- grep("^Encoding:", contents, value = TRUE)
-  if (length(encodingLine) != 1)
-    return(defaultEncoding)
-
-  # remove "Encoding:" prefix
-  sub("^Encoding:\\s*", "", encodingLine)
-
 }
 
 # Returns the MD5 for path as a raw sequence of 16 hexadecimal pairs.
@@ -156,14 +77,6 @@ fileMD5.as.string <- function(path) {
 # Returns the input md5 as a 32-character concatenated string of hexadecimal characters.
 md5.as.string <- function(md5) {
   paste(md5, collapse = "")
-}
-
-# Escape characters that have special meaning for extended regular expressions as supported by
-# list.files.
-#
-# Similar to rex::escape
-escapeRegex <- function(name) {
-  gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", name, perl = TRUE)
 }
 
 check_file <- function(x,
