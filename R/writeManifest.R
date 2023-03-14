@@ -1,8 +1,8 @@
-#' Create a `manifest.json` for Git-backed content
+#' Create a `manifest.json`
 #'
 #' @description
-#' Use `writeManifest()` to generate a `manifest.json` and then commit it to
-#' git to activate
+#' Use `writeManifest()` to generate a `manifest.json`. Among other things,
+#' you can commit this file to git to activate
 #' [Git-Backed content](https://docs.posit.co/connect/user/git-backed/)
 #' for Posit Connect.
 #'

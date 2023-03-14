@@ -2,7 +2,7 @@
 % Please edit documentation in R/writeManifest.R
 \name{writeManifest}
 \alias{writeManifest}
-\title{Create a \code{manifest.json} for Git-backed content}
+\title{Create a \code{manifest.json}}
 \usage{
 writeManifest(
   appDir = getwd(),
@@ -58,8 +58,8 @@ attempt to choose an image based on the content requirements.}
 \item{verbose}{If TRUE, prints progress messages to the console}
 }
 \description{
-Use \code{writeManifest()} to generate a \code{manifest.json} and then commit it to
-git to activate
+Use \code{writeManifest()} to generate a \code{manifest.json}. Among other things,
+you can commit this file to git to activate
 \href{https://docs.posit.co/connect/user/git-backed/}{Git-Backed content}
 for Posit Connect.
 
