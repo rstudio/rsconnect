@@ -2,16 +2,17 @@
 % Please edit documentation in R/applications.R
 \name{syncAppMetadata}
 \alias{syncAppMetadata}
-\title{Sync Application Metadata}
+\title{Update deployment records}
 \usage{
-syncAppMetadata(appPath)
+syncAppMetadata(appPath = ".", cacheHours = NULL)
 }
 \arguments{
 \item{appPath}{The path to the directory or file that was deployed.}
+
+\item{cacheHours}{Number of hours to wait between confirming}
 }
 \description{
-Update the metadata for requested application across all deployments
-}
-\note{
-This function does not update metadata for Shiny and rpubs apps
+Update the deployment records for applications published to Posit Connect.
+Updates application title and URL, and deletes records for deployments
+where the application has been deleted on the server.
 }

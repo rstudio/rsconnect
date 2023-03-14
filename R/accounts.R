@@ -361,9 +361,8 @@ isRPubs <- function(server) {
   identical(server, "rpubs.com")
 }
 
-isConnectInfo <- function(accountInfo = NULL, server = NULL) {
-  host <- if (is.null(accountInfo)) server else accountInfo$server
-  !isCloudServer(host) && !isRPubs(host)
+isConnectServer <- function(server) {
+  !isCloudServer(server) && !isRPubs(server)
 }
 
 accountId <- function(account, server) {

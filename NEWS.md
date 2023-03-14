@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* `deployApp()` will now detect if you're attempting to publish to an app
+  that has been deleted and will prompt you to create a new app (#226).
+
 * Uploading large files to rpubs works once more (#450).
 
 * `deployApp()` includes some new conveniences for large uploads including
