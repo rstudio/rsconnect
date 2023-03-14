@@ -78,4 +78,3 @@ test_that("we can hash a file with well known contents", {
 
   expect_equal(fileMD5(path), "52d2daa95d288f3c01e4d4d87f85727e")
 })
-
