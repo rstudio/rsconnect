@@ -4,15 +4,13 @@
 \alias{syncAppMetadata}
 \title{Update deployment records}
 \usage{
-syncAppMetadata(appPath = ".", cacheHours = NULL)
+syncAppMetadata(appPath = ".")
 }
 \arguments{
 \item{appPath}{The path to the directory or file that was deployed.}
-
-\item{cacheHours}{Number of hours to wait between confirming}
 }
 \description{
 Update the deployment records for applications published to Posit Connect.
-Updates application title and URL, and deletes records for deployments
+This updates application title and URL, and deletes records for deployments
 where the application has been deleted on the server.
 }

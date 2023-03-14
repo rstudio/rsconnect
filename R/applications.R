@@ -257,36 +257,20 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
 #' Update deployment records
 #'
 #' Update the deployment records for applications published to Posit Connect.
-#' Updates application title and URL, and deletes records for deployments
+#' This updates application title and URL, and deletes records for deployments
 #' where the application has been deleted on the server.
 #'
 #' @param appPath The path to the directory or file that was deployed.
-#' @param cacheHours Number of hours to wait between confirming
 #' @export
-syncAppMetadata <- function(appPath = ".",
-                            cacheHours = NULL) {
+syncAppMetadata <- function(appPath = ".") {
   check_directory(appPath)
-  cacheHours <- cacheHours %||% getOption("rsconnect.metadata.sync.hours", 24)
-  check_number_whole(cacheHours)
 
   deploys <- deployments(appPath)
-  now <- round(as.numeric(Sys.time()))
-
   for (i in seq_len(nrow(deploys))) {
     curDeploy <- deploys[i, ]
-    if (is.na(curDeploy$lastSyncTime)) {
-      # for legacy dcf files that don't have sync time saved yet
-      lastSyncTime <- curDeploy$when
-    } else {
-      lastSyncTime <- curDeploy$lastSyncTime
-    }
 
-    # don't sync if within the configured time window
-    if (as.numeric(lastSyncTime) + cacheHours * 3600 > now) {
-      next
-    }
-    # or if published to RPubs
-    if (!isRPubs(curDeploy$server)) {
+    # don't sync if published to RPubs
+    if (isRPubs(curDeploy$server)) {
       next
     }
 
@@ -310,10 +294,13 @@ syncAppMetadata <- function(appPath = ".",
     path <- curDeploy$deploymentFile
     curDeploy$deploymentFile <- NULL # added on read
 
+    # remove old fields
+    curDeploy$when <- NULL
+    curDeploy$lastSyncTime <- NULL
+
     curDeploy$title <- application$title
     curDeploy$url <- application$url
-    curDeploy$lastSyncTime <- now
-    curDeploy$when <- as.numeric(curDeploy$when)
+
     writeDeploymentRecord(curDeploy, path)
   }
 }
