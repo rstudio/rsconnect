@@ -296,6 +296,18 @@ httpTrace <- function(method, path, time) {
 
 httpFunction <- function() {
   httpType <- getOption("rsconnect.http", "libcurl")
+
+  if (is_string(httpType) && httpType != "libcurl") {
+    lifecycle::deprecate_warn(
+      "0.9.0",
+      I("The `rsconnect.http` option"),
+      details = c(
+        "It should no longer be necessary to set this option",
+        "If the default http handler doesn't work for you, please file an issue at <https://github.com/rstudio/rsconnect/issues>"
+      )
+    )
+  }
+
   if (identical("libcurl", httpType)) {
     httpLibCurl
   } else if (identical("rcurl", httpType)) {
