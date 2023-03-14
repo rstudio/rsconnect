@@ -294,12 +294,22 @@ deployApp <- function(appDir = getwd(),
   }
 
   isCloudServer <- isCloudServer(target$server)
-  # test for compatibility between account type and publish intent
   if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
   }
+  # Must be run before first saveDeployment() because errors for unexpected
+  # app structures, and we don't want to leave lingering deployment artifact
+  appMetadata <- appMetadata(
+    appDir = appDir,
+    appFiles = appFiles,
+    appPrimaryDoc = appPrimaryDoc,
+    quarto = quarto,
+    contentCategory = contentCategory,
+    isCloudServer = isCloudServer,
+    metadata = metadata
+  )
 
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
@@ -344,15 +354,6 @@ deployApp <- function(appDir = getwd(),
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
     logger("Inferring App mode and parameters")
-    appMetadata <- appMetadata(
-      appDir = appDir,
-      appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc,
-      quarto = quarto,
-      contentCategory = contentCategory,
-      isCloudServer = isCloudServer,
-      metadata = metadata
-    )
 
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
