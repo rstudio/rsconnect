@@ -18,7 +18,7 @@
     Code
       setAccountInfo("name", "token", "<SECRET>")
     Condition
-      Error in `findAccountId()`:
+      Error in `setAccountInfo()`:
       ! You've copied and pasted the wrong thing.
       i Either click 'Show secret' or 'Copy to clipboard'.
 

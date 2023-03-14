@@ -157,7 +157,7 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(secret)
   check_string(server)
 
-  accountId <- findAccountId(name, token, secret, server)
+  accountId <- findShinyAppsAccountId(name, token, secret, server)
 
   registerAccount(
     serverName = server,
@@ -171,12 +171,19 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
 
 # A user can have multiple accounts, so iterate over all accounts looking
 # for one with the specified name
-findAccountId <- function(name, token, secret, server) {
+findShinyAppsAccountId <- function(name,
+                                   token,
+                                   secret,
+                                   server,
+                                   error_call = caller_env()) {
   if (secret == "<SECRET>") {
-    cli::cli_abort(c(
-      "You've copied and pasted the wrong thing.",
-      i = "Either click 'Show secret' or 'Copy to clipboard'."
-    ))
+    cli::cli_abort(
+      c(
+        "You've copied and pasted the wrong thing.",
+        i = "Either click 'Show secret' or 'Copy to clipboard'."
+      ),
+      call = error_call
+    )
   }
 
   account <- list(token = token, secret = secret, server = server)
