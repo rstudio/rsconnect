@@ -486,7 +486,10 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 
 applicationDeleted <- function(client, target, recordPath) {
   header <- "Failed to find existing application on server; it's probably been deleted."
-  not_interactive <- "Use {.fn forgetDeployment} to remove outdated record and try again."
+  not_interactive <- c(
+    i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
+    i = "Or use {.fn applications} to see other applications you have on the server."
+  )
   prompt <- "What do you want to do?"
   choices <- c(
     "Give up and try again later",
