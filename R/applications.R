@@ -132,6 +132,18 @@ resolveApplication <- function(accountDetails, appName) {
   stopWithApplicationNotFound(appName)
 }
 
+getApplication <- function(account, server, appId) {
+  accountDetails <- accountInfo(account, server)
+  client <- clientForAccount(accountDetails)
+
+  withCallingHandlers(
+    client$getApplication(appId),
+    rsconnect_http = function(err) {
+      cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
+    }
+  )
+}
+
 stopWithApplicationNotFound <- function(appName) {
   stop(paste("No application named '", appName, "' is currently deployed",
              sep = ""), call. = FALSE)
@@ -159,7 +171,7 @@ applicationTask <- function(taskDef, appName, account, server, quiet) {
 # streams application logs from ShinyApps
 streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   # build the URL
-  url <- paste0(shinyappsServerInfo()$url, "/applications/", applicationId,
+  url <- paste0(serverInfo("shinyapps.io")$url, "/applications/", applicationId,
                 "/logs?", "count=", entries, "&tail=1")
   parsed <- parseHttpUrl(url)
 
@@ -209,7 +221,7 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   # determine the log target and target account info
   target <- deploymentTarget(appPath, appName, NULL, NULL, account, server)
   accountDetails <- accountInfo(target$account, target$server)
-  client <- lucidClientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
@@ -280,9 +292,7 @@ syncAppMetadata <- function(appPath) {
       next
     }
 
-    account <- rsconnect::accountInfo(deploys[i, "account"],
-                                      server = deploys[i, "server"])
-
+    account <- accountInfo(deploys[i, "account"], deploys[i, "server"])
     connect <- clientForAccount(account)
 
     application <- NULL

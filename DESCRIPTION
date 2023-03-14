@@ -33,8 +33,6 @@ Imports:
     tools,
     yaml (>= 2.1.5)
 Suggests:
-    callr,
-    httpuv,
     knitr,
     MASS,
     mockr,
@@ -44,6 +42,7 @@ Suggests:
     rmarkdown (>= 1.1),
     shiny,
     testthat (>= 3.0.0),
+    webfakes,
     withr
 Config/testthat/edition: 3
 Encoding: UTF-8

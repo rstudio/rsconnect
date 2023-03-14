@@ -35,14 +35,12 @@ deployApp(
 \item{appDir}{A directory containing an application (e.g. a Shiny app
 or plumber API). Defaults to the current directory.}
 
-\item{appFiles}{A character vector given relative paths to the files and
-directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
-See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
-
-\item{appFileManifest}{An alternate way to specify the files to be deployed.
-Should be a path to a file that contains the names of the files and
-directories to deploy, one per line, relative to \code{appDir}.}
+\item{appFiles, appFileManifest}{Use \code{appFiles} to specify a
+character vector of files to bundle in the app or \code{appManifestFiles}
+to provide a path to a file containing a list of such files. If neither
+are supplied, will bundle all files in \code{appDir}, apart from standard
+exclusions and files listed in a \code{.rscignore} file. See
+\code{\link[=listDeploymentFiles]{listDeploymentFiles()}} for more details.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be
@@ -64,18 +62,28 @@ document. On subsequent deploys, it will use the previously stored value.}
 supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.}
 
-\item{appId}{If updating an application, the ID of the application being
-updated. For shinyapps.io, this the \code{id} listed on your applications
-page. For Posit Connect, this is the \code{guid} that you can find on the
-info tab on the content page. Generally, you should not need to supply
-this as it will be automatically taken from the deployment record on disk.}
+\item{appId}{Use this to deploy to an exact known application, ignoring all
+existing deployment records and \code{appName}.
+
+You can use this to update an existing application that is missing a
+deployment record. If you're re-deploying an application that you
+created it's generally easier to use \code{appName}; \code{appId} is best reserved
+for re-deploying apps created by someone else.
+
+You can find the \code{appId} in the following places:
+\itemize{
+\item On shinyapps.io, it's the \code{id} listed on the applications page.
+\item For Posit Connect, it's \code{guid} from the info tab on the content page.
+}}
 
 \item{contentCategory}{Optional; the kind of content being deployed (e.g.
 \code{"plot"} or \code{"site"}).}
 
 \item{account, server}{Uniquely identify a remote server with either your
-user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
-full list of available options.}
+user \code{account}, the \code{server} name, or both. If neither are supplied, and
+there are multiple options, you'll be prompted to pick one.
+
+Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
@@ -107,9 +115,12 @@ potentially problematic code?}
 record. These fields will be returned on subsequent calls to
 \code{\link[=deployments]{deployments()}}.}
 
-\item{forceUpdate}{If \code{TRUE}, update any previously-deployed app without
-asking. If \code{FALSE}, ask to update. If unset, defaults to the value of
-\code{getOption("rsconnect.force.update.apps", FALSE)}.}
+\item{forceUpdate}{What should happen if there's no deployment record for
+the app, but there's an app with the same name on the server? If \code{TRUE},
+will always update the previously-deployed app. If \code{FALSE}, will ask
+the user what to do, or fail if not in an interactive context.
+
+Defaults to the value of \code{getOption("rsconnect.force.update.apps", FALSE)}.}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 Required if \code{reticulate} is a dependency of the app being deployed.
@@ -140,19 +151,25 @@ Deploy a \link[shiny:shiny-package]{shiny} application, an
 content to a server.
 }
 \details{
-\subsection{Updating existing apps}{
+\subsection{Deployment records}{
 
-If you have previously deployed an app, \code{deployApp()} will do its best to
-update the existing deployment. In the simple case where you have only one
-deployment in \code{appDir}, this should just work with the default arguments.
-If you want multiple deployments to the same server, supply \code{appName}.
-If you want multiple deployments to different servers, use \code{account} and/or
-\code{server}.
+When deploying an app, \code{deployApp()} will save a deployment record that
+makes it easy to update the app on server from your local source code. This
+generally means that you need to only need to supply important arguments
+(e.g. \code{appName}, \code{appTitle}, \code{server}/\code{account}) on the first deploy, and
+rsconnect will reuse the same settings on subsequent deploys.
 
-The metadata needs to make this work is stored in the \verb{rsconnect/} directory
-beneath \code{appDir}. You should generally check these files into version
-control to ensure that future you and other collaborators will publish
-to the same location.
+The metadata needs to make this work is stored in \verb{\{appDir\}/rsconnect/}.
+You should generally check these files into version control to ensure that
+future you and other collaborators will publish to the same location.
+
+If you have lost this directory, all is not lost, as \code{deployApp()} will
+attempt to rediscover existing deployments. This is easiest if you are
+updating an app that you created, as you can just supply the \code{appName}
+(and \code{server}/\code{account} if you have multiple accounts) and \code{deployApp()}
+will find the existing application account. If you need to update an app
+that was created by someone else (that you have write permission) for, you'll
+instead need to supply the \code{appId}.
 }
 }
 \examples{

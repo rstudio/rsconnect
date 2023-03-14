@@ -1,7 +1,7 @@
 # can read all files from directory
 
     Code
-      standardizeAppFiles(dir)
+      listDeploymentFiles(dir)
     Condition
       Error:
       ! No content to deploy.
@@ -10,7 +10,7 @@
 # can read selected files from directory
 
     Code
-      out <- standardizeAppFiles(dir, c("b.R", "c.R"))
+      out <- listDeploymentFiles(dir, c("b.R", "c.R"))
     Condition
       Warning:
       All files listed in `appFiles` must exist.
@@ -19,7 +19,7 @@
 ---
 
     Code
-      standardizeAppFiles(dir, character())
+      listDeploymentFiles(dir, character())
     Condition
       Error:
       ! No content to deploy.
@@ -28,7 +28,7 @@
 # can read selected files from manifest
 
     Code
-      out <- standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest"))
+      out <- listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest"))
     Condition
       Warning:
       All files listed in `appFileManifest` must exist.
@@ -37,7 +37,7 @@
 ---
 
     Code
-      standardizeAppFiles(dir, appFileManifest = file.path(dir, "manifest"))
+      listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest"))
     Condition
       Error:
       ! No content to deploy.
@@ -46,17 +46,17 @@
 # checks its inputs
 
     Code
-      standardizeAppFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
+      listDeploymentFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
     Condition
       Error:
       ! Must specify at most one of `appFiles` and `appFileManifest`
     Code
-      standardizeAppFiles(dir, appFiles = 1)
+      listDeploymentFiles(dir, appFiles = 1)
     Condition
       Error:
       ! `appFiles` must be a character vector or `NULL`, not the number 1.
     Code
-      standardizeAppFiles(dir, appFileManifest = "doestexist")
+      listDeploymentFiles(dir, appFileManifest = "doestexist")
     Condition
       Error:
       ! `appFileManifest`, "doestexist", does not exist.

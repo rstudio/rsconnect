@@ -15,8 +15,10 @@ accountUsage(
 }
 \arguments{
 \item{account, server}{Uniquely identify a remote server with either your
-user \code{account}, the \code{server} name, or both. Use \code{\link[=accounts]{accounts()}} to see the
-full list of available options.}
+user \code{account}, the \code{server} name, or both. If neither are supplied, and
+there are multiple options, you'll be prompted to pick one.
+
+Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
 \item{usageType}{Use metric to retreive (for example: "hours")}
 

@@ -215,11 +215,17 @@ rbind_fill <- function(dfs, col_names = character()) {
   all_names <- union(col_names, all_names)
 
   add_missing_cols <- function(df) {
-    df[setdiff(all_names, names(df))] <- NA
+    df[setdiff(all_names, names(df))] <- rep(NA, nrow(df))
     df
   }
 
   complete <- lapply(dfs, add_missing_cols)
   out <- do.call("rbind", complete)
   out[all_names]
+}
+
+# Ensure slashes are the same direction on every platform to make snapshot
+# testing simpler
+normalizePath <- function(path, mustWork = FALSE) {
+  base::normalizePath(path, winslash = "/", mustWork = mustWork)
 }

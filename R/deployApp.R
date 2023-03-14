@@ -4,29 +4,34 @@
 #' [RMarkdown][rmarkdown::rmarkdown-package] document, a plumber API, or HTML
 #' content to a server.
 #'
-#' ## Updating existing apps
+#' ## Deployment records
 #'
-#' If you have previously deployed an app, `deployApp()` will do its best to
-#' update the existing deployment. In the simple case where you have only one
-#' deployment in `appDir`, this should just work with the default arguments.
-#' If you want multiple deployments to the same server, supply `appName`.
-#' If you want multiple deployments to different servers, use `account` and/or
-#' `server`.
+#' When deploying an app, `deployApp()` will save a deployment record that
+#' makes it easy to update the app on server from your local source code. This
+#' generally means that you need to only need to supply important arguments
+#' (e.g. `appName`, `appTitle`, `server`/`account`) on the first deploy, and
+#' rsconnect will reuse the same settings on subsequent deploys.
 #'
-#' The metadata needs to make this work is stored in the `rsconnect/` directory
-#' beneath `appDir`. You should generally check these files into version
-#' control to ensure that future you and other collaborators will publish
-#' to the same location.
+#' The metadata needs to make this work is stored in `{appDir}/rsconnect/`.
+#' You should generally check these files into version control to ensure that
+#' future you and other collaborators will publish to the same location.
+#'
+#' If you have lost this directory, all is not lost, as `deployApp()` will
+#' attempt to rediscover existing deployments. This is easiest if you are
+#' updating an app that you created, as you can just supply the `appName`
+#' (and `server`/`account` if you have multiple accounts) and `deployApp()`
+#' will find the existing application account. If you need to update an app
+#' that was created by someone else (that you have write permission) for, you'll
+#' instead need to supply the `appId`.
 #'
 #' @param appDir A directory containing an application (e.g. a Shiny app
 #'   or plumber API). Defaults to the current directory.
-#' @param appFiles A character vector given relative paths to the files and
-#'   directories to bundle and deploy. The default, `NULL`, will include all
-#'   files in `appDir`, apart from any listed in an `.rscignore` file.
-#'   See [listBundleFiles()] for more details.
-#' @param appFileManifest An alternate way to specify the files to be deployed.
-#'   Should be a path to a file that contains the names of the files and
-#'   directories to deploy, one per line, relative to `appDir`.
+#' @param appFiles,appFileManifest Use `appFiles` to specify a
+#'   character vector of files to bundle in the app or `appManifestFiles`
+#'   to provide a path to a file containing a list of such files. If neither
+#'   are supplied, will bundle all files in `appDir`, apart from standard
+#'   exclusions and files listed in a `.rscignore` file. See
+#'   [listDeploymentFiles()] for more details.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
@@ -43,16 +48,24 @@
 #' @param appTitle Free-form descriptive title of application. Optional; if
 #'   supplied, will often be displayed in favor of the name. If ommitted,
 #'   on second and subsequent deploys, the title will be unchanged.
-#' @param appId If updating an application, the ID of the application being
-#'   updated. For shinyapps.io, this the `id` listed on your applications
-#'   page. For Posit Connect, this is the `guid` that you can find on the
-#'   info tab on the content page. Generally, you should not need to supply
-#'   this as it will be automatically taken from the deployment record on disk.
+#' @param appId Use this to deploy to an exact known application, ignoring all
+#'   existing deployment records and `appName`.
+#'
+#'   You can use this to update an existing application that is missing a
+#'   deployment record. If you're re-deploying an application that you
+#'   created it's generally easier to use `appName`; `appId` is best reserved
+#'   for re-deploying apps created by someone else.
+#'
+#'   You can find the `appId` in the following places:
+#'   * On shinyapps.io, it's the `id` listed on the applications page.
+#'   * For Posit Connect, it's `guid` from the info tab on the content page.
 #' @param contentCategory Optional; the kind of content being deployed (e.g.
 #'   `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
-#'   user `account`, the `server` name, or both. Use [accounts()] to see the
-#'   full list of available options.
+#'   user `account`, the `server` name, or both. If neither are supplied, and
+#'   there are multiple options, you'll be prompted to pick one.
+#'
+#'   Use [accounts()] to see the full list of available options.
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
@@ -76,9 +89,12 @@
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
 #'   [deployments()].
-#' @param forceUpdate If `TRUE`, update any previously-deployed app without
-#'   asking. If `FALSE`, ask to update. If unset, defaults to the value of
-#'   `getOption("rsconnect.force.update.apps", FALSE)`.
+#' @param forceUpdate What should happen if there's no deployment record for
+#'   the app, but there's an app with the same name on the server? If `TRUE`,
+#'   will always update the previously-deployed app. If `FALSE`, will ask
+#'   the user what to do, or fail if not in an interactive context.
+#'
+#'   Defaults to the value of `getOption("rsconnect.force.update.apps", FALSE)`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
 #'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
@@ -186,12 +202,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (!is.null(appSourceDoc)) {
-    lifecycle::deprecate_warn(
-      when = "0.9.0",
-      what = "deployApp(appSourceDoc)",
-      with = "deployApp(recordDir)",
-    )
-    check_directory(appSourceDoc)
+    # Used by IDE so can't deprecate
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
     check_file(recordDir)
@@ -240,7 +251,7 @@ deployApp <- function(appDir = getwd(),
   # invoke pre-deploy hook if we have one
   runDeploymentHook(appDir, "rsconnect.pre.deploy", verbose = verbose)
 
-  appFiles <- standardizeAppFiles(appDir, appFiles, appFileManifest)
+  appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
@@ -248,22 +259,43 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (!quiet) {
-    cli::cat_rule("Preparing for deployment")
+    cli::cli_rule("Preparing for deployment")
   }
 
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  target <- deploymentTarget(
-    recordPath = recordPath,
-    appName = appName,
-    appTitle = appTitle,
-    appId = appId,
-    account = account,
-    server = server
-  )
+  if (is.null(appId)) {
+    target <- deploymentTarget(
+      recordPath = recordPath,
+      appName = appName,
+      appTitle = appTitle,
+      account = account,
+      server = server,
+      forceUpdate = forceUpdate
+    )
+  } else {
+    if (!is.null(appName)) {
+      cli::cli_warn("{.arg appName} is ignored when {.arg appId} is set")
+    }
 
+    target <- deploymentTargetForApp(
+      appId = appId,
+      appTitle = appTitle,
+      account = account,
+      server = server
+    )
+  }
+  if (is.null(target$appId)) {
+    dest <- accountId(target$username, target$server)
+    taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
+  } else {
+    dest <- accountId(target$username, target$server)
+    taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
+  }
+
+  isCloudServer <- isCloudServer(target$server)
   # test for compatibility between account type and publish intent
-  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
+  if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
@@ -275,16 +307,26 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
-  # get the application to deploy (creates a new app on demand)
-  taskStart(quiet, "Looking up application on server...")
-  application <- applicationForTarget(client, accountDetails, target, forceUpdate)
+  if (is.null(target$appId)) {
+    taskStart(quiet, "Creating application on server...")
+    application <- client$createApplication(
+      target$appName,
+      target$appTitle,
+      "shiny",
+      accountDetails$accountId
+    )
+    taskComplete(quiet, "Created application with id {.val {application$id}}")
+  } else {
+    application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
+    application <- client$getApplication(target$appId)
+    taskComplete(quiet, "Found application")
+  }
   saveDeployment(
     recordPath,
     target = target,
     application = application,
     metadata = metadata
   )
-  taskComplete(quiet, "Found application with id {.val {application$id}}")
 
   # Change _visibility_ before uploading data
   if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
@@ -301,21 +343,30 @@ deployApp <- function(appDir = getwd(),
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+    logger("Inferring App mode and parameters")
+    appMetadata <- appMetadata(
+      appDir = appDir,
+      appFiles = appFiles,
+      appPrimaryDoc = appPrimaryDoc,
+      quarto = quarto,
+      contentCategory = contentCategory,
+      isCloudServer = isCloudServer,
+      metadata = metadata
+    )
+
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
       appName = target$appName,
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appPrimaryDoc,
-      contentCategory = contentCategory,
+      appMetadata = appMetadata,
       verbose = verbose,
       pythonConfig = pythonConfig,
-      quarto = quarto,
-      isCloudServer = isCloudServer(accountDetails$server),
-      metadata = metadata,
+      isCloudServer = isCloudServer,
       image = image
     )
-    taskComplete(quiet, "Bundling complete")
+    size <- format(file_size(bundlePath), big.mark = ",")
+    taskComplete(quiet, "Created {size}b bundle")
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
@@ -339,14 +390,14 @@ deployApp <- function(appDir = getwd(),
   }
 
   if (!quiet) {
-    cli::cat_rule("Deploying to server")
+    cli::cli_rule("Deploying to server")
   }
   task <- client$deployApplication(application$id, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)
   if (!quiet) {
-    cli::cat_rule("Deployment complete")
+    cli::cli_rule("Deployment complete")
   }
 
   # wait 1/10th of a second for any queued output get picked by RStudio
@@ -431,26 +482,12 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 bundleApp <- function(appName,
                       appDir,
                       appFiles,
-                      appPrimaryDoc,
-                      contentCategory = NULL,
+                      appMetadata,
                       verbose = FALSE,
                       pythonConfig = NULL,
-                      quarto = NULL,
                       isCloudServer = FALSE,
-                      metadata = list(),
                       image = NULL) {
   logger <- verboseLogger(verbose)
-
-  logger("Inferring App mode and parameters")
-  appMetadata <- appMetadata(
-    appDir = appDir,
-    appFiles = appFiles,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    contentCategory = contentCategory,
-    isCloudServer = isCloudServer,
-    metadata = metadata
-  )
 
   # get application users (for non-document deployments)
   users <- NULL
@@ -470,16 +507,11 @@ bundleApp <- function(appName,
   logger("Generate manifest.json")
   manifest <- createAppManifest(
     appDir = bundleDir,
-    appMode = appMetadata$appMode,
-    contentCategory = contentCategory,
-    hasParameters = appMetadata$hasParameters,
-    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    appMetadata = appMetadata,
     users = users,
     pythonConfig = pythonConfig,
-    documentsHavePython = appMetadata$documentsHavePython,
     retainPackratDirectory = TRUE,
-    quartoInfo = appMetadata$quartoInfo,
-    isCloud = isCloudServer,
+    isCloudServer = isCloudServer,
     image = image,
     verbose = verbose
   )
@@ -492,73 +524,6 @@ bundleApp <- function(appName,
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
   writeBundle(bundleDir, bundlePath)
   bundlePath
-}
-
-# get the record for the application with the given ID in the given account;
-# this isn't used inside the package itself but is invoked from the RStudio IDE
-# to look up app details
-getAppById <- function(id, account = NULL, server = NULL, hostUrl = NULL) {
-  accountDetails <- NULL
-  tryCatch({
-    # attempt to look up the account locally
-    accountDetails <- accountInfo(account, server)
-  }, error = function(e) {
-    # we'll retry below
-  })
-
-  if (is.null(accountDetails)) {
-    if (is.null(hostUrl)) {
-      # rethrow if no host url to go on
-      stop("No account '", account, "' found and no host URL specified.",
-           call. = FALSE)
-    }
-
-    # no account details yet, look up from the host URL if we have one
-    accountDetails <- accountInfoFromHostUrl(hostUrl)
-  }
-
-  # create the appropriate client and fetch the application
-  client <- clientForAccount(accountDetails)
-  client$getApplication(id)
-}
-
-applicationForTarget <- function(client, accountInfo, target, forceUpdate) {
-  # Use appId from previous deployment, if it still exists
-  if (!is.null(target$appId)) {
-    app <- client$getApplication(target$appId)
-    if (!is.null(app)) {
-      return(app)
-    }
-  }
-
-  # Otherwise, see if there's an existing app with this name
-  sameName <- getAppByName(client, accountInfo, target$appName)
-  if (!is.null(sameName)) {
-    # check that it's ok to to use it
-    if (interactive() && !forceUpdate) {
-      cli::cli_inform(paste0(
-        "There is a currently deployed app with name {.str {target$appName}}",
-        " at {.url {sameName$url}}"
-      ))
-      input <- readline("Do you want to update it? [Y/n] ")
-      if (input %in% c("y", "Y", "")) {
-        return(sameName)
-      }
-
-      cli::cli_abort(c(
-        "Each item of content must have a unique {.arg appName}.",
-        i = "Set {.arg appName} to a new value."
-      ))
-    }
-  }
-
-  # Otherwise, create a new app
-  client$createApplication(
-    target$appName,
-    target$appTitle,
-    "shiny",
-    accountInfo$accountId
-  )
 }
 
 getAppByName <- function(client, accountInfo, name) {

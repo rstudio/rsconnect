@@ -2,73 +2,32 @@
 % Please edit documentation in R/servers.R
 \name{servers}
 \alias{servers}
-\alias{discoverServers}
-\alias{addConnectServer}
-\alias{addServer}
-\alias{removeServer}
 \alias{serverInfo}
-\alias{addServerCertificate}
-\title{Server Management Functions}
+\title{Server metadata}
 \usage{
 servers(local = FALSE)
 
-discoverServers(quiet = FALSE)
-
-addConnectServer(url, name = NULL, certificate = NULL, quiet = FALSE)
-
-addServer(url, name = NULL, certificate = NULL, quiet = FALSE)
-
-removeServer(name)
-
-serverInfo(name)
-
-addServerCertificate(name, certificate, quiet = FALSE)
+serverInfo(name = NULL)
 }
 \arguments{
-\item{local}{Return only local servers (i.e. not \code{shinyapps.io})}
+\item{local}{Return only local servers? (i.e. not automatically registered
+cloud servers)}
 
-\item{quiet}{Suppress output and prompts where possible.}
-
-\item{url}{Server's URL. Should look like \verb{http://servername/} or
-\verb{http://servername:port/}.}
-
-\item{name}{Optional nickname for the server. If none is given, the nickname
-is inferred from the server's hostname.}
-
-\item{certificate}{Optional; a path a certificate file to be used when making
-SSL connections to the server. The file's contents are copied and stored by
-the \pkg{rsconnect} package. Can also be a character vector containing the
-certificate's contents.}
+\item{name}{Server name. If omitted, you'll be prompted to pick a server.}
 }
 \value{
-\code{servers} returns a data frame with registered server names and URLs.
-\code{serverInfo} returns a list with details for a particular server.
+\code{servers()} returns a data frame with registered server names and URLs.
+\code{serverInfo()} returns a list with details for a particular server.
 }
 \description{
-Functions to manage the list of known servers to which
-\pkg{rsconnect} can deploy and manage applications.
-}
-\details{
-Register a server with \code{addServer} or \code{discoverServers} (the latter
-is useful only if your administrator has configured server autodiscovery).
-Once a server is registered, you can connect to an account on the server
-using \code{\link[=connectUser]{connectUser()}}.
-
-The \code{servers} and \code{serverInfo} functions are provided for viewing
-previously registered servers.
-
-Servers for \code{shinyapps.io} and \code{posit.cloud} are always registered.
+\code{servers()} lists all known servers; \code{serverInfo()} gets metadata about
+a specific server. Cloud servers \code{shinyapps.io} and \code{posit.cloud} are always
+automatically registered and available.
 }
 \examples{
-\dontrun{
+# List all registered servers
+servers()
 
-# register a local server
-addServer("http://myrsconnect/", "myserver")
-
-# list servers
-servers(local = TRUE)
-
-# connect to an account on the server
-connectUser(server = "myserver")
-}
+# Get information about a server
+serverInfo("posit.cloud")
 }

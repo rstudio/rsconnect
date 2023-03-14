@@ -106,32 +106,28 @@ isWindows <- function() {
 }
 
 createAppManifest <- function(appDir,
-                              appMode,
-                              contentCategory,
-                              hasParameters,
-                              appPrimaryDoc,
-                              assetTypeName,
-                              users,
+                              appMetadata,
+                              users = NULL,
                               pythonConfig = NULL,
-                              documentsHavePython = FALSE,
                               retainPackratDirectory = TRUE,
-                              quartoInfo = NULL,
-                              isCloud = FALSE,
+                              isCloudServer = FALSE,
                               image = NULL,
                               verbose = FALSE) {
 
-  # provide package entries for all dependencies
-  packages <- bundlePackages(
-    appDir = appDir,
-    appMode = appMode,
-    hasParameters = hasParameters,
-    documentsHavePython = documentsHavePython,
-    quartoInfo = quartoInfo,
-    verbose = verbose
-  )
+  if (needsR(appMetadata)) {
+    extraPackages <- inferRPackageDependencies(appMetadata)
+    # provide package entries for all dependencies
+    packages <- bundlePackages(
+      bundleDir = appDir,
+      extraPackages = extraPackages,
+      verbose = verbose
+    )
+  } else {
+    packages <- list()
+  }
 
-  needsPython <- documentsHavePython ||
-    "jupyter" %in% quartoInfo$engines ||
+  needsPython <- appMetadata$documentsHavePython ||
+    "jupyter" %in% appMetadata$quartoInfo$engines ||
     "reticulate" %in% names(packages)
   if (needsPython && !is.null(pythonConfig)) {
     python <- pythonConfig(appDir)
@@ -179,19 +175,19 @@ createAppManifest <- function(appDir,
   manifest$locale <- getOption("rsconnect.locale", detectLocale())
   manifest$platform <- paste(R.Version()$major, R.Version()$minor, sep = ".")
 
-  metadata <- list(appmode = appMode)
+  metadata <- list(appmode = appMetadata$appMode)
 
   # emit appropriate primary document information
-  primaryDoc <- ifelse(is.null(appPrimaryDoc) ||
-                         tolower(tools::file_ext(appPrimaryDoc)) == "r",
-                       NA, appPrimaryDoc)
-  metadata$primary_rmd <- ifelse(appMode %in% c("rmd-shiny", "rmd-static", "quarto-shiny", "quarto-static"), primaryDoc, NA)
-  metadata$primary_html <- ifelse(appMode == "static", primaryDoc, NA)
+  primaryDoc <- ifelse(is.null(appMetadata$appPrimaryDoc) ||
+                         tolower(tools::file_ext(appMetadata$appPrimaryDoc)) == "r",
+                       NA, appMetadata$appPrimaryDoc)
+  metadata$primary_rmd <- ifelse(appMetadata$appMode %in% c("rmd-shiny", "rmd-static", "quarto-shiny", "quarto-static"), primaryDoc, NA)
+  metadata$primary_html <- ifelse(appMetadata$appMode == "static", primaryDoc, NA)
 
   # emit content category (plots, etc)
-  metadata$content_category <- ifelse(!is.null(contentCategory),
-                                      contentCategory, NA)
-  metadata$has_parameters <- hasParameters
+  metadata$content_category <- ifelse(!is.null(appMetadata$contentCategory),
+                                      appMetadata$contentCategory, NA)
+  metadata$has_parameters <- appMetadata$hasParameters
 
   # add metadata
   manifest$metadata <- metadata
@@ -202,8 +198,8 @@ createAppManifest <- function(appDir,
   }
 
   # indicate whether this is a quarto app/doc
-  if (!is.null(quartoInfo) && !isCloud) {
-    manifest$quarto <- quartoInfo
+  if (!is.null(appMetadata$quartoInfo) && !isCloudServer) {
+    manifest$quarto <- appMetadata$quartoInfo
   }
   # if there is python info for reticulate or Quarto, attach it
   if (!is.null(python)) {

@@ -1,11 +1,13 @@
 test_that("errors if no accounts", {
-  mockr::local_mock(accounts = fakeAccounts(character(), character()))
+  local_temp_config()
 
   expect_snapshot(deploymentTarget(), error = TRUE)
 })
 
 test_that("errors if unknown account or server", {
-  mockr::local_mock(accounts = fakeAccounts("foo", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("foo", "bar")
 
   expect_snapshot(error = TRUE, {
     deploymentTarget(server = "unknown")
@@ -13,25 +15,12 @@ test_that("errors if unknown account or server", {
   })
 })
 
-test_that("succeeds if app is fully specified", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
-
-  app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
-
-  target <- deploymentTarget(
-    app_dir,
-    appName = "test",
-    appTitle = "mytitle",
-    appId = "123",
-    account = "ron",
-    quiet = TRUE
-  )
-  expect_equal(target$appId, "123")
-})
-
 test_that("errors if no previous deployments and multiple accounts", {
-  mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
+  local_temp_config()
+  addTestServer("foo1")
+  addTestServer("foo2")
+  addTestAccount("ron", "foo1")
+  addTestAccount("ron", "foo2")
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -43,7 +32,13 @@ test_that("errors if no previous deployments and multiple accounts", {
 })
 
 test_that("handles accounts if only server specified", {
-  mockr::local_mock(accounts = fakeAccounts(c("ron", "john"), "foo"))
+  local_temp_config()
+  addTestServer("foo")
+  addTestAccount("ron", "foo")
+  addTestAccount("john", "foo")
+  mockr::local_mock(
+    applications = function(...) data.frame()
+  )
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -53,14 +48,17 @@ test_that("handles accounts if only server specified", {
   target <- deploymentTarget(
     app_dir,
     server = "foo",
-    account = "ron",
-    quiet = TRUE
+    account = "ron"
   )
   expect_equal(target$username, "ron")
 })
 
-test_that("errors if multiple deployments", {
-  mockr::local_mock(accounts = fakeAccounts("ron", c("foo1", "foo2")))
+test_that("errors/prompts if multiple deployments", {
+  local_temp_config()
+  addTestServer("server1.com")
+  addTestServer("server2.com")
+  addTestAccount("ron", "server1.com")
+  addTestAccount("ron", "server2.com")
 
   app_dir <- withr::local_tempdir()
   saveDeployment(
@@ -69,11 +67,11 @@ test_that("errors if multiple deployments", {
       appName = "test",
       appTitle = "old title",
       appId = "x",
-      server = "foo1",
+      server = "server1.com",
       username = "ron",
       account = "ron"
     ),
-    application = list(id = NA, url = NA),
+    application = list(id = NA, url = "http://server1.com/test"),
     bundleId = NA,
     hostUrl = NA
   )
@@ -83,11 +81,11 @@ test_that("errors if multiple deployments", {
       appName = "test",
       appTitle = "old title",
       appId = "x",
-      server = "foo2",
+      server = "server2.com",
       username = "ron",
       account = "ron"
     ),
-    application = list(id = NA, url = NA),
+    application = list(id = NA, url = "http://server2.com/test"),
     bundleId = NA,
     hostUrl = NA
   )
@@ -96,10 +94,22 @@ test_that("errors if multiple deployments", {
     deploymentTarget(app_dir, appName = "test")
     deploymentTarget(app_dir)
   })
+
+  withr::local_options(
+    rlang_interactive = TRUE,
+    cli_prompt = "1"
+  )
+  expect_snapshot(out <- deploymentTarget(app_dir))
+  expect_equal(out$appName, "test")
 })
 
 test_that("succeeds if there's a single existing deployment", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
+  mockr::local_mock(
+    applications = function(...) data.frame()
+  )
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -118,17 +128,22 @@ test_that("succeeds if there's a single existing deployment", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir, quiet = TRUE)
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
 
-  target <- deploymentTarget(app_dir, appName = "test", quiet = TRUE)
+  target <- deploymentTarget(app_dir, appName = "test")
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
 })
 
 test_that("new title overrides existing title", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
+  mockr::local_mock(
+    applications = function(...) data.frame()
+  )
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -147,45 +162,53 @@ test_that("new title overrides existing title", {
     hostUrl = NA
   )
 
-  target <- deploymentTarget(app_dir, quiet = TRUE)
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appTitle, "old title")
 
-  target <- deploymentTarget(app_dir, appTitle = "new title", quiet = TRUE)
+  target <- deploymentTarget(app_dir, appTitle = "new title")
   expect_equal(target$appTitle, "new title")
 })
 
 test_that("succeeds if there are no deployments and a single account", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
+  mockr::local_mock(
+    applications = function(...) data.frame()
+  )
 
   dir <- withr::local_tempdir()
   app_dir <- file.path(dir, "my_app")
   dir.create(app_dir)
   file.create(file.path(app_dir, "app.R"))
 
-  expect_snapshot(
-    target <- deploymentTarget(app_dir)
-  )
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appName, "my_app")
   expect_equal(target$username, "ron")
 
-  expect_snapshot(
-    target <- deploymentTarget(app_dir, appName = "foo")
-  )
+  target <- deploymentTarget(app_dir, appName = "foo")
   expect_equal(target$username, "ron")
 })
 
 test_that("default title is the empty string", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
+  mockr::local_mock(
+    applications = function(...) data.frame()
+  )
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
 
-  target <- deploymentTarget(app_dir, quiet = TRUE)
+  target <- deploymentTarget(app_dir)
   expect_equal(target$appTitle, "")
 })
 
 test_that("deploy can update title", {
-  mockr::local_mock(accounts = fakeAccounts("ron", "bar"))
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -204,8 +227,45 @@ test_that("deploy can update title", {
     bundleId = 1,
     hostUrl = NA
   )
-  target <- deploymentTarget(app_dir, appTitle = "my new title", quiet = TRUE)
+  target <- deploymentTarget(app_dir, appTitle = "my new title")
   expect_equal(target$appName, "my_title")
+})
+
+test_that("can look up existing application on server", {
+  local_temp_config()
+  addTestServer("bar")
+  addTestAccount("ron", "bar")
+  mockr::local_mock(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
+    shouldUpdateApp = function(...) TRUE
+  )
+
+  app_dir <- withr::local_tempdir()
+  file.create(file.path(app_dir, "app.R"))
+
+  target <- deploymentTarget(app_dir, appName = "my_app")
+  expect_equal(target$appId, 123)
+
+  # TODO: Minimise when we switch to testhat::local_mocked_bindings
+  # and can progressively modify the same environment
+  mockr::local_mock(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
+    shouldUpdateApp = function(...) FALSE
+  )
+
+  target <- deploymentTarget(app_dir, appName = "my_app")
+  expect_equal(target$appName, "my_app-1")
+  expect_equal(target$appId, NULL)
 })
 
 # defaultAppName ----------------------------------------------------------
@@ -223,4 +283,39 @@ test_that("defaultAppName reifies appNames for shinyApps", {
 
   long_name <- strrep("abcd", 64 / 4)
   expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
+})
+
+
+# helpers -----------------------------------------------------------------
+
+test_that("shouldUpdateApp errors when non-interactive", {
+  app <- list(name = "my_app", url = "https://example.com")
+
+  expect_snapshot(shouldUpdateApp(app, "my_app-1"), error = TRUE)
+})
+
+test_that("forceUpdate shortcircuits shouldUpdateApp", {
+  expect_true(shouldUpdateApp(forceUpdate = TRUE))
+})
+
+test_that("shouldUpdateApp handles 3 options", {
+  withr::local_options(
+    rlang_interactive = TRUE,
+    cli_prompt = c("1", "2", "3")
+  )
+  app <- list(name = "my_app", url = "https://example.com")
+
+  expect_snapshot(error = TRUE, {
+    one <- shouldUpdateApp(app, "my_app-1")
+    two <- shouldUpdateApp(app, "my_app-1")
+    three <- shouldUpdateApp(app, "my_app-1")
+  })
+  expect_equal(one, TRUE)
+  expect_equal(two, FALSE)
+})
+
+test_that("findUnique always returns unique name", {
+  expect_equal(findUnique("x", c("x", "y")), "x-1")
+  expect_equal(findUnique("x", c("x", "x-1")), "x-2")
+  expect_equal(findUnique("x", c("x", "x-1", "x-2")), "x-3")
 })

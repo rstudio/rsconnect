@@ -6,7 +6,7 @@ appMetadata <- function(appDir,
                         isCloudServer = FALSE,
                         metadata = list()) {
 
-  appFiles <- standardizeAppFiles(appDir, appFiles)
+  appFiles <- listDeploymentFiles(appDir, appFiles)
   checkAppLayout(appDir, appPrimaryDoc)
 
   # User has supplied quarto path or quarto package/IDE has supplied metadata
@@ -55,6 +55,7 @@ appMetadata <- function(appDir,
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
     hasParameters = hasParameters,
+    contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
     quartoInfo = quartoInfo
   )

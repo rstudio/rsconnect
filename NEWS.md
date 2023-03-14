@@ -1,5 +1,35 @@
 # rsconnect 0.8.30 (development version)
 
+* Uploading large files to rpubs works once more (#450).
+
+* `deployApp()` includes some new conveniences for large uploads including
+  reporting the size of the bundle you're uploading and (if interative) a
+  progress bar (#754).
+
+* rsconnect now follows redirects, which should make it more robust to your
+  server moving to a new url (#674).
+
+* `appDependencies()` includes implicit dependencies.
+
+* New `listDeploymentFiles()`, which supsersedes `listBundleFiles()`.
+
+* `addConnectServer()` has been deprecated because it does the same
+  thing as `addServer()`.
+
+* `serverInfo()` and `removeServer()` no longer require a `server` when 
+  called interactively.
+
+* `connectApiUser()` now clearly requires an `apiKey` (#741).
+
+* `deployApp()` now generates an interactive prompt to select 
+  `account`/`server` (if no previous deployments) or 
+  `appName`/`account`/`server` (if multiple previous deployments) (#691). 
+
+* `discoverServer()` has been deprecated; it never worked.
+
+* `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
+  same directory as the document.
+
 * Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
   been necessary, for quite some time (#106, #109).
 

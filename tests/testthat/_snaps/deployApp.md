@@ -43,17 +43,6 @@
       Error in `deployApp()`:
       ! `recordDir`, "doesntexist", does not exist.
 
-# appSourceDoc is deprecated & checks path
-
-    Code
-      deployApp(dir, appSourceDoc = "records")
-    Condition
-      Warning:
-      The `appSourceDoc` argument of `deployApp()` is deprecated as of rsconnect 0.9.0.
-      i Please use the `recordDir` argument instead.
-      Error in `deployApp()`:
-      ! `appSourceDoc`, "records", does not exist.
-
 # startup scripts are logged by default
 
     Code

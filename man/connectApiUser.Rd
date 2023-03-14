@@ -2,36 +2,46 @@
 % Please edit documentation in R/accounts.R
 \name{connectApiUser}
 \alias{connectApiUser}
-\title{Connect Api User Account}
+\alias{connectUser}
+\title{Register account on Posit Connect}
 \usage{
-connectApiUser(account = NULL, server = NULL, apiKey = NULL, quiet = FALSE)
+connectApiUser(account = NULL, server = NULL, apiKey, quiet = FALSE)
+
+connectUser(
+  account = NULL,
+  server = NULL,
+  quiet = FALSE,
+  launch.browser = getOption("rsconnect.launch.browser", interactive())
+)
 }
 \arguments{
-\item{account}{A name for the account to connect. Optional.}
+\item{account}{A name for the account to connect.}
 
-\item{server}{The server to connect to. Optional if there is only one server
-registered.}
+\item{server}{The server to connect to.}
 
 \item{apiKey}{The API key used to authenticate the user}
 
 \item{quiet}{Whether or not to show messages and prompts while connecting the
 account.}
+
+\item{launch.browser}{If true, the system's default web browser will be
+launched automatically after the app is started. Defaults to \code{TRUE} in
+interactive sessions only. If a function is passed, it will be called
+after the app is started, with the app URL as a parameter.}
 }
 \description{
-Connect a user account to the package using an API key for authentication
-so that it can be used to deploy and manage
-applications on behalf of the account.
-}
-\details{
-This function configures the user to connect using an apiKey in
-the http auth headers instead of a token. This is less secure but may
-be necessary when the client is behind a proxy or otherwise unable to
-authenticate using a token.
+\code{connectUser()} and \code{connectApiUser()} connect your Posit Connect account to
+the rsconnect package so that it can deploy and manage applications on
+your behalf.
+
+\code{connectUser()} is the easiest place to start because it allows you to
+authenticate in-browser to your Posit Connect server. \code{connectApiUser()} is
+appropriate for non-interactive settings; you'll need to copy-and-paste the
+API key from your account settings.
 }
 \seealso{
 Other Account functions: 
 \code{\link{accounts}()},
-\code{\link{connectUser}()},
 \code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

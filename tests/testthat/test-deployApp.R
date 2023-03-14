@@ -27,14 +27,6 @@ test_that("recordDoc must exist, if supplied", {
   })
 })
 
-test_that("appSourceDoc is deprecated & checks path", {
-  dir <- local_temp_app()
-
-  expect_snapshot(error = TRUE, {
-    deployApp(dir, appSourceDoc = "records")
-  })
-})
-
 test_that("startup scripts are logged by default", {
   dir <- local_temp_app()
   withr::local_dir(dir)

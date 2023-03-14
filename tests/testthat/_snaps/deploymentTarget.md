@@ -14,7 +14,7 @@
     Condition
       Error in `deploymentTarget()`:
       ! Can't find any accounts with `server` = "unknown".
-      i Available servers: "bar".
+      i Known servers are "bar".
     Code
       deploymentTarget(account = "john")
     Condition
@@ -49,40 +49,84 @@
       Error in `deploymentTarget()`:
       ! Found multiple accounts for `server` = "foo".
       Please disambiguate by setting `account`.
-      i Available account names: "ron" and "john".
+      i Known account names are "john" and "ron".
 
-# errors if multiple deployments
+# errors/prompts if multiple deployments
 
     Code
       deploymentTarget(app_dir, appName = "test")
     Condition
       Error:
-      ! This app has been previously deployed in multiple places.
+      ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
-      i Known application names: "test".
-      i Known servers: "foo1" and "foo2".
-      i Known account names: "ron".
+      Known applications:
+      * test (ron@server1.com): <http://server1.com/test>
+      * test (ron@server2.com): <http://server2.com/test>
     Code
       deploymentTarget(app_dir)
     Condition
       Error:
-      ! This app has been previously deployed in multiple places.
+      ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
-      i Known application names: "test".
-      i Known servers: "foo1" and "foo2".
-      i Known account names: "ron".
-
-# succeeds if there are no deployments and a single account
-
-    Code
-      target <- deploymentTarget(app_dir)
-    Message
-      i Deploying "my_app" to "ron@bar"
+      Known applications:
+      * test (ron@server1.com): <http://server1.com/test>
+      * test (ron@server2.com): <http://server2.com/test>
 
 ---
 
     Code
-      target <- deploymentTarget(app_dir, appName = "foo")
+      out <- deploymentTarget(app_dir)
     Message
-      i Deploying "foo" to "ron@bar"
+      This directory has been previously deployed in multiple places.
+      Which deployment do you want to use?
+      1: test (ron@server1.com): <http://server1.com/test>
+      2: test (ron@server2.com): <http://server2.com/test>
+      Selection: 1
+
+# shouldUpdateApp errors when non-interactive
+
+    Code
+      shouldUpdateApp(app, "my_app-1")
+    Condition
+      Error in `shouldUpdateApp()`:
+      ! Discovered a previously deployed app named "my_app"
+      (View it at <https://example.com>)
+      i Set `forceUpdate = TRUE` to update it.
+      i Supply a unique `appName` to deploy a new application.
+
+# shouldUpdateApp handles 3 options
+
+    Code
+      one <- shouldUpdateApp(app, "my_app-1")
+    Message
+      Discovered a previously deployed app named "my_app"
+      (View it at <https://example.com>)
+      What do you want to do?
+      1: Update the existing app.
+      2: Create a new app with automatically generated name ("my_app-1").
+      3: Abort this deployment and supply a custom `appName`.
+      Selection: 1
+    Code
+      two <- shouldUpdateApp(app, "my_app-1")
+    Message
+      Discovered a previously deployed app named "my_app"
+      (View it at <https://example.com>)
+      What do you want to do?
+      1: Update the existing app.
+      2: Create a new app with automatically generated name ("my_app-1").
+      3: Abort this deployment and supply a custom `appName`.
+      Selection: 2
+    Code
+      three <- shouldUpdateApp(app, "my_app-1")
+    Message
+      Discovered a previously deployed app named "my_app"
+      (View it at <https://example.com>)
+      What do you want to do?
+      1: Update the existing app.
+      2: Create a new app with automatically generated name ("my_app-1").
+      3: Abort this deployment and supply a custom `appName`.
+      Selection: 3
+    Condition
+      Error:
+      ! Quiting...
 

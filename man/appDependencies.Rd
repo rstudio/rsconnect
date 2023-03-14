@@ -10,10 +10,8 @@ appDependencies(appDir = getwd(), appFiles = NULL)
 \item{appDir}{Directory containing application. Defaults to current working
 directory.}
 
-\item{appFiles}{A character vector given relative paths to the files and
-directories to bundle and deploy. The default, \code{NULL}, will include all
-files in \code{appDir}, apart from any listed in an \code{.rscignore} file.
-See \code{\link[=listBundleFiles]{listBundleFiles()}} for more details.}
+\item{appFiles}{A character vector giving relative paths to the files to
+include in the deployed bundle.}
 }
 \value{
 A data frame with columns:
@@ -29,7 +27,8 @@ repo.
 \code{appDependencies()} recursively detects all R package dependencies for an
 application by parsing all \code{.R} and \code{.Rmd} files and looking for calls
 to \code{library()}, \code{require()}, \code{requireNamespace()}, \code{::}, and so on.
-It then adds all recursive dependencies to create a complete manifest of
+It then adds implicit dependencies (i.e. an \code{.Rmd} requires Rmarkdown)
+and adds all recursive dependencies to create a complete manifest of
 package packages need to be installed to run the app.
 }
 \section{Remote installation}{
