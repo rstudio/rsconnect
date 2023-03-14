@@ -16,8 +16,7 @@ regexExtract <- function(re, input) {
   if (length(matchLoc) > 1) {
     matchLen <- attributes(matchLoc)$match.length
     return(substr(input, matchLoc[2], matchLoc[2] + matchLen[2] - 1))
-  }
-  else {
+  } else {
     return(NULL)
   }
 }
@@ -25,14 +24,15 @@ regexExtract <- function(re, input) {
 displayStatus <- function(quiet) {
   quiet <- quiet || httpDiagnosticsEnabled()
   function(status) {
-    if (!quiet)
+    if (!quiet) {
       cat(status)
+    }
   }
 }
 
 httpDiagnosticsEnabled <- function() {
   return(getOption("rsconnect.http.trace", FALSE) ||
-         getOption("rsconnect.http.verbose", FALSE))
+    getOption("rsconnect.http.verbose", FALSE))
 }
 
 # wrapper around read.dcf to workaround LC_CTYPE bug
@@ -70,9 +70,8 @@ fileMD5 <- function(path, raw = FALSE) {
 }
 
 check_file <- function(x,
-                            error_arg = caller_arg(x),
-                            error_call = caller_env()) {
-
+                       error_arg = caller_arg(x),
+                       error_call = caller_env()) {
   check_string(
     x,
     allow_empty = FALSE,
@@ -90,7 +89,6 @@ check_file <- function(x,
 check_directory <- function(x,
                             error_arg = caller_arg(x),
                             error_call = caller_env()) {
-
   check_file(x, error_arg = error_arg, error_call = error_call)
   if (!dirExists(x)) {
     cli::cli_abort(
