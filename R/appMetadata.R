@@ -95,15 +95,12 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
 
   cli::cli_abort(c(
     "Cancelling deployment: invalid project layout.",
-    i = "The project should have one of the following layouts:",
-    " " = "1. 'server.R' and 'ui.R' in the application base directory.",
-    " " = "2. 'server.R' and 'www/index.html' in the application base directory.",
-    " " = "3. 'app.R' or a single-file Shiny .R file.",
-    " " = "4. An R Markdown (.Rmd) or Quarto (.qmd) document.",
-    " " = "5. A static HTML (.html) or PDF (.pdf) document.",
-    " " = "6. 'plumber.R' API description .R file.",
-    " " = "7. 'entrypoint.R' plumber startup script.",
-    " " = "8. A tensorflow saved model."
+    i = "Expecting one of the following publication types:",
+    " " = "1. A Shiny app with `app.R` or `server.R` + `ui.R`",
+    " " = "2. An R Markdown (`.Rmd`) or Quarto (`.qmd`) document.",
+    " " = "3. A website containing `.html` and/or `.pdf` files.",
+    " " = "4. A plumber API with `plumber.R` or `entrypoint.R`.",
+    " " = "5. A tensorflow saved model."
   ))
 }
 
