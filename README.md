@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rsconnect <a href='https://rstudio.github.io/rstudioapi/'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# rsconnect <a href='https://rstudio.github.io/rstudioapi/'><img src="man/figures/logo.png" align="right" height="139"/></a>
 
 <!-- badges: start -->
 
@@ -9,15 +9,16 @@
 status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.org/package=rsconnect)
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/rstudio/rsconnect/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/rsconnect/actions)
+
 <!-- badges: end -->
 
-rsconnect makes it easy to publish your Shiny apps, RMarkdown and quarto
-documents, and plumbr APIs to [Posit
+rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto
+documents, and Plumber APIs to [Posit
 Connect](https://posit.co/products/enterprise/connect/),
 [ShinyApps.io](https://www.shinyapps.io/), and [Posit
 Cloud](https://posit.cloud/) from R.
 
-(If you’re looking for the python equivalent, try
+(If you’re looking for the Python equivalent, try
 [rsconnect-python](https://pypi.org/project/rsconnect-python/))
 
 ## Installation
