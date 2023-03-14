@@ -8,6 +8,7 @@ httpLibCurl <- function(protocol,
                         contentFile = NULL,
                         certificate = NULL,
                         timeout = NULL) {
+
   request <- list(
     protocol = protocol,
     host = host,
@@ -16,61 +17,24 @@ httpLibCurl <- function(protocol,
     path = path
   )
 
-  # create curl handle
-  handle <- curl::new_handle()
-
-  # set rsconnect user agent
-  curl::handle_setopt(handle, useragent = userAgent())
-
-  # overlay user-supplied options
-  userOptions <- getOption("rsconnect.libcurl.options")
-  if (is.list(userOptions)) {
-    curl::handle_setopt(handle, .list = userOptions)
-  }
-
-  if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
-    curl::handle_setopt(handle, ssl_verifypeer = TRUE)
-
-    # apply certificate information if present
-    if (!is.null(certificate)) {
-      curl::handle_setopt(handle, cainfo = certificate)
-    }
-  } else {
-    # don't verify peer (less secure but tolerant to self-signed cert issues)
-    curl::handle_setopt(handle, ssl_verifypeer = FALSE)
-  }
-
-  # use timeout if supplied
-  if (!is.null(timeout)) {
-    curl::handle_setopt(handle, timeout = timeout)
-  }
-
-  # verbose if requested
-  if (httpVerbose()) {
-    curl::handle_setopt(handle, verbose = TRUE)
-  }
-
-  # suppress curl's automatically handling of redirects, since we have to
-  # handle ourselves in httpRequest()/httpRequestWithBody() due to our
-  # specialised auth needs
-  curl::handle_setopt(handle, followlocation = FALSE)
-
-  # add cookie headers
-  headers <- appendCookieHeaders(request, headers)
+  handle <- createCurlHandle(
+    method = method,
+    timeout = timeout,
+    certificate = certificate
+  )
 
   if (!is.null(contentFile)) {
     if (is.null(contentType)) {
       stop("You must specify a contentType for the specified file")
     }
 
-    # compute file metadata
     fileLength <- file.info(contentFile)$size
     headers$`Content-Type` <- contentType
     headers$`Content-Length` <- as.character(fileLength)
 
     # open a connection to read the file, and ensure it's closed when we're done
-    con <- file(contentFile, "rb")
-    on.exit(if (!is.null(con)) close(con), add = TRUE)
+    contentCon <- file(contentFile, "rb")
+    on.exit(if (!is.null(contentCon)) close(contentCon), add = TRUE)
 
     progress <- is_interactive() && fileLength >= 10 * 1024^2
 
@@ -80,28 +44,24 @@ httpLibCurl <- function(protocol,
       upload = TRUE,
       infilesize_large = fileLength,
       readfunction = function(nbytes, ...) {
-        if (is.null(con)) {
+        if (is.null(contentCon)) {
           return(raw())
         }
-        bin <- readBin(con, "raw", nbytes)
+        bin <- readBin(contentCon, "raw", nbytes)
         if (length(bin) < nbytes) {
-          close(con)
-          con <<- NULL
+          close(contentCon)
+          contentCon <<- NULL
         }
         bin
       }
     )
   }
 
-  # ensure we're using the requested method
-  curl::handle_setopt(handle, customrequest = method)
-
-  # apply all our accumulated headers
+  headers <- appendCookieHeaders(request, headers)
   curl::handle_setheaders(handle, .list = headers)
 
   # make the request
   url <- buildHttpUrl(request)
-
   time <- system.time(
     response <- curl::curl_fetch_memory(url, handle = handle),
     gcFirst = FALSE
@@ -136,4 +96,49 @@ httpLibCurl <- function(protocol,
     contentType = contentType,
     content = contentValue
   )
+}
+
+createCurlHandle <- function(method,
+                             timeout = NULL,
+                             certificate = NULL) {
+  # create curl handle
+  handle <- curl::new_handle()
+
+  # overlay user-supplied options
+  userOptions <- getOption("rsconnect.libcurl.options")
+  if (is.list(userOptions)) {
+    curl::handle_setopt(handle, .list = userOptions)
+  }
+
+  curl::handle_setopt(handle, customrequest = method)
+  curl::handle_setopt(handle, useragent = userAgent())
+
+  if (isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
+    curl::handle_setopt(handle, ssl_verifypeer = TRUE)
+
+    # apply certificate information if present
+    if (!is.null(certificate)) {
+      curl::handle_setopt(handle, cainfo = certificate)
+    }
+  } else {
+    # don't verify peer (less secure but tolerant to self-signed cert issues)
+    curl::handle_setopt(handle, ssl_verifypeer = FALSE)
+  }
+
+  # use timeout if supplied
+  if (!is.null(timeout)) {
+    curl::handle_setopt(handle, timeout = timeout)
+  }
+
+  # verbose if requested
+  if (httpVerbose()) {
+    curl::handle_setopt(handle, verbose = TRUE)
+  }
+
+  # suppress curl's automatically handling of redirects, since we have to
+  # handle ourselves in httpRequest()/httpRequestWithBody() due to our
+  # specialised auth needs
+  curl::handle_setopt(handle, followlocation = FALSE)
+
+  handle
 }
