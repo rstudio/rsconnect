@@ -91,7 +91,7 @@ test_that("errors contain method", {
   expect_snapshot(error = TRUE, {
     GET(service, list(), path = "status/404")
     POST(service, list(), path = "status/403")
-  }, transform = function(x) gsub(service$port, "{port}", x))
+  }, transform = strip_port(service))
 })
 
 test_that("http error includes status in error class", {
@@ -104,4 +104,26 @@ test_that("http error includes status in error class", {
     GET(service, list(), path = "status/403"),
     class = "rsconnect_http_403"
   )
+})
+
+test_that("handles redirects", {
+  service <- httpbin_service()
+  out <- GET(service, list(), "absolute-redirect/3")
+  expect_equal(out$url, paste0(buildHttpUrl(service), "get"))
+
+  out <- GET(service, list(), "relative-redirect/3")
+  expect_equal(out$url, paste0(buildHttpUrl(service), "get"))
+})
+
+# parse/build -------------------------------------------------------------
+
+test_that("parse and build are symmetric", {
+  round_trip <- function(x) {
+    expect_equal(buildHttpUrl(parseHttpUrl(x)), x)
+  }
+
+  round_trip("http://google.com")
+  round_trip("http://google.com:80")
+  round_trip("https://google.com:80/a/b")
+  round_trip("https://google.com:80/a/b/")
 })
