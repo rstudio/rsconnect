@@ -68,3 +68,13 @@
       Error in `POST()`:
       ! <http://127.0.0.1:{port}/status/403> failed with HTTP status 403
 
+# non-libCurl methods are deprecated
+
+    Code
+      . <- httpFunction()
+    Condition
+      Warning:
+      The `rsconnect.http` option was deprecated in rsconnect 0.9.0.
+      i It should no longer be necessary to set this option
+      i If the default http handler doesn't work for you, please file an issue at <https://github.com/rstudio/rsconnect/issues>
+
