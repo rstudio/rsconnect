@@ -172,6 +172,13 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
 # A user can have multiple accounts, so iterate over all accounts looking
 # for one with the specified name
 findAccountId <- function(name, token, secret, server) {
+  if (secret == "<SECRET>") {
+    cli::cli_abort(c(
+      "You've copied and pasted the wrong thing.",
+      i = "Either click 'Show secret' or 'Copy to clipboard'."
+    ))
+  }
+
   account <- list(token = token, secret = secret, server = server)
   client <- clientForAccount(account)
 

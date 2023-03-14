@@ -1,5 +1,11 @@
 # rsconnect 0.8.30 (development version)
 
+* Non-libcurl `rsconnect.http` options have been deprecated. This allows us to 
+  focus our efforts on a single backend, rather than spreading development
+  efforts across five. The old backends will remain available for at least 2
+  years, but if you are using them because libcurl doesn't work for you, please
+  report the problem ASAP so we can fix it.
+
 * Uploading large files to rpubs works once more (#450).
 
 * `deployApp()` includes some new conveniences for large uploads including

@@ -105,3 +105,8 @@ test_that("http error includes status in error class", {
     class = "rsconnect_http_403"
   )
 })
+
+test_that("non-libCurl methods are deprecated", {
+  withr::local_options(rsconnect.http = "internal")
+  expect_snapshot(. <- httpFunction())
+})

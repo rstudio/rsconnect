@@ -29,3 +29,7 @@ test_that("secrets are hidden from casual inspection", {
     accountInfo("3")$apiKey
   })
 })
+
+test_that("setAccountInfo() gives nice error on bad copy and paste", {
+  expect_snapshot(setAccountInfo("name", "token", "<SECRET>"), error = TRUE)
+})

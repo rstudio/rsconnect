@@ -13,3 +13,12 @@
     Output
       [1] "SECRET... (redacted)"
 
+# setAccountInfo() gives nice error on bad copy and paste
+
+    Code
+      setAccountInfo("name", "token", "<SECRET>")
+    Condition
+      Error in `findAccountId()`:
+      ! You've copied and pasted the wrong thing.
+      i Either click 'Show secret' or 'Copy to clipboard'.
+
