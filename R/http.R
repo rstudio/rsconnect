@@ -406,12 +406,9 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
   # generate date
   date <- rfc2616Date()
 
-  # generate contents hash as hex values.
-  md5 <- fileMD5(file)
-
   if (!is.null(authInfo$secret)) {
     # the content hash is a string of hex characters when using secret.
-    md5 <- md5.as.string(md5)
+    md5 <- fileMD5(file)
 
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep = "\n")
@@ -422,7 +419,7 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
     signature <- paste(openssl::base64_encode(hmac), "; version=1", sep = "")
   } else if (!is.null(authInfo$private_key)) {
     # the raw content hash is base64 encoded hex values when using private key.
-    md5 <- openssl::base64_encode(md5)
+    md5 <- openssl::base64_encode(fileMD5(file, raw = TRUE))
 
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep = "\n")

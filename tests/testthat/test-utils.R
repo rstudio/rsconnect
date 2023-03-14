@@ -51,3 +51,27 @@ test_that("can work with empty data frames", {
   out <- rbind_fill(list(data.frame(x = 1), data.frame()))
   expect_equal(out, data.frame(x = 1))
 })
+
+# hashing -----------------------------------------------------------------
+
+test_that("we can hash an empty file", {
+  emptyFile <- withr::local_tempfile()
+  file.create(emptyFile)
+
+  # computed by openssl::md5("")
+  expect_equal(fileMD5(emptyFile), "d41d8cd98f00b204e9800998ecf8427e")
+  expect_equal(fileMD5(NULL), "d41d8cd98f00b204e9800998ecf8427e")
+})
+
+test_that("we can hash a file with well known contents", {
+  path <- withr::local_tempfile()
+  # Open in binary mode so the contents are identical on all platforms
+  # (otherwise the file contains a \n on Unix and \r\n on Windows, which
+  # hash differently)
+  con <- file(path, open = "wb")
+  writeLines("go bananas!", con)
+  close(con)
+
+  expect_equal(fileMD5(path), "52d2daa95d288f3c01e4d4d87f85727e")
+})
+

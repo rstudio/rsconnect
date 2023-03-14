@@ -56,27 +56,17 @@ dirExists <- function(x) {
 }
 
 # Returns the MD5 for path as a raw sequence of 16 hexadecimal pairs.
-fileMD5 <- function(path) {
+fileMD5 <- function(path, raw = FALSE) {
   # Use digest::digest to compute file MD5. FIPS mode disables openssl::md5. Workaround until we can
   # migrate away from MD5 for file content checks.
   #
   # See: https://github.com/rstudio/rsconnect/issues/363
 
   if (is.null(path)) {
-    return(digest::digest("", algo = "md5", serialize = FALSE, raw = TRUE))
+    digest::digest("", algo = "md5", serialize = FALSE, raw = raw)
+  } else {
+    digest::digest(path, algo = "md5", file = TRUE, raw = raw)
   }
-
-  digest::digest(path, algo = "md5", file = TRUE, raw = TRUE)
-}
-
-# Returns the MD5 for path as a 32-character concatenated string of hexadecimal characters.
-fileMD5.as.string <- function(path) {
-  md5.as.string(fileMD5(path))
-}
-
-# Returns the input md5 as a 32-character concatenated string of hexadecimal characters.
-md5.as.string <- function(md5) {
-  paste(md5, collapse = "")
 }
 
 check_file <- function(x,
