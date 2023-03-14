@@ -137,3 +137,19 @@ getAppById <- function(id, account, server, hostUrl) {
 
   getApplication(account, server, id)
 }
+
+
+# -------------------------------------------------------------------------
+
+# passthrough function for compatibility with old IDE versions
+getUserFromRawToken <- function(serverUrl,
+                                token,
+                                privateKey,
+                                serverCertificate = NULL) {
+
+  # Look up server name from url
+  servers <- server()
+  server <- servers$name[servers$url == serverUrl]
+
+  getAuthedUser(server, token = list(token = token, private_key = privateKey))
+}

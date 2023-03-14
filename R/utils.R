@@ -130,3 +130,7 @@ rbind_fill <- function(dfs, col_names = character()) {
 normalizePath <- function(path, mustWork = FALSE) {
   base::normalizePath(path, winslash = "/", mustWork = mustWork)
 }
+
+compact <- function(x) {
+  x[!vapply(x, is.null, logical(1))]
+}

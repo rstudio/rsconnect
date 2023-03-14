@@ -58,10 +58,10 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
   server <- findServer(server)
   user <- getAuthedUser(server, apiKey = apiKey)
 
-  registerUserApiKey(
+  registerAccount(
     serverName = server,
     accountName = account %||% user$username,
-    userId = user$id,
+    accountId = user$id,
     apiKey = apiKey
   )
 
@@ -115,12 +115,12 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
     }
   }
 
-  registerUserToken(
+  registerAccount(
     serverName = server,
     accountName = user$username,
-    userId = user$id,
+    accountId = user$id,
     token = token$token,
-    privateKey = token$private_key
+    private_key = token$private_key
   )
 
   if (!quiet) {
@@ -157,77 +157,54 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(secret)
   check_string(server)
 
+  accountId <- findShinyAppsAccountId(name, token, secret, server)
+
+  registerAccount(
+    serverName = server,
+    accountName = name,
+    accountId = accountId,
+    token = token,
+    secret = secret
+  )
+  invisible()
+}
+
+# A user can have multiple accounts, so iterate over all accounts looking
+# for one with the specified name
+findShinyAppsAccountId <- function(name,
+                                   token,
+                                   secret,
+                                   server,
+                                   error_call = caller_env()) {
   if (secret == "<SECRET>") {
-    cli::cli_abort(c(
-      "You've copied and pasted the wrong thing.",
-      i = "Either click 'Show secret' or 'Copy to clipboard'."
-    ))
+    cli::cli_abort(
+      c(
+        "You've copied and pasted the wrong thing.",
+        i = "Either click 'Show secret' or 'Copy to clipboard'."
+      ),
+      call = error_call
+    )
   }
 
   account <- list(token = token, secret = secret, server = server)
   client <- clientForAccount(account)
 
-  # get user Id
   userId <- client$currentUser()$id
 
-  # get account id
   accountId <- NULL
   accounts <- client$accountsForUser(userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
-      accountId <- account$id
-      break
+      return(account$id)
     }
   }
-  if (is.null(accountId))
-    stop("Unable to determine account id for account named '", name, "'")
-
-  registerCloudTokenSecret(
-    serverName = serverInfo$name,
-    accountName = name,
-    userId = userId,
-    token = token,
-    secret = secret,
-  )
-  invisible()
-}
-
-registerCloudTokenSecret <- function(serverName,
-                                     accountName,
-                                     userId,
-                                     accountId,
-                                     token,
-                                     secret) {
-  # get the path to the config file
-  path <- accountConfigFile(accountName, serverName)
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-
-  # write the user info
-  write.dcf(
-    list(
-      name = accountName,
-      userId = userId,
-      accountId = accountName,
-      token = token,
-      secret = secret,
-      server = serverName
-    ),
-    path,
-    width = 100
-  )
-
-  # set restrictive permissions on it if possible
-  if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(path, mode = "0600")
-
-  path
+  cli::cli_abort("Unable to determine {.arg accountId} for account {.str {name}}")
 }
 
 #' @rdname accounts
 #' @family Account functions
 #' @export
 accountInfo <- function(name = NULL, server = NULL) {
-
   fullAccount <- findAccount(name, server)
   configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
 
@@ -235,12 +212,13 @@ accountInfo <- function(name = NULL, server = NULL) {
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
-    info$private_key <- secret(gsub("[[:space:]]", "", info$private_key))
+    info$private_key <- gsub("[[:space:]]", "", info$private_key)
   }
 
-  if (!is.null(info$secret)) {
-    info$secret <- secret(info$secret)
-  }
+  # Hide credentials
+  info$private_key <- secret(info$private_key)
+  info$secret <- secret(info$secret)
+  info$apiKey <- secret(info$apiKey)
 
   info
 }
@@ -254,7 +232,7 @@ hasAccount <- function(name, server) {
 removeAccount <- function(name = NULL, server = NULL) {
   fullAccount <- findAccount(name, server)
 
-  configFile <- accountConfigFile(name, server)
+  configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
   file.remove(configFile)
 
   invisible(NULL)
@@ -311,49 +289,39 @@ getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
   )
 }
 
-# passthrough function for compatibility with old IDE versions
-getUserFromRawToken <- function(serverUrl,
-                                token,
-                                privateKey,
-                                serverCertificate = NULL) {
+registerAccount <- function(serverName,
+                            accountName,
+                            accountId,
+                            token = NULL,
+                            secret = NULL,
+                            private_key = NULL,
+                            apiKey = NULL) {
 
-  # Look up server name from url
-  servers <- server()
-  server <- servers$name[servers$url == serverUrl]
+  check_string(serverName)
+  check_string(accountName)
+  if (!is.null(secret)) {
+    secret <- as.character(secret)
+  }
 
-  getAuthedUser(server, token = list(token = token, private_key = privateKey))
-}
+  fields <- list(
+    name = accountName,
+    server = serverName,
+    accountId = accountId,
+    token = token,
+    secret = secret,
+    private_key = private_key,
+    apiKey = apiKey
+  )
 
-registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
-  # write the user info
-  configFile <- accountConfigFile(accountName, serverName)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(list(username = accountName,
-                 accountId = userId,
-                 apiKey = apiKey,
-                 server = serverName),
-            configFile)
-
-  # set restrictive permissions on it if possible
-  if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode = "0600")
-}
-
-registerUserToken <- function(serverName, accountName, userId, token,
-                              privateKey) {
-  # write the user info
-  configFile <- accountConfigFile(accountName, serverName)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(list(username = accountName,
-                 accountId = userId,
-                 token = token,
-                 server = serverName,
-                 private_key = as.character(privateKey)),
-            configFile)
+  path <- accountConfigFile(accountName, serverName)
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  write.dcf(compact(fields), path, width = 100)
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode = "0600")
+    Sys.chmod(path, mode = "0600")
+
+  path
 }
 
 missingAccountErrorMessage <- function(name) {
