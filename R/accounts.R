@@ -324,10 +324,6 @@ registerAccount <- function(serverName,
   path
 }
 
-missingAccountErrorMessage <- function(name) {
-  paste("account named '", name, "' does not exist", sep = "")
-}
-
 accountId <- function(account, server) {
   paste0(account, "@", server)
 }
