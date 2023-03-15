@@ -153,10 +153,10 @@ generateToken <- function() {
   key <- openssl::rsa_keygen(2048L)
   priv.der <- openssl::write_der(key)
   pub.der <- openssl::write_der(key$pubkey)
-  tokenId <- createUniqueId(16)
+  tokenId <- paste(c("T", openssl::rand_bytes(16)), collapse = "")
 
   list(
-    token = paste0("T", tokenId),
+    token = tokenId,
     public_key = openssl::base64_encode(pub.der),
     private_key = openssl::base64_encode(priv.der)
   )
