@@ -90,10 +90,14 @@ connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
   else if (is.function(launch.browser))
     launch.browser(token$claim_url)
 
-  # keep trying to authenticate until we're successful
+  # keep trying to authenticate until we're successful; server returns
+  # 500 "Token is unclaimed error" while waiting for interactive auth to complete
   repeat {
     Sys.sleep(1)
-    user <- getAuthedUser(server, token = token)
+    user <- tryCatch(
+      getAuthedUser(server, token = token),
+      rsconnect_http_500 = function(err) NULL
+    )
     if (!is.null(user))
       break
   }
@@ -261,12 +265,6 @@ getAuthToken <- function(server, userId = 0) {
   )
 }
 
-# given a server URL and auth parameters, return the user
-# who owns the auth if it's valid/claimed, and NULL if invalid/unclaimed.
-# raises an error on any other HTTP error.
-#
-# this function is used by the RStudio IDE as part of the workflow which
-# attaches a new Connect account.
 getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
   if (!xor(is.null(token), is.null(apiKey))) {
     cli::cli_abort("Must supply exactly one of {.arg token} and {.arg apiKey}")
@@ -279,14 +277,9 @@ getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
     account$token <- token$token
     account$private_key <- token$private_key
   }
-  client <- clientForAccount(account)
 
-  # server returns 500 "Token is unclaimed error" while waiting for
-  # interactive auth to complete
-  tryCatch(
-    client$currentUser(),
-    rsconnect_http_500 = function(err) NULL
-  )
+  client <- clientForAccount(account)
+  client$currentUser()
 }
 
 registerAccount <- function(serverName,
