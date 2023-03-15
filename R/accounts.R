@@ -119,7 +119,7 @@ getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
     cli::cli_alert_warning("Open {.url {claim_url}} to authenticate")
   } else {
     cli::cli_alert_info("A browser window should open to complete authentication")
-    cli::cli_alert_warning("If doesn't open, then visit {.url {claim_url}}")
+    cli::cli_alert_warning("If it doesn't open, please go to {.url {claim_url}}")
   }
 
   # keep trying to authenticate until we're successful; server returns
