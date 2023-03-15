@@ -60,7 +60,7 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
 
   registerAccount(
     serverName = server,
-    accountName = user$username,
+    accountName = account %||% user$username,
     accountId = user$id,
     apiKey = apiKey
   )
@@ -83,7 +83,7 @@ connectUser <- function(account = NULL,
 
   registerAccount(
     serverName = server,
-    accountName = resp$user$username,
+    accountName = account %||% resp$user$username,
     accountId = resp$user$id,
     token = resp$token$token,
     private_key = resp$token$private_key
