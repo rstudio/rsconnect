@@ -44,12 +44,79 @@ test_that("normalizes connect urls", {
 
 # addServer ---------------------------------------------------------------
 
+test_that("addServer() name defaults to hostname of url", {
+  local_temp_config()
+
+  addServer("https://example.com:8787/abc", quiet = TRUE, validate = FALSE)
+  expect_equal(servers(local = TRUE)$name, "example.com")
+})
+
 test_that("addServer() normalises url", {
   local_temp_config()
 
   addServer("connect.rstudioservices.com", name = "connect", quiet = TRUE)
   info <- serverInfo("connect")
   expect_equal(info$url, "https://connect.rstudioservices.com/__api__")
+})
+
+test_that("addServer() errors if url not a connect server", {
+  local_temp_config()
+
+  service <- httpbin_service()
+  url <- buildHttpUrl(service)
+  expect_snapshot(addServer(url), error = TRUE)
+})
+
+test_that("addServer() and addServerCertificate() inform about their actions", {
+  local_temp_config()
+
+  cert <- test_path("certs/sample.crt")
+  expect_snapshot({
+    addServer("https://example.com", validate = FALSE)
+    addServerCertificate("example.com", certificate = cert)
+  })
+})
+
+test_that("can save certificates", {
+  local_temp_config()
+
+  addTestServer("test", certificate = test_path("certs/sample.crt"))
+
+  info <- serverInfo("test")
+  certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
+  expect_equal(info$certificate, secret(certLines))
+})
+
+test_that("can add certificates after creation", {
+  local_temp_config()
+
+  addTestServer("test")
+  addServerCertificate("test",
+    certificate = test_path("certs/sample.crt"),
+    quiet = TRUE
+  )
+
+  info <- serverInfo("test")
+  certLines <- paste(readLines(test_path("certs/sample.crt")), collapse = "\n")
+  expect_equal(info$certificate, secret(certLines))
+})
+
+test_that("can store multiple certificates can exist in one dcf", {
+  local_temp_config()
+
+  addTestServer("test", certificate = test_path("certs/two-cas.crt"))
+
+  info <- serverInfo("test")
+  certLines <- paste(readLines(test_path("certs/two-cas.crt")), collapse = "\n")
+  expect_equal(info$certificate, secret(certLines))
+})
+
+test_that("certificates can't be attached to plain http servers", {
+  local_temp_config()
+
+  addTestServer("test", "http://example.com")
+  cert <- test_path("certs/sample.crt")
+  expect_snapshot(addServerCertificate("test", cert), error = TRUE)
 })
 
 # cloud servers -----------------------------------------------------------
@@ -127,5 +194,4 @@ test_that("findServer checks server name", {
     findServer(1)
     findServer("foo")
   })
-
 })

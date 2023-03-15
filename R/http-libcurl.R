@@ -108,10 +108,10 @@ httpLibCurl <- function(protocol,
 
   # make the request
   response <- NULL
-  time <- system.time(
-    response <- curl::curl_fetch_memory(url, handle = handle),
-    gcFirst = FALSE
-  )
+
+  start <- proc.time()
+  response <- curl::curl_fetch_memory(url, handle = handle)
+  time <- proc.time() - start
   httpTrace(method, path, time)
 
   # get list of HTTP response headers
