@@ -31,19 +31,3 @@ createUniqueId <- function(bytes) {
   set.seed(NULL)
   paste0(as.hexmode(sample(256, bytes) - 1), collapse = "")
 }
-
-# generateToken generates a token for signing requests sent to the Posit
-# Connect service. The token's ID and public key are sent to the server, and
-# the private key is saved locally.
-generateToken <- function() {
-  key <- openssl::rsa_keygen(2048L)
-  priv.der <- openssl::write_der(key)
-  pub.der <- openssl::write_der(key$pubkey)
-  tokenId <- createUniqueId(16)
-
-  list(
-    token = paste0("T", tokenId),
-    public_key = openssl::base64_encode(pub.der),
-    private_key = openssl::base64_encode(priv.der)
-  )
-}
