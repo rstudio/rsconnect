@@ -72,8 +72,7 @@ deployments <- function(appPath = ".",
     activeAccounts <- accounts()
     activeAccountServers <- paste0(activeAccounts$server, "@", activeAccounts$name)
     accountServer <- paste0(deployments$server, "@", deployments$account)
-    okServer <- deployments$server == "rpubs.com" |
-      accountServer %in% activeAccountServers
+    okServer <- isRPubs(deployments$server) | accountServer %in% activeAccountServers
     ok <- ok & okServer
   }
 
