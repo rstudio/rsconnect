@@ -41,11 +41,12 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
+  isConnect <- isConnectServer(accountDetails$server)
+
   # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
 
   # extract the subset of fields we're interested in
-  isConnect <- isConnectServer(accountDetails$server)
   keep <- if (isConnect) {
     c(
       "id",

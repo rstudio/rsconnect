@@ -19,7 +19,7 @@ test_that("combines fields across deployments", {
     deploymentConfigFile(dir, "app2", "account", "server")
   )
 
-  out <- deployments(dir)
+  out <- deployments(dir, excludeOrphaned = FALSE)
   expect_s3_class(out, "data.frame")
   expect_named(out, c(deploymentFields, "x", "y", "deploymentFile"))
   expect_equal(nrow(out), 2)
