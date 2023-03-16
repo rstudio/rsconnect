@@ -47,7 +47,7 @@ clearCookies <- function(hostname, port = NULL) {
 # @param cookieHeaders a list of characters strings representing the raw
 #   Set-Cookie header value with the "Set-Cookie: " prefix omitted
 storeCookies <- function(requestURL, cookieHeaders) {
-  cookies <- lapply(cookieHeaders, function(co) { parseCookie(requestURL, co) })
+  cookies <- lapply(cookieHeaders, parseCookie, requestPath = requestURL$path)
 
   # Filter out invalid cookies (which would return as NULL)
   cookies <- Filter(Negate(is.null), cookies)
@@ -83,10 +83,10 @@ storeCookies <- function(requestURL, cookieHeaders) {
 }
 
 # Parse out an individual cookie
-# @param requestURL the parsed URL as returned from `parseHttpUrl`
 # @param cookieHeader the raw text contents of the Set-Cookie header with the
 #   header name omitted.
-parseCookie <- function(requestURL, cookieHeader) {
+# @param requestPath the parsed URL as returned from `parseHttpUrl`
+parseCookie <- function(cookieHeader, requestPath = NULL) {
   keyval <- regmatches(cookieHeader, regexec(
     # https://curl.haxx.se/rfc/cookie_spec.html
     # "characters excluding semi-colon, comma and white space"
@@ -108,9 +108,10 @@ parseCookie <- function(requestURL, cookieHeader) {
   } else {
     path <- path[2]
   }
-  if (!substring(requestURL$path, 1, nchar(path)) == path) {
-    # Per the RFC, the cookie's path must be a prefix of the request URL
-    warning("Invalid path set for cookie on request for '", requestURL$path, "': ", cookieHeader)
+
+  # Per the RFC, the cookie's path must be a prefix of the request URL
+  if (!is.null(requestPath) && !hasPrefix(requestPath, path)) {
+    warning("Invalid path set for cookie on request for '", requestPath, "': ", cookieHeader)
     return(NULL)
   }
 
@@ -176,12 +177,7 @@ appendCookieHeaders <- function(requestURL, headers) {
     collapse = "; "
   )
 
-  if (nrow(cookies) > 0) {
-    return(c(headers, cookie = cookieHeader))
-  } else {
-    # Return unmodified headers
-    return(headers)
-  }
+  c(headers, cookie = cookieHeader)
 }
 
 getCookieHost <- function(requestURL) {

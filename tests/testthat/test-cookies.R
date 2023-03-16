@@ -19,9 +19,8 @@ test_that("URL parsing works", {
 })
 
 test_that("Parsing cookies works", {
-  parsedUrl <- parseHttpUrl("http://rstudio.com/test/stuff")
   # Note that the Expires field is ignored
-  cookie <- parseCookie(parsedUrl, "mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly")
+  cookie <- parseCookie("mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly", "/")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
   expect_true(cookie$expires > Sys.time() + 3595)
@@ -30,7 +29,7 @@ test_that("Parsing cookies works", {
   expect_false(cookie$secure)
 
   # Max-Age with no semicolon, non-root path
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2; Secure; Path=/test; max-AGE=3600")
+  cookie <- parseCookie("mycookie2=myvalue2; Secure; Path=/test; max-AGE=3600")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > Sys.time() + 3595)
@@ -39,7 +38,7 @@ test_that("Parsing cookies works", {
   expect_true(cookie$secure)
 
   # Path with no semicolon, no max age
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2; PATH=/test")
+  cookie <- parseCookie("mycookie2=myvalue2; PATH=/test")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
@@ -47,7 +46,7 @@ test_that("Parsing cookies works", {
   expect_false(cookie$secure)
 
   # No path, value with no semicolon
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2")
+  cookie <- parseCookie("mycookie2=myvalue2")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
@@ -55,7 +54,7 @@ test_that("Parsing cookies works", {
   expect_false(cookie$secure)
 
   # Trailing secure
-  cookie <- parseCookie(parsedUrl, "mycookie2=myvalue2; Secure")
+  cookie <- parseCookie("mycookie2=myvalue2; Secure")
   expect_equal(cookie$name, "mycookie2")
   expect_equal(cookie$value, "myvalue2")
   expect_true(cookie$expires > (Sys.time() + 10^9))
@@ -63,7 +62,7 @@ test_that("Parsing cookies works", {
   expect_true(cookie$secure)
 
   # Full cookie with spaces around =s
-  cookie <- parseCookie(parsedUrl, "mycookie = myvalue; SEcure; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
+  cookie <- parseCookie("mycookie = myvalue; SEcure; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
   expect_true(cookie$secure)
@@ -72,13 +71,13 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$path, "/")
 
   # Value-less cookie
-  cookie <- parseCookie(parsedUrl, "mycookie=; Path = /")
+  cookie <- parseCookie("mycookie=; Path = /")
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "")
   expect_equal(cookie$path, "/")
 
   # prove #229 is fixed
-  cookie <- parseCookie(parsedUrl, "my_cookie-which/uses%20strange?characters=foo_-%20+?1234bar; Path = /")
+  cookie <- parseCookie("my_cookie-which/uses%20strange?characters=foo_-%20+?1234bar; Path = /")
   expect_equal(cookie$name, "my_cookie-which/uses%20strange?characters")
   expect_equal(cookie$value, "foo_-%20+?1234bar")
   expect_equal(cookie$path, "/")
@@ -86,14 +85,11 @@ test_that("Parsing cookies works", {
 
 test_that("Invalid cookies fail parsing", {
   # Invalid path, doesn't match request's path
-  parsedUrl <- parseHttpUrl("http://rstudio.com/test/stuff")
-  expect_warning({cookie <- parseCookie(parsedUrl, "mycookie=myvalue; Path=/something/else")},
-                 "Invalid path set for cookie")
+  expect_snapshot(cookie <- parseCookie("x=1; Path=/something/else", "/path"))
   expect_null(cookie)
 
   # Invalid key/val format
-  expect_warning({cookie <- parseCookie(parsedUrl, "mycookie;")},
-                 "Unable to parse set-cookie ")
+  expect_snapshot(cookie <- parseCookie("mycookie;"))
   expect_null(cookie)
 })
 
