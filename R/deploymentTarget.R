@@ -75,7 +75,7 @@ deploymentTargetForApp <- function(appId,
                                    account = NULL,
                                    server = NULL) {
   accountDetails <- findAccount(account, server)
-  application <- getApplication(accountDetails$account, accountDetails$server)
+  application <- getApplication(accountDetails$account, accountDetails$server, appId)
 
   createDeploymentTarget(
     application$name,
