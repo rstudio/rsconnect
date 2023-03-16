@@ -98,6 +98,29 @@ test_that("saveDeployment appends to global history", {
   expect_setequal(colnames(history), c(deploymentFields, "appPath"))
 })
 
+test_that("saveDeployment captures hostUrl", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("foo")
+
+  dir <- local_temp_app()
+  saveDeployment(
+    dir,
+    createDeploymentTarget(
+      appName = "my-app",
+      appTitle = "",
+      appId = 10,
+      account = "foo",
+      username = "foo",
+      server = "example.com"
+    ),
+    application = list()
+  )
+
+  out <- deployments(dir)
+  expect_equal(out$hostUrl, "http://example.com")
+})
+
 test_that("addToDeploymentHistory() adds needed new lines", {
   local_temp_config()
 
