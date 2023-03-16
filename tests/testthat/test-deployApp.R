@@ -99,4 +99,3 @@ test_that("applicationDeleted() errors or prompts as needed", {
   expect_snapshot(. <- applicationDeleted(client, target, app))
   expect_length(dir(app, recursive = TRUE), 0)
 })
-
