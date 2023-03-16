@@ -74,3 +74,28 @@ addTestServer <- function(name = NULL, url = "http://example.com", certificate =
     quiet = TRUE
   )
 }
+addTestDeployment <- function(path,
+                              appName = "test",
+                              appTitle = "",
+                              appId = "123",
+                              account = "ron",
+                              username = account,
+                              server = "example.com",
+                              url = paste0("https://", server, "/", username, "/", appId),
+                              hostUrl = NULL,
+                              metadata = list()) {
+  saveDeployment(
+    path,
+    createDeploymentTarget(
+      appName = appName,
+      appTitle = appTitle,
+      appId = appId,
+      account = account,
+      username = username,
+      server = server
+    ),
+    application = list(id = appId, url = url),
+    hostUrl = hostUrl,
+    metadata = metadata
+  )
+}

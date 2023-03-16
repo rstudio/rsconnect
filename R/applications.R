@@ -46,6 +46,7 @@ applications <- function(account = NULL, server = NULL) {
   # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
 
+  # extract the subset of fields we're interested in
   keep <- if (isConnect) {
     c(
       "id",
@@ -68,7 +69,6 @@ applications <- function(account = NULL, server = NULL) {
       "deployment"
     )
   }
-  # extract the subset of fields we're interested in
   res <- lapply(apps, `[`, keep)
 
   res <- if (isConnect) {
@@ -138,7 +138,7 @@ getApplication <- function(account, server, appId) {
 
   withCallingHandlers(
     client$getApplication(appId),
-    rsconnect_http = function(err) {
+    rsconnect_http_404 = function(err) {
       cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
     }
   )
@@ -255,77 +255,53 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   }
 }
 
-#' Sync Application Metadata
+#' Update deployment records
 #'
-#' Update the metadata for requested application across all deployments
+#' Update the deployment records for applications published to Posit Connect.
+#' This updates application title and URL, and deletes records for deployments
+#' where the application has been deleted on the server.
 #'
 #' @param appPath The path to the directory or file that was deployed.
-#'
-#' @note This function does not update metadata for Shiny and rpubs apps
-#'
 #' @export
-syncAppMetadata <- function(appPath) {
-  if (is.null(appPath) || !file.exists(appPath)) {
-    stop("appPath is null or does not exist")
-  }
+syncAppMetadata <- function(appPath = ".") {
+  check_directory(appPath)
 
-  # get all of the currently known deployments
   deploys <- deployments(appPath)
+  for (i in seq_len(nrow(deploys))) {
+    curDeploy <- deploys[i, ]
 
-  syncWindow <- getOption("rsconnect.metadata.sync.hours", 24) * 3600
-  now <- as.numeric(Sys.time())
-
-  for (i in 1:nrow(deploys)) {
-    lastSyncTime <- deploys[i, "lastSyncTime"]
-
-    # for legacy dcf files that don't have sync time saved yet
-    if (is.null(lastSyncTime) || is.na(lastSyncTime))
-      lastSyncTime <- deploys[i, "when"]
-
-    # don't sync if within the configured time window
-    if (as.numeric(lastSyncTime) + syncWindow > now) {
+    # don't sync if published to RPubs
+    if (isRPubs(curDeploy$server)) {
       next
     }
 
-    # don't sync non-connect apps
-    if (!isConnectServer(deploys[i, "hostUrl"])) {
-      next
-    }
+    account <- accountInfo(curDeploy$account, curDeploy$server)
+    client <- clientForAccount(account)
 
-    account <- accountInfo(deploys[i, "account"], deploys[i, "server"])
-    connect <- clientForAccount(account)
-
-    application <- NULL
-
-    # if the app does not exist, delete the file
-    tryCatch({
-      application <- connect$getApplication(deploys[i, "appId"])
-    }, error = function(c) {
-      message(paste("appId", deploys[i, "appId"], "no longer exists, deleting config file"))
-      file.remove(deploys[i, "deploymentFile"])
-      stop("Removed config file ", deploys[i, "deploymentFile"])
-    })
-
-    record <- deploymentRecord(
-      name = deploys[i, "name"],
-      title = application$title,
-      username = deploys[i, "username"],
-      account = deploys[i, "account"],
-      server = deploys[i, "server"],
-      hostUrl = deploys[i, "hostUrl"],
-      appId = deploys[i, "appId"],
-      bundleId = deploys[i, "bundleId"],
-      url = application$url,
-      when = deploys[i, "when"],
-      lastSyncTime = now,
-      metadata = list(
-        asMultiple = deploys[i, "asMultiple"],
-        asStatic = deploys[i, "asStatic"],
-        vanity_url = application$vanity_url
-      )
+    application <- tryCatch(
+      client$getApplication(curDeploy$appId),
+      rsconnect_http_404 = function(c) {
+        # if the app has been deleted, delete the deployment record
+        file.remove(curDeploy$deploymentFile)
+        cli::cli_inform("Deleting deployment record for deleted app {curDeploy$appId}.")
+        NULL
+      }
     )
+    if (is.null(application)) {
+      next
+    }
 
     # update the record and save out a new config file
-    writeDeploymentRecord(record, deploys[i, "deploymentFile"])
+    path <- curDeploy$deploymentFile
+    curDeploy$deploymentFile <- NULL # added on read
+
+    # remove old fields
+    curDeploy$when <- NULL
+    curDeploy$lastSyncTime <- NULL
+
+    curDeploy$title <- application$title
+    curDeploy$url <- application$url
+
+    writeDeploymentRecord(curDeploy, path)
   }
 }

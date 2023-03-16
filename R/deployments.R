@@ -19,10 +19,6 @@
 #' `account` \tab Account owning deployed application\cr
 #' `bundleId` \tab Identifier of deployed application's bundle\cr
 #' `url` \tab URL of deployed application\cr
-#' `when` \tab When the application was deployed (in seconds since the
-#'   epoch)\cr
-#' `lastSyncTime` \tab When the application was last synced (in seconds since the
-#'   epoch)\cr
 #' `deploymentFile` \tab Name of configuration file\cr
 #' }
 #'
@@ -53,8 +49,6 @@ deployments <- function(appPath = ".",
   dcf <- lapply(dcf, as.data.frame, stringsAsFactors = FALSE)
 
   deployments <- rbind_fill(dcf, deploymentFields)
-  deployments$when <- .POSIXct(deployments$when)
-  deployments$lastSyncTime <- .POSIXct(deployments$lastSyncTime)
   deployments$deploymentFile <- paths
 
   # Apply filters
@@ -81,7 +75,7 @@ deployments <- function(appPath = ".",
 
 deploymentFields <- c(
   "name", "title", "username", "account", "server", "hostUrl", "appId",
-  "bundleId", "url", "when", "lastSyncTime"
+  "bundleId", "url"
 )
 
 saveDeployment <- function(recordDir,
@@ -121,8 +115,6 @@ deploymentRecord <- function(name,
                              appId = NULL,
                              bundleId = NULL,
                              url = NULL,
-                             when = as.numeric(Sys.time()),
-                             lastSyncTime = as.numeric(Sys.time()),
                              metadata = list()) {
 
   standard <- list(
@@ -134,9 +126,7 @@ deploymentRecord <- function(name,
     hostUrl = hostUrl %||% "",
     appId = appId %||% "",
     bundleId = bundleId %||% "",
-    url = url %||% "",
-    when = when,
-    lastSyncTime = lastSyncTime
+    url = url %||% ""
   )
   c(standard, metadata)
 }
