@@ -178,10 +178,10 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   # create the curl handle and perform the minimum necessary to create an
   # authenticated request. we ignore the rsconnect.http option here because only
   # curl supports the kind of streaming connection that we need.
-  handle <- createCurlHandle(NULL, NULL)
-  curl::handle_setopt(handle, customrequest = "GET")
+  handle <- createCurlHandle("GET")
   curl::handle_setheaders(handle,
-    .list = signatureHeaders(authInfo, "GET", parsed$path, NULL))
+    .list = signatureHeaders(authInfo, "GET", parsed$path, NULL)
+  )
 
   # begin the stream
   curl::curl_fetch_stream(url = url,

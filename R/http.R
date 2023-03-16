@@ -35,7 +35,7 @@ httpRequest <- function(service,
   )
 
   while (isRedirect(httpResponse$status)) {
-    service <- parseHttpUrl(httpResponse$location)
+    service <- redirectService(service, httpResponse$location)
     httpResponse <- http(
       protocol = service$protocol,
       host = service$host,
@@ -95,7 +95,7 @@ httpRequestWithBody <- function(service,
     # This is a simplification of the spec, since we should preserve
     # the method for 307 and 308, but that's unlikely to arise for our apps
     # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
-    service <- parseHttpUrl(httpResponse$location)
+    service <- redirectService(service, httpResponse$location)
     authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
     httpResponse <- http(
       protocol = service$protocol,
@@ -114,6 +114,15 @@ httpRequestWithBody <- function(service,
 
 isRedirect <- function(status) {
   status %in% c(301, 302, 307, 308)
+}
+
+redirectService <- function(service, location) {
+  if (grepl("^/", location)) {
+    service$path <- location
+    service
+  } else {
+    parseHttpUrl(location)
+  }
 }
 
 handleResponse <- function(response, error_call = caller_env()) {
@@ -344,7 +353,8 @@ parseHttpUrl <- function(urlText) {
 }
 
 buildHttpUrl <- function(x) {
-  paste0(x$protocol, "://", x$host, x$port, x$path)
+  colon <- if (!is.null(x$port) && nzchar(x$port)) ":"
+  paste0(x$protocol, "://", x$host, colon, x$port, x$path)
 }
 
 urlDecode <- function(x) {
