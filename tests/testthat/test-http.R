@@ -3,6 +3,8 @@ test_that("non-libCurl methods are deprecated", {
   expect_snapshot(. <- httpFunction())
 })
 
+# headers -----------------------------------------------------------------
+
 test_that("authHeaders() picks correct method based on supplied fields", {
   url <- "https://example.com"
 
@@ -29,6 +31,29 @@ test_that("authHeaders() picks correct method based on supplied fields", {
   })
 })
 
+test_that("can add user specific headers", {
+  withr::local_options(rsconnect.http.headers = c(a = "1", b = "2"))
+
+  service <- httpbin_service()
+  json <- GET(service, list(), "get")
+  expect_equal(json$headers$a, "1")
+  expect_equal(json$headers$b, "2")
+})
+
+test_that("can add user specific cookies", {
+  skip_on_cran()
+  # uses live httpbin since webfakes doesn't support cookie endpoints
+  withr::local_options(rsconnect.http.cookies = c("a=1", "b=2"))
+  service <- parseHttpUrl("http://httpbin.org/")
+
+  json <- GET(service, list(), "cookies")
+  expect_equal(json$cookies, list(a = "1", b = "2"))
+
+  withr::local_options(rsconnect.http.cookies = c("c=3", "d=4"))
+  POST(service, list(), "post")
+  json <- GET(service, list(), "cookies")
+  expect_equal(json$cookies, list(a = "1", b = "2", c = "3", d = "4"))
+})
 
 # handleResponse ----------------------------------------------------------
 

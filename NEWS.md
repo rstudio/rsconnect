@@ -1,5 +1,8 @@
 # rsconnect 0.8.30 (development version)
 
+* New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
+  set extra arbitrary additional headers/cookies on each request (#405).
+
 * Deployment records no longer contain the time the app was deployed (`when`)
   or when it's metadata was last synched (`lastSyncTime`) as these variables
   are not very useful, and they lead to uninteresting diffs if you have 
