@@ -58,76 +58,123 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
   server <- findServer(server)
   user <- getAuthedUser(server, apiKey = apiKey)
 
-  registerUserApiKey(
+  registerAccount(
     serverName = server,
     accountName = account %||% user$username,
-    userId = user$id,
+    accountId = user$id,
     apiKey = apiKey
   )
 
   if (!quiet) {
-    message("Account registered successfully: ", account %||% user$username)
+    accountId <- accountId(user$username, server)
+    cli::cli_alert_success("Registered account for {accountId}")
   }
   invisible()
 }
 
 #' @rdname connectApiUser
 #' @export
-connectUser <- function(account = NULL, server = NULL, quiet = FALSE,
+connectUser <- function(account = NULL,
+                        server = NULL,
+                        quiet = FALSE,
                         launch.browser = getOption("rsconnect.launch.browser", interactive())) {
   server <- findServer(server)
+  resp <- getAuthTokenAndUser(server, launch.browser)
 
-  # generate a token and send it to the server
-  token <- getAuthToken(server)
-  if (!quiet) {
-    message("A browser window should open; if it doesn't, you may authenticate ",
-            "manually by visiting ", token$claim_url, ".")
-    message("Waiting for authentication...")
-  }
-
-  if (isTRUE(launch.browser))
-    utils::browseURL(token$claim_url)
-  else if (is.function(launch.browser))
-    launch.browser(token$claim_url)
-
-  # keep trying to authenticate until we're successful
-  repeat {
-    Sys.sleep(1)
-    user <- getAuthedUser(server, token = token)
-    if (!is.null(user))
-      break
-  }
-
-  # populate the username if there wasn't one set on the server
-  if (nchar(user$username) == 0) {
-    if (!is.null(account))
-      user$username <- account
-    else
-      user$username <- tolower(paste0(substr(user$first_name, 1, 1),
-                                      user$last_name))
-
-    # in interactive mode, prompt for a username before accepting defaults
-    if (!quiet && interactive() && is.null(account)) {
-      input <- readline(paste0("Choose a nickname for this account (default '",
-                               user$username, "'): "))
-      if (nchar(input) > 0)
-        user$username <- input
-    }
-  }
-
-  registerUserToken(
+  registerAccount(
     serverName = server,
-    accountName = user$username,
-    userId = user$id,
-    token = token$token,
-    privateKey = token$private_key
+    accountName = account %||% resp$user$username,
+    accountId = resp$user$id,
+    token = resp$token$token,
+    private_key = resp$token$private_key
   )
 
   if (!quiet) {
-    message("Account registered successfully: ", user$first_name, " ",
-            user$last_name, " (", user$username, ")")
+    accountId <- accountId(resp$user$username, server)
+    cli::cli_alert_success("Registered account for {accountId}")
   }
   invisible()
+}
+
+getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
+  # Generate public/private key pair
+  token <- generateToken()
+
+  # Send public key to server, and generate URL where the token can be claimed
+  client <- clientForAccount(list(server = server))
+  response <- client$addToken(list(
+    token = token$token,
+    public_key = token$public_key,
+    user_id = 0L
+  ))
+
+  claim_url <- response$token_claim_url
+
+  if (isTRUE(launch.browser))
+    utils::browseURL(claim_url)
+  else if (is.function(launch.browser))
+    launch.browser(claim_url)
+
+  if (isFALSE(launch.browser)) {
+    cli::cli_alert_warning("Open {.url {claim_url}} to authenticate")
+  } else {
+    cli::cli_alert_info("A browser window should open to complete authentication")
+    cli::cli_alert_warning("If it doesn't open, please go to {.url {claim_url}}")
+  }
+
+  # keep trying to authenticate until we're successful; server returns
+  # 500 "Token is unclaimed error" while waiting for interactive auth to complete
+  cli::cli_progress_bar(format = "{cli::pb_spin} Waiting for authentication...")
+  repeat {
+    for (i in 1:10) {
+      Sys.sleep(0.1)
+      cli::cli_progress_update()
+    }
+    user <- tryCatch(
+      getAuthedUser(server, token = token$token, private_key = token$private_key),
+      rsconnect_http_500 = function(err) NULL
+    )
+    if (!is.null(user)) {
+      cli::cli_progress_done()
+      break
+    }
+  }
+
+  list(
+    token = token,
+    user = user
+  )
+}
+
+# generateToken generates a token for signing requests sent to the Posit
+# Connect service. The token's ID and public key are sent to the server, and
+# the private key is saved locally.
+generateToken <- function() {
+  key <- openssl::rsa_keygen(2048L)
+  priv.der <- openssl::write_der(key)
+  pub.der <- openssl::write_der(key$pubkey)
+  tokenId <- paste(c("T", openssl::rand_bytes(16)), collapse = "")
+
+  list(
+    token = tokenId,
+    public_key = openssl::base64_encode(pub.der),
+    private_key = openssl::base64_encode(priv.der)
+  )
+}
+
+getAuthedUser <- function(server, token = NULL, private_key = NULL, apiKey = NULL) {
+  if (!xor(is.null(token) && is.null(private_key), is.null(apiKey))) {
+    cli::cli_abort("Must supply either {.arg token} + {private_key} or {.arg apiKey}")
+  }
+
+  account <- list(
+    server = server,
+    apiKey = apiKey,
+    token = token,
+    private_key = private_key
+  )
+  client <- clientForAccount(account)
+  client$currentUser()
 }
 
 #' Register account on shinyapps.io or posit.cloud
@@ -157,77 +204,54 @@ setAccountInfo <- function(name, token, secret, server = "shinyapps.io") {
   check_string(secret)
   check_string(server)
 
+  accountId <- findShinyAppsAccountId(name, token, secret, server)
+
+  registerAccount(
+    serverName = server,
+    accountName = name,
+    accountId = accountId,
+    token = token,
+    secret = secret
+  )
+  invisible()
+}
+
+# A user can have multiple accounts, so iterate over all accounts looking
+# for one with the specified name
+findShinyAppsAccountId <- function(name,
+                                   token,
+                                   secret,
+                                   server,
+                                   error_call = caller_env()) {
   if (secret == "<SECRET>") {
-    cli::cli_abort(c(
-      "You've copied and pasted the wrong thing.",
-      i = "Either click 'Show secret' or 'Copy to clipboard'."
-    ))
+    cli::cli_abort(
+      c(
+        "You've copied and pasted the wrong thing.",
+        i = "Either click 'Show secret' or 'Copy to clipboard'."
+      ),
+      call = error_call
+    )
   }
 
   account <- list(token = token, secret = secret, server = server)
   client <- clientForAccount(account)
 
-  # get user Id
   userId <- client$currentUser()$id
 
-  # get account id
   accountId <- NULL
   accounts <- client$accountsForUser(userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
-      accountId <- account$id
-      break
+      return(account$id)
     }
   }
-  if (is.null(accountId))
-    stop("Unable to determine account id for account named '", name, "'")
-
-  registerCloudTokenSecret(
-    serverName = serverInfo$name,
-    accountName = name,
-    userId = userId,
-    token = token,
-    secret = secret,
-  )
-  invisible()
-}
-
-registerCloudTokenSecret <- function(serverName,
-                                     accountName,
-                                     userId,
-                                     accountId,
-                                     token,
-                                     secret) {
-  # get the path to the config file
-  path <- accountConfigFile(accountName, serverName)
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-
-  # write the user info
-  write.dcf(
-    list(
-      name = accountName,
-      userId = userId,
-      accountId = accountName,
-      token = token,
-      secret = secret,
-      server = serverName
-    ),
-    path,
-    width = 100
-  )
-
-  # set restrictive permissions on it if possible
-  if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(path, mode = "0600")
-
-  path
+  cli::cli_abort("Unable to determine {.arg accountId} for account {.str {name}}")
 }
 
 #' @rdname accounts
 #' @family Account functions
 #' @export
 accountInfo <- function(name = NULL, server = NULL) {
-
   fullAccount <- findAccount(name, server)
   configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
 
@@ -235,12 +259,13 @@ accountInfo <- function(name = NULL, server = NULL) {
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
-    info$private_key <- secret(gsub("[[:space:]]", "", info$private_key))
+    info$private_key <- gsub("[[:space:]]", "", info$private_key)
   }
 
-  if (!is.null(info$secret)) {
-    info$secret <- secret(info$secret)
-  }
+  # Hide credentials
+  info$private_key <- secret(info$private_key)
+  info$secret <- secret(info$secret)
+  info$apiKey <- secret(info$apiKey)
 
   info
 }
@@ -254,123 +279,45 @@ hasAccount <- function(name, server) {
 removeAccount <- function(name = NULL, server = NULL) {
   fullAccount <- findAccount(name, server)
 
-  configFile <- accountConfigFile(name, server)
+  configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
   file.remove(configFile)
 
   invisible(NULL)
 }
 
-# given the name of a registered server, does the following:
-# 1) generates a public/private key pair and token ID
-# 2) pushes the public side of the key pair to the server, and obtains
-#    from the server a URL at which the token can be claimed
-# 3) returns the token ID, private key, and claim URL
-getAuthToken <- function(server, userId = 0) {
-  # generate a token and push it to the server
-  token <- generateToken()
-  client <- clientForAccount(list(server = server))
-  response <- client$addToken(list(
-    token = token$token,
-    public_key = token$public_key,
-    user_id = as.integer(userId)
-  ))
+registerAccount <- function(serverName,
+                            accountName,
+                            accountId,
+                            token = NULL,
+                            secret = NULL,
+                            private_key = NULL,
+                            apiKey = NULL) {
 
-  # return the generated token and the information needed to claim it
-  list(
-    token = token$token,
-    private_key = secret(token$private_key),
-    claim_url = response$token_claim_url
-  )
-}
-
-# given a server URL and auth parameters, return the user
-# who owns the auth if it's valid/claimed, and NULL if invalid/unclaimed.
-# raises an error on any other HTTP error.
-#
-# this function is used by the RStudio IDE as part of the workflow which
-# attaches a new Connect account.
-getAuthedUser <- function(server, token = NULL, apiKey = NULL) {
-  if (!xor(is.null(token), is.null(apiKey))) {
-    cli::cli_abort("Must supply exactly one of {.arg token} and {.arg apiKey}")
+  check_string(serverName)
+  check_string(accountName)
+  if (!is.null(secret)) {
+    secret <- as.character(secret)
   }
 
-  account <- list(server = server)
-  if (!is.null(apiKey)) {
-    account$apiKey <- apiKey
-  } else {
-    account$token <- token$token
-    account$private_key <- token$private_key
-  }
-  client <- clientForAccount(account)
-
-  # server returns 500 "Token is unclaimed error" while waiting for
-  # interactive auth to complete
-  tryCatch(
-    client$currentUser(),
-    rsconnect_http_500 = function(err) NULL
+  fields <- list(
+    name = accountName,
+    server = serverName,
+    accountId = accountId,
+    token = token,
+    secret = secret,
+    private_key = private_key,
+    apiKey = apiKey
   )
-}
 
-# passthrough function for compatibility with old IDE versions
-getUserFromRawToken <- function(serverUrl,
-                                token,
-                                privateKey,
-                                serverCertificate = NULL) {
-
-  # Look up server name from url
-  servers <- server()
-  server <- servers$name[servers$url == serverUrl]
-
-  getAuthedUser(server, token = list(token = token, private_key = privateKey))
-}
-
-registerUserApiKey <- function(serverName, accountName, userId, apiKey) {
-  # write the user info
-  configFile <- accountConfigFile(accountName, serverName)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(list(username = accountName,
-                 accountId = userId,
-                 apiKey = apiKey,
-                 server = serverName),
-            configFile)
+  path <- accountConfigFile(accountName, serverName)
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  write.dcf(compact(fields), path, width = 100)
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode = "0600")
-}
+    Sys.chmod(path, mode = "0600")
 
-registerUserToken <- function(serverName, accountName, userId, token,
-                              privateKey) {
-  # write the user info
-  configFile <- accountConfigFile(accountName, serverName)
-  dir.create(dirname(configFile), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(list(username = accountName,
-                 accountId = userId,
-                 token = token,
-                 server = serverName,
-                 private_key = as.character(privateKey)),
-            configFile)
-
-  # set restrictive permissions on it if possible
-  if (identical(.Platform$OS.type, "unix"))
-    Sys.chmod(configFile, mode = "0600")
-}
-
-missingAccountErrorMessage <- function(name) {
-  paste("account named '", name, "' does not exist", sep = "")
-}
-
-isShinyappsServer <- function(server) {
-  identical(server, "shinyapps.io")
-}
-
-isRPubs <- function(server) {
-  identical(server, "rpubs.com")
-}
-
-isConnectInfo <- function(accountInfo = NULL, server = NULL) {
-  host <- if (is.null(accountInfo)) server else accountInfo$server
-  !isCloudServer(host) && !isRPubs(host)
+  path
 }
 
 accountId <- function(account, server) {

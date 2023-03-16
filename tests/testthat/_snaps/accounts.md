@@ -1,22 +1,17 @@
 # secrets are hidden from casual inspection
 
     Code
-      accountInfo("john")$private_key
+      accountInfo("1")$secret
     Output
-      [1] "THISIS... (redacted)"
+      [1] "SECRET... (redacted)"
     Code
-      accountInfo("susan")$secret
+      accountInfo("2")$private_key
     Output
-      [1] "THIS I... (redacted)"
+      [1] "SECRET... (redacted)"
     Code
-      str(accountInfo("john"))
+      accountInfo("3")$apiKey
     Output
-      List of 5
-       $ username   : chr "john"
-       $ accountId  : chr "userId"
-       $ token      : chr "token"
-       $ server     : chr "example.com"
-       $ private_key: THISIS... (redacted)
+      [1] "SECRET... (redacted)"
 
 # setAccountInfo() gives nice error on bad copy and paste
 

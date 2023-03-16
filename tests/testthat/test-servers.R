@@ -72,12 +72,13 @@ test_that("predefined servers includes cloud and shinyapps", {
 
 test_that("predefined servers includes rstudio.cloud if needed", {
   local_temp_config()
-  registerUserToken("rstudio.cloud", "john", "123", "TOKEN", "SECRET")
+  addTestAccount("john", "rstudio.cloud")
   expect_true("rstudio.cloud" %in% servers()$name)
 })
 
 test_that("cloud server info matches name given if valid", {
-  registerUserToken("rstudio.cloud", "john", "123", "TOKEN", "SECRET")
+  local_temp_config()
+  addTestAccount("john", "rstudio.cloud")
 
   rstudioServer <- serverInfo("rstudio.cloud")
   expect_equal(rstudioServer$name, "rstudio.cloud")

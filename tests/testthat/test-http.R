@@ -1,3 +1,8 @@
+test_that("non-libCurl methods are deprecated", {
+  withr::local_options(rsconnect.http = "internal")
+  expect_snapshot(. <- httpFunction())
+})
+
 test_that("authHeaders() picks correct method based on supplied fields", {
   url <- "https://example.com"
 

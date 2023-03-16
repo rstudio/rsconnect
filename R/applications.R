@@ -41,7 +41,7 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
-  isConnect <- isConnectInfo(accountInfo = accountDetails)
+  isConnect <- isConnectServer(accountDetails$server)
 
   # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
@@ -288,7 +288,7 @@ syncAppMetadata <- function(appPath) {
     }
 
     # don't sync non-connect apps
-    if (!isConnectInfo(server = deploys[i, "hostUrl"])) {
+    if (!isConnectServer(deploys[i, "hostUrl"])) {
       next
     }
 

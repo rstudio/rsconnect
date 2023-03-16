@@ -68,7 +68,7 @@ uploadCloudBundle <- function(client,
     application_id,
     content_type = "application/x-tar",
     content_length = bundleSize,
-    checksum = fileMD5.as.string(bundlePath)
+    checksum = fileMD5(bundlePath)
   )
 
   # Step 2. Upload Bundle to presigned URL
