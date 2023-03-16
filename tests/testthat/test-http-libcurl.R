@@ -12,9 +12,16 @@ test_that("can trace JSON", {
   withr::local_options(rsconnect.http.trace.json = TRUE)
   service <- httpbin_service()
 
-  expect_snapshot(transform = strip_port(service), {
-    . <- GET(service, list(), "get")
-    . <- POST_JSON(service, list(), "post", list(a = 1, b = 2))
+  json_app <- webfakes::new_app()
+  json_app$use(webfakes::mw_json())
+  json_app$post("/", function(req, res) {
+    res$set_status(200L)$send_json(req$json)
+  })
+  app <- webfakes::new_app_process(json_app)
+  service <- parseHttpUrl(app$url())
+
+  expect_snapshot({
+    . <- POST_JSON(service, list(), "", list(a = 1, b = 2))
   })
 })
 
