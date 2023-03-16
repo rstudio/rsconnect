@@ -61,34 +61,8 @@ test_that("errors/prompts if multiple deployments", {
   addTestAccount("ron", "server2.com")
 
   app_dir <- withr::local_tempdir()
-  saveDeployment(
-    app_dir,
-    target = createDeploymentTarget(
-      appName = "test",
-      appTitle = "old title",
-      appId = "x",
-      server = "server1.com",
-      username = "ron",
-      account = "ron"
-    ),
-    application = list(id = NA, url = "http://server1.com/test"),
-    bundleId = NA,
-    hostUrl = NA
-  )
-  saveDeployment(
-    app_dir,
-    target = createDeploymentTarget(
-      appName = "test",
-      appTitle = "old title",
-      appId = "x",
-      server = "server2.com",
-      username = "ron",
-      account = "ron"
-    ),
-    application = list(id = NA, url = "http://server2.com/test"),
-    bundleId = NA,
-    hostUrl = NA
-  )
+  addTestDeployment(app_dir, server = "server1.com")
+  addTestDeployment(app_dir, server = "server2.com")
 
   expect_snapshot(error = TRUE, {
     deploymentTarget(app_dir, appName = "test")
@@ -105,28 +79,14 @@ test_that("errors/prompts if multiple deployments", {
 
 test_that("succeeds if there's a single existing deployment", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("ron", "bar")
+  addTestServer()
+  addTestAccount("ron")
   mockr::local_mock(
     applications = function(...) data.frame()
   )
 
   app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
-  saveDeployment(
-    app_dir,
-    target = createDeploymentTarget(
-      appName = "test",
-      appTitle = "old title",
-      appId = "x",
-      server = "bar",
-      username = "ron",
-      account = "ron"
-    ),
-    application = list(id = "1", url = NA),
-    bundleId = 1,
-    hostUrl = NA
-  )
+  addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
 
   target <- deploymentTarget(app_dir)
   expect_equal(target$appId, "1")
@@ -139,28 +99,13 @@ test_that("succeeds if there's a single existing deployment", {
 
 test_that("new title overrides existing title", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("ron", "bar")
+  addTestServer()
+  addTestAccount("ron")
   mockr::local_mock(
     applications = function(...) data.frame()
   )
-
   app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
-  saveDeployment(
-    app_dir,
-    target = createDeploymentTarget(
-      appName = "test",
-      appTitle = "old title",
-      appId = "x",
-      server = "bar",
-      username = NA,
-      account = "ron"
-    ),
-    application = list(id = "1", url = NA),
-    bundleId = 1,
-    hostUrl = NA
-  )
+  addTestDeployment(app_dir, appTitle = "old title")
 
   target <- deploymentTarget(app_dir)
   expect_equal(target$appTitle, "old title")
@@ -171,8 +116,8 @@ test_that("new title overrides existing title", {
 
 test_that("succeeds if there are no deployments and a single account", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("ron", "bar")
+  addTestServer()
+  addTestAccount("ron")
   mockr::local_mock(
     applications = function(...) data.frame()
   )
@@ -180,7 +125,6 @@ test_that("succeeds if there are no deployments and a single account", {
   dir <- withr::local_tempdir()
   app_dir <- file.path(dir, "my_app")
   dir.create(app_dir)
-  file.create(file.path(app_dir, "app.R"))
 
   target <- deploymentTarget(app_dir)
   expect_equal(target$appName, "my_app")
@@ -192,49 +136,21 @@ test_that("succeeds if there are no deployments and a single account", {
 
 test_that("default title is the empty string", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("ron", "bar")
+  addTestServer()
+  addTestAccount("ron")
   mockr::local_mock(
     applications = function(...) data.frame()
   )
 
   app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
-
   target <- deploymentTarget(app_dir)
   expect_equal(target$appTitle, "")
 })
 
-test_that("deploy can update title", {
-  local_temp_config()
-  addTestServer("bar")
-  addTestAccount("ron", "bar")
-
-  app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
-
-  saveDeployment(
-    app_dir,
-    target = createDeploymentTarget(
-      appName = "my_title",
-      appTitle = "my title",
-      appId = "x",
-      server = "bar",
-      username = "ron",
-      account = "ron"
-    ),
-    application = list(id = "1", url = NA),
-    bundleId = 1,
-    hostUrl = NA
-  )
-  target <- deploymentTarget(app_dir, appTitle = "my new title")
-  expect_equal(target$appName, "my_title")
-})
-
 test_that("can look up existing application on server", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("ron", "bar")
+  addTestServer()
+  addTestAccount("ron")
   mockr::local_mock(
     applications = function(...) data.frame(
       name = "my_app",
@@ -246,7 +162,6 @@ test_that("can look up existing application on server", {
   )
 
   app_dir <- withr::local_tempdir()
-  file.create(file.path(app_dir, "app.R"))
 
   target <- deploymentTarget(app_dir, appName = "my_app")
   expect_equal(target$appId, 123)

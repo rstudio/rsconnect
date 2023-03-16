@@ -32,33 +32,8 @@ test_that("deployments() can filter", {
   addTestAccount("foo", "foo")
   addTestAccount("bar", "bar")
   dir <- local_temp_app()
-
-  saveDeployment(
-    dir,
-    createDeploymentTarget(
-      appName = "my-app",
-      appTitle = "",
-      appId = 10,
-      account = "foo",
-      username = "foo",
-      server = "foo"
-    ),
-    application = list(),
-    hostUrl = NULL
-  )
-  saveDeployment(
-    dir,
-    createDeploymentTarget(
-      appName = "my-app2",
-      appTitle = "",
-      appId = 10,
-      account = "bar",
-      username = "bar",
-      server = "bar"
-    ),
-    application = list(id = "123"),
-    hostUrl = NULL
-  )
+  addTestDeployment(dir, appName = "my-app", account = "foo", server = "foo")
+  addTestDeployment(dir, appName = "my-app2", account = "bar", server = "bar")
 
   out <- deployments(dir)
   expect_s3_class(out, "data.frame")
@@ -72,28 +47,14 @@ test_that("deployments() can filter", {
 
   out <- deployments(dir, accountFilter = "foo")
   expect_equal(nrow(out), 1)
-
 })
 
-test_that("deployments() can excludes orphans", {
+test_that("deployments() can exclude orphans", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("foo", "bar")
 
   dir <- local_temp_app()
-  saveDeployment(
-    dir,
-    createDeploymentTarget(
-      appName = "my-app",
-      appTitle = "",
-      appId = 10,
-      account = "foo1",
-      username = "foo1",
-      server = "bar1"
-    ),
-    application = list(),
-    hostUrl = NULL
-  )
+  addTestDeployment(dir, server = "bar1")
+
   out <- deployments(dir)
   expect_equal(nrow(out), 0)
 
@@ -103,24 +64,9 @@ test_that("deployments() can excludes orphans", {
 
 test_that("can read/write metadata", {
   local_temp_config()
-  addTestServer("bar")
-  addTestAccount("foo", "bar")
   dir <- local_temp_app()
 
-  saveDeployment(
-    dir,
-    createDeploymentTarget(
-      appName = "my-app",
-      appTitle = "",
-      appId = 10,
-      account = "foo",
-      username = "foo",
-      server = "bar"
-    ),
-    application = list(),
-    hostUrl = NULL,
-    metadata = list(meta1 = "one", meta2 = "two")
-  )
+  addTestDeployment(dir, metadata = list(meta1 = "one", meta2 = "two"))
   out <- deployments(dir, excludeOrphaned = FALSE)
   expect_equal(out$meta1, "one")
   expect_equal(out$meta2, "two")
