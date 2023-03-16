@@ -1,6 +1,6 @@
 test_that("basic HTTP methods work", {
   skip_if(Sys.which("curl") == "")
-  withr::local_options(rsconnect.http = "curl")
+  withr::local_options(rsconnect.http = "curl", lifecycle_verbosity = "quiet")
 
   test_http_GET()
   test_http_POST_JSON()
