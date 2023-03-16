@@ -95,10 +95,7 @@ test_that("applicationDeleted() errors or prompts as needed", {
   expect_snapshot(applicationDeleted(client, target, app), error = TRUE)
   expect_length(dir(app, recursive = TRUE), 1)
 
-  withr::local_options(
-    rlang_interactive = TRUE,
-    cli_prompt = "2"
-  )
+  simulate_user_input(2)
   expect_snapshot(. <- applicationDeleted(client, target, app))
   expect_length(dir(app, recursive = TRUE), 0)
 })

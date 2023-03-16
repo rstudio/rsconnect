@@ -69,10 +69,7 @@ test_that("errors/prompts if multiple deployments", {
     deploymentTarget(app_dir)
   })
 
-  withr::local_options(
-    rlang_interactive = TRUE,
-    cli_prompt = "1"
-  )
+  simulate_user_input(1)
   expect_snapshot(out <- deploymentTarget(app_dir))
   expect_equal(out$appName, "test")
 })
@@ -214,12 +211,9 @@ test_that("forceUpdate shortcircuits shouldUpdateApp", {
 })
 
 test_that("shouldUpdateApp handles 3 options", {
-  withr::local_options(
-    rlang_interactive = TRUE,
-    cli_prompt = c("1", "2", "3")
-  )
   app <- list(name = "my_app", url = "https://example.com")
 
+  simulate_user_input(c(1, 2, 3))
   expect_snapshot(error = TRUE, {
     one <- shouldUpdateApp(app, "my_app-1")
     two <- shouldUpdateApp(app, "my_app-1")
