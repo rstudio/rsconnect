@@ -30,19 +30,27 @@ test_that("recommended packages are snapshotted", {
 })
 
 test_that("works with BioC packages", {
-  app_dir <- withr::local_tempdir()
-  out <- bundlePackages(app_dir, extraPackages = "limma")
-  expect_equal(out[["limma"]]$Source, "Bioconductor")
-  expect_equal(out[["limma"]]$Repository, NA)
+  app_dir <- local_temp_app(list("index.Rmd" = c(
+    "```{r}",
+    "library(Biobase)",
+    "```"
+  )))
+  out <- bundlePackages(app_dir)
+  expect_equal(out$Biobase$Source, "Bioconductor")
+  expect_equal(out$Biobase$Repository, NA_character_)
+  expect_equal(out$BiocGenerics$Source, "Bioconductor")
+  expect_equal(out$BiocGenerics$Repository, NA_character_)
 
   # add bioc repo
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
     BioC = "https://bioconductor.org/packages/3.16/bioc"
   ))
-  out <- bundlePackages(app_dir, extraPackages = "limma")
-  expect_equal(out[["limma"]]$Source, "Bioconductor")
-  expect_equal(out[["limma"]]$Repository, "https://bioconductor.org/packages/3.16/bioc")
+  out <- bundlePackages(app_dir)
+  expect_equal(out$Biobase$Source, "Bioconductor")
+  expect_equal(out$Biobase$Repository, "https://bioconductor.org/packages/3.16/bioc")
+  expect_equal(out$BiocGenerics$Source, "Bioconductor")
+  expect_equal(out$BiocGenerics$Repository, "https://bioconductor.org/packages/3.16/bioc")
 })
 
 test_that("errors if dependencies aren't installed", {
