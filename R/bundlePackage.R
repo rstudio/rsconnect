@@ -135,17 +135,17 @@ standardizePackageRepoAndSource <- function(record, availablePackages) {
       source <- NA
       repository <- NA
     } else {
-      repository <- findRepo(availablePackages, pkg)
+      repository <- findRepo(pkg, availablePackages)
     }
   } else {
     # Installed from CRAN, BioC, or another repository
     # NB: shinyapps will ignore repository if source is CRAN or BioC
-    repository <- findRepo(availablePackages, pkg)
+    repository <- findRepo(pkg, availablePackages)
   }
   list(Source = source, Repository = repository)
 }
 
-findRepo <- function(availablePackages, pkg) {
+findRepo <- function(pkg, availablePackages) {
   if (pkg %in% rownames(availablePackages)) {
     repo <- availablePackages[pkg, "Repository"]
     # Strip /src/contrib from repository URL recorded in package record to
