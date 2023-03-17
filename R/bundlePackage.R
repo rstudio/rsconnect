@@ -45,11 +45,10 @@ checkBundlePackages <- function(deps, call = caller_env()) {
   unknown_source <- is.na(deps$Source)
   if (any(unknown_source)) {
     pkgs <- deps$Package[unknown_source]
-    cli::cli_warn(
+    cli::cli_abort(
       c(
-        "Local packages must be installed from a supported source.",
-        x = "Unsupported packages: {.pkg {pkgs}}.",
-        i = "Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.",
+        "All packages must be installed from a reproducible location.",
+        x = "Can't re-install packages installed from source: {.pkg {pkgs}}.",
         i = "See {.fun rsconnect::appDependencies} for more details."
       ),
       call = call
@@ -90,11 +89,11 @@ snapshotRDependencies <- function(appDir,
 
   # get packages records defined in the lockfile
   records <- utils::tail(df, -1)
-  records[c("Source", "Repository")] <- findPackageRepoAndSource(records, repos)
+  records[c("Source", "Repository")] <- standardizeRecords(records, repos)
   records
 }
 
-findPackageRepoAndSource <- function(records, repos) {
+standardizeRecords <- function(records, repos) {
   # read available.packages filters (allow user to override if necessary;
   # this is primarily to allow debugging)
   #
@@ -103,74 +102,71 @@ findPackageRepoAndSource <- function(records, repos) {
   # in use can still be marked as available on CRAN -- for example, currently
   # the package "foreign" requires "R (>= 4.0.0)" but older versions of R
   # can still successfully install older versions from the CRAN archive
-  filters <- getOption("available_packages_filters", default = "duplicates")
+  availablePackages <- available.packages(
+    repos = repos,
+    type = "source",
+    filters = getOption("available_packages_filters", default = "duplicates")
+  )
 
-  # get Bioconductor repos if any
-  biocRepos <- repos[grep("BioC", names(repos), perl = TRUE, value = TRUE)]
-  biocPackages <- if (length(biocRepos) > 0) {
-    available.packages(
-      contriburl = contrib.url(biocRepos, type = "source"),
-      type = "source",
-      filters = filters
-    )
+  rows <- lapply(seq_len(nrow(records)), function(i) {
+    standardizePackageRepoAndSource(records[i, ], availablePackages)
+  })
+  rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
+  rbind_fill(rows, c("Source", "Repository"))
+}
+
+standardizePackageRepoAndSource <- function(record, availablePackages) {
+  pkg <- record$Package
+  source <- record$Source
+
+  # source types are defined by packrat:
+  # https://github.com/rstudio/packrat/blob/v0.9.0/R/pkg.R#L328
+  if (source %in% c("github", "gitlab", "bitbucket")) {
+    # SCM information is recorded elsewhere
+    repository <- NA
+  } else if (source == "source") {
+    # can't install source packages elsewhere
+    source <- NA
+    repository <- NA
+  } else if (source == "CustomCRANLikeRepository") {
+    # Packrat guessed that this package was installed from CRAN, but
+    # we need to check that it's not actually a development version
+    if (is_dev_version(record, availablePackages)) {
+      source <- NA
+      repository <- NA
+    } else {
+      repository <- findRepo(availablePackages, pkg)
+    }
+  } else {
+    # Installed from CRAN, BioC, or another repository
+    # NB: shinyapps will ignore repository if source is CRAN or BioC
+    repository <- findRepo(availablePackages, pkg)
+  }
+  list(Source = source, Repository = repository)
+}
+
+findRepo <- function(availablePackages, pkg) {
+  if (pkg %in% rownames(availablePackages)) {
+    repo <- availablePackages[pkg, "Repository"]
+    # Strip /src/contrib from repository URL recorded in package record to
+    # get to repository url
+    gsub("/src/contrib$", "", repo)
+  } else {
+    NA
+  }
+}
+
+is_dev_version <- function(record, availablePackages) {
+  if (!record$Package %in% rownames(availablePackages)) {
+    return(FALSE)
   }
 
-  # read available packages
-  repo.packages <- available.packages(
-    contriburl = contrib.url(repos, type = "source"),
-    type = "source",
-    filters = filters
-  )
+  local_version <- record$Version
+  repo_version <- availablePackages[record$Package, "Version"]
 
-  named.repos <- name.all.repos(repos)
-  repo.lookup <- data.frame(
-    name = names(named.repos),
-    url = as.character(named.repos),
-    contrib.url = contrib.url(named.repos, type = "source"),
-    stringsAsFactors = FALSE
-  )
-
-  # Sources are created by packrat:
-  # https://github.com/rstudio/packrat/blob/v0.9.0/R/pkg.R#L328
-  # if the package is in a named CRAN-like repository capture it
-  tmp <- lapply(seq_len(nrow(records)), function(i) {
-
-    pkg <- records[i, "Package"]
-    source <- records[i, "Source"]
-    repository <- NA
-    # capture Bioconcutor repository
-    if (identical(source, "Bioconductor")) {
-      if (pkg %in% biocPackages) {
-        repository <- biocPackages[pkg, "Repository"]
-      }
-    } else if (isSCMSource(source)) {
-      # leave source+SCM packages alone.
-    } else if (pkg %in% rownames(repo.packages)) {
-      # capture CRAN-like repository
-
-      # Find this package in the set of available packages then use its
-      # contrib.url to map back to the configured repositories.
-      package.contrib <- repo.packages[pkg, "Repository"]
-      package.repo.index <- vapply(repo.lookup$contrib.url,
-                                   function(url) grepl(url, package.contrib, fixed = TRUE), logical(1))
-      package.repo <- repo.lookup[package.repo.index, ][1, ]
-      # If the incoming package comes from CRAN, keep the CRAN name in place
-      # even if that means using a different name than the repos list.
-      #
-      # The "cran" source is a well-known location for shinyapps.io.
-      #
-      # shinyapps.io isn't going to use the manifest-provided CRAN URL,
-      # but other consumers (Connect) will.
-      if (tolower(source) != "cran") {
-        source <- package.repo$name
-      }
-      repository <- package.repo$url
-    }
-    # validatePackageSource will emit a warning for packages with NA repository.
-    data.frame(Source = source, Repository = repository, stringsAsFactors = FALSE)
-  })
-  do.call("rbind", tmp)
+  package_version(local_version) > package_version(repo_version)
 }
+
 
 addPackratSnapshot <- function(bundleDir,
                                implicit_dependencies = character(),
@@ -245,38 +241,4 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 
 snapshotLockFile <- function(appDir) {
   file.path(appDir, "packrat", "packrat.lock")
-}
-
-# Return TRUE when the source indicates that a package was installed from
-# source or comes from a source control system. This indicates that we will
-# not have a repostory URL; location is recorded elsewhere.
-isSCMSource <- function(source) {
-  tolower(source) %in% c("github", "gitlab", "bitbucket", "source")
-}
-
-# generate a random name prefixed with "repo_".
-random.repo.name <- function() {
-  paste("repo_", paste(sample(LETTERS, 8, replace = TRUE), collapse = ""), sep = "")
-}
-
-# Given a list of optionally named repository URLs, return a list of
-# repository URLs where each element is named. Incoming names are preserved.
-# Un-named repositories are given random names.
-name.all.repos <- function(repos) {
-  repo.names <- names(repos)
-  if (is.null(repo.names)) {
-    # names(X) return NULL when nothing is named. Build a same-sized vector of
-    # empty-string names, which is the "no name here" placeholder value
-    # produced when its input has a mix of named and un-named items.
-    repo.names <- rep("", length(repos))
-  }
-  names(repos) <- sapply(repo.names, function(name) {
-    if (name == "") {
-      # Assumption: Random names are not repeated across a repo list.
-      random.repo.name()
-    } else {
-      name
-    }
-  }, USE.NAMES = FALSE)
-  repos
 }

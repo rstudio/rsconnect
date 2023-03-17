@@ -29,6 +29,22 @@ test_that("recommended packages are snapshotted", {
   expect_true("MASS" %in% names(out))
 })
 
+test_that("works with BioC packages", {
+  app_dir <- withr::local_tempdir()
+  out <- bundlePackages(app_dir, extraPackages = "limma")
+  expect_equal(out[["limma"]]$Source, "Bioconductor")
+  expect_equal(out[["limma"]]$Repository, NA)
+
+  # add bioc repo
+  withr::local_options(repos = c(
+    CRAN = "https://cran.rstudio.com",
+    BioC = "https://bioconductor.org/packages/3.16/bioc"
+  ))
+  out <- bundlePackages(app_dir, extraPackages = "limma")
+  expect_equal(out[["limma"]]$Source, "Bioconductor")
+  expect_equal(out[["limma"]]$Repository, "https://bioconductor.org/packages/3.16/bioc")
+})
+
 test_that("errors if dependencies aren't installed", {
   mockr::local_mock(snapshotRDependencies = function(...) {
     data.frame(
@@ -71,7 +87,8 @@ test_that("warns if can't find source", {
   ))
 
   expect_snapshot(
-    . <- bundlePackages(app_dir, appMode = "rmd-static")
+    . <- bundlePackages(app_dir, appMode = "rmd-static"),
+    error = TRUE
   )
 })
 
@@ -91,4 +108,101 @@ test_that("cleans up implicit dependency files", {
   dir <- withr::local_tempdir()
   addPackratSnapshot(dir, "rlang")
   expect_equal(list.files(dir), "packrat")
+})
+
+
+# standardizePackageRepoAndSource -----------------------------------------
+
+test_that("SCM records are left alone", {
+  bitbucket <- list(Package = "pkg", Source = "bitbucket")
+  gitlab <- list(Package = "pkg", Source = "gitlab")
+  github <- list(Package = "pkg", Source = "github")
+
+  expect_equal(
+    standardizePackageRepoAndSource(bitbucket),
+    list(Source = "bitbucket", Repository = NA)
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(gitlab),
+    list(Source = "gitlab", Repository = NA)
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(github),
+    list(Source = "github", Repository = NA)
+  )
+})
+
+test_that("CRAN, BioC, and other repos get normalized repo", {
+  CRAN <- list(Package = "pkg1", Source = "CRAN")
+  Bioconductor <- list(Package = "pkg2", Source = "Bioconductor")
+  other <- list(Package = "pkg3", Source = "https://cran.com")
+
+  packages <- data.frame(
+    row.names = c("pkg1", "pkg2", "pkg3"),
+    Repository = paste0(
+      c("https://a.com", "https://b.com", "https://cran.com"),
+      "/src/contrib"
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  expect_equal(
+    standardizePackageRepoAndSource(CRAN, packages),
+    list(Source = "CRAN", Repository = "https://a.com")
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(Bioconductor, packages),
+    list(Source = "Bioconductor", Repository = "https://b.com")
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(other, packages),
+    list(Source = "https://cran.com", Repository = "https://cran.com")
+  )
+})
+
+test_that("source packages can't be installed", {
+  source <- list(Package = "pkg1", Source = "source")
+  expect_equal(
+    standardizePackageRepoAndSource(source),
+    list(Source = NA, Repository = NA)
+  )
+})
+
+test_that("locally installed CRAN packages are handled correctly", {
+  packages <- as.matrix(data.frame(
+    row.names = "pkg",
+    Version = "1.0.0",
+    Repository = "https://cran.com/src/contrib",
+    stringsAsFactors = FALSE
+  ))
+
+  local <- list(
+    Package = "pkg",
+    Source = "CustomCRANLikeRepository",
+    Version = "1.0.0"
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(local, packages),
+    list(Source = "CustomCRANLikeRepository", Repository = "https://cran.com")
+  )
+
+  local_dev <- list(
+    Package = "pkg",
+    Source = "CustomCRANLikeRepository",
+    Version = "1.0.0.9000"
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(local_dev, packages),
+    list(Source = NA, Repository = NA)
+  )
+
+  archived <- list(
+    Package = "pkg2",
+    Source = "CustomCRANLikeRepository",
+    Version = "1.0.0"
+  )
+  expect_equal(
+    standardizePackageRepoAndSource(archived, packages),
+    list(Source = "CustomCRANLikeRepository", Repository = NA)
+  )
 })
