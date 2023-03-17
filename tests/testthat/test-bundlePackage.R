@@ -132,10 +132,9 @@ test_that("SCM records are left alone", {
   )
 })
 
-test_that("CRAN, BioC, and other repos get normalized repo", {
+test_that("CRAN & BioC get normalized repo", {
   CRAN <- list(Package = "pkg1", Source = "CRAN")
   Bioconductor <- list(Package = "pkg2", Source = "Bioconductor")
-  other <- list(Package = "pkg3", Source = "https://cran.com")
 
   packages <- data.frame(
     row.names = c("pkg1", "pkg2", "pkg3"),
@@ -154,9 +153,15 @@ test_that("CRAN, BioC, and other repos get normalized repo", {
     standardizePackageRepoAndSource(Bioconductor, packages),
     list(Source = "Bioconductor", Repository = "https://b.com")
   )
+})
+
+test_that("packages installed from other repos get correctly name", {
+  repos <- c(TEST1 = "https://test1.com", TEST2 = "https://test2.com")
+
+  pkg <- list(Package = "pkg", Source = "https://test2.com")
   expect_equal(
-    standardizePackageRepoAndSource(other, packages),
-    list(Source = "https://cran.com", Repository = "https://cran.com")
+    standardizePackageRepoAndSource(pkg, repos = repos),
+    list(Source = "TEST2", Repository = "https://test2.com")
   )
 })
 

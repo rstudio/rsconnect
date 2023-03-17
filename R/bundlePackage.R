@@ -108,14 +108,22 @@ standardizeRecords <- function(records, repos) {
     filters = getOption("available_packages_filters", default = "duplicates")
   )
 
+  # Ensure that each repository has a unique name
+  names(repos) <- ifelse(
+    names2(repos) == "",
+    paste0("repo_", seq_along(repos)),
+    names2(repos)
+  )
+
   rows <- lapply(seq_len(nrow(records)), function(i) {
-    standardizePackageRepoAndSource(records[i, ], availablePackages)
+    standardizePackageRepoAndSource(records[i, ], availablePackages, repos = repos)
   })
   rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(rows, c("Source", "Repository"))
 }
 
-standardizePackageRepoAndSource <- function(record, availablePackages) {
+standardizePackageRepoAndSource <- function(record, availablePackages, repos = character()) {
+
   pkg <- record$Package
   source <- record$Source
 
@@ -135,17 +143,26 @@ standardizePackageRepoAndSource <- function(record, availablePackages) {
       source <- NA
       repository <- NA
     } else {
-      repository <- findRepo(pkg, availablePackages)
+      repository <- findRepoUrl(pkg, availablePackages)
     }
+  } else if (source %in% c("CRAN", "Bioconductor")) {
+    # Installed from standard repository
+    repository <- findRepoUrl(pkg, availablePackages)
   } else {
-    # Installed from CRAN, BioC, or another repository
-    # NB: shinyapps will ignore repository if source is CRAN or BioC
-    repository <- findRepo(pkg, availablePackages)
+    # Installed from custom repository: source is currently the repo url,
+    # but we need it to be the repo name (as defined in `getOptions("repos")`).
+    repository <- source
+    source <- findRepoName(source, repos)
   }
   list(Source = source, Repository = repository)
 }
 
-findRepo <- function(pkg, availablePackages) {
+findRepoName <- function(source, repos) {
+  idx <- match(source, repos)
+  names(repos)[idx]
+}
+
+findRepoUrl <- function(pkg, availablePackages) {
   if (pkg %in% rownames(availablePackages)) {
     repo <- availablePackages[pkg, "Repository"]
     # Strip `/src/contrib` from repository URL (added automatically by
