@@ -148,8 +148,8 @@ standardizePackageRepoAndSource <- function(record, availablePackages) {
 findRepo <- function(pkg, availablePackages) {
   if (pkg %in% rownames(availablePackages)) {
     repo <- availablePackages[pkg, "Repository"]
-    # Strip /src/contrib from repository URL recorded in package record to
-    # get to repository url
+    # Strip `/src/contrib` from repository URL (added automatically by
+    # `contrib.url()`) in package record to get to repository URL
     gsub("/src/contrib$", "", repo)
   } else {
     NA
