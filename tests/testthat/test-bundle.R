@@ -24,11 +24,6 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
   manifestJson
 }
 
-# avoid 'trying to use CRAN without setting a mirror' errors
-repos <- getOption("repos")
-options(repos = c(CRAN = "https://cran.rstudio.com"))
-on.exit(options(repos = repos), add = TRUE)
-
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
   skip_if_not_installed("shiny")
