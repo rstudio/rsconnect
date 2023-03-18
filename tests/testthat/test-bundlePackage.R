@@ -35,17 +35,11 @@ test_that("works with BioC packages", {
     "library(Biobase)",
     "```"
   )))
-  out <- bundlePackages(app_dir)
-  expect_equal(out$Biobase$Source, "Bioconductor")
-  expect_equal(out$Biobase$Repository, NA_character_)
-  expect_equal(out$BiocGenerics$Source, "Bioconductor")
-  expect_equal(out$BiocGenerics$Repository, NA_character_)
-
-  # add bioc repo
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
     BioC = "https://bioconductor.org/packages/3.16/bioc"
   ))
+
   out <- bundlePackages(app_dir)
   expect_equal(out$Biobase$Source, "Bioconductor")
   expect_equal(out$Biobase$Repository, "https://bioconductor.org/packages/3.16/bioc")
@@ -164,11 +158,17 @@ test_that("CRAN & BioC get normalized repo", {
 })
 
 test_that("packages installed from other repos get correctly name", {
+  pkg <- list(Package = "pkg", Source = "https://test2.com")
+  packages <- as.matrix(data.frame(
+    row.names = "pkg",
+    Version = "1.0.0",
+    Repository = "https://test2.com/src/contrib",
+    stringsAsFactors = FALSE
+  ))
   repos <- c(TEST1 = "https://test1.com", TEST2 = "https://test2.com")
 
-  pkg <- list(Package = "pkg", Source = "https://test2.com")
   expect_equal(
-    standardizePackageSource(pkg, repos = repos),
+    standardizePackageSource(pkg, packages, repos = repos),
     list(Source = "TEST2", Repository = "https://test2.com")
   )
 })

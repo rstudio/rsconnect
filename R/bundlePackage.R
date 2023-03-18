@@ -128,7 +128,6 @@ standardizeRecords <- function(records, repos) {
 }
 
 standardizePackageSource <- function(record, availablePackages, repos = character()) {
-
   pkg <- record$Package
   source <- record$Source
 
@@ -152,13 +151,14 @@ standardizePackageSource <- function(record, availablePackages, repos = characte
       source <- findRepoName(repository, repos)
     }
   } else if (source %in% c("CRAN", "Bioconductor")) {
-    # Installed from standard repository
+    # Not strictly necessary since server will typically ignore in favour
+    # of the repo it's configured with
     repository <- findRepoUrl(pkg, availablePackages)
   } else {
-    # Installed from custom repository: source is currently the repo url,
-    # but we need it to be the repo name (as defined in `getOptions("repos")`).
-    repository <- source
-    source <- findRepoName(source, repos)
+    # Installed from custom repository. Find URL from available.packages()
+    # and then name from repos.
+    repository <- findRepoUrl(pkg, availablePackages)
+    source <- findRepoName(repository, repos)
   }
   list(Source = source, Repository = repository)
 }
