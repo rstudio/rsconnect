@@ -142,9 +142,9 @@ standardizePackageRepoAndSource <- function(record, availablePackages, repos = c
     repository <- NA_character_
     source <- NA_character_
   } else if (source == "CustomCRANLikeRepository") {
-    # Packrat guessed that this package was installed from CRAN, but
-    # we need to check that it's not actually a development version
-    if (is_dev_version(record, availablePackages)) {
+    # Package was installed from source, but packrat guessed it was installed
+    # from a known repo. We need to check that it's not actually a dev version
+    if (isDevVersion(record, availablePackages)) {
       repository <- NA_character_
       source <- NA_character_
     } else {
@@ -171,15 +171,15 @@ findRepoName <- function(source, repos) {
 findRepoUrl <- function(pkg, availablePackages) {
   if (pkg %in% rownames(availablePackages)) {
     repo <- availablePackages[pkg, "Repository"]
-    # Strip `/src/contrib` from repository URL (added automatically by
-    # `contrib.url()`) in package record to get to repository URL
+    # Strip `/src/contrib` from package repository (added automatically by
+    # `contrib.url()`) to base repository URL
     gsub("/src/contrib$", "", repo)
   } else {
     NA_character_
   }
 }
 
-is_dev_version <- function(record, availablePackages) {
+isDevVersion <- function(record, availablePackages) {
   if (!record$Package %in% rownames(availablePackages)) {
     return(FALSE)
   }
@@ -189,7 +189,6 @@ is_dev_version <- function(record, availablePackages) {
 
   package_version(local_version) > package_version(repo_version)
 }
-
 
 addPackratSnapshot <- function(bundleDir,
                                implicit_dependencies = character(),
