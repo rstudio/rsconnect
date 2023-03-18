@@ -89,6 +89,11 @@ snapshotRDependencies <- function(appDir,
 
   # get packages records defined in the lockfile
   records <- utils::tail(df, -1)
+  records <- records[setdiff(
+    names(records),
+    c("PackratFormat", "PackratVersion", "RVersion", "Repos")
+  )]
+
   records[c("Source", "Repository")] <- standardizeRecords(records, repos)
   records
 }
