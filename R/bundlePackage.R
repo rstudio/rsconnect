@@ -121,13 +121,13 @@ standardizeRecords <- function(records, repos) {
   )
 
   rows <- lapply(seq_len(nrow(records)), function(i) {
-    standardizePackageRepoAndSource(records[i, ], availablePackages, repos = repos)
+    standardizePackageSource(records[i, ], availablePackages, repos = repos)
   })
   rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(rows, c("Source", "Repository"))
 }
 
-standardizePackageRepoAndSource <- function(record, availablePackages, repos = character()) {
+standardizePackageSource <- function(record, availablePackages, repos = character()) {
 
   pkg <- record$Package
   source <- record$Source
