@@ -34,8 +34,8 @@
 #'   ```
 #'
 #'   Then packages installed from your corporate package repository will
-#'   have source `CORPORATE`. Posit Connect [can be configured]
-#'   (https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository)
+#'   have source `CORPORATE`. Posit Connect
+#'   [can be configured](https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository)
 #'   to override their repository url so that (e.g.) you can use different
 #'   packages versions on stagning and production servers.
 #'

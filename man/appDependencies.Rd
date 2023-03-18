@@ -56,8 +56,8 @@ if you've set the following options:
 }\if{html}{\out{</div>}}
 
 Then packages installed from your corporate package repository will
-have source \code{CORPORATE}. Posit Connect \link{can be configured}
-(https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository)
+have source \code{CORPORATE}. Posit Connect
+\href{https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository}{can be configured}
 to override their repository url so that (e.g.) you can use different
 packages versions on stagning and production servers.
 \item Packages installed from GitHub, GitLab, or BitBucket, have \code{Source}
