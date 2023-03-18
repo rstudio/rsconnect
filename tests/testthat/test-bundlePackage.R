@@ -128,15 +128,15 @@ test_that("SCM records are left alone", {
 
   expect_equal(
     standardizePackageRepoAndSource(bitbucket),
-    list(Source = "bitbucket", Repository = NA)
+    list(Source = "bitbucket", Repository = NA_character_)
   )
   expect_equal(
     standardizePackageRepoAndSource(gitlab),
-    list(Source = "gitlab", Repository = NA)
+    list(Source = "gitlab", Repository = NA_character_)
   )
   expect_equal(
     standardizePackageRepoAndSource(github),
-    list(Source = "github", Repository = NA)
+    list(Source = "github", Repository = NA_character_)
   )
 })
 
@@ -177,7 +177,7 @@ test_that("source packages can't be installed", {
   source <- list(Package = "pkg1", Source = "source")
   expect_equal(
     standardizePackageRepoAndSource(source),
-    list(Source = NA, Repository = NA)
+    list(Source = NA_character_, Repository = NA_character_)
   )
 })
 
@@ -188,6 +188,7 @@ test_that("locally installed CRAN packages are handled correctly", {
     Repository = "https://cran.com/src/contrib",
     stringsAsFactors = FALSE
   ))
+  repos <- c(CRAN = "https://cran.com")
 
   local <- list(
     Package = "pkg",
@@ -195,8 +196,8 @@ test_that("locally installed CRAN packages are handled correctly", {
     Version = "1.0.0"
   )
   expect_equal(
-    standardizePackageRepoAndSource(local, packages),
-    list(Source = "CustomCRANLikeRepository", Repository = "https://cran.com")
+    standardizePackageRepoAndSource(local, packages, repos),
+    list(Source = "CRAN", Repository = "https://cran.com")
   )
 
   local_dev <- list(
@@ -205,8 +206,8 @@ test_that("locally installed CRAN packages are handled correctly", {
     Version = "1.0.0.9000"
   )
   expect_equal(
-    standardizePackageRepoAndSource(local_dev, packages),
-    list(Source = NA, Repository = NA)
+    standardizePackageRepoAndSource(local_dev, packages, repos),
+    list(Source = NA_character_, Repository = NA_character_)
   )
 
   archived <- list(
@@ -215,7 +216,7 @@ test_that("locally installed CRAN packages are handled correctly", {
     Version = "1.0.0"
   )
   expect_equal(
-    standardizePackageRepoAndSource(archived, packages),
-    list(Source = "CustomCRANLikeRepository", Repository = NA)
+    standardizePackageRepoAndSource(archived, packages, repos),
+    list(Source = NA_character_, Repository = NA_character_)
   )
 })

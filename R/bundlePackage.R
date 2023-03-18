@@ -131,19 +131,20 @@ standardizePackageRepoAndSource <- function(record, availablePackages, repos = c
   # https://github.com/rstudio/packrat/blob/v0.9.0/R/pkg.R#L328
   if (source %in% c("github", "gitlab", "bitbucket")) {
     # SCM information is recorded elsewhere
-    repository <- NA
+    repository <- NA_character_
   } else if (source == "source") {
     # can't install source packages elsewhere
-    source <- NA
-    repository <- NA
+    repository <- NA_character_
+    source <- NA_character_
   } else if (source == "CustomCRANLikeRepository") {
     # Packrat guessed that this package was installed from CRAN, but
     # we need to check that it's not actually a development version
     if (is_dev_version(record, availablePackages)) {
-      source <- NA
-      repository <- NA
+      repository <- NA_character_
+      source <- NA_character_
     } else {
       repository <- findRepoUrl(pkg, availablePackages)
+      source <- findRepoName(repository, repos)
     }
   } else if (source %in% c("CRAN", "Bioconductor")) {
     # Installed from standard repository
@@ -169,7 +170,7 @@ findRepoUrl <- function(pkg, availablePackages) {
     # `contrib.url()`) in package record to get to repository URL
     gsub("/src/contrib$", "", repo)
   } else {
-    NA
+    NA_character_
   }
 }
 
