@@ -11,19 +11,43 @@
 #' # Remote installation
 #'
 #' When deployed, the app must first install all of these packages, and
-#' rsconnect does its best to ensure that all the packages have the same
-#' version as you are running locally. It knows how to install packages from
-#' the following sources:
+#' rsconnect ensures the versions used on the server will match the versions
+#' you used locally. It knows how to install packages from the following
+#' sources:
 #'
-#' * CRAN (`CRAN`) and CRAN-like repositories (`CustomCRANLikeRepository`).
-#' * BioConductor (`Bioconductor`)
-#' * Packages installed from GitHub (`github`), GitLab (`gitlab`), or
-#'   BitBucket (`bitbucket`).
+#' * CRAN and BioConductor (`Source: CRAN` or `Source: Bioconductor`). The
+#'   remote server will ignore the specific CRAN or Bioconductor mirror that
+#'   you use locally, always using the CRAN/BioC mirror that has been configured
+#'   on the server.
 #'
-#' It does not know how to install packages that you have built and installed
-#' locally so if you attempt to deploy an app that depends on such a package
-#' it will fail. To resolve this issue, you'll need to install from a known
-#' source.
+#' * Other CRAN like and CRAN-like repositories. These packages will have
+#'   a `Source` determined by the value of `getOptions("repos")`. For example,
+#'   if you've set the following options:
+#'
+#'   ```R
+#'   options(
+#'      repos = c(
+#'        CRAN = "https://cran.rstudio.com/",
+#'        CORPORATE = "https://corporate-packages.development.company.com"
+#'      )
+#'   )
+#'   ```
+#'
+#'   Then packages installed from your corporate package repository will
+#'   have source `CORPORATE`. Posit Connect [can be configured]
+#'   (https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository)
+#'   to override their repository url so that (e.g.) you can use different
+#'   packages versions on stagning and production servers.
+#'
+#' * Packages installed from GitHub, GitLab, or BitBucket, have `Source`
+#'   `github`, `gitlab`, and `bitbucket` respectively. When deployed, the
+#'   bundle contains the additional metadata needed to precisely recreated
+#'   the installed version.
+#'
+#' It's not possible to recreate the packages that you have built and installed
+#' from a directory on your local computer. This will have `Source: NA` and
+#' will cause the deployment to error. To resolve this issue, you'll need to
+#' install from one of the known sources described above.
 #'
 #' # Suggested packages
 #'
@@ -43,12 +67,15 @@
 #' @inheritParams listDeploymentFiles
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
-#' @return A data frame with columns:
+#' @returns A data frame one row for each depedency (direct and indirect) and
+#'   4 columns:
+#'
 #'   * `Package`: package name.
 #'   * `Version`: local version.
-#'   * `Source`: where the package was installed from.
-#'   * `Repository`: for CRAN and CRAN-like repositories, the url to the
-#'      repo.
+#'   * `Source`: where the package was installed from, as described above.
+#'   * `Repository`: for CRAN and CRAN-like repositories, the URL to the
+#'      repository. This will be ignored by the server if it has been configured
+#'      with it's own repository name -> repository URL mapping.
 #' @examples
 #' \dontrun{
 #'

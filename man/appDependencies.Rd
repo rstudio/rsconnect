@@ -14,13 +14,15 @@ directory.}
 include in the deployed bundle.}
 }
 \value{
-A data frame with columns:
+A data frame one row for each depedency (direct and indirect) and
+4 columns:
 \itemize{
 \item \code{Package}: package name.
 \item \code{Version}: local version.
-\item \code{Source}: where the package was installed from.
-\item \code{Repository}: for CRAN and CRAN-like repositories, the url to the
-repo.
+\item \code{Source}: where the package was installed from, as described above.
+\item \code{Repository}: for CRAN and CRAN-like repositories, the URL to the
+repository. This will be ignored by the server if it has been configured
+with it's own repository name -> repository URL mapping.
 }
 }
 \description{
@@ -33,20 +35,41 @@ package packages need to be installed to run the app.
 }
 \section{Remote installation}{
 When deployed, the app must first install all of these packages, and
-rsconnect does its best to ensure that all the packages have the same
-version as you are running locally. It knows how to install packages from
-the following sources:
+rsconnect ensures the versions used on the server will match the versions
+you used locally. It knows how to install packages from the following
+sources:
 \itemize{
-\item CRAN (\code{CRAN}) and CRAN-like repositories (\code{CustomCRANLikeRepository}).
-\item BioConductor (\code{Bioconductor})
-\item Packages installed from GitHub (\code{github}), GitLab (\code{gitlab}), or
-BitBucket (\code{bitbucket}).
+\item CRAN and BioConductor (\code{Source: CRAN} or \code{Source: Bioconductor}). The
+remote server will ignore the specific CRAN or Bioconductor mirror that
+you use locally, always using the CRAN/BioC mirror that has been configured
+on the server.
+\item Other CRAN like and CRAN-like repositories. These packages will have
+a \code{Source} determined by the value of \code{getOptions("repos")}. For example,
+if you've set the following options:
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{options(
+   repos = c(
+     CRAN = "https://cran.rstudio.com/",
+     CORPORATE = "https://corporate-packages.development.company.com"
+   )
+)
+}\if{html}{\out{</div>}}
+
+Then packages installed from your corporate package repository will
+have source \code{CORPORATE}. Posit Connect \link{can be configured}
+(https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository)
+to override their repository url so that (e.g.) you can use different
+packages versions on stagning and production servers.
+\item Packages installed from GitHub, GitLab, or BitBucket, have \code{Source}
+\code{github}, \code{gitlab}, and \code{bitbucket} respectively. When deployed, the
+bundle contains the additional metadata needed to precisely recreated
+the installed version.
 }
 
-It does not know how to install packages that you have built and installed
-locally so if you attempt to deploy an app that depends on such a package
-it will fail. To resolve this issue, you'll need to install from a known
-source.
+It's not possible to recreate the packages that you have built and installed
+from a directory on your local computer. This will have \code{Source: NA} and
+will cause the deployment to error. To resolve this issue, you'll need to
+install from one of the known sources described above.
 }
 
 \section{Suggested packages}{
