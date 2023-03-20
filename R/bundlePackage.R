@@ -15,7 +15,7 @@ bundlePackages <- function(bundleDir,
     unclass(utils::packageDescription(nm))
   })
 
-  # Connect prefers that packrat/packrat.lock file, but will use the manifest
+  # Connect prefers the packrat/packrat.lock file, but will use the manifest
   # if needed. shinyapps.io only uses the manifest, and only supports Github
   # remotes, not Bitbucket or Gitlab.
   github_cols <- grep("Github", colnames(deps), perl = TRUE, value = TRUE)
@@ -68,15 +68,21 @@ copyPackageDescriptions <- function(bundleDir, packages) {
   invisible()
 }
 
-snapshotRDependencies <- function(appDir,
+snapshotRDependencies <- function(bundleDir,
                                   implicit_dependencies = c(),
                                   verbose = FALSE) {
 
-  # create a packrat "snapshot"
-  addPackratSnapshot(appDir, implicit_dependencies, verbose = verbose)
+  if (file.exists(renvLockFile(bundleDir))) {
+    # Translate renv lock file to packrat lock file
+    translateRenvToPackrat(bundleDir)
+  } else if (file.exists(packratLockFile(bundleDir))) {
+    # Packrat lock file already exists; no action needed
+  } else {
+    # Find and snapshot current dependencies
+    addPackratSnapshot(bundleDir, implicit_dependencies, verbose = verbose)
+  }
 
-  # TODO: should we care about lockfile version or packrat version?
-  lockFilePath <- snapshotLockFile(appDir)
+  lockFilePath <- packratLockFile(bundleDir)
   df <- as.data.frame(read.dcf(lockFilePath), stringsAsFactors = FALSE)
 
   # get repos defined in the lockfile
@@ -270,6 +276,10 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   invisible()
 }
 
-snapshotLockFile <- function(appDir) {
-  file.path(appDir, "packrat", "packrat.lock")
+packratLockFile <- function(bundleDir) {
+  file.path(bundleDir, "packrat", "packrat.lock")
 }
+renvLockFile <- function(bundleDir) {
+  file.path(bundleDir, "renv.lock")
+}
+
