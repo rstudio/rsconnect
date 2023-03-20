@@ -301,6 +301,7 @@ deployApp <- function(appDir = getwd(),
   }
   # Must be run before first saveDeployment() because errors for unexpected
   # app structures, and we don't want to leave lingering deployment artifact
+  logger("Inferring App mode and parameters")
   appMetadata <- appMetadata(
     appDir = appDir,
     appFiles = appFiles,
@@ -362,8 +363,6 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
-
-    logger("Inferring App mode and parameters")
 
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
