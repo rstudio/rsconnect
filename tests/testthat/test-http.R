@@ -1,3 +1,10 @@
+test_that("non-libCurl methods are deprecated", {
+  withr::local_options(rsconnect.http = "internal")
+  expect_snapshot(. <- httpFunction())
+})
+
+# headers -----------------------------------------------------------------
+
 test_that("authHeaders() picks correct method based on supplied fields", {
   url <- "https://example.com"
 
@@ -24,6 +31,29 @@ test_that("authHeaders() picks correct method based on supplied fields", {
   })
 })
 
+test_that("can add user specific headers", {
+  withr::local_options(rsconnect.http.headers = c(a = "1", b = "2"))
+
+  service <- httpbin_service()
+  json <- GET(service, list(), "get")
+  expect_equal(json$headers$a, "1")
+  expect_equal(json$headers$b, "2")
+})
+
+test_that("can add user specific cookies", {
+  skip_on_cran()
+  # uses live httpbin since webfakes doesn't support cookie endpoints
+  withr::local_options(rsconnect.http.cookies = c("a=1", "b=2"))
+  service <- parseHttpUrl("http://httpbin.org/")
+
+  json <- GET(service, list(), "cookies")
+  expect_equal(json$cookies, list(a = "1", b = "2"))
+
+  withr::local_options(rsconnect.http.cookies = c("c=3", "d=4"))
+  POST(service, list(), "post")
+  json <- GET(service, list(), "cookies")
+  expect_equal(json$cookies, list(a = "1", b = "2", c = "3", d = "4"))
+})
 
 # handleResponse ----------------------------------------------------------
 
@@ -91,7 +121,7 @@ test_that("errors contain method", {
   expect_snapshot(error = TRUE, {
     GET(service, list(), path = "status/404")
     POST(service, list(), path = "status/403")
-  }, transform = function(x) gsub(service$port, "{port}", x))
+  }, transform = strip_port(service))
 })
 
 test_that("http error includes status in error class", {
@@ -104,4 +134,46 @@ test_that("http error includes status in error class", {
     GET(service, list(), path = "status/403"),
     class = "rsconnect_http_403"
   )
+})
+
+test_that("handles redirects", {
+  service <- httpbin_service()
+  out <- GET(service, list(), "absolute-redirect/3")
+  expect_equal(out$url, paste0(buildHttpUrl(service), "get"))
+
+  out <- GET(service, list(), "relative-redirect/3")
+  expect_equal(out$url, paste0(buildHttpUrl(service), "get"))
+})
+
+# parse/build -------------------------------------------------------------
+
+test_that("URL parsing works", {
+  p <- parseHttpUrl("http://yahoo.com")
+  expect_equal(p$protocol, "http")
+  expect_equal(p$host, "yahoo.com")
+  expect_equal(p$port, "")
+  expect_equal(p$path, "") #TODO: bug? Should default to /?
+
+  p <- parseHttpUrl("https://rstudio.com/about")
+  expect_equal(p$protocol, "https")
+  expect_equal(p$host, "rstudio.com")
+  expect_equal(p$port, "")
+  expect_equal(p$path, "/about")
+
+  p <- parseHttpUrl("http://127.0.0.1:3939/stuff/here/?who-knows")
+  expect_equal(p$protocol, "http")
+  expect_equal(p$host, "127.0.0.1")
+  expect_equal(p$port, "3939")
+  expect_equal(p$path, "/stuff/here/?who-knows") #TODO: bug?
+})
+
+test_that("parse and build are symmetric", {
+  round_trip <- function(x) {
+    expect_equal(buildHttpUrl(parseHttpUrl(x)), x)
+  }
+
+  round_trip("http://google.com")
+  round_trip("http://google.com:80")
+  round_trip("https://google.com:80/a/b")
+  round_trip("https://google.com:80/a/b/")
 })

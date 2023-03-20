@@ -25,6 +25,6 @@ test_that("getAppById() fails where expected", {
 
   expect_snapshot(error = TRUE, {
     getAppById("123", "susan", "unknown", "unknown.com")
-    getAppById("123", "robert", "unknown", "http://example.com")
+    getAppById("123", "robert", "unknown", "https://example.com")
   })
 })

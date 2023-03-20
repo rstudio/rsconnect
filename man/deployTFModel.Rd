@@ -34,6 +34,9 @@ For information on creating saved models, see the Keras method
 method \code{\link[tensorflow:export_savedmodel]{tensorflow::export_savedmodel()}}. If using the TensorFlow package for
 R, the official \href{https://www.tensorflow.org/guide/saved_model}{TensorFlow guide for saving and restoring models}
 may be useful.
+
+TensorFlow, the TensorFlow logo and any related marks are trademarks of
+Google Inc., and are not affiliated with Posit Software, PBC.
 }
 \references{
 \url{https://www.tensorflow.org/guide/saved_model}

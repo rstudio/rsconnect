@@ -56,21 +56,43 @@ local_temp_app <- function(files = list(), env = caller_env()) {
 # Servers and accounts ----------------------------------------------------
 
 addTestAccount <- function(account, server = "example.com", userId = account) {
-  registerUserToken(server, account, userId, "", "")
+  registerAccount(server, account, userId, apiKey = "123")
 }
 
-addTestServer <- function(name = NULL, url = "http://example.com", certificate = NULL) {
-
+addTestServer <- function(name = NULL, url = "https://example.com", certificate = NULL) {
   if (is.null(name)) {
     serverUrl <- parseHttpUrl(url)
     name <- serverUrl$host
   }
 
-  addServer(
+  registerServer(
     url = url,
     name = name,
-    certificate = certificate,
-    validate = FALSE,
-    quiet = TRUE
+    certificate = certificate
+  )
+}
+addTestDeployment <- function(path,
+                              appName = "test",
+                              appTitle = "",
+                              appId = "123",
+                              account = "ron",
+                              username = account,
+                              server = "example.com",
+                              url = paste0("https://", server, "/", username, "/", appId),
+                              hostUrl = NULL,
+                              metadata = list()) {
+  saveDeployment(
+    path,
+    createDeploymentTarget(
+      appName = appName,
+      appTitle = appTitle,
+      appId = appId,
+      account = account,
+      username = username,
+      server = server
+    ),
+    application = list(id = appId, url = url),
+    hostUrl = hostUrl,
+    metadata = metadata
   )
 }

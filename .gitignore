@@ -8,3 +8,4 @@ README.html
 docs/
 .rscignore
 tags
+inst/doc

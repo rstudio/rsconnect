@@ -19,21 +19,17 @@ test_that("hasAccounts works", {
 
 test_that("secrets are hidden from casual inspection", {
   local_temp_config()
-  registerUserToken("example.com", "john", "userId", "token", "THIS IS A SECRET")
-  registerCloudTokenSecret(
-    "shinyapps.io",
-    "susan",
-    "userId",
-    "accountId",
-    "token",
-    "THIS IS A SECRET"
-  )
+  registerAccount("server", "1", "id", token = "token", secret = "SECRET")
+  registerAccount("server", "2", "id", token = "token", private_key = "SECRET")
+  registerAccount("server", "3", "id", apiKey = "SECRET")
 
   expect_snapshot({
-    accountInfo("john")$private_key
-    accountInfo("susan")$secret
-
-    str(accountInfo("john"))
+    accountInfo("1")$secret
+    accountInfo("2")$private_key
+    accountInfo("3")$apiKey
   })
+})
 
+test_that("setAccountInfo() gives nice error on bad copy and paste", {
+  expect_snapshot(setAccountInfo("name", "token", "<SECRET>"), error = TRUE)
 })

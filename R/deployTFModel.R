@@ -23,6 +23,9 @@
 #' <https://www.tensorflow.org/guide/saved_model>)
 #' may be useful.
 #'
+#' TensorFlow, the TensorFlow logo and any related marks are trademarks of
+#' Google Inc., and are not affiliated with Posit Software, PBC.
+#'
 #' @param modelDir Path to the saved model directory. MUST contain
 #'   *saved_model.pb* or *saved_model.pbtxt*
 #' @param ... Additional arguments to [deployApp()].

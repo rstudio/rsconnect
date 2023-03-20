@@ -1,5 +1,28 @@
 # rsconnect 0.8.30 (development version)
 
+* New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
+  set extra arbitrary additional headers/cookies on each request (#405).
+  Their use is documented in the new `vignette("custom-http")`.
+
+* `deployApp()` now uses a stricter policy for determining whether or not
+  a local package can be successfully installed on the deployment server.
+  This means that you're more likely to get a clean failure prior to 
+  deployment (#659).
+
+* Deployment records no longer contain the time the app was deployed (`when`)
+  or when it's metadata was last synched (`lastSyncTime`) as these variables
+  are not very useful, and they lead to uninteresting diffs if you have 
+  committed the deployment records to git (#770).
+
+* `deployApp()` will now detect if you're attempting to publish to an app
+  that has been deleted and will prompt you to create a new app (#226).
+
+* Non-libcurl `rsconnect.http` options have been deprecated. This allows us to 
+  focus our efforts on a single backend, rather than spreading development
+  efforts across five. The old backends will remain available for at least 2
+  years, but if you are using them because libcurl doesn't work for you, please
+  report the problem ASAP so we can fix it.
+
 * Uploading large files to rpubs works once more (#450).
 
 * `deployApp()` includes some new conveniences for large uploads including
@@ -35,8 +58,6 @@
 
 * `deployApp()` now advertises which startup scripts are run at the normal
   `logLevel`, and it evaluates each script in its own environment (#542).
-
-* `deployments()` now formats `when` and `lastSyncTime` as date-times (#714).
 
 * `deployApp()` now derives `appName` from `appDir` and `appPrimaryDoc`, 
   never using the title (#538). It now only simplifies the path if you are 

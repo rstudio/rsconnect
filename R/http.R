@@ -17,8 +17,9 @@ httpRequest <- function(service,
                         timeout = NULL,
                         error_call = caller_env()) {
 
+  storeCookies(service, httpCookies())
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders(authInfo, method, path))
+  headers <- c(headers, authHeaders(authInfo, method, path), httpHeaders())
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
@@ -35,7 +36,7 @@ httpRequest <- function(service,
   )
 
   while (isRedirect(httpResponse$status)) {
-    service <- parseHttpUrl(httpResponse$location)
+    service <- redirectService(service, httpResponse$location)
     httpResponse <- http(
       protocol = service$protocol,
       host = service$host,
@@ -74,7 +75,9 @@ httpRequestWithBody <- function(service,
     writeChar(content, file, eos = NULL, useBytes = TRUE)
   }
 
+  storeCookies(service, httpCookies())
   path <- buildPath(service$path, path, query)
+  headers <- c(headers, httpHeaders())
   authed_headers <- c(headers, authHeaders(authInfo, method, path, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
@@ -95,7 +98,7 @@ httpRequestWithBody <- function(service,
     # This is a simplification of the spec, since we should preserve
     # the method for 307 and 308, but that's unlikely to arise for our apps
     # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
-    service <- parseHttpUrl(httpResponse$location)
+    service <- redirectService(service, httpResponse$location)
     authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
     httpResponse <- http(
       protocol = service$protocol,
@@ -114,6 +117,15 @@ httpRequestWithBody <- function(service,
 
 isRedirect <- function(status) {
   status %in% c(301, 302, 307, 308)
+}
+
+redirectService <- function(service, location) {
+  if (grepl("^/", location)) {
+    service$path <- location
+    service
+  } else {
+    parseHttpUrl(location)
+  }
 }
 
 handleResponse <- function(response, error_call = caller_env()) {
@@ -294,8 +306,28 @@ httpTrace <- function(method, path, time) {
   }
 }
 
+httpCookies <- function() {
+  getOption("rsconnect.http.cookies", character())
+}
+
+httpHeaders <- function() {
+  getOption("rsconnect.http.headers", character())
+}
+
 httpFunction <- function() {
   httpType <- getOption("rsconnect.http", "libcurl")
+
+  if (is_string(httpType) && httpType != "libcurl") {
+    lifecycle::deprecate_warn(
+      "0.9.0",
+      I("The `rsconnect.http` option"),
+      details = c(
+        "It should no longer be necessary to set this option",
+        "If the default http handler doesn't work for you, please file an issue at <https://github.com/rstudio/rsconnect/issues>"
+      )
+    )
+  }
+
   if (identical("libcurl", httpType)) {
     httpLibCurl
   } else if (identical("rcurl", httpType)) {
@@ -332,7 +364,8 @@ parseHttpUrl <- function(urlText) {
 }
 
 buildHttpUrl <- function(x) {
-  paste0(x$protocol, "://", x$host, x$port, x$path)
+  colon <- if (!is.null(x$port) && nzchar(x$port)) ":"
+  paste0(x$protocol, "://", x$host, colon, x$port, x$path)
 }
 
 urlDecode <- function(x) {
@@ -406,12 +439,9 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
   # generate date
   date <- rfc2616Date()
 
-  # generate contents hash as hex values.
-  md5 <- fileMD5(file)
-
   if (!is.null(authInfo$secret)) {
     # the content hash is a string of hex characters when using secret.
-    md5 <- md5.as.string(md5)
+    md5 <- fileMD5(file)
 
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep = "\n")
@@ -422,7 +452,7 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
     signature <- paste(openssl::base64_encode(hmac), "; version=1", sep = "")
   } else if (!is.null(authInfo$private_key)) {
     # the raw content hash is base64 encoded hex values when using private key.
-    md5 <- openssl::base64_encode(md5)
+    md5 <- openssl::base64_encode(fileMD5(file, raw = TRUE))
 
     # build canonical request
     canonicalRequest <- paste(method, path, date, md5, sep = "\n")

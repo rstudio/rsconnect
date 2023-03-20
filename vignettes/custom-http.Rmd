@@ -1,0 +1,90 @@
+---
+title: "Customising HTTP requests"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Customising HTTP requests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(rsconnect)
+```
+
+Depending on the configuration of your environment, you may need to cutomize the way that rsconnect sends http requests. Typically, this is required for some special 
+
+## `.rsconnect_profile`
+
+When deploying content from the RStudio IDE, the rsconnect package's deployment methods are executed in a vanilla R session that doesn't execute startup scripts. This can make it challenging to ensure options are set properly prior to push-button deployment, so the rsconnect package has a parallel set of "startup" scripts it runs prior to deploying. 
+
+The following are run in order, if they exist, prior to deployment:
+
+* `$R_HOME/etc/rsconnect.site`: Like `Rprofile.site` for site-wide pre-flight and options.
+  This is typically used by system administrators.
+  
+* `~/.rsconnect_profile`, like `.Rprofile`; this will affect all apps that you deploy.
+
+* `.rsconnect_profile`, like `.Rprofile`; this will affect the current app.
+  Unlike `.Rprofile`, if `~/.rsconnect_profile`, is present, it will also be run.
+
+## HTTP Proxy Environment Variable
+
+The most straightforward way to specify a proxy is to set the `HTTPS_PROXY` environment variable. For example, you could add the following code to your `.rsconnect_profile`:
+
+```R
+Sys.setenv(https_proxy = "https://proxy.example.com")
+```
+
+Proxy settings can include a host-name, port, and username/password if necessary. The following
+are all valid values for the `http_proxy` environment variable:
+
+* `http://proxy.example.com/`
+* `http://proxy.example.com:1080/`
+* `http://username:password@proxy.example.com:1080/`
+
+## Custom headers and cookies
+
+If you need to supply additional headers or cookies, you can use the options `rsconnect.http.headers` and `rsconnect.http.cookies` respectively. `rsconnect.http.headers` needs a named vector of header names and values:
+
+```{r}
+options(
+  rsconnect.http.headers = c(
+    "CustomHeader1" = "CustomValue", "CustomHeader2" = "CustomValue2"
+  )
+)
+```
+
+While `rsconnect.http.cookies` expects cookies formatted the same way that a webserver expects them:
+
+```{r}
+options(
+  rsconnect.http.headers = c("cookie1=value1", "cookie2=value2")
+)
+```
+
+And you can supply other cookie parameters if needed:
+
+```{r}
+options(
+  rsconnect.http.headers = "cookie1=value1; Expires=Thu, 31 Oct 2021 07:28:00 GMT; Secure"
+)
+```
+
+The custom headers are set first, so will be overridden by the headers that rsconnect needs to correctly operate. Similarly, cookies will be set prior to the first request, and will be overriden by anything returned by the server.
+
+## Other custom options
+
+Finally, you can supply any additional options supported by `curl::curl_options()` with `rsconnect.libcurl.options`, e.g.
+
+```R
+options(rsconnect.libcurl.options = list(proxy = "http://proxy.example.com")
+```
+
+Run `curl::curl_options()` to see a list of options.

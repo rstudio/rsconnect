@@ -1,5 +1,13 @@
 # https://github.com/r-lib/cli/issues/228 ---------------------------------
 
+simulate_user_input <- function(x, env = caller_env()) {
+  withr::local_options(
+    rlang_interactive = TRUE,
+    cli_prompt = as.character(x),
+    .local_envir = env
+  )
+}
+
 cli_menu <- function(header,
                      prompt,
                      choices,
