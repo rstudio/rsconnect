@@ -113,19 +113,27 @@ standardizeRecords <- function(records, repos) {
     filters = getOption("available_packages_filters", default = "duplicates")
   )
 
-  # Ensure that each repository has a unique name
-  names(repos) <- ifelse(
-    names2(repos) == "",
-    paste0("repo_", seq_along(repos)),
-    names2(repos)
-  )
-  repos <- gsub("/$", "", repos)
+  repos <- standardizeRepos(repos)
 
   rows <- lapply(seq_len(nrow(records)), function(i) {
     standardizePackageSource(records[i, ], availablePackages, repos = repos)
   })
   rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(rows, c("Source", "Repository"))
+}
+
+standardizeRepos <- function(repos) {
+  # Ensure that each repository has a unique name
+  names(repos) <- ifelse(
+    names2(repos) == "",
+    paste0("repo_", seq_along(repos)),
+    names2(repos)
+  )
+
+  # And strip trailing /
+  repos <- gsub("/$", "", repos)
+
+  repos
 }
 
 standardizePackageSource <- function(record, availablePackages, repos = character()) {

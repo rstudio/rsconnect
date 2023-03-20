@@ -115,6 +115,14 @@ test_that("cleans up implicit dependency files", {
 
 # standardizePackageSource -----------------------------------------
 
+test_that("standardizeRepos adds names and normalizes paths", {
+  repos <- c(ONE = "https://cran1.com", "https://cran2.com/")
+  expect_equal(
+    standardizeRepos(repos),
+    c(ONE = "https://cran1.com", repo_2 = "https://cran2.com")
+  )
+})
+
 test_that("SCM records are left alone", {
   bitbucket <- list(Package = "pkg", Source = "bitbucket")
   gitlab <- list(Package = "pkg", Source = "gitlab")
@@ -157,7 +165,7 @@ test_that("CRAN & BioC get normalized repo", {
   )
 })
 
-test_that("packages installed from other repos get correctly name", {
+test_that("packages installed from other repos get correctly named", {
   pkg <- list(Package = "pkg", Source = "https://test2.com")
   packages <- as.matrix(data.frame(
     row.names = "pkg",
