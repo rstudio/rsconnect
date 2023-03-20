@@ -244,7 +244,7 @@ POST_JSON <- function(service,
     path,
     query,
     "application/json",
-    content = toJSON(json, pretty = TRUE, digits = 30),
+    content = toJSON(json),
     headers = headers
   )
 }
@@ -282,7 +282,7 @@ PUT_JSON <- function(service,
     path,
     query,
     "application/json",
-    content = toJSON(json, pretty = TRUE, digits = 30),
+    content = toJSON(json),
     headers = headers
   )
 }
