@@ -119,6 +119,7 @@ standardizeRecords <- function(records, repos) {
     paste0("repo_", seq_along(repos)),
     names2(repos)
   )
+  repos <- gsub("/$", "", repos)
 
   rows <- lapply(seq_len(nrow(records)), function(i) {
     standardizePackageSource(records[i, ], availablePackages, repos = repos)
@@ -163,17 +164,17 @@ standardizePackageSource <- function(record, availablePackages, repos = characte
   list(Source = source, Repository = repository)
 }
 
-findRepoName <- function(source, repos) {
-  idx <- match(source, repos)
+findRepoName <- function(repository, repos) {
+  idx <- match(repository, repos)
   names(repos)[idx]
 }
 
 findRepoUrl <- function(pkg, availablePackages) {
   if (pkg %in% rownames(availablePackages)) {
     repo <- availablePackages[pkg, "Repository"]
-    # Strip `/src/contrib` from package repository (added automatically by
-    # `contrib.url()`) to base repository URL
-    gsub("/src/contrib$", "", repo)
+    # Strip `/src/contrib/*` from package repository: `contrib.url()`
+    # adds /src/contrib, and RSPM adds additional directories
+    gsub("/src/contrib.*$", "", repo)
   } else {
     NA_character_
   }
