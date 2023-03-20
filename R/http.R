@@ -17,8 +17,9 @@ httpRequest <- function(service,
                         timeout = NULL,
                         error_call = caller_env()) {
 
+  storeCookies(service, httpCookies())
   path <- buildPath(service$path, path, query)
-  headers <- c(headers, authHeaders(authInfo, method, path))
+  headers <- c(headers, authHeaders(authInfo, method, path), httpHeaders())
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
@@ -74,7 +75,9 @@ httpRequestWithBody <- function(service,
     writeChar(content, file, eos = NULL, useBytes = TRUE)
   }
 
+  storeCookies(service, httpCookies())
   path <- buildPath(service$path, path, query)
+  headers <- c(headers, httpHeaders())
   authed_headers <- c(headers, authHeaders(authInfo, method, path, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
@@ -301,6 +304,14 @@ httpTrace <- function(method, path, time) {
       sep = ""
     )
   }
+}
+
+httpCookies <- function() {
+  getOption("rsconnect.http.cookies", character())
+}
+
+httpHeaders <- function() {
+  getOption("rsconnect.http.headers", character())
 }
 
 httpFunction <- function() {

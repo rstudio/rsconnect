@@ -134,3 +134,7 @@ normalizePath <- function(path, mustWork = FALSE) {
 compact <- function(x) {
   x[!vapply(x, is.null, logical(1))]
 }
+
+hasPrefix <- function(x, prefix) {
+  substring(x, 1, nchar(prefix)) == prefix
+}

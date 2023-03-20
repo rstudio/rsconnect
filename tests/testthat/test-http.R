@@ -3,6 +3,8 @@ test_that("non-libCurl methods are deprecated", {
   expect_snapshot(. <- httpFunction())
 })
 
+# headers -----------------------------------------------------------------
+
 test_that("authHeaders() picks correct method based on supplied fields", {
   url <- "https://example.com"
 
@@ -29,6 +31,29 @@ test_that("authHeaders() picks correct method based on supplied fields", {
   })
 })
 
+test_that("can add user specific headers", {
+  withr::local_options(rsconnect.http.headers = c(a = "1", b = "2"))
+
+  service <- httpbin_service()
+  json <- GET(service, list(), "get")
+  expect_equal(json$headers$a, "1")
+  expect_equal(json$headers$b, "2")
+})
+
+test_that("can add user specific cookies", {
+  skip_on_cran()
+  # uses live httpbin since webfakes doesn't support cookie endpoints
+  withr::local_options(rsconnect.http.cookies = c("a=1", "b=2"))
+  service <- parseHttpUrl("http://httpbin.org/")
+
+  json <- GET(service, list(), "cookies")
+  expect_equal(json$cookies, list(a = "1", b = "2"))
+
+  withr::local_options(rsconnect.http.cookies = c("c=3", "d=4"))
+  POST(service, list(), "post")
+  json <- GET(service, list(), "cookies")
+  expect_equal(json$cookies, list(a = "1", b = "2", c = "3", d = "4"))
+})
 
 # handleResponse ----------------------------------------------------------
 
@@ -121,6 +146,26 @@ test_that("handles redirects", {
 })
 
 # parse/build -------------------------------------------------------------
+
+test_that("URL parsing works", {
+  p <- parseHttpUrl("http://yahoo.com")
+  expect_equal(p$protocol, "http")
+  expect_equal(p$host, "yahoo.com")
+  expect_equal(p$port, "")
+  expect_equal(p$path, "") #TODO: bug? Should default to /?
+
+  p <- parseHttpUrl("https://rstudio.com/about")
+  expect_equal(p$protocol, "https")
+  expect_equal(p$host, "rstudio.com")
+  expect_equal(p$port, "")
+  expect_equal(p$path, "/about")
+
+  p <- parseHttpUrl("http://127.0.0.1:3939/stuff/here/?who-knows")
+  expect_equal(p$protocol, "http")
+  expect_equal(p$host, "127.0.0.1")
+  expect_equal(p$port, "3939")
+  expect_equal(p$path, "/stuff/here/?who-knows") #TODO: bug?
+})
 
 test_that("parse and build are symmetric", {
   round_trip <- function(x) {

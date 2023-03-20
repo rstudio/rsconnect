@@ -14,6 +14,14 @@ strip_port <- function(service) {
   function(x) gsub(service$port, "{port}", x)
 }
 
+local_cookie_store <- function(env = caller_env()) {
+  nms <- env_names(.cookieStore)
+  zaps <- rep_named(nms, list(zap()))
+
+  old <- env_bind(.cookieStore, !!!zaps)
+  withr::defer(env_bind(.cookieStore, !!!old), envir = env)
+}
+
 # Generic tests of various http methods -----------------------------------
 
 test_http_GET <- function() {

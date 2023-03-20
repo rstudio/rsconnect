@@ -51,6 +51,14 @@
 #' @keywords package
 NULL
 
+#' HTTP Proxy Configuration
+#'
+#' Please see `vignette("custom-http")`.
+#'
+#' @keywords internal
+#' @name rsconnectProxies
+NULL
+
 ## usethis namespace: start
 #' @importFrom lifecycle deprecated
 ## usethis namespace: end
