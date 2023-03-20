@@ -138,3 +138,7 @@ compact <- function(x) {
 hasPrefix <- function(x, prefix) {
   substring(x, 1, nchar(prefix)) == prefix
 }
+
+fromIDE <- function() {
+  !is.na(Sys.getenv("RSTUDIO", unset = NA)) && !identical(.Platform$GUI, "RStudio")
+}

@@ -94,7 +94,9 @@
 #'   will always update the previously-deployed app. If `FALSE`, will ask
 #'   the user what to do, or fail if not in an interactive context.
 #'
-#'   Defaults to the value of `getOption("rsconnect.force.update.apps", FALSE)`.
+#'   Defaults to `TRUE` when called automatically by the IDE, and `FALSE`
+#'   otherwise. You can override the default by setting option
+#'   `rsconnect.force.update.apps`.
 #' @param python Full path to a python binary for use by `reticulate`.
 #'   Required if `reticulate` is a dependency of the app being deployed.
 #'   If python = NULL, and RETICULATE_PYTHON or RETICULATE_PYTHON_FALLBACK is
@@ -161,7 +163,7 @@ deployApp <- function(appDir = getwd(),
                       logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
                       metadata = list(),
-                      forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
+                      forceUpdate = NULL,
                       python = NULL,
                       forceGeneratePythonEnvironment = FALSE,
                       quarto = NULL,
@@ -274,6 +276,9 @@ deployApp <- function(appDir = getwd(),
       server = server
     )
   } else {
+    forceUpdate <- forceUpdate %||% getOption("rsconnect.force.update.apps") %||%
+      fromIDE()
+
     # Use name/account/server to look up existing deployment;
     # create new deployment if no match found
     target <- deploymentTarget(
