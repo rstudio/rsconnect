@@ -10,6 +10,10 @@ httpbin_service <- function() {
   parseHttpUrl(app$url())
 }
 
+strip_port <- function(service) {
+  function(x) gsub(service$port, "{port}", x)
+}
+
 # Generic tests of various http methods -----------------------------------
 
 test_http_GET <- function() {

@@ -80,3 +80,22 @@ test_that("deployHook executes function if set", {
     . <- runDeploymentHook("PATH", "rsconnect.pre.deploy", verbose = TRUE)
   )
 })
+
+# deleted apps ------------------------------------------------------------
+
+test_that("applicationDeleted() errors or prompts as needed", {
+  local_temp_config()
+  addTestServer("s")
+  addTestAccount("a", "s")
+  app <- local_temp_app()
+  addTestDeployment(app, appName = "name", account = "a", server = "s")
+  target <- createDeploymentTarget("name", "title", "id", "a", "a", "s")
+  client <- list(createApplication = function(...) NULL)
+
+  expect_snapshot(applicationDeleted(client, target, app), error = TRUE)
+  expect_length(dir(app, recursive = TRUE), 1)
+
+  simulate_user_input(2)
+  expect_snapshot(. <- applicationDeleted(client, target, app))
+  expect_length(dir(app, recursive = TRUE), 0)
+})

@@ -45,14 +45,8 @@ test_that("prompted to pick account in interactive environment", {
   addTestAccount("a", "y")
   addTestAccount("b", "y")
 
-  withr::local_options(
-    rlang_interactive = TRUE,
-    cli_prompt = "2"
-  )
-
-  expect_snapshot({
-    out <- findAccount()
-  })
+  simulate_user_input(2)
+  expect_snapshot(out <- findAccount())
   expect_equal(out, list(name = "a", server = "y"))
 })
 

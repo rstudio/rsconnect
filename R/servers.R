@@ -64,6 +64,18 @@ isCloudServer <- function(server) {
   server %in% cloudServers
 }
 
+isShinyappsServer <- function(server) {
+  identical(server, "shinyapps.io")
+}
+
+isRPubs <- function(server) {
+  identical(server, "rpubs.com")
+}
+
+isConnectServer <- function(server) {
+  !isCloudServer(server) && !isRPubs(server)
+}
+
 cloudServerInfo <- function(name) {
   name <- arg_match0(name, cloudServers)
 

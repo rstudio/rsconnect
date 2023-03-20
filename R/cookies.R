@@ -171,8 +171,10 @@ appendCookieHeaders <- function(requestURL, headers) {
 
   # TODO: Technically per the RFC we're supposed to order these cookies by which
   # paths most specifically match the request.
-  cookieHeader <- paste(apply(cookies, 1,
-                              function(x) { paste0(x["name"], "=", x["value"]) }), collapse = "; ")
+  cookieHeader <- paste(
+    apply(cookies, 1, function(x) paste0(x["name"], "=", x["value"])),
+    collapse = "; "
+  )
 
   if (nrow(cookies) > 0) {
     return(c(headers, cookie = cookieHeader))

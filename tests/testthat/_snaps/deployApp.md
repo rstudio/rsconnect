@@ -57,3 +57,24 @@
     Output
       Invoking `rsconnect.pre.deploy` hook
 
+# applicationDeleted() errors or prompts as needed
+
+    Code
+      applicationDeleted(client, target, app)
+    Condition
+      Error in `applicationDeleted()`:
+      ! Failed to find existing application on server; it's probably been deleted.
+      i Use `forgetDeployment()` to remove outdated record and try again.
+      i Or use `applications()` to see other applications you have on the server.
+
+---
+
+    Code
+      . <- applicationDeleted(client, target, app)
+    Message
+      Failed to find existing application on server; it's probably been deleted.
+      What do you want to do?
+      1: Give up and try again later
+      2: Delete existing deployment & create a new app
+      Selection: 2
+

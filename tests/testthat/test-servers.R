@@ -179,10 +179,7 @@ test_that("findServer() errors/prompts of multiple servers present", {
   )
   expect_snapshot(findServer(), error = TRUE)
 
-  withr::local_options(
-    rlang_interactive = TRUE,
-    cli_prompt = "2"
-  )
+  simulate_user_input(2)
   expect_snapshot(out <- findServer())
   expect_equal(out, "yourserver")
 })

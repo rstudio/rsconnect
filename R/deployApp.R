@@ -318,8 +318,18 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
-    application <- client$getApplication(target$appId)
-    taskComplete(quiet, "Found application")
+    application <- tryCatch(
+      client$getApplication(target$appId),
+      rsconnect_http_404 = function(err) {
+        applicationDeleted(client, target, recordPath)
+      }
+    )
+    if (application$id == target$appId) {
+      taskComplete(quiet, "Found application")
+    } else {
+      taskComplete(quiet, "Created application with id {.val {application$id}}")
+    }
+
   }
   saveDeployment(
     recordPath,
@@ -474,6 +484,37 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
   hook(appDir)
 }
 
+applicationDeleted <- function(client, target, recordPath) {
+  header <- "Failed to find existing application on server; it's probably been deleted."
+  not_interactive <- c(
+    i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
+    i = "Or use {.fn applications} to see other applications you have on the server."
+  )
+  prompt <- "What do you want to do?"
+  choices <- c(
+    "Give up and try again later",
+    "Delete existing deployment & create a new app"
+  )
+
+  cli_menu(header, prompt, choices, not_interactive = not_interactive, quit = 1)
+  # Must be option 2
+
+  path <- deploymentConfigFile(
+    recordPath,
+    target$appName,
+    target$account,
+    target$server
+  )
+  unlink(path)
+
+  accountDetails <- accountInfo(target$account, target$server)
+  client$createApplication(
+    target$appName,
+    target$appTitle,
+    "shiny",
+    accountDetails$accountId
+  )
+}
 
 # Does almost exactly the same work as writeManifest(), but called within
 # deployApp() instead of being exposed to the user. Returns the path to the
