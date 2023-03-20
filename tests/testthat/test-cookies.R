@@ -1,23 +1,3 @@
-test_that("URL parsing works", {
-  p <- parseHttpUrl("http://yahoo.com")
-  expect_equal(p$protocol, "http")
-  expect_equal(p$host, "yahoo.com")
-  expect_equal(p$port, "")
-  expect_equal(p$path, "") #TODO: bug? Should default to /?
-
-  p <- parseHttpUrl("https://rstudio.com/about")
-  expect_equal(p$protocol, "https")
-  expect_equal(p$host, "rstudio.com")
-  expect_equal(p$port, "")
-  expect_equal(p$path, "/about")
-
-  p <- parseHttpUrl("http://127.0.0.1:3939/stuff/here/?who-knows")
-  expect_equal(p$protocol, "http")
-  expect_equal(p$host, "127.0.0.1")
-  expect_equal(p$port, "3939")
-  expect_equal(p$path, "/stuff/here/?who-knows") #TODO: bug?
-})
-
 test_that("Parsing cookies works", {
   # Note that the Expires field is ignored
   cookie <- parseCookie("mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly", "/")
@@ -93,14 +73,8 @@ test_that("Invalid cookies fail parsing", {
   expect_null(cookie)
 })
 
-clearCookieStore <- function() {
-  if (exists("fakedomain:123", .cookieStore)) {
-    rm("fakedomain:123", envir = .cookieStore)
-  }
-}
-
 test_that("cookies can be stored", {
-  clearCookieStore()
+  local_cookie_store()
 
   parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
   expect_warning({
@@ -150,7 +124,7 @@ test_that("cookies can be stored", {
 })
 
 test_that("duplicate cookies overwrite one another", {
-  clearCookieStore()
+  local_cookie_store()
 
   parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
   storeCookies(parsedUrl, "mycookie=myvalue; Path=/; Max-Age=3600")
@@ -174,7 +148,7 @@ test_that("duplicate cookies overwrite one another", {
 })
 
 test_that("appending cookie headers works", {
-  clearCookieStore()
+  local_cookie_store()
 
   parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
 
@@ -221,7 +195,7 @@ test_that("appending cookie headers works", {
 })
 
 test_that("Expired cookies are removed", {
-  clearCookieStore()
+  local_cookie_store()
 
   parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
 
@@ -261,7 +235,7 @@ test_that("getCookieHost works", {
 })
 
 test_that("getting and clearing cookies works", {
-  clearCookieStore()
+  local_cookie_store()
 
   all <- getCookies()
   expect_null(all)
@@ -304,5 +278,4 @@ test_that("getting and clearing cookies works", {
 
   all <- getCookies()
   expect_null(all)
-
 })

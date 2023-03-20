@@ -147,6 +147,26 @@ test_that("handles redirects", {
 
 # parse/build -------------------------------------------------------------
 
+test_that("URL parsing works", {
+  p <- parseHttpUrl("http://yahoo.com")
+  expect_equal(p$protocol, "http")
+  expect_equal(p$host, "yahoo.com")
+  expect_equal(p$port, "")
+  expect_equal(p$path, "") #TODO: bug? Should default to /?
+
+  p <- parseHttpUrl("https://rstudio.com/about")
+  expect_equal(p$protocol, "https")
+  expect_equal(p$host, "rstudio.com")
+  expect_equal(p$port, "")
+  expect_equal(p$path, "/about")
+
+  p <- parseHttpUrl("http://127.0.0.1:3939/stuff/here/?who-knows")
+  expect_equal(p$protocol, "http")
+  expect_equal(p$host, "127.0.0.1")
+  expect_equal(p$port, "3939")
+  expect_equal(p$path, "/stuff/here/?who-knows") #TODO: bug?
+})
+
 test_that("parse and build are symmetric", {
   round_trip <- function(x) {
     expect_equal(buildHttpUrl(parseHttpUrl(x)), x)
