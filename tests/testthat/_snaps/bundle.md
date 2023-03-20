@@ -4,7 +4,7 @@
       tweakRProfile(path)
       writeLines(readLines(path))
     Output
-      # Modified by rsconnect package 0.8.29.1 on <NOW>
+      # Modified by rsconnect package <VERSION> on <NOW>
       # Line 1
       # renv initialization disabled in published application
       # source("renv/activate.R")

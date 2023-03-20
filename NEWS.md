@@ -1,4 +1,4 @@
-# rsconnect 0.8.30 (development version)
+# rsconnect (development version)
 
 * New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
   set extra arbitrary additional headers/cookies on each request (#405).
