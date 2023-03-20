@@ -264,25 +264,26 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  if (is.null(appId)) {
-    target <- deploymentTarget(
-      recordPath = recordPath,
-      appName = appName,
-      appTitle = appTitle,
-      account = account,
-      server = server,
-      forceUpdate = forceUpdate
-    )
-  } else {
-    if (!is.null(appName)) {
-      cli::cli_warn("{.arg appName} is ignored when {.arg appId} is set")
-    }
-
+  if (!is.null(appId) && is.null(appName)) {
+    # User has supplied only appId, so retrieve app data from server
+    # IDE supplies both appId and appName so should never hit this branch
     target <- deploymentTargetForApp(
       appId = appId,
       appTitle = appTitle,
       account = account,
       server = server
+    )
+  } else {
+    # Use name/account/server to look up existing deployment;
+    # create new deployment if no match found
+    target <- deploymentTarget(
+      recordPath = recordPath,
+      appId = appId,
+      appName = appName,
+      appTitle = appTitle,
+      account = account,
+      server = server,
+      forceUpdate = forceUpdate
     )
   }
   if (is.null(target$appId)) {

@@ -78,9 +78,6 @@ test_that("succeeds if there's a single existing deployment", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  mockr::local_mock(
-    applications = function(...) data.frame()
-  )
 
   app_dir <- withr::local_tempdir()
   addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
@@ -92,6 +89,20 @@ test_that("succeeds if there's a single existing deployment", {
   target <- deploymentTarget(app_dir, appName = "test")
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
+})
+
+test_that("errors if single deployment and appId doesn't match", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+
+  app_dir <- withr::local_tempdir()
+  addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
+
+  expect_snapshot(
+    error = TRUE,
+    deploymentTarget(app_dir, appName = "test", appId = "2")
+  )
 })
 
 test_that("new title overrides existing title", {
