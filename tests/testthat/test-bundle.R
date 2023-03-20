@@ -252,6 +252,10 @@ test_that("removes renv/packrat activation", {
       tweakRProfile(path)
       writeLines(readLines(path))
     },
-    transform = function(x) gsub("on \\d{4}.+", "on <NOW>", x)
+    transform = function(x) {
+      x <- gsub("on \\d{4}.+", "on <NOW>", x)
+      x <- gsub(packageVersion("rsconnect"), "<VERSION>", x, fixed = TRUE)
+      x
+    }
   )
 })
