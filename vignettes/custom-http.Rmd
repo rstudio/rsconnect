@@ -77,6 +77,8 @@ options(
 )
 ```
 
+The custom headers are set first, so will be overridden by the headers that rsconnect needs to correctly operate. Similarly, cookies will be set prior to the first request, and will be overriden by anything returned by the server.
+
 ## Other custom options
 
 Finally, you can supply any additional options supported by `curl::curl_options()` with `rsconnect.libcurl.options`, e.g.
