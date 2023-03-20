@@ -152,8 +152,8 @@ standardizePackageSource <- function(record, availablePackages, repos = characte
       source <- findRepoName(repository, repos)
     }
   } else if (source %in% c("CRAN", "Bioconductor")) {
-    # Not strictly necessary since server will typically ignore in favour
-    # of the repo it's configured with
+    # shinyapps & posit.cloud will ignore, but connect will use (unless admin
+    # has set up an override)
     repository <- findRepoUrl(pkg, availablePackages)
   } else {
     # Installed from custom repository. Find URL from available.packages()

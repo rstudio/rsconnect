@@ -67,12 +67,13 @@
 #' @inheritParams listDeploymentFiles
 #' @param appDir Directory containing application. Defaults to current working
 #'   directory.
-#' @returns A data frame one row for each depedency (direct and indirect) and
-#'   4 columns:
+#' @returns A data frame with one row for each dependency (direct, indirect,
+#'   and inferred), and 4 columns:
 #'
 #'   * `Package`: package name.
 #'   * `Version`: local version.
-#'   * `Source`: where the package was installed from, as described above.
+#'   * `Source`: a short string describing the source of the package install,
+#'      as described above.
 #'   * `Repository`: for CRAN and CRAN-like repositories, the URL to the
 #'      repository. This will be ignored by the server if it has been configured
 #'      with it's own repository name -> repository URL mapping.

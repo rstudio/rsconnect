@@ -14,12 +14,13 @@ directory.}
 include in the deployed bundle.}
 }
 \value{
-A data frame one row for each depedency (direct and indirect) and
-4 columns:
+A data frame with one row for each dependency (direct, indirect,
+and inferred), and 4 columns:
 \itemize{
 \item \code{Package}: package name.
 \item \code{Version}: local version.
-\item \code{Source}: where the package was installed from, as described above.
+\item \code{Source}: a short string describing the source of the package install,
+as described above.
 \item \code{Repository}: for CRAN and CRAN-like repositories, the URL to the
 repository. This will be ignored by the server if it has been configured
 with it's own repository name -> repository URL mapping.
