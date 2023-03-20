@@ -2,51 +2,37 @@
 % Please edit documentation in R/rsconnect-package.R
 \docType{package}
 \name{rsconnect-package}
-\alias{rsconnect-package}
 \alias{rsconnect}
-\title{Deployment Interface for R Markdown Documents and Shiny Applications}
+\alias{rsconnect-package}
+\title{rsconnect: Deploy Docs, Apps, and APIs to Posit Connect, shinyapps.io, and RPubs}
 \description{
-The `rsconnect`` package provides a programmatic deployment
-interface for RPubs, shinyapps.io, and Posit Connect. Supported contents
-types include R Markdown documents, Shiny applications, plots, and static
-web content.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+Programmatic deployment interface for 'RPubs', 'shinyapps.io', and 'Posit Connect'. Supported content types include R Markdown documents, Shiny applications, Plumber APIs, plots, and static web content.
 }
-\section{Managing Applications}{
-
-
-Deploy and manage applications with the following functions:
+\seealso{
+Useful links:
 \itemize{
-\item \code{\link[=deployApp]{deployApp()}}:
-Deploy a Shiny application to a server.
-\item \code{\link[=configureApp]{configureApp()}}:
-Configure an application currently running on a server.
-\item \code{\link[=restartApp]{restartApp()}}:
-Restart an application currently running on a server.
-\item \code{\link[=terminateApp]{terminateApp()}}:
-Terminate an application currently running on a server.
-\item \code{\link[=deployments]{deployments()}}:
-List deployment records for a given application directory.
+  \item \url{https://github.com/rstudio/rsconnect}
+  \item Report bugs at \url{https://github.com/rstudio/rsconnect/issues}
 }
 
-More information on application management is available in the
-\code{\link[=applications]{applications()}} help page.
 }
+\author{
+\strong{Maintainer}: Aron Atkins \email{aron@posit.co}
 
-\section{Managing Accounts and Users}{
-
-
-Manage accounts on the local system.
+Authors:
 \itemize{
-\item \code{\link[=setAccountInfo]{setAccountInfo()}}:
-Register an account.
-\item \code{\link[=removeAccount]{removeAccount()}}:
-Remove an account.
-\item \code{\link[=accountInfo]{accountInfo()}}:
-View information for a given account.
+  \item Toph Allen
+  \item Hadley Wickham
+  \item Jonathan McPherson
+  \item JJ Allaire
 }
 
-More information on account management is available in the
-\code{\link[=accounts]{accounts()}} help page.
+Other contributors:
+\itemize{
+  \item Posit Software, PBC [copyright holder, funder]
 }
 
-\keyword{package}
+}
+\keyword{internal}

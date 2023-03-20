@@ -10,8 +10,7 @@ addConnectServer(url, name = NULL, certificate = NULL, quiet = FALSE)
 \item{url}{URL for the server. Can be a bare hostname like
 \code{connect.mycompany.com} or a url like \verb{http://posit.mycompany.com/connect}.}
 
-\item{name}{Optional nickname for the server. If none is given, the nickname
-is inferred from the server's hostname.}
+\item{name}{Server name. If omitted, the server hostname is used.}
 
 \item{certificate}{Optional. Either a path to certificate file or a
 character vector containing the certificate's contents.}
