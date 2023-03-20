@@ -83,6 +83,16 @@
       2: test (ron@server2.com): <https://server2.com/ron/123>
       Selection: 1
 
+# errors if single deployment and appId doesn't match
+
+    Code
+      deploymentTarget(app_dir, appName = "test", appId = "2")
+    Condition
+      Error:
+      ! Supplied `appId` (2) does not match deployment record (1).
+      i Omit `appId` to use existing for deployment for app "test", or
+      i Omit `appName` to create new deployment record.
+
 # shouldUpdateApp errors when non-interactive
 
     Code

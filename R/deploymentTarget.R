@@ -1,6 +1,7 @@
 # calculate the deployment target based on the passed parameters and
 # any saved deployments that we have
 deploymentTarget <- function(recordPath = ".",
+                             appId = NULL,
                              appName = NULL,
                              appTitle = NULL,
                              account = NULL,
@@ -47,6 +48,18 @@ deploymentTarget <- function(recordPath = ".",
       fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
+    # If both appName and appId supplied, check that they're consistent.
+    if (!is.null(appId) && appDeployments$appId != appId) {
+      cli::cli_abort(
+        c(
+          "Supplied {.arg appId} ({appId}) does not match deployment record ({appDeployments$appId}).",
+          i = "Omit {.arg appId} to use existing for deployment for app {.str {appName}}, or",
+          i = "Omit {.arg appName} to create new deployment record."
+        ),
+        call = error_call
+      )
+    }
+
     updateDeploymentTarget(appDeployments, appTitle)
   } else {
     apps <- paste0(
@@ -69,6 +82,7 @@ deploymentTarget <- function(recordPath = ".",
     updateDeploymentTarget(appDeployments[idx, ], appTitle)
   }
 }
+
 
 deploymentTargetForApp <- function(appId,
                                    appTitle = NULL,
