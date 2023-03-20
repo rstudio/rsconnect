@@ -4,6 +4,11 @@
   set extra arbitrary additional headers/cookies on each request (#405).
   Their use is documented in the new `vignette("custom-http")`.
 
+* `deployApp()` now uses a stricter policy for determining whether or not
+  a local package can be successfully installed on the deployment server.
+  This means that you're more likely to get a clean failure prior to 
+  deployment (#659).
+
 * Deployment records no longer contain the time the app was deployed (`when`)
   or when it's metadata was last synched (`lastSyncTime`) as these variables
   are not very useful, and they lead to uninteresting diffs if you have 

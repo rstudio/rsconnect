@@ -12,10 +12,9 @@
     Code
       . <- bundlePackages(app_dir, appMode = "rmd-static")
     Condition
-      Warning:
-      Local packages must be installed from a supported source.
-      x Unsupported packages: shiny.
-      i Supported sources are CRAN and CRAN-like repositories, BioConductor, GitHub, GitLab, and Bitbucket.
+      Error:
+      ! All packages must be installed from a reproducible location.
+      x Can't re-install packages installed from source: shiny.
       i See `rsconnect::appDependencies()` for more details.
 
 # clear error if can't run performPackratSnapshot()
