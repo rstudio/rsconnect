@@ -7,6 +7,28 @@
       ! No content to deploy.
       x `appDir` is empty.
 
+# checkLayout() errors if primary doc & app.R
+
+    Code
+      checkAppLayout(dir, "myscript.R")
+    Condition
+      Error in `checkAppLayout()`:
+      ! Project must not contain both 'app.R' and a single-file Shiny app.
+
+# checkLayout fails if no known structure
+
+    Code
+      checkAppLayout(dir)
+    Condition
+      Error in `checkAppLayout()`:
+      ! Cancelling deployment: invalid project layout.
+      i Expecting one of the following publication types:
+        1. A Shiny app with `app.R` or `server.R` + `ui.R`
+        2. R Markdown (`.Rmd`) or Quarto (`.qmd`) documents.
+        3. A website containing `.html` and/or `.pdf` files.
+        4. A plumber API with `plumber.R` or `entrypoint.R`.
+        5. A tensorflow saved model.
+
 # quarto docs require quarto
 
     Code
