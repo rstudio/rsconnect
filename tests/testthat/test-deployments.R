@@ -118,7 +118,7 @@ test_that("saveDeployment captures hostUrl", {
   )
 
   out <- deployments(dir)
-  expect_equal(out$hostUrl, "http://example.com")
+  expect_equal(out$hostUrl, "https://example.com")
 })
 
 test_that("addToDeploymentHistory() adds needed new lines", {

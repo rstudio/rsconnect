@@ -135,8 +135,7 @@ findServer <- function(server = NULL,
 #'
 #' @param url URL for the server. Can be a bare hostname like
 #'   `connect.mycompany.com` or a url like `http://posit.mycompany.com/connect`.
-#' @param name Optional nickname for the server. If none is given, the nickname
-#'   is inferred from the server's hostname.
+#' @param name Server name. If omitted, the server hostname is used.
 #' @param certificate Optional. Either a path to certificate file or a
 #'   character vector containing the certificate's contents.
 #' @param validate Validate that `url` actually points to a Posit Connect
@@ -167,50 +166,34 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
     url <- out$url
   }
 
-  serverUrl <- parseHttpUrl(url)
-
-  # if no name is supplied for the server, make one up based on the host portion
-  # of its URL
-  if (is.null(name)) {
-    name <- serverUrl$host
-    if (!quiet && is_interactive()) {
-      input <- readline(paste0(
-        "Enter a nickname for this server (default '", name, "'): "))
-      if (nchar(input) > 0) {
-        name <- input
-      }
-    }
-  }
-
-  if (!identical(serverUrl$protocol, "https") &&
-      !is.null(certificate) && nzchar(certificate)) {
-    stop("Certificates may only be attached to servers that use the ",
-         "HTTPS protocol. Sepecify an HTTPS URL for the server, or ",
-         "omit the certificate.")
-  }
-
-  # resolve certificate argument
-  certificate <- inferCertificateContents(certificate)
-
-  # write the server info
-  configFile <- serverConfigFile(name)
-  if (is.null(certificate)) {
-    # no certificate, just write name and URL for brevity
-    write.dcf(list(name = name,
-                   url = url),
-              configFile)
-  } else {
-    # write all fields
-    write.dcf(list(name = name,
-                   url = url,
-                   certificate = certificate),
-              configFile,
-              keep.white = "certificate")
-  }
+  name <- name %||% parseHttpUrl(url)$host
+  registerServer(name, url, certificate)
 
   if (!quiet) {
     message("Server '", name,  "' added successfully: ", url)
   }
+}
+
+registerServer <- function(name, url, certificate = NULL, error_call = caller_env()) {
+  certificate <- inferCertificateContents(certificate)
+
+  if (!identical(substr(url, 1, 5), "https") && !is.null(certificate)) {
+    cli::cli_abort(
+      c(
+        "Certificates may only be attached to servers that use the HTTPS protocol.",
+        i = "Specify an HTTPS URL for the server, or omit the certificate."
+      ),
+      call = error_call
+    )
+  }
+
+  path <- serverConfigFile(name)
+  fields <- list(
+    name = name,
+    url = url,
+    certificate = certificate %||% NA
+  )
+  write.dcf(fields, path, keep.white = "certificate")
 }
 
 #' @rdname addServer
@@ -225,18 +208,8 @@ removeServer <- function(name = NULL) {
 #' @rdname addServer
 #' @export
 addServerCertificate <- function(name, certificate, quiet = FALSE) {
-  # read the existing server information (throws an error on failure)
   info <- serverInfo(name)
-
-  if (!identical(substr(info$url, 1, 5), "https")) {
-    stop("Certificates may only be attached to servers that use the ",
-         "HTTPS protocol. Sepecify an HTTPS URL for the server, or ",
-         "omit the certificate.")
-  }
-
-  # append the certificate and re-write the server information
-  info$certificate <- inferCertificateContents(certificate)
-  write.dcf(info, serverConfigFile(name), keep.white = "certificate")
+  registerServer(name, info$url, certificate)
 
   if (!quiet)
     message("Certificate added to server '", name, "'")

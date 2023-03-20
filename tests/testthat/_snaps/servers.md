@@ -34,6 +34,34 @@
       ! Can't find `server` with name "foo".
       i Known servers are "shinyapps.io" and "posit.cloud".
 
+# addServer() errors if url not a connect server
+
+    Code
+      addServer(url)
+    Condition
+      Error in `addServer()`:
+      ! `url` does not appear to be a Posit Connect server.
+
+# addServer() and addServerCertificate() inform about their actions
+
+    Code
+      addServer("https://example.com", validate = FALSE)
+    Message
+      Server 'example.com' added successfully: https://example.com
+    Code
+      addServerCertificate("example.com", certificate = cert)
+    Message
+      Certificate added to server 'example.com'
+
+# certificates can't be attached to plain http servers
+
+    Code
+      addServerCertificate("test", cert)
+    Condition
+      Error in `addServerCertificate()`:
+      ! Certificates may only be attached to servers that use the HTTPS protocol.
+      i Specify an HTTPS URL for the server, or omit the certificate.
+
 # cloud server errors if not cloud server
 
     Code

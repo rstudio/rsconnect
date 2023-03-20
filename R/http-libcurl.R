@@ -62,10 +62,10 @@ httpLibCurl <- function(protocol,
 
   # make the request
   url <- buildHttpUrl(request)
-  time <- system.time(
-    response <- curl::curl_fetch_memory(url, handle = handle),
-    gcFirst = FALSE
-  )
+  start <- proc.time()
+  response <- curl::curl_fetch_memory(url, handle = handle)
+  time <- proc.time() - start
+
   httpTrace(method, path, time)
 
   # Process headers
