@@ -138,3 +138,16 @@ compact <- function(x) {
 hasPrefix <- function(x, prefix) {
   substring(x, 1, nchar(prefix)) == prefix
 }
+
+toJSON <- function(x, ...) {
+  jsonlite::toJSON(
+    x,
+    dataframe = "columns",
+    null = "null",
+    na = "null",
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    digits = 30,
+    ...
+  )
+}
