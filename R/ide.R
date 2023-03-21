@@ -114,7 +114,7 @@ showRstudioSourceMarkers <- function(basePath, lint) {
 
 # https://github.com/rstudio/rstudio/blob/ee56d49b0fca5f3d7c3f5214a4010355d1bb0212/src/gwt/src/org/rstudio/studio/client/rsconnect/ui/RSConnectDeploy.java#L699
 
-getAppById <- function(id, account, server, hostUrl) {
+getAppById <- function(id, account, server, hostUrl, contentId = NULL) {
   check_string(account)
   check_string(server)
   check_string(hostUrl)
@@ -135,7 +135,7 @@ getAppById <- function(id, account, server, hostUrl) {
     }
   }
 
-  getApplication(account, server, id)
+  getApplication(account, server, id, contentId)
 }
 
 

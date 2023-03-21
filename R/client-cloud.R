@@ -64,14 +64,26 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, sep = "")
-      application <- GET(service, authInfo, path)
+    getApplication = function(applicationId, contentId) {
+      # Static outputs may have multiple applications. Since the applications can be deleted, it's more reliable to look up the output by the content id.
+      if (!is.null(contentId)) {
+        path <- paste("/content/", contentId, sep = "")
+        applications_output <- GET(service, authInfo, path)
 
-      output_id <- application$content_id
-      path <- paste("/content/", output_id, sep = "")
+        application_id = applications_output$source_id
 
-      applications_output <- GET(service, authInfo, path)
+        path <- paste("/applications/", application_id, sep = "")
+        application <- GET(service, authInfo, path)
+      } else if (!is.null(applicationId)) {
+        path <- paste("/applications/", applicationId, sep = "")
+        application <- GET(service, authInfo, path)
+
+        output_id <- application$content_id
+
+        path <- paste("/content/", output_id, sep = "")
+        applications_output <- GET(service, authInfo, path)
+      }
+
       application$url <- applications_output$url
       application
     },
@@ -95,9 +107,10 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId) {
+    createApplication = function(name, title, template, accountId, appMode) {
       json <- list()
       json$name <- name
+      json$application_type <- ifelse(appMode == "static", "static", "connect")
 
       currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {

@@ -152,6 +152,7 @@ deployApp <- function(appDir = getwd(),
                       appName = NULL,
                       appTitle = NULL,
                       appId = NULL,
+                      contentId = NULL,
                       contentCategory = NULL,
                       account = NULL,
                       server = NULL,
@@ -271,6 +272,7 @@ deployApp <- function(appDir = getwd(),
     # IDE supplies both appId and appName so should never hit this branch
     target <- deploymentTargetForApp(
       appId = appId,
+      contentId = contentId,
       appTitle = appTitle,
       account = account,
       server = server
@@ -330,15 +332,16 @@ deployApp <- function(appDir = getwd(),
       target$appName,
       target$appTitle,
       "shiny",
-      accountDetails$accountId
+      accountDetails$accountId,
+      appMetadata$appMode
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
-      client$getApplication(target$appId),
+      client$getApplication(target$appId, target$contentId),
       rsconnect_http_404 = function(err) {
-        applicationDeleted(client, target, recordPath)
+        applicationDeleted(client, target, recordPath, appMetadata)
       }
     )
     if (application$id == target$appId) {
@@ -490,7 +493,7 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
   hook(appDir)
 }
 
-applicationDeleted <- function(client, target, recordPath) {
+applicationDeleted <- function(client, target, recordPath, appMetadata) {
   header <- "Failed to find existing application on server; it's probably been deleted."
   not_interactive <- c(
     i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
@@ -518,7 +521,8 @@ applicationDeleted <- function(client, target, recordPath) {
     target$appName,
     target$appTitle,
     "shiny",
-    accountDetails$accountId
+    accountDetails$accountId,
+    appMetadata$appMode
   )
 }
 
