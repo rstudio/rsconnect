@@ -41,19 +41,23 @@ packratPackage <- function(pkg) {
     return(NULL)
   }
 
+  # Convert renv sources to packrat sources
+  # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R
   if (identical(pkg$Repository, "CRAN")) {
     pkg$Source <- "CRAN"
   } else if (pkg$Source == "unknown") {
     pkg$Source <- "source"
   }
 
+  # Remove Remote fields that renv adds for "standard" installs from CRAN
   if (identical(pkg$RemoteType, "standard")) {
     pkg <- pkg[!grepl("^Remote", names(pkg))]
   }
 
-  # packrat hash != renv hash
+  # Drop hash since packrat hash != renv hash
   pkg$Hash <- NULL
 
+  # Convert Requirements to Requires, a comma separated list
   if (length(pkg$Requirements) > 0) {
     pkg$Requires <- paste0(unlist(pkg$Requirements), collapse = ", ")
   }
