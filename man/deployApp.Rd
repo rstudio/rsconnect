@@ -23,7 +23,7 @@ deployApp(
   logLevel = c("normal", "quiet", "verbose"),
   lint = TRUE,
   metadata = list(),
-  forceUpdate = getOption("rsconnect.force.update.apps", FALSE),
+  forceUpdate = NULL,
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
   quarto = NULL,
@@ -120,7 +120,9 @@ the app, but there's an app with the same name on the server? If \code{TRUE},
 will always update the previously-deployed app. If \code{FALSE}, will ask
 the user what to do, or fail if not in an interactive context.
 
-Defaults to the value of \code{getOption("rsconnect.force.update.apps", FALSE)}.}
+Defaults to \code{TRUE} when called automatically by the IDE, and \code{FALSE}
+otherwise. You can override the default by setting option
+\code{rsconnect.force.update.apps}.}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 Required if \code{reticulate} is a dependency of the app being deployed.
