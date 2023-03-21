@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Remove `deployTFModel()`. Connect no longer supports hosting TensorFlow
+  Model APIs.
+
 * New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
   set extra arbitrary additional headers/cookies on each request (#405).
   Their use is documented in the new `vignette("custom-http")`.

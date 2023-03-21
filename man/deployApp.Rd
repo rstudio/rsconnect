@@ -208,7 +208,6 @@ Other Deployment functions:
 \code{\link{applications}()},
 \code{\link{deployAPI}()},
 \code{\link{deployDoc}()},
-\code{\link{deploySite}()},
-\code{\link{deployTFModel}()}
+\code{\link{deploySite}()}
 }
 \concept{Deployment functions}

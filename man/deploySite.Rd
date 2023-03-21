@@ -80,7 +80,6 @@ Other Deployment functions:
 \code{\link{applications}()},
 \code{\link{deployAPI}()},
 \code{\link{deployApp}()},
-\code{\link{deployDoc}()},
-\code{\link{deployTFModel}()}
+\code{\link{deployDoc}()}
 }
 \concept{Deployment functions}

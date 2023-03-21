@@ -55,7 +55,6 @@ Other Deployment functions:
 \code{\link{deployAPI}()},
 \code{\link{deployApp}()},
 \code{\link{deployDoc}()},
-\code{\link{deploySite}()},
-\code{\link{deployTFModel}()}
+\code{\link{deploySite}()}
 }
 \concept{Deployment functions}
