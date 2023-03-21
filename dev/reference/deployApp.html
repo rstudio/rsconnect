@@ -82,7 +82,7 @@ content to a server.</p>
 <span>  logLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"normal"</span>, <span class="st">"quiet"</span>, <span class="st">"verbose"</span><span class="op">)</span>,</span>
 <span>  lint <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  forceUpdate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"rsconnect.force.update.apps"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  forceUpdate <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  quarto <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -207,7 +207,9 @@ record. These fields will be returned on subsequent calls to
 the app, but there's an app with the same name on the server? If <code>TRUE</code>,
 will always update the previously-deployed app. If <code>FALSE</code>, will ask
 the user what to do, or fail if not in an interactive context.</p>
-<p>Defaults to the value of <code>getOption("rsconnect.force.update.apps", FALSE)</code>.</p></dd>
+<p>Defaults to <code>TRUE</code> when called automatically by the IDE, and <code>FALSE</code>
+otherwise. You can override the default by setting option
+<code>rsconnect.force.update.apps</code>.</p></dd>
 
 
 <dt>python</dt>
