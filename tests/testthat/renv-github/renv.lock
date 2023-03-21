@@ -1,0 +1,40 @@
+{
+  "R": {
+    "Version": "4.2.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
+      }
+    ]
+  },
+  "Packages": {
+    "renv": {
+      "Package": "renv",
+      "Version": "0.16.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "RemoteType": "standard",
+      "RemotePkgRef": "renv",
+      "RemoteRef": "renv",
+      "RemoteRepos": "https://cran.rstudio.com",
+      "RemotePkgPlatform": "aarch64-apple-darwin20",
+      "RemoteSha": "0.16.0",
+      "Hash": "c9e8442ab69bc21c9697ecf856c1e6c7",
+      "Requirements": []
+    },
+    "withr": {
+      "Package": "withr",
+      "Version": "2.5.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "r-lib",
+      "RemoteRepo": "withr",
+      "RemoteRef": "main",
+      "RemoteSha": "3b01a2bef7b17bf2f82d94be58a2d4287827fa21",
+      "Hash": "a5b00ca54909a1dd45d6f6f148887c64",
+      "Requirements": []
+    }
+  }
+}

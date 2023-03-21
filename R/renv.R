@@ -1,14 +1,16 @@
 translateRenvToPackrat <- function(bundleDir) {
   renv <- jsonlite::read_json(renvLockFile(bundleDir))
+  packrat <- packratFromRenv(renv)
 
-  meta <- packratMeta(renv)
-  packages <- packratPackages(renv$Packages)
-  packrat <- rbind_fill(list(meta, packages))
-
-  browser()
   packratPath <- packratLockFile(bundleDir)
   dir.create(dirname(packratPath), showWarnings = FALSE)
   write.dcf(packrat, packratPath)
+}
+
+packratFromRenv <- function(renv) {
+  meta <- packratMeta(renv)
+  packages <- packratPackages(renv$Packages)
+  rbind_fill(list(meta, packages))
 }
 
 packratMeta <- function(renv) {
@@ -28,11 +30,17 @@ packratMeta <- function(renv) {
 packratPackages <- function(packages) {
   out <- lapply(packages, packratPackage)
   names(out) <- NULL
+  out <- compact(out)
   out <- lapply(out, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(out)
 }
 
 packratPackage <- function(pkg) {
+  # Don't include renv itself
+  if (identical(pkg$Package, "renv")) {
+    return(NULL)
+  }
+
   if (identical(pkg$Repository, "CRAN")) {
     pkg$Source <- "CRAN"
   } else if (pkg$Source == "unknown") {
@@ -56,4 +64,19 @@ packratPackage <- function(pkg) {
 
 renvLockFile <- function(bundleDir) {
   file.path(bundleDir, "renv.lock")
+}
+
+showPackratTranslation <- function(path) {
+  renv <- jsonlite::read_json(renvLockFile(path))
+  packrat <- packratFromRenv(renv)
+  showDcf(packrat)
+}
+
+showDcf <- function(df) {
+  path <- tempfile()
+  on.exit(path, add = TRUE)
+
+  write.dcf(df, path)
+  writeLines(readLines(path))
+  invisible()
 }
