@@ -279,7 +279,3 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
 packratLockFile <- function(bundleDir) {
   file.path(bundleDir, "packrat", "packrat.lock")
 }
-renvLockFile <- function(bundleDir) {
-  file.path(bundleDir, "renv.lock")
-}
-
