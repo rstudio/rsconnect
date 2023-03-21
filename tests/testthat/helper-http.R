@@ -22,6 +22,15 @@ local_cookie_store <- function(env = caller_env()) {
   withr::defer(env_bind(.cookieStore, !!!old), envir = env)
 }
 
+skip_on_http_failure <- function(code) {
+  tryCatch(
+    code,
+    rsconnect_http = function(cnd) {
+      testthat::skip("http request failed")
+    }
+  )
+}
+
 # Generic tests of various http methods -----------------------------------
 
 test_http_GET <- function() {
