@@ -562,7 +562,7 @@ bundleApp <- function(appName,
     image = image,
     verbose = verbose
   )
-  manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
+  manifestJson <- toJSON(manifest)
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 

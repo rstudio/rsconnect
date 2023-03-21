@@ -142,3 +142,16 @@ hasPrefix <- function(x, prefix) {
 fromIDE <- function() {
   !is.na(Sys.getenv("RSTUDIO", unset = NA)) && !identical(.Platform$GUI, "RStudio")
 }
+
+toJSON <- function(x, ...) {
+  jsonlite::toJSON(
+    x,
+    dataframe = "columns",
+    null = "null",
+    na = "null",
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    digits = 30,
+    ...
+  )
+}
