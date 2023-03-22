@@ -134,10 +134,37 @@ connectClient <- function(service, authInfo) {
         }
         Sys.sleep(1)
       }
+    },
+
+    # - Environment variables -----------------------------------------------
+    # https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment
+
+    getEnvVars = function(guid) {
+      path <- file.path("/v1/content", guid, "environment")
+      as.character(unlist(GET(service, authInfo, path, list())))
+    },
+
+    setEnvVars = function(guid, vars) {
+      path <- file.path("/v1/content", guid, "environment")
+      body <- unname(Map(
+        function(name, value) {
+          list(
+            name = name,
+            value = if (value == "") NULL else value
+          )
+        },
+        vars,
+        Sys.getenv(vars)
+      ))
+      PATCH_JSON(service, authInfo, path, body)
     }
-
   )
+}
 
+guidFromAppId <- function(service, authInfo, appId) {
+  path <- file.path("/applications", appId)
+  json <- GET(service, authInfo, path, list())
+  json$guid
 }
 
 # userRecord --------------------------------------------------------------
