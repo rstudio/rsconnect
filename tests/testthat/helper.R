@@ -55,7 +55,7 @@ local_temp_app <- function(files = list(), env = caller_env()) {
 
 # Servers and accounts ----------------------------------------------------
 
-addTestAccount <- function(account, server = "example.com", userId = account) {
+addTestAccount <- function(account = "ron", server = "example.com", userId = account) {
   registerAccount(server, account, userId, apiKey = "123")
 }
 

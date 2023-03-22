@@ -99,7 +99,7 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
                         appName = NULL, account = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- deploymentTarget(appPath, appName, NULL, NULL, account)
+  target <- findDeployment(appPath, appName, account)
   accountDetails <- accountInfo(target$account)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
@@ -140,7 +140,7 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
                           account = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- deploymentTarget(appPath, appName, NULL, NULL, account)
+  target <- findDeployment(appPath, appName, account)
   accountDetails <- accountInfo(target$account)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountInfo, target$appName)
@@ -170,7 +170,7 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appPath, appName, NULL, NULL, account)
+  target <- findDeployment(appPath, appName, account)
   accountDetails <- accountInfo(target$account)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)

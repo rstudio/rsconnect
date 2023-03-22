@@ -62,24 +62,8 @@ deploymentTarget <- function(recordPath = ".",
 
     updateDeploymentTarget(appDeployments, appTitle)
   } else {
-    apps <- paste0(
-      appDeployments$name, " ",
-      "(", accountId(appDeployments$account, appDeployments$server), "): ",
-      "{.url ", appDeployments$url, "}"
-    )
-    not_interactive <- c(
-      "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
-      "Known applications:",
-      set_names(apps, "*")
-    )
-    idx <- cli_menu(
-      "This directory has been previously deployed in multiple places.",
-      "Which deployment do you want to use?",
-      choices = apps,
-      not_interactive = not_interactive,
-      error_call = error_call
-    )
-    updateDeploymentTarget(appDeployments[idx, ], appTitle)
+    deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
+    updateDeploymentTarget(deployment, appTitle)
   }
 }
 

@@ -219,7 +219,7 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
                      account = NULL, server = NULL, entries = 50, streaming = FALSE) {
 
   # determine the log target and target account info
-  target <- deploymentTarget(appPath, appName, NULL, NULL, account, server)
+  target <- findDeployment(appPath, appName, account, server)
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
