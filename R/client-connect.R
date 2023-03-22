@@ -1,3 +1,5 @@
+# Docs: https://docs.posit.co/connect/api/
+
 connectClient <- function(service, authInfo) {
   list(
 
