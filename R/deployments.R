@@ -70,12 +70,16 @@ deployments <- function(appPath = ".",
     ok <- ok & okServer
   }
 
+  if (is.character(deployments$envVars)) {
+    deployments$envVars <- strsplit(deployments$envVars, ", ")
+  }
+
   deployments[ok, , drop = FALSE]
 }
 
 deploymentFields <- c(
   "name", "title", "username", "account", "server", "hostUrl", "appId",
-  "bundleId", "url"
+  "bundleId", "url", "envVars"
 )
 
 saveDeployment <- function(recordDir,
@@ -83,7 +87,8 @@ saveDeployment <- function(recordDir,
                            application,
                            bundleId = NULL,
                            hostUrl = serverInfo(target$server)$url,
-                           metadata = list()) {
+                           metadata = list(),
+                           addToHistory = TRUE) {
 
   deployment <- deploymentRecord(
     name = target$appName,
@@ -91,6 +96,7 @@ saveDeployment <- function(recordDir,
     username = target$username,
     account = target$account,
     server = target$server,
+    envVars = target$envVars,
     hostUrl = hostUrl,
     appId = application$id,
     bundleId = bundleId,
@@ -101,7 +107,9 @@ saveDeployment <- function(recordDir,
   writeDeploymentRecord(deployment, path)
 
   # also save to global history
-  addToDeploymentHistory(recordDir, deployment)
+  if (addToHistory) {
+    addToDeploymentHistory(recordDir, deployment)
+  }
 
   invisible(NULL)
 }
@@ -111,11 +119,14 @@ deploymentRecord <- function(name,
                              username,
                              account,
                              server,
+                             envVars = NULL,
                              hostUrl = NULL,
                              appId = NULL,
                              bundleId = NULL,
                              url = NULL,
                              metadata = list()) {
+
+  check_character(envVars, allow_null = TRUE)
 
   standard <- list(
     name = name,
@@ -123,6 +134,7 @@ deploymentRecord <- function(name,
     username = username,
     account = account,
     server = server,
+    envVars = paste0(envVars, collapse = ", "),
     hostUrl = hostUrl %||% "",
     appId = appId %||% "",
     bundleId = bundleId %||% "",

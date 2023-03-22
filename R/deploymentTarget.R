@@ -4,6 +4,7 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              appName = NULL,
                              appTitle = NULL,
+                             envVars = NULL,
                              account = NULL,
                              server = NULL,
                              forceUpdate = FALSE,
@@ -43,6 +44,7 @@ deploymentTarget <- function(recordPath = ".",
       appName,
       appTitle,
       appId,
+      envVars,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
       fullAccount$server
@@ -60,13 +62,12 @@ deploymentTarget <- function(recordPath = ".",
       )
     }
 
-    updateDeploymentTarget(appDeployments, appTitle)
+    updateDeploymentTarget(appDeployments, appTitle, envVars)
   } else {
     deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
-    updateDeploymentTarget(deployment, appTitle)
+    updateDeploymentTarget(deployment, appTitle, envVars)
   }
 }
-
 
 deploymentTargetForApp <- function(appId,
                                    appTitle = NULL,
@@ -88,12 +89,14 @@ deploymentTargetForApp <- function(appId,
 createDeploymentTarget <- function(appName,
                                    appTitle,
                                    appId,
+                                   envVars,
                                    username,
                                    account,
                                    server) {
   list(
     appName = appName,
     appTitle = appTitle %||% "",
+    envVars = envVars,
     appId = appId,
     username = username,
     account = account,
@@ -101,11 +104,12 @@ createDeploymentTarget <- function(appName,
   )
 }
 
-updateDeploymentTarget <- function(previous, appTitle = NULL) {
+updateDeploymentTarget <- function(previous, appTitle = NULL, envVars = NULL) {
   createDeploymentTarget(
     previous$name,
     appTitle %||% previous$title,
     previous$appId,
+    envVars %||% previous$envVars[[1]],
     # if username not previously recorded, use current account
     previous$username %||% previous$account,
     previous$account,
