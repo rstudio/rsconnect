@@ -180,9 +180,7 @@ cloudClient <- function(service, authInfo) {
     deployApplication = function(application, bundleId = NULL) {
       if (application$type == "static") {
         path <- paste("/outputs/", application$content_id, "/revisions", sep = "")
-        # we only need an empty JSON object, but jsonlite needs at least one
-        # key to not generate a JSON array
-        revision <- POST_JSON(service, authInfo, path, list(foobar = NULL))
+        revision <- POST_JSON(service, authInfo, path, data.frame())
         applicationId <- revision$application_id
       } else {
         applicationId <- application$id
