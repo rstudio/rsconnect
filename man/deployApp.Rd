@@ -12,6 +12,7 @@ deployApp(
   appSourceDoc = NULL,
   appName = NULL,
   appTitle = NULL,
+  envVars = NULL,
   appId = NULL,
   contentCategory = NULL,
   account = NULL,
@@ -61,6 +62,11 @@ document. On subsequent deploys, it will use the previously stored value.}
 \item{appTitle}{Free-form descriptive title of application. Optional; if
 supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.}
+
+\item{envVars}{A character vector giving the names of environment variables
+to upload to the server. The names are stored in the deployment record
+so that if you re-deploy in the future, they will be automatically
+uploaded.}
 
 \item{appId}{Use this to deploy to an exact known application, ignoring all
 existing deployment records and \code{appName}.

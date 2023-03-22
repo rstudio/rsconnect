@@ -1,5 +1,18 @@
 # rsconnect (development version)
 
+* `deployApp()` gains a new `envVars` argument which takes a character vector
+  defining environment variables that should also be copied to the server.
+  The names of these environment variables are saved in the deployment record
+  and will be updated each time you deploy the app (#667).
+  
+* rsconnect gains two new functions for understanding and updating the 
+  environment variables that you apps currently use. `listServerEnvVars()`
+  will return a data frame of applications, with a `envVars` list-column
+  giving the names of the environment variables used by each application.
+  `updateServerEnvVars()` will update all applications that use a specific
+  environment variable with the current value of that environment variable
+  (#667).
+
 * New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
   set extra arbitrary additional headers/cookies on each request (#405).
   Their use is documented in the new `vignette("custom-http")`.
