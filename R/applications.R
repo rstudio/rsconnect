@@ -132,12 +132,12 @@ resolveApplication <- function(accountDetails, appName) {
   stopWithApplicationNotFound(appName)
 }
 
-getApplication <- function(account, server, appId, contentId) {
+getApplication <- function(account, server, appId) {
   accountDetails <- accountInfo(account, server)
   client <- clientForAccount(accountDetails)
 
   withCallingHandlers(
-    client$getApplication(appId, contentId),
+    client$getApplication(appId),
     rsconnect_http_404 = function(err) {
       cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
     }
@@ -279,7 +279,7 @@ syncAppMetadata <- function(appPath = ".") {
     client <- clientForAccount(account)
 
     application <- tryCatch(
-      client$getApplication(curDeploy$appId, curDeploy$contentId),
+      client$getApplication(curDeploy$appId),
       rsconnect_http_404 = function(c) {
         # if the app has been deleted, delete the deployment record
         file.remove(curDeploy$deploymentFile)

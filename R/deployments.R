@@ -92,7 +92,7 @@ saveDeployment <- function(recordDir,
     account = target$account,
     server = target$server,
     hostUrl = hostUrl,
-    appId = application$id,
+    appId = paste("lucid", "content", application$content_id, sep = ":"),
     bundleId = bundleId,
     url = application$url,
     metadata = metadata

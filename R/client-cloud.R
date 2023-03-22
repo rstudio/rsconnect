@@ -64,27 +64,33 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(applicationId, contentId) {
-      # Static outputs may have multiple applications. Since the applications can be deleted, it's more reliable to look up the output by the content id.
-      if (!is.null(contentId)) {
-        path <- paste("/content/", contentId, sep = "")
-        applications_output <- GET(service, authInfo, path)
+    getApplication = function(applicationId) {
+      if (startsWith(applicationId, "lucid:content:")) {
+        # applicationId refers in this case to the id of the output, not the
+        # application.
+        contentId <- strsplit(applicationId, ":")[[1]][3]
 
-        application_id = applications_output$source_id
+        path <- paste("/outputs/", contentId, sep = "")
+        output <- GET(service, authInfo, path)
 
-        path <- paste("/applications/", application_id, sep = "")
+        path <- paste("/applications/", output$source_id, sep = "")
         application <- GET(service, authInfo, path)
-      } else if (!is.null(applicationId)) {
+      } else {
+        # backwards compatibility for data saved with the application's id
         path <- paste("/applications/", applicationId, sep = "")
         application <- GET(service, authInfo, path)
 
         output_id <- application$content_id
 
-        path <- paste("/content/", output_id, sep = "")
-        applications_output <- GET(service, authInfo, path)
+        path <- paste("/outputs/", output_id, sep = "")
+        output <- GET(service, authInfo, path)
       }
 
-      application$url <- applications_output$url
+      # Each redeployment of a static output creates a new application. Since
+      # those applications can be deleted, it's more reliable to reference
+      # outputs by their own id instead of the applications'.
+      application$content_id <- output$id
+      application$url <- output$url
       application
     },
 
@@ -131,6 +137,7 @@ cloudClient <- function(service, authInfo) {
       output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste("/applications/", output$source_id, sep = "")
       application <- GET(service, authInfo, path)
+      application$content_id <- output$id
       # this swaps the "application url" for the "content url". So we end up redirecting to the right spot after deployment.
       application$url <- output$url
       application
@@ -170,7 +177,17 @@ cloudClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(applicationId, bundleId = NULL) {
+    deployApplication = function(application, bundleId = NULL) {
+      if (application$type == "static") {
+        path <- paste("/outputs/", application$content_id, "/revisions", sep = "")
+        # we only need an empty JSON object, but jsonlite needs at least one
+        # key to not generate a JSON array
+        revision <- POST_JSON(service, authInfo, path, list(foobar = NULL))
+        applicationId <- revision$application_id
+      } else {
+        applicationId <- application$id
+      }
+
       path <- paste("/applications/", applicationId, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))

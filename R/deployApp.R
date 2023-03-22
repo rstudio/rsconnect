@@ -152,7 +152,6 @@ deployApp <- function(appDir = getwd(),
                       appName = NULL,
                       appTitle = NULL,
                       appId = NULL,
-                      contentId = NULL,
                       contentCategory = NULL,
                       account = NULL,
                       server = NULL,
@@ -272,7 +271,6 @@ deployApp <- function(appDir = getwd(),
     # IDE supplies both appId and appName so should never hit this branch
     target <- deploymentTargetForApp(
       appId = appId,
-      contentId = contentId,
       appTitle = appTitle,
       account = account,
       server = server
@@ -339,7 +337,7 @@ deployApp <- function(appDir = getwd(),
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
-      client$getApplication(target$appId, target$contentId),
+      client$getApplication(target$appId),
       rsconnect_http_404 = function(err) {
         applicationDeleted(client, target, recordPath, appMetadata)
       }
@@ -411,7 +409,7 @@ deployApp <- function(appDir = getwd(),
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application$id, bundle$id)
+  task <- client$deployApplication(application, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)

@@ -85,12 +85,11 @@ deploymentTarget <- function(recordPath = ".",
 
 
 deploymentTargetForApp <- function(appId = NULL,
-                                   contentId = NULL,
                                    appTitle = NULL,
                                    account = NULL,
                                    server = NULL) {
   accountDetails <- findAccount(account, server)
-  application <- getApplication(accountDetails$account, accountDetails$server, appId, contentId)
+  application <- getApplication(accountDetails$account, accountDetails$server, appId)
 
   createDeploymentTarget(
     application$name,

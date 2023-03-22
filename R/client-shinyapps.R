@@ -64,7 +64,7 @@ shinyAppsClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(applicationId, contentId) {
+    getApplication = function(applicationId) {
       path <- paste("/applications/", applicationId, sep = "")
       GET(service, authInfo, path)
     },
