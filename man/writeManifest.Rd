@@ -14,7 +14,8 @@ writeManifest(
   forceGeneratePythonEnvironment = FALSE,
   quarto = NULL,
   image = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -55,7 +56,9 @@ to gather information about the content.}
 executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements.}
 
-\item{verbose}{If TRUE, prints progress messages to the console}
+\item{verbose}{If \code{TRUE}, prints detailed progress messages.}
+
+\item{quiet}{If \code{FALSE}, prints progress messages.}
 }
 \description{
 Use \code{writeManifest()} to generate a \code{manifest.json}. Among other things,

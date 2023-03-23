@@ -13,7 +13,8 @@
 #' @inheritParams deployApp
 #' @param contentCategory Set this to `"site"` if you'd deploy with
 #'   [deploySite()]; otherwise leave as is.
-#' @param verbose If TRUE, prints progress messages to the console
+#' @param verbose If `TRUE`, prints detailed progress messages.
+#' @param quiet If `FALSE`, prints progress messages.
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
