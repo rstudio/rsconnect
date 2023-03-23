@@ -1,16 +1,4 @@
-# errors if dependencies aren't installed
-
-    Code
-      bundlePackages(app_dir, appMode = "rmd-static")
-    Message
-      i Capturing R dependencies with packrat
-      v Found 2 dependencies.
-    Condition
-      Error:
-      ! All packages used by the asset must be installed.
-      x Missing packages: doesntexist1 and doesntexist2.
-
-# warns if can't find source
+# error if can't find source
 
     Code
       . <- bundlePackages(app_dir, appMode = "rmd-static")
