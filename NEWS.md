@@ -1,9 +1,9 @@
 # rsconnect (development version)
 
-* `deployApp()` and friends will now respect packrat and renv lock files,
-  if present. If you don't want to use these lockfiles, and instead return
-  the previous behaviour of snapshotting on every deploy, add your
-  lockfiles to `.rscignore` (#671).
+* `deployApp()` and friends will now respect renv lock files, if present. 
+  If you don't want to use these lockfiles, and instead return the previous 
+  behaviour of snapshotting on every deploy, add your `renv.lock` to 
+  `.rscignore` (#671).
 
 * New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
   set extra arbitrary additional headers/cookies on each request (#405).

@@ -9,6 +9,7 @@ bundlePackages <- function(bundleDir,
   }
   checkBundlePackages(deps, call = error_call)
 
+  # TODO: figure out how to get from renv library, if used
   copyPackageDescriptions(bundleDir, deps$Package)
   deps$description <- lapply(deps$Package, function(nm) {
     # Remove packageDescription S3 class so jsonlite can serialize
@@ -76,8 +77,6 @@ snapshotRDependencies <- function(bundleDir,
     # Translate renv lock file to packrat lock file
     translateRenvToPackrat(bundleDir)
     unlink(renvLockFile(bundleDir))
-  } else if (file.exists(packratLockFile(bundleDir))) {
-    # Packrat lock file already exists; no action needed
   } else {
     # Find and snapshot current dependencies
     addPackratSnapshot(bundleDir, implicit_dependencies, verbose = verbose)
