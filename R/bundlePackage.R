@@ -5,16 +5,12 @@ bundlePackages <- function(bundleDir,
                            verbose = FALSE,
                            error_call = caller_env()) {
 
-  if (file.exists(renvLockFile(bundleDir))) {
-    taskStart(quiet, "Capturing R dependencies from renv.lockfile")
-    deps <- parseRenvDependencies(bundleDir, extraPackages)
-    unlink(renvLockFile(bundleDir))
-  } else {
-    taskStart(quiet, "Capturing R dependencies from system library")
-    deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
-  }
-  taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}.")
-
+  deps <- computePackageDependencies(
+    bundleDir,
+    extraPackages,
+    quiet = quiet,
+    verbose = verbose
+  )
   if (nrow(deps) == 0) {
     return(list())
   }
@@ -34,6 +30,29 @@ bundlePackages <- function(bundleDir,
   })
   names(packages_list) <- deps$Package
   packages_list
+}
+
+computePackageDependencies <- function(bundleDir,
+                                       extraPackages = character(),
+                                       quiet = FALSE,
+                                       verbose = FALSE) {
+  if (file.exists(renvLockFile(bundleDir))) {
+    # This ignores extraPackages; if you're using a lockfile it's your
+    # responsibility to install any other packages you need
+    taskStart(quiet, "Capturing R dependencies from renv.lockfile")
+    deps <- parseRenvDependencies(bundleDir)
+    unlink(renvLockFile(bundleDir))
+  } else if (isFALSE(getOption("rsconnect.packrat", FALSE))) {
+    taskStart(quiet, "Capturing R dependencies with renv")
+    # TODO: give user option to choose between implicit and explicit
+    deps <- snapshotRenvDependencies(bundleDir, extraPackages, verbose = verbose)
+  } else {
+    taskStart(quiet, "Capturing R dependencies with packrat")
+    deps <- snapshotPackratDependencies(bundleDir, extraPackages, verbose = verbose)
+  }
+  taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}.")
+
+  deps
 }
 
 checkBundlePackages <- function(deps, call = caller_env()) {
@@ -75,9 +94,9 @@ copyPackageDescriptions <- function(bundleDir, packages) {
   invisible()
 }
 
-snapshotRDependencies <- function(bundleDir,
-                                  implicit_dependencies = character(),
-                                  verbose = FALSE) {
+snapshotPackratDependencies <- function(bundleDir,
+                                        implicit_dependencies = character(),
+                                        verbose = FALSE) {
 
   addPackratSnapshot(bundleDir, implicit_dependencies, verbose = verbose)
 
@@ -213,18 +232,9 @@ isDevVersion <- function(record, availablePackages) {
 addPackratSnapshot <- function(bundleDir,
                                implicit_dependencies = character(),
                                verbose = FALSE) {
-
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
-  if (length(implicit_dependencies) > 0) {
-    tempDependencyFile <- file.path(bundleDir, "__rsconnect_deps.R")
-    # emit dependencies to file
-    extraPkgDeps <- paste0("library(", implicit_dependencies, ")\n")
-    writeLines(extraPkgDeps, tempDependencyFile)
-
-    # ensure temp file is cleaned up even if there's an error
-    on.exit(unlink(tempDependencyFile), add = TRUE)
-  }
+  recordExtraDependencies(bundleDir, implicit_dependencies)
 
   withCallingHandlers(
     performPackratSnapshot(bundleDir, verbose = verbose),
@@ -235,6 +245,20 @@ addPackratSnapshot <- function(bundleDir,
 
   invisible()
 }
+
+recordExtraDependencies <- function(bundleDir, pkgs, env = caller_env()) {
+  if (length(pkgs) == 0) {
+    return()
+  }
+
+  depPath <- file.path(bundleDir, "__rsconnect_deps.R")
+  writeLines(paste0("library(", pkgs, ")\n"), depPath)
+
+  # Automatically delete when the _caller_ finishes
+  defer(unlink(depPath), env = env)
+  invisible()
+}
+
 
 performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   # ensure we snapshot recommended packages

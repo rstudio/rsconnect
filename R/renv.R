@@ -1,4 +1,23 @@
-parseRenvDependencies <- function(bundleDir, extraPackages = c()) {
+snapshotRenvDependencies <- function(bundleDir, extraPackages, verbose = FALSE) {
+  recordExtraDependencies(bundleDir, extraPackages)
+
+  old <- options(renv.verbose = FALSE, pkgType = "source")
+  defer(options(old))
+
+  renv::snapshot(
+    bundleDir,
+    type = "implicit",
+    prompt = FALSE
+  )
+  defer({
+    unlink(renvLockFile(bundleDir))
+    unlink(file.path(bundleDir, "renv"), recursive = TRUE)
+  })
+
+  parseRenvDependencies(bundleDir)
+}
+
+parseRenvDependencies <- function(bundleDir) {
   renv <- jsonlite::read_json(renvLockFile(bundleDir))
 
   repos <- setNames(
@@ -37,6 +56,8 @@ packratPackage <- function(pkg, repos, availablePackages) {
   # Unlike standardizePackageSource() we don't worry about local installs
   # of dev versions of CRAN packages, because these are much less likely to
   # end up inside of renv lockfiles
+  # if (pkg$Package == "BiocGenerics") browser()
+
   if (pkg$Source == "Repository") {
     pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
     pkg$Source <- findRepoName(pkg$Repository, repos)

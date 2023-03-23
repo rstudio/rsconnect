@@ -1,5 +1,5 @@
 test_that("non-R apps don't have packages", {
-  app_dir <- withr::local_tempdir()
+  app_dir <- local_temp_app(list(index.html = ""))
   out <- bundlePackages(app_dir, appMode = "static", quiet = TRUE)
   expect_equal(out, list())
 })
@@ -48,7 +48,8 @@ test_that("works with BioC packages", {
 })
 
 test_that("errors if dependencies aren't installed", {
-  mockr::local_mock(snapshotRDependencies = function(...) {
+  withr::local_options(rsconnect.packrat = TRUE)
+  mockr::local_mock(snapshotPackratDependencies = function(...) {
     data.frame(
       Package = c("doesntexist1", "doesntexist2"),
       Source = "CRAN",
@@ -72,7 +73,8 @@ test_that("errors if dependencies aren't installed", {
 })
 
 test_that("warns if can't find source", {
-  mockr::local_mock(snapshotRDependencies = function(...) {
+  withr::local_options(rsconnect.packrat = TRUE)
+  mockr::local_mock(snapshotPackratDependencies = function(...) {
     data.frame(
       Package = "shiny",
       Source = NA,

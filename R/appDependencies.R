@@ -105,7 +105,7 @@ appDependencies <- function(appDir = getwd(), appFiles = NULL) {
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   extraPackages <- inferRPackageDependencies(appMetadata)
-  deps <- snapshotRDependencies(bundleDir, extraPackages)
+  deps <- computePackageDependencies(bundleDir, extraPackages, quiet = TRUE)
   deps[c("Package", "Version", "Source", "Repository")]
 }
 

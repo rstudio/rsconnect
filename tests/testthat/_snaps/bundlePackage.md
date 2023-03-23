@@ -3,7 +3,7 @@
     Code
       bundlePackages(app_dir, appMode = "rmd-static")
     Message
-      i Capturing R dependencies from system library
+      i Capturing R dependencies with packrat
       v Found 2 dependencies.
     Condition
       Error:
@@ -15,7 +15,7 @@
     Code
       . <- bundlePackages(app_dir, appMode = "rmd-static")
     Message
-      i Capturing R dependencies from system library
+      i Capturing R dependencies with packrat
       v Found 1 dependency.
     Condition
       Error:
