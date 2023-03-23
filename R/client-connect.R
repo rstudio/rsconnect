@@ -161,12 +161,6 @@ connectClient <- function(service, authInfo) {
   )
 }
 
-guidFromAppId <- function(service, authInfo, appId) {
-  path <- file.path("/applications", appId)
-  json <- GET(service, authInfo, path, list())
-  json$guid
-}
-
 # userRecord --------------------------------------------------------------
 
 userRecord <- function(email, username, first_name, last_name, password) {
