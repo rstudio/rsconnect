@@ -24,7 +24,8 @@ writeManifest <- function(appDir = getwd(),
                           forceGeneratePythonEnvironment = FALSE,
                           quarto = NULL,
                           image = NULL,
-                          verbose = FALSE) {
+                          verbose = FALSE,
+                          quiet = FALSE) {
   appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,
@@ -57,7 +58,8 @@ writeManifest <- function(appDir = getwd(),
     pythonConfig = pythonConfig,
     retainPackratDirectory = FALSE,
     image = image,
-    verbose = verbose
+    verbose = verbose,
+    quiet = quiet
   )
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(appDir, "manifest.json")

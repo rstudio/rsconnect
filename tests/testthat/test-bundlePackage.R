@@ -1,12 +1,12 @@
 test_that("non-R apps don't have packages", {
   app_dir <- withr::local_tempdir()
-  out <- bundlePackages(app_dir, appMode = "static")
+  out <- bundlePackages(app_dir, appMode = "static", quiet = TRUE)
   expect_equal(out, list())
 })
 
 test_that("returns list of package details and copies descriptions", {
   app_dir <- local_temp_app(list("foo.Rmd" = ""))
-  out <- bundlePackages(app_dir)
+  out <- bundlePackages(app_dir, quiet = TRUE)
   expect_type(out, "list")
 
   common <- c("Source", "Repository", "description")
@@ -25,7 +25,7 @@ test_that("recommended packages are snapshotted", {
     "library(MASS)",
     "```"
   ))
-  out <- bundlePackages(app_dir)
+  out <- bundlePackages(app_dir, quiet = TRUE)
   expect_true("MASS" %in% names(out))
 })
 
@@ -40,7 +40,7 @@ test_that("works with BioC packages", {
     BioC = "https://bioconductor.org/packages/3.16/bioc"
   ))
 
-  out <- bundlePackages(app_dir)
+  out <- bundlePackages(app_dir, quiet = TRUE)
   expect_equal(out$Biobase$Source, "Bioconductor")
   expect_equal(out$Biobase$Repository, "https://bioconductor.org/packages/3.16/bioc")
   expect_equal(out$BiocGenerics$Source, "Bioconductor")

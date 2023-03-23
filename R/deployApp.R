@@ -555,7 +555,8 @@ bundleApp <- function(appName,
     retainPackratDirectory = TRUE,
     isCloudServer = isCloudServer,
     image = image,
-    verbose = verbose
+    verbose = verbose,
+    quiet = quiet
   )
   manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
   manifestPath <- file.path(bundleDir, "manifest.json")

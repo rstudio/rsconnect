@@ -23,8 +23,8 @@ makeRenvSnapshot <- function(path, name, package = name) {
 
 test_that("generates expected packrat file", {
   expect_snapshot({
-    showPackratTranslation(test_path("renv-cran"))
-    showPackratTranslation(test_path("renv-github"))
-    showPackratTranslation(test_path("renv-bioc"))
+    showDcf(parseRenvDependencies(test_path("renv-cran")))
+    showDcf(parseRenvDependencies(test_path("renv-github")))
+    showDcf(parseRenvDependencies(test_path("renv-bioc")))
   })
 })

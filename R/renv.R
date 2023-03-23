@@ -1,35 +1,17 @@
-translateRenvToPackrat <- function(bundleDir) {
+parseRenvDependencies <- function(bundleDir, extraPackages = c()) {
   renv <- jsonlite::read_json(renvLockFile(bundleDir))
-  packrat <- packratFromRenv(renv)
 
-  packratPath <- packratLockFile(bundleDir)
-  dir.create(dirname(packratPath), showWarnings = FALSE)
-  write.dcf(packrat, packratPath)
-}
-
-packratFromRenv <- function(renv) {
-  meta <- packratMeta(renv)
-  packages <- packratPackages(renv$Packages)
-  rbind_fill(list(meta, packages))
-}
-
-packratMeta <- function(renv) {
-  repos <- vapply(
-    renv$R$Repositories,
-    function(x) paste0(x$Name, "=", x$URL),
-    character(1)
+  repos <- setNames(
+    vapply(renv$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
+    vapply(renv$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
   )
-  data.frame(
-    PackratFormat = NA,
-    PackratVersion = NA,
-    RVersion = renv$R$Version,
-    Repos = paste(repos, collapse = ",")
-  )
+
+  packratPackages(renv$Packages)
 }
 
 packratPackages <- function(packages) {
+  names(packages) <- NULL
   out <- lapply(packages, packratPackage)
-  names(out) <- NULL
   out <- compact(out)
   out <- lapply(out, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(out)
@@ -49,31 +31,16 @@ packratPackage <- function(pkg) {
     pkg$Source <- "source"
   }
 
-  # Remove Remote fields that renv adds for "standard" installs from CRAN
+  # Remove Remote fields that pak adds for "standard" installs from CRAN
   if (identical(pkg$RemoteType, "standard")) {
     pkg <- pkg[!grepl("^Remote", names(pkg))]
   }
 
-  # Drop hash since packrat hash != renv hash
-  pkg$Hash <- NULL
-
-  # Convert Requirements to Requires, a comma separated list
-  if (length(pkg$Requirements) > 0) {
-    pkg$Requires <- paste0(unlist(pkg$Requirements), collapse = ", ")
-  }
-  pkg$Requirements <- NULL
-
-  pkg
+  pkg[manifestPackageColumns(pkg)]
 }
 
 renvLockFile <- function(bundleDir) {
   file.path(bundleDir, "renv.lock")
-}
-
-showPackratTranslation <- function(path) {
-  renv <- jsonlite::read_json(renvLockFile(path))
-  packrat <- packratFromRenv(renv)
-  showDcf(packrat)
 }
 
 showDcf <- function(df) {

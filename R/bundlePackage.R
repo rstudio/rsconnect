@@ -1,9 +1,19 @@
 bundlePackages <- function(bundleDir,
                            appMode,
                            extraPackages = character(),
+                           quiet = FALSE,
                            verbose = FALSE,
                            error_call = caller_env()) {
-  deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
+
+  if (file.exists(renvLockFile(bundleDir))) {
+    taskStart(quiet, "Capturing R dependencies from renv.lockfile")
+    deps <- parseRenvDependencies(bundleDir, extraPackages)
+  } else {
+    taskStart(quiet, "Capturing R dependencies from system library")
+    deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
+  }
+  taskComplete(quiet, "{nrow(deps)} dependencie{?s} captured.")
+
   if (nrow(deps) == 0) {
     return(list())
   }
@@ -16,13 +26,8 @@ bundlePackages <- function(bundleDir,
     unclass(utils::packageDescription(nm))
   })
 
-  # Connect prefers the packrat/packrat.lock file, but will use the manifest
-  # if needed. shinyapps.io only uses the manifest, and only supports Github
-  # remotes, not Bitbucket or Gitlab.
-  github_cols <- grep("Github", colnames(deps), perl = TRUE, value = TRUE)
-  packages <- deps[c("Source", "Repository", github_cols, "description")]
-  packages_list <- lapply(seq_len(nrow(packages)), function(i) {
-    out <- as.list(packages[i, , drop = FALSE])
+  packages_list <- lapply(seq_len(nrow(deps)), function(i) {
+    out <- as.list(deps[i, , drop = FALSE])
     out$description <- out$description[[1]]
     out
   })
@@ -70,20 +75,14 @@ copyPackageDescriptions <- function(bundleDir, packages) {
 }
 
 snapshotRDependencies <- function(bundleDir,
-                                  implicit_dependencies = c(),
+                                  implicit_dependencies = character(),
                                   verbose = FALSE) {
 
-  if (file.exists(renvLockFile(bundleDir))) {
-    # Translate renv lock file to packrat lock file
-    translateRenvToPackrat(bundleDir)
-    unlink(renvLockFile(bundleDir))
-  } else {
-    # Find and snapshot current dependencies
-    addPackratSnapshot(bundleDir, implicit_dependencies, verbose = verbose)
-  }
+  addPackratSnapshot(bundleDir, implicit_dependencies, verbose = verbose)
 
   lockFilePath <- packratLockFile(bundleDir)
   df <- as.data.frame(read.dcf(lockFilePath), stringsAsFactors = FALSE)
+  unlink(dirname(lockFilePath), recursive = TRUE)
 
   # get repos defined in the lockfile
   repos <- gsub("[\r\n]", " ", df[1, "Repos"])
@@ -95,13 +94,15 @@ snapshotRDependencies <- function(bundleDir,
 
   # get packages records defined in the lockfile
   records <- utils::tail(df, -1)
-  records <- records[setdiff(
-    names(records),
-    c("PackratFormat", "PackratVersion", "RVersion", "Repos")
-  )]
-
+  rownames(records) <- NULL
+  records <- records[manifestPackageColumns(records)]
   records[c("Source", "Repository")] <- standardizeRecords(records, repos)
   records
+}
+
+manifestPackageColumns <- function(df) {
+  github_cols <- grep("^(Github|Remote)", names(df), perl = TRUE, value = TRUE)
+  intersect(names(df), c("Package", "Version", "Source", "Repository", github_cols))
 }
 
 standardizeRecords <- function(records, repos) {
@@ -208,7 +209,6 @@ isDevVersion <- function(record, availablePackages) {
 addPackratSnapshot <- function(bundleDir,
                                implicit_dependencies = character(),
                                verbose = FALSE) {
-  logger <- verboseLogger(verbose)
 
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
@@ -222,15 +222,12 @@ addPackratSnapshot <- function(bundleDir,
     on.exit(unlink(tempDependencyFile), add = TRUE)
   }
 
-  # generate the packrat snapshot
-  logger("Starting to perform packrat snapshot")
   withCallingHandlers(
     performPackratSnapshot(bundleDir, verbose = verbose),
     error = function(err) {
       abort("Failed to snapshot dependencies", parent = err)
     }
   )
-  logger("Completed performing packrat snapshot")
 
   invisible()
 }
