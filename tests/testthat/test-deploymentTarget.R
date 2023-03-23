@@ -144,6 +144,17 @@ test_that("new env vars overrides existing", {
   expect_equal(target$envVars, "TEST2")
 })
 
+test_that("empty character vector removes env vars", {
+  local_temp_config()
+  app <- local_temp_app()
+  addTestServer()
+  addTestAccount()
+  addTestDeployment(app, envVars = "TEST1")
+
+  target <- deploymentTarget(app, envVars = character())
+  expect_equal(target$envVars, character())
+})
+
 test_that("succeeds if there are no deployments and a single account", {
   local_temp_config()
   addTestServer()
