@@ -77,10 +77,6 @@ showPackratTranslation <- function(path) {
 }
 
 showDcf <- function(df) {
-  path <- tempfile()
-  on.exit(path, add = TRUE)
-
-  write.dcf(df, path)
-  writeLines(readLines(path))
+  write.dcf(df, stdout())
   invisible()
 }
