@@ -94,8 +94,10 @@ copyPackageDescriptions <- function(bundleDir, packages) {
   invisible()
 }
 
-
 manifestPackageColumns <- function(df) {
+  # Fields defined in https://github.com/rstudio/lucid-legacy-builder/blob/v2023.02.16-1/src/lucid_legacy_builder/resources/schema/manifest/versions/1/manifest.json#L45-L91
+  # Also include Remote* fields for forward compatibility
+
   github_cols <- grep("^(Github|Remote)", names(df), perl = TRUE, value = TRUE)
   intersect(names(df), c("Package", "Version", "Source", "Repository", github_cols))
 }
