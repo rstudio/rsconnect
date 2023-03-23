@@ -75,6 +75,7 @@ snapshotRDependencies <- function(bundleDir,
   if (file.exists(renvLockFile(bundleDir))) {
     # Translate renv lock file to packrat lock file
     translateRenvToPackrat(bundleDir)
+    unlink(renvLockFile(bundleDir))
   } else if (file.exists(packratLockFile(bundleDir))) {
     # Packrat lock file already exists; no action needed
   } else {
