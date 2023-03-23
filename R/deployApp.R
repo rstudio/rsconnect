@@ -364,7 +364,7 @@ deployApp <- function(appDir = getwd(),
     metadata = metadata
   )
 
-  # Change _visibility_ & set env vars before uploading data
+  # Change _visibility_ & set env vars before uploading contents
   if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
     taskStart(quiet, "Setting visibility to {appVisibility}...")
     client$setApplicationProperty(
@@ -376,7 +376,6 @@ deployApp <- function(appDir = getwd(),
   }
   if (length(target$envVars) > 0) {
     # TODO: What if this isn't a connect server?
-    # TODO: check both paths yield a guid in expected place
     taskStart(quiet, "Updating environment variables {envVars}...")
     client$setEnvVars(application$guid, target$envVars)
     taskComplete(quiet, "Environment variables updated")
