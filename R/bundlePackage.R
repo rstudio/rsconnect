@@ -8,6 +8,7 @@ bundlePackages <- function(bundleDir,
   if (file.exists(renvLockFile(bundleDir))) {
     taskStart(quiet, "Capturing R dependencies from renv.lockfile")
     deps <- parseRenvDependencies(bundleDir, extraPackages)
+    unlink(renvLockFile(bundleDir))
   } else {
     taskStart(quiet, "Capturing R dependencies from system library")
     deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
