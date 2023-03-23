@@ -1,4 +1,6 @@
-snapshotRenvDependencies <- function(bundleDir, extraPackages, verbose = FALSE) {
+snapshotRenvDependencies <- function(bundleDir,
+                                     extraPackages = character(),
+                                     verbose = FALSE) {
   recordExtraDependencies(bundleDir, extraPackages)
 
   old <- options(renv.verbose = FALSE, pkgType = "source")
@@ -77,9 +79,4 @@ packratPackage <- function(pkg, repos, availablePackages) {
 
 renvLockFile <- function(bundleDir) {
   file.path(bundleDir, "renv.lock")
-}
-
-showDcf <- function(df) {
-  write.dcf(df, stdout())
-  invisible()
 }
