@@ -1,12 +1,12 @@
 # rsconnect (development version)
 
-* `deployApp()` gains a new `envVars` argument which takes a character vector
-  defining environment variables that should also be copied to the server.
-  The names of these environment variables are saved in the deployment record
-  and will be updated each time you deploy the app (#667).
+* `deployApp()` gains a new `envVars` argument which takes a vector of the 
+  names of environment variables that should be securely copied to the server. 
+  The names (not values) of these environment variables are also saved in the
+  deployment record and will be updated each time you re-deploy the app (#667).
   
 * rsconnect gains two new functions for understanding and updating the 
-  environment variables that you apps currently use. `listServerEnvVars()`
+  environment variables that your apps currently use. `listServerEnvVars()`
   will return a data frame of applications, with a `envVars` list-column
   giving the names of the environment variables used by each application.
   `updateServerEnvVars()` will update all applications that use a specific

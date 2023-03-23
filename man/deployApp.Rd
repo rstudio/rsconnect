@@ -64,9 +64,12 @@ supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.}
 
 \item{envVars}{A character vector giving the names of environment variables
-to upload to the server. The names are stored in the deployment record
-so that if you re-deploy in the future, they will be automatically
-uploaded.}
+to upload to the server. The values of the environment variables are sent
+over an encrypted connection and are not stored in the bundle, making
+this a safe way to send private data to Connect.
+
+The names (not values) are stored in the deployment record so that when
+you re-deploy in the future, they will be automatically uploaded.}
 
 \item{appId}{Use this to deploy to an exact known application, ignoring all
 existing deployment records and \code{appName}.
