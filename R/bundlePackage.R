@@ -13,7 +13,7 @@ bundlePackages <- function(bundleDir,
     taskStart(quiet, "Capturing R dependencies from system library")
     deps <- snapshotRDependencies(bundleDir, extraPackages, verbose = verbose)
   }
-  taskComplete(quiet, "{nrow(deps)} dependencie{?s} captured.")
+  taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}.")
 
   if (nrow(deps) == 0) {
     return(list())

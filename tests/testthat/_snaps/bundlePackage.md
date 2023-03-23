@@ -4,7 +4,7 @@
       bundlePackages(app_dir, appMode = "rmd-static")
     Message
       i Capturing R dependencies from system library
-      v 2 dependencies captured.
+      v Found 2 dependencies.
     Condition
       Error:
       ! All packages used by the asset must be installed.
@@ -16,7 +16,7 @@
       . <- bundlePackages(app_dir, appMode = "rmd-static")
     Message
       i Capturing R dependencies from system library
-      v 1 dependencie captured.
+      v Found 1 dependency.
     Condition
       Error:
       ! All packages must be installed from a reproducible location.
