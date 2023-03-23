@@ -308,14 +308,17 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 
+  # Run checks prior to first saveDeployment() to avoid errors that will always
+  # prevent a successful upload from generating a partial deployment
   isCloudServer <- isCloudServer(target$server)
   if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
   }
-  # Must be run before first saveDeployment() because errors for unexpected
-  # app structures, and we don't want to leave lingering deployment artifact
+  if (!isConnectServer(target$server) && length(envVars) > 1) {
+    cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
+  }
   logger("Inferring App mode and parameters")
   appMetadata <- appMetadata(
     appDir = appDir,
@@ -375,7 +378,6 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Visibility updated")
   }
   if (length(target$envVars) > 0) {
-    # TODO: What if this isn't a connect server?
     taskStart(quiet, "Updating environment variables {envVars}...")
     client$setEnvVars(application$guid, target$envVars)
     taskComplete(quiet, "Environment variables updated")
