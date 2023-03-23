@@ -1,4 +1,3 @@
-
 snapshotPackratDependencies <- function(bundleDir,
                                         implicit_dependencies = character(),
                                         verbose = FALSE) {
@@ -125,6 +124,9 @@ addPackratSnapshot <- function(bundleDir,
     performPackratSnapshot(bundleDir, verbose = verbose),
     error = function(err) {
       abort("Failed to snapshot dependencies", parent = err)
+    },
+    warning = function(cnd) {
+      invokeRestart("muffleWarning")
     }
   )
 

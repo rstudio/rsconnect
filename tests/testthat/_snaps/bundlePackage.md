@@ -23,16 +23,3 @@
       x Can't re-install packages installed from source: shiny.
       i See `rsconnect::appDependencies()` for more details.
 
-# clear error if can't run performPackratSnapshot()
-
-    Code
-      addPackratSnapshot(dir, "doesntexist")
-    Condition
-      Warning in `FUN()`:
-      Package 'doesntexist' not available in repository or locally
-      Error in `addPackratSnapshot()`:
-      ! Failed to snapshot dependencies
-      Caused by error:
-      ! Unable to retrieve package records for the following packages:
-      - 'doesntexist'
-
