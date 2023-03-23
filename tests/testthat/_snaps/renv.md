@@ -6,7 +6,7 @@
       Package: cli
       Version: 3.6.0
       Source: CRAN
-      Repository: CRAN
+      Repository: https://cran.rstudio.com
     Code
       showDcf(parseRenvDependencies(test_path("renv-github")))
     Output
@@ -29,5 +29,5 @@
       Package: BiocManager
       Version: 1.30.20
       Source: CRAN
-      Repository: CRAN
+      Repository: https://cran.rstudio.com
 

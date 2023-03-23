@@ -6,29 +6,44 @@ parseRenvDependencies <- function(bundleDir, extraPackages = c()) {
     vapply(renv$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
   )
 
-  packratPackages(renv$Packages)
+  deps <- packratPackages(renv$Packages, repos)
+  deps
 }
 
-packratPackages <- function(packages) {
+packratPackages <- function(packages, repos) {
+  availablePackages <- availablePackages(repos)
+
   names(packages) <- NULL
-  out <- lapply(packages, packratPackage)
+  out <- lapply(
+    packages,
+    packratPackage,
+    repos = repos,
+    availablePackages = availablePackages
+  )
   out <- compact(out)
   out <- lapply(out, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(out)
 }
 
-packratPackage <- function(pkg) {
+packratPackage <- function(pkg, repos, availablePackages) {
   # Don't include renv itself
   if (identical(pkg$Package, "renv")) {
     return(NULL)
   }
 
-  # Convert renv sources to packrat sources
-  # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R
-  if (identical(pkg$Repository, "CRAN")) {
-    pkg$Source <- "CRAN"
+  # Convert renv source to manifest source/repository
+  # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
+  #
+  # Unlike standardizePackageSource() we don't worry about local installs
+  # of dev versions of CRAN packages, because these are much less likely to
+  # end up inside of renv lockfiles
+  if (pkg$Source == "Repository") {
+    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+    pkg$Source <- findRepoName(pkg$Repository, repos)
+  } else if (pkg$Source == "Bioconductor") {
+    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
   } else if (pkg$Source == "unknown") {
-    pkg$Source <- "source"
+    pkg$Source <- NA
   }
 
   # Remove Remote fields that pak adds for "standard" installs from CRAN

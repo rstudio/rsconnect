@@ -106,6 +106,17 @@ manifestPackageColumns <- function(df) {
 }
 
 standardizeRecords <- function(records, repos) {
+  availablePackages <- availablePackages(repos)
+  repos <- standardizeRepos(repos)
+
+  rows <- lapply(seq_len(nrow(records)), function(i) {
+    standardizePackageSource(records[i, ], availablePackages, repos = repos)
+  })
+  rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
+  rbind_fill(rows, c("Source", "Repository"))
+}
+
+availablePackages <- function(repos) {
   # read available.packages filters (allow user to override if necessary;
   # this is primarily to allow debugging)
   #
@@ -114,19 +125,11 @@ standardizeRecords <- function(records, repos) {
   # in use can still be marked as available on CRAN -- for example, currently
   # the package "foreign" requires "R (>= 4.0.0)" but older versions of R
   # can still successfully install older versions from the CRAN archive
-  availablePackages <- available.packages(
+  available.packages(
     repos = repos,
     type = "source",
     filters = getOption("available_packages_filters", default = "duplicates")
   )
-
-  repos <- standardizeRepos(repos)
-
-  rows <- lapply(seq_len(nrow(records)), function(i) {
-    standardizePackageSource(records[i, ], availablePackages, repos = repos)
-  })
-  rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
-  rbind_fill(rows, c("Source", "Repository"))
 }
 
 standardizeRepos <- function(repos) {
