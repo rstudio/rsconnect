@@ -73,4 +73,3 @@ checkServerHasEnvVars <- function(server, error_call = caller_env()) {
     "The {.arg server} {.str server} does not support environment variables"
   )
 }
-
