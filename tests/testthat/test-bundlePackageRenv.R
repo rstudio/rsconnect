@@ -8,7 +8,7 @@ makeRenvSnapshot <- function(path, name, package = name) {
   withr::local_dir(path)
   writeLines(paste0("library(", name, ")"), "dependences.R")
 
-  callr::r(args = list(package = package), function(package) {
+  getNamespace("callr")$r(args = list(package = package), function(package) {
     renv::activate()
     renv::install(package)
     renv::snapshot(prompt = FALSE)
