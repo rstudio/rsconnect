@@ -18,12 +18,20 @@ snapshotPackratDependencies <- function(bundleDir,
 
   # get packages records defined in the lockfile
   records <- utils::tail(df, -1)
+  if (nrow(records) == 0) {
+    return(data.frame())
+  }
+
   rownames(records) <- NULL
   records <- records[manifestPackageColumns(records)]
   records[c("Source", "Repository")] <- standardizeRecords(records, repos)
+
+  records$description <- lapply(records$Package, function(pkg) {
+    readLines(system.file("DESCRIPTION", package = pkg))
+  })
+
   records
 }
-
 
 standardizeRecords <- function(records, repos) {
   availablePackages <- availablePackages(repos)

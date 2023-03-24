@@ -178,8 +178,8 @@ ignoreBundleFiles <- function(dir, contents) {
   ignore <- c(
     # rsconnect packages
     "rsconnect", "rsconnect-python", "manifest.json",
-    # packrat + renv,
-    "renv.lock", "packrat",
+    # packrat
+    "packrat",
     # version control
     ".git", ".gitignore", ".svn",
     # R/RStudio

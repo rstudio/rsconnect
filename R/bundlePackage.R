@@ -15,12 +15,6 @@ bundlePackages <- function(bundleDir,
   }
   checkBundlePackages(deps, call = error_call)
 
-  # TODO: figure out how to get from renv library, if used
-  copyPackageDescriptions(bundleDir, deps$Package)
-  deps$description <- lapply(deps$Package, function(nm) {
-    # Remove packageDescription S3 class so jsonlite can serialize
-    unclass(utils::packageDescription(nm))
-  })
 
   # Manifest packages used to generate packrat file on Connect
   # https://github.com/rstudio/connect/blob/v2023.03.0/src/connect/manifest/convert.go#L261-L320
@@ -43,7 +37,8 @@ computePackageDependencies <- function(bundleDir,
     # responsibility to install any other packages you need
     taskStart(quiet, "Capturing R dependencies from renv.lockfile")
     deps <- parseRenvDependencies(bundleDir)
-    unlink(renvLockFile(bundleDir))
+    # Once we've captured the deps, we can remove renv from the bundle
+    removeRenv(bundleDir)
   } else if (isFALSE(getOption("rsconnect.packrat", FALSE))) {
     taskStart(quiet, "Capturing R dependencies with renv")
     # TODO: give user option to choose between implicit and explicit
@@ -72,23 +67,12 @@ checkBundlePackages <- function(deps, call = caller_env()) {
   }
 }
 
-# Copy all the DESCRIPTION files we're relying on into packrat/desc.
-# That directory will contain one file for each package, e.g.
-# packrat/desc/shiny will be the shiny package's DESCRIPTION.
-copyPackageDescriptions <- function(bundleDir, packages) {
-  descDir <- file.path(bundleDir, "packrat", "desc")
-  dir.create(descDir, showWarnings = FALSE, recursive = TRUE)
-
-  descPaths <- file.path(find.package(packages), "DESCRIPTION")
-  file.copy(descPaths, file.path(descDir, packages))
-  invisible()
-}
-
 manifestPackageColumns <- function(df) {
   # Fields defined in https://github.com/rstudio/lucid-legacy-builder/blob/v2023.02.16-1/src/lucid_legacy_builder/resources/schema/manifest/versions/1/manifest.json#L45-L91
-  # Also include Remote* fields for forward compatibility
+  # Most fields are retrieved from the complete embedded description.
+  # shinyapps.io needs GitHub fields for backward compatibility
 
-  github_cols <- grep("^(Github|Remote)", names(df), perl = TRUE, value = TRUE)
+  github_cols <- grep("^Github", names(df), perl = TRUE, value = TRUE)
   intersect(names(df), c("Package", "Version", "Source", "Repository", github_cols))
 }
 

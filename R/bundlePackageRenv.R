@@ -11,15 +11,12 @@ snapshotRenvDependencies <- function(bundleDir,
     type = "implicit",
     prompt = FALSE
   )
-  defer({
-    unlink(renvLockFile(bundleDir))
-    unlink(file.path(bundleDir, "renv"), recursive = TRUE)
-  })
+  defer(removeRenv(bundleDir))
 
-  parseRenvDependencies(bundleDir)
+  parseRenvDependencies(bundleDir, snapshot = TRUE)
 }
 
-parseRenvDependencies <- function(bundleDir) {
+parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
   renv <- jsonlite::read_json(renvLockFile(bundleDir))
 
   repos <- setNames(
@@ -28,6 +25,23 @@ parseRenvDependencies <- function(bundleDir) {
   )
 
   deps <- standardizeRenvPackages(renv$Packages, repos)
+  if (nrow(deps) == 0) {
+    return(data.frame())
+  }
+
+  if (snapshot) {
+    # Can use system libraries
+    deps$description <- lapply(deps$Package, function(pkg) {
+      readLines(system.file("DESCRIPTION", package = pkg))
+    })
+  } else {
+    # Need to use renv library
+    library <- renv:::renv_paths_library(project = bundleDir)
+    deps$description <- lapply(deps$Package, function(pkg) {
+      readLines(file.path(library, pkg, "DESCRIPTION"))
+    })
+  }
+
   deps
 }
 
@@ -87,4 +101,9 @@ standardizeRenvPackage <- function(pkg, availablePackages, repos = character()) 
 
 renvLockFile <- function(bundleDir) {
   file.path(bundleDir, "renv.lock")
+}
+
+removeRenv <- function(path) {
+  unlink(renvLockFile(path))
+  unlink(file.path(path, "renv"), recursive = TRUE)
 }

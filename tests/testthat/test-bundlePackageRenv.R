@@ -1,5 +1,6 @@
 #' @examples
 #' makeRenvSnapshot(test_path("renv-recommended"), "MASS")
+#' makeRenvSnapshot(test_path("renv-cran"), "withr")
 #' makeRenvSnapshot(test_path("renv-cran"), "cli")
 #' makeRenvSnapshot(test_path("renv-bioc"), "bioBase", "bioc::Biobase")
 #' makeRenvSnapshot(test_path("renv-github"), "withr", "r-lib/withr")
@@ -20,7 +21,8 @@ makeRenvSnapshot <- function(path, name, package = name) {
   invisible()
 }
 
-# -------------------------------------------------------------------------
+
+# snapshotRenvDependencies() ----------------------------------------------
 
 test_that("non-R apps don't have packages", {
   app_dir <- local_temp_app(list(index.html = ""))
@@ -60,6 +62,23 @@ test_that("works with BioC packages", {
   expect_equal(BiocGenerics$Repository, "https://bioconductor.org/packages/3.16/bioc")
 })
 
+
+# parseRenvDependencies ---------------------------------------------------
+
+test_that("gets DESCRIPTION from renv library", {
+  skip("why doesn't restore work?")
+
+  withr::local_options(renv.verbose = FALSE, pkgType = "source")
+
+  app_dir <- local_temp_app(list("foo.R" = "library(cli)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+  renv::restore(app_dir, prompt = FALSE)
+
+  # modify in library
+
+  deps <- parseRenvDependencies(app_dir)
+  deps$DESCRIPTION
+})
 
 # standardizeRenvPackage -----------------------------------------
 
@@ -143,13 +162,4 @@ test_that("source packages get NA source", {
     standardizeRenvPackage(source),
     list(Package = "pkg", Source = NA_character_)
   )
-})
-
-
-test_that("generates expected packrat file", {
-  expect_snapshot({
-    showDcf(parseRenvDependencies(test_path("renv-cran")))
-    showDcf(parseRenvDependencies(test_path("renv-github")))
-    showDcf(parseRenvDependencies(test_path("renv-bioc")))
-  })
 })

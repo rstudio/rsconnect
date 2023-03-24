@@ -1,7 +1,7 @@
 test_that("non-R apps don't have packages", {
   app_dir <- local_temp_app(list(index.html = ""))
   out <- snapshotPackratDependencies(app_dir)
-  expect_equal(out, data.frame(Source = logical(), Repository = logical()))
+  expect_equal(out, data.frame())
 })
 
 test_that("uninstalled packages error", {
