@@ -45,7 +45,7 @@ deployments <- function(appPath = ".",
   migrateDeploymentsConfig(appPath)
   paths <- deploymentConfigFiles(appPath)
 
-  dcf <- lapply(paths, readDcf)
+  dcf <- lapply(paths, read.dcf)
   dcf <- lapply(dcf, as.data.frame, stringsAsFactors = FALSE)
 
   deployments <- rbind_fill(dcf, deploymentFields)

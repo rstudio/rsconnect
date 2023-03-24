@@ -46,12 +46,12 @@ test_that("can add user specific cookies", {
   withr::local_options(rsconnect.http.cookies = c("a=1", "b=2"))
   service <- parseHttpUrl("http://httpbin.org/")
 
-  json <- GET(service, list(), "cookies")
+  skip_on_http_failure(json <- GET(service, list(), "cookies"))
   expect_equal(json$cookies, list(a = "1", b = "2"))
 
   withr::local_options(rsconnect.http.cookies = c("c=3", "d=4"))
-  POST(service, list(), "post")
-  json <- GET(service, list(), "cookies")
+  skip_on_http_failure(POST(service, list(), "post"))
+  skip_on_http_failure(json <- GET(service, list(), "cookies"))
   expect_equal(json$cookies, list(a = "1", b = "2", c = "3", d = "4"))
 })
 

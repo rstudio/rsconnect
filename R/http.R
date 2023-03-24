@@ -129,8 +129,8 @@ redirectService <- function(service, location) {
 }
 
 handleResponse <- function(response, error_call = caller_env()) {
+  url <- buildHttpUrl(response$req)
   reportError <- function(msg) {
-    url <- buildHttpUrl(response$req)
 
     cli::cli_abort(
       c("<{url}> failed with HTTP status {response$status}", msg),
@@ -139,7 +139,7 @@ handleResponse <- function(response, error_call = caller_env()) {
     )
   }
 
-  if (isContentType(response, "application/json")) {
+  if (isContentType(response$contentType, "application/json")) {
     # parse json responses
     if (nzchar(response$content)) {
       json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
@@ -154,7 +154,7 @@ handleResponse <- function(response, error_call = caller_env()) {
     } else {
       reportError(paste("Unexpected json response:", response$content))
     }
-  } else if (isContentType(response, "text/html")) {
+  } else if (isContentType(response$contentType, "text/html")) {
     # extract body of html responses
     body <- regexExtract(".*?<body>(.*?)</body>.*", response$content)
     if (response$status >= 200 && response$status < 400) {
@@ -181,7 +181,8 @@ handleResponse <- function(response, error_call = caller_env()) {
     }
   }
 
-  attr(out, "httpResponse") <- response
+  attr(out, "httpContentType") <- response$contentType
+  attr(out, "httpUrl") <- url
   out
 }
 
@@ -244,7 +245,7 @@ POST_JSON <- function(service,
     path,
     query,
     "application/json",
-    content = toJSON(json, pretty = TRUE, digits = 30),
+    content = toJSON(json),
     headers = headers
   )
 }
@@ -282,7 +283,7 @@ PUT_JSON <- function(service,
     path,
     query,
     "application/json",
-    content = toJSON(json, pretty = TRUE, digits = 30),
+    content = toJSON(json),
     headers = headers
   )
 }

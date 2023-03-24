@@ -35,13 +35,6 @@ httpDiagnosticsEnabled <- function() {
     getOption("rsconnect.http.verbose", FALSE))
 }
 
-# wrapper around read.dcf to workaround LC_CTYPE bug
-readDcf <- function(...) {
-  loc <- Sys.getlocale("LC_CTYPE")
-  on.exit(Sys.setlocale("LC_CTYPE", loc))
-  read.dcf(...)
-}
-
 # Replacement for tools::file_path_sans_ext to work around an issue where
 # filenames like "foo..ext" are not returned as "foo.".
 file_path_sans_ext <- function(x, compression = FALSE) {
@@ -150,4 +143,21 @@ dirCreate <- function(paths) {
     dir.create(path, showWarnings = FALSE, recursive = TRUE)
   }
   paths
+}
+
+fromIDE <- function() {
+  !is.na(Sys.getenv("RSTUDIO", unset = NA)) && !identical(.Platform$GUI, "RStudio")
+}
+
+toJSON <- function(x, ...) {
+  jsonlite::toJSON(
+    x,
+    dataframe = "columns",
+    null = "null",
+    na = "null",
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    digits = 30,
+    ...
+  )
 }

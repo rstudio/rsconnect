@@ -62,7 +62,7 @@ writeManifest <- function(appDir = getwd(),
     verbose = verbose,
     quiet = quiet
   )
-  manifestJson <- enc2utf8(toJSON(manifest, pretty = TRUE))
+  manifestJson <- toJSON(manifest)
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
 
