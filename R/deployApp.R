@@ -342,7 +342,7 @@ deployApp <- function(appDir = getwd(),
       }
     )
     if (application$id == target$appId) {
-      taskComplete(quiet, "Found application")
+      taskComplete(quiet, "Found application {.url {application$url}}")
     } else {
       taskComplete(quiet, "Created application with id {.val {application$id}}")
     }
