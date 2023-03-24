@@ -66,18 +66,13 @@ test_that("works with BioC packages", {
 # parseRenvDependencies ---------------------------------------------------
 
 test_that("gets DESCRIPTION from renv library", {
-  skip("why doesn't restore work?")
+  withr::local_options(renv.verbose = FALSE)
 
-  withr::local_options(renv.verbose = FALSE, pkgType = "source")
-
-  app_dir <- local_temp_app(list("foo.R" = "library(cli)"))
+  app_dir <- local_temp_app(list("foo.R" = "library(withr); library(MASS)"))
   renv::snapshot(app_dir, prompt = FALSE)
-  renv::restore(app_dir, prompt = FALSE)
-
-  # modify in library
 
   deps <- parseRenvDependencies(app_dir)
-  deps$DESCRIPTION
+  expect_setequal(deps$Package, c("MASS", "withr"))
 })
 
 # standardizeRenvPackage -----------------------------------------

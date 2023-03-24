@@ -144,3 +144,10 @@ defer <- function(expr, env = caller_env(), after = FALSE) {
   thunk <- as.call(list(function() expr))
   do.call(on.exit, list(thunk, TRUE, after), envir = env)
 }
+
+dirCreate <- function(paths) {
+  for (path in paths) {
+    dir.create(path, showWarnings = FALSE, recursive = TRUE)
+  }
+  paths
+}

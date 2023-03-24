@@ -35,10 +35,13 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
       readLines(system.file("DESCRIPTION", package = pkg))
     })
   } else {
-    # Need to use renv library
-    library <- renv:::renv_paths_library(project = bundleDir)
+    # Generate a library from the lockfile
+    lib_dir <- dirCreate(file.path(bundleDir, "renv_library"))
+    renv::restore(bundleDir, library = lib_dir, prompt = FALSE)
+    defer(unlink(lib_dir, recursive = TRUE))
+
     deps$description <- lapply(deps$Package, function(pkg) {
-      readLines(file.path(library, pkg, "DESCRIPTION"))
+      readLines(file.path(lib_dir, pkg, "DESCRIPTION"))
     })
   }
 

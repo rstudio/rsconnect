@@ -18,17 +18,15 @@ test_that("can snapshot deps with packrat", {
 })
 
 test_that("can capture deps from renv lockfile", {
-  skip("why doesn't restore work?")
-  withr::local_options(pkgType = "source") # speed up renv::restore()
+  withr::local_options(renv.verbose = FALSE)
 
-  app_dir <- local_temp_app()
-  file.copy(test_path("renv-recommended/renv.lock"), app_dir)
-  renv::restore(app_dir, prompt = FALSE)
+  app_dir <- local_temp_app(list(foo.R = "library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
   expect_snapshot(pkgs <- bundlePackages(app_dir))
   expect_named(pkgs, "MASS")
 
   # No renv lockfile or directory left behind
-  expect_equal(list.files(app_dir), character())
+  expect_equal(list.files(app_dir), "foo.R")
 })
 
 # -------------------------------------------------------------------------
