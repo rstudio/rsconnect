@@ -54,8 +54,8 @@ filterQuery <- function(param, value, operator = NULL) {
   return(q)
 }
 
-isContentType <- function(response, contentType) {
-  grepl(contentType, response$contentType, fixed = TRUE)
+isContentType <- function(x, contentType) {
+  grepl(contentType, x, fixed = TRUE)
 }
 
 uploadCloudBundle <- function(client,

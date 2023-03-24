@@ -50,12 +50,12 @@ validateConnectUrl <- function(url, certificate = NULL) {
     return(list(valid = FALSE, message = conditionMessage(cnd)))
   }
 
-  httpResponse <- attr(response, "httpResponse")
-  if (!isContentType(httpResponse, "application/json")) {
+  contentType <- attr(response, "httpContentType")
+  if (!isContentType(contentType, "application/json")) {
     return(list(valid = FALSE, message = "Endpoint did not return JSON"))
   }
 
-  url <- gsub("/server_settings$", "", buildHttpUrl(httpResponse$req))
+  url <- gsub("/server_settings$", "", attr(response, "httpUrl"))
   list(valid = TRUE, url = url, response = response)
 }
 
