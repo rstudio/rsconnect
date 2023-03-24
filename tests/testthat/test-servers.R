@@ -44,11 +44,9 @@ test_that("normalizes connect urls", {
 
 # addServer ---------------------------------------------------------------
 
-test_that("addServer() name defaults to hostname of url", {
-  local_temp_config()
-
-  addServer("https://example.com:8787/abc", quiet = TRUE, validate = FALSE)
-  expect_equal(servers(local = TRUE)$name, "example.com")
+test_that("addServer() name defaults to hostname & port of url", {
+  expect_equal(serverName("https://example.com/abc"), "example.com")
+  expect_equal(serverName("https://example.com:8787/abc"), "example.com:8787")
 })
 
 test_that("addServer() normalises url", {

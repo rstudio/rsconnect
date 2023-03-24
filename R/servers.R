@@ -166,7 +166,7 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
     url <- out$url
   }
 
-  name <- name %||% parseHttpUrl(url)$host
+  name <- name %||% serverName(url)
   registerServer(name, url, certificate)
 
   if (!quiet) {
@@ -227,4 +227,9 @@ ensureConnectServerUrl <- function(url) {
     url <- paste(url, "/__api__", sep = "")
 
   url
+}
+
+serverName <- function(url) {
+  url <- parseHttpUrl(url)
+  paste0(url$host, if (nchar(url$port) > 0) ":", url$port)
 }
