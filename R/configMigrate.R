@@ -84,7 +84,7 @@ migrateDeploymentsConfig <- function(appPath) {
                                    recursive = TRUE)) {
     # read deployment record
     shinyappsDCF <- file.path(shinyappsDir, shinyappsFile)
-    deployment <- as.data.frame(readDcf(shinyappsDCF),
+    deployment <- as.data.frame(read.dcf(shinyappsDCF),
                                 stringsAsFactors = FALSE)
     deployment$server <- "shinyapps.io"
 
