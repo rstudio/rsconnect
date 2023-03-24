@@ -292,10 +292,10 @@ deployApp <- function(appDir = getwd(),
     )
   }
   if (is.null(target$appId)) {
-    dest <- accountId(target$username, target$server)
+    dest <- accountLabel(target$username, target$server)
     taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
   } else {
-    dest <- accountId(target$username, target$server)
+    dest <- accountLabel(target$username, target$server)
     taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 

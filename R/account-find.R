@@ -69,11 +69,11 @@ findAccount <- function(accountName = NULL, server = NULL, error_call = caller_e
 
     if (nrow(theseAccounts) > 1) {
       if (is_interactive()) {
-        ids <- accountId(accounts$name, accounts$server)
+        labels <- accountLabel(accounts$name, accounts$server)
         choice <- cli_menu(
           "Found multiple accounts.",
           "Which one do you want to use?",
-          ids
+          labels
         )
         theseAccounts <- theseAccounts[choice, , drop = FALSE]
       } else {
