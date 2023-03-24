@@ -1,9 +1,14 @@
 # rsconnect (development version)
 
-* `deployApp()` and friends will now respect renv lock files, if present. 
+* `deployApp()` and `writeManifest()` now respect renv lock files, if present. 
   If you don't want to use these lockfiles, and instead return the previous 
   behaviour of snapshotting on every deploy, add your `renv.lock` to 
-  `.rscignore` (#671).
+  `.rscignore` (#671). 
+  
+* `deployApp()` and `writeManifest()` now use renv to capture app dependencies, 
+  rather than packrat. If this causes a previously working deploy to fail, 
+  please file an issue then set `options(rsconnect.packrat = TRUE)` to revert 
+  to the previous behaviour.
 
 * New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
   set extra arbitrary additional headers/cookies on each request (#405).
