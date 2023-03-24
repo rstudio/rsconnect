@@ -1,9 +1,5 @@
-test_that("non-R apps don't have packages", {
-  withr::local_options(rsconnect.packrat = TRUE)
-  app_dir <- local_temp_app(list(index.html = ""))
-  out <- bundlePackages(app_dir, appMode = "static", quiet = TRUE)
-  expect_equal(out, list())
-})
+
+
 
 test_that("returns list of package details and copies descriptions", {
   withr::local_options(rsconnect.packrat = TRUE)
@@ -43,3 +39,4 @@ test_that("error if can't find source", {
     error = TRUE
   )
 })
+

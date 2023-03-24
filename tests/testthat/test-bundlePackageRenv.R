@@ -21,6 +21,12 @@ makeRenvSnapshot <- function(path, name, package = name) {
 
 # -------------------------------------------------------------------------
 
+test_that("non-R apps don't have packages", {
+  app_dir <- local_temp_app(list(index.html = ""))
+  out <- snapshotRenvDependencies(app_dir)
+  expect_equal(out, data.frame())
+})
+
 test_that("recommended packages are snapshotted", {
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
