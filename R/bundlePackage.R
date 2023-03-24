@@ -58,18 +58,6 @@ computePackageDependencies <- function(bundleDir,
 }
 
 checkBundlePackages <- function(deps, call = caller_env()) {
-  not_installed <- !vapply(deps$Package, is_installed, logical(1))
-  if (any(not_installed)) {
-    pkgs <- deps$Package[not_installed]
-    cli::cli_abort(
-      c(
-        "All packages used by the asset must be installed.",
-        x = "Missing packages: {.pkg {pkgs}}."
-      ),
-      call = call
-    )
-  }
-
   unknown_source <- is.na(deps$Source)
   if (any(unknown_source)) {
     pkgs <- deps$Package[unknown_source]
