@@ -1,27 +1,3 @@
-#' @examples
-#' makeRenvSnapshot(test_path("renv-recommended"), "MASS")
-#' makeRenvSnapshot(test_path("renv-cran"), "withr")
-#' makeRenvSnapshot(test_path("renv-cran"), "cli")
-#' makeRenvSnapshot(test_path("renv-bioc"), "bioBase", "bioc::Biobase")
-#' makeRenvSnapshot(test_path("renv-github"), "withr", "r-lib/withr")
-makeRenvSnapshot <- function(path, name, package = name) {
-  dir.create(path, showWarnings = FALSE)
-
-  withr::local_dir(path)
-  writeLines(paste0("library(", name, ")"), "dependences.R")
-
-  getNamespace("callr")$r(args = list(package = package), function(package) {
-    renv::activate()
-    renv::install(package)
-    renv::snapshot(prompt = FALSE)
-  })
-
-  unlink(c(".Rprofile", ".gitignore", "renv"), recursive = TRUE)
-
-  invisible()
-}
-
-
 # snapshotRenvDependencies() ----------------------------------------------
 
 test_that("non-R apps don't have packages", {
