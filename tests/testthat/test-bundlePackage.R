@@ -53,4 +53,3 @@ test_that("error if can't find source", {
     error = TRUE
   )
 })
-

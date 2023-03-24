@@ -68,7 +68,7 @@ checkBundlePackages <- function(deps, call = caller_env()) {
 }
 
 manifestPackageColumns <- function(df) {
-  # Fields defined in https://github.com/rstudio/lucid-legacy-builder/blob/v2023.02.16-1/src/lucid_legacy_builder/resources/schema/manifest/versions/1/manifest.json#L45-L91
+  # Fields defined in https://bit.ly/42CbD4P
   # Most fields are retrieved from the complete embedded description.
   # shinyapps.io needs GitHub fields for backward compatibility
 
