@@ -30,7 +30,7 @@ standardizeRecords <- function(records, repos) {
   repos <- standardizeRepos(repos)
 
   rows <- lapply(seq_len(nrow(records)), function(i) {
-    standardizePackageSource(records[i, ], availablePackages, repos = repos)
+    standardizePackratPackage(records[i, ], availablePackages, repos = repos)
   })
   rows <- lapply(rows, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(rows, c("Source", "Repository"))
@@ -50,7 +50,7 @@ standardizeRepos <- function(repos) {
   repos
 }
 
-standardizePackageSource <- function(record, availablePackages, repos = character()) {
+standardizePackratPackage <- function(record, availablePackages, repos = character()) {
   pkg <- record$Package
   source <- record$Source
 

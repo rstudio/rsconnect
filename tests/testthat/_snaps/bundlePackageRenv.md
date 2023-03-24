@@ -12,7 +12,7 @@
     Output
       Package: withr
       Version: 2.5.0.9000
-      Source: GitHub
+      Source: github
       RemoteType: github
       RemoteHost: api.github.com
       RemoteUsername: r-lib

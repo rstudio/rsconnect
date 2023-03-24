@@ -54,6 +54,91 @@ test_that("works with BioC packages", {
 })
 
 
+# standardizeRenvPackage -----------------------------------------
+
+test_that("SCM get names translated", {
+  bitbucket <- list(Package = "pkg", Source = "BitBucket")
+  gitlab <- list(Package = "pkg", Source = "GitLab")
+  github <- list(Package = "pkg", Source = "GitHub")
+
+  expect_equal(
+    standardizeRenvPackage(bitbucket),
+    list(Package = "pkg", Source = "bitbucket")
+  )
+  expect_equal(
+    standardizeRenvPackage(gitlab),
+    list(Package = "pkg", Source = "gitlab")
+  )
+  expect_equal(
+    standardizeRenvPackage(github),
+    list(Package = "pkg", Source = "github")
+  )
+})
+
+test_that("BioC gets normalized repo", {
+  Bioconductor <- list(Package = "pkg", Source = "Bioconductor")
+
+  packages <- data.frame(
+    row.names = "pkg",
+    Repository = "https://b.com/src/contrib",
+    stringsAsFactors = FALSE
+  )
+
+  expect_equal(
+    standardizeRenvPackage(Bioconductor, packages),
+    list(Package = "pkg", Source = "Bioconductor", Repository = "https://b.com")
+  )
+})
+
+test_that("has special handling for CRAN packages", {
+  packages <- as.matrix(data.frame(
+    row.names = "pkg",
+    Version = "1.0.0",
+    Repository = "https://cran.com/src/contrib",
+    stringsAsFactors = FALSE
+  ))
+  repos <- c(CRAN = "https://cran.com")
+
+  spec <- function(version, source = "Repository", repo = "CRAN") {
+    list(Package = "pkg", Version = version, Source = source, Repository = repo)
+  }
+
+  expect_equal(
+    standardizeRenvPackage(spec("1.0.0"), packages, repos),
+    spec("1.0.0", "CRAN", "https://cran.com")
+  )
+
+  expect_equal(
+    standardizeRenvPackage(spec("1.0.0.9000"), packages, repos),
+    spec("1.0.0.9000", NA_character_, NA_character_)
+  )
+})
+
+test_that("packages installed from other repos get correctly named", {
+  pkg <- list(Package = "pkg", Source = "Repository", Repository = "https://test2.com")
+  packages <- as.matrix(data.frame(
+    row.names = "pkg",
+    Version = "1.0.0",
+    Repository = "https://test2.com/src/contrib",
+    stringsAsFactors = FALSE
+  ))
+  repos <- c(TEST1 = "https://test1.com", TEST2 = "https://test2.com")
+
+  expect_equal(
+    standardizeRenvPackage(pkg, packages, repos = repos),
+    list(Package = "pkg", Source = "TEST2", Repository = "https://test2.com")
+  )
+})
+
+test_that("source packages get NA source", {
+  source <- list(Package = "pkg", Source = "unknown")
+  expect_equal(
+    standardizeRenvPackage(source),
+    list(Package = "pkg", Source = NA_character_)
+  )
+})
+
+
 test_that("generates expected packrat file", {
   expect_snapshot({
     showDcf(parseRenvDependencies(test_path("renv-cran")))

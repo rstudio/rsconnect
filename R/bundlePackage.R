@@ -23,6 +23,8 @@ bundlePackages <- function(bundleDir,
     unclass(utils::packageDescription(nm))
   })
 
+  # Manifest packages used to generate packrat file on Connect
+  # https://github.com/rstudio/connect/blob/v2023.03.0/src/connect/manifest/convert.go#L261-L320
   packages_list <- lapply(seq_len(nrow(deps)), function(i) {
     out <- as.list(deps[i, , drop = FALSE])
     out$description <- out$description[[1]]

@@ -52,7 +52,7 @@ test_that("cleans up implicit dependency files", {
   expect_equal(list.files(dir), "packrat")
 })
 
-# standardizePackageSource -----------------------------------------
+# standardizePackratPackage -----------------------------------------
 
 test_that("standardizeRepos adds names and normalizes paths", {
   repos <- c(ONE = "https://cran1.com", "https://cran2.com/")
@@ -68,15 +68,15 @@ test_that("SCM records are left alone", {
   github <- list(Package = "pkg", Source = "github")
 
   expect_equal(
-    standardizePackageSource(bitbucket),
+    standardizePackratPackage(bitbucket),
     list(Source = "bitbucket", Repository = NA_character_)
   )
   expect_equal(
-    standardizePackageSource(gitlab),
+    standardizePackratPackage(gitlab),
     list(Source = "gitlab", Repository = NA_character_)
   )
   expect_equal(
-    standardizePackageSource(github),
+    standardizePackratPackage(github),
     list(Source = "github", Repository = NA_character_)
   )
 })
@@ -95,11 +95,11 @@ test_that("CRAN & BioC get normalized repo", {
   )
 
   expect_equal(
-    standardizePackageSource(CRAN, packages),
+    standardizePackratPackage(CRAN, packages),
     list(Source = "CRAN", Repository = "https://a.com")
   )
   expect_equal(
-    standardizePackageSource(Bioconductor, packages),
+    standardizePackratPackage(Bioconductor, packages),
     list(Source = "Bioconductor", Repository = "https://b.com")
   )
 })
@@ -115,7 +115,7 @@ test_that("packages installed from other repos get correctly named", {
   repos <- c(TEST1 = "https://test1.com", TEST2 = "https://test2.com")
 
   expect_equal(
-    standardizePackageSource(pkg, packages, repos = repos),
+    standardizePackratPackage(pkg, packages, repos = repos),
     list(Source = "TEST2", Repository = "https://test2.com")
   )
 })
@@ -123,7 +123,7 @@ test_that("packages installed from other repos get correctly named", {
 test_that("source packages can't be installed", {
   source <- list(Package = "pkg1", Source = "source")
   expect_equal(
-    standardizePackageSource(source),
+    standardizePackratPackage(source),
     list(Source = NA_character_, Repository = NA_character_)
   )
 })
@@ -143,7 +143,7 @@ test_that("locally installed CRAN packages are handled correctly", {
     Version = "1.0.0"
   )
   expect_equal(
-    standardizePackageSource(local, packages, repos),
+    standardizePackratPackage(local, packages, repos),
     list(Source = "CRAN", Repository = "https://cran.com")
   )
 
@@ -153,7 +153,7 @@ test_that("locally installed CRAN packages are handled correctly", {
     Version = "1.0.0.9000"
   )
   expect_equal(
-    standardizePackageSource(local_dev, packages, repos),
+    standardizePackratPackage(local_dev, packages, repos),
     list(Source = NA_character_, Repository = NA_character_)
   )
 
@@ -163,7 +163,7 @@ test_that("locally installed CRAN packages are handled correctly", {
     Version = "1.0.0"
   )
   expect_equal(
-    standardizePackageSource(archived, packages, repos),
+    standardizePackratPackage(archived, packages, repos),
     list(Source = NA_character_, Repository = NA_character_)
   )
 })

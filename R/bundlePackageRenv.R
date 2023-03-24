@@ -27,26 +27,27 @@ parseRenvDependencies <- function(bundleDir) {
     vapply(renv$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
   )
 
-  deps <- packratPackages(renv$Packages, repos)
+  deps <- standardizeRenvPackages(renv$Packages, repos)
   deps
 }
 
-packratPackages <- function(packages, repos) {
+standardizeRenvPackages <- function(packages, repos) {
+  repos <- standardizeRepos(repos)
   availablePackages <- availablePackages(repos)
 
   names(packages) <- NULL
   out <- lapply(
     packages,
-    packratPackage,
-    repos = repos,
-    availablePackages = availablePackages
+    standardizeRenvPackage,
+    availablePackages = availablePackages,
+    repos = repos
   )
   out <- compact(out)
   out <- lapply(out, as.data.frame, stringsAsFactors = FALSE)
   rbind_fill(out)
 }
 
-packratPackage <- function(pkg, repos, availablePackages) {
+standardizeRenvPackage <- function(pkg, availablePackages, repos = character()) {
   # Don't include renv itself
   if (identical(pkg$Package, "renv")) {
     return(NULL)
@@ -54,19 +55,26 @@ packratPackage <- function(pkg, repos, availablePackages) {
 
   # Convert renv source to manifest source/repository
   # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
-  #
-  # Unlike standardizePackageSource() we don't worry about local installs
-  # of dev versions of CRAN packages, because these are much less likely to
-  # end up inside of renv lockfiles
-  # if (pkg$Package == "BiocGenerics") browser()
 
   if (pkg$Source == "Repository") {
-    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
-    pkg$Source <- findRepoName(pkg$Repository, repos)
+    if (pkg$Repository == "CRAN") {
+      if (isDevVersion(pkg, availablePackages)) {
+        pkg$Source <- NA_character_
+        pkg$Repository <- NA_character_
+      } else {
+        pkg$Source <- "CRAN"
+        pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+      }
+    } else {
+      pkg$Source <- findRepoName(pkg$Repository, repos)
+      pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+    }
   } else if (pkg$Source == "Bioconductor") {
     pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
   } else if (pkg$Source == "unknown") {
-    pkg$Source <- NA
+    pkg$Source <- NA_character_
+  } else if (pkg$Source %in% c("BitBucket", "GitHub", "GitLab")) {
+    pkg$Source <- tolower(pkg$Source)
   }
 
   # Remove Remote fields that pak adds for "standard" installs from CRAN
