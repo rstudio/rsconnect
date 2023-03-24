@@ -1,4 +1,5 @@
 #' @examples
+#' makeRenvSnapshot(test_path("renv-recommended"), "MASS")
 #' makeRenvSnapshot(test_path("renv-cran"), "cli")
 #' makeRenvSnapshot(test_path("renv-bioc"), "bioBase", "bioc::Biobase")
 #' makeRenvSnapshot(test_path("renv-github"), "withr", "r-lib/withr")

@@ -1,5 +1,4 @@
 bundlePackages <- function(bundleDir,
-                           appMode,
                            extraPackages = character(),
                            quiet = FALSE,
                            verbose = FALSE,
@@ -38,6 +37,7 @@ computePackageDependencies <- function(bundleDir,
                                        extraPackages = character(),
                                        quiet = FALSE,
                                        verbose = FALSE) {
+
   if (file.exists(renvLockFile(bundleDir))) {
     # This ignores extraPackages; if you're using a lockfile it's your
     # responsibility to install any other packages you need
@@ -52,7 +52,7 @@ computePackageDependencies <- function(bundleDir,
     taskStart(quiet, "Capturing R dependencies with packrat")
     deps <- snapshotPackratDependencies(bundleDir, extraPackages, verbose = verbose)
   }
-  taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}.")
+  taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}")
 
   deps
 }

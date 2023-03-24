@@ -1,5 +1,33 @@
+test_that("can snapshot deps with renv", {
+  app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
+  expect_snapshot(pkgs <- bundlePackages(app_dir))
+  expect_named(pkgs, "MASS")
 
+  # No renv lockfile left behind
+  expect_equal(list.files(app_dir), c("foo.R", "packrat"))
+})
 
+test_that("can snapshot deps with packrat", {
+  withr::local_options(rsconnect.packrat = TRUE)
+  app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
+  expect_snapshot(pkgs <- bundlePackages(app_dir))
+  expect_named(pkgs, "MASS")
+
+  # No packrat lockfile left behind
+  expect_equal(list.files(app_dir), c("foo.R", "packrat"))
+})
+
+test_that("can capture deps from renv lockfile", {
+  app_dir <- local_temp_app()
+  file.copy(test_path("renv-recommended/renv.lock"), app_dir)
+  expect_snapshot(pkgs <- bundlePackages(app_dir))
+  expect_named(pkgs, "MASS")
+
+  # No renv lockfile left behind
+  expect_equal(list.files(app_dir), "packrat")
+})
+
+# -------------------------------------------------------------------------
 
 test_that("returns list of package details and copies descriptions", {
   withr::local_options(rsconnect.packrat = TRUE)
@@ -17,8 +45,7 @@ test_that("returns list of package details and copies descriptions", {
 })
 
 test_that("error if can't find source", {
-  withr::local_options(rsconnect.packrat = TRUE)
-  mockr::local_mock(snapshotPackratDependencies = function(...) {
+  mockr::local_mock(snapshotRenvDependencies = function(...) {
     data.frame(
       Package = "shiny",
       Source = NA,
@@ -35,7 +62,7 @@ test_that("error if can't find source", {
   ))
 
   expect_snapshot(
-    . <- bundlePackages(app_dir, appMode = "rmd-static"),
+    . <- bundlePackages(app_dir),
     error = TRUE
   )
 })
