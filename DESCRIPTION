@@ -36,6 +36,7 @@ Imports:
 Suggests:
     knitr,
     Biobase,
+    BiocManager,
     MASS,
     mockr,
     plumber (>= 0.3.2),
