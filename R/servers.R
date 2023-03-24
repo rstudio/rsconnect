@@ -37,7 +37,7 @@ serverInfo <- function(name = NULL) {
     info <- cloudServerInfo(name)
   } else {
     configFile <- serverConfigFile(name)
-    serverDcf <- readDcf(serverConfigFile(name), all = TRUE)
+    serverDcf <- read.dcf(serverConfigFile(name), all = TRUE)
     info <- as.list(serverDcf)
   }
 

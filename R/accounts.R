@@ -255,7 +255,7 @@ accountInfo <- function(name = NULL, server = NULL) {
   fullAccount <- findAccount(name, server)
   configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
 
-  accountDcf <- readDcf(configFile, all = TRUE)
+  accountDcf <- read.dcf(configFile, all = TRUE)
   info <- as.list(accountDcf)
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
