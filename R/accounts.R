@@ -66,8 +66,8 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
   )
 
   if (!quiet) {
-    accountId <- accountId(user$username, server)
-    cli::cli_alert_success("Registered account for {accountId}")
+    accountLabel <- accountLabel(user$username, server)
+    cli::cli_alert_success("Registered account for {accountLabel}")
   }
   invisible()
 }
@@ -90,8 +90,8 @@ connectUser <- function(account = NULL,
   )
 
   if (!quiet) {
-    accountId <- accountId(resp$user$username, server)
-    cli::cli_alert_success("Registered account for {accountId}")
+    accountLabel <- accountLabel(resp$user$username, server)
+    cli::cli_alert_success("Registered account for {accountLabel}")
   }
   invisible()
 }
@@ -320,6 +320,6 @@ registerAccount <- function(serverName,
   path
 }
 
-accountId <- function(account, server) {
+accountLabel <- function(account, server) {
   paste0(account, "@", server)
 }

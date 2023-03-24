@@ -64,7 +64,7 @@ deploymentTarget <- function(recordPath = ".",
   } else {
     apps <- paste0(
       appDeployments$name, " ",
-      "(", accountId(appDeployments$account, appDeployments$server), "): ",
+      "(", accountLabel(appDeployments$account, appDeployments$server), "): ",
       "{.url ", appDeployments$url, "}"
     )
     not_interactive <- c(
