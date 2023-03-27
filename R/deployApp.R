@@ -334,7 +334,7 @@ deployApp <- function(appDir = getwd(),
       accountDetails$accountId,
       appMetadata$appMode
     )
-    taskComplete(quiet, "Created application with id x{.val {application$id}}")
+    taskComplete(quiet, "Created application with id {.val {application$id}}")
     isNewApplication <- TRUE
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
