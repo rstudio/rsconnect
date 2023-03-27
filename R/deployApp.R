@@ -292,10 +292,10 @@ deployApp <- function(appDir = getwd(),
     )
   }
   if (is.null(target$appId)) {
-    dest <- accountId(target$username, target$server)
+    dest <- accountLabel(target$username, target$server)
     taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
   } else {
-    dest <- accountId(target$username, target$server)
+    dest <- accountLabel(target$username, target$server)
     taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 
@@ -341,7 +341,7 @@ deployApp <- function(appDir = getwd(),
     application <- tryCatch(
       {
         application <- client$getApplication(target$appId)
-        taskComplete(quiet, "Found application")
+        taskComplete(quiet, "Found application {.url {application$url}}")
         application
       },
       rsconnect_http_404 = function(err) {
@@ -351,7 +351,6 @@ deployApp <- function(appDir = getwd(),
         application
       }
     )
-
   }
   saveDeployment(
     recordPath,
