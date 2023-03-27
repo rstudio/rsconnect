@@ -84,7 +84,7 @@ deploymentTarget <- function(recordPath = ".",
 }
 
 
-deploymentTargetForApp <- function(appId = NULL,
+deploymentTargetForApp <- function(appId,
                                    appTitle = NULL,
                                    account = NULL,
                                    server = NULL) {
