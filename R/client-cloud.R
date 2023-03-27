@@ -177,16 +177,14 @@ cloudClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(application, bundleId = NULL) {
-      if (application$type == "static") {
+    createRevision = function(application) {
         path <- paste("/outputs/", application$content_id, "/revisions", sep = "")
         revision <- POST_JSON(service, authInfo, path, data.frame())
-        applicationId <- revision$application_id
-      } else {
-        applicationId <- application$id
-      }
+        revision$application_id
+    },
 
-      path <- paste("/applications/", applicationId, "/deploy", sep = "")
+    deployApplication = function(application, bundleId = NULL) {
+      path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
         json$bundle <- as.numeric(bundleId)

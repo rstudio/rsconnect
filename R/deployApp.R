@@ -324,6 +324,7 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
+  isNewApplication <- FALSE
   if (is.null(target$appId)) {
     taskStart(quiet, "Creating application on server...")
     application <- client$createApplication(
@@ -333,20 +334,23 @@ deployApp <- function(appDir = getwd(),
       accountDetails$accountId,
       appMetadata$appMode
     )
-    taskComplete(quiet, "Created application with id {.val {application$id}}")
+    taskComplete(quiet, "Created application with id x{.val {application$id}}")
+    isNewApplication <- TRUE
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
-      client$getApplication(target$appId),
+      {
+        application <- client$getApplication(target$appId)
+        taskComplete(quiet, "Found application")
+        application
+      },
       rsconnect_http_404 = function(err) {
-        applicationDeleted(client, target, recordPath, appMetadata)
+        application <- applicationDeleted(client, target, recordPath, appMetadata)
+        taskComplete(quiet, "Created application with id {.val {application$id}}")
+        isNewApplication <- TRUE
+        application
       }
     )
-    if (application$id == target$appId) {
-      taskComplete(quiet, "Found application")
-    } else {
-      taskComplete(quiet, "Created application with id {.val {application$id}}")
-    }
 
   }
   saveDeployment(
@@ -388,6 +392,9 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
     if (isCloudServer(accountDetails$server)) {
+      if (application$type == "static" && !isNewApplication) {
+        application$id <- client$createRevision(application)
+      }
       bundle <- uploadCloudBundle(client, application$id, bundlePath)
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
@@ -409,7 +416,7 @@ deployApp <- function(appDir = getwd(),
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application, bundle$id)
+  task <- client$deployApplication(application, bundle$id, isNewApplication)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)
