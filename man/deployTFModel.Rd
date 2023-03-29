@@ -6,6 +6,11 @@
 \usage{
 deployTFModel(modelDir, ...)
 }
+\arguments{
+\item{modelDir}{Path to the saved model directory. Unused.}
+
+\item{...}{Unused.}
+}
 \description{
 This function is defunct. Posit Connect no longer supports hosting of
 TensorFlow Model APIs. A TensorFlow model can be deployed as a

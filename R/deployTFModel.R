@@ -6,6 +6,9 @@
 #' [Shiny application](https://tensorflow.rstudio.com/guides/deploy/shiny), or
 #' other supported content type.
 #'
+#' @param modelDir Path to the saved model directory. Unused.
+#' @param ... Unused.
+#'
 #' @family Deployment functions
 #' @export
 deployTFModel <- function(modelDir, ...) {
