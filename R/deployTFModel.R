@@ -1,45 +1,17 @@
 #' Deploy a TensorFlow saved model
 #'
-#' Deploys a directory containing a Tensorflow saved model file.
-#'
-#' Deploy a single Tensorflow saved model as a bundle. Should be passed a
-#' directory that contains the *saved_model.pb* or *saved_model.pbtxt* file,
-#' as well as any variables and assets necessary to load the model.
-#'
-#' A saved model directory might look like this:
-#'
-#' ```
-#' ./1/
-#' ./1/saved_model.pb or ./1/saved_model.pbtxt
-#' ./1/variables/
-#' ./1/variables/variables.data-00000-of-00001
-#' ./1/variables/variables.index
-#' ```
-#'
-#' For information on creating saved models, see the Keras method
-#' [keras::export_savedmodel.keras.engine.training.Model()] or the TensorFlow
-#' method [tensorflow::export_savedmodel()]. If using the TensorFlow package for
-#' R, the official [TensorFlow guide for saving and restoring models](
-#' <https://www.tensorflow.org/guide/saved_model>)
-#' may be useful.
-#'
-#' TensorFlow, the TensorFlow logo and any related marks are trademarks of
-#' Google Inc., and are not affiliated with Posit Software, PBC.
-#'
-#' @param modelDir Path to the saved model directory. MUST contain
-#'   *saved_model.pb* or *saved_model.pbtxt*
-#' @param ... Additional arguments to [deployApp()].
-#'
-#' @references <https://www.tensorflow.org/guide/saved_model>
-#'
-#'
-#' @details
+#' This function is defunct. Posit Connect no longer supports hosting of
+#' TensorFlow Model APIs. A TensorFlow model can be deployed as a
+#' [Plumber API](https://tensorflow.rstudio.com/guides/deploy/plumber.html),
+#' [Shiny application](https://tensorflow.rstudio.com/guides/deploy/shiny), or
+#' other supported content type.
 #'
 #' @family Deployment functions
 #' @export
 deployTFModel <- function(modelDir, ...) {
-  check_directory(modelDir)
-
-  # Checking for saved_model.pb is done in `lint-framework.R`
-  deployApp(appDir = modelDir, ...)
+  lifecycle::deprecate_stop(
+    when = "0.9.0",
+    what = "deployTFModel()",
+    details = "Posit Connect no longer supports hosting of TensorFlow Model APIs."
+  )
 }

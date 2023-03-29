@@ -27,7 +27,6 @@
         2. R Markdown (`.Rmd`) or Quarto (`.qmd`) documents.
         3. A website containing `.html` and/or `.pdf` files.
         4. A plumber API with `plumber.R` or `entrypoint.R`.
-        5. A tensorflow saved model.
 
 # quarto docs require quarto
 

@@ -6,40 +6,12 @@
 \usage{
 deployTFModel(modelDir, ...)
 }
-\arguments{
-\item{modelDir}{Path to the saved model directory. MUST contain
-\emph{saved_model.pb} or \emph{saved_model.pbtxt}}
-
-\item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
-}
 \description{
-Deploys a directory containing a Tensorflow saved model file.
-}
-\details{
-Deploy a single Tensorflow saved model as a bundle. Should be passed a
-directory that contains the \emph{saved_model.pb} or \emph{saved_model.pbtxt} file,
-as well as any variables and assets necessary to load the model.
-
-A saved model directory might look like this:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{./1/
-./1/saved_model.pb or ./1/saved_model.pbtxt
-./1/variables/
-./1/variables/variables.data-00000-of-00001
-./1/variables/variables.index
-}\if{html}{\out{</div>}}
-
-For information on creating saved models, see the Keras method
-\code{\link[keras:export_savedmodel.keras.engine.training.Model]{keras::export_savedmodel.keras.engine.training.Model()}} or the TensorFlow
-method \code{\link[tensorflow:export_savedmodel]{tensorflow::export_savedmodel()}}. If using the TensorFlow package for
-R, the official \href{https://www.tensorflow.org/guide/saved_model}{TensorFlow guide for saving and restoring models}
-may be useful.
-
-TensorFlow, the TensorFlow logo and any related marks are trademarks of
-Google Inc., and are not affiliated with Posit Software, PBC.
-}
-\references{
-\url{https://www.tensorflow.org/guide/saved_model}
+This function is defunct. Posit Connect no longer supports hosting of
+TensorFlow Model APIs. A TensorFlow model can be deployed as a
+\href{https://tensorflow.rstudio.com/guides/deploy/plumber.html}{Plumber API},
+\href{https://tensorflow.rstudio.com/guides/deploy/shiny}{Shiny application}, or
+other supported content type.
 }
 \seealso{
 Other Deployment functions: 
