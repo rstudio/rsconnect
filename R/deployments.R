@@ -84,7 +84,11 @@ saveDeployment <- function(recordDir,
                            bundleId = NULL,
                            hostUrl = serverInfo(target$server)$url,
                            metadata = list()) {
-
+  if (target$server == "posit.cloud") {
+    appId <- paste("lucid", "content", application$content_id, sep = ":")
+  } else {
+    appId <- application$id
+  }
   deployment <- deploymentRecord(
     name = target$appName,
     title = target$appTitle,
@@ -92,7 +96,7 @@ saveDeployment <- function(recordDir,
     account = target$account,
     server = target$server,
     hostUrl = hostUrl,
-    appId = paste("lucid", "content", application$content_id, sep = ":"),
+    appId = appId,
     bundleId = bundleId,
     url = application$url,
     metadata = metadata
