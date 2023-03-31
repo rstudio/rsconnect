@@ -82,11 +82,7 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
     Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
     Qmd = any(grepl(glob2rx("*.qmd"), appFilesBase)),
     static = any(grepl("(?:html?|pdf)$", appFilesBase)),
-    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase),
-    tensorflow = length(c(
-      Sys.glob(file.path(appDir, "*", "saved_model.pb*")),
-      Sys.glob(file.path(appDir, "saved_model.pb*"))
-    )) > 0
+    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase)
   )
 
   if (any(satisfiedLayouts)) {
@@ -99,8 +95,7 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
     " " = "1. A Shiny app with `app.R` or `server.R` + `ui.R`",
     " " = "2. R Markdown (`.Rmd`) or Quarto (`.qmd`) documents.",
     " " = "3. A website containing `.html` and/or `.pdf` files.",
-    " " = "4. A plumber API with `plumber.R` or `entrypoint.R`.",
-    " " = "5. A tensorflow saved model."
+    " " = "4. A plumber API with `plumber.R` or `entrypoint.R`."
   ))
 }
 
@@ -184,12 +179,6 @@ inferAppMode <- function(absoluteAppFiles,
       }
       return("rmd-static")
     }
-  }
-
-  # We don't have an RMarkdown, Shiny app, or Plumber API, but we have a saved model
-  modelFiles <- matchingNames(absoluteAppFiles, "^(saved_model.pb|saved_model.pbtxt)$")
-  if (length(modelFiles) > 0) {
-    return("tensorflow-saved-model")
   }
 
   # no renderable content

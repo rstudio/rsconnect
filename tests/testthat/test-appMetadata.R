@@ -155,10 +155,6 @@ test_that("shiny metadata process correctly", {
   expect_true(is_shiny_prerendered(NULL, list(type = "shiny")))
 })
 
-test_that("can infer tensorflow models", {
-  expect_equal(inferAppMode("saved_model.pb"), "tensorflow-saved-model")
-})
-
 test_that("otherwise, fallsback to static deploy", {
   expect_equal(inferAppMode(c("a.html", "b.html")), "static")
 })
