@@ -96,7 +96,7 @@ deploymentTargetForApp <- function(appId,
     application$title %||% appTitle,
     application$id,
     application$owner_username,
-    accountDetails$username,
+    accountDetails$name,
     accountDetails$server
   )
 }
