@@ -150,11 +150,11 @@ connectClient <- function(service, authInfo) {
         function(name, value) {
           list(
             name = name,
-            value = if (value == "") NULL else value
+            value = if (is.na(value)) NULL else value
           )
         },
         vars,
-        Sys.getenv(vars)
+        Sys.getenv(vars, unset = NA)
       ))
       PATCH_JSON(service, authInfo, path, body)
     }

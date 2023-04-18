@@ -64,12 +64,21 @@ supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.}
 
 \item{envVars}{A character vector giving the names of environment variables
-to upload to the server. The values of the environment variables are sent
-over an encrypted connection and are not stored in the bundle, making
-this a safe way to send private data to Connect.
+whose values should be synchronised with the server (currently supported by
+Connect only). The values of the environment variables are sent over an
+encrypted connection and are not stored in the bundle, making this a safe
+way to send private data to Connect.
 
-The names (not values) are stored in the deployment record so that when
-you re-deploy in the future, they will be automatically uploaded.}
+The names (not values) are stored in the deployment record so that future
+deployments will automatically update their values. Other environment
+variables on the server will not be affected. This means that removing an
+environment variable from \code{envVars} will leave it unchanged on the server.
+To remove it, either delete it using the Connect UI, or temporarily unset
+it (with \code{Sys.unsetenv()} or similar) then re-deploy.
+
+Environment variables are set prior to deployment so that your code
+can use them and the first deployment can still succeed. Note that means
+that if the deployment fails, the values will still be updated.}
 
 \item{appId}{Use this to deploy to an exact known application, ignoring all
 existing deployment records and \code{appName}.
