@@ -61,13 +61,6 @@ test_that("The linter accepts a plumber API", {
   expect_false(is.null(result$plumber.R))
 })
 
-test_that("The linter accepts a TensorFlow Saved Model", {
-  lint("tf-saved-model")
-  lint("tf-human-readable-saved-model")
-  lint("tf-saved-model-rootdir")
-  expect_true(TRUE) # didn't stop()
-})
-
 test_that("Linters can run on files with multibyte characters", {
   lint("multibyte-characters")
   expect_true(TRUE) # didn't stop

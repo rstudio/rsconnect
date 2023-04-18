@@ -13,6 +13,15 @@
   environment variable with the current value of that environment variable
   (#667).
 
+* `deployTFModel()` is defunct. Posit Connect no longer supports hosting of
+  TensorFlow Model APIs. A TensorFlow model can be deployed as a [Plumber
+  API](https://tensorflow.rstudio.com/guides/deploy/plumber.html), [Shiny
+  application](https://tensorflow.rstudio.com/guides/deploy/shiny), or other
+  supported content type.
+
+* The default server name created by `addServer()` now includes the port,
+  if used.
+
 * New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
   set extra arbitrary additional headers/cookies on each request (#405).
   Their use is documented in the new `vignette("custom-http")`.
