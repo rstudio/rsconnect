@@ -122,6 +122,39 @@ test_that("new title overrides existing title", {
   expect_equal(target$appTitle, "new title")
 })
 
+test_that("new env vars overrides existing", {
+  local_temp_config()
+  app <- local_temp_app()
+  addTestServer()
+  addTestAccount()
+  addTestDeployment(app, envVars = "TEST1")
+
+  target <- deploymentTarget(app)
+  expect_equal(target$envVars, "TEST1")
+
+  target <- deploymentTarget(app, envVars = "TEST2")
+  expect_equal(target$envVars, "TEST2")
+
+  # And check that it works with vectors
+  addTestDeployment(app, envVars = c("TEST1", "TEST2"))
+  target <- deploymentTarget(app)
+  expect_equal(target$envVars, c("TEST1", "TEST2"))
+
+  target <- deploymentTarget(app, envVars = "TEST2")
+  expect_equal(target$envVars, "TEST2")
+})
+
+test_that("empty character vector removes env vars", {
+  local_temp_config()
+  app <- local_temp_app()
+  addTestServer()
+  addTestAccount()
+  addTestDeployment(app, envVars = "TEST1")
+
+  target <- deploymentTarget(app, envVars = character())
+  expect_equal(target$envVars, character())
+})
+
 test_that("succeeds if there are no deployments and a single account", {
   local_temp_config()
   addTestServer()
@@ -134,9 +167,10 @@ test_that("succeeds if there are no deployments and a single account", {
   app_dir <- file.path(dir, "my_app")
   dir.create(app_dir)
 
-  target <- deploymentTarget(app_dir)
+  target <- deploymentTarget(app_dir, envVars = c("TEST1", "TEST2"))
   expect_equal(target$appName, "my_app")
   expect_equal(target$username, "ron")
+  expect_equal(target$envVars, c("TEST1", "TEST2"))
 
   target <- deploymentTarget(app_dir, appName = "foo")
   expect_equal(target$username, "ron")

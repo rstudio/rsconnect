@@ -50,8 +50,6 @@ test_that("deployments() can filter", {
 })
 
 test_that("deployments() can exclude orphans", {
-  local_temp_config()
-
   dir <- local_temp_app()
   addTestDeployment(dir, server = "bar1")
 
@@ -63,13 +61,38 @@ test_that("deployments() can exclude orphans", {
 })
 
 test_that("can read/write metadata", {
-  local_temp_config()
   dir <- local_temp_app()
 
   addTestDeployment(dir, metadata = list(meta1 = "one", meta2 = "two"))
   out <- deployments(dir, excludeOrphaned = FALSE)
   expect_equal(out$meta1, "one")
   expect_equal(out$meta2, "two")
+})
+
+test_that("can read/write env vars", {
+  app <- local_temp_app()
+  addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
+  addTestDeployment(app, "test2")
+
+  deps <- deployments(app, excludeOrphaned = FALSE)
+  expect_equal(deps$envVars, list(c("TEST1", "TEST2"), character()))
+})
+
+test_that("can read env vars when none set", {
+  app <- local_temp_app()
+  addTestDeployment(app, "test1", envVars = NA_character_)
+
+  deps <- deployments(app, excludeOrphaned = FALSE)
+  expect_equal(deps$envVars, list(NA_character_))
+})
+
+test_that("can read/write env vars", {
+  app <- local_temp_app()
+  addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
+  addTestDeployment(app, "test2")
+
+  deps <- deployments(app, excludeOrphaned = FALSE)
+  expect_equal(deps$envVars, list(c("TEST1", "TEST2"), character()))
 })
 
 test_that("saveDeployment appends to global history", {
@@ -85,6 +108,7 @@ test_that("saveDeployment appends to global history", {
       appName = "my-app",
       appTitle = "",
       appId = 10,
+      envVars = NULL,
       account = "foo",
       username = "foo",
       server = "bar"
@@ -110,6 +134,7 @@ test_that("saveDeployment captures hostUrl", {
       appName = "my-app",
       appTitle = "",
       appId = 10,
+      envVars = NULL,
       account = "foo",
       username = "foo",
       server = "example.com"
