@@ -3,13 +3,13 @@
 # This function is poorly named because as well as validating the server
 # url it will also register the server if needed.
 validateServerUrl <- function(url, certificate = NULL) {
-  valid <- validateConnectUrl(url, certificate)
+  res <- validateConnectUrl(url, certificate)
 
-  if (valid$ok)  {
+  if (res$valid)  {
     name <- findAndRegisterLocalServer(url)
-    c(list(valid = TRUE, url = valid$url, name = name), valid$response)
+    c(list(valid = TRUE, url = res$url, name = name), res$response)
   } else {
-    valid
+    res
   }
 }
 
