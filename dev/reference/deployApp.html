@@ -71,6 +71,7 @@ content to a server.</p>
 <span>  appSourceDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appTitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  envVars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appId <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -132,6 +133,23 @@ document. On subsequent deploys, it will use the previously stored value.</p></d
 <dd><p>Free-form descriptive title of application. Optional; if
 supplied, will often be displayed in favor of the name. If ommitted,
 on second and subsequent deploys, the title will be unchanged.</p></dd>
+
+
+<dt>envVars</dt>
+<dd><p>A character vector giving the names of environment variables
+whose values should be synchronised with the server (currently supported by
+Connect only). The values of the environment variables are sent over an
+encrypted connection and are not stored in the bundle, making this a safe
+way to send private data to Connect.</p>
+<p>The names (not values) are stored in the deployment record so that future
+deployments will automatically update their values. Other environment
+variables on the server will not be affected. This means that removing an
+environment variable from <code>envVars</code> will leave it unchanged on the server.
+To remove it, either delete it using the Connect UI, or temporarily unset
+it (with <code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.unsetenv()</a></code> or similar) then re-deploy.</p>
+<p>Environment variables are set prior to deployment so that your code
+can use them and the first deployment can still succeed. Note that means
+that if the deployment fails, the values will still be updated.</p></dd>
 
 
 <dt>appId</dt>
