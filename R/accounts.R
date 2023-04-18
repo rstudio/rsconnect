@@ -321,5 +321,5 @@ registerAccount <- function(serverName,
 }
 
 accountLabel <- function(account, server) {
-  paste0(account, "@", server)
+  paste0("server: ", server, " / username: ", account)
 }
