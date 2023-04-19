@@ -97,52 +97,49 @@ connectUser <- function(account = NULL,
 }
 
 getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
-  # Generate public/private key pair
+  token <- getAuthToken(server)
+
+  if (isTRUE(launch.browser))
+    utils::browseURL(token$claim_url)
+  else if (is.function(launch.browser))
+    launch.browser(token$claim_url)
+
+  if (isFALSE(launch.browser)) {
+    cli::cli_alert_warning("Open {.url {token$claim_url}} to authenticate")
+  } else {
+    cli::cli_alert_info("A browser window should open to complete authentication")
+    cli::cli_alert_warning("If it doesn't open, please go to {.url {token$claim_url}}")
+  }
+
+  user <- waitForAuthedUser(
+    server,
+    token = token$token,
+    private_key = token$private_key
+  )
+
+  list(
+    token = token,
+    user = user
+  )
+}
+
+# Used by the IDE
+getAuthToken <- function(server, userId = 0) {
   token <- generateToken()
 
   # Send public key to server, and generate URL where the token can be claimed
-  client <- clientForAccount(list(server = server))
+  account <- list(server = server)
+  client <- clientForAccount(account)
   response <- client$addToken(list(
     token = token$token,
     public_key = token$public_key,
     user_id = 0L
   ))
 
-  claim_url <- response$token_claim_url
-
-  if (isTRUE(launch.browser))
-    utils::browseURL(claim_url)
-  else if (is.function(launch.browser))
-    launch.browser(claim_url)
-
-  if (isFALSE(launch.browser)) {
-    cli::cli_alert_warning("Open {.url {claim_url}} to authenticate")
-  } else {
-    cli::cli_alert_info("A browser window should open to complete authentication")
-    cli::cli_alert_warning("If it doesn't open, please go to {.url {claim_url}}")
-  }
-
-  # keep trying to authenticate until we're successful; server returns
-  # 500 "Token is unclaimed error" while waiting for interactive auth to complete
-  cli::cli_progress_bar(format = "{cli::pb_spin} Waiting for authentication...")
-  repeat {
-    for (i in 1:10) {
-      Sys.sleep(0.1)
-      cli::cli_progress_update()
-    }
-    user <- tryCatch(
-      getAuthedUser(server, token = token$token, private_key = token$private_key),
-      rsconnect_http_500 = function(err) NULL
-    )
-    if (!is.null(user)) {
-      cli::cli_progress_done()
-      break
-    }
-  }
-
   list(
-    token = token,
-    user = user
+    token = token$token,
+    private_key = secret(token$private_key),
+    claim_url = response$token_claim_url
   )
 }
 
@@ -162,7 +159,41 @@ generateToken <- function() {
   )
 }
 
-getAuthedUser <- function(server, token = NULL, private_key = NULL, apiKey = NULL) {
+waitForAuthedUser <- function(server,
+                              token = NULL,
+                              private_key = NULL,
+                              apiKey = NULL) {
+  # keep trying to authenticate until we're successful; server returns
+  # 500 "Token is unclaimed error" while waiting for interactive auth to complete
+  cli::cli_progress_bar(format = "{cli::pb_spin} Waiting for authentication...")
+
+  repeat {
+    for (i in 1:10) {
+      Sys.sleep(0.1)
+      cli::cli_progress_update()
+    }
+    user <- tryCatch(
+      getAuthedUser(
+        server,
+        token = token,
+        private_key = private_key,
+        apiKey = apiKey
+      ),
+      rsconnect_http_500 = function(err) NULL
+    )
+    if (!is.null(user)) {
+      cli::cli_progress_done()
+      break
+    }
+  }
+
+  user
+}
+
+getAuthedUser <- function(server,
+                          token = NULL,
+                          private_key = NULL,
+                          apiKey = NULL) {
   if (!xor(is.null(token) && is.null(private_key), is.null(apiKey))) {
     cli::cli_abort("Must supply either {.arg token} + {private_key} or {.arg apiKey}")
   }
