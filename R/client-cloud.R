@@ -65,7 +65,7 @@ cloudClient <- function(service, authInfo) {
     },
 
     getApplication = function(applicationId) {
-      if (startsWith(applicationId, "lucid:content:")) {
+      if (is.character(applicationId) && startsWith(applicationId, "lucid:content:")) {
         # applicationId refers in this case to the id of the output, not the
         # application.
         contentId <- strsplit(applicationId, ":")[[1]][3]
@@ -120,7 +120,6 @@ cloudClient <- function(service, authInfo) {
 
       currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
-        print("Found application...")
         path <- paste("/applications/", currentApplicationId, sep = "")
         current_application <- GET(service, authInfo, path)
         project_id <- current_application$content_id
