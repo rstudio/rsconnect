@@ -73,8 +73,8 @@
     Message
       Found multiple accounts.
       Which one do you want to use?
-      1: a@x
-      2: a@y
-      3: b@y
+      1: server: x / username: a
+      2: server: y / username: a
+      3: server: y / username: b
       Selection: 2
 

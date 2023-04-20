@@ -1,3 +1,5 @@
+# Docs: https://build.posit.it/job/hostedapps/job/lucid-pipeline/job/main/API/
+
 cloudClient <- function(service, authInfo) {
   list(
 
