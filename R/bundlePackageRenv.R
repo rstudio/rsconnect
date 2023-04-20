@@ -83,8 +83,10 @@ standardizeRenvPackage <- function(pkg, availablePackages, repos = character()) 
         pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
       }
     } else {
-      pkg$Source <- findRepoName(pkg$Repository, repos)
+      # $Repository comes from DESCRIPTION and is set by repo, so can be
+      # anything. So we must look up from the package name
       pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+      pkg$Source <- findRepoName(pkg$Repository, repos)
     }
   } else if (pkg$Source == "Bioconductor") {
     pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
