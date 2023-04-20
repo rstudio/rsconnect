@@ -73,8 +73,14 @@ standardizeRenvPackage <- function(pkg, availablePackages, repos = character()) 
   # Convert renv source to manifest source/repository
   # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
 
+  if (is.null(pkg$Repository) && !is.null(pkg$RemoteRepos) && grepl("bioconductor.org", pkg$RemoteRepos)) {
+    # Work around bug where renv fails to detect BioC package installed by pak
+    # https://github.com/rstudio/renv/issues/1202
+    pkg$Source <- "Bioconductor"
+  }
+
   if (pkg$Source == "Repository") {
-    if (identical(pkg$Repository, "CRAN")) {
+    if (pkg$Repository == "CRAN") {
       if (isDevVersion(pkg, availablePackages)) {
         pkg$Source <- NA_character_
         pkg$Repository <- NA_character_

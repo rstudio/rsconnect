@@ -17,10 +17,8 @@ test_that("recommended packages are snapshotted", {
 })
 
 test_that("works with BioC packages", {
-  app <- local_temp_app(list("index.Rmd" = c(
-    "```{r}",
-    "library(Biobase)",
-    "```"
+  app <- local_temp_app(list("index.R" = c(
+    "library(Biobase)"
   )))
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
