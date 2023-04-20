@@ -6,11 +6,7 @@ snapshotRenvDependencies <- function(bundleDir,
   old <- options(renv.verbose = FALSE, pkgType = "source")
   defer(options(old))
 
-  renv::snapshot(
-    bundleDir,
-    type = "implicit",
-    prompt = FALSE
-  )
+  renv::snapshot(bundleDir, prompt = FALSE)
   defer(removeRenv(bundleDir))
 
   parseRenvDependencies(bundleDir, snapshot = TRUE)

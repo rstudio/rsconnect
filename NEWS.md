@@ -3,7 +3,7 @@
 * `deployApp()` and `writeManifest()` now respect renv lock files, if present. 
   If you don't want to use these lockfiles, and instead return the previous 
   behaviour of snapshotting on every deploy, add your `renv.lock` to 
-  `.rscignore` (#671). 
+  `.rscignore` (#671). Learn more `?appDependencies()`.
   
 * `deployApp()` and `writeManifest()` now use renv to capture app dependencies, 
   rather than packrat. If this causes a previously working deploy to fail, 

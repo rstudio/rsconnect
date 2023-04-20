@@ -19,7 +19,7 @@
     Code
       pkgs <- bundlePackages(app_dir)
     Message
-      i Capturing R dependencies from renv.lockfile
+      i Capturing R dependencies from renv.lock
       v Found 1 dependency
 
 # error if can't find source
