@@ -1,0 +1,35 @@
+# Connections
+
+## Remove an account
+
+1. Open Options | Publishing.
+1. Select `colorado.posit.co` then click disconnect.
+
+Success:
+
+* No errors dialogs or error messages in console.
+* `nrow(rsconnect::accounts("colorado.posit.co"))` returns 0.
+
+## Add a Connect account
+
+1. Open Options | Publishing.
+1. Click Connect, then "Posit Connect".
+1. Paste in `https://colorado.posit.co/rsc` and click next.
+1. Login connect in browser window, then click next.
+
+Success:
+
+* Dialog shows "Account Verified".
+* No errors dialogs or error messages in console.
+* `nrow(rsconnect::accounts("colorado.posit.co"))` returns 1.
+
+### Add a shiny account
+
+1. Open Options | Publishing.
+1. Click Connect, then Shinyapps.io. 
+1. Follow the on-screen instuctions, then click Connect Account.
+
+Success:
+
+1. No errors in console
+1. `nrow(rsconnect::accounts("shinyapps.io"))` returns 1 or greater.

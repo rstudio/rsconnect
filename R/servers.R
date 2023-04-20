@@ -174,6 +174,65 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
   }
 }
 
+
+# Validate a connect server URL by hitting a known configuration endpoint
+# The URL may be specified with or without the protocol and port; this function
+# will try both http and https and follow any redirects given by the server.
+validateConnectUrl <- function(url, certificate = NULL) {
+  # Add protocol if missing, assuming https except for local installs
+  if (!grepl("://", url, fixed = TRUE)) {
+    if (grepl(":3939", url, fixed = TRUE)) {
+      url <- paste0("http://", url)
+    } else {
+      url <- paste0("https://", url)
+    }
+  }
+  url <- ensureConnectServerUrl(url)
+  is_http <- grepl("^http://", url)
+
+  GET_server_settings <- function(url) {
+    timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
+    auth_info <- list(certificate = inferCertificateContents(certificate))
+    GET(
+      parseHttpUrl(url),
+      auth_info,
+      "/server_settings",
+      timeout = timeout
+    )
+  }
+
+  response <- NULL
+  cnd <- catch_cnd(response <- GET_server_settings(url), "error")
+  if (is_http && cnd_inherits(cnd, "OPERATION_TIMEDOUT")) {
+    url <- gsub("^http://", "https://", url)
+    cnd <- catch_cnd(response <- GET_server_settings(url), "error")
+  }
+
+  if (!is.null(cnd)) {
+    return(list(valid = FALSE, message = conditionMessage(cnd)))
+  }
+
+  contentType <- attr(response, "httpContentType")
+  if (!isContentType(contentType, "application/json")) {
+    return(list(valid = FALSE, message = "Endpoint did not return JSON"))
+  }
+
+  url <- gsub("/server_settings$", "", attr(response, "httpUrl"))
+  list(valid = TRUE, url = url, response = response)
+}
+
+# Return a URL that can be concatenated with sub-paths like /content
+ensureConnectServerUrl <- function(url) {
+  # strip trailing /
+  url <- gsub("/$", "", url)
+
+  # ensure 'url' ends with '/__api__'
+  if (!grepl("/__api__$", url))
+    url <- paste(url, "/__api__", sep = "")
+
+  url
+}
+
 registerServer <- function(name, url, certificate = NULL, error_call = caller_env()) {
   certificate <- inferCertificateContents(certificate)
 
@@ -215,18 +274,6 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
     message("Certificate added to server '", name, "'")
 
   invisible(NULL)
-}
-
-# Return a URL that can be concatenated with sub-paths like /content
-ensureConnectServerUrl <- function(url) {
-  # strip trailing /
-  url <- gsub("/$", "", url)
-
-  # ensure 'url' ends with '/__api__'
-  if (!grepl("/__api__$", url))
-    url <- paste(url, "/__api__", sep = "")
-
-  url
 }
 
 serverName <- function(url) {
