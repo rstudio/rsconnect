@@ -15,7 +15,6 @@ bundlePackages <- function(bundleDir,
   }
   checkBundlePackages(deps, call = error_call)
 
-
   # Manifest packages used to generate packrat file on Connect
   # https://github.com/rstudio/connect/blob/v2023.03.0/src/connect/manifest/convert.go#L261-L320
   packages_list <- lapply(seq_len(nrow(deps)), function(i) {
@@ -73,7 +72,10 @@ manifestPackageColumns <- function(df) {
   # shinyapps.io needs GitHub fields for backward compatibility
 
   github_cols <- grep("^Github", names(df), perl = TRUE, value = TRUE)
-  intersect(names(df), c("Package", "Version", "Source", "Repository", github_cols))
+  intersect(
+    c("Package", "Version", "Source", "Repository", github_cols),
+    names(df)
+  )
 }
 
 availablePackages <- function(repos) {

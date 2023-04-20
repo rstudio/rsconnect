@@ -32,7 +32,8 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
   if (snapshot) {
     # Can use system libraries
     deps$description <- lapply(deps$Package, function(pkg) {
-      readLines(system.file("DESCRIPTION", package = pkg))
+      dcf <- read.dcf(system.file("DESCRIPTION", package = pkg))
+      as.list(as.data.frame(dcf))
     })
   } else {
     # Generate a library from the lockfile
