@@ -74,7 +74,7 @@ standardizeRenvPackage <- function(pkg, availablePackages, repos = character()) 
   # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
 
   if (pkg$Source == "Repository") {
-    if (pkg$Repository == "CRAN") {
+    if (identical(pkg$Repository, "CRAN")) {
       if (isDevVersion(pkg, availablePackages)) {
         pkg$Source <- NA_character_
         pkg$Repository <- NA_character_
