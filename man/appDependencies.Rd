@@ -35,19 +35,19 @@ and adds all recursive dependencies to create a complete manifest of
 package packages need to be installed to run the app.
 }
 \section{Dependency discovery}{
-rsconnect use on of three mechanisms to find which packages your application
+rsconnect use one of three mechanisms to find which packages your application
 uses:
 \enumerate{
-\item If \code{renv.lock} is present, it will use the package versions defined in
+\item If \code{renv.lock} is present, it will use the versions and sources defined in
 that file. If you're using the lockfile for some other purpose and
-don't want it to influence deployment, add \code{renv.lock} to \code{.rscignore}.
-\item Otherwise, it calls \code{renv::snapshot()} to find all packages used in the
-\code{.R}, \code{.Rmd}, etc files. If you'd instead prefer to only use the packages
+don't want it to affect deployment, add \code{renv.lock} to \code{.rscignore}.
+\item Otherwise, rsconnect will call \code{renv::snapshot()} to find all packages
+used by your code. If you'd instead prefer to only use the packages
 declared in a \code{DESCRIPTION} file, run
 \code{renv::settings$snapshot.type("explicit")} to activate renv's "explicit"
 mode.
 \item Dependency resolution using renv is a new feature in rsconnect 1.0.0, and
-while we have done our best to test it, it's it might fail for your app.
+while we have done our best to test it, it still might fail for your app.
 If this happens, please \href{http://github.com/rstudio/rsconnect/issues}{file an issue}
 then set \code{options(rsconnect.packrat = TRUE)} to revert to the old
 dependency discovery mechanism.
