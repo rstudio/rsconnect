@@ -38,7 +38,8 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
     defer(unlink(lib_dir, recursive = TRUE))
 
     deps$description <- lapply(deps$Package, function(pkg) {
-      readLines(file.path(lib_dir, pkg, "DESCRIPTION"))
+      dcf <- read.dcf(file.path(lib_dir, pkg, "DESCRIPTION"))
+      as.list(as.data.frame(dcf))
     })
   }
 
