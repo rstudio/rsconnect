@@ -24,18 +24,26 @@ test_that("works with BioC packages", {
     CRAN = "https://cran.rstudio.com",
     BioC = "https://bioconductor.org/packages/3.16/bioc"
   ))
-
-  deps <- snapshotRenvDependencies(app)
-
+  expect_no_condition(
+    deps <- snapshotRenvDependencies(app),
+    class = "rsconnect_biocRepos"
+  )
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")
   expect_equal(Biobase$Repository, "https://bioconductor.org/packages/3.16/bioc")
 
-  BiocGenerics <- deps[deps$Package == "BiocGenerics", ]
-  expect_equal(BiocGenerics$Source, "Bioconductor")
-  expect_equal(BiocGenerics$Repository, "https://bioconductor.org/packages/3.16/bioc")
-})
+  withr::local_options(repos = c(
+    CRAN = "https://cran.rstudio.com"
+  ))
+  expect_condition(
+    deps <- snapshotRenvDependencies(app),
+    class = "rsconnect_biocRepos"
+  )
 
+  Biobase <- deps[deps$Package == "Biobase", ]
+  expect_equal(Biobase$Source, "Bioconductor")
+  expect_equal(Biobase$Repository, biocRepos(".")[[1]])
+})
 
 # parseRenvDependencies ---------------------------------------------------
 
