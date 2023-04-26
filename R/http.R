@@ -288,6 +288,43 @@ PUT_JSON <- function(service,
   )
 }
 
+PATCH <- function(service,
+                  authInfo,
+                  path,
+                  query = NULL,
+                  contentType = NULL,
+                  file = NULL,
+                  content = NULL,
+                  headers = list()) {
+  httpRequestWithBody(
+    service,
+    authInfo,
+    "PATCH",
+    path,
+    query,
+    contentType,
+    file,
+    content,
+    headers
+  )
+}
+
+PATCH_JSON <- function(service,
+                       authInfo,
+                       path,
+                       json,
+                       query = NULL,
+                       headers = list()) {
+  PATCH(
+    service,
+    authInfo,
+    path,
+    query,
+    "application/json",
+    content = toJSON(json),
+    headers = headers
+  )
+}
 
 # User options ------------------------------------------------------------
 

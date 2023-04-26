@@ -86,6 +86,13 @@ cloudClient <- function(service, authInfo) {
         output <- GET(service, authInfo, path)
       }
 
+      # if the output is trashed or archived, restore it to the active state
+      if (output$state == 'trashed' || output$state == 'archived') {
+        json <- list()
+        json$state <- 'active'
+        PATCH_JSON(service, authInfo, paste("/outputs/", output$id, sep = ""), json)
+      }
+
       # Each redeployment of a static output creates a new application. Since
       # those applications can be deleted, it's more reliable to reference
       # outputs by their own id instead of the applications'.
