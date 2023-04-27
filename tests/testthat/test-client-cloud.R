@@ -138,7 +138,8 @@ test_that("Get application", {
         list(
           "id"=output_id,
           "source_id"=1,
-          "url"="http://fake-url.test.me/"
+          "url"="http://fake-url.test.me/",
+          "state"="active"
         )
       }
     ),
@@ -178,13 +179,72 @@ test_that("Get application", {
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
+test_that("Get application output trashed", {
+  mockServer = mockServerFactory(list(
+    "^GET /outputs/([0-9]+)" = list(
+      content = function(methodAndPath, match, ...) {
+        end <- attr(match, 'match.length')[2] + match[2]
+        output_id <- strtoi(substr(methodAndPath, match[2], end))
+
+        list(
+          "id"=output_id,
+          "source_id"=1,
+          "url"="http://fake-url.test.me/",
+          "state"="trashed"
+        )
+      }
+    ),
+    "^GET /applications/([0-9]+)" = list(
+      content = function(methodAndPath, match, ...) {
+        end <- attr(match, 'match.length')[2] + match[2]
+        application_id <- strtoi(substr(methodAndPath, match[2], end))
+
+        list(
+          "id"=application_id,
+          "content_id"=5
+        )
+      }
+    ),
+    "^PATCH /outputs/5" = list(
+      content = function(methodAndPath, match, ...) {
+        end <- attr(match, 'match.length')[2] + match[2]
+        output_id <- strtoi(substr(methodAndPath, match[2], end))
+        list()
+      }
+    )
+  ))
+
+  restoreOpt <- options(rsconnect.http = mockServer$impl)
+  withr::defer(options(restoreOpt))
+
+  fakeService <- list(
+    protocol="test",
+    host="unit-test",
+    port=42
+  )
+  client <- cloudClient(fakeService, NULL)
+
+  app <- client$getApplication(10)
+
+  expect_equal(app$id, 10)
+  expect_equal(app$content_id, 5)
+  expect_equal(app$url, "http://fake-url.test.me/")
+
+  app <- client$getApplication("lucid:content:5")
+
+  expect_equal(app$id, 1)
+  expect_equal(app$content_id, 5)
+  expect_equal(app$url, "http://fake-url.test.me/")
+})
+
 test_that("Create application", {
   mockServer = mockServerFactory(list(
     "^POST /outputs" = list(
       content = list(
         "id"=1,
         "source_id"=2,
-        "url"="http://fake-url.test.me/"
+        "url"="http://fake-url.test.me/",
+        "state"="active"
       )
     ),
     "^GET /applications/([0-9]+)" = list(
@@ -228,7 +288,8 @@ test_that("Create application with linked source project", {
         list(
         "id"=1,
         "source_id"=2,
-        "url"="http://fake-url.test.me/"
+        "url"="http://fake-url.test.me/",
+        "state"="active"
         )
       }
     ),
@@ -291,7 +352,8 @@ test_that("deploymentTargetForApp() results in correct Cloud API calls", {
         list(
           "id"=output_id,
           "source_id"=output_id + 1,
-          "url"="http://fake-url.test.me/"
+          "url"="http://fake-url.test.me/",
+          "state"="active"
         )
       }
     )
@@ -315,15 +377,17 @@ test_that("deploymentTargetForApp() results in correct Cloud API calls", {
   expect_equal(target$appId, 3)
 })
 
-deployAppMockServerFactory <- function(expectedAppType) {
+deployAppMockServerFactory <- function(expectedAppType, outputState) {
   outputResponse <- list(
     "id"=1,
     "source_id"=2,
-    "url"="http://fake-url.test.me/"
+    "url"="http://fake-url.test.me/",
+    "state"=outputState
   )
 
   actualCalls = list(
     outputCreated = FALSE,
+    outputStateUpdated = FALSE,
     revisionCreated = FALSE,
     bundleCreated = FALSE,
     bundleUploaded = FALSE,
@@ -426,16 +490,22 @@ deployAppMockServerFactory <- function(expectedAppType) {
           application_id=3
         )
       }
+    ),
+    "^PATCH /v1/outputs" = list(
+      content = function(...) {
+        e <- environment(); p <- parent.env(e); p$actualCalls$outputStateUpdated = TRUE
+      }
     )
   ))
 
   expect_calls <- function(expectedCalls) {
-    expect_equal(expectedCalls, actualCalls)
+    expect_equal(actualCalls, expectedCalls)
   }
 
   reset_calls <- function() {
     e <- environment(); p <- parent.env(e); p$actualCalls = list(
       outputCreated = FALSE,
+      outputStateUpdated = FALSE,
       revisionCreated = FALSE,
       bundleCreated = FALSE,
       bundleUploaded = FALSE,
@@ -452,7 +522,7 @@ deployAppMockServerFactory <- function(expectedAppType) {
 }
 
 test_that("deployApp() for shiny results in correct Cloud API calls", {
-  mock <- deployAppMockServerFactory(expectedAppType="connect")
+  mock <- deployAppMockServerFactory(expectedAppType="connect", outputState="active")
   mockServer <- mock$server
 
   restoreOpt <- options(rsconnect.http = mockServer$impl)
@@ -463,7 +533,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   sourcePath = test_path('shinyapp-simple')
   # Remove local deployment info at end for reproducibility and tidiness.
-  withr::defer(forgetDeployment(appPath=sourcePath))
+  withr::defer(forgetDeployment(appPath=sourcePath, force=TRUE))
 
   deployApp(
     appName = "Desired name here",
@@ -474,6 +544,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   mock$expect_calls(list(
     outputCreated = TRUE,
+    outputStateUpdated = FALSE,
     revisionCreated = FALSE,
     bundleCreated = TRUE,
     bundleUploaded = TRUE,
@@ -490,6 +561,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   mock$expect_calls(list(
     outputCreated = FALSE,
+    outputStateUpdated = FALSE,
     revisionCreated = FALSE,
     bundleCreated = TRUE,
     bundleUploaded = TRUE,
@@ -499,7 +571,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   # Start over, add another posit.cloud account and test again with that environment
   mock$reset_calls()
-  forgetDeployment(appPath=sourcePath)
+  forgetDeployment(appPath=sourcePath, force=TRUE)
 
   extraLocalAccount <- configureTestAccount(name="testthat-superfluous-account")
   withr::defer(removeAccount(extraLocalAccount))
@@ -513,6 +585,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   mock$expect_calls(list(
     outputCreated = TRUE,
+    outputStateUpdated = FALSE,
     revisionCreated = FALSE,
     bundleCreated = TRUE,
     bundleUploaded = TRUE,
@@ -529,6 +602,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   mock$expect_calls(list(
     outputCreated = FALSE,
+    outputStateUpdated = FALSE,
     revisionCreated = FALSE,
     bundleCreated = TRUE,
     bundleUploaded = TRUE,
@@ -538,7 +612,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 })
 
 test_that("deployDoc() results in correct Cloud API calls", {
-  mock <- deployAppMockServerFactory(expectedAppType="static")
+  mock <- deployAppMockServerFactory(expectedAppType="static", outputState="active")
   mockServer <- mock$server
 
   restoreOpt <- options(rsconnect.http = mockServer$impl)
@@ -549,7 +623,7 @@ test_that("deployDoc() results in correct Cloud API calls", {
 
   sourcePath = test_path('static-with-quarto-yaml')
   # Remove local deployment info at end for reproducibility and tidiness.
-  withr::defer(forgetDeployment(appPath=sourcePath))
+  withr::defer(forgetDeployment(appPath=sourcePath, force=TRUE))
 
   deployDoc(
     paste(sourcePath, "slideshow.html", sep="/"),
@@ -560,6 +634,7 @@ test_that("deployDoc() results in correct Cloud API calls", {
 
   mock$expect_calls(list(
     outputCreated = TRUE,
+    outputStateUpdated = FALSE,
     revisionCreated = FALSE,
     bundleCreated = TRUE,
     bundleUploaded = TRUE,
@@ -576,6 +651,7 @@ test_that("deployDoc() results in correct Cloud API calls", {
 
   mock$expect_calls(list(
     outputCreated = FALSE,
+    outputStateUpdated = FALSE,
     revisionCreated = TRUE,
     bundleCreated = TRUE,
     bundleUploaded = TRUE,
