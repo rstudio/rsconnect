@@ -366,3 +366,35 @@ transposeList <- function(list) {
       ), stringsAsFactors = FALSE)
   ))
 }
+
+addLinter("reticulate.environment.setup", linter(
+  apply = function(content, ...) {
+    content <- stripComments(content)
+    which(hasReticulateSetup(content))
+  },
+  takes = isRCodeFile,
+  message = function(content, lines) {
+    makeLinterMessage(
+      "The following lines contain reticulate code for creating Python environments",
+      content,
+      lines
+      )
+  },
+  suggestion = "Remove these lines; your deployment manifest should indicate if R and Python environments are required."
+  )
+
+)
+
+hasReticulateSetup <- function(content) {
+  # functions that construct python environments
+  # should generally not be present in deployed code
+  any(
+    grepl("\\binstall_python\\([^)]*\\", content, perl = TRUE),
+    grepl("\\bpy_install\\([^)]*\\", content, perl = TRUE),
+    grepl("\\bvirtualenv_create\\([^)]*\\", content, perl = TRUE),
+    grepl("\\bvirtualenv_install\\([^)]*\\", content, perl = TRUE),
+    grepl("\\binstall_miniconda\\([^)]*\\", content, perl = TRUE),
+    grepl("\\bconda_create\\([^)]*\\", content, perl = TRUE),
+    grepl("\\bconda_install\\([^)]*\\", content, perl = TRUE),
+  )
+}
