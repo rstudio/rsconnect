@@ -87,9 +87,9 @@ cloudClient <- function(service, authInfo) {
       }
 
       # if the output is trashed or archived, restore it to the active state
-      if (output$state == 'trashed' || output$state == 'archived') {
+      if (output$state == "trashed" || output$state == "archived") {
         json <- list()
-        json$state <- 'active'
+        json$state <- "active"
         PATCH_JSON(service, authInfo, paste("/outputs/", output$id, sep = ""), json)
       }
 
