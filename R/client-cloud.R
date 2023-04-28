@@ -66,15 +66,39 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, sep = "")
-      application <- GET(service, authInfo, path)
+    getApplication = function(applicationId, dcfVersion) {
+      if (!(is.na(dcfVersion) || is.null(dcfVersion))) {
+        # On version >=1, applicationId refers to the id of the output, not the application.
+        path <- paste("/outputs/", applicationId, sep = "")
+        output <- GET(service, authInfo, path)
 
-      output_id <- application$content_id
-      path <- paste("/content/", output_id, sep = "")
+        path <- paste("/applications/", output$source_id, sep = "")
+        application <- GET(service, authInfo, path)
+      } else {
+        # backwards compatibility for data saved with the application's id
+        # TODO: remove support for this case
+        path <- paste("/applications/", applicationId, sep = "")
+        application <- GET(service, authInfo, path)
 
-      applications_output <- GET(service, authInfo, path)
-      application$url <- applications_output$url
+        output_id <- ifelse(is.null(application$output_id), application$content_id, application$output_id)
+
+        path <- paste("/outputs/", output_id, sep = "")
+        output <- GET(service, authInfo, path)
+      }
+
+      # if the output is trashed or archived, restore it to the active state
+      if (output$state == 'trashed' || output$state == 'archived') {
+        json <- list()
+        json$state <- 'active'
+        PATCH_JSON(service, authInfo, paste("/outputs/", output$id, sep = ""), json)
+      }
+
+      # Each redeployment of a static output creates a new application. Since
+      # those applications can be deleted, it's more reliable to reference
+      # outputs by their own id instead of the applications'.
+      application$content_id <- output$id
+      application$url <- output$url
+      application$name <- output$name
       application
     },
 
@@ -97,13 +121,13 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId) {
+    createApplication = function(name, title, template, accountId, appMode) {
       json <- list()
       json$name <- name
+      json$application_type <- ifelse(appMode == "static", "static", "connect")
 
       currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
-        print("Found application...")
         path <- paste("/applications/", currentApplicationId, sep = "")
         current_application <- GET(service, authInfo, path)
         project_id <- current_application$content_id
@@ -120,6 +144,7 @@ cloudClient <- function(service, authInfo) {
       output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste("/applications/", output$source_id, sep = "")
       application <- GET(service, authInfo, path)
+      application$content_id <- output$id
       # this swaps the "application url" for the "content url". So we end up redirecting to the right spot after deployment.
       application$url <- output$url
       application
@@ -159,8 +184,14 @@ cloudClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(applicationId, bundleId = NULL) {
-      path <- paste("/applications/", applicationId, "/deploy", sep = "")
+    createRevision = function(application) {
+        path <- paste("/outputs/", application$content_id, "/revisions", sep = "")
+        revision <- POST_JSON(service, authInfo, path, data.frame())
+        revision$application_id
+    },
+
+    deployApplication = function(application, bundleId = NULL) {
+      path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
         json$bundle <- as.numeric(bundleId)

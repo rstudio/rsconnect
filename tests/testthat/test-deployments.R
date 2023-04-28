@@ -111,9 +111,10 @@ test_that("saveDeployment appends to global history", {
       envVars = NULL,
       account = "foo",
       username = "foo",
-      server = "bar"
+      server = "bar",
+      version = dcfVersion
     ),
-    application = list(),
+    application = list(id=1),
     hostUrl = NULL
   )
 
@@ -137,9 +138,10 @@ test_that("saveDeployment captures hostUrl", {
       envVars = NULL,
       account = "foo",
       username = "foo",
-      server = "example.com"
+      server = "example.com",
+      version = dcfVersion
     ),
-    application = list()
+    application = list(id=10)
   )
 
   out <- deployments(dir)

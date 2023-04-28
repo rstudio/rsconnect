@@ -48,7 +48,7 @@ connectClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    createApplication = function(name, title, template, accountId) {
+    createApplication = function(name, title, template, accountId, appMode) {
       # add name; inject title if specified
       details <- list(name = name)
       if (!is.null(title) && nzchar(title))
@@ -87,7 +87,7 @@ connectClient <- function(service, authInfo) {
         "/applications/", applicationId, "/config", sep = ""))
     },
 
-    getApplication = function(applicationId) {
+    getApplication = function(applicationId, dcfVersion) {
       GET(service, authInfo, paste0("/applications/", applicationId))
     },
 

@@ -81,6 +81,7 @@ addTestDeployment <- function(path,
                               envVars = NULL,
                               username = account,
                               server = "example.com",
+                              version = dcfVersion,
                               url = paste0("https://", server, "/", username, "/", appId),
                               hostUrl = NULL,
                               metadata = list()) {
@@ -93,7 +94,8 @@ addTestDeployment <- function(path,
       envVars = envVars,
       account = account,
       username = username,
-      server = server
+      server = server,
+      version = version
     ),
     application = list(id = appId, url = url),
     hostUrl = hostUrl,

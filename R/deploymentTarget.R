@@ -47,7 +47,8 @@ deploymentTarget <- function(recordPath = ".",
       envVars,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
-      fullAccount$server
+      fullAccount$server,
+      dcfVersion
     )
   } else if (nrow(appDeployments) == 1) {
     # If both appName and appId supplied, check that they're consistent.
@@ -76,13 +77,17 @@ deploymentTargetForApp <- function(appId,
   accountDetails <- findAccount(account, server)
   application <- getApplication(accountDetails$name, accountDetails$server, appId)
 
+  resultAppId <- ifelse(is.null(application$content_id), application$id, application$content_id)
+
   createDeploymentTarget(
     application$name,
     application$title %||% appTitle,
-    application$id,
+    resultAppId,
+    NULL,
     application$owner_username,
     accountDetails$name,
-    accountDetails$server
+    accountDetails$server,
+    dcfVersion
   )
 }
 
@@ -92,7 +97,8 @@ createDeploymentTarget <- function(appName,
                                    envVars,
                                    username,
                                    account,
-                                   server) {
+                                   server,
+                                   version) {
   list(
     appName = appName,
     appTitle = appTitle %||% "",
@@ -100,7 +106,8 @@ createDeploymentTarget <- function(appName,
     appId = appId,
     username = username,
     account = account,
-    server = server
+    server = server,
+    version = version
   )
 }
 
@@ -113,7 +120,8 @@ updateDeploymentTarget <- function(previous, appTitle = NULL, envVars = NULL) {
     # if username not previously recorded, use current account
     previous$username %||% previous$account,
     previous$account,
-    previous$server
+    previous$server,
+    previous$version
   )
 }
 
