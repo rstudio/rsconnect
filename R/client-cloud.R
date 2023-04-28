@@ -66,24 +66,24 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(applicationId, dcfVersion) {
-      if (!(is.na(dcfVersion) || is.null(dcfVersion))) {
-        # On version >=1, applicationId refers to the id of the output, not the application.
-        path <- paste("/outputs/", applicationId, sep = "")
-        output <- GET(service, authInfo, path)
-
-        path <- paste("/applications/", output$source_id, sep = "")
-        application <- GET(service, authInfo, path)
-      } else {
-        # backwards compatibility for data saved with the application's id
+    getApplication = function(outputOrApplicationId, dcfVersion) {
+      if (is.na(dcfVersion) || is.null(dcfVersion)) {
+        # In pre-versioned dcf files, contentOrAppId is the id of the application.
         # TODO: remove support for this case
-        path <- paste("/applications/", applicationId, sep = "")
+        path <- paste("/applications/", outputOrApplicationId, sep = "")
         application <- GET(service, authInfo, path)
 
         output_id <- ifelse(is.null(application$output_id), application$content_id, application$output_id)
 
         path <- paste("/outputs/", output_id, sep = "")
         output <- GET(service, authInfo, path)
+      } else {
+        # from dcf version >= 1, outputOrApplicationId is the id of the output.
+        path <- paste("/outputs/", outputOrApplicationId, sep = "")
+        output <- GET(service, authInfo, path)
+
+        path <- paste("/applications/", output$source_id, sep = "")
+        application <- GET(service, authInfo, path)
       }
 
       # if the output is trashed or archived, restore it to the active state
