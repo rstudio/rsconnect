@@ -85,7 +85,7 @@ connectClient <- function(service, authInfo) {
         "/applications/", applicationId, "/config", sep = ""))
     },
 
-    getApplication = function(applicationId) {
+    getApplication = function(applicationId, dcfVersion) {
       GET(service, authInfo, paste0("/applications/", applicationId))
     },
 

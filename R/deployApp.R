@@ -340,7 +340,7 @@ deployApp <- function(appDir = getwd(),
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
       {
-        application <- client$getApplication(target$appId)
+        application <- client$getApplication(target$appId, target$version)
         taskComplete(quiet, "Found application {.url {application$url}}")
         application
       },

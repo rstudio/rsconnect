@@ -64,23 +64,21 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(applicationId) {
-      if (is.character(applicationId) && startsWith(applicationId, "lucid:content:")) {
-        # applicationId refers in this case to the id of the output, not the
-        # application.
-        contentId <- strsplit(applicationId, ":")[[1]][3]
-
-        path <- paste("/outputs/", contentId, sep = "")
+    getApplication = function(applicationId, dcfVersion) {
+      if (!(is.na(dcfVersion) || is.null(dcfVersion))) {
+        # On version >=1, applicationId refers to the id of the output, not the application.
+        path <- paste("/outputs/", applicationId, sep = "")
         output <- GET(service, authInfo, path)
 
         path <- paste("/applications/", output$source_id, sep = "")
         application <- GET(service, authInfo, path)
       } else {
         # backwards compatibility for data saved with the application's id
+        # TODO: remove support for this case
         path <- paste("/applications/", applicationId, sep = "")
         application <- GET(service, authInfo, path)
 
-        output_id <- application$content_id
+        output_id <- ifelse(is.null(application$output_id), application$content_id, application$output_id)
 
         path <- paste("/outputs/", output_id, sep = "")
         output <- GET(service, authInfo, path)
@@ -98,6 +96,7 @@ cloudClient <- function(service, authInfo) {
       # outputs by their own id instead of the applications'.
       application$content_id <- output$id
       application$url <- output$url
+      application$name <- output$name
       application
     },
 

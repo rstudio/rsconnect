@@ -75,7 +75,7 @@ deployments <- function(appPath = ".",
 
 deploymentFields <- c(
   "name", "title", "username", "account", "server", "hostUrl", "appId",
-  "bundleId", "url"
+  "bundleId", "url", "version"
 )
 
 saveDeployment <- function(recordDir,
@@ -84,11 +84,7 @@ saveDeployment <- function(recordDir,
                            bundleId = NULL,
                            hostUrl = serverInfo(target$server)$url,
                            metadata = list()) {
-  if (target$server == "posit.cloud") {
-    appId <- paste("lucid", "content", application$content_id, sep = ":")
-  } else {
-    appId <- application$id
-  }
+  appId <- ifelse(target$server == "posit.cloud", application$content_id, application$id)
   deployment <- deploymentRecord(
     name = target$appName,
     title = target$appTitle,
@@ -135,7 +131,10 @@ deploymentRecord <- function(name,
   c(standard, metadata)
 }
 
+dcfVersion <- "1"
+
 writeDeploymentRecord <- function(record, filePath) {
+  record$version <- dcfVersion
   # use a long width so URLs don't line-wrap
   write.dcf(record, filePath, width = 4096)
 }

@@ -166,13 +166,13 @@ test_that("Get application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$getApplication(10)
+  app <- client$getApplication("10", NULL)
 
   expect_equal(app$id, 10)
   expect_equal(app$content_id, 5)
   expect_equal(app$url, "http://fake-url.test.me/")
 
-  app <- client$getApplication("lucid:content:5")
+  app <- client$getApplication("5", dcfVersion)
 
   expect_equal(app$id, 1)
   expect_equal(app$content_id, 5)
@@ -224,13 +224,13 @@ test_that("Get application output trashed", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$getApplication(10)
+  app <- client$getApplication(10, NULL)
 
   expect_equal(app$id, 10)
   expect_equal(app$content_id, 5)
   expect_equal(app$url, "http://fake-url.test.me/")
 
-  app <- client$getApplication("lucid:content:5")
+  app <- client$getApplication(5, dcfVersion)
 
   expect_equal(app$id, 1)
   expect_equal(app$content_id, 5)
@@ -353,7 +353,8 @@ test_that("deploymentTargetForApp() results in correct Cloud API calls", {
           "id"=output_id,
           "source_id"=output_id + 1,
           "url"="http://fake-url.test.me/",
-          "state"="active"
+          "state"="active",
+          "name"="my output"
         )
       }
     )
@@ -371,7 +372,7 @@ test_that("deploymentTargetForApp() results in correct Cloud API calls", {
     server = 'posit.cloud',
   )
 
-  expect_equal(target$appName, "testthat app 3")
+  expect_equal(target$appName, "my output")
   expect_equal(target$account, testAccount)
   expect_equal(target$server, 'posit.cloud')
   expect_equal(target$appId, 3)
