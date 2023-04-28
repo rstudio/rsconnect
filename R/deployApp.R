@@ -48,6 +48,22 @@
 #' @param appTitle Free-form descriptive title of application. Optional; if
 #'   supplied, will often be displayed in favor of the name. If ommitted,
 #'   on second and subsequent deploys, the title will be unchanged.
+#' @param envVars A character vector giving the names of environment variables
+#'   whose values should be synchronised with the server (currently supported by
+#'   Connect only). The values of the environment variables are sent over an
+#'   encrypted connection and are not stored in the bundle, making this a safe
+#'   way to send private data to Connect.
+#'
+#'   The names (not values) are stored in the deployment record so that future
+#'   deployments will automatically update their values. Other environment
+#'   variables on the server will not be affected. This means that removing an
+#'   environment variable from `envVars` will leave it unchanged on the server.
+#'   To remove it, either delete it using the Connect UI, or temporarily unset
+#'   it (with `Sys.unsetenv()` or similar) then re-deploy.
+#'
+#'   Environment variables are set prior to deployment so that your code
+#'   can use them and the first deployment can still succeed. Note that means
+#'   that if the deployment fails, the values will still be updated.
 #' @param appId Use this to deploy to an exact known application, ignoring all
 #'   existing deployment records and `appName`.
 #'
@@ -151,6 +167,7 @@ deployApp <- function(appDir = getwd(),
                       appSourceDoc = NULL,
                       appName = NULL,
                       appTitle = NULL,
+                      envVars = NULL,
                       appId = NULL,
                       contentCategory = NULL,
                       account = NULL,
@@ -286,6 +303,7 @@ deployApp <- function(appDir = getwd(),
       appId = appId,
       appName = appName,
       appTitle = appTitle,
+      envVars = envVars,
       account = account,
       server = server,
       forceUpdate = forceUpdate
@@ -299,14 +317,17 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Re-deploying {.val {target$appName}} to {.val {dest}}")
   }
 
+  # Run checks prior to first saveDeployment() to avoid errors that will always
+  # prevent a successful upload from generating a partial deployment
   isCloudServer <- isCloudServer(target$server)
   if (!isCloudServer && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
   }
-  # Must be run before first saveDeployment() because errors for unexpected
-  # app structures, and we don't want to leave lingering deployment artifact
+  if (!isConnectServer(target$server) && length(envVars) > 1) {
+    cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
+  }
   logger("Inferring App mode and parameters")
   appMetadata <- appMetadata(
     appDir = appDir,
@@ -359,7 +380,7 @@ deployApp <- function(appDir = getwd(),
     metadata = metadata
   )
 
-  # Change _visibility_ before uploading data
+  # Change _visibility_ & set env vars before uploading contents
   if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
     taskStart(quiet, "Setting visibility to {appVisibility}...")
     client$setApplicationProperty(
@@ -368,6 +389,11 @@ deployApp <- function(appDir = getwd(),
       appVisibility
     )
     taskComplete(quiet, "Visibility updated")
+  }
+  if (length(target$envVars) > 0) {
+    taskStart(quiet, "Updating environment variables {envVars}...")
+    client$setEnvVars(application$guid, target$envVars)
+    taskComplete(quiet, "Environment variables updated")
   }
 
   if (upload) {

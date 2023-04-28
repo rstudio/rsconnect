@@ -1,5 +1,24 @@
 # rsconnect (development version)
 
+* `deployApp()` gains a new `envVars` argument which takes a vector of the 
+  names of environment variables that should be securely copied to the server. 
+  The names (not values) of these environment variables are also saved in the
+  deployment record and will be updated each time you re-deploy the app (#667).
+  
+* rsconnect gains two new functions for understanding and updating the 
+  environment variables that your apps currently use. `listServerEnvVars()`
+  will return a data frame of applications, with a `envVars` list-column
+  giving the names of the environment variables used by each application.
+  `updateServerEnvVars()` will update all applications that use a specific
+  environment variable with the current value of that environment variable
+  (#667).
+
+* `deployTFModel()` is defunct. Posit Connect no longer supports hosting of
+  TensorFlow Model APIs. A TensorFlow model can be deployed as a [Plumber
+  API](https://tensorflow.rstudio.com/guides/deploy/plumber.html), [Shiny
+  application](https://tensorflow.rstudio.com/guides/deploy/shiny), or other
+  supported content type.
+
 * The default server name created by `addServer()` now includes the port,
   if used.
 

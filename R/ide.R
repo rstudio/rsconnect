@@ -3,60 +3,14 @@
 # This function is poorly named because as well as validating the server
 # url it will also register the server if needed.
 validateServerUrl <- function(url, certificate = NULL) {
-  valid <- validateConnectUrl(url, certificate)
+  res <- validateConnectUrl(url, certificate)
 
-  if (valid$ok)  {
+  if (res$valid)  {
     name <- findAndRegisterLocalServer(url)
-    c(list(valid = TRUE, url = valid$url, name = name), valid$response)
+    c(list(valid = TRUE, url = res$url, name = name), res$response)
   } else {
-    valid
+    res
   }
-}
-
-# Validate a connect server URL by hitting a known configuration endpoint
-# The URL may be specified with or without the protocol and port; this function
-# will try both http and https and follow any redirects given by the server.
-validateConnectUrl <- function(url, certificate = NULL) {
-  # Add protocol if missing, assuming https except for local installs
-  if (!grepl("://", url, fixed = TRUE)) {
-    if (grepl(":3939", url, fixed = TRUE)) {
-      url <- paste0("http://", url)
-    } else {
-      url <- paste0("https://", url)
-    }
-  }
-  url <- ensureConnectServerUrl(url)
-  is_http <- grepl("^http://", url)
-
-  GET_server_settings <- function(url) {
-    timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
-    auth_info <- list(certificate = inferCertificateContents(certificate))
-    GET(
-      parseHttpUrl(url),
-      auth_info,
-      "/server_settings",
-      timeout = timeout
-    )
-  }
-
-  response <- NULL
-  cnd <- catch_cnd(response <- GET_server_settings(url), "error")
-  if (is_http && cnd_inherits(cnd, "OPERATION_TIMEDOUT")) {
-    url <- gsub("^http://", "https://", url)
-    cnd <- catch_cnd(response <- GET_server_settings(url), "error")
-  }
-
-  if (!is.null(cnd)) {
-    return(list(valid = FALSE, message = conditionMessage(cnd)))
-  }
-
-  contentType <- attr(response, "httpContentType")
-  if (!isContentType(contentType, "application/json")) {
-    return(list(valid = FALSE, message = "Endpoint did not return JSON"))
-  }
-
-  url <- gsub("/server_settings$", "", attr(response, "httpUrl"))
-  list(valid = TRUE, url = url, response = response)
 }
 
 # given a server URL, returns that server's short name. if the server is not
@@ -77,12 +31,28 @@ findAndRegisterLocalServer <- function(url) {
   # name
   name <- findServerByUrl(url)
   if (is.null(name)) {
-    addServer(url = url, name = NULL, certificate = NULL,
-                     quiet = TRUE, validate = FALSE)
+    url <- ensureConnectServerUrl(url)
+    addServer(
+      url = url,
+      name = NULL,
+      certificate = NULL,
+      quiet = TRUE,
+      validate = FALSE
+    )
     findServerByUrl(url)
   } else {
     name
   }
+}
+
+registerUserToken <- function(serverName, accountName, userId, token, privateKey) {
+  registerAccount(
+    serverName = serverName,
+    accountName = accountName,
+    accountId = userId,
+    token = token,
+    private_key = privateKey
+  )
 }
 
 # generate the markers
@@ -148,8 +118,8 @@ getUserFromRawToken <- function(serverUrl,
                                 serverCertificate = NULL) {
 
   # Look up server name from url
-  servers <- server()
+  servers <- servers()
   server <- servers$name[servers$url == serverUrl]
 
-  getAuthedUser(server, token = list(token = token, private_key = privateKey))
+  waitForAuthedUser(server, token = token, private_key = privateKey)
 }

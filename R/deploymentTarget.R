@@ -4,6 +4,7 @@ deploymentTarget <- function(recordPath = ".",
                              appId = NULL,
                              appName = NULL,
                              appTitle = NULL,
+                             envVars = NULL,
                              account = NULL,
                              server = NULL,
                              forceUpdate = FALSE,
@@ -43,6 +44,7 @@ deploymentTarget <- function(recordPath = ".",
       appName,
       appTitle,
       appId,
+      envVars,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
       fullAccount$server,
@@ -61,29 +63,12 @@ deploymentTarget <- function(recordPath = ".",
       )
     }
 
-    updateDeploymentTarget(appDeployments, appTitle)
+    updateDeploymentTarget(appDeployments, appTitle, envVars)
   } else {
-    apps <- paste0(
-      appDeployments$name, " ",
-      "(", accountLabel(appDeployments$account, appDeployments$server), "): ",
-      "{.url ", appDeployments$url, "}"
-    )
-    not_interactive <- c(
-      "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
-      "Known applications:",
-      set_names(apps, "*")
-    )
-    idx <- cli_menu(
-      "This directory has been previously deployed in multiple places.",
-      "Which deployment do you want to use?",
-      choices = apps,
-      not_interactive = not_interactive,
-      error_call = error_call
-    )
-    updateDeploymentTarget(appDeployments[idx, ], appTitle)
+    deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
+    updateDeploymentTarget(deployment, appTitle, envVars)
   }
 }
-
 
 deploymentTargetForApp <- function(appId,
                                    appTitle = NULL,
@@ -98,6 +83,7 @@ deploymentTargetForApp <- function(appId,
     application$name,
     application$title %||% appTitle,
     resultAppId,
+    NULL,
     application$owner_username,
     accountDetails$name,
     accountDetails$server,
@@ -108,6 +94,7 @@ deploymentTargetForApp <- function(appId,
 createDeploymentTarget <- function(appName,
                                    appTitle,
                                    appId,
+                                   envVars,
                                    username,
                                    account,
                                    server,
@@ -115,6 +102,7 @@ createDeploymentTarget <- function(appName,
   list(
     appName = appName,
     appTitle = appTitle %||% "",
+    envVars = envVars,
     appId = appId,
     username = username,
     account = account,
@@ -123,11 +111,12 @@ createDeploymentTarget <- function(appName,
   )
 }
 
-updateDeploymentTarget <- function(previous, appTitle = NULL) {
+updateDeploymentTarget <- function(previous, appTitle = NULL, envVars = NULL) {
   createDeploymentTarget(
     previous$name,
     appTitle %||% previous$title,
     previous$appId,
+    envVars %||% previous$envVars[[1]],
     # if username not previously recorded, use current account
     previous$username %||% previous$account,
     previous$account,

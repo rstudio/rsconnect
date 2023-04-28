@@ -55,8 +55,9 @@ local_temp_app <- function(files = list(), env = caller_env()) {
 
 # Servers and accounts ----------------------------------------------------
 
-addTestAccount <- function(account, server = "example.com", userId = account) {
+addTestAccount <- function(account = "ron", server = "example.com", userId = account) {
   registerAccount(server, account, userId, apiKey = "123")
+  invisible()
 }
 
 addTestServer <- function(name = NULL, url = "https://example.com", certificate = NULL) {
@@ -70,12 +71,14 @@ addTestServer <- function(name = NULL, url = "https://example.com", certificate 
     name = name,
     certificate = certificate
   )
+  invisible()
 }
 addTestDeployment <- function(path,
                               appName = "test",
                               appTitle = "",
                               appId = "123",
                               account = "ron",
+                              envVars = NULL,
                               username = account,
                               server = "example.com",
                               version = dcfVersion,
@@ -88,6 +91,7 @@ addTestDeployment <- function(path,
       appName = appName,
       appTitle = appTitle,
       appId = appId,
+      envVars = envVars,
       account = account,
       username = username,
       server = server,
@@ -95,6 +99,8 @@ addTestDeployment <- function(path,
     ),
     application = list(id = appId, url = url),
     hostUrl = hostUrl,
-    metadata = metadata
+    metadata = metadata,
+    addToHistory = FALSE
   )
+  invisible()
 }

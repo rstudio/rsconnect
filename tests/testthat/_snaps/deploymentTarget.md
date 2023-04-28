@@ -60,8 +60,8 @@
       ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
       Known applications:
-      * test (ron@server1.com): <https://server1.com/ron/123>
-      * test (ron@server2.com): <https://server2.com/ron/123>
+      * test (server: server1.com / username: ron): <https://server1.com/ron/123>
+      * test (server: server2.com / username: ron): <https://server2.com/ron/123>
     Code
       deploymentTarget(app_dir)
     Condition
@@ -69,8 +69,8 @@
       ! This directory has been previously deployed in multiple places.
       Please use `appName`, `server` or `account` to disambiguate.
       Known applications:
-      * test (ron@server1.com): <https://server1.com/ron/123>
-      * test (ron@server2.com): <https://server2.com/ron/123>
+      * test (server: server1.com / username: ron): <https://server1.com/ron/123>
+      * test (server: server2.com / username: ron): <https://server2.com/ron/123>
 
 ---
 
@@ -79,8 +79,8 @@
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?
-      1: test (ron@server1.com): <https://server1.com/ron/123>
-      2: test (ron@server2.com): <https://server2.com/ron/123>
+      1: test (server: server1.com / username: ron): <https://server1.com/ron/123>
+      2: test (server: server2.com / username: ron): <https://server2.com/ron/123>
       Selection: 1
 
 # errors if single deployment and appId doesn't match
