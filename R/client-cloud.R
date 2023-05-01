@@ -23,7 +23,7 @@ cloudClient <- function(service, authInfo) {
 
     getAccountUsage = function(accountId, usageType = "hours", applicationId = NULL,
                                from = NULL, until = NULL, interval = NULL) {
-      path <- paste("/accounts/", accountId, "/usage/", usageType, "/", sep = "")
+      path <- paste0("/accounts/", accountId, "/usage/", usageType, "/")
       query <- list()
       if (!is.null(applicationId))
         query$application <- applicationId
@@ -37,12 +37,12 @@ cloudClient <- function(service, authInfo) {
     },
 
     getBundle = function(bundleId) {
-      path <- paste("/bundles/", bundleId, sep = "")
+      path <- paste0("/bundles/", bundleId)
       GET(service, authInfo, path)
     },
 
     updateBundleStatus = function(bundleId, status) {
-      path <- paste("/bundles/", bundleId, "/status", sep = "")
+      path <- paste0("/bundles/", bundleId, "/status")
       json <- list()
       json$status <- status
       POST_JSON(service, authInfo, path, json)
@@ -70,19 +70,19 @@ cloudClient <- function(service, authInfo) {
       if (is.na(dcfVersion)) {
         # In pre-versioned dcf files, contentOrAppId is the id of the application.
         # TODO: consider removing support for this case a year after the release of 0.8.29
-        path <- paste("/applications/", outputOrApplicationId, sep = "")
+        path <- paste0("/applications/", outputOrApplicationId)
         application <- GET(service, authInfo, path)
 
         output_id <- application$output_id %||% application$content_id
 
-        path <- paste("/outputs/", output_id, sep = "")
+        path <- paste0("/outputs/", output_id)
         output <- GET(service, authInfo, path)
       } else {
         # from dcf version >= 1, outputOrApplicationId is the id of the output.
-        path <- paste("/outputs/", outputOrApplicationId, sep = "")
+        path <- paste0("/outputs/", outputOrApplicationId)
         output <- GET(service, authInfo, path)
 
-        path <- paste("/applications/", output$source_id, sep = "")
+        path <- paste0("/applications/", output$source_id)
         application <- GET(service, authInfo, path)
         application
       }
@@ -91,7 +91,7 @@ cloudClient <- function(service, authInfo) {
       if (output$state == "trashed" || output$state == "archived") {
         json <- list()
         json$state <- "active"
-        PATCH_JSON(service, authInfo, paste("/outputs/", output$id, sep = ""), json)
+        PATCH_JSON(service, authInfo, paste0("/outputs/", output$id), json)
       }
 
       # Each redeployment of a static output creates a new application. Since
@@ -105,7 +105,7 @@ cloudClient <- function(service, authInfo) {
     },
 
     getApplicationMetrics = function(applicationId, series, metrics, from = NULL, until = NULL, interval = NULL) {
-      path <- paste("/applications/", applicationId, "/metrics/", series, "/", sep = "")
+      path <- paste0("/applications/", applicationId, "/metrics/", series, "/")
       query <- list()
       m <- paste(lapply(metrics, function(x) { paste("metric", urlEncode(x), sep = "=") }), collapse = "&")
       if (!is.null(from))
@@ -130,21 +130,21 @@ cloudClient <- function(service, authInfo) {
 
       currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
-        path <- paste("/applications/", currentApplicationId, sep = "")
+        path <- paste0("/applications/", currentApplicationId)
         current_application <- GET(service, authInfo, path)
         project_id <- current_application$content_id
 
         # in case the source cloud project is a temporary copy, there is no
         # content id. The output will be published without a space id.
         if (!is.null(project_id)) {
-          path <- paste("/content/", project_id, sep = "")
+          path <- paste0("/content/", project_id)
           current_project <- GET(service, authInfo, path)
           json$project <- current_project$id
           json$space <- current_project$space_id
         }
       }
       output <- POST_JSON(service, authInfo, "/outputs", json)
-      path <- paste("/applications/", output$source_id, sep = "")
+      path <- paste0("/applications/", output$source_id)
       application <- GET(service, authInfo, path)
       application$application_id <- application$id
       application$id <- output$id
@@ -154,30 +154,30 @@ cloudClient <- function(service, authInfo) {
     },
 
     listApplicationProperties = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/properties/", sep = "")
+      path <- paste0("/applications/", applicationId, "/properties/")
       GET(service, authInfo, path)
     },
 
     setApplicationProperty = function(applicationId, propertyName,
                                       propertyValue, force = FALSE) {
-      path <- paste("/applications/", applicationId, "/properties/",
-                    propertyName, sep = "")
+      path <- paste0("/applications/", applicationId, "/properties/",
+                    propertyName)
       v <- list()
       v$value <- propertyValue
-      query <- paste("force=", if (force) "1" else "0", sep = "")
+      query <- paste0("force=", if (force) "1" else "0")
       PUT_JSON(service, authInfo, path, v, query)
     },
 
     unsetApplicationProperty = function(applicationId, propertyName,
                                         force = FALSE) {
-      path <- paste("/applications/", applicationId, "/properties/",
-                    propertyName, sep = "")
-      query <- paste("force=", if (force) "1" else "0", sep = "")
+      path <- paste0("/applications/", applicationId, "/properties/",
+                    propertyName)
+      query <- paste0("force=", if (force) "1" else "0")
       DELETE(service, authInfo, path, query)
     },
 
     uploadApplication = function(applicationId, bundlePath) {
-      path <- paste("/applications/", applicationId, "/upload", sep = "")
+      path <- paste0("/applications/", applicationId, "/upload")
       POST(
         service,
         authInfo,
@@ -188,13 +188,13 @@ cloudClient <- function(service, authInfo) {
     },
 
     createRevision = function(application) {
-        path <- paste("/outputs/", application$id, "/revisions", sep = "")
+        path <- paste0("/outputs/", application$id, "/revisions")
         revision <- POST_JSON(service, authInfo, path, data.frame())
         revision$application_id
     },
 
     deployApplication = function(application, bundleId = NULL) {
-      path <- paste("/applications/", application$application_id, "/deploy", sep = "")
+      path <- paste0("/applications/", application$application_id, "/deploy")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
         json$bundle <- as.numeric(bundleId)
@@ -204,19 +204,18 @@ cloudClient <- function(service, authInfo) {
     },
 
     terminateApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/terminate", sep = "")
+      path <- paste0("/applications/", applicationId, "/terminate")
       POST(service, authInfo, path)
     },
 
     purgeApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/purge", sep = "")
+      path <- paste0("/applications/", applicationId, "/purge")
       POST(service, authInfo, path)
     },
 
     inviteApplicationUser = function(applicationId, email,
                                      invite_email = NULL, invite_email_message = NULL) {
-      path <- paste("/applications/", applicationId, "/authorization/users",
-                    sep = "")
+      path <- paste0("/applications/", applicationId, "/authorization/users")
       json <- list()
       json$email <- email
       if (!is.null(invite_email))
@@ -227,32 +226,29 @@ cloudClient <- function(service, authInfo) {
     },
 
     addApplicationUser = function(applicationId, userId) {
-      path <- paste("/applications/", applicationId, "/authorization/users/",
-                    userId, sep = "")
+      path <- paste0("/applications/", applicationId, "/authorization/users/",
+                    userId)
       PUT(service, authInfo, path, NULL)
     },
 
     removeApplicationUser = function(applicationId, userId) {
-      path <- paste("/applications/", applicationId, "/authorization/users/",
-                    userId, sep = "")
+      path <- paste0("/applications/", applicationId, "/authorization/users/",
+                    userId)
       DELETE(service, authInfo, path)
     },
 
     listApplicationAuthorization = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/authorization",
-                    sep = "")
+      path <- paste0("/applications/", applicationId, "/authorization")
       listRequest(service, authInfo, path, NULL, "authorization")
     },
 
     listApplicationUsers = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/authorization/users",
-                    sep = "")
+      path <- paste0("/applications/", applicationId, "/authorization/users")
       listRequest(service, authInfo, path, NULL, "users")
     },
 
     listApplicationGroups = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/authorization/groups",
-                    sep = "")
+      path <- paste0("/applications/", applicationId, "/authorization/groups")
       listRequest(service, authInfo, path, NULL, "groups")
     },
 
@@ -273,12 +269,12 @@ cloudClient <- function(service, authInfo) {
     },
 
     getTaskInfo = function(taskId) {
-      path <- paste("/tasks/", taskId, sep = "")
+      path <- paste0("/tasks/", taskId)
       GET(service, authInfo, path)
     },
 
     getTaskLogs = function(taskId) {
-      path <- paste("/tasks/", taskId, "/logs/", sep = "")
+      path <- paste0("/tasks/", taskId, "/logs/")
       GET(service, authInfo, path)
     },
 
@@ -288,7 +284,7 @@ cloudClient <- function(service, authInfo) {
         cat("Waiting for task: ", taskId, "\n", sep = "")
       }
 
-      path <- paste("/tasks/", taskId, sep = "")
+      path <- paste0("/tasks/", taskId)
 
       lastStatus <- NULL
       while (TRUE) {
