@@ -345,7 +345,6 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
-  isNewApplication <- FALSE
   if (is.null(target$appId)) {
     taskStart(quiet, "Creating application on server...")
     application <- client$createApplication(
@@ -356,19 +355,22 @@ deployApp <- function(appDir = getwd(),
       appMetadata$appMode
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
-    isNewApplication <- TRUE
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
       {
         application <- client$getApplication(target$appId, target$version)
         taskComplete(quiet, "Found application {.url {application$url}}")
+
+        if (application$type == "static") {
+          application$id <- client$createRevision(application)
+        }
+
         application
       },
       rsconnect_http_404 = function(err) {
         application <- applicationDeleted(client, target, recordPath, appMetadata)
         taskComplete(quiet, "Created application with id {.val {application$id}}")
-        isNewApplication <- TRUE
         application
       }
     )
@@ -417,9 +419,6 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
     if (isCloudServer(accountDetails$server)) {
-      if (application$type == "static" && !isNewApplication) {
-        application$id <- client$createRevision(application)
-      }
       bundle <- uploadCloudBundle(client, application$id, bundlePath)
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
