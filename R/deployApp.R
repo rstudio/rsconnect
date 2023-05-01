@@ -363,7 +363,7 @@ deployApp <- function(appDir = getwd(),
         taskComplete(quiet, "Found application {.url {application$url}}")
 
         if (application$type == "static") {
-          application$id <- client$createRevision(application)
+          application$application_id <- client$createRevision(application)
         }
 
         application
@@ -419,7 +419,7 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
     if (isCloudServer(accountDetails$server)) {
-      bundle <- uploadCloudBundle(client, application$id, bundlePath)
+      bundle <- uploadCloudBundle(client, application$application_id, bundlePath)
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
     }

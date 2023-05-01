@@ -168,14 +168,14 @@ test_that("Get application", {
 
   app <- client$getApplication("10", NA)
 
-  expect_equal(app$id, 10)
-  expect_equal(app$content_id, 5)
+  expect_equal(app$id, 5)
+  expect_equal(app$application_id, 10)
   expect_equal(app$url, "http://fake-url.test.me/")
 
   app <- client$getApplication("5", dcfVersion)
 
-  expect_equal(app$id, 1)
-  expect_equal(app$content_id, 5)
+  expect_equal(app$id, 5)
+  expect_equal(app$application_id, 1)
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
@@ -226,14 +226,14 @@ test_that("Get application output trashed", {
 
   app <- client$getApplication(10, NA)
 
-  expect_equal(app$id, 10)
-  expect_equal(app$content_id, 5)
+  expect_equal(app$id, 5)
+  expect_equal(app$application_id, 10)
   expect_equal(app$url, "http://fake-url.test.me/")
 
   app <- client$getApplication(5, dcfVersion)
 
-  expect_equal(app$id, 1)
-  expect_equal(app$content_id, 5)
+  expect_equal(app$id, 5)
+  expect_equal(app$application_id, 1)
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
@@ -271,8 +271,8 @@ test_that("Create application", {
 
   app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static")
 
-  expect_equal(app$id, 2)
-  expect_equal(app$content_id, 1)
+  expect_equal(app$id, 1)
+  expect_equal(app$application_id, 2)
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
@@ -326,8 +326,8 @@ test_that("Create application with linked source project", {
 
   app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static")
 
-  expect_equal(app$id, 2)
-  expect_equal(app$content_id, 1)
+  expect_equal(app$id, 1)
+  expect_equal(app$application_id, 2)
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 

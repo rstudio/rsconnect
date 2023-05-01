@@ -131,8 +131,8 @@ shinyAppsClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(applicationId, bundleId = NULL) {
-      path <- paste("/applications/", applicationId, "/deploy", sep = "")
+    deployApplication = function(application, bundleId = NULL) {
+      path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
         json$bundle <- as.numeric(bundleId)

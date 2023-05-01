@@ -77,12 +77,10 @@ deploymentTargetForApp <- function(appId,
   accountDetails <- findAccount(account, server)
   application <- getApplication(accountDetails$name, accountDetails$server, appId)
 
-  resultAppId <- ifelse(is.null(application$content_id), application$id, application$content_id)
-
   createDeploymentTarget(
     application$name,
     application$title %||% appTitle,
-    resultAppId,
+    application$id,
     NULL,
     application$owner_username,
     accountDetails$name,

@@ -75,8 +75,8 @@ connectClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(applicationId, bundleId = NULL) {
-      path <- paste("/applications/", applicationId, "/deploy", sep = "")
+    deployApplication = function(application, bundleId = NULL) {
+      path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       json$bundle <- as.numeric(bundleId)
       POST_JSON(service, authInfo, path, json)

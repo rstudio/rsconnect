@@ -84,6 +84,7 @@ cloudClient <- function(service, authInfo) {
 
         path <- paste("/applications/", output$source_id, sep = "")
         application <- GET(service, authInfo, path)
+        application
       }
 
       # if the output is trashed or archived, restore it to the active state
@@ -96,7 +97,8 @@ cloudClient <- function(service, authInfo) {
       # Each redeployment of a static output creates a new application. Since
       # those applications can be deleted, it's more reliable to reference
       # outputs by their own id instead of the applications'.
-      application$content_id <- output$id
+      application$application_id <- application$id
+      application$id <- output$id
       application$url <- output$url
       application$name <- output$name
       application
@@ -144,7 +146,8 @@ cloudClient <- function(service, authInfo) {
       output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste("/applications/", output$source_id, sep = "")
       application <- GET(service, authInfo, path)
-      application$content_id <- output$id
+      application$application_id <- application$id
+      application$id <- output$id
       # this swaps the "application url" for the "content url". So we end up redirecting to the right spot after deployment.
       application$url <- output$url
       application
@@ -185,13 +188,13 @@ cloudClient <- function(service, authInfo) {
     },
 
     createRevision = function(application) {
-        path <- paste("/outputs/", application$content_id, "/revisions", sep = "")
+        path <- paste("/outputs/", application$id, "/revisions", sep = "")
         revision <- POST_JSON(service, authInfo, path, data.frame())
         revision$application_id
     },
 
     deployApplication = function(application, bundleId = NULL) {
-      path <- paste("/applications/", application$id, "/deploy", sep = "")
+      path <- paste("/applications/", application$application_id, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
         json$bundle <- as.numeric(bundleId)
