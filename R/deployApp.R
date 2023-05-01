@@ -122,9 +122,13 @@
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
-#' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
-#'   content. The provided Quarto binary will be used to run `quarto inspect`
-#'   to gather information about the content.
+#' @param quarto Should the deployed content be built by quarto?
+#'   (`TRUE`, `FALSE`, or `NA`). The default, `NA`, will use quarto if
+#'   there are `.qmd` files in the bundle, or if there is a
+#'   `_quarto.yml` and `.Rmd` files.
+#'
+#'   (This option is ignored and quarto will always be used if the
+#'   `metadata` contains `quarto_version` and `quarto_engines` fields.)
 #' @param appVisibility One of `NULL`, `"private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
@@ -183,7 +187,7 @@ deployApp <- function(appDir = getwd(),
                       forceUpdate = NULL,
                       python = NULL,
                       forceGeneratePythonEnvironment = FALSE,
-                      quarto = NULL,
+                      quarto = NA,
                       appVisibility = NULL,
                       image = NULL
                       ) {
@@ -225,6 +229,15 @@ deployApp <- function(appDir = getwd(),
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
     check_file(recordDir)
+  }
+
+  if (!is_string(quarto)) {
+    lifecycle::deprecate_warn(
+      when = "0.9.0",
+      what = "deployApp(quarto = 'can no longer be a path')",
+      with = I("`TRUE` instead")
+    )
+    quarto <- TRUE
   }
 
   # set up logging helpers
@@ -333,7 +346,7 @@ deployApp <- function(appDir = getwd(),
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
+    usesQuarto = quarto,
     contentCategory = contentCategory,
     isCloudServer = isCloudServer,
     metadata = metadata

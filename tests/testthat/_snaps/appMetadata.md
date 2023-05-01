@@ -7,6 +7,14 @@
       ! No content to deploy.
       x `appDir` is empty.
 
+# quarto docs require quarto
+
+    Code
+      appMetadata(app)
+    Condition
+      Error in `quartoInspect()`:
+      ! `quarto` is not installed
+
 # checkLayout() errors if primary doc & app.R
 
     Code
@@ -27,21 +35,6 @@
         2. R Markdown (`.Rmd`) or Quarto (`.qmd`) documents.
         3. A website containing `.html` and/or `.pdf` files.
         4. A plumber API with `plumber.R` or `entrypoint.R`.
-
-# quarto docs require quarto
-
-    Code
-      inferAppMode(single_qmd)
-    Condition
-      Error in `inferAppMode()`:
-      ! Can't deploy Quarto content when `quarto` is `NULL`.
-      i Please supply a path to a quarto binary in `quarto`.
-    Code
-      inferAppMode(rmd_and_quarto_yml)
-    Condition
-      Error in `inferAppMode()`:
-      ! Can't deploy Quarto content when `quarto` is `NULL`.
-      i Please supply a path to a quarto binary in `quarto`.
 
 # errors if no files with needed extension
 

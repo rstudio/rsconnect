@@ -1,18 +1,22 @@
 appMetadata <- function(appDir,
                         appFiles = NULL,
                         appPrimaryDoc = NULL,
-                        quarto = NULL,
+                        usesQuarto = NA,
                         contentCategory = NULL,
                         isCloudServer = FALSE,
                         metadata = list()) {
 
+  check_bool(usesQuarto, allow_na = TRUE)
+
   appFiles <- listDeploymentFiles(appDir, appFiles)
   checkAppLayout(appDir, appPrimaryDoc)
 
-  # User has supplied quarto path or quarto package/IDE has supplied metadata
+  # If quarto package/IDE has supplied metadata, always use quarto
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
   # https://github.com/rstudio/rstudio/blob/3d45a20307f650/src/cpp/session/modules/SessionRSConnect.cpp#L81-L123
-  hasQuarto <- !is.null(quarto) || hasQuartoMetadata(metadata)
+  if (hasQuartoMetadata(metadata)) {
+    usesQuarto <- TRUE
+  }
 
   # Generally we want to infer appPrimaryDoc from appMode, but there's one
   # special case
@@ -24,7 +28,7 @@ appMetadata <- function(appDir,
     rootFiles <- appFiles[dirname(appFiles) == "."]
     appMode <- inferAppMode(
       file.path(appDir, appFiles),
-      hasQuarto = hasQuarto,
+      usesQuarto = usesQuarto,
       isCloudServer = isCloudServer
     )
   }
@@ -44,12 +48,16 @@ appMetadata <- function(appDir,
     appDir = appDir,
     files = appFiles
   )
-  quartoInfo <- inferQuartoInfo(
-    appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
-    metadata = metadata
-  )
+
+  if (appIsQuartoDocument(appMode)) {
+    quartoInfo <- inferQuartoInfo(
+      metadata = metadata,
+      appDir = appDir,
+      appPrimaryDoc = appPrimaryDoc
+    )
+  } else {
+    quartoInfo <- NULL
+  }
 
   list(
     appMode = appMode,
@@ -102,7 +110,7 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
 
 # infer the mode of the application from files in the root dir
 inferAppMode <- function(absoluteAppFiles,
-                         hasQuarto = FALSE,
+                         usesQuarto = FALSE,
                          isCloudServer = FALSE) {
 
   matchingNames <- function(paths, pattern) {
@@ -125,22 +133,13 @@ inferAppMode <- function(absoluteAppFiles,
   rmdFiles <- matchingNames(absoluteAppFiles, "\\.rmd$")
   qmdFiles <- matchingNames(absoluteAppFiles, "\\.qmd$")
 
-  # We make Quarto requirement conditional on the presence of files that Quarto
-  # can render and _quarto.yml, because keying off the presence of qmds
-  # *or* _quarto.yml was causing deployment failures in static content.
-  # https://github.com/rstudio/rstudio/issues/11444
-  quartoYml <- matchingNames(absoluteAppFiles, "^_quarto.y(a)?ml$")
-  hasQuartoYaml <- length(quartoYml) > 0
-  hasQuartoCompatibleFiles <- length(qmdFiles) > 0 || length(rmdFiles > 0)
-  requiresQuarto <- (hasQuartoCompatibleFiles && hasQuartoYaml) || length(qmdFiles) > 0
+  if (is.na(usesQuarto)) {
+    # Can't use _quarto.yml alone because it causes deployment failures for
+    # static content: https://github.com/rstudio/rstudio/issues/11444
+    quartoYml <- matchingNames(absoluteAppFiles, "^_quarto.y(a)?ml$")
 
-  # We gate the deployment of content that appears to be Quarto behind the
-  # presence of Quarto metadata. Rmd files can still be deployed as Quarto
-  if (requiresQuarto && !hasQuarto) {
-    cli::cli_abort(c(
-      "Can't deploy Quarto content when {.arg quarto} is {.code NULL}.",
-      i = "Please supply a path to a quarto binary in {.arg quarto}."
-    ))
+    usesQuarto <- length(qmdFiles) > 0 ||
+      (length(quartoYml) > 0 && length(rmdFiles > 0))
   }
 
   # Documents with "server: shiny" in their YAML front matter need shiny too
@@ -150,7 +149,7 @@ inferAppMode <- function(absoluteAppFiles,
   if (hasShinyQmd) {
     return("quarto-shiny")
   } else if (hasShinyRmd) {
-    if (hasQuarto) {
+    if (usesQuarto) {
       return("quarto-shiny")
     } else {
       return("rmd-shiny")
@@ -168,7 +167,7 @@ inferAppMode <- function(absoluteAppFiles,
   # Any non-Shiny R Markdown or Quarto documents are rendered content and get
   # rmd-static or quarto-static.
   if (length(rmdFiles) > 0 || length(qmdFiles) > 0) {
-    if (hasQuarto) {
+    if (usesQuarto) {
       return("quarto-static")
     } else {
       # For Shinyapps and posit.cloud, treat "rmd-static" app mode as "rmd-shiny" so that
@@ -275,6 +274,14 @@ appIsDocument <- function(appMode) {
   )
 }
 
+appIsQuartoDocument <- function(appMode) {
+  appMode %in% c(
+    "quarto-static",
+    "quarto-shiny"
+  )
+}
+
+
 appHasParameters <- function(appDir, appPrimaryDoc, appMode, contentCategory = NULL) {
   # Only Rmd deployments are marked as having parameters. Shiny applications
   # may distribute an Rmd alongside app.R, but that does not cause the
@@ -320,56 +327,4 @@ documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
   return(length(matches) > 0)
-}
-
-inferQuartoInfo <- function(appDir, appPrimaryDoc, quarto, metadata) {
-  if (hasQuartoMetadata(metadata)) {
-    return(list(
-      version = metadata[["quarto_version"]],
-      engines = metadata[["quarto_engines"]]
-    ))
-  }
-
-  if (is.null(quarto)) {
-    return(NULL)
-  }
-
-  # If we don't yet have Quarto details, run quarto inspect ourselves
-  inspect <- quartoInspect(
-    quarto = quarto,
-    appDir = appDir,
-    appPrimaryDoc = appPrimaryDoc
-  )
-  if (is.null(inspect)) {
-    return(NULL)
-  }
-
-  list(
-    version = inspect[["quarto"]][["version"]],
-    engines = I(inspect[["engines"]])
-  )
-}
-
-hasQuartoMetadata <- function(x) {
-  !is.null(x$quarto_version)
-}
-
-# Run "quarto inspect" on the target and returns its output as a parsed object.
-quartoInspect <- function(quarto, appDir = NULL, appPrimaryDoc = NULL) {
-  # If "quarto inspect appDir" fails, we will try "quarto inspect
-  # appPrimaryDoc", so that we can support single files as well as projects.
-  paths <- c(appDir, file.path(appDir, appPrimaryDoc))
-
-  for (path in paths) {
-    args <- c("inspect", path.expand(path))
-    inspect <- tryCatch(
-      {
-        json <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
-        parsed <- jsonlite::fromJSON(json)
-        return(parsed)
-      },
-      error = function(e) NULL
-    )
-  }
-  return(NULL)
 }

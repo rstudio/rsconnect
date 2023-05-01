@@ -22,7 +22,7 @@ writeManifest <- function(appDir = getwd(),
                           contentCategory = NULL,
                           python = NULL,
                           forceGeneratePythonEnvironment = FALSE,
-                          quarto = NULL,
+                          quarto = NA,
                           image = NULL,
                           verbose = FALSE) {
   appFiles <- listDeploymentFiles(
@@ -35,7 +35,7 @@ writeManifest <- function(appDir = getwd(),
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
-    quarto = quarto,
+    usesQuarto = quarto,
     contentCategory = contentCategory,
   )
 
