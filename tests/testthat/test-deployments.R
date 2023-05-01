@@ -69,6 +69,14 @@ test_that("can read/write metadata", {
   expect_equal(out$meta2, "two")
 })
 
+test_that("can read/write version", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, version = "999")
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$version, "999")
+})
+
 test_that("can read/write env vars", {
   app <- local_temp_app()
   addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
@@ -80,10 +88,15 @@ test_that("can read/write env vars", {
 
 test_that("can read env vars when none set", {
   app <- local_temp_app()
-  addTestDeployment(app, "test1", envVars = NA_character_)
-
+  path <- addTestDeployment(app, "test1", envVars = NULL)
   deps <- deployments(app, excludeOrphaned = FALSE)
-  expect_equal(deps$envVars, list(NA_character_))
+  expect_equal(deps$envVars, list(character()))
+  expect_false("envVars" %in% rownames(read.dcf(path)))
+
+  path <- addTestDeployment(app, "test1", envVars = "")
+  deps <- deployments(app, excludeOrphaned = FALSE)
+  expect_equal(deps$envVars, list(character()))
+  expect_false("envVars" %in% rownames(read.dcf(path)))
 })
 
 test_that("can read/write env vars", {
@@ -108,7 +121,7 @@ test_that("saveDeployment appends to global history", {
       appName = "my-app",
       appTitle = "",
       appId = 10,
-      envVars = NULL,
+      envVars = "abc", # ensure there's an envVars column in output
       account = "foo",
       username = "foo",
       server = "bar"
