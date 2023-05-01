@@ -220,15 +220,15 @@ POST <- function(service,
   } else {
     # include the request's data in the body
     httpRequestWithBody(
-      service,
-      authInfo,
-      "POST",
-      path,
-      query,
-      contentType,
-      file,
-      content,
-      headers
+    service = service,
+    authInfo = authInfo,
+    method = "POST",
+    path = path,
+    query = query,
+    contentType = contentType,
+    file = file,
+    content = content,
+    headers = headers
     )
   }
 }
@@ -240,11 +240,11 @@ POST_JSON <- function(service,
                       query = NULL,
                       headers = list()) {
   POST(
-    service,
-    authInfo,
-    path,
-    query,
-    "application/json",
+    service = service,
+    authInfo = authInfo,
+    path = path,
+    query = query,
+    contentType = "application/json",
     content = toJSON(json),
     headers = headers
   )
@@ -259,15 +259,15 @@ PUT <- function(service,
                 content = NULL,
                 headers = list()) {
   httpRequestWithBody(
-    service,
-    authInfo,
-    "PUT",
-    path,
-    query,
-    contentType,
-    file,
-    content,
-    headers
+    service = service,
+    authInfo = authInfo,
+    method = "PUT",
+    path = path,
+    query = query,
+    contentType = contentType,
+    file = file,
+    content = content,
+    headers = headers
   )
 }
 
@@ -278,11 +278,11 @@ PUT_JSON <- function(service,
                      query = NULL,
                      headers = list()) {
   PUT(
-    service,
-    authInfo,
-    path,
-    query,
-    "application/json",
+    service = service,
+    authInfo = authInfo,
+    path = path,
+    query = query,
+    contentType = "application/json",
     content = toJSON(json),
     headers = headers
   )
@@ -297,15 +297,15 @@ PATCH <- function(service,
                   content = NULL,
                   headers = list()) {
   httpRequestWithBody(
-    service,
-    authInfo,
-    "PATCH",
-    path,
-    query,
-    contentType,
-    file,
-    content,
-    headers
+    service = service,
+    authInfo = authInfo,
+    method = "PATCH",
+    path = path,
+    query = query,
+    contentType = contentType,
+    file = file,
+    content = content,
+    headers = headers
   )
 }
 
@@ -316,11 +316,11 @@ PATCH_JSON <- function(service,
                        query = NULL,
                        headers = list()) {
   PATCH(
-    service,
-    authInfo,
-    path,
-    query,
-    "application/json",
+    service = service,
+    authInfo = authInfo,
+    path = path,
+    query = query,
+    contentType = "application/json",
     content = toJSON(json),
     headers = headers
   )
