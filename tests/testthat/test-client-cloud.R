@@ -166,7 +166,7 @@ test_that("Get application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$getApplication("10", NULL)
+  app <- client$getApplication("10", NA)
 
   expect_equal(app$id, 10)
   expect_equal(app$content_id, 5)
@@ -224,7 +224,7 @@ test_that("Get application output trashed", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$getApplication(10, NULL)
+  app <- client$getApplication(10, NA)
 
   expect_equal(app$id, 10)
   expect_equal(app$content_id, 5)
