@@ -73,7 +73,7 @@ cloudClient <- function(service, authInfo) {
         path <- paste("/applications/", outputOrApplicationId, sep = "")
         application <- GET(service, authInfo, path)
 
-        output_id <- ifelse(is.null(application$output_id), application$content_id, application$output_id)
+        output_id <- application$output_id %||% application$content_id
 
         path <- paste("/outputs/", output_id, sep = "")
         output <- GET(service, authInfo, path)
