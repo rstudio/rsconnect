@@ -7,7 +7,7 @@
       index.Rmd
       ---------
       The following lines contain paths to files not matching in case sensitivity:
-      29: ![](rstudio.svg)    ['rstudio.svg' -> 'RStudio.svg']
+      29: ![](img/rstudio.svg)    ['img/rstudio.svg' -> 'img/RStudio.svg']
       
       Filepaths are case-sensitive on deployment server.
     Code
