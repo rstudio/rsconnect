@@ -1,6 +1,6 @@
 # rsconnect (development version)
 
-* `deployDoc()` now includes support for deploying static content to Posit
+* `deployDoc()` and `deployApp()` now support deploying static content to Posit
   Cloud.
 
 * For cloud deployments, appId now represents the content id (as seen in URLs 
