@@ -10,6 +10,11 @@
 * A `version` field has been added to deployment DCF files to facilitate file
   format changes. Its value for this release is `1`.
 
+* `deployApp()`'s `quarto` argument now takes values `TRUE`, `FALSE` or 
+  `NA`. The previous value (a path to a quarto binary) is now deprecated,
+  and instead we automatically figure out the packge from `QUARTO_PATH` and
+  `PATH` env vars (#658).
+
 * `deployApp()` gains a new `envVars` argument which takes a vector of the 
   names of environment variables that should be securely copied to the server. 
   The names (not values) of these environment variables are also saved in the
