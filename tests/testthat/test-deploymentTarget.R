@@ -80,11 +80,18 @@ test_that("succeeds if there's a single existing deployment", {
   addTestAccount("ron")
 
   app_dir <- withr::local_tempdir()
-  addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
+  addTestDeployment(
+    app_dir,
+    appName = "test",
+    appId = "1",
+    username = "ron",
+    version = "999"
+  )
 
   target <- deploymentTarget(app_dir)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
+  expect_equal(target$version, "999")
 
   target <- deploymentTarget(app_dir, appName = "test")
   expect_equal(target$appId, "1")
