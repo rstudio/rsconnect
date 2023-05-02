@@ -1,5 +1,15 @@
 # rsconnect (development version)
 
+* `deployDoc()` now includes support for deploying static content to Posit
+  Cloud.
+
+* For cloud deployments, appId now represents the content id (as seen in URLs 
+  of the format `https://posit.cloud/content/{id}`) instead of the application
+  id.
+
+* A `version` field has been added to deployment DCF files to facilitate file
+  format changes. Its value for this release is `1`.
+
 * `deployApp()` gains a new `envVars` argument which takes a vector of the 
   names of environment variables that should be securely copied to the server. 
   The names (not values) of these environment variables are also saved in the
