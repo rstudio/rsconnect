@@ -107,10 +107,9 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
   ))
 }
 
-
 # infer the mode of the application from files in the root dir
 inferAppMode <- function(absoluteAppFiles,
-                         usesQuarto = FALSE,
+                         usesQuarto = NA,
                          isCloudServer = FALSE) {
 
   matchingNames <- function(paths, pattern) {
