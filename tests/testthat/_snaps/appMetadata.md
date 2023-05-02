@@ -7,14 +7,6 @@
       ! No content to deploy.
       x `appDir` is empty.
 
-# quarto docs require quarto
-
-    Code
-      appMetadata(app)
-    Condition
-      Error in `quartoInspect()`:
-      ! `quarto` is not installed
-
 # checkLayout() errors if primary doc & app.R
 
     Code

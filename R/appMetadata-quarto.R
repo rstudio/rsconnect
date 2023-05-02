@@ -31,7 +31,10 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
   # appPrimaryDoc", so that we can support single files as well as projects.
   quarto <- quarto_path()
   if (is.null(quarto)) {
-    abort("`quarto` is not installed")
+    cli::cli_abort(c(
+      "`quarto` not found.",
+      i = "Check that it is installed and available on your {.envvar PATH}."
+    ))
   }
 
   paths <- c(appDir, file.path(appDir, appPrimaryDoc))

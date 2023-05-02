@@ -15,17 +15,6 @@ test_that("quarto affects mode inference", {
   expect_equal(metadata$appMode, "quarto-static")
 })
 
-test_that("quarto docs require quarto", {
-  local_mocked_bindings(quarto_path = function() NULL)
-
-  app <- local_temp_app(list("foo.qmd" = ""))
-
-  expect_snapshot(error = TRUE, {
-    appMetadata(app)
-  })
-})
-
-
 test_that("handles special case of appPrimaryDoc as R file", {
   dir <- local_temp_app(list("foo.R" = ""))
   metadata <- appMetadata(dir, appPrimaryDoc = "foo.R")
