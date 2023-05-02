@@ -1,7 +1,7 @@
-# Deploying a Quarto project without Quarto is an error
+# quartoInspect requires quarto
 
     Code
-      makeManifest(appDir)
+      quartoInspect()
     Condition
       Error in `quartoInspect()`:
       ! `quarto` not found.

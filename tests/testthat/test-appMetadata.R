@@ -11,9 +11,20 @@ test_that("quarto affects mode inference", {
   metadata <- appMetadata(dir)
   expect_equal(metadata$appMode, "rmd-static")
 
-  metadata <- appMetadata(dir, quarto = "quarto")
+  metadata <- appMetadata(dir, metadata = list(quarto_version = 1))
   expect_equal(metadata$appMode, "quarto-static")
 })
+
+test_that("quarto path is deprecated", {
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  expect_snapshot(. <- appMetadata(dir, quarto = "abc"))
+})
+
+test_that("validates quarto argument", {
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  expect_snapshot(appMetadata(dir, quarto = 1), error = TRUE)
+})
+
 
 test_that("handles special case of appPrimaryDoc as R file", {
   dir <- local_temp_app(list("foo.R" = ""))
@@ -72,22 +83,9 @@ test_that("can infer mode for static quarto and rmd docs", {
   paths <- list.files(dir, full.names = TRUE)
 
   expect_equal(inferAppMode(paths), "rmd-static")
-  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-static")
+  expect_equal(inferAppMode(paths, usesQuarto = TRUE), "quarto-static")
   # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
   expect_equal(inferAppMode(paths, isCloudServer = TRUE), "rmd-shiny")
-})
-
-test_that("quarto docs require quarto", {
-  dir <- local_temp_app(list("foo.qmd" = ""))
-  single_qmd <- list.files(dir, full.names = TRUE)
-
-  dir <- local_temp_app(list("foo.Rmd" = "", "_quarto.yaml" = ""))
-  rmd_and_quarto_yml <- list.files(dir, full.names = TRUE)
-
-  expect_snapshot(error = TRUE, {
-    inferAppMode(single_qmd)
-    inferAppMode(rmd_and_quarto_yml)
-  })
 })
 
 test_that("can infer mode for shiny rmd docs", {
@@ -125,12 +123,12 @@ test_that("can infer mode for shiny qmd docs", {
 
   dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
   paths <- list.files(dir, full.names = TRUE)
-  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
+  expect_equal(inferAppMode(paths), "quarto-shiny")
 
   # Can force Rmd to use quarto
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
   paths <- list.files(dir, full.names = TRUE)
-  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
+  expect_equal(inferAppMode(paths, usesQuarto = TRUE), "quarto-shiny")
 
   # Prefers quarto if both present
   dir <- local_temp_app(list(
@@ -138,7 +136,7 @@ test_that("can infer mode for shiny qmd docs", {
     "index.Rmd" = yaml_runtime("shiny")
   ))
   paths <- list.files(dir, full.names = TRUE)
-  expect_equal(inferAppMode(paths, hasQuarto = TRUE), "quarto-shiny")
+  expect_equal(inferAppMode(paths), "quarto-shiny")
 })
 
 test_that("Shiny R Markdown files are detected correctly", {
@@ -215,7 +213,6 @@ test_that("otherwise look at yaml metadata", {
   expect_false(appHasParameters(dir, "index.Rmd", "rmd-shiny"))
 })
 
-
 # detectPythonInDocuments -------------------------------------------------
 
 test_that("dir without Rmds doesn't have have python", {
@@ -235,111 +232,4 @@ test_that("Rmd or qmd with python chunk has python", {
 
   dir <- local_temp_app(list("foo.qmd" = c("```{python}", "1+1", "````")))
   expect_true(detectPythonInDocuments(dir))
-})
-
-# quarto ------------------------------------------------------------------
-
-fakeQuartoMetadata <- function(version, engines) {
-  # See quarto-r/R/publish.R lines 396 and 113.
-  metadata <- list()
-  metadata$quarto_version <- version
-  metadata$quarto_engines <- I(engines)
-  return(metadata)
-}
-
-
-test_that("inferQuartoInfo returns null when no quarto is provided", {
-  expect_null(inferQuartoInfo(quarto = NULL, metadata = list()))
-})
-
-
-test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
-  quarto <- quartoPathOrSkip()
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = test_path("quarto-doc-none"),
-    appPrimaryDoc = "quarto-doc-none.qmd",
-    quarto = quarto,
-    metadata = list()
-  )
-  expect_named(quartoInfo, c("version", "engines"))
-  expect_equal(quartoInfo$engines, I(c("markdown")))
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = test_path("quarto-website-r"),
-    appPrimaryDoc = NULL,
-    quarto = quarto,
-    metadata = list()
-  )
-  expect_named(quartoInfo, c("version", "engines"))
-  expect_equal(quartoInfo$engines, I(c("knitr")))
-})
-
-test_that("inferQuartoInfo extracts info from metadata", {
-  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = test_path("quarto-website-r"),
-    appPrimaryDoc = NULL,
-    quarto = NULL,
-    metadata = metadata
-  )
-  expect_equal(quartoInfo, list(
-    version = "99.9.9",
-    engines = I("internal-combustion")
-  ))
-})
-
-test_that("inferQuartoInfo prefers using metadata over quarto inspect", {
-  quarto <- quartoPathOrSkip()
-
-  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = test_path("quarto-website-r"),
-    appPrimaryDoc = NULL,
-    quarto = quarto,
-    metadata = metadata
-  )
-  expect_equal(quartoInfo$engines, I(c("internal-combustion")))
-})
-
-test_that("inferQuartoInfo returns NULL for non-quarto content", {
-  quarto <- quartoPathOrSkip()
-
-  quartoInfo <- inferQuartoInfo(
-    appDir = test_path("shinyapp-simple"),
-    appPrimaryDoc = NULL,
-    quarto = quarto,
-    metadata = list()
-  )
-  expect_null(quartoInfo)
-})
-
-test_that("quartoInspect identifies on Quarto projects", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(quarto, test_path("quarto-website-r"))
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-
-  inspect <- quartoInspect(quarto, test_path("quarto-proj-r-shiny"))
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-})
-
-test_that("quartoInspect identifies Quarto documents", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(
-    quarto,
-    appDir = test_path("quarto-doc-none"),
-    appPrimaryDoc = "quarto-doc-none.qmd"
-  )
-  expect_true(all(c("quarto", "engines") %in% names(inspect)))
-})
-
-test_that("quartoInspect returns NULL on non-quarto Quarto content", {
-  quarto <- quartoPathOrSkip()
-
-  inspect <- quartoInspect(quarto, test_path("shinyapp-simple"))
-  expect_null(inspect)
 })

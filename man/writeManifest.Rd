@@ -12,7 +12,7 @@ writeManifest(
   contentCategory = NULL,
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
-  quarto = NULL,
+  quarto = NA,
   image = NULL,
   verbose = FALSE
 )
@@ -47,9 +47,13 @@ installed in the environment.}
 \code{requirements.txt} file is found, it will be overwritten when this argument
 is \code{TRUE}.}
 
-\item{quarto}{Optional. Full path to a Quarto binary for use deploying Quarto
-content. The provided Quarto binary will be used to run \verb{quarto inspect}
-to gather information about the content.}
+\item{quarto}{Should the deployed content be built by quarto?
+(\code{TRUE}, \code{FALSE}, or \code{NA}). The default, \code{NA}, will use quarto if
+there are \code{.qmd} files in the bundle, or if there is a
+\verb{_quarto.yml} and \code{.Rmd} files.
+
+(This option is ignored and quarto will always be used if the
+\code{metadata} contains \code{quarto_version} and \code{quarto_engines} fields.)}
 
 \item{image}{Optional. The name of the image to use when building and
 executing this content. If none is provided, Posit Connect will
