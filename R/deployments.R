@@ -83,7 +83,7 @@ deploymentFields <- c(
   "bundleId", "url", "envVars", "version"
 )
 
-deploymentVersion <- 1L
+deploymentRecordVersion <- 1L
 
 saveDeployment <- function(recordDir,
                            target,
@@ -128,7 +128,7 @@ deploymentRecord <- function(name,
                              appId = NULL,
                              bundleId = NULL,
                              url = NULL,
-                             version = deploymentVersion,
+                             version = deploymentRecordVersion,
                              metadata = list()) {
 
   check_character(envVars, allow_null = TRUE)

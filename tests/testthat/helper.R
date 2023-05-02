@@ -83,7 +83,7 @@ addTestDeployment <- function(path,
                               server = "example.com",
                               url = paste0("https://", server, "/", username, "/", appId),
                               hostUrl = NULL,
-                              version = deploymentVersion,
+                              version = deploymentRecordVersion,
                               metadata = list()) {
   saveDeployment(
     path,
