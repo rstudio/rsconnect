@@ -8,7 +8,7 @@
 #' @export
 #' @keywords internal
 discoverServers <- function(quiet = FALSE) {
-  lifecycle::deprecate_warn("0.9.0", "discoverServers()")
+  lifecycle::deprecate_warn("1.0.0", "discoverServers()")
 
   discovered <- getOption("rsconnect.local_servers", "http://localhost:3939/__api__")
 
@@ -39,7 +39,7 @@ discoverServers <- function(quiet = FALSE) {
 #' @inheritParams addServer
 #' @keywords internal
 addConnectServer <- function(url, name = NULL, certificate = NULL, quiet = FALSE) {
-  lifecycle::deprecate_warn("0.9.0", "addConnectServer()", "addServer()")
+  lifecycle::deprecate_warn("1.0.0", "addConnectServer()", "addServer()")
   addServer(
     ensureConnectServerUrl(url),
     name = name,
