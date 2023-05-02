@@ -249,6 +249,17 @@ test_that("defaultAppName reifies appNames for shinyApps", {
   expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
 })
 
+test_that("deploymentTargetForApp works with cloud", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+  local_mocked_bindings(
+    getApplication = function(...) list(name = "name", id = "id")
+  )
+
+  target <- deploymentTargetForApp("123")
+  expect_equal(target$username, "ron")
+})
 
 # helpers -----------------------------------------------------------------
 
