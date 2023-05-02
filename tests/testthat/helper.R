@@ -81,9 +81,9 @@ addTestDeployment <- function(path,
                               envVars = NULL,
                               username = account,
                               server = "example.com",
-                              version = dcfVersion,
                               url = paste0("https://", server, "/", username, "/", appId),
                               hostUrl = NULL,
+                              version = deploymentRecordVersion,
                               metadata = list()) {
   saveDeployment(
     path,
@@ -102,5 +102,4 @@ addTestDeployment <- function(path,
     metadata = metadata,
     addToHistory = FALSE
   )
-  invisible()
 }

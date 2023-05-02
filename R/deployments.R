@@ -70,6 +70,7 @@ deployments <- function(appPath = ".",
     ok <- ok & okServer
   }
 
+  deployments$envVars[is.na(deployments$envVars)] <- ""
   if (is.character(deployments$envVars)) {
     deployments$envVars <- strsplit(deployments$envVars, ", ")
   }
@@ -81,6 +82,8 @@ deploymentFields <- c(
   "name", "title", "username", "account", "server", "hostUrl", "appId",
   "bundleId", "url", "envVars", "version"
 )
+
+deploymentRecordVersion <- 1L
 
 saveDeployment <- function(recordDir,
                            target,
@@ -96,6 +99,7 @@ saveDeployment <- function(recordDir,
     account = target$account,
     server = target$server,
     envVars = target$envVars,
+    version = target$version,
     hostUrl = hostUrl,
     appId = application$id,
     bundleId = bundleId,
@@ -110,7 +114,7 @@ saveDeployment <- function(recordDir,
     addToDeploymentHistory(recordDir, deployment)
   }
 
-  invisible(NULL)
+  invisible(path)
 }
 
 deploymentRecord <- function(name,
@@ -123,6 +127,7 @@ deploymentRecord <- function(name,
                              appId = NULL,
                              bundleId = NULL,
                              url = NULL,
+                             version = deploymentRecordVersion,
                              metadata = list()) {
 
   check_character(envVars, allow_null = TRUE)
@@ -133,19 +138,17 @@ deploymentRecord <- function(name,
     username = username,
     account = account,
     server = server,
-    envVars = paste0(envVars, collapse = ", "),
+    envVars = if (length(envVars) > 0) paste0(envVars, collapse = ", ") else NA,
     hostUrl = hostUrl %||% "",
     appId = appId %||% "",
     bundleId = bundleId %||% "",
-    url = url %||% ""
+    url = url %||% "",
+    version = version
   )
   c(standard, metadata)
 }
 
-dcfVersion <- "1"
-
 writeDeploymentRecord <- function(record, filePath) {
-  record$version <- dcfVersion
   # use a long width so URLs don't line-wrap
   write.dcf(record, filePath, width = 4096)
 }

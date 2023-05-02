@@ -122,7 +122,7 @@
 * `deployApp("foo.Rmd")` has been deprecated. It was never documented, and
   it does the same job as `deployDoc()` (#698).
 
-* `deployApp(appPrimaryDoc)` has been deprecated; it did the same job as 
+* `deployApp(appSourceDoc)` has been deprecated; it did the same job as
   `recordDir`.
 
 * `appDependencies()` now returns an additional column giving the Repository 

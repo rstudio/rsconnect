@@ -66,8 +66,8 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    getApplication = function(outputOrApplicationId, dcfVersion) {
-      if (is.na(dcfVersion)) {
+    getApplication = function(outputOrApplicationId, deploymentRecordVersion) {
+      if (is.na(deploymentRecordVersion)) {
         # In pre-versioned dcf files, contentOrAppId is the id of the application.
         # TODO: consider removing support for this case a year after the release of 0.8.29
         path <- paste0("/applications/", outputOrApplicationId)

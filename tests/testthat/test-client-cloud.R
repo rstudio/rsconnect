@@ -172,7 +172,7 @@ test_that("Get application", {
   expect_equal(app$application_id, 10)
   expect_equal(app$url, "http://fake-url.test.me/")
 
-  app <- client$getApplication("5", dcfVersion)
+  app <- client$getApplication("5", deploymentRecordVersion)
 
   expect_equal(app$id, 5)
   expect_equal(app$application_id, 1)
@@ -230,7 +230,7 @@ test_that("Get application output trashed", {
   expect_equal(app$application_id, 10)
   expect_equal(app$url, "http://fake-url.test.me/")
 
-  app <- client$getApplication(5, dcfVersion)
+  app <- client$getApplication(5, deploymentRecordVersion)
 
   expect_equal(app$id, 5)
   expect_equal(app$application_id, 1)
