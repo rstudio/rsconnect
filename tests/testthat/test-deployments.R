@@ -69,6 +69,25 @@ test_that("can read/write metadata", {
   expect_equal(out$meta2, "two")
 })
 
+test_that("can read/write version", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, version = "999")
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$version, "999")
+})
+
+test_that("can read/write missing version", {
+  # also tests we can read files written by previous versions of package
+  dir <- local_temp_app()
+
+  path <- addTestDeployment(dir, version = NA)
+  out <- deployments(dir, excludeOrphaned = FALSE)
+
+  expect_false("version" %in% rownames(read.dcf(path)))
+  expect_equal(out$version, NA)
+})
+
 test_that("can read/write env vars", {
   app <- local_temp_app()
   addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
@@ -78,12 +97,21 @@ test_that("can read/write env vars", {
   expect_equal(deps$envVars, list(c("TEST1", "TEST2"), character()))
 })
 
-test_that("can read env vars when none set", {
+test_that("can read/write empty env vars", {
+  # also tests we can read files written by previous versions of package
   app <- local_temp_app()
-  addTestDeployment(app, "test1", envVars = NA_character_)
 
+  # With empty character vector
+  path <- addTestDeployment(app, "test1", envVars = character())
   deps <- deployments(app, excludeOrphaned = FALSE)
-  expect_equal(deps$envVars, list(NA_character_))
+  expect_false("envVars" %in% rownames(read.dcf(path)))
+  expect_equal(deps$envVars, list(character()))
+
+  # Or with empty string
+  path <- addTestDeployment(app, "test1", envVars = "")
+  deps <- deployments(app, excludeOrphaned = FALSE)
+  expect_false("envVars" %in% rownames(read.dcf(path)))
+  expect_equal(deps$envVars, list(character()))
 })
 
 test_that("can read/write env vars", {
@@ -108,7 +136,7 @@ test_that("saveDeployment appends to global history", {
       appName = "my-app",
       appTitle = "",
       appId = 10,
-      envVars = NULL,
+      envVars = "abc", # ensure there's an envVars column in output
       account = "foo",
       username = "foo",
       server = "bar"
