@@ -15,6 +15,17 @@ test_that("quarto affects mode inference", {
   expect_equal(metadata$appMode, "quarto-static")
 })
 
+test_that("quarto path is deprecated", {
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  expect_snapshot(. <- appMetadata(dir, quarto = "abc"))
+})
+
+test_that("validates quarto argument", {
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  expect_snapshot(appMetadata(dir, quarto = 1), error = TRUE)
+})
+
+
 test_that("handles special case of appPrimaryDoc as R file", {
   dir <- local_temp_app(list("foo.R" = ""))
   metadata <- appMetadata(dir, appPrimaryDoc = "foo.R")

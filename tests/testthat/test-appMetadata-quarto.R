@@ -67,7 +67,6 @@ test_that("inferQuartoInfo returns NULL for non-quarto content", {
   expect_null(quartoInfo)
 })
 
-
 test_that("quartoInspect requires quarto", {
   local_mocked_bindings(quarto_path = function() NULL)
   expect_snapshot(error = TRUE, {

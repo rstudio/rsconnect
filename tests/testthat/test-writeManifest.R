@@ -172,7 +172,7 @@ test_that("Deploying a Quarto project without Quarto is an error", {
   local_mocked_bindings(quarto_path = function() NULL)
 
   appDir <- test_path("quarto-website-r")
-  expect_snapshot(makeManifest(appDir, quarto = NULL), error = TRUE)
+  expect_snapshot(makeManifest(appDir), error = TRUE)
 })
 
 test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {

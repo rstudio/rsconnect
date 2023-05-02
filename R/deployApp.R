@@ -159,7 +159,7 @@
 #'
 #' # deploy a Quarto website, using the quarto package to
 #' # find the Quarto binary
-#' deployApp("~/projects/quarto/site1", quarto = quarto::quarto_path())
+#' deployApp("~/projects/quarto/site1")
 #' }
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
@@ -229,15 +229,6 @@ deployApp <- function(appDir = getwd(),
     recordDir <- appSourceDoc
   } else if (!is.null(recordDir)) {
     check_file(recordDir)
-  }
-
-  if (!is_string(quarto)) {
-    lifecycle::deprecate_warn(
-      when = "0.9.0",
-      what = "deployApp(quarto = 'can no longer be a path')",
-      with = I("`TRUE` instead")
-    )
-    quarto <- TRUE
   }
 
   # set up logging helpers
@@ -346,7 +337,7 @@ deployApp <- function(appDir = getwd(),
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
-    usesQuarto = quarto,
+    quarto = quarto,
     contentCategory = contentCategory,
     isCloudServer = isCloudServer,
     metadata = metadata

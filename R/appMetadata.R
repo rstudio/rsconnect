@@ -1,21 +1,30 @@
 appMetadata <- function(appDir,
                         appFiles = NULL,
                         appPrimaryDoc = NULL,
-                        usesQuarto = NA,
+                        quarto = NA,
                         contentCategory = NULL,
                         isCloudServer = FALSE,
                         metadata = list()) {
 
-  check_bool(usesQuarto, allow_na = TRUE)
-
   appFiles <- listDeploymentFiles(appDir, appFiles)
   checkAppLayout(appDir, appPrimaryDoc)
+
+  if (is_string(quarto)) {
+    lifecycle::deprecate_warn(
+      when = "0.9.0",
+      what = "deployApp(quarto = 'can no longer be a path')",
+      with = I("quarto = `TRUE` instead")
+    )
+    quarto <- TRUE
+  } else {
+    check_bool(quarto, allow_na = TRUE)
+  }
 
   # If quarto package/IDE has supplied metadata, always use quarto
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121
   # https://github.com/rstudio/rstudio/blob/3d45a20307f650/src/cpp/session/modules/SessionRSConnect.cpp#L81-L123
   if (hasQuartoMetadata(metadata)) {
-    usesQuarto <- TRUE
+    quarto <- TRUE
   }
 
   # Generally we want to infer appPrimaryDoc from appMode, but there's one
@@ -28,7 +37,7 @@ appMetadata <- function(appDir,
     rootFiles <- appFiles[dirname(appFiles) == "."]
     appMode <- inferAppMode(
       file.path(appDir, appFiles),
-      usesQuarto = usesQuarto,
+      usesQuarto = quarto,
       isCloudServer = isCloudServer
     )
   }

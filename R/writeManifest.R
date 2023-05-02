@@ -35,7 +35,7 @@ writeManifest <- function(appDir = getwd(),
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
-    usesQuarto = quarto,
+    quarto = quarto,
     contentCategory = contentCategory,
   )
 

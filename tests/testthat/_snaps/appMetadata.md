@@ -7,6 +7,23 @@
       ! No content to deploy.
       x `appDir` is empty.
 
+# quarto path is deprecated
+
+    Code
+      . <- appMetadata(dir, quarto = "abc")
+    Condition
+      Warning:
+      The `quarto` argument of `deployApp()` can no longer be a path as of rsconnect 0.9.0.
+      i Please use quarto = `TRUE` instead instead.
+
+# validates quarto argument
+
+    Code
+      appMetadata(dir, quarto = 1)
+    Condition
+      Error in `appMetadata()`:
+      ! `quarto` must be `TRUE`, `FALSE`, or `NA`, not the number 1.
+
 # checkLayout() errors if primary doc & app.R
 
     Code
