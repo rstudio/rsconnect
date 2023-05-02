@@ -220,7 +220,7 @@ deployApp(launch.browser = FALSE)
 
 # deploy a Quarto website, using the quarto package to
 # find the Quarto binary
-deployApp("~/projects/quarto/site1", quarto = quarto::quarto_path())
+deployApp("~/projects/quarto/site1")
 }
 }
 \seealso{
