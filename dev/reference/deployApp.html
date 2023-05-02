@@ -86,7 +86,7 @@ content to a server.</p>
 <span>  forceUpdate <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  quarto <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  quarto <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  appVisibility <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  image <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -246,9 +246,12 @@ is <code>TRUE</code>.</p></dd>
 
 
 <dt>quarto</dt>
-<dd><p>Optional. Full path to a Quarto binary for use deploying Quarto
-content. The provided Quarto binary will be used to run <code>quarto inspect</code>
-to gather information about the content.</p></dd>
+<dd><p>Should the deployed content be built by quarto?
+(<code>TRUE</code>, <code>FALSE</code>, or <code>NA</code>). The default, <code>NA</code>, will use quarto if
+there are <code>.qmd</code> files in the bundle, or if there is a
+<code>_quarto.yml</code> and <code>.Rmd</code> files.</p>
+<p>(This option is ignored and quarto will always be used if the
+<code>metadata</code> contains <code>quarto_version</code> and <code>quarto_engines</code> fields.)</p></dd>
 
 
 <dt>appVisibility</dt>
@@ -324,7 +327,7 @@ instead need to supply the <code>appId</code>.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># deploy a Quarto website, using the quarto package to</span></span></span>
 <span class="r-in"><span><span class="co"># find the Quarto binary</span></span></span>
-<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/quarto/site1"</span>, quarto <span class="op">=</span> <span class="fu">quarto</span><span class="fu">::</span><span class="fu">quarto_path</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/quarto/site1"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>

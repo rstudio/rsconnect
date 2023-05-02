@@ -83,7 +83,7 @@ these change.</p>
 <span>  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  quarto <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  quarto <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  image <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -133,9 +133,12 @@ is <code>TRUE</code>.</p></dd>
 
 
 <dt>quarto</dt>
-<dd><p>Optional. Full path to a Quarto binary for use deploying Quarto
-content. The provided Quarto binary will be used to run <code>quarto inspect</code>
-to gather information about the content.</p></dd>
+<dd><p>Should the deployed content be built by quarto?
+(<code>TRUE</code>, <code>FALSE</code>, or <code>NA</code>). The default, <code>NA</code>, will use quarto if
+there are <code>.qmd</code> files in the bundle, or if there is a
+<code>_quarto.yml</code> and <code>.Rmd</code> files.</p>
+<p>(This option is ignored and quarto will always be used if the
+<code>metadata</code> contains <code>quarto_version</code> and <code>quarto_engines</code> fields.)</p></dd>
 
 
 <dt>image</dt>
