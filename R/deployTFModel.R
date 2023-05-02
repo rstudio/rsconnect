@@ -13,7 +13,7 @@
 #' @export
 deployTFModel <- function(modelDir, ...) {
   lifecycle::deprecate_stop(
-    when = "0.9.0",
+    when = "1.0.0",
     what = "deployTFModel()",
     details = "Posit Connect no longer supports hosting of TensorFlow Model APIs."
   )

@@ -17,7 +17,7 @@
       deployApp("foo.Rmd")
     Condition
       Warning:
-      The `appDir` argument of `deployApp()` takes a directory, not a document, as of rsconnect 0.9.0.
+      The `appDir` argument of `deployApp()` takes a directory, not a document, as of rsconnect 1.0.0.
       i Please use `deployDoc()` instead.
       Error in `deployDoc()`:
       ! `doc`, "foo.Rmd", does not exist.

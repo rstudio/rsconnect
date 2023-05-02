@@ -81,7 +81,7 @@ deploymentTargetForApp <- function(appId,
     appTitle = application$title %||% appTitle,
     appId = application$id,
     envVars = NULL,
-    username = application$owner_username,
+    username = application$owner_username %||% accountDetails$name,
     account = accountDetails$name,
     server = accountDetails$server
   )

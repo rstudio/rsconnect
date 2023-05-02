@@ -11,7 +11,7 @@ appMetadata <- function(appDir,
 
   if (is_string(quarto)) {
     lifecycle::deprecate_warn(
-      when = "0.9.0",
+      when = "1.0.0",
       what = "deployApp(quarto = 'can no longer be a path')",
       with = I("quarto = `TRUE` instead")
     )
