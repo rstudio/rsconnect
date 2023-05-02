@@ -35,6 +35,9 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
       as.list(as.data.frame(dcf))
     })
   } else {
+    old <- options(renv.verbose = FALSE)
+    defer(options(old))
+
     # Generate a library from the lockfile
     lib_dir <- dirCreate(file.path(bundleDir, "renv_library"))
     renv::restore(bundleDir, library = lib_dir, prompt = FALSE)
