@@ -47,8 +47,7 @@ deploymentTarget <- function(recordPath = ".",
       envVars,
       fullAccount$name, # first deploy must be to own account
       fullAccount$name,
-      fullAccount$server,
-      dcfVersion
+      fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
     # If both appName and appId supplied, check that they're consistent.
@@ -84,8 +83,7 @@ deploymentTargetForApp <- function(appId,
     NULL,
     application$owner_username,
     accountDetails$name,
-    accountDetails$server,
-    dcfVersion
+    accountDetails$server
   )
 }
 
@@ -96,7 +94,7 @@ createDeploymentTarget <- function(appName,
                                    username,
                                    account,
                                    server,
-                                   version) {
+                                   version = dcfVersion) {
   list(
     appName = appName,
     appTitle = appTitle %||% "",
