@@ -50,11 +50,11 @@ test_that("works with BioC packages", {
 test_that("gets DESCRIPTION from renv library", {
   withr::local_options(renv.verbose = FALSE)
 
-  app_dir <- local_temp_app(list("foo.R" = "library(withr); library(MASS)"))
+  app_dir <- local_temp_app(list("foo.R" = "library(withr); library(foreign)"))
   renv::snapshot(app_dir, prompt = FALSE)
 
   deps <- parseRenvDependencies(app_dir)
-  expect_setequal(deps$Package, c("MASS", "withr"))
+  expect_setequal(deps$Package, c("foreign", "withr"))
 })
 
 # standardizeRenvPackage -----------------------------------------
