@@ -227,8 +227,6 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(appSourceDoc)) {
     # Used by IDE so can't deprecate
     recordDir <- appSourceDoc
-  } else if (!is.null(recordDir)) {
-    check_file(recordDir)
   }
 
   # set up logging helpers
