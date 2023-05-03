@@ -108,12 +108,14 @@ findRepoUrl <- function(pkg, availablePackages) {
 }
 
 isDevVersion <- function(record, availablePackages) {
-  if (!record$Package %in% rownames(availablePackages)) {
+  idx <- match(record$Package, availablePackages[, "Package"])
+
+  if (is.na(idx)) {
     return(FALSE)
   }
 
   local_version <- record$Version
-  repo_version <- availablePackages[record$Package, "Version"]
+  repo_version <- availablePackages[idx, "Version"]
 
   package_version(local_version) > package_version(repo_version)
 }

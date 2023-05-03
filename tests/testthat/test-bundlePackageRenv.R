@@ -82,7 +82,7 @@ test_that("BioC gets normalized repo", {
   Bioconductor <- list(Package = "pkg", Source = "Bioconductor")
 
   packages <- data.frame(
-    row.names = "pkg",
+    Package = "pkg",
     Repository = "https://b.com/src/contrib",
     stringsAsFactors = FALSE
   )
@@ -95,7 +95,7 @@ test_that("BioC gets normalized repo", {
 
 test_that("has special handling for CRAN packages", {
   packages <- as.matrix(data.frame(
-    row.names = "pkg",
+    Package = "pkg",
     Version = "1.0.0",
     Repository = "https://cran.com/src/contrib",
     stringsAsFactors = FALSE
@@ -120,7 +120,7 @@ test_that("has special handling for CRAN packages", {
 test_that("packages installed from other repos get correctly named", {
   pkg <- list(Package = "pkg", Source = "Repository", Repository = "https://test2.com")
   packages <- as.matrix(data.frame(
-    row.names = "pkg",
+    Package = "pkg",
     Version = "1.0.0",
     Repository = "https://test2.com/src/contrib",
     stringsAsFactors = FALSE
