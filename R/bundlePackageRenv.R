@@ -32,7 +32,7 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
     # Can use system libraries
     deps$description <- lapply(deps$Package, function(pkg) {
       dcf <- read.dcf(system.file("DESCRIPTION", package = pkg))
-      as.list(as.data.frame(dcf))
+      as.list(as.data.frame(dcf, stringsAsFactors = FALSE))
     })
   } else {
     old <- options(renv.verbose = FALSE)
@@ -45,7 +45,7 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
 
     deps$description <- lapply(deps$Package, function(pkg) {
       dcf <- read.dcf(file.path(lib_dir, pkg, "DESCRIPTION"))
-      as.list(as.data.frame(dcf))
+      as.list(as.data.frame(dcf, stringsAsFactors = FALSE))
     })
   }
 
