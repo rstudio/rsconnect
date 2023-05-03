@@ -111,7 +111,7 @@ standardizeRenvPackage <- function(pkg,
     }
   } else if (pkg$Source == "unknown") {
     pkg$Source <- NA_character_
-  } else if (pkg$Source %in% c("BitBucket", "GitHub", "GitLab")) {
+  } else if (pkg$Source %in% c("Bitbucket", "GitHub", "GitLab")) {
     pkg$Source <- tolower(pkg$Source)
   }
 
