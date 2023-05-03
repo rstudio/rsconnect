@@ -71,17 +71,12 @@ standardizePackratPackage <- function(record, availablePackages, repos = charact
     # can't install source packages elsewhere
     repository <- NA_character_
     source <- NA_character_
-  } else if (source == "CustomCRANLikeRepository") {
+  } else if (source == "CustomCRANLikeRepository" && isDevVersion(record, availablePackages)) {
     # Package was installed from source, but packrat guessed it was installed
-    # from a known repo. We need to check that it's not actually a dev version
-    if (isDevVersion(record, availablePackages)) {
-      repository <- NA_character_
-      source <- NA_character_
-    } else {
-      repository <- findRepoUrl(pkg, availablePackages)
-      source <- findRepoName(repository, repos)
-    }
-  } else if (source %in% c("CRAN", "Bioconductor")) {
+    # from a known repo.
+    repository <- NA_character_
+    source <- NA_character_
+  } else if (source %in% c("CRAN", "Bioconductor", "CustomCRANLikeRepository")) {
     # shinyapps & posit.cloud will ignore, but connect will use (unless admin
     # has set up an override)
     repository <- findRepoUrl(pkg, availablePackages)
