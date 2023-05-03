@@ -7,7 +7,7 @@
 #' @param siteName Name for the site (names must be unique within
 #'   an account). Defaults to the base name of the specified `siteDir`
 #'   or to the name provided by a custom site generation function.
-#' @param siteTitle. Title for the site. For quarto sites only, if not
+#' @param siteTitle Title for the site. For quarto sites only, if not
 #'   supplied uses the title recorded in `_quarto.yml`.
 #' @param render Rendering behavior for site:
 #'
