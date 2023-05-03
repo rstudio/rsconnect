@@ -26,28 +26,31 @@ deploymentTarget <- function(recordPath = ".",
     }
 
     appId <- NULL
-    # Have we previously deployed elsewhere?
-    existing <- applications(fullAccount$name, fullAccount$server)
-    if (appName %in% existing$name) {
-      thisApp <- existing[appName == existing$name, , drop = FALSE]
-      uniqueName <- findUnique(appName, existing$name)
+    if (!isCloudServer(fullAccount$server)) {
+      # Have we previously deployed elsewhere? We can't do this on cloud
+      # because it assigns random app names (see #808 for details).
+      existing <- applications(fullAccount$name, fullAccount$server)
+      if (appName %in% existing$name) {
+        thisApp <- existing[appName == existing$name, , drop = FALSE]
+        uniqueName <- findUnique(appName, existing$name)
 
-      if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
-        appId <- thisApp$id
-        appName <- thisApp$name
-      } else {
-        appName <- uniqueName
+        if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
+          appId <- thisApp$id
+          appName <- thisApp$name
+        } else {
+          appName <- uniqueName
+        }
       }
     }
 
     createDeploymentTarget(
-      appName,
-      appTitle,
-      appId,
-      envVars,
-      fullAccount$name, # first deploy must be to own account
-      fullAccount$name,
-      fullAccount$server
+      appName = appName,
+      appTitle = appTitle,
+      appId = appId,
+      envVars = envVars,
+      username = fullAccount$name, # first deploy must be to own account
+      account = fullAccount$name,
+      server = fullAccount$server
     )
   } else if (nrow(appDeployments) == 1) {
     # If both appName and appId supplied, check that they're consistent.
@@ -77,12 +80,13 @@ deploymentTargetForApp <- function(appId,
   application <- getApplication(accountDetails$name, accountDetails$server, appId)
 
   createDeploymentTarget(
-    application$name,
-    application$title %||% appTitle,
-    application$id,
-    application$owner_username,
-    accountDetails$name,
-    accountDetails$server
+    appName = application$name,
+    appTitle = application$title %||% appTitle,
+    appId = application$id,
+    envVars = NULL,
+    username = application$owner_username %||% accountDetails$name,
+    account = accountDetails$name,
+    server = accountDetails$server
   )
 }
 
@@ -92,7 +96,8 @@ createDeploymentTarget <- function(appName,
                                    envVars,
                                    username,
                                    account,
-                                   server) {
+                                   server,
+                                   version = 1) {
   list(
     appName = appName,
     appTitle = appTitle %||% "",
@@ -100,20 +105,22 @@ createDeploymentTarget <- function(appName,
     appId = appId,
     username = username,
     account = account,
-    server = server
+    server = server,
+    version = version
   )
 }
 
 updateDeploymentTarget <- function(previous, appTitle = NULL, envVars = NULL) {
   createDeploymentTarget(
-    previous$name,
-    appTitle %||% previous$title,
-    previous$appId,
-    envVars %||% previous$envVars[[1]],
+    appName = previous$name,
+    appTitle = appTitle %||% previous$title,
+    appId = previous$appId,
+    envVars = envVars %||% previous$envVars[[1]],
     # if username not previously recorded, use current account
-    previous$username %||% previous$account,
-    previous$account,
-    previous$server
+    username = previous$username %||% previous$account,
+    account = previous$account,
+    server = previous$server,
+    version = previous$version
   )
 }
 

@@ -7,6 +7,23 @@
       ! No content to deploy.
       x `appDir` is empty.
 
+# quarto path is deprecated
+
+    Code
+      . <- appMetadata(dir, quarto = "abc")
+    Condition
+      Warning:
+      The `quarto` argument of `deployApp()` can no longer be a path as of rsconnect 1.0.0.
+      i Please use quarto = `TRUE` instead instead.
+
+# validates quarto argument
+
+    Code
+      appMetadata(dir, quarto = 1)
+    Condition
+      Error in `appMetadata()`:
+      ! `quarto` must be `TRUE`, `FALSE`, or `NA`, not the number 1.
+
 # checkLayout() errors if primary doc & app.R
 
     Code
@@ -27,21 +44,6 @@
         2. R Markdown (`.Rmd`) or Quarto (`.qmd`) documents.
         3. A website containing `.html` and/or `.pdf` files.
         4. A plumber API with `plumber.R` or `entrypoint.R`.
-
-# quarto docs require quarto
-
-    Code
-      inferAppMode(single_qmd)
-    Condition
-      Error in `inferAppMode()`:
-      ! Can't deploy Quarto content when `quarto` is `NULL`.
-      i Please supply a path to a quarto binary in `quarto`.
-    Code
-      inferAppMode(rmd_and_quarto_yml)
-    Condition
-      Error in `inferAppMode()`:
-      ! Can't deploy Quarto content when `quarto` is `NULL`.
-      i Please supply a path to a quarto binary in `quarto`.
 
 # errors if no files with needed extension
 

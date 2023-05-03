@@ -27,7 +27,7 @@ deployApp(
   forceUpdate = NULL,
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
-  quarto = NULL,
+  quarto = NA,
   appVisibility = NULL,
   image = NULL
 )
@@ -153,9 +153,13 @@ installed in the environment.}
 \code{requirements.txt} file is found, it will be overwritten when this argument
 is \code{TRUE}.}
 
-\item{quarto}{Optional. Full path to a Quarto binary for use deploying Quarto
-content. The provided Quarto binary will be used to run \verb{quarto inspect}
-to gather information about the content.}
+\item{quarto}{Should the deployed content be built by quarto?
+(\code{TRUE}, \code{FALSE}, or \code{NA}). The default, \code{NA}, will use quarto if
+there are \code{.qmd} files in the bundle, or if there is a
+\verb{_quarto.yml} and \code{.Rmd} files.
+
+(This option is ignored and quarto will always be used if the
+\code{metadata} contains \code{quarto_version} and \code{quarto_engines} fields.)}
 
 \item{appVisibility}{One of \code{NULL}, \code{"private"}, or \code{"public"}; the
 visibility of the deployment. When \code{NULL}, no change to visibility is
@@ -216,7 +220,7 @@ deployApp(launch.browser = FALSE)
 
 # deploy a Quarto website, using the quarto package to
 # find the Quarto binary
-deployApp("~/projects/quarto/site1", quarto = quarto::quarto_path())
+deployApp("~/projects/quarto/site1")
 }
 }
 \seealso{

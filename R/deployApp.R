@@ -122,9 +122,13 @@
 #' @param forceGeneratePythonEnvironment Optional. If an existing
 #'   `requirements.txt` file is found, it will be overwritten when this argument
 #'   is `TRUE`.
-#' @param quarto Optional. Full path to a Quarto binary for use deploying Quarto
-#'   content. The provided Quarto binary will be used to run `quarto inspect`
-#'   to gather information about the content.
+#' @param quarto Should the deployed content be built by quarto?
+#'   (`TRUE`, `FALSE`, or `NA`). The default, `NA`, will use quarto if
+#'   there are `.qmd` files in the bundle, or if there is a
+#'   `_quarto.yml` and `.Rmd` files.
+#'
+#'   (This option is ignored and quarto will always be used if the
+#'   `metadata` contains `quarto_version` and `quarto_engines` fields.)
 #' @param appVisibility One of `NULL`, `"private"`, or `"public"`; the
 #'   visibility of the deployment. When `NULL`, no change to visibility is
 #'   made. Currently has an effect only on deployments to shinyapps.io.
@@ -155,7 +159,7 @@
 #'
 #' # deploy a Quarto website, using the quarto package to
 #' # find the Quarto binary
-#' deployApp("~/projects/quarto/site1", quarto = quarto::quarto_path())
+#' deployApp("~/projects/quarto/site1")
 #' }
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
@@ -183,7 +187,7 @@ deployApp <- function(appDir = getwd(),
                       forceUpdate = NULL,
                       python = NULL,
                       forceGeneratePythonEnvironment = FALSE,
-                      quarto = NULL,
+                      quarto = NA,
                       appVisibility = NULL,
                       image = NULL
                       ) {
@@ -191,7 +195,7 @@ deployApp <- function(appDir = getwd(),
   check_string(appDir)
   if (isStaticFile(appDir) && !dirExists(appDir)) {
     lifecycle::deprecate_warn(
-      when = "0.9.0",
+      when = "1.0.0",
       what = "deployApp(appDir = 'takes a directory, not a document,')",
       with = "deployDoc()"
     )

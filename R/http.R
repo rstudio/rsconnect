@@ -338,7 +338,7 @@ httpFunction <- function() {
 
   if (is_string(httpType) && httpType != "libcurl") {
     lifecycle::deprecate_warn(
-      "0.9.0",
+      "1.0.0",
       I("The `rsconnect.http` option"),
       details = c(
         "It should no longer be necessary to set this option",

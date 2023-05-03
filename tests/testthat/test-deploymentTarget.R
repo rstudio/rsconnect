@@ -80,11 +80,18 @@ test_that("succeeds if there's a single existing deployment", {
   addTestAccount("ron")
 
   app_dir <- withr::local_tempdir()
-  addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
+  addTestDeployment(
+    app_dir,
+    appName = "test",
+    appId = "1",
+    username = "ron",
+    version = "999"
+  )
 
   target <- deploymentTarget(app_dir)
   expect_equal(target$appId, "1")
   expect_equal(target$username, "ron")
+  expect_equal(target$version, "999")
 
   target <- deploymentTarget(app_dir, appName = "test")
   expect_equal(target$appId, "1")
@@ -242,6 +249,17 @@ test_that("defaultAppName reifies appNames for shinyApps", {
   expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
 })
 
+test_that("deploymentTargetForApp works with cloud", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+  local_mocked_bindings(
+    getApplication = function(...) list(name = "name", id = "id")
+  )
+
+  target <- deploymentTargetForApp("123")
+  expect_equal(target$username, "ron")
+})
 
 # helpers -----------------------------------------------------------------
 
