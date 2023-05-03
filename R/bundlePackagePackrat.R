@@ -76,7 +76,7 @@ standardizePackratPackage <- function(record, availablePackages, repos = charact
     # from a known repo.
     repository <- NA_character_
     source <- NA_character_
-  } else if (source %in% c("CRAN", "Bioconductor", "CustomCRANLikeRepository")) {
+  } else if (source %in% c("CRAN", "Bioconductor")) {
     # shinyapps & posit.cloud will ignore, but connect will use (unless admin
     # has set up an override)
     repository <- findRepoUrl(pkg, availablePackages)
