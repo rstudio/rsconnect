@@ -60,7 +60,7 @@ test_that("gets DESCRIPTION from renv library", {
 # standardizeRenvPackage -----------------------------------------
 
 test_that("SCM get names translated", {
-  bitbucket <- list(Package = "pkg", Source = "BitBucket")
+  bitbucket <- list(Package = "pkg", Source = "Bitbucket")
   gitlab <- list(Package = "pkg", Source = "GitLab")
   github <- list(Package = "pkg", Source = "GitHub")
 
