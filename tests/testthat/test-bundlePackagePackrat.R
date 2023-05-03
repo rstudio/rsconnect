@@ -92,7 +92,7 @@ test_that("CRAN & BioC get normalized repo", {
   Bioconductor <- list(Package = "pkg2", Source = "Bioconductor")
 
   packages <- data.frame(
-    row.names = c("pkg1", "pkg2", "pkg3"),
+    Package = c("pkg1", "pkg2", "pkg3"),
     Repository = paste0(
       c("https://a.com", "https://b.com", "https://cran.com"),
       "/src/contrib"
@@ -113,7 +113,7 @@ test_that("CRAN & BioC get normalized repo", {
 test_that("packages installed from other repos get correctly named", {
   pkg <- list(Package = "pkg", Source = "https://test2.com")
   packages <- as.matrix(data.frame(
-    row.names = "pkg",
+    Package = "pkg",
     Version = "1.0.0",
     Repository = "https://test2.com/src/contrib",
     stringsAsFactors = FALSE
@@ -136,7 +136,7 @@ test_that("source packages can't be installed", {
 
 test_that("locally installed CRAN packages are handled correctly", {
   packages <- as.matrix(data.frame(
-    row.names = "pkg",
+    Package = "pkg",
     Version = "1.0.0",
     Repository = "https://cran.com/src/contrib",
     stringsAsFactors = FALSE

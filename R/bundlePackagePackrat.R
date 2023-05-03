@@ -95,8 +95,10 @@ findRepoName <- function(repository, repos) {
 }
 
 findRepoUrl <- function(pkg, availablePackages) {
-  if (pkg %in% rownames(availablePackages)) {
-    repo <- availablePackages[pkg, "Repository"]
+  idx <- match(pkg, availablePackages[, "Package"])
+
+  if (!is.na(idx)) {
+    repo <- availablePackages[[idx, "Repository"]]
     # Strip `/src/contrib/*` from package repository: `contrib.url()`
     # adds /src/contrib, and RSPM adds additional directories
     gsub("/src/contrib.*$", "", repo)
