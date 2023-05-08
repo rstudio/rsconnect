@@ -19,13 +19,6 @@ test_that("appPrimaryDoc must exist, if supplied", {
     deployApp(dir, appPrimaryDoc = "foo.Rmd")
   })
 })
-test_that("recordDoc must exist, if supplied", {
-  dir <- local_temp_app()
-
-  expect_snapshot(error = TRUE, {
-    deployApp(dir, recordDir = "doesntexist")
-  })
-})
 
 test_that("startup scripts are logged by default", {
   dir <- local_temp_app()

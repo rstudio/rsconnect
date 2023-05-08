@@ -8,6 +8,27 @@
 #' and adds all recursive dependencies to create a complete manifest of
 #' package packages need to be installed to run the app.
 #'
+#' # Dependency discovery
+#'
+#' rsconnect use one of three mechanisms to find which packages your application
+#' uses:
+#'
+#' 1. If `renv.lock` is present, it will use the versions and sources defined in
+#'    that file. If you're using the lockfile for some other purpose and
+#'    don't want it to affect deployment, add `renv.lock` to `.rscignore`.
+#'
+#' 2. Otherwise, rsconnect will call `renv::snapshot()` to find all packages
+#'    used by your code. If you'd instead prefer to only use the packages
+#'    declared in a `DESCRIPTION` file, run
+#'    `renv::settings$snapshot.type("explicit")` to activate renv's "explicit"
+#'    mode.
+#'
+#' 3. Dependency resolution using renv is a new feature in rsconnect 1.0.0, and
+#'    while we have done our best to test it, it still might fail for your app.
+#'    If this happens, please [file an issue](http://github.com/rstudio/rsconnect/issues)
+#'    then set `options(rsconnect.packrat = TRUE)` to revert to the old
+#'    dependency discovery mechanism.
+#'
 #' # Remote installation
 #'
 #' When deployed, the app must first install all of these packages, and
@@ -105,7 +126,7 @@ appDependencies <- function(appDir = getwd(), appFiles = NULL) {
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
 
   extraPackages <- inferRPackageDependencies(appMetadata)
-  deps <- snapshotRDependencies(bundleDir, extraPackages)
+  deps <- computePackageDependencies(bundleDir, extraPackages, quiet = TRUE)
   deps[c("Package", "Version", "Source", "Repository")]
 }
 

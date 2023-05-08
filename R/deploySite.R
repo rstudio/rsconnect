@@ -1,12 +1,14 @@
 #' Deploy a website
 #'
-#' Deploy an R Markdown website to a server.
+#' Deploy an R Markdown or quarto website to a server.
 #'
 #' @inheritParams deployApp
 #' @param siteDir Directory containing website. Defaults to current directory.
 #' @param siteName Name for the site (names must be unique within
 #'   an account). Defaults to the base name of the specified `siteDir`
 #'   or to the name provided by a custom site generation function.
+#' @param siteTitle Title for the site. For quarto sites only, if not
+#'   supplied uses the title recorded in `_quarto.yml`.
 #' @param render Rendering behavior for site:
 #'
 #'   * `"none"` uploads a static version of the current contents of
@@ -24,6 +26,7 @@
 #' @export
 deploySite <- function(siteDir = getwd(),
                        siteName = NULL,
+                       siteTitle = NULL,
                        account = NULL,
                        server = NULL,
                        render = c("none", "local", "server"),
@@ -35,61 +38,47 @@ deploySite <- function(siteDir = getwd(),
                        recordDir = NULL,
                        ...) {
 
-  check_installed(
-    "rmarkdown",
-    version = "0.9.5.3",
-    reason = "to deploy websites"
-  )
-
-  # validate and normalize siteDir
   check_directory(siteDir)
-  siteDir <- normalizePath(siteDir)
+  isQuarto <- file.exists(file.path(siteDir, "_quarto.yml")) ||
+    file.exists(file.path(siteDir, "_quarto.yaml"))
 
-  # switch to siteDir for duration of this function
-  oldwd <- setwd(siteDir)
-  on.exit(setwd(oldwd), add = TRUE)
-
-  # discover the site generator
-  siteGenerator <- rmarkdown::site_generator(siteDir)
-  if (is.null(siteGenerator)) {
-    stop("index file with site entry not found in ", siteDir)
+  quiet <- identical(match.arg(logLevel), "quiet")
+  if (isQuarto) {
+    site <- quartoSite(siteDir, quiet = quiet)
+  } else {
+    site <- rmarkdownSite(siteDir, quiet = quiet)
   }
 
   # render locally if requested
-  render <- match.arg(render)
+  render <- arg_match(render)
   if (render == "local") {
-    siteGenerator$render(
-      input_file = NULL,
-      output_format = NULL,
-      envir = new.env(),
-      quiet = identical(match.arg(logLevel), "quiet"),
-      encoding = getOption("encoding")
-    )
+    site$render()
   }
-
-  # if there is no explicit siteName get it from the generator
-  appName <- siteName %||% siteGenerator$name
 
   # determine appDir based on whether we are rendering on the server
   if (render == "server") {
-    appDir <- "."
-    appFiles <- NULL
+    appDir <- siteDir
   } else {
-    appDir <- siteGenerator$output_dir
-    appFiles <- bundleFiles(siteGenerator$output_dir)
-    appFiles <- appFiles[!grepl("^.*\\.([Rr]|[Rr]md|md)$", appFiles)]
+    appDir <- site$output_dir
   }
 
+  # Need to override recordDir to always record in the source directory
   if (is.null(recordDir)) {
-    name <- if (file.exists("index.Rmd")) "index.Rmd" else "index.md"
-    recordDir <- file.path(siteDir, name)
+    # We're deploying an entire directory, so we don't really need to set
+    # a path here, but we don't want to break existing deployments so
+    # we leave the existing behaviour for RMarkdown
+    if (!isQuarto)  {
+      name <- if (file.exists("index.Rmd")) "index.Rmd" else "index.md"
+      recordDir <- file.path(siteDir, name)
+    } else {
+      recordDir <- siteDir
+    }
   }
 
-  # deploy the site
   deployApp(
-    appName = appName,
+    appName = siteName %||% site$name,
+    appTitle = siteTitle %||% site$title,
     appDir = appDir,
-    appFiles = appFiles,
     recordDir = recordDir,
     contentCategory = "site",
     account = account,
@@ -101,4 +90,67 @@ deploySite <- function(siteDir = getwd(),
     python = python,
     ...
   )
+}
+
+quartoSite <- function(path, quiet = FALSE, error_call = caller_env()) {
+  check_installed(
+    "quarto",
+    reason = "to deploy quarto sites",
+    call = error_call
+  )
+
+  config <- quarto::quarto_inspect(path)$config
+
+  list(
+    render = function() quarto::quarto_render(path, quiet = quiet, as_job = FALSE),
+    name = basename(normalizePath(path)),
+    title = config$website$title %||% config$book$title %||% config$title,
+    # non-site projects build in current directory
+    output_dir = outputDir(path, config$project$`output-dir` %||% ".")
+  )
+}
+
+rmarkdownSite <- function(siteDir, quiet = FALSE, error_call = caller_env()) {
+  check_installed(
+    "rmarkdown",
+    version = "0.9.5.3",
+    reason = "to deploy RMarkdown sites",
+    call = error_call
+  )
+
+  # discover the site generator
+  siteGenerator <- rmarkdown::site_generator(siteDir)
+  if (is.null(siteGenerator)) {
+    cli::cli_abort(
+      "No `_site.yml` found in {.path {siteDir}.}",
+      call = error_call
+    )
+  }
+
+  list(
+    render = function() {
+      siteGenerator$render(
+        input_file = NULL,
+        output_format = NULL,
+        envir = new.env(),
+        quiet = quiet,
+        encoding = getOption("encoding")
+      )
+    },
+    name = siteGenerator$name,
+    title = NULL,
+    output_dir = outputDir(siteDir, siteGenerator$output_dir)
+  )
+}
+
+outputDir <- function(wd, path) {
+  old <- setwd(wd)
+  on.exit(setwd(old))
+
+  if (!file.exists(path)) {
+    dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  }
+
+
+  normalizePath(path, mustWork = FALSE)
 }

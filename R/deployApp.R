@@ -227,8 +227,6 @@ deployApp <- function(appDir = getwd(),
   if (!is.null(appSourceDoc)) {
     # Used by IDE so can't deprecate
     recordDir <- appSourceDoc
-  } else if (!is.null(recordDir)) {
-    check_file(recordDir)
   }
 
   # set up logging helpers
@@ -412,6 +410,7 @@ deployApp <- function(appDir = getwd(),
       appDir = appDir,
       appFiles = appFiles,
       appMetadata = appMetadata,
+      quiet = quiet,
       verbose = verbose,
       pythonConfig = pythonConfig,
       isCloudServer = isCloudServer,
@@ -568,6 +567,7 @@ bundleApp <- function(appName,
                       appFiles,
                       appMetadata,
                       verbose = FALSE,
+                      quiet = FALSE,
                       pythonConfig = NULL,
                       isCloudServer = FALSE,
                       image = NULL) {
@@ -597,7 +597,8 @@ bundleApp <- function(appName,
     retainPackratDirectory = TRUE,
     isCloudServer = isCloudServer,
     image = image,
-    verbose = verbose
+    verbose = verbose,
+    quiet = quiet
   )
   manifestJson <- toJSON(manifest)
   manifestPath <- file.path(bundleDir, "manifest.json")

@@ -33,3 +33,46 @@ Success:
 
 1. No errors in console
 1. `nrow(rsconnect::accounts("shinyapps.io"))` returns 1 or greater.
+
+# Apps
+
+1. Create a new shiny app by clicking "New Project" | "New Directory" | "Shiny app"
+
+### Deploy an app for the first time
+
+1. Click the deploy button then select "colarado.posit.co"
+
+Success:
+
+1. Deploy tab opens, and eventually deploy completes, and opens in connect.
+
+### Re-deploy an app
+
+1. Click the deploy button then click "Publish"
+
+Success:
+
+1. Existing colorado deployment should appear in publish dialog
+1. Deploy tab opens, and eventually deploy completes, and opens in connect.
+
+### Re-deploy an with missing metadata
+
+1.  Run `unlink("rsconnect", recursive = TRUE)`
+1.  Click the deploy button then click "Publish".
+
+Success:
+
+1. Dialog asks if you want to replace existing content. 
+1. After clicking "Replace" the deploy succeeds.
+
+### Re-deploy to deleted app
+
+1. On deployed app click "..." menu, then delete. 
+1. Click ok, wait 30s, then refresh the page to confirm the app is deleted.
+1. Return to RStudio, then click the deploy drop down. Choose other destinations, then click deploy.
+
+Success:
+
+1. Deploy tab opens, and eventually deploy completes, and opens in connect.
+
+Finish up by deleting the app you just deployed.

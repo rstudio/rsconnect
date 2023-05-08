@@ -26,17 +26,20 @@ deploymentTarget <- function(recordPath = ".",
     }
 
     appId <- NULL
-    # Have we previously deployed elsewhere?
-    existing <- applications(fullAccount$name, fullAccount$server)
-    if (appName %in% existing$name) {
-      thisApp <- existing[appName == existing$name, , drop = FALSE]
-      uniqueName <- findUnique(appName, existing$name)
+    if (!isCloudServer(fullAccount$server)) {
+      # Have we previously deployed elsewhere? We can't do this on cloud
+      # because it assigns random app names (see #808 for details).
+      existing <- applications(fullAccount$name, fullAccount$server)
+      if (appName %in% existing$name) {
+        thisApp <- existing[appName == existing$name, , drop = FALSE]
+        uniqueName <- findUnique(appName, existing$name)
 
-      if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
-        appId <- thisApp$id
-        appName <- thisApp$name
-      } else {
-        appName <- uniqueName
+        if (shouldUpdateApp(thisApp, uniqueName, forceUpdate)) {
+          appId <- thisApp$id
+          appName <- thisApp$name
+        } else {
+          appName <- uniqueName
+        }
       }
     }
 

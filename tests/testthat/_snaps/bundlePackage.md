@@ -1,32 +1,37 @@
-# errors if dependencies aren't installed
+# can snapshot deps with renv
 
     Code
-      bundlePackages(app_dir, appMode = "rmd-static")
-    Condition
-      Error:
-      ! All packages used by the asset must be installed.
-      x Missing packages: doesntexist1 and doesntexist2.
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies with renv
+      v Found 1 dependency
 
-# warns if can't find source
+# can snapshot deps with packrat
 
     Code
-      . <- bundlePackages(app_dir, appMode = "rmd-static")
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies with packrat
+      v Found 1 dependency
+
+# can capture deps from renv lockfile
+
+    Code
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies from renv.lock
+      v Found 1 dependency
+
+# error if can't find source
+
+    Code
+      . <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies with renv
+      v Found 1 dependency
     Condition
       Error:
       ! All packages must be installed from a reproducible location.
       x Can't re-install packages installed from source: shiny.
       i See `rsconnect::appDependencies()` for more details.
-
-# clear error if can't run performPackratSnapshot()
-
-    Code
-      addPackratSnapshot(dir, "doesntexist")
-    Condition
-      Warning in `FUN()`:
-      Package 'doesntexist' not available in repository or locally
-      Error in `addPackratSnapshot()`:
-      ! Failed to snapshot dependencies
-      Caused by error:
-      ! Unable to retrieve package records for the following packages:
-      - 'doesntexist'
 
