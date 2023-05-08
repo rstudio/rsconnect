@@ -2,6 +2,9 @@ rsconnect_log <- function(...) {
   cat(paste0("[dryRun] ", ..., "\n", collapse = ""), file = stderr())
 }
 traceFun <- function(ns, fun, code) {
+  traceFun_(ns, fun, substitute(code))
+}
+traceFun_ <- function(ns, fun, code) {
   if (ns == "base") {
     where <- baseenv()
   } else {
@@ -9,10 +12,12 @@ traceFun <- function(ns, fun, code) {
   }
 
   suppressMessages(
-    trace(fun, substitute(code), where = where, print = FALSE)
+    trace(fun, code, where = where, print = FALSE)
   )
   invisible()
 }
+
+# Messages ----------------------------------------------------------------
 
 env_seen <- new.env(parent = emptyenv())
 env_seen$PATH <- TRUE
@@ -32,18 +37,45 @@ traceFun("base", ".libPaths", {
     rsconnect_log("Updating .libPaths")
   }
 })
-traceFun("utils", "install.packages", stop("Shouldn't install on server"))
 
-
-# traceFun("rsconnect", "deployApp", stop("Apps can't deploy apps"))
-traceFun("base", "browser", rsconnect_log("Can't use browser(); no interactive session"))
+traceFun("base", "browser", {
+  rsconnect_log("Can't use browser(); no interactive session")
+})
 
 traceFun("utils", "browseURL", {
   rsconnect_log("Attempting to browse to <", url, ">")
 })
 
-# need to do in onLoad hooks
 
+# Errors ------------------------------------------------------------------
 
+errorOnServer <- function(ns, fun, reason) {
+  code <- substitute(
+    stop(paste0("[dryRun] `", ns, "::", fun, "()`: ", reason), call. = FALSE)
+  )
+  traceFun_(ns, fun, code)
+}
 
-# traceFun("rstudioapi", "askForPassword", stop("Cant't get password"))
+errorOnServer(
+  "utils",
+  "install.packages",
+  "install packages locally, not on the server"
+)
+
+setHook(
+  packageEvent("rstudioapi", "onLoad"),
+  errorOnServer(
+    "rsconnect",
+    "deployApp",
+    "apps shouldn't deploy apps on the server"
+  )
+)
+
+setHook(
+  packageEvent("rstudioapi", "onLoad"),
+  errorOnServer(
+    "rstudioapi",
+    "askForPassword",
+    "can't interactively ask for password on server"
+  )
+)

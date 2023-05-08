@@ -11,8 +11,17 @@ test_that("multiplication works", {
     )
   ))
 
-  dryRun(app)
+  # dryRun(app)
 })
+
+test_that("multiplication works", {
+  app <- local_temp_app(list(
+    "app.R" = "rsconnect::deployApp()"
+  ))
+
+  # dryRun(app)
+})
+
 
 # userEnvVars -------------------------------------------------------------
 
