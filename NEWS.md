@@ -1,5 +1,11 @@
 # rsconnect (development version)
 
+* New experiment `dryRun()` performs a deployment "dry run", simulating running
+  your app or document as if it's on the server. We can only do a partial
+  simulation but this allows us to catch a few common problems in a way that
+  allows you to rapidly iterate. This feature is under active development
+  so your feedback is appreciated! (#725, #208, #253, #256).
+
 * `deploySite()` now supports quarto websites (#813).
 
 * `deployApp()` and `writeManifest()` now respect renv lock files, if present. 
