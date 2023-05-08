@@ -56,7 +56,6 @@
 #' @inheritParams deployApp
 #' @param contentCategory Set this to `"site"` if you'd deploy with
 #'   [deploySite()]; otherwise leave as is.
-#' @param verbose If TRUE, prints progress messages to the console
 #' @export
 dryRun <- function(appDir = getwd(),
                    envVars = NULL,
@@ -65,6 +64,8 @@ dryRun <- function(appDir = getwd(),
                    appPrimaryDoc = NULL,
                    contentCategory = NULL,
                    quarto = NA) {
+  check_installed("callr")
+
   appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,
@@ -80,19 +81,30 @@ dryRun <- function(appDir = getwd(),
   )
 
   # copy files to bundle dir to stage
+  cli::cli_alert_info("Bundling app")
   bundleDir <- bundleAppDir(
     appDir = appDir,
     appFiles = appFiles,
     appPrimaryDoc = appMetadata$appPrimaryDoc
   )
-  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+  defer(unlink(bundleDir, recursive = TRUE))
 
-  renv::restore(bundleDir, prompt = FALSE)
+  cli::cli_alert_info("Creating project specific library")
+  callr::r(
+    function() {
+      options(renv.verbose = FALSE)
+      renv::init()
+      renv::restore()
+    },
+    wd = bundleDir
+  )
 
   # Add tracing code -------------------------------------------------
+  cli::cli_alert_info("Adding shims")
+
   file.copy(
-    system.file("lint-trace.R", package = "rsconnect"),
-    "__rsconnect-dryRunTrace.R"
+    system.file("dryRunTrace.R", package = "rsconnect"),
+    file.path(bundleDir, "__rsconnect-dryRunTrace.R")
   )
   appendLines(
     file.path(bundleDir, ".Rprofile"),
@@ -100,29 +112,40 @@ dryRun <- function(appDir = getwd(),
   )
 
   # Run ---------------------------------------------------------------
-  if (appMode %in% c("rmd-shiny", "quarto-shiny", "shiny", "api")) {
-    cli::cli_alert_info("Terminate the app to complete the dryRun")
+  cli::cli_alert_info("Starting {appMetadata$appMode}")
+  if (appMetadata$appMode %in% c("rmd-shiny", "quarto-shiny", "shiny", "api")) {
+    cli::cli_alert_warning("Terminate the app to complete the dry run")
   }
 
-  envVarNames <- setdiff(userEnvVars(), envVars)
+  envVarNames <- setdiff(userEnvVars(), c(envVars, "PATH"))
   envVarReset <- c(rep_named(envVarNames, ""), callr::rcmd_safe_env())
 
   callr::r(
     appRunner(appMetadata$appMode),
-    args = list(primaryDoc = appMetadata$primaryDoc),
+    args = list(primaryDoc = appMetadata$appPrimaryDoc),
     env = envVarReset,
-    wd = bundleDir
+    wd = bundleDir,
+    show = TRUE
   )
+  invisible()
 }
 
 appRunner <- function(appMode) {
-  switch(
+  switch(appMode,
     "rmd-static" = ,
-    "rmd-shiny" = function(primaryDoc) rmarkdown::render(primaryDoc),
+    "rmd-shiny" = function(primaryDoc) {
+      rmarkdown::render(primaryDoc, quiet = TRUE)
+    },
     "quarto-static" = ,
-    "quarto-shiny" = function(primaryDoc) quarto::quarto_render(primaryDoc),
-    "shiny" = function(primaryDoc) shiny::runApp(),
-    "api" = function(primaryDoc) plumber::pr_run(plumber::pr("plumber.R")),
+    "quarto-shiny" = function(primaryDoc) {
+      quarto::quarto_render(primaryDoc, quiet = TRUE)
+    },
+    "shiny" = function(primaryDoc) {
+      shiny::runApp()
+    },
+    "api" = function(primaryDoc) {
+      plumber::pr_run(plumber::pr("plumber.R"))
+    },
     cli::cli_abort("Content type {appMode} not currently supported")
   )
 }

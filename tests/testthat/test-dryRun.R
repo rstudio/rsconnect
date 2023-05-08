@@ -1,5 +1,17 @@
 test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+  app <- local_temp_app(list(
+    "index.Rmd" = c(
+      "---",
+      "title: rmd",
+      "---",
+      "",
+      "```{r}",
+      "Sys.getenv('MYSQL_USER')",
+      "```"
+    )
+  ))
+
+  dryRun(app)
 })
 
 # userEnvVars -------------------------------------------------------------
@@ -38,3 +50,4 @@ test_that("not troubled by wrong number of equals", {
   ))
   expect_equal(userEnvVars(path), c("B", "C"))
 })
+
