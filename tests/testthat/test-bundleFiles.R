@@ -107,7 +107,7 @@ test_that("ignores knitr cache directories", {
 test_that("ignores files anywhere in path", {
   dir <- withr::local_tempdir()
   dir.create(file.path(dir, "a/b/c"), recursive = TRUE)
-  file.create(file.path(dir, c("x", "a/renv", "a/b/.gitignore", "a/b/c/.DS_Store")))
+  file.create(file.path(dir, c("x", "a/b/.gitignore", "a/b/c/.DS_Store")))
 
   expect_equal(bundleFiles(dir), "x")
 })
