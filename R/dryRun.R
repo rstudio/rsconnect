@@ -19,12 +19,12 @@
 #' your app:
 #'
 #' * The server doesn't install all the packages your app needs to work.
-#'   `dryRun()` solves this by using `renv::restore()` to create a project
+#'   `dryRun()` reveals this by using `renv::restore()` to create a project
 #'   specific library that uses only the packages that are explicitly used
 #'   by your project.
 #'
 #' * The server doesn't have environment variables you need. `dryRun()`
-#'   solves this by removing any environment variables that you've
+#'   reveals this by removing any environment variables that you've
 #'   set in `~/.Renviron`, except for those that you declare in `envVars`.
 #'   Additionally, to help debugging it also reports whenever any env var is
 #'   used.
@@ -86,7 +86,6 @@ dryRun <- function(appDir = getwd(),
     appPrimaryDoc = appMetadata$appPrimaryDoc
   )
   on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
-
 
   renv::restore(bundleDir, prompt = FALSE)
 
