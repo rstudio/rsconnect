@@ -112,7 +112,8 @@ createAppManifest <- function(appDir,
                               retainPackratDirectory = TRUE,
                               isCloudServer = FALSE,
                               image = NULL,
-                              verbose = FALSE) {
+                              verbose = FALSE,
+                              quiet = FALSE) {
 
   if (needsR(appMetadata)) {
     extraPackages <- inferRPackageDependencies(appMetadata)
@@ -120,7 +121,8 @@ createAppManifest <- function(appDir,
     packages <- bundlePackages(
       bundleDir = appDir,
       extraPackages = extraPackages,
-      verbose = verbose
+      verbose = verbose,
+      quiet = quiet
     )
   } else {
     packages <- list()

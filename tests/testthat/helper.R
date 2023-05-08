@@ -1,3 +1,7 @@
+showDcf <- function(df) {
+  write.dcf(df, stdout())
+  invisible()
+}
 
 # last HTTP request made
 httpLastRequest <- list()

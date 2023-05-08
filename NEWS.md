@@ -2,6 +2,16 @@
 
 * `deploySite()` now supports quarto websites (#813).
 
+* `deployApp()` and `writeManifest()` now respect renv lock files, if present. 
+  If you don't want to use these lockfiles, and instead return the previous 
+  behaviour of snapshotting on every deploy, add your `renv.lock` to 
+  `.rscignore` (#671). Learn more `?appDependencies()`.
+  
+* `deployApp()` and `writeManifest()` now use renv to capture app dependencies, 
+  rather than packrat. If this causes a previously working deploy to fail, 
+  please file an issue then set `options(rsconnect.packrat = TRUE)` to revert 
+  to the previous behaviour.
+
 * The built-in linter should have fewer false positives for path problems:
   the relative path linter has been removed (#244) and the case-sensitive 
   linter now only checks strings containing a `/` (#611).
