@@ -490,14 +490,22 @@ findRecordPath <- function(appDir,
   }
 }
 
-# Shinyapps defaults to public visibility.
-# Other values should be set before data is deployed.
+# Need to set _before_ deploy
 needsVisibilityChange <- function(server, application, appVisibility = NULL) {
-  if (!isCloudServer(server)) {
-    return(FALSE)
-  }
   if (is.null(appVisibility)) {
     return(FALSE)
+  }
+
+  if (isConnectServer(server)) {
+    # Defaults to private visibility
+    return(FALSE)
+  }
+
+  if (!isShinyappsServer(server)) {
+    cli::cli_abort(c(
+      "Can't change cloud app visiblity from {.fun deployApp}.",
+      i = "Please change on posit.cloud instead."
+    ))
   }
 
   cur <- application$deployment$properties$application.visibility

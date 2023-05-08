@@ -57,6 +57,12 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
   expect_true(needsVisibilityChange("shinyapps.io", dummyApp("public"), "private"))
 })
 
+test_that("needsVisibilityChange() errors for cloud", {
+  expect_snapshot(error = TRUE,
+    needsVisibilityChange("posit.cloud", appVisibility = "public")
+  )
+})
+
 test_that("deployHook executes function if set", {
   withr::local_options(rsconnect.pre.deploy = NULL)
   expect_equal(
