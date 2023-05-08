@@ -123,7 +123,7 @@ appDependencies <- function(appDir = getwd(), appFiles = NULL) {
   }
 
   bundleDir <- bundleAppDir(appDir, appFiles)
-  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+  defer(unlink(bundleDir, recursive = TRUE))
 
   extraPackages <- inferRPackageDependencies(appMetadata)
   deps <- computePackageDependencies(bundleDir, extraPackages, quiet = TRUE)
