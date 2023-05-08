@@ -39,14 +39,13 @@ Suggests:
     BiocManager,
     foreign,
     MASS,
-    mockr,
     plumber (>= 0.3.2),
     quarto,
     RCurl,
     reticulate,
     rmarkdown (>= 1.1),
     shiny,
-    testthat (>= 3.0.0),
+    testthat (>= 3.1.8),
     webfakes,
     withr
 Config/testthat/edition: 3

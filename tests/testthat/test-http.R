@@ -17,7 +17,7 @@ test_that("authHeaders() picks correct method based on supplied fields", {
     list(Authorization = "Key 123")
   )
 
-  mockr::local_mock(
+  local_mocked_bindings(
     rfc2616Date = function() "Thu, 09 Mar 2023 14:29:00 GMT"
   )
 

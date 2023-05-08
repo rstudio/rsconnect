@@ -5,7 +5,7 @@ test_that("syncAppMetadata updates deployment records", {
 
   app <- local_temp_app()
   addTestDeployment(app, appId = "123", metadata = list(when = 123))
-  mockr::local_mock(clientForAccount = function(...) {
+  local_mocked_bindings(clientForAccount = function(...) {
     list(
       getApplication = function(...) list(title = "newtitle", url = "newurl")
     )
@@ -25,7 +25,7 @@ test_that("syncAppMetadata deletes deployment records if needed", {
 
   app <- local_temp_app()
   addTestDeployment(app, appId = "123", metadata = list(when = 123))
-  mockr::local_mock(clientForAccount = function(...) {
+  local_mocked_bindings(clientForAccount = function(...) {
     list(
       getApplication = function(...) abort(class = "rsconnect_http_404")
     )
