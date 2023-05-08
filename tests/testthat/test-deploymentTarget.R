@@ -170,9 +170,7 @@ test_that("succeeds if there are no deployments and a single account", {
     applications = function(...) data.frame()
   )
 
-  dir <- withr::local_tempdir()
-  app_dir <- file.path(dir, "my_app")
-  dir.create(app_dir)
+  app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
 
   target <- deploymentTarget(app_dir, envVars = c("TEST1", "TEST2"))
   expect_equal(target$appName, "my_app")

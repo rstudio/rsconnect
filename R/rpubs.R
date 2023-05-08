@@ -68,8 +68,7 @@ rpubsUpload <- function(title,
 
     # create a tempdir to build the package in and copy the files to it
     fileSep <- .Platform$file.sep
-    packageDir <- tempfile()
-    dir.create(packageDir)
+    packageDir <- dirCreate(tempfile())
     packageFile <- function(fileName) {
       paste(packageDir, fileName, sep = fileSep)
     }

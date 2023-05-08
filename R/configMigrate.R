@@ -13,7 +13,7 @@ migrateConfig <- function(configDir) {
   if (dirExists(oldConfigDir)) {
 
     # Create the parent folder if necessary
-    dir.create(dirname(configDir), recursive = TRUE, showWarnings = FALSE)
+    dirCreate(dirname(configDir))
 
     # Migrate the old directory to the new one
     file.rename(oldConfigDir, configDir)
@@ -90,7 +90,7 @@ migrateDeploymentsConfig <- function(appPath) {
 
     # write the new record
     rsconnectDCF <- file.path(migrateDir, "shinyapps.io", shinyappsFile)
-    dir.create(dirname(rsconnectDCF), showWarnings = FALSE, recursive = TRUE)
+    dirCreate(dirname(rsconnectDCF))
     write.dcf(deployment, rsconnectDCF)
 
     # remove old DCF

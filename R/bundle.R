@@ -8,8 +8,7 @@
   logger <- verboseLogger(verbose)
   logger("Creating tempfile for appdir")
   # create a directory to stage the application bundle in
-  bundleDir <- tempfile()
-  dir.create(bundleDir, recursive = TRUE)
+  bundleDir <- dirCreate(tempfile())
   on.exit(unlink(bundleDir), add = TRUE)
 
   logger("Copying files")
@@ -25,8 +24,7 @@
         file == appPrimaryDoc) {
       to <- file.path(bundleDir, "app.R")
     }
-    if (!file.exists(dirname(to)))
-      dir.create(dirname(to), recursive = TRUE)
+    dirCreate(dirname(to))
     file.copy(from, to, copy.date = TRUE)
 
     # ensure .Rprofile doesn't call packrat/init.R or renv/activate.R
