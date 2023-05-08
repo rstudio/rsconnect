@@ -1,0 +1,175 @@
+#' Perform a deployment "dry run"
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' `dryRun()` runs your app locally, attempting to simulate what will happen
+#' when you deploy it on another machine. This isn't a 100% reliable way of
+#' discovering problems, but it offers a much faster iteration cycle, so where
+#' it does reveal a problem, it will typically make identifying and fixing it
+#' much faster.
+#'
+#' This function is still experimental, so please let us know your experiences
+#' and where we could do better:
+#' <https://github.com/rstudio/rsconnect/issues/new>
+#'
+#' ## Where it helps
+#'
+#' `dryRun()` was motivated by the two most common problems when deploying
+#' your app:
+#'
+#' * The server doesn't install all the packages your app needs to work.
+#'   `dryRun()` reveals this by using `renv::restore()` to create a project
+#'   specific library that uses only the packages that are explicitly used
+#'   by your project.
+#'
+#' * The server doesn't have environment variables you need. `dryRun()`
+#'   reveals this by removing any environment variables that you've
+#'   set in `~/.Renviron`, except for those that you declare in `envVars`.
+#'   Additionally, to help debugging it also reports whenever any env var is
+#'   used.
+#'
+#' `dryRun` will also log when you use functions that are usually best avoided
+#' in deployed code. This includes:
+#'
+#' * `rsconnect::deployApp()` because you shouldn't deploy an app from another
+#'   app. This typically indicates that you've included a file with scratch
+#'   code.
+#'
+#' * `install.packages()` and `.libPaths()` because you should rely on the
+#'   server to install and manage your packages.
+#'
+#' * `browser()`, `browseURL()`, and `rstudioapi::askForPassword()` because
+#'    they need an interactive session that your deployment server will lack.
+#'
+#' ## Current limitations
+#'
+#' * `dryRun()` currently offers no way to diagnose problems with
+#'   mismatched R/Python/Quarto/pandoc versions.
+#'
+#' * `dryRun()` doesn't help much with paths. There are two common problems
+#'   it can't help with: using an absolute path and using the wrong case.
+#'   Both of these will work locally but fail on the server. [lint()]
+#'   uses an alternative technique (static analysis) to detect many of these
+#'   cases.
+#'
+#' @inheritParams deployApp
+#' @param contentCategory Set this to `"site"` if you'd deploy with
+#'   [deploySite()]; otherwise leave as is.
+#' @export
+dryRun <- function(appDir = getwd(),
+                   envVars = NULL,
+                   appFiles = NULL,
+                   appFileManifest = NULL,
+                   appPrimaryDoc = NULL,
+                   contentCategory = NULL,
+                   quarto = NA) {
+  check_installed("callr")
+
+  appFiles <- listDeploymentFiles(
+    appDir,
+    appFiles = appFiles,
+    appFileManifest = appFileManifest
+  )
+
+  appMetadata <- appMetadata(
+    appDir = appDir,
+    appFiles = appFiles,
+    appPrimaryDoc = appPrimaryDoc,
+    quarto = quarto,
+    contentCategory = contentCategory,
+  )
+
+  # copy files to bundle dir to stage
+  cli::cli_alert_info("Bundling app")
+  bundleDir <- bundleAppDir(
+    appDir = appDir,
+    appFiles = appFiles,
+    appPrimaryDoc = appMetadata$appPrimaryDoc
+  )
+  defer(unlink(bundleDir, recursive = TRUE))
+
+  cli::cli_alert_info("Creating project specific library")
+  callr::r(
+    function() {
+      options(renv.verbose = FALSE)
+      renv::init()
+      renv::restore()
+    },
+    wd = bundleDir
+  )
+
+  # Add tracing code -------------------------------------------------
+  cli::cli_alert_info("Adding shims")
+
+  file.copy(
+    system.file("dryRunTrace.R", package = "rsconnect"),
+    file.path(bundleDir, "__rsconnect-dryRunTrace.R")
+  )
+  appendLines(
+    file.path(bundleDir, ".Rprofile"),
+    c("", 'source("__rsconnect-dryRunTrace.R")')
+  )
+
+  # Run ---------------------------------------------------------------
+  cli::cli_alert_info("Starting {appMetadata$appMode}")
+  if (appMetadata$appMode %in% c("rmd-shiny", "quarto-shiny", "shiny", "api")) {
+    cli::cli_alert_warning("Terminate the app to complete the dry run")
+  }
+
+  envVarNames <- setdiff(userEnvVars(), c(envVars, "PATH"))
+  envVarReset <- c(rep_named(envVarNames, ""), callr::rcmd_safe_env())
+
+  callr::r(
+    appRunner(appMetadata$appMode),
+    args = list(primaryDoc = appMetadata$appPrimaryDoc),
+    env = envVarReset,
+    wd = bundleDir,
+    show = TRUE
+  )
+  invisible()
+}
+
+appRunner <- function(appMode) {
+  switch(appMode,
+    "rmd-static" = ,
+    "rmd-shiny" = function(primaryDoc) {
+      rmarkdown::render(primaryDoc, quiet = TRUE)
+    },
+    "quarto-static" = ,
+    "quarto-shiny" = function(primaryDoc) {
+      quarto::quarto_render(primaryDoc, quiet = TRUE)
+    },
+    "shiny" = function(primaryDoc) {
+      shiny::runApp()
+    },
+    "api" = function(primaryDoc) {
+      plumber::pr_run(plumber::pr("plumber.R"))
+    },
+    cli::cli_abort("Content type {appMode} not currently supported")
+  )
+}
+
+appendLines <- function(path, lines) {
+  lines <- c(readLines(path), lines)
+  writeLines(lines, path)
+}
+
+userEnvVars <- function(path = "~/.Renviron") {
+  if (!file.exists(path)) {
+    return(character())
+  }
+
+  lines <- readLines(path)
+  lines <- lines[lines != ""]
+  lines <- lines[!grepl("^#", lines)]
+
+  pieces <- strsplit(lines, "=", fixed = TRUE)
+  names <- vapply(
+    pieces,
+    function(x) if (length(x) >= 2) x[[1]] else "",
+    character(1)
+  )
+
+  sort(unique(names[names != ""]))
+}

@@ -29,6 +29,7 @@ reference:
     contents :
     - writeManifest
     - matches("[Dd]eploy")
+    - dryRun
     - listDeploymentFiles
 
   - title: Servers
