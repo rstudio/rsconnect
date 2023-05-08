@@ -89,37 +89,37 @@ test_that("can read/write missing version", {
 })
 
 test_that("can read/write env vars", {
-  app <- local_temp_app()
-  addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
-  addTestDeployment(app, "test2")
+  dir <- local_temp_app()
+  addTestDeployment(dir, "test1", envVars = c("TEST1", "TEST2"))
+  addTestDeployment(dir, "test2")
 
-  deps <- deployments(app, excludeOrphaned = FALSE)
+  deps <- deployments(dir, excludeOrphaned = FALSE)
   expect_equal(deps$envVars, list(c("TEST1", "TEST2"), character()))
 })
 
 test_that("can read/write empty env vars", {
   # also tests we can read files written by previous versions of package
-  app <- local_temp_app()
+  dir <- local_temp_app()
 
   # With empty character vector
-  path <- addTestDeployment(app, "test1", envVars = character())
-  deps <- deployments(app, excludeOrphaned = FALSE)
+  path <- addTestDeployment(dir, "test1", envVars = character())
+  deps <- deployments(dir, excludeOrphaned = FALSE)
   expect_false("envVars" %in% rownames(read.dcf(path)))
   expect_equal(deps$envVars, list(character()))
 
   # Or with empty string
-  path <- addTestDeployment(app, "test1", envVars = "")
-  deps <- deployments(app, excludeOrphaned = FALSE)
+  path <- addTestDeployment(dir, "test1", envVars = "")
+  deps <- deployments(dir, excludeOrphaned = FALSE)
   expect_false("envVars" %in% rownames(read.dcf(path)))
   expect_equal(deps$envVars, list(character()))
 })
 
 test_that("can read/write env vars", {
-  app <- local_temp_app()
-  addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
-  addTestDeployment(app, "test2")
+  dir <- local_temp_app()
+  addTestDeployment(dir, "test1", envVars = c("TEST1", "TEST2"))
+  addTestDeployment(dir, "test2")
 
-  deps <- deployments(app, excludeOrphaned = FALSE)
+  deps <- deployments(dir, excludeOrphaned = FALSE)
   expect_equal(deps$envVars, list(c("TEST1", "TEST2"), character()))
 })
 

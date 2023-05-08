@@ -131,34 +131,34 @@ test_that("new title overrides existing title", {
 
 test_that("new env vars overrides existing", {
   local_temp_config()
-  app <- local_temp_app()
+  dir <- local_temp_app()
   addTestServer()
   addTestAccount()
-  addTestDeployment(app, envVars = "TEST1")
+  addTestDeployment(dir, envVars = "TEST1")
 
-  target <- deploymentTarget(app)
+  target <- deploymentTarget(dir)
   expect_equal(target$envVars, "TEST1")
 
-  target <- deploymentTarget(app, envVars = "TEST2")
+  target <- deploymentTarget(dir, envVars = "TEST2")
   expect_equal(target$envVars, "TEST2")
 
   # And check that it works with vectors
-  addTestDeployment(app, envVars = c("TEST1", "TEST2"))
-  target <- deploymentTarget(app)
+  addTestDeployment(dir, envVars = c("TEST1", "TEST2"))
+  target <- deploymentTarget(dir)
   expect_equal(target$envVars, c("TEST1", "TEST2"))
 
-  target <- deploymentTarget(app, envVars = "TEST2")
+  target <- deploymentTarget(dir, envVars = "TEST2")
   expect_equal(target$envVars, "TEST2")
 })
 
 test_that("empty character vector removes env vars", {
   local_temp_config()
-  app <- local_temp_app()
+  dir <- local_temp_app()
   addTestServer()
   addTestAccount()
-  addTestDeployment(app, envVars = "TEST1")
+  addTestDeployment(dir, envVars = "TEST1")
 
-  target <- deploymentTarget(app, envVars = character())
+  target <- deploymentTarget(dir, envVars = character())
   expect_equal(target$envVars, character())
 })
 

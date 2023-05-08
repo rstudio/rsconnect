@@ -1,45 +1,45 @@
 test_that("non-R apps don't have packages", {
-  app_dir <- local_temp_app(list(index.html = ""))
-  out <- snapshotPackratDependencies(app_dir)
+  dir <- local_temp_app(index.html = "")
+  out <- snapshotPackratDependencies(dir)
   expect_equal(out, data.frame())
 })
 
 test_that("uninstalled packages error", {
-  app <- local_temp_app(list("index.Rmd" = c(
+  dir <- local_temp_app(index.Rmd = c(
     "```{r}",
     "library(doesntexist1)",
     "library(doesntexist2)",
     "```"
-  )))
+  ))
   expect_snapshot(
-    snapshotPackratDependencies(app),
+    snapshotPackratDependencies(dir),
     error = TRUE,
     transform = function(x) gsub('"', "'", x, fixed = TRUE)
   )
 })
 
 test_that("recommended packages are snapshotted", {
-  app <- local_temp_app(list("index.Rmd" = c(
+  dir <- local_temp_app(index.Rmd = c(
     "```{r}",
     "library(MASS)",
     "```"
-  )))
-  deps <- snapshotPackratDependencies(app)
+  ))
+  deps <- snapshotPackratDependencies(dir)
   expect_true("MASS" %in% deps$Package)
 })
 
 test_that("works with BioC packages", {
-  app <- local_temp_app(list("index.Rmd" = c(
+  dir <- local_temp_app(index.Rmd = c(
     "```{r}",
     "library(Biobase)",
     "```"
-  )))
+  ))
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
     BioC = "https://bioconductor.org/packages/3.16/bioc"
   ))
 
-  deps <- snapshotPackratDependencies(app)
+  deps <- snapshotPackratDependencies(dir)
 
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")

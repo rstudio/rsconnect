@@ -1,24 +1,24 @@
 test_that("can extract quarto metadata", {
-  app <- local_temp_app(list(`_quarto.yaml` = c(
+  dir <- local_temp_app(`_quarto.yaml` = c(
     "project:",
     "  type: website",
     "",
     "website:",
     "  title: 'website-quarto'"
-  )))
+  ))
 
-  site <- quartoSite(app)
+  site <- quartoSite(dir)
   expect_equal(site$title, "website-quarto")
-  expect_equal(site$output_dir, normalizePath(file.path(app, "_site")))
+  expect_equal(site$output_dir, normalizePath(file.path(dir, "_site")))
 })
 
 test_that("can extract rmarkdown metadata", {
-  app <- local_temp_app(list(
+  dir <- local_temp_app(
     `_site.yml` = 'name: "my-website"'
-  ))
+  )
 
-  site <- rmarkdownSite(app)
+  site <- rmarkdownSite(dir)
   expect_equal(site$name, "my-website")
   expect_equal(site$title, NULL)
-  expect_equal(site$output_dir, normalizePath(file.path(app, "_site")))
+  expect_equal(site$output_dir, normalizePath(file.path(dir, "_site")))
 })

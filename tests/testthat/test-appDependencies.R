@@ -1,13 +1,13 @@
 test_that("appDepenencies includes implicit deps", {
-  path <- local_temp_app(list("test.Rmd" = ""))
-  deps <- appDependencies(path)
+  dir <- local_temp_app(test.Rmd = "")
+  deps <- appDependencies(dir)
 
   expect_true("rmarkdown" %in% deps$Package)
 })
 
 test_that("static project doesn't have deps", {
-  path <- local_temp_app(list("index.html" = ""))
-  deps <- appDependencies(path)
+  dir <- local_temp_app(index.html = "")
+  deps <- appDependencies(dir)
 
   expect_equal(deps, data.frame(
     Package = character(),

@@ -1,7 +1,7 @@
 # can snapshot deps with renv
 
     Code
-      pkgs <- bundlePackages(app_dir)
+      pkgs <- bundlePackages(dir)
     Message
       i Capturing R dependencies with renv
       v Found 1 dependency
@@ -9,7 +9,7 @@
 # can snapshot deps with packrat
 
     Code
-      pkgs <- bundlePackages(app_dir)
+      pkgs <- bundlePackages(dir)
     Message
       i Capturing R dependencies with packrat
       v Found 1 dependency
@@ -17,7 +17,7 @@
 # can capture deps from renv lockfile
 
     Code
-      pkgs <- bundlePackages(app_dir)
+      pkgs <- bundlePackages(dir)
     Message
       i Capturing R dependencies from renv.lock
       v Found 1 dependency
@@ -25,7 +25,7 @@
 # error if can't find source
 
     Code
-      . <- bundlePackages(app_dir)
+      . <- bundlePackages(dir)
     Message
       i Capturing R dependencies with renv
       v Found 1 dependency

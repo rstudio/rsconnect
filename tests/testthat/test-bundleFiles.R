@@ -2,7 +2,7 @@
 # listDeploymentFiles ------------------------------------------------------
 
 test_that("can read all files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  dir <- local_temp_app(a.R = "", b.R = "")
   expect_equal(listDeploymentFiles(dir), c("a.R", "b.R"))
   expect_equal(listDeploymentFiles(dir, NULL, NULL), c("a.R", "b.R"))
 
@@ -11,7 +11,7 @@ test_that("can read all files from directory", {
 })
 
 test_that("can read selected files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  dir <- local_temp_app(a.R = "", b.R = "")
   expect_equal(listDeploymentFiles(dir, "b.R"), "b.R")
   expect_snapshot(out <- listDeploymentFiles(dir, c("b.R", "c.R")))
   expect_equal(out, "b.R")
@@ -19,30 +19,30 @@ test_that("can read selected files from directory", {
 })
 
 test_that("can read selected files from manifest", {
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "b.R"
-  ))
+  dir <- local_temp_app(
+    a.R = "",
+    b.R = "",
+    manifest = "b.R"
+  )
   expect_equal(
     listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
     "b.R"
   )
 
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = c("b.R", "c.R")
-  ))
+  dir <- local_temp_app(
+    a.R = "",
+    b.R = "",
+    manifest = c("b.R", "c.R")
+  )
   expect_snapshot(
     out <- listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
   )
   expect_equal(out, "b.R")
 
   # errors if no matching files
-  dir <- local_temp_app(list(
-    "manifest" = ""
-  ))
+  dir <- local_temp_app(
+    manifest = ""
+  )
   expect_snapshot(
     listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
     error = TRUE
@@ -236,7 +236,7 @@ test_that("generate nicely formatted messages", {
 test_that("detectLongNames produces informative warning if needed", {
   skip_on_os("windows")
 
-  dir <- local_temp_app(c("a.r" = "", "b.r" = "", "c.r" = ""))
+  dir <- local_temp_app(a.r = "", b.r = "", c.r = "")
   expect_snapshot(detectLongNames(dir, 0))
   expect_silent(detectLongNames(dir, Inf))
 })

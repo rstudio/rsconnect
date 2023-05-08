@@ -6,7 +6,7 @@ test_that("clear error if no files", {
 })
 
 test_that("quarto affects mode inference", {
-  dir <- local_temp_app(list("foo.Rmd" = ""))
+  dir <- local_temp_app(foo.Rmd = "")
 
   metadata <- appMetadata(dir)
   expect_equal(metadata$appMode, "rmd-static")
@@ -16,18 +16,18 @@ test_that("quarto affects mode inference", {
 })
 
 test_that("quarto path is deprecated", {
-  dir <- local_temp_app(list("foo.Rmd" = ""))
+  dir <- local_temp_app(foo.Rmd = "")
   expect_snapshot(. <- appMetadata(dir, quarto = "abc"))
 })
 
 test_that("validates quarto argument", {
-  dir <- local_temp_app(list("foo.Rmd" = ""))
+  dir <- local_temp_app(foo.Rmd = "")
   expect_snapshot(appMetadata(dir, quarto = 1), error = TRUE)
 })
 
 
 test_that("handles special case of appPrimaryDoc as R file", {
-  dir <- local_temp_app(list("foo.R" = ""))
+  dir <- local_temp_app(foo.R = "")
   metadata <- appMetadata(dir, appPrimaryDoc = "foo.R")
   expect_equal(metadata$appMode, "shiny")
 })
@@ -35,34 +35,34 @@ test_that("handles special case of appPrimaryDoc as R file", {
 # checkLayout -------------------------------------------------------------
 
 test_that("checkLayout() errors if primary doc & app.R", {
-  dir <- local_temp_app(list(
-    "app.R" = "",
-    "myscript.R" = ""
-  ))
+  dir <- local_temp_app(
+    app.R = "",
+    myscript.R = ""
+  )
 
   expect_snapshot(checkAppLayout(dir, "myscript.R"), error = TRUE)
 })
 
 test_that("checkLayout fails if no known structure", {
-  dir <- local_temp_app(list(
-    "data.txt" = "",
-    "cats.csv" = ""
-  ))
+  dir <- local_temp_app(
+    data.txt = "",
+    cats.csv = ""
+  )
 
   expect_snapshot(checkAppLayout(dir), error = TRUE)
 })
 
 test_that("checkLayout succeeds with some common app structures", {
-  rmd <- local_temp_app(list("foo.Rmd" = ""))
+  rmd <- local_temp_app(foo.Rmd = "")
   expect_no_error(checkAppLayout(rmd))
 
-  shiny1 <- local_temp_app(list("app.R" = ""))
+  shiny1 <- local_temp_app(app.R = "")
   expect_no_error(checkAppLayout(rmd))
 
-  shiny2 <- local_temp_app(list("server.R" = "", "ui.R" = ""))
+  shiny2 <- local_temp_app(server.R = "", ui.R = "")
   expect_no_error(checkAppLayout(rmd))
 
-  static <- local_temp_app(list("foo.html" = ""))
+  static <- local_temp_app(foo.html = "")
   expect_no_error(checkAppLayout(rmd))
 })
 
@@ -79,7 +79,7 @@ test_that("can infer mode for shiny apps", {
 })
 
 test_that("can infer mode for static quarto and rmd docs", {
-  dir <- local_temp_app(list("foo.Rmd" = ""))
+  dir <- local_temp_app(foo.Rmd = "")
   paths <- list.files(dir, full.names = TRUE)
 
   expect_equal(inferAppMode(paths), "rmd-static")
@@ -93,25 +93,25 @@ test_that("can infer mode for shiny rmd docs", {
     c("---", paste0("runtime: ", runtime), "---")
   }
 
-  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
+  dir <- local_temp_app(index.Rmd = yaml_runtime("shiny"))
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
 
-  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shinyrmd")))
+  dir <- local_temp_app(index.Rmd = yaml_runtime("shinyrmd"))
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
 
-  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny_prerendered")))
+  dir <- local_temp_app(index.Rmd = yaml_runtime("shiny_prerendered"))
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
 
   # can pair server.R with shiny runtime
-  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "server.R" = ""))
+  dir <- local_temp_app(index.Rmd = yaml_runtime("shiny"), server.R = "")
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
 
   # Beats static rmarkdowns
-  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny"), "foo.Rmd" = ""))
+  dir <- local_temp_app(index.Rmd = yaml_runtime("shiny"), foo.Rmd = "")
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "rmd-shiny")
 })
@@ -121,20 +121,20 @@ test_that("can infer mode for shiny qmd docs", {
     c("---", paste0("runtime: ", runtime), "---")
   }
 
-  dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
+  dir <- local_temp_app(index.Qmd = yaml_runtime("shiny"))
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "quarto-shiny")
 
   # Can force Rmd to use quarto
-  dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
+  dir <- local_temp_app(index.Rmd = yaml_runtime("shiny"))
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths, usesQuarto = TRUE), "quarto-shiny")
 
   # Prefers quarto if both present
-  dir <- local_temp_app(list(
-    "index.Qmd" = yaml_runtime("shiny"),
-    "index.Rmd" = yaml_runtime("shiny")
-  ))
+  dir <- local_temp_app(
+    index.Qmd = yaml_runtime("shiny"),
+    index.Rmd = yaml_runtime("shiny")
+  )
   paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths), "quarto-shiny")
 })
@@ -187,29 +187,29 @@ test_that("errors if no files with needed extension", {
 # appHasParameters --------------------------------------------------------
 
 test_that("non-documents don't have parameters", {
-  dir <- local_temp_app(list("foo.R" = ""))
+  dir <- local_temp_app(foo.R = "")
 
   expect_false(appHasParameters(dir, "foo.R", "static"))
   expect_false(appHasParameters(dir, "foo.R", "shiny"))
 })
 
 test_that("documents don't have parameters if part of a site", {
-  dir <- local_temp_app(list("index.Rmd" = c("---", "params: [1, 2]", "---")))
+  dir <- local_temp_app(index.Rmd = c("---", "params: [1, 2]", "---"))
 
   expect_false(appHasParameters(dir, "index.Rmd", "rmd-static", "site"))
   expect_false(appHasParameters(dir, "index.Rmd", "qmd-shiny", "site"))
 })
 
 test_that("non-Rmd files don't have parameters", {
-  dir <- local_temp_app(list("app.r" = c("")))
+  dir <- local_temp_app(app.r = c(""))
   expect_false(appHasParameters(dir, "app.R", "rmd-shiny"))
 })
 
 test_that("otherwise look at yaml metadata", {
-  dir <- local_temp_app(list("index.Rmd" = c("---", "params: [1, 2]", "---")))
+  dir <- local_temp_app(index.Rmd = c("---", "params: [1, 2]", "---"))
   expect_true(appHasParameters(dir, "index.Rmd", "rmd-shiny"))
 
-  dir <- local_temp_app(list("index.Rmd" = c("---", "params: ~", "---")))
+  dir <- local_temp_app(index.Rmd = c("---", "params: ~", "---"))
   expect_false(appHasParameters(dir, "index.Rmd", "rmd-shiny"))
 })
 
@@ -219,17 +219,17 @@ test_that("dir without Rmds doesn't have have python", {
   dir <- local_temp_app()
   expect_false(detectPythonInDocuments(dir))
 
-  dir <- local_temp_app(list("foo.R" = ""))
+  dir <- local_temp_app(foo.R = "")
   expect_false(detectPythonInDocuments(dir))
 })
 
 test_that("Rmd or qmd with python chunk has python", {
-  dir <- local_temp_app(list("foo.qmd" = c("```{r}", "1+1", "````")))
+  dir <- local_temp_app(foo.qmd = c("```{r}", "1+1", "````"))
   expect_false(detectPythonInDocuments(dir))
 
-  dir <- local_temp_app(list("foo.Rmd" = c("```{python}", "1+1", "````")))
+  dir <- local_temp_app(foo.Rmd = c("```{python}", "1+1", "````"))
   expect_true(detectPythonInDocuments(dir))
 
-  dir <- local_temp_app(list("foo.qmd" = c("```{python}", "1+1", "````")))
+  dir <- local_temp_app(foo.qmd = c("```{python}", "1+1", "````"))
   expect_true(detectPythonInDocuments(dir))
 })
