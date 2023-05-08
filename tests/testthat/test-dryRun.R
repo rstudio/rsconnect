@@ -59,4 +59,3 @@ test_that("not troubled by wrong number of equals", {
   ))
   expect_equal(userEnvVars(path), c("B", "C"))
 })
-

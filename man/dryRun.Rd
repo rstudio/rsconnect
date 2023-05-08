@@ -57,8 +57,6 @@ there are \code{.qmd} files in the bundle, or if there is a
 
 (This option is ignored and quarto will always be used if the
 \code{metadata} contains \code{quarto_version} and \code{quarto_engines} fields.)}
-
-\item{verbose}{If TRUE, prints progress messages to the console}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
