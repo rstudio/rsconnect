@@ -132,12 +132,12 @@ appendLines <- function(path, lines) {
   writeLines(lines, path)
 }
 
-userEnvVars <- function() {
-  if (!file.exists("~/.Renviron")) {
-    return(charater())
+userEnvVars <- function(path = "~/.Renviron") {
+  if (!file.exists(path)) {
+    return(character())
   }
 
-  lines <- readLines("~/.Renviron")
+  lines <- readLines(path)
   lines <- lines[lines != ""]
   lines <- lines[!grepl("^#", lines)]
 
