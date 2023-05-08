@@ -35,14 +35,6 @@
       Error in `deployApp()`:
       ! `appPrimaryDoc` not found inside `appDir`
 
-# recordDoc must exist, if supplied
-
-    Code
-      deployApp(dir, recordDir = "doesntexist")
-    Condition
-      Error in `deployApp()`:
-      ! `recordDir`, "doesntexist", does not exist.
-
 # startup scripts are logged by default
 
     Code

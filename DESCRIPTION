@@ -41,6 +41,7 @@ Suggests:
     MASS,
     mockr,
     plumber (>= 0.3.2),
+    quarto,
     RCurl,
     reticulate,
     rmarkdown (>= 1.1),

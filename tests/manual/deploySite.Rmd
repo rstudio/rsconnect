@@ -1,0 +1,33 @@
+# Sites
+
+## Quarto
+
+1. Check out <https://github.com/rstudio/connect-content>
+
+1. Run the following code:
+
+    ```{r}
+    deploySite("bundles/quarto-website-r", render = "local")
+    # Should redeploy without prompting for account
+    deploySite("bundles/quarto-website-r", render = "local")
+
+    deploySite("bundles/quarto-website-r", render = "none")
+
+    deploySite("bundles/quarto-website-r-deps", render = "server")
+    ```
+
+## RMarkdown 
+
+1. Check out <https://github.com/rstudio/connect-content>
+
+1. Run the following code:
+
+    ```{r}
+    deploySite("bundles/rmd-site", render = "local")
+    # Should redploy without prompting for account
+    deploySite("bundles/rmd-site", render = "local")
+
+    deploySite("bundles/rmd-site", render = "none")
+
+    deploySite("bundles/rmd-site", siteName = "rmd-site-server", render = "server")
+    ```
