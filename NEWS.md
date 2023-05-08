@@ -3,9 +3,9 @@
 * `deployDoc()` and `deployApp()` now support deploying static content to Posit
   Cloud.
 
-* For cloud deployments, appId now represents the content id (as seen in URLs 
-  of the format `https://posit.cloud/content/{id}`) instead of the application
-  id.
+* When recording details about deployments to Posit Cloud, appId now represents
+  the content id (as seen in URLs of the format 
+  `https://posit.cloud/content/{id}`) instead of the application id.
 
 * A `version` field has been added to deployment DCF files to facilitate file
   format changes. Its value for this release is `1`.
