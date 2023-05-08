@@ -62,7 +62,7 @@ test_that("checks its inputs", {
 # listBundleFiles ---------------------------------------------------------
 
 test_that("bundle directories are recursively enumerated", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
 
   # tree that resembles the case from https://github.com/rstudio/rsconnect/issues/464
   files <- c(
@@ -88,14 +88,17 @@ test_that("bundle directories are recursively enumerated", {
 })
 
 test_that("ignores RStudio files", {
-  dir <- withr::local_tempdir()
-  file.create(file.path(dir, c("test.Rproj", ".Rproj.user", "rsconnect")))
+  dir <- local_temp_app(
+    test.Rproj = "",
+    .Rproj.user = "",
+    rsconnect = ""
+  )
 
   expect_equal(bundleFiles(dir), character())
 })
 
 test_that("ignores knitr cache directories", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "foo_cache"))
   dir.create(file.path(dir, "bar_cache"))
   file.create(file.path(dir, c("foo_cache", "bar_cache"), "contents"))
@@ -105,7 +108,7 @@ test_that("ignores knitr cache directories", {
 })
 
 test_that("ignores files anywhere in path", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "a/b/c"), recursive = TRUE)
   file.create(file.path(dir, c("x", "a/b/.gitignore", "a/b/c/.DS_Store")))
 
@@ -113,7 +116,7 @@ test_that("ignores files anywhere in path", {
 })
 
 test_that("ignores files listed in .rscignore", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "a"), recursive = TRUE)
   file.create(file.path(dir, c("x", "a/y")))
   expect_setequal(bundleFiles(dir), c("x", "a/y"))
@@ -134,7 +137,7 @@ test_that("ignores temporary files", {
 })
 
 test_that("ignores python virtual envs", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "test", "bin"), recursive = TRUE)
   file.create(file.path(dir, "test", "bin", "python"))
   dir.create(file.path(dir, "venv"))
@@ -146,7 +149,7 @@ test_that("ignores python virtual envs", {
 # explodeFiles ------------------------------------------------------------
 
 test_that("returns relative paths", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "x"))
   file.create(file.path(dir, "x", c("a", "b", "c")))
 
@@ -154,7 +157,7 @@ test_that("returns relative paths", {
 })
 
 test_that("drops drops non-existent files with warning", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   file.create(file.path(dir, c("a", "b", "c")))
 
   expect_snapshot(out <- explodeFiles(dir, c("a", "d")))
@@ -162,7 +165,7 @@ test_that("drops drops non-existent files with warning", {
 })
 
 test_that("expands files and directory", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "x"))
   file.create(file.path(dir, "x", c("a", "b")))
   file.create(file.path(dir, "c"))
@@ -171,7 +174,7 @@ test_that("expands files and directory", {
 })
 
 test_that("can include nested files/directories", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "x", "y"), recursive = TRUE)
   file.create(file.path(dir, "x", c("a", "b", "c")))
   file.create(file.path(dir, "x", "y", c("d", "e")))
@@ -182,7 +185,7 @@ test_that("can include nested files/directories", {
 })
 
 test_that("doesn't ignore user supplied files", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "x", "y"), recursive = TRUE)
   file.create(file.path(dir, "x", "packrat"))
   file.create(file.path(dir, "x", "y", "packrat"))
@@ -193,7 +196,7 @@ test_that("doesn't ignore user supplied files", {
 # enforceBundleLimits -----------------------------------------------------
 
 test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dir.create(file.path(dir, "a"))
   file.create(file.path(dir, "a", letters))
   dir.create(file.path(dir, "b"))
@@ -207,7 +210,7 @@ test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
 })
 
 test_that("generate nicely formatted messages", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   file.create(file.path(dir, c("a", "b")))
   writeLines(letters, file.path(dir, "c"))
 

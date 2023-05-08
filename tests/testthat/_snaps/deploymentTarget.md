@@ -25,7 +25,7 @@
 # errors if no previous deployments and multiple accounts
 
     Code
-      deploymentTarget(app_dir)
+      deploymentTarget(dir)
     Condition
       Error in `deploymentTarget()`:
       ! Found multiple accounts.
@@ -33,7 +33,7 @@
       i Available servers: "foo1" and "foo2".
       i Available account names: "ron".
     Code
-      deploymentTarget(app_dir, appName = "test")
+      deploymentTarget(dir, appName = "test")
     Condition
       Error in `deploymentTarget()`:
       ! Found multiple accounts.
@@ -44,7 +44,7 @@
 # handles accounts if only server specified
 
     Code
-      deploymentTarget(app_dir, server = "foo")
+      deploymentTarget(dir, server = "foo")
     Condition
       Error in `deploymentTarget()`:
       ! Found multiple accounts for `server` = "foo".
@@ -54,7 +54,7 @@
 # errors/prompts if multiple deployments
 
     Code
-      deploymentTarget(app_dir, appName = "test")
+      deploymentTarget(dir, appName = "test")
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -63,7 +63,7 @@
       * test (server: server1.com / username: ron): <https://server1.com/ron/123>
       * test (server: server2.com / username: ron): <https://server2.com/ron/123>
     Code
-      deploymentTarget(app_dir)
+      deploymentTarget(dir)
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -75,7 +75,7 @@
 ---
 
     Code
-      out <- deploymentTarget(app_dir)
+      out <- deploymentTarget(dir)
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?
@@ -86,7 +86,7 @@
 # errors if single deployment and appId doesn't match
 
     Code
-      deploymentTarget(app_dir, appName = "test", appId = "2")
+      deploymentTarget(dir, appName = "test", appId = "2")
     Condition
       Error:
       ! Supplied `appId` (2) does not match deployment record (1).

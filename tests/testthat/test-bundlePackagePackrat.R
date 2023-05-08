@@ -53,7 +53,7 @@ test_that("works with BioC packages", {
 # addPackratSnapshot() ----------------------------------------------------
 
 test_that("cleans up implicit dependency files", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   addPackratSnapshot(dir, "rlang")
   expect_equal(list.files(dir), "packrat")
 })
