@@ -28,8 +28,8 @@ shinyServer(function(input, output) {
     hist(x, breaks = bins, col = "darkgray", border = "white")
 
     ## read a csv file
-    file <- read.csv("college.txt") ## bad
-    file <- read.csv("College.txt") ## okay
+    file <- read.csv("data/college.txt") ## bad
+    file <- read.csv("data/College.txt") ## okay
 
     ## don't warn about absolute paths that could be URL query paths
     file <- paste("/applcations")
