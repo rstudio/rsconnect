@@ -13,7 +13,8 @@
 #' @inheritParams deployApp
 #' @param contentCategory Set this to `"site"` if you'd deploy with
 #'   [deploySite()]; otherwise leave as is.
-#' @param verbose If TRUE, prints progress messages to the console
+#' @param verbose If `TRUE`, prints detailed progress messages.
+#' @param quiet If `FALSE`, prints progress messages.
 #' @export
 writeManifest <- function(appDir = getwd(),
                           appFiles = NULL,
@@ -24,7 +25,8 @@ writeManifest <- function(appDir = getwd(),
                           forceGeneratePythonEnvironment = FALSE,
                           quarto = NA,
                           image = NULL,
-                          verbose = FALSE) {
+                          verbose = FALSE,
+                          quiet = FALSE) {
   appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,
@@ -57,7 +59,8 @@ writeManifest <- function(appDir = getwd(),
     pythonConfig = pythonConfig,
     retainPackratDirectory = FALSE,
     image = image,
-    verbose = verbose
+    verbose = verbose,
+    quiet = quiet
   )
   manifestJson <- toJSON(manifest)
   manifestPath <- file.path(appDir, "manifest.json")
