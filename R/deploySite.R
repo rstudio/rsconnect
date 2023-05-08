@@ -105,7 +105,8 @@ quartoSite <- function(path, quiet = FALSE, error_call = caller_env()) {
     render = function() quarto::quarto_render(path, quiet = quiet, as_job = FALSE),
     name = basename(normalizePath(path)),
     title = config$website$title %||% config$book$title %||% config$title,
-    output_dir = outputDir(path, config$project$`output-dir`)
+    # non-site projects build in current directory
+    output_dir = outputDir(path, config$project$`output-dir` %||% ".")
   )
 }
 
