@@ -2,6 +2,10 @@
 
 * `deploySite()` now supports quarto websites (#813).
 
+* The built-in linter should have fewer false positives for path problems:
+  the relative path linter has been removed (#244) and the case-sensitive 
+  linter now only checks strings containing a `/` (#611).
+
 * `deployApp()`'s `quarto` argument now takes values `TRUE`, `FALSE` or 
   `NA`. The previous value (a path to a quarto binary) is now deprecated,
   and instead we automatically figure out the packge from `QUARTO_PATH` and

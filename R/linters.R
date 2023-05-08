@@ -82,29 +82,9 @@ addLinter("absolute.paths", linter(
   suggestion = "Paths should be to files within the project directory."
 ))
 
-addLinter("invalid.relative.paths", linter(
-
-  apply = function(content, ...) {
-    content <- stripComments(content)
-    badRelativePaths(content, ...)
-  },
-
-  takes = isRCodeFile,
-
-  message = function(content, lines) {
-    makeLinterMessage("The following lines contain invalid relative paths (resolved outside of project directory)",
-                      content,
-                      lines)
-  },
-
-  suggestion = "Paths should be to files within the project directory."
-
-))
-
 addLinter("filepath.capitalization", linter(
 
   apply = function(content, project, path, files) {
-
     content <- stripComments(content)
 
     # Extract references between bounding (unescaped) quotes.
@@ -169,6 +149,8 @@ addLinter("filepath.capitalization", linter(
       lapply(regex, function(x) {
 
         which(
+          # Only examine paths containing a slash to reduce false positives
+          grepl("/", x, fixed = TRUE) &
           (tolower(x) %in% projectFilesLower) &
             (!(x %in% projectFiles))
         )
@@ -330,31 +312,6 @@ hasAbsolutePaths <- function(content) {
 noMatch <- function(x) {
   identical(attr(x, "match.length"), -1L)
 }
-
-badRelativePaths <- function(content, project, path, ...) {
-
-  ## Figure out how deeply the path of the file is nested
-  ## (it is relative to the project root)
-  slashMatches <- gregexpr("/", path)
-  nestLevel <- if (noMatch(slashMatches)) 0 else length(slashMatches[[1]])
-
-  ## Identify occurrences of "../"
-  regexResults <- gregexpr("../", content, fixed = TRUE)
-
-  ## Figure out sequential runs of `../`
-  runs <- lapply(regexResults, function(x) {
-    if (noMatch(x)) return(NULL)
-    rle <- rle(as.integer(x) - seq(0, by = 3, length.out = length(x)))
-    rle$lengths
-  })
-
-  badPaths <- vapply(runs, function(x) {
-    any(x > nestLevel)
-  }, logical(1))
-
-  badPaths
-}
-
 
 transposeList <- function(list) {
   unname(as.list(
