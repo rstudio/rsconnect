@@ -101,6 +101,23 @@ repository. This will be ignored by the server if it has been configured
 with it's own repository name -&gt; repository URL mapping.</p></li>
 </ul></div>
     <div class="section level2">
+    <h2 id="dependency-discovery">Dependency discovery<a class="anchor" aria-label="anchor" href="#dependency-discovery"></a></h2>
+    <p>rsconnect use one of three mechanisms to find which packages your application
+uses:</p><ol><li><p>If <code>renv.lock</code> is present, it will use the versions and sources defined in
+that file. If you're using the lockfile for some other purpose and
+don't want it to affect deployment, add <code>renv.lock</code> to <code>.rscignore</code>.</p></li>
+<li><p>Otherwise, rsconnect will call <code><a href="https://rstudio.github.io/renv/reference/snapshot.html" class="external-link">renv::snapshot()</a></code> to find all packages
+used by your code. If you'd instead prefer to only use the packages
+declared in a <code>DESCRIPTION</code> file, run
+<code>renv::settings$snapshot.type("explicit")</code> to activate renv's "explicit"
+mode.</p></li>
+<li><p>Dependency resolution using renv is a new feature in rsconnect 1.0.0, and
+while we have done our best to test it, it still might fail for your app.
+If this happens, please <a href="http://github.com/rstudio/rsconnect/issues" class="external-link">file an issue</a>
+then set <code>options(rsconnect.packrat = TRUE)</code> to revert to the old
+dependency discovery mechanism.</p></li>
+</ol></div>
+    <div class="section level2">
     <h2 id="remote-installation">Remote installation<a class="anchor" aria-label="anchor" href="#remote-installation"></a></h2>
     <p>When deployed, the app must first install all of these packages, and
 rsconnect ensures the versions used on the server will match the versions
