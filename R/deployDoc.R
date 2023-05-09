@@ -22,13 +22,16 @@
 #' deployDoc("my-report.Rmd")
 #' deployDoc("static-file.html")
 #' }
-deployDoc <- function(doc, ...) {
-  doc <- standardizeSingleDocDeployment(doc)
+deployDoc <- function(doc, ..., logLevel = c("normal", "quiet", "verbose")) {
+  logLevel <- arg_match(logLevel)
+
+  doc <- standardizeSingleDocDeployment(doc, quiet = logLevel == "quiet")
   deployApp(
     appDir = doc$appDir,
     appPrimaryDoc = doc$appPrimaryDoc,
     appFiles = doc$appFiles,
-    ...
+    ...,
+    logLevel = logLevel
   )
 }
 

@@ -650,7 +650,8 @@ test_that("deployDoc() results in correct Cloud API calls", {
     paste(sourcePath, "slideshow.html", sep = "/"),
     appName = "Desired name here",
     server = "posit.cloud",
-    account = testAccount
+    account = testAccount,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(
@@ -681,3 +682,4 @@ test_that("deployDoc() results in correct Cloud API calls", {
     deployStarted = TRUE
   ))
 })
+

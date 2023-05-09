@@ -4,7 +4,7 @@
 \alias{deployDoc}
 \title{Deploy a single document}
 \usage{
-deployDoc(doc, ...)
+deployDoc(doc, ..., logLevel = c("normal", "quiet", "verbose"))
 }
 \arguments{
 \item{doc}{Path to the document to deploy.}
