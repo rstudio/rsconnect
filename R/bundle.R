@@ -9,7 +9,7 @@
   logger("Creating tempfile for appdir")
   # create a directory to stage the application bundle in
   bundleDir <- dirCreate(tempfile())
-  on.exit(unlink(bundleDir), add = TRUE)
+  defer(unlink(bundleDir))
 
   logger("Copying files")
   # copy the files into the bundle dir
@@ -72,7 +72,7 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
   logger <- verboseLogger(verbose)
 
   prevDir <- setwd(bundleDir)
-  on.exit(setwd(prevDir), add = TRUE)
+  defer(setwd(prevDir))
 
   tarImplementation <- getTarImplementation()
   logger("Using tar: ", tarImplementation)

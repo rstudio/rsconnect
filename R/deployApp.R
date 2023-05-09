@@ -247,7 +247,7 @@ deployApp <- function(appDir = getwd(),
       rsconnect.http.trace.json = TRUE,
       rsconnect.error.trace = TRUE
     )
-    on.exit(options(old_verbose), add = TRUE)
+    defer(options(old_verbose))
   }
 
   # install error handler if requested
@@ -258,7 +258,7 @@ deployApp <- function(appDir = getwd(),
       cat("----- Error stack trace -----\n")
       traceback(x = sys.calls(), max.lines = 3)
     })
-    on.exit(options(old_error), add = TRUE)
+    defer(options(old_error))
   }
 
   # at verbose log level, generate header
@@ -586,7 +586,7 @@ bundleApp <- function(appName,
       appDir = appDir,
       appFiles = appFiles,
       appPrimaryDoc = appMetadata$appPrimaryDoc)
-  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+  defer(unlink(bundleDir, recursive = TRUE))
 
   # generate the manifest and write it into the bundle dir
   logger("Generate manifest.json")

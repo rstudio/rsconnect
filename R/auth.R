@@ -303,7 +303,7 @@ writePasswordFile <- function(path, passwords) {
 
   # open and file
   f <- file(path, open = "w")
-  on.exit(close(f), add = TRUE)
+  defer(close(f))
 
   # write passwords
   apply(passwords, 1, function(r) {
