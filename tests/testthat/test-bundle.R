@@ -1,39 +1,11 @@
-makeShinyBundleTempDir <- function(appName, appDir, appPrimaryDoc, python = NULL) {
-  appFiles <- bundleFiles(appDir)
-  appMetadata <- appMetadata(appDir, appFiles, appPrimaryDoc = appPrimaryDoc)
-
-  tarfile <- bundleApp(
-    appName,
-    appDir,
-    appFiles = appFiles,
-    appMetadata = appMetadata,
-    pythonConfig = pythonConfigurator(python),
-    quiet = TRUE
-  )
-  bundleTempDir <- tempfile()
-  utils::untar(tarfile, exdir = bundleTempDir)
-  unlink(tarfile)
-  bundleTempDir
-}
-
-makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
-  writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ...)
-  manifestFile <- file.path(appDir, "manifest.json")
-  data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
-  manifestJson <- jsonlite::fromJSON(data)
-  unlink(manifestFile)
-  manifestJson
-}
-
 test_that("simple Shiny app bundle is runnable", {
   skip_on_cran()
   skip_if_not_installed("shiny")
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "simple_shiny",
     test_path("shinyapp-simple"),
     NULL
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
 
@@ -43,12 +15,11 @@ test_that("app.R Shiny app bundle is runnable", {
 
   skip_on_cran()
   skip_if_not_installed("shiny")
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "app_r_shiny",
     test_path("shinyapp-appR"),
     NULL
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
 
@@ -56,23 +27,21 @@ test_that("single-file Shiny app bundle is runnable", {
   skip_on_cran()
   skip_if_not_installed("shiny")
 
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "app_r_shiny",
     test_path("shinyapp-singleR"),
     "single.R"
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
   expect_true(inherits(shiny::shinyAppDir(bundleTempDir), "shiny.appobj"))
 })
 
 test_that("simple Rmd as primary not identified as parameterized when parameterized Rmd in bundle", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "rmd primary",
     test_path("test-rmds"),
     "simple.Rmd"
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
@@ -81,12 +50,11 @@ test_that("simple Rmd as primary not identified as parameterized when parameteri
 
 test_that("parameterized Rmd identified as parameterized when other Rmd in bundle", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "rmd primary",
     test_path("test-rmds"),
     "parameterized.Rmd"
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "parameterized.Rmd")
@@ -95,12 +63,11 @@ test_that("parameterized Rmd identified as parameterized when other Rmd in bundl
 
 test_that("primary doc can be inferred (and non-parameterized dispite an included parameterized", {
   skip_on_cran()
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "rmd primary",
     test_path("test-rmds"),
     NULL
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
@@ -112,13 +79,12 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   skip_if_not_installed("reticulate")
   python <- pythonPathOrSkip()
 
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "reticulated rmd",
     test_path("test-reticulate-rmds"),
     NULL,
     python = python
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -132,13 +98,12 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   skip_if_not_installed("reticulate")
   python <- pythonPathOrSkip()
 
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "reticulated rmd",
     test_path("test-reticulate-rmds"),
     "implicit.Rmd",
     python = python
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -150,13 +115,12 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest", {
   skip_on_cran()
 
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "plain rmd",
     test_path("test-rmds"),
     "simple.Rmd",
     python = NULL
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")
@@ -170,13 +134,12 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
   skip_if_not_installed("reticulate")
   python <- pythonPathOrSkip()
 
-  bundleTempDir <- makeShinyBundleTempDir(
+  bundleTempDir <- local_shiny_bundle(
     "plain rmd",
     test_path("test-rmds"),
     "simple.Rmd",
     python = python
   )
-  on.exit(unlink(bundleTempDir, recursive = TRUE))
 
   manifest <- jsonlite::fromJSON(file.path(bundleTempDir, "manifest.json"))
   expect_equal(manifest$metadata$appmode, "rmd-static")

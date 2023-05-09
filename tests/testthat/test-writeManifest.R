@@ -16,7 +16,7 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   manifest <- makeManifest(appDir, python = python)
   requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
-  on.exit(unlink(requirements_file))
+  defer(unlink(requirements_file))
 
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
@@ -32,7 +32,7 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   manifest <- makeManifest(appDir, "implicit.Rmd", python = python)
   requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
-  on.exit(unlink(requirements_file))
+  defer(unlink(requirements_file))
 
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "implicit.Rmd")
