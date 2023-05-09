@@ -556,7 +556,8 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
     appName = "Desired name here",
     appDir = sourcePath,
     server = "posit.cloud",
-    account = testAccount
+    account = testAccount,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(
@@ -573,7 +574,8 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   # deploy again to test existing deployment path
   deployApp(
-    appDir = sourcePath
+    appDir = sourcePath,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(
@@ -597,7 +599,8 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
     appName = "Desired name here",
     appDir = sourcePath,
     server = "posit.cloud",
-    account = testAccount
+    account = testAccount,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(
@@ -614,7 +617,8 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   # deploy again to test existing deployment path
   deployApp(
-    appDir = sourcePath
+    appDir = sourcePath,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(
@@ -646,7 +650,8 @@ test_that("deployDoc() results in correct Cloud API calls", {
     paste(sourcePath, "slideshow.html", sep = "/"),
     appName = "Desired name here",
     server = "posit.cloud",
-    account = testAccount
+    account = testAccount,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(
@@ -663,7 +668,8 @@ test_that("deployDoc() results in correct Cloud API calls", {
 
   # deploy again to test existing deployment path
   deployApp(
-    appDir = sourcePath
+    appDir = sourcePath,
+    logLevel = "quiet"
   )
 
   mock$expect_calls(list(

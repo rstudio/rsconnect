@@ -179,7 +179,7 @@ deployApp <- function(appDir = getwd(),
                       upload = TRUE,
                       recordDir = NULL,
                       launch.browser = getOption("rsconnect.launch.browser",
-                                                 interactive()),
+                                                 is_interactive()),
                       on.failure = NULL,
                       logLevel = c("normal", "quiet", "verbose"),
                       lint = TRUE,
@@ -456,10 +456,12 @@ deployApp <- function(appDir = getwd(),
   Sys.sleep(0.10)
 
   deploymentSucceeded <- is.null(response$code) || response$code == 0
-  if (deploymentSucceeded) {
-    cli::cli_alert_success("Successfully deployed to {.url {application$url}}")
-  } else {
-    cli::cli_alert_danger("Deployment failed with error: {response$error}")
+  if (!quiet) {
+    if (deploymentSucceeded) {
+      cli::cli_alert_success("Successfully deployed to {.url {application$url}}")
+    } else {
+      cli::cli_alert_danger("Deployment failed with error: {response$error}")
+    }
   }
 
   if (!quiet)

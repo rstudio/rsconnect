@@ -19,7 +19,7 @@ deployApp(
   server = NULL,
   upload = TRUE,
   recordDir = NULL,
-  launch.browser = getOption("rsconnect.launch.browser", interactive()),
+  launch.browser = getOption("rsconnect.launch.browser", is_interactive()),
   on.failure = NULL,
   logLevel = c("normal", "quiet", "verbose"),
   lint = TRUE,
