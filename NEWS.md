@@ -10,6 +10,9 @@
 * A `version` field has been added to deployment DCF files to facilitate file
   format changes. Its value for this release is `1`.
 
+* `deployApp()` now gives an actionable error if you attempt to set
+  visiblity of an app deployed to posit.cloud (#838).
+
 * `deploySite()` now supports quarto websites (#813).
 
 * `deployApp()` and `writeManifest()` now respect renv lock files, if present. 

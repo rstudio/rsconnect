@@ -15,7 +15,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 
   # Perform actions within the project directory (so relative paths are easily used)
   owd <- getwd()
-  on.exit(setwd(owd))
+  defer(setwd(owd))
   setwd(project)
 
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
@@ -31,7 +31,7 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 
     # force native encoding (disable any potential internal conversion)
     old <- options(encoding = "native.enc")
-    on.exit(options(old), add = TRUE)
+    defer(options(old))
 
     # read content with requested encoding
     # TODO: may consider converting from native encoding to UTF-8 if appropriate

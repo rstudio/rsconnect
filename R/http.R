@@ -519,7 +519,7 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
 rfc2616Date <- function(time = Sys.time()) {
   # set locale to POSIX/C to ensure ASCII date
   old <- Sys.setlocale("LC_TIME", "C")
-  on.exit(Sys.setlocale("LC_TIME", old))
+  defer(Sys.setlocale("LC_TIME", old))
 
   strftime(Sys.time(), "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
 }
