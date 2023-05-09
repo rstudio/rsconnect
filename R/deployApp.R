@@ -353,23 +353,29 @@ deployApp <- function(appDir = getwd(),
       target$appName,
       target$appTitle,
       "shiny",
-      accountDetails$accountId
+      accountDetails$accountId,
+      appMetadata$appMode
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
     application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
-      client$getApplication(target$appId),
+      {
+        application <- client$getApplication(target$appId, target$version)
+        taskComplete(quiet, "Found application {.url {application$url}}")
+
+        if (application$type == "static") {
+          application$application_id <- client$createRevision(application)
+        }
+
+        application
+      },
       rsconnect_http_404 = function(err) {
-        applicationDeleted(client, target, recordPath)
+        application <- applicationDeleted(client, target, recordPath, appMetadata)
+        taskComplete(quiet, "Created application with id {.val {application$id}}")
+        application
       }
     )
-    if (application$id == target$appId) {
-      taskComplete(quiet, "Found application {.url {application$url}}")
-    } else {
-      taskComplete(quiet, "Created application with id {.val {application$id}}")
-    }
-
   }
   saveDeployment(
     recordPath,
@@ -416,7 +422,7 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
     if (isCloudServer(accountDetails$server)) {
-      bundle <- uploadCloudBundle(client, application$id, bundlePath)
+      bundle <- uploadCloudBundle(client, application$application_id, bundlePath)
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
     }
@@ -437,7 +443,7 @@ deployApp <- function(appDir = getwd(),
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application$id, bundle$id)
+  task <- client$deployApplication(application, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)
@@ -527,7 +533,7 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
   hook(appDir)
 }
 
-applicationDeleted <- function(client, target, recordPath) {
+applicationDeleted <- function(client, target, recordPath, appMetadata) {
   header <- "Failed to find existing application on server; it's probably been deleted."
   not_interactive <- c(
     i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
@@ -555,7 +561,8 @@ applicationDeleted <- function(client, target, recordPath) {
     target$appName,
     target$appTitle,
     "shiny",
-    accountDetails$accountId
+    accountDetails$accountId,
+    appMetadata$appMode
   )
 }
 

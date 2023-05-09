@@ -118,7 +118,7 @@ test_that("Users API", {
 
   ## Deploy an application
   appId <- response$app_id
-  response <- connect$deployApplication(appId)
+  response <- connect$deployApplication(list(id = appId))
   id <- response$id
 
   ## Query the app for success / failure
