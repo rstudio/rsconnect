@@ -157,17 +157,14 @@ performPackratSnapshot <- function(bundleDir, verbose = FALSE) {
   # ensure we snapshot recommended packages
   srp <- packrat::opts$snapshot.recommended.packages()
   packrat::opts$snapshot.recommended.packages(TRUE, persist = FALSE)
-  on.exit(
-    packrat::opts$snapshot.recommended.packages(srp, persist = FALSE),
-    add = TRUE
-  )
+  defer(packrat::opts$snapshot.recommended.packages(srp, persist = FALSE))
 
   # Force renv dependency scanning within packrat unless the option has been
   # explicitly configured. This is a no-op for older versions of packrat.
   renvDiscovery <- getOption("packrat.dependency.discovery.renv")
   if (is.null(renvDiscovery)) {
     old <- options("packrat.dependency.discovery.renv" = TRUE)
-    on.exit(options(old), add = TRUE)
+    defer(options(old))
   }
 
   # attempt to eagerly load the BiocInstaller or BiocManaager package if

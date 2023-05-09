@@ -47,7 +47,7 @@ writeManifest <- function(appDir = getwd(),
     appFiles = appFiles,
     appPrimaryDoc = appMetadata$appPrimaryDoc
   )
-  on.exit(unlink(bundleDir, recursive = TRUE), add = TRUE)
+  defer(unlink(bundleDir, recursive = TRUE))
 
   python <- getPython(python)
   pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)

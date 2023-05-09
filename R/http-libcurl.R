@@ -34,7 +34,7 @@ httpLibCurl <- function(protocol,
 
     # open a connection to read the file, and ensure it's closed when we're done
     contentCon <- file(contentFile, "rb")
-    on.exit(if (!is.null(contentCon)) close(contentCon), add = TRUE)
+    defer(if (!is.null(contentCon)) close(contentCon))
 
     progress <- is_interactive() && fileLength >= 10 * 1024^2
 

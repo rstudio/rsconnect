@@ -145,7 +145,7 @@ rmarkdownSite <- function(siteDir, quiet = FALSE, error_call = caller_env()) {
 
 outputDir <- function(wd, path) {
   old <- setwd(wd)
-  on.exit(setwd(old))
+  defer(setwd(old))
 
   if (!file.exists(path)) {
     dir.create(path, recursive = TRUE, showWarnings = FALSE)

@@ -90,7 +90,7 @@ httpCurl <- function(protocol,
 
   if (result == 0) {
     fileConn <- file(outputFile, "rb")
-    on.exit(close(fileConn))
+    defer(close(fileConn))
     readHttpResponse(list(
         protocol = protocol,
         host     = host,
