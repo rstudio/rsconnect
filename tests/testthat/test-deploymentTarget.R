@@ -188,7 +188,7 @@ test_that("default title is the empty string", {
   expect_equal(target$appTitle, "")
 })
 
-test_that("can look up existing application on server", {
+test_that("can find existing application on server & use it", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
@@ -203,14 +203,25 @@ test_that("can look up existing application on server", {
   )
 
   app_dir <- withr::local_tempdir()
-
   target <- deploymentTarget(app_dir, appName = "my_app")
   expect_equal(target$appId, 123)
+})
 
+test_that("can find existing application on server & not use it", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
   local_mocked_bindings(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
     shouldUpdateApp = function(...) FALSE
   )
 
+  app_dir <- withr::local_tempdir()
   target <- deploymentTarget(app_dir, appName = "my_app")
   expect_equal(target$appName, "my_app-1")
   expect_equal(target$appId, NULL)
