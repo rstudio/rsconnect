@@ -58,6 +58,28 @@ local_temp_app <- function(..., .env = caller_env()) {
   dir
 }
 
+
+local_shiny_bundle <- function(appName, appDir, appPrimaryDoc, python = NULL) {
+  appFiles <- bundleFiles(appDir)
+  appMetadata <- appMetadata(appDir, appFiles, appPrimaryDoc = appPrimaryDoc)
+
+  tarfile <- bundleApp(
+    appName,
+    appDir,
+    appFiles = appFiles,
+    appMetadata = appMetadata,
+    pythonConfig = pythonConfigurator(python),
+    quiet = TRUE
+  )
+  bundleTempDir <- tempfile()
+  utils::untar(tarfile, exdir = bundleTempDir)
+  unlink(tarfile)
+
+  defer(unlink(bundleTempDir, recursive = TRUE), env = caller_env())
+  bundleTempDir
+}
+
+
 # Servers and accounts ----------------------------------------------------
 
 addTestAccount <- function(account = "ron", server = "example.com", userId = account) {

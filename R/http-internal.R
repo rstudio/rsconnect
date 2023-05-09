@@ -66,7 +66,7 @@ httpInternal <- function(protocol,
                              open = "w+b",
                              blocking = TRUE,
                              timeout = timeout)
-    on.exit(close(conn))
+    defer(close(conn))
 
     # write the request header and file payload
     writeBin(charToRaw(paste(request, collapse = "")), conn, size = 1)

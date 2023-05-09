@@ -35,9 +35,7 @@ test_that("handles accounts if only server specified", {
   addTestServer("foo")
   addTestAccount("ron", "foo")
   addTestAccount("john", "foo")
-  mockr::local_mock(
-    applications = function(...) data.frame()
-  )
+  local_mocked_bindings(applications = function(...) data.frame())
   dir <- local_temp_app(app.R = "")
 
   expect_snapshot(deploymentTarget(dir, server = "foo"), error = TRUE)
@@ -113,9 +111,7 @@ test_that("new title overrides existing title", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  mockr::local_mock(
-    applications = function(...) data.frame()
-  )
+  local_mocked_bindings(applications = function(...) data.frame())
   dir <- local_temp_app()
   addTestDeployment(dir, appTitle = "old title")
 
@@ -163,20 +159,15 @@ test_that("succeeds if there are no deployments and a single account", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  mockr::local_mock(
-    applications = function(...) data.frame()
-  )
+  local_mocked_bindings(applications = function(...) data.frame())
 
-  dir <- local_temp_app()
-  app_dir <- file.path(dir, "my_app")
-  dir.create(app_dir)
-
-  target <- deploymentTarget(app_dir, envVars = c("TEST1", "TEST2"))
+  dir <- dirCreate(file.path(local_temp_app(), "my_app"))
+  target <- deploymentTarget(dir, envVars = c("TEST1", "TEST2"))
   expect_equal(target$appName, "my_app")
   expect_equal(target$username, "ron")
   expect_equal(target$envVars, c("TEST1", "TEST2"))
 
-  target <- deploymentTarget(app_dir, appName = "foo")
+  target <- deploymentTarget(dir, appName = "foo")
   expect_equal(target$username, "ron")
 })
 
@@ -184,20 +175,18 @@ test_that("default title is the empty string", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  mockr::local_mock(
-    applications = function(...) data.frame()
-  )
+  local_mocked_bindings(applications = function(...) data.frame())
 
   dir <- local_temp_app()
   target <- deploymentTarget(dir)
   expect_equal(target$appTitle, "")
 })
 
-test_that("can look up existing application on server", {
+test_that("can find existing application on server & use it", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  mockr::local_mock(
+  local_mocked_bindings(
     applications = function(...) data.frame(
       name = "my_app",
       id = 123,
@@ -210,10 +199,13 @@ test_that("can look up existing application on server", {
   dir <- local_temp_app()
   target <- deploymentTarget(dir, appName = "my_app")
   expect_equal(target$appId, 123)
+})
 
-  # TODO: Minimise when we switch to testhat::local_mocked_bindings
-  # and can progressively modify the same environment
-  mockr::local_mock(
+test_that("can find existing application on server & not use it", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+  local_mocked_bindings(
     applications = function(...) data.frame(
       name = "my_app",
       id = 123,
@@ -223,6 +215,7 @@ test_that("can look up existing application on server", {
     shouldUpdateApp = function(...) FALSE
   )
 
+  dir <- local_temp_app()
   target <- deploymentTarget(dir, appName = "my_app")
   expect_equal(target$appName, "my_app-1")
   expect_equal(target$appId, NULL)

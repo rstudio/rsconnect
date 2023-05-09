@@ -1,5 +1,5 @@
 test_that("linter warns about absolute paths and relative paths", {
-  dir.create("~/.rsconnect-tests", showWarnings = FALSE)
+  dirCreate("~/.rsconnect-tests")
   file.create("~/.rsconnect-tests/local-file.txt")
   withr::defer(unlink("~/.rsconnect-tests", recursive = TRUE))
 

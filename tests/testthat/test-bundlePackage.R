@@ -32,7 +32,7 @@ test_that("can capture deps from renv lockfile", {
 # -------------------------------------------------------------------------
 
 test_that("error if can't find source", {
-  mockr::local_mock(snapshotRenvDependencies = function(...) {
+  local_mocked_bindings(snapshotRenvDependencies = function(...) {
     data.frame(
       Package = "shiny",
       Source = NA,

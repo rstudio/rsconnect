@@ -70,13 +70,12 @@ createCertificateFile <- function(certificate) {
 
   # create a temporary file to house the certificates
   certificateStore <- tempfile(pattern = "cacerts", fileext = ".pem")
-  if (!dirExists(dirname(certificateStore)))
-    dir.create(dirname(certificateStore))
+  dirCreate(dirname(certificateStore))
   file.create(certificateStore)
 
   # open temporary cert store
   con <- file(certificateStore, open = "at")
-  on.exit(close(con), add = TRUE)
+  defer(close(con))
 
   # copy the contents of the certificate file into the store, if we found one
   # (we don't do a straight file copy since we don't want to inherit or

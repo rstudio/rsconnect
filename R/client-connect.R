@@ -48,7 +48,7 @@ connectClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "applications")
     },
 
-    createApplication = function(name, title, template, accountId) {
+    createApplication = function(name, title, template, accountId, appMode) {
       # add name; inject title if specified
       details <- list(name = name)
       if (!is.null(title) && nzchar(title))
@@ -75,8 +75,8 @@ connectClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(applicationId, bundleId = NULL) {
-      path <- paste("/applications/", applicationId, "/deploy", sep = "")
+    deployApplication = function(application, bundleId = NULL) {
+      path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       json$bundle <- as.numeric(bundleId)
       POST_JSON(service, authInfo, path, json)
@@ -87,7 +87,7 @@ connectClient <- function(service, authInfo) {
         "/applications/", applicationId, "/config", sep = ""))
     },
 
-    getApplication = function(applicationId) {
+    getApplication = function(applicationId, deploymentRecordVersion) {
       GET(service, authInfo, paste0("/applications/", applicationId))
     },
 

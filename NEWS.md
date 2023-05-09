@@ -1,5 +1,15 @@
 # rsconnect (development version)
 
+* `deployDoc()` and `deployApp()` now support deploying static content to Posit
+  Cloud.
+
+* When recording details about deployments to Posit Cloud, appId now represents
+  the content id (as seen in URLs of the format 
+  `https://posit.cloud/content/{id}`) instead of the application id.
+
+* A `version` field has been added to deployment DCF files to facilitate file
+  format changes. Its value for this release is `1`.
+
 * `deployApp()` now gives an actionable error if you attempt to set
   visiblity of an app deployed to posit.cloud (#838).
 

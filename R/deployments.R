@@ -92,7 +92,6 @@ saveDeployment <- function(recordDir,
                            hostUrl = serverInfo(target$server)$url,
                            metadata = list(),
                            addToHistory = TRUE) {
-
   deployment <- deploymentRecord(
     name = target$appName,
     title = target$appTitle,

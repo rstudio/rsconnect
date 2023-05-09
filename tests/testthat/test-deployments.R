@@ -139,9 +139,10 @@ test_that("saveDeployment appends to global history", {
       envVars = "abc", # ensure there's an envVars column in output
       account = "foo",
       username = "foo",
-      server = "bar"
+      server = "bar",
+      version = 1
     ),
-    application = list(),
+    application = list(id = 1),
     hostUrl = NULL
   )
 
@@ -165,9 +166,10 @@ test_that("saveDeployment captures hostUrl", {
       envVars = NULL,
       account = "foo",
       username = "foo",
-      server = "example.com"
+      server = "example.com",
+      version = 1
     ),
-    application = list()
+    application = list(id = 10)
   )
 
   out <- deployments(dir)

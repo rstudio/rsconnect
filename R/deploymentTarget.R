@@ -97,7 +97,7 @@ createDeploymentTarget <- function(appName,
                                    username,
                                    account,
                                    server,
-                                   version = 1) {
+                                   version = deploymentRecordVersion) {
   list(
     appName = appName,
     appTitle = appTitle %||% "",

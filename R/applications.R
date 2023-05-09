@@ -137,7 +137,7 @@ getApplication <- function(account, server, appId) {
   client <- clientForAccount(accountDetails)
 
   withCallingHandlers(
-    client$getApplication(appId),
+    client$getApplication(appId, deploymentRecordVersion),
     rsconnect_http_404 = function(err) {
       cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
     }
