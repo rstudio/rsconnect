@@ -682,4 +682,3 @@ test_that("deployDoc() results in correct Cloud API calls", {
     deployStarted = TRUE
   ))
 })
-
