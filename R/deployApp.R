@@ -364,7 +364,7 @@ deployApp <- function(appDir = getwd(),
         application <- client$getApplication(target$appId, target$version)
         taskComplete(quiet, "Found application {.url {application$url}}")
 
-        if (application$type == "static") {
+        if (identical(application$type, "static")) {
           application$application_id <- client$createRevision(application)
         }
 
