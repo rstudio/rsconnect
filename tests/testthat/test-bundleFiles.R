@@ -74,7 +74,7 @@ test_that("bundle directories are recursively enumerated", {
     "models/abcd/a_b_pt1/a/b/c1/4.RDS",
     "models/abcd/a_b_pt1/a/b/c1/5.RDS"
   )
-  dir.create(file.path(dir, "models/abcd/a_b_pt1/a/b/c1/"), recursive = TRUE)
+  dirCreate(file.path(dir, "models/abcd/a_b_pt1/a/b/c1/"))
   file.create(file.path(dir, files))
 
   size <- sum(file.info(file.path(dir, files))$size)
@@ -96,8 +96,7 @@ test_that("ignores RStudio files", {
 
 test_that("ignores knitr cache directories", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "foo_cache"))
-  dir.create(file.path(dir, "bar_cache"))
+  dirCreate(file.path(dir, c("foo_cache", "bar_cache")))
   file.create(file.path(dir, c("foo_cache", "bar_cache"), "contents"))
   file.create(file.path(dir, c("foo.Rmd")))
 
@@ -106,15 +105,15 @@ test_that("ignores knitr cache directories", {
 
 test_that("ignores files anywhere in path", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "a/b/c"), recursive = TRUE)
+  dirCreate(file.path(dir, "a/b/c"))
   file.create(file.path(dir, c("x", "a/b/.gitignore", "a/b/c/.DS_Store")))
 
   expect_equal(bundleFiles(dir), "x")
 })
 
 test_that("ignores files listed in .rscignore", {
-  dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "a"), recursive = TRUE)
+  dir <- local_temp_app()
+  dirCreate(file.path(dir, "a"))
   file.create(file.path(dir, c("x", "a/y")))
   expect_setequal(bundleFiles(dir), c("x", "a/y"))
 
@@ -135,9 +134,9 @@ test_that("ignores temporary files", {
 
 test_that("ignores python virtual envs", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "test", "bin"), recursive = TRUE)
+  dirCreate(file.path(dir, "test", "bin"))
   file.create(file.path(dir, "test", "bin", "python"))
-  dir.create(file.path(dir, "venv"))
+  dirCreate(file.path(dir, "venv"))
   file.create(file.path(dir, "venv", "somefile"))
 
   expect_equal(bundleFiles(dir), character())
@@ -147,7 +146,7 @@ test_that("ignores python virtual envs", {
 
 test_that("returns relative paths", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "x"))
+  dirCreate(file.path(dir, "x"))
   file.create(file.path(dir, "x", c("a", "b", "c")))
 
   expect_equal(explodeFiles(dir, "x"), c("x/a", "x/b", "x/c"))
@@ -163,7 +162,7 @@ test_that("drops drops non-existent files with warning", {
 
 test_that("expands files and directory", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "x"))
+  dirCreate(file.path(dir, "x"))
   file.create(file.path(dir, "x", c("a", "b")))
   file.create(file.path(dir, "c"))
 
@@ -172,7 +171,7 @@ test_that("expands files and directory", {
 
 test_that("can include nested files/directories", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "x", "y"), recursive = TRUE)
+  dirCreate(file.path(dir, "x", "y"))
   file.create(file.path(dir, "x", c("a", "b", "c")))
   file.create(file.path(dir, "x", "y", c("d", "e")))
 
@@ -183,7 +182,7 @@ test_that("can include nested files/directories", {
 
 test_that("doesn't ignore user supplied files", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "x", "y"), recursive = TRUE)
+  dirCreate(file.path(dir, "x", "y"))
   file.create(file.path(dir, "x", "packrat"))
   file.create(file.path(dir, "x", "y", "packrat"))
 
@@ -194,9 +193,8 @@ test_that("doesn't ignore user supplied files", {
 
 test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
   dir <- withr::local_tempdir()
-  dir.create(file.path(dir, "a"))
+  dirCreate(file.path(dir, c("a", "b")))
   file.create(file.path(dir, "a", letters))
-  dir.create(file.path(dir, "b"))
   file.create(file.path(dir, "b", letters))
 
   withr::local_options(rsconnect.max.bundle.files = 1)

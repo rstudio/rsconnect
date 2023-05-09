@@ -147,10 +147,5 @@ outputDir <- function(wd, path) {
   old <- setwd(wd)
   defer(setwd(old))
 
-  if (!file.exists(path)) {
-    dir.create(path, recursive = TRUE, showWarnings = FALSE)
-  }
-
-
-  normalizePath(path, mustWork = FALSE)
+  normalizePath(dirCreate(path), mustWork = FALSE)
 }

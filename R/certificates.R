@@ -70,8 +70,7 @@ createCertificateFile <- function(certificate) {
 
   # create a temporary file to house the certificates
   certificateStore <- tempfile(pattern = "cacerts", fileext = ".pem")
-  if (!dirExists(dirname(certificateStore)))
-    dir.create(dirname(certificateStore))
+  dirCreate(dirname(certificateStore))
   file.create(certificateStore)
 
   # open temporary cert store

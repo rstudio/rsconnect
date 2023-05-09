@@ -24,11 +24,7 @@ rsconnectConfigDir <- function(subDir = NULL) {
     target <- file.path(target, subDir)
   }
 
-  # Create the path if it doesn't exist
-  dir.create(target, recursive = TRUE, showWarnings = FALSE)
-
-  # Return completed path
-  target
+  dirCreate(target)
 }
 
 #' Application Configuration Directory
@@ -125,8 +121,7 @@ deploymentConfigDir <- function(recordPath) {
 
 deploymentConfigFile <- function(recordPath, name, account, server) {
   accountDir <- file.path(deploymentConfigDir(recordPath), server, account)
-  if (!file.exists(accountDir))
-    dir.create(accountDir, recursive = TRUE)
+  dirCreate(accountDir)
   file.path(accountDir, paste0(name, ".dcf"))
 }
 
