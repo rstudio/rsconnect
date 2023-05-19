@@ -337,7 +337,7 @@ deployApp <- function(appDir = getwd(),
     appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
     contentCategory = contentCategory,
-    isCloudServer = isCloudServer,
+    isShinyappsServer = isShinyappsServer(target$server),
     metadata = metadata
   )
 

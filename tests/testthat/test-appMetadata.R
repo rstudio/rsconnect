@@ -84,8 +84,8 @@ test_that("can infer mode for static quarto and rmd docs", {
 
   expect_equal(inferAppMode(paths), "rmd-static")
   expect_equal(inferAppMode(paths, usesQuarto = TRUE), "quarto-static")
-  # Static R Markdown treated as rmd-shiny for shinyapps and rstudio.cloud targets
-  expect_equal(inferAppMode(paths, isCloudServer = TRUE), "rmd-shiny")
+  # Static R Markdown treated as rmd-shiny for shinyapps targets
+  expect_equal(inferAppMode(paths, isShinyappsServer = TRUE), "rmd-shiny")
 })
 
 test_that("can infer mode for shiny rmd docs", {

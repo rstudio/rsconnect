@@ -127,6 +127,7 @@ cloudClient <- function(service, authInfo) {
       json <- list()
       json$name <- name
       json$application_type <- if (appMode == "static") "static" else "connect"
+      json$render_by <- if (appMode %in% c("rmd-static", "quarto-static")) "server" else "client"
 
       currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
