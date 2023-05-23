@@ -94,7 +94,9 @@ shinyAppsClient <- function(service, authInfo) {
       # the title field is only used on connect
       json$template <- template
       json$account <- as.numeric(accountId)
-      POST_JSON(service, authInfo, "/applications/", json)
+      application <- POST_JSON(service, authInfo, "/applications/", json)
+      application$application_id <- application$id
+      application
     },
 
     listApplicationProperties = function(applicationId) {
