@@ -95,8 +95,11 @@ shinyAppsClient <- function(service, authInfo) {
       json$template <- template
       json$account <- as.numeric(accountId)
       application <- POST_JSON(service, authInfo, "/applications/", json)
-      application$application_id <- application$id
-      application
+      list(
+        id = application$id,
+        application_id = application$id,
+        url = application$url
+      )
     },
 
     listApplicationProperties = function(applicationId) {
