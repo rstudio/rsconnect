@@ -56,7 +56,11 @@ connectClient <- function(service, authInfo) {
 
       # RSC doesn't currently use the template or account ID
       # parameters; they exist for compatibility with lucid.
-      POST_JSON(service, authInfo, "/applications", details)
+      application <- POST_JSON(service, authInfo, "/applications", details)
+      list(
+        id = application$id,
+        url = application$url
+      )
     },
 
     terminateApplication = function(applicationId) {

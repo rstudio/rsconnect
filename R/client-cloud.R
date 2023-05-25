@@ -146,11 +146,11 @@ cloudClient <- function(service, authInfo) {
       output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste0("/applications/", output$source_id)
       application <- GET(service, authInfo, path)
-      application$application_id <- application$id
-      application$id <- output$id
-      # this swaps the "application url" for the "content url". So we end up redirecting to the right spot after deployment.
-      application$url <- output$url
-      application
+      list(
+        id = output$id,
+        application_id = application$id,
+        url = output$url
+      )
     },
 
     listApplicationProperties = function(applicationId) {
