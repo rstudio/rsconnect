@@ -1,7 +1,7 @@
 # rsconnect (development version)
 
 * `deployDoc()` and `deployApp()` now support deploying static content to Posit
-  Cloud.
+  Cloud. Static RMarkdown and Quarto content can be rendered server-side.
 
 * When recording details about deployments to Posit Cloud, appId now represents
   the content id (as seen in URLs of the format 
