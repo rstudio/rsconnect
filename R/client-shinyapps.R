@@ -212,6 +212,10 @@ shinyAppsClient <- function(service, authInfo) {
       POST_JSON(service, authInfo, path, json)
     },
 
+    coerceStaticRmd = function(accountId) {
+      TRUE
+    },
+
     listTasks = function(accountId, filters = NULL) {
       if (is.null(filters)) {
         filters <- vector()

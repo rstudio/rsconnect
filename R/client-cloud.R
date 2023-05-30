@@ -126,7 +126,10 @@ cloudClient <- function(service, authInfo) {
     createApplication = function(name, title, template, accountId, appMode) {
       json <- list()
       json$name <- name
-      json$application_type <- if (appMode == "static") "static" else "connect"
+      json$application_type <- if (appMode %in% c("rmd-static", "quarto-static", "static")) "static" else "connect"
+      if (appMode %in% c("rmd-static", "quarto-static")) {
+        json$render_by <- "server"
+      }
 
       currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
       if (currentApplicationId != "") {
@@ -256,6 +259,15 @@ cloudClient <- function(service, authInfo) {
       path <- "/invitations/"
       query <- paste(filterQuery("app_id", applicationId), collapse = "&")
       listRequest(service, authInfo, path, query, "invitations")
+    },
+
+    coerceStaticRmd = function(accountId) {
+      # Posit Cloud will gain support soon for rendering RMD into static content. When support is
+      # added, true_static_rmd_enabled will be TRUE. In the meantime, RMDs can be deployed by
+      # using Shiny.
+      # TODO once Cloud supports this, remove this coercion.
+      account <- GET(service, authInfo, paste0("/accounts/", accountId))
+      account$beta$coerce_static_rmd_enabled
     },
 
     listTasks = function(accountId, filters = NULL) {

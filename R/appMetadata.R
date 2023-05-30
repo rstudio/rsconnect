@@ -3,7 +3,7 @@ appMetadata <- function(appDir,
                         appPrimaryDoc = NULL,
                         quarto = NA,
                         contentCategory = NULL,
-                        isCloudServer = FALSE,
+                        coerceStaticRmd = FALSE,
                         metadata = list()) {
 
   appFiles <- listDeploymentFiles(appDir, appFiles)
@@ -38,7 +38,7 @@ appMetadata <- function(appDir,
     appMode <- inferAppMode(
       file.path(appDir, appFiles),
       usesQuarto = quarto,
-      isCloudServer = isCloudServer
+      coerceStaticRmd = coerceStaticRmd
     )
   }
 
@@ -119,7 +119,7 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
 # infer the mode of the application from files in the root dir
 inferAppMode <- function(absoluteAppFiles,
                          usesQuarto = NA,
-                         isCloudServer = FALSE) {
+                         coerceStaticRmd = FALSE) {
 
   matchingNames <- function(paths, pattern) {
     idx <- grepl(pattern, basename(paths), ignore.case = TRUE, perl = TRUE)
@@ -181,7 +181,7 @@ inferAppMode <- function(absoluteAppFiles,
       # For Shinyapps and posit.cloud, treat "rmd-static" app mode as "rmd-shiny" so that
       # they can be served from a shiny process in Connect until we have better support of
       # rmarkdown static content
-      if (isCloudServer) {
+      if (coerceStaticRmd) {
         return("rmd-shiny")
       }
       return("rmd-static")

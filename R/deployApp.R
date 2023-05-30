@@ -330,6 +330,15 @@ deployApp <- function(appDir = getwd(),
   if (!isConnectServer(target$server) && length(envVars) > 1) {
     cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
   }
+
+  accountDetails <- accountInfo(target$account, target$server)
+  client <- clientForAccount(accountDetails)
+  if (verbose) {
+    showCookies(serverInfo(accountDetails$server)$url)
+  }
+
+  coerceStaticRmd <- client$coerceStaticRmd(accountDetails$accountId)
+
   logger("Inferring App mode and parameters")
   appMetadata <- appMetadata(
     appDir = appDir,
@@ -337,15 +346,9 @@ deployApp <- function(appDir = getwd(),
     appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
     contentCategory = contentCategory,
-    isCloudServer = isCloudServer,
+    coerceStaticRmd = coerceStaticRmd,
     metadata = metadata
   )
-
-  accountDetails <- accountInfo(target$account, target$server)
-  client <- clientForAccount(accountDetails)
-  if (verbose) {
-    showCookies(serverInfo(accountDetails$server)$url)
-  }
 
   if (is.null(target$appId)) {
     taskStart(quiet, "Creating application on server...")
