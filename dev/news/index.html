@@ -52,7 +52,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/deployDoc.html">deployDoc()</a></code> and <code><a href="../reference/deployApp.html">deployApp()</a></code> now support deploying static content to Posit Cloud.</p></li>
+<ul><li><p><code><a href="../reference/deployDoc.html">deployDoc()</a></code> and <code><a href="../reference/deployApp.html">deployApp()</a></code> now support deploying static content to Posit Cloud. Static RMarkdown and Quarto content can be rendered server-side.</p></li>
 <li><p>When recording details about deployments to Posit Cloud, appId now represents the content id (as seen in URLs of the format <code>https://posit.cloud/content/{id}</code>) instead of the application id.</p></li>
 <li><p>A <code>version</code> field has been added to deployment DCF files to facilitate file format changes. Its value for this release is <code>1</code>.</p></li>
 <li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> now gives an actionable error if you attempt to set visiblity of an app deployed to posit.cloud (<a href="https://github.com/rstudio/rsconnect/issues/838" class="external-link">#838</a>).</p></li>
