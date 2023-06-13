@@ -141,6 +141,8 @@ cloudClient <- function(service, authInfo) {
       }
 
       currentProjectId <- getCurrentProjectId(service, authInfo)
+      # in case the source cloud project is a temporary copy, there is no
+      # content id. The output will be published without a space id.
       if (!is.null(currentProjectId)) {
         json$project <- currentProjectId
 
