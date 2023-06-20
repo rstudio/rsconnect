@@ -405,10 +405,8 @@ test_that("deployApplication updates the parent project", {
     )
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
-  Sys.setenv(LUCID_APPLICATION_ID = "42")
-  withr::defer(Sys.unsetenv("LUCID_APPLICATION_ID"))
+  withr::local_options(rsconnect.http = mockServer$impl)
+  withr::local_envvars(LUCID_APPLICATION_ID = "42")
 
   fakeService <- list(
     protocol = "test",
