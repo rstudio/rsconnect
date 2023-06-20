@@ -367,6 +367,61 @@ test_that("Create static server-side-rendered application", {
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
+test_that("deployApplication updates the parent project", {
+  mockServer <- mockServerFactory(list(
+    "^GET /applications/([0-9]+)" = list(
+      content = function(methodAndPath, match, ...) {
+        end <- attr(match, "match.length")[2] + match[2]
+        application_id <- substr(methodAndPath, match[2], end)
+        expect_equal(application_id, "42")
+
+        list(
+          "id" = 42,
+          "content_id" = 41
+        )
+      }
+    ),
+    "^PATCH /outputs" = list(
+      content = function(methodAndPath, match, contentFile, ...) {
+        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        expect_equal(content$project, 41)
+        list(
+          "id" = 41
+        )
+      }
+    ),
+    "^POST /applications/([0-9]+)/deploy" = list(
+      content = function(methodAndPath, match, contentFile, ...) {
+        end <- attr(match, "match.length")[2] + match[2]
+        application_id <- substr(methodAndPath, match[2], end)
+        expect_equal(application_id, "101/")
+
+        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        expect_equal(content$rebuild, FALSE)
+        list(
+          "id" = 101
+        )
+      }
+    )
+  ))
+
+  withr::local_options(rsconnect.http = mockServer$impl)
+  withr::local_envvar(LUCID_APPLICATION_ID = "42")
+
+  fakeService <- list(
+    protocol = "test",
+    host = "unit-test",
+    port = 42
+  )
+  client <- cloudClient(fakeService, NULL)
+
+  application <- list(
+    "id" = 100,
+    "application_id" = 101
+  )
+  client$deployApplication(application)
+})
+
 test_that("Create static RMD application", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(

@@ -1,5 +1,14 @@
 # Docs: https://build.posit.it/job/hostedapps/job/lucid-pipeline/job/main/API/
 
+getCurrentProjectId <- function(service, authInfo) {
+  currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
+  if (currentApplicationId != "") {
+    path <- paste0("/applications/", currentApplicationId)
+    current_application <- GET(service, authInfo, path)
+    return(current_application$content_id)
+  }
+}
+
 cloudClient <- function(service, authInfo) {
   list(
 
@@ -131,21 +140,17 @@ cloudClient <- function(service, authInfo) {
         json$render_by <- "server"
       }
 
-      currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
-      if (currentApplicationId != "") {
-        path <- paste0("/applications/", currentApplicationId)
-        current_application <- GET(service, authInfo, path)
-        project_id <- current_application$content_id
+      currentProjectId <- getCurrentProjectId(service, authInfo)
+      # in case the source cloud project is a temporary copy, there is no
+      # content id. The output will be published without a space id.
+      if (!is.null(currentProjectId)) {
+        json$project <- currentProjectId
 
-        # in case the source cloud project is a temporary copy, there is no
-        # content id. The output will be published without a space id.
-        if (!is.null(project_id)) {
-          path <- paste0("/content/", project_id)
-          current_project <- GET(service, authInfo, path)
-          json$project <- current_project$id
-          json$space <- current_project$space_id
-        }
+        path <- paste0("/content/", currentProjectId)
+        currentProject <- GET(service, authInfo, path)
+        json$space <- currentProject$space_id
       }
+
       output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste0("/applications/", output$source_id)
       application <- GET(service, authInfo, path)
@@ -197,6 +202,13 @@ cloudClient <- function(service, authInfo) {
     },
 
     deployApplication = function(application, bundleId = NULL) {
+      currentProjectId <- getCurrentProjectId(service, authInfo)
+      if (!is.null(currentProjectId)) {
+        path <- paste0("/outputs/", application$id)
+        json <- list(project = currentProjectId)
+        PATCH_JSON(service, authInfo, path, json)
+      }
+
       path <- paste0("/applications/", application$application_id, "/deploy")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
