@@ -5,6 +5,11 @@ test_that("validateServerUrl() returns expected", {
   expect_true(validateServerUrl("https://colorado.posit.co/rsc")$valid)
 })
 
+test_that("validateServerUrl() normalises urls", {
+  expect_true(validateServerUrl("connect.rstudioservices.com/")$valid)
+  expect_true(validateServerUrl("colorado.posit.co/rsc")$valid)
+})
+
 test_that("validateConnectUrl() returns expected return for some known endpoints", {
   expect_false(validateConnectUrl("https://posit.cloud")$valid)
   expect_false(validateConnectUrl("https://shinyapps.io")$valid)
