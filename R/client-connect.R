@@ -45,7 +45,7 @@ connectClient <- function(service, authInfo) {
         c("account_id", names(filters)),
         c(accountId, unname(filters))
       ), collapse = "&")
-      listRequest(service, authInfo, path, query, "applications")
+      listApplicationsRequest(service, authInfo, path, query, "applications")
     },
 
     createApplication = function(name, title, template, accountId, appMode) {

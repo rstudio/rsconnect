@@ -12,6 +12,8 @@ clientForAccount <- function(account) {
   }
 }
 
+# Appropriate when the list API includes "count" and "total" fields in the response JSON and the API
+# supports pagination with the query arguments count=PAGE_SIZE&offset=STARTING_POINT.
 listRequest <- function(service, authInfo, path, query, listName, page = 100,
                        max = NULL) {
 
@@ -30,6 +32,46 @@ listRequest <- function(service, authInfo, path, query, listName, page = 100,
 
     # update the offset
     offset <- offset + response$count
+
+    # get all results if no max was specified
+    if (is.null(max)) {
+      max <- response$total
+    }
+
+    # exit if we've got them all
+    if (length(results) >= response$total || length(results) >= max)
+      break
+  }
+
+  return(results)
+}
+
+# /__api__/applications response with { applications: [], count: M, total: N, continuation: "CONTINUATION" }
+# To paginate, use the query arguments cont=CONTINUATION&start=START&count=MAX
+listApplicationsRequest <- function(service, authInfo, path, query, listName, page = 100,
+                       max = NULL) {
+
+  # accumulate multiple pages of results
+  start <- 0
+  cont <- ""
+  results <- list()
+
+  while (TRUE) {
+
+    # add query params
+    queryWithList <- paste(query,
+                           "&count=", page,
+                           "&start=", start,
+                           "&cont=", cont,
+                           sep = "")
+
+    # make request and append the results
+    response <- GET(service, authInfo, path, queryWithList)
+    results <- append(results, response[[listName]])
+
+    # update the starting point for the next request
+    start <- start + response$count
+    cont <- response$continuation
 
     # get all results if no max was specified
     if (is.null(max)) {
