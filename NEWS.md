@@ -167,6 +167,9 @@
 
 * `applications()` now returns the application title, if available (#484).
 
+* `applications()` processes multiple pages of results from a Connect server
+  (#860).
+
 * `addConnectServer()` is slightly more robust to incorrect specification 
   (#603).
 
