@@ -21,8 +21,7 @@ listRequest <- function(service, authInfo, path, query, listName, page = 100,
   offset <- 0
   results <- list()
 
-  while (TRUE) {
-
+  repeat {
     # add query params
     queryWithList <- paste(query, "&count=", page, "&offset=", offset, sep = "")
 
@@ -56,8 +55,7 @@ listApplicationsRequest <- function(service, authInfo, path, query, listName, pa
   cont <- ""
   results <- list()
 
-  while (TRUE) {
-
+  repeat {
     # add query params
     queryWithList <- paste(query,
                            "&count=", page,
