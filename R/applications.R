@@ -153,7 +153,7 @@ applicationTask <- function(taskDef, appName, accountDetails, quiet) {
 
   # resolve target account and application
   application <- resolveApplication(accountDetails, appName)
-  
+
   # get status function and display initial status
   displayStatus <- displayStatus(quiet)
   displayStatus(paste(taskDef$beginStatus, "...\n", sep = ""))
