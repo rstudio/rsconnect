@@ -23,6 +23,8 @@
 #' @export
 terminateApp <- function(appName, account = NULL, server = NULL,
                          quiet = FALSE) {
+  accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # define terminate task
   taskDef <- list()
@@ -33,5 +35,5 @@ terminateApp <- function(appName, account = NULL, server = NULL,
   }
 
   # perform it
-  applicationTask(taskDef, appName, account, server = server, quiet)
+  applicationTask(taskDef, appName, accountDetails, quiet)
 }

@@ -20,6 +20,8 @@
 #' @note This function works only for ShinyApps servers.
 #' @export
 restartApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
+  accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # define deploy task
   taskDef <- list()
@@ -30,5 +32,5 @@ restartApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
   }
 
   # perform it
-  applicationTask(taskDef, appName, account, server, quiet)
+  applicationTask(taskDef, appName, accountDetails, quiet)
 }

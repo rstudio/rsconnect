@@ -194,6 +194,12 @@
 * `accountInfo()` and `removeAccount()` no longer require `account` be 
   supplied (#666).
 
+* Functions that should only interact with shinyapps.io enforce the server
+  type. Updated `addAuthorizedUser()`, `removeAuthorizedUser()`,
+  `showUsers()`, `showInvited()`, `resendInvitation()`, `configureApp()`,
+  `setProperty()`, `unsetProperty()`, `purgeApp()`, `restartApp()`,
+  `terminateApp()`, `showUsage()`, and `showMetrics()` (#863, #864).
+
 * When needed packages are not installed, and you're in an interactive
   environment, rsconnect will now prompt you to install them (#665).
 

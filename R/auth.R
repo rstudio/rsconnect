@@ -48,6 +48,7 @@ addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
                               emailMessage = NULL) {
 
   accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # resolve application
   if (is.null(appName))
@@ -81,6 +82,7 @@ removeAuthorizedUser <- function(user, appDir = getwd(), appName = NULL,
                                  account = NULL, server = NULL) {
 
   accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # resolve application
   if (is.null(appName))
@@ -131,10 +133,7 @@ showUsers <- function(appDir = getwd(), appName = NULL, account = NULL,
                       server = NULL) {
 
   accountDetails <- accountInfo(account, server)
-
-  if (!isCloudServer(accountDetails$server)) {
-    stop("This method only works for ShinyApps or posit.cloud servers.")
-  }
+  checkShinyappsServer(accountDetails$server)
 
   # resolve application
   if (is.null(appName))
@@ -177,6 +176,7 @@ showInvited <- function(appDir = getwd(), appName = NULL, account = NULL,
                         server = NULL) {
 
   accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # resolve application
   if (is.null(appName))
@@ -220,6 +220,7 @@ resendInvitation <- function(invite, regenerate = FALSE,
                              account = NULL, server = NULL) {
 
   accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # get invitations
   invited <- showInvited(appDir, appName, account, server)
