@@ -361,7 +361,7 @@ deployApp <- function(appDir = getwd(),
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
-    application <- taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
+    taskStart(quiet, "Looking up application with id {.val {target$appId}}...")
     application <- tryCatch(
       {
         application <- client$getApplication(target$appId, target$version)

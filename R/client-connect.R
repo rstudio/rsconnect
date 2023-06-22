@@ -59,6 +59,7 @@ connectClient <- function(service, authInfo) {
       application <- POST_JSON(service, authInfo, "/applications", details)
       list(
         id = application$id,
+        guid = application$guid,
         url = application$url
       )
     },
