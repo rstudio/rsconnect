@@ -6,7 +6,7 @@ validateServerUrl <- function(url, certificate = NULL) {
   res <- validateConnectUrl(url, certificate)
 
   if (res$valid)  {
-    name <- findAndRegisterLocalServer(url)
+    name <- findAndRegisterLocalServer(res$url)
     c(list(valid = TRUE, url = res$url, name = name), res$response)
   } else {
     res
