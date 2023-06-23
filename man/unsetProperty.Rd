@@ -9,6 +9,7 @@ unsetProperty(
   appPath = getwd(),
   appName = NULL,
   account = NULL,
+  server = NULL,
   force = FALSE
 )
 }
@@ -20,8 +21,11 @@ working directory.}
 
 \item{appName}{Name of application}
 
-\item{account}{Account name. If a single account is registered on the system
-then this parameter can be omitted.}
+\item{account, server}{Uniquely identify a remote server with either your
+user \code{account}, the \code{server} name, or both. If neither are supplied, and
+there are multiple options, you'll be prompted to pick one.
+
+Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
 \item{force}{Forcibly unset the property}
 }
