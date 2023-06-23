@@ -51,7 +51,7 @@ You can also connect from any R session by running a little code:
   page](https://www.shinyapps.io/admin/#/tokens) and click “Add Token”,
   then follow the instructions to copy and paste the appropriate call to
   `setAccountInfo()`. Learn more in the [Getting Started
-  Guide](https://www.shinyapps.io/admin/#/tokens).
+  Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
 - For Posit Connect, first use `addServer()` to register your server
   with rsconnect, then call either `connectUser()` or
