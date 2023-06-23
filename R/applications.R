@@ -149,15 +149,14 @@ stopWithApplicationNotFound <- function(appName) {
              sep = ""), call. = FALSE)
 }
 
-applicationTask <- function(taskDef, appName, account, server, quiet) {
+applicationTask <- function(taskDef, appName, accountDetails, quiet) {
+
+  # resolve target account and application
+  application <- resolveApplication(accountDetails, appName)
 
   # get status function and display initial status
   displayStatus <- displayStatus(quiet)
   displayStatus(paste(taskDef$beginStatus, "...\n", sep = ""))
-
-  # resolve target account and application
-  accountDetails <- accountInfo(account, server)
-  application <- resolveApplication(accountDetails, appName)
 
   # perform the action
   client <- clientForAccount(accountDetails)

@@ -64,8 +64,20 @@ isCloudServer <- function(server) {
   server %in% cloudServers
 }
 
+checkCloudServer <- function(server, call = caller_env()) {
+  if (!isCloudServer(server)) {
+    cli::cli_abort("`server` must be shinyapps.io or posit.cloud", call = call)
+  }
+}
+
 isShinyappsServer <- function(server) {
   identical(server, "shinyapps.io")
+}
+
+checkShinyappsServer <- function(server, call = caller_env()) {
+  if (!isShinyappsServer(server)) {
+    cli::cli_abort("`server` must be shinyapps.io", call = call)
+  }
 }
 
 isRPubs <- function(server) {

@@ -126,6 +126,27 @@ test_that("All hosted product names are identified as cloud", {
   expect_false(isCloudServer("connect.internal"))
 })
 
+test_that("All hosted product names are identified as cloud", {
+  checkCloudServer("shinyapps.io")
+  checkCloudServer("rstudio.cloud")
+  checkCloudServer("posit.cloud")
+  expect_error(checkCloudServer("connect.internal"))
+})
+
+test_that("only shinyapps.io is identified as shinyapps.io", {
+  expect_true(isShinyappsServer("shinyapps.io"))
+  expect_false(isShinyappsServer("rstudio.cloud"))
+  expect_false(isShinyappsServer("posit.cloud"))
+  expect_false(isShinyappsServer("connect.internal"))
+})
+
+test_that("only shinyapps.io is identified as shinyapps.io", {
+  checkShinyappsServer("shinyapps.io")
+  expect_error(checkShinyappsServer("rstudio.cloud"))
+  expect_error(checkShinyappsServer("posit.cloud"))
+  expect_error(checkShinyappsServer("connect.internal"))
+})
+
 test_that("predefined servers includes cloud and shinyapps", {
   local_temp_config()
 

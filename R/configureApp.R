@@ -24,8 +24,9 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
                          redeploy = TRUE, size = NULL,
                          instances = NULL, logLevel = c("normal", "quiet", "verbose")) {
 
-  # resolve target account and application
   accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
+
   application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(identical(logLevel, "quiet"))
@@ -78,8 +79,7 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 #' @param appName Name of application
 #' @param appPath Directory or file that was deployed. Defaults to current
 #'   working directory.
-#' @param account Account name. If a single account is registered on the system
-#'   then this parameter can be omitted.
+#' @inheritParams deployApp
 #' @param force Forcibly set the property
 #'
 #' @note This function only works for ShinyApps servers.
@@ -96,11 +96,13 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 #' }
 #' @export
 setProperty <- function(propertyName, propertyValue, appPath = getwd(),
-                        appName = NULL, account = NULL, force = FALSE) {
+                        appName = NULL, account = NULL, server = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- findDeployment(appPath, appName, account)
-  accountDetails <- accountInfo(target$account)
+  target <- findDeployment(appPath, appName, account, server)
+  accountDetails <- accountInfo(target$account, target$server)
+  checkShinyappsServer(accountDetails$server)
+
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
   if (is.null(application))
@@ -122,8 +124,7 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 #' @param appName Name of application
 #' @param appPath Directory or file that was deployed. Defaults to current
 #'   working directory.
-#' @param account Account name. If a single account is registered on the system
-#'   then this parameter can be omitted.
+#' @inheritParams deployApp
 #' @param force Forcibly unset the property
 #'
 #' @note This function only works for ShinyApps servers.
@@ -137,11 +138,13 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 #' }
 #' @export
 unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
-                          account = NULL, force = FALSE) {
+                          account = NULL, server = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- findDeployment(appPath, appName, account)
-  accountDetails <- accountInfo(target$account)
+  target <- findDeployment(appPath, appName, account, server)
+  accountDetails <- accountInfo(target$account, target$server)
+  checkShinyappsServer(accountDetails$server)
+
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountInfo, target$appName)
   if (is.null(application))

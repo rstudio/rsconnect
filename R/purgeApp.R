@@ -23,6 +23,8 @@
 #' @export
 purgeApp <- function(appName, account = NULL, server = NULL,
                      quiet = FALSE) {
+  accountDetails <- accountInfo(account, server)
+  checkShinyappsServer(accountDetails$server)
 
   # define purge task
   taskDef <- list()
@@ -33,5 +35,5 @@ purgeApp <- function(appName, account = NULL, server = NULL,
   }
 
   # perform it
-  applicationTask(taskDef, appName, account, server = server, quiet)
+  applicationTask(taskDef, appName, accountDetails, quiet)
 }
