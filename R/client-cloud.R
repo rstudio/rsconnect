@@ -76,7 +76,34 @@ cloudClient <- function(service, authInfo) {
     },
 
     getApplication = function(outputOrApplicationId, deploymentRecordVersion) {
-      if (is.na(deploymentRecordVersion)) {
+      # The IDE doesn't know whether the id is for a content or an application, so we
+      # support both.
+      if (deploymentRecordVersion == "unknown") {
+        applicationAndOutput <- tryCatch(
+          {
+            path <- paste0("/outputs/", outputOrApplicationId)
+            output <- GET(service, authInfo, path)
+
+            path <- paste0("/applications/", output$source_id)
+            application <- GET(service, authInfo, path)
+
+            list(application = application, output = output)
+          },
+          rsconnect_http_404 = function(err) {
+            path <- paste0("/applications/", outputOrApplicationId)
+            application <- GET(service, authInfo, path)
+
+            output_id <- application$output_id %||% application$content_id
+
+            path <- paste0("/outputs/", output_id)
+            output <- GET(service, authInfo, path)
+
+            list(application = application, output = output)
+          }
+        )
+        application <- applicationAndOutput$application
+        output <- applicationAndOutput$output
+      } else if (is.na(deploymentRecordVersion)) {
         # In pre-versioned dcf files, outputOrApplicationId is the id of the application.
         # TODO: consider removing support for this case a year after the release of 1.0.0
         path <- paste0("/applications/", outputOrApplicationId)
