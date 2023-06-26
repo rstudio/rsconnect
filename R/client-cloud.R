@@ -89,17 +89,7 @@ cloudClient <- function(service, authInfo) {
         path <- paste0("/outputs/", output_id)
         output <- GET(service, authInfo, path)
       } else if (deploymentRecordVersion == "unknown") {
-        applicationAndOutput <- tryCatch(
-          {
-            path <- paste0("/outputs/", outputOrApplicationId)
-            output <- GET(service, authInfo, path)
-
-            path <- paste0("/applications/", output$source_id)
-            application <- GET(service, authInfo, path)
-
-            list(application = application, output = output)
-          },
-          rsconnect_http_404 = function(err) {
+        handleError <- function(err) {
             path <- paste0("/applications/", outputOrApplicationId)
             application <- GET(service, authInfo, path)
 
@@ -110,6 +100,18 @@ cloudClient <- function(service, authInfo) {
 
             list(application = application, output = output)
           }
+        applicationAndOutput <- tryCatch(
+          {
+            path <- paste0("/outputs/", outputOrApplicationId)
+            output <- GET(service, authInfo, path)
+
+            path <- paste0("/applications/", output$source_id)
+            application <- GET(service, authInfo, path)
+
+            list(application = application, output = output)
+          },
+          rsconnect_http_403 = handleError,
+          rsconnect_http_404 = handleError
         )
         application <- applicationAndOutput$application
         output <- applicationAndOutput$output
