@@ -18,7 +18,7 @@ validateServerUrl <- function(url, certificate = NULL) {
 # registered server is returned.
 findAndRegisterLocalServer <- function(url) {
   # helper to find a server given its URL
-  findServerByUrl <- function(name) {
+  findServerByUrl <- function(url) {
     allServers <- rsconnect::servers(local = TRUE)
     match <- allServers[allServers$url == url, , drop = FALSE]
     if (nrow(match) == 0)
@@ -119,7 +119,8 @@ getUserFromRawToken <- function(serverUrl,
 
   # Look up server name from url
   servers <- servers()
-  server <- servers$name[servers$url == serverUrl]
+  matches <- servers$url == serverUrl
+  server <- servers$name[which(matches)[[1]]]
 
   waitForAuthedUser(server, token = token, private_key = privateKey)
 }
