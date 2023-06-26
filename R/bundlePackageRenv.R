@@ -3,7 +3,10 @@ snapshotRenvDependencies <- function(bundleDir,
                                      verbose = FALSE) {
   recordExtraDependencies(bundleDir, extraPackages)
 
-  old <- options(renv.verbose = FALSE, pkgType = "source")
+  old <- options(
+    renv.verbose = FALSE,
+    renv.consent = TRUE,
+    pkgType = "source")
   defer(options(old))
 
   renv::snapshot(bundleDir, prompt = FALSE)
