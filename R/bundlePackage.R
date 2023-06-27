@@ -93,3 +93,7 @@ availablePackages <- function(repos) {
     filters = getOption("available_packages_filters", default = "duplicates")
   )
 }
+
+package_record <- function(name, lib_dir = NULL) {
+  readLines(system.file("DESCRIPTION", package = name, lib.loc = lib_dir))
+}
