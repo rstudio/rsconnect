@@ -48,7 +48,7 @@ current_user_service <- function() {
       json_app <- webfakes::new_app()
       json_app$use(webfakes::mw_json())
       json_app$get("/users/current", function(req, res) {
-        res$set_status(200L)$send_json(list(username=jsonlite::unbox("susan")))
+        res$set_status(200L)$send_json(list(username = jsonlite::unbox("susan")))
       })
       app <- webfakes::new_app_process(json_app)
     }
