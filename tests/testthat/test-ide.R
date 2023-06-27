@@ -39,3 +39,50 @@ test_that("getAppById() fails where expected", {
     getAppById("123", "robert", "unknown", "https://example.com")
   })
 })
+
+current_user_service <- function() {
+  app <- env_cache(
+    cache,
+    "current_user_app",
+    {
+      json_app <- webfakes::new_app()
+      json_app$use(webfakes::mw_json())
+      json_app$get("/users/current", function(req, res) {
+        res$set_status(200L)$send_json(list(username = jsonlite::unbox("susan")))
+      })
+      app <- webfakes::new_app_process(json_app)
+    }
+  )
+  parseHttpUrl(app$url())
+}
+
+test_that("getUserFromRawToken having a single matching server", {
+  local_temp_config()
+
+  service <- current_user_service()
+  url <- buildHttpUrl(service)
+
+  addTestServer("test", url = url)
+
+  token <- generateToken()
+  claimUrl <- url
+
+  user <- getUserFromRawToken(claimUrl, token$token, token$private_key)
+  expect_equal(user$username, "susan")
+})
+
+test_that("getUserFromRawToken having multiple matching servers", {
+  local_temp_config()
+
+  service <- current_user_service()
+  url <- buildHttpUrl(service)
+
+  addTestServer("test", url = url)
+  addTestServer("test2", url = url)
+
+  token <- generateToken()
+  claimUrl <- url
+
+  user <- getUserFromRawToken(claimUrl, token$token, token$private_key)
+  expect_equal(user$username, "susan")
+})
