@@ -135,9 +135,16 @@ test_that("Get application", {
         end <- attr(match, "match.length")[2] + match[2]
         output_id <- strtoi(substr(methodAndPath, match[2], end))
 
+        if (output_id != 5) {
+          cli::cli_abort(
+            "404 error",
+            class = "rsconnect_http_404"
+          )
+        }
+
         list(
-          "id" = output_id,
-          "source_id" = 1,
+          "id" = 5,
+          "source_id" = 10,
           "url" = "http://fake-url.test.me/",
           "state" = "active"
         )
@@ -147,6 +154,14 @@ test_that("Get application", {
       content = function(methodAndPath, match, ...) {
         end <- attr(match, "match.length")[2] + match[2]
         application_id <- strtoi(substr(methodAndPath, match[2], end))
+
+        if (application_id != 10) {
+          cli::cli_abort(
+            "404 error",
+            class = "rsconnect_http_404"
+          )
+        }
+
 
         list(
           "id" = application_id,
@@ -167,15 +182,23 @@ test_that("Get application", {
   client <- cloudClient(fakeService, NULL)
 
   app <- client$getApplication("10", NA)
-
   expect_equal(app$id, 5)
   expect_equal(app$application_id, 10)
   expect_equal(app$url, "http://fake-url.test.me/")
 
-  app <- client$getApplication("5", deploymentRecordVersion)
-
+  app <- client$getApplication("5", 1)
   expect_equal(app$id, 5)
-  expect_equal(app$application_id, 1)
+  expect_equal(app$application_id, 10)
+  expect_equal(app$url, "http://fake-url.test.me/")
+
+  app <- client$getApplication("5", "unknown")
+  expect_equal(app$id, 5)
+  expect_equal(app$application_id, 10)
+  expect_equal(app$url, "http://fake-url.test.me/")
+
+  app <- client$getApplication("10", "unknown")
+  expect_equal(app$id, 5)
+  expect_equal(app$application_id, 10)
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
