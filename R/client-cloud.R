@@ -100,7 +100,7 @@ cloudClient <- function(service, authInfo) {
 
             list(application = application, output = output)
           }
-        applicationAndOutput <- tryCatch(
+        tryCatch(
           {
             path <- paste0("/outputs/", outputOrApplicationId)
             output <- GET(service, authInfo, path)
@@ -113,8 +113,6 @@ cloudClient <- function(service, authInfo) {
           rsconnect_http_403 = handleError,
           rsconnect_http_404 = handleError
         )
-        application <- applicationAndOutput$application
-        output <- applicationAndOutput$output
       } else {
         # from dcf version >= 1, outputOrApplicationId is the id of the output.
         path <- paste0("/outputs/", outputOrApplicationId)
