@@ -90,16 +90,16 @@ cloudClient <- function(service, authInfo) {
         output <- GET(service, authInfo, path)
       } else if (deploymentRecordVersion == "unknown") {
         handleError <- function(err) {
-            path <- paste0("/applications/", outputOrApplicationId)
-            application <- GET(service, authInfo, path)
+          path <- paste0("/applications/", outputOrApplicationId)
+          application <- GET(service, authInfo, path)
 
-            output_id <- application$output_id %||% application$content_id
+          output_id <- application$output_id %||% application$content_id
 
-            path <- paste0("/outputs/", output_id)
-            output <- GET(service, authInfo, path)
+          path <- paste0("/outputs/", output_id)
+          output <- GET(service, authInfo, path)
 
-            list(application = application, output = output)
-          }
+          list(application = application, output = output)
+        }
         applicationAndOutput <- tryCatch(
           {
             path <- paste0("/outputs/", outputOrApplicationId)
