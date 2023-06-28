@@ -6,6 +6,14 @@ test_that("non-R apps don't have packages", {
   expect_equal(out, data.frame())
 })
 
+test_that("manifest has correct data types", {
+  app <- local_temp_app(list("index.Rmd" = ""))
+
+  deps <- snapshotRenvDependencies(app)
+  expect_type(deps$description, "list")
+  expect_type(deps$description[[1]], "character")
+})
+
 test_that("recommended packages are snapshotted", {
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
@@ -55,6 +63,8 @@ test_that("gets DESCRIPTION from renv library", {
 
   deps <- parseRenvDependencies(app_dir)
   expect_setequal(deps$Package, c("foreign", "withr"))
+  expect_type(deps$description, "list")
+  expect_type(deps$description[[1]], "character")
 })
 
 # standardizeRenvPackage -----------------------------------------
