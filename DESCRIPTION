@@ -45,13 +45,14 @@ Suggests:
     reticulate,
     rmarkdown (>= 1.1),
     shiny,
-    testthat (>= 3.1.8),
+    testthat (>= 3.1.9),
     webfakes,
     withr
 VignetteBuilder: 
     knitr
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
+Config/testthat/parallel: true
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
