@@ -321,8 +321,7 @@ deployApp <- function(appDir = getwd(),
 
   # Run checks prior to first saveDeployment() to avoid errors that will always
   # prevent a successful upload from generating a partial deployment
-  isCloudServer <- isCloudServer(target$server)
-  if (!isCloudServer && identical(upload, FALSE)) {
+  if (!isCloudServer(target$server) && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
@@ -416,7 +415,6 @@ deployApp <- function(appDir = getwd(),
       quiet = quiet,
       verbose = verbose,
       pythonConfig = pythonConfig,
-      isCloudServer = isCloudServer,
       image = image
     )
     size <- format(file_size(bundlePath), big.mark = ",")
@@ -582,7 +580,6 @@ bundleApp <- function(appName,
                       verbose = FALSE,
                       quiet = FALSE,
                       pythonConfig = NULL,
-                      isCloudServer = FALSE,
                       image = NULL) {
   logger <- verboseLogger(verbose)
 
@@ -608,7 +605,6 @@ bundleApp <- function(appName,
     users = users,
     pythonConfig = pythonConfig,
     retainPackratDirectory = TRUE,
-    isCloudServer = isCloudServer,
     image = image,
     verbose = verbose,
     quiet = quiet
