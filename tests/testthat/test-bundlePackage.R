@@ -2,6 +2,7 @@ test_that("can snapshot deps with renv", {
   app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
   expect_snapshot(pkgs <- bundlePackages(app_dir))
   expect_named(pkgs, "MASS")
+  expect_named(pkgs$MASS, c("Source", "Repository", "description"))
 
   # No renv lockfile left behind
   expect_equal(list.files(app_dir), "foo.R")
@@ -12,6 +13,7 @@ test_that("can snapshot deps with packrat", {
   app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
   expect_snapshot(pkgs <- bundlePackages(app_dir))
   expect_named(pkgs, "MASS")
+  expect_named(pkgs$MASS, c("Source", "Repository", "description"))
 
   # No packrat lockfile left behind
   expect_equal(list.files(app_dir), "foo.R")
@@ -24,6 +26,7 @@ test_that("can capture deps from renv lockfile", {
   renv::snapshot(app_dir, prompt = FALSE)
   expect_snapshot(pkgs <- bundlePackages(app_dir))
   expect_named(pkgs, "foreign")
+  expect_named(pkgs$foreign, c("Source", "Repository", "description"))
 
   # No renv lockfile or directory left behind
   expect_equal(list.files(app_dir), "foo.R")

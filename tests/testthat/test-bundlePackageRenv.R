@@ -11,7 +11,7 @@ test_that("manifest has correct data types", {
 
   deps <- snapshotRenvDependencies(app)
   expect_type(deps$description, "list")
-  expect_type(deps$description[[1]], "character")
+  expect_type(deps$description[[1]], "list")
 })
 
 test_that("recommended packages are snapshotted", {
@@ -64,7 +64,7 @@ test_that("gets DESCRIPTION from renv library", {
   deps <- parseRenvDependencies(app_dir)
   expect_setequal(deps$Package, c("foreign", "withr"))
   expect_type(deps$description, "list")
-  expect_type(deps$description[[1]], "character")
+  expect_type(deps$description[[1]], "list")
 })
 
 # standardizeRenvPackage -----------------------------------------

@@ -20,12 +20,12 @@ bundlePackages <- function(bundleDir,
   packages_list <- lapply(seq_len(nrow(deps)), function(i) {
     out <- as.list(deps[i, , drop = FALSE])
     out$description <- out$description[[1]]
+    out$Package <- NULL
+    out$Version <- NULL
     out
   })
   names(packages_list) <- deps$Package
 
-  packages_list$Package <- NULL
-  packages_list$Version <- NULL
   packages_list
 }
 
@@ -98,5 +98,6 @@ availablePackages <- function(repos) {
 }
 
 package_record <- function(name, lib_dir = NULL) {
-  readLines(system.file("DESCRIPTION", package = name, lib.loc = lib_dir))
+  path <- system.file("DESCRIPTION", package = name, lib.loc = lib_dir)
+  as.list(as.data.frame(read.dcf(path)))
 }
