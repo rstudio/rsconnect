@@ -46,9 +46,10 @@ local_temp_config <- function(env = caller_env()) {
   withr::local_envvar(R_USER_CONFIG_DIR = path, .local_envir = env)
 }
 
-local_temp_app <- function(files = list(), env = caller_env()) {
-  dir <- withr::local_tempdir(.local_envir = env)
+local_temp_app <- function(..., .env = caller_env()) {
+  dir <- withr::local_tempdir(.local_envir = .env)
 
+  files <- list(...)
   for (name in names(files)) {
     content <- files[[name]]
     writeLines(content, file.path(dir, name))

@@ -1,7 +1,7 @@
 # errors if no deployments
 
     Code
-      findDeployment(app)
+      findDeployment(dir)
     Condition
       Error:
       ! Couldn't find any deployments matching supplied criteria.
@@ -9,7 +9,7 @@
 # disambiguates multiple deployments
 
     Code
-      findDeployment(app)
+      findDeployment(dir)
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -21,7 +21,7 @@
 ---
 
     Code
-      dep <- findDeployment(app)
+      dep <- findDeployment(dir)
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?

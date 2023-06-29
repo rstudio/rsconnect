@@ -48,7 +48,7 @@ test_that("can infer env from existing directory", {
 test_that("doesn't override existing requirements.txt by default", {
   skip_on_cran()
 
-  dir <- local_temp_app(list(requirements.txt = "pip"))
+  dir <- local_temp_app(requirements.txt = "pip")
   env <- inferPythonEnv(dir, pythonPathOrSkip())
   expect_equal(env$package_manager$contents, "pip\n")
 
@@ -60,7 +60,7 @@ test_that("throws error if environment.py fails", {
   skip_on_cran()
   skip_on_os("windows")
 
-  dir <- local_temp_app(list(requirements.txt = "\\"))
+  dir <- local_temp_app(requirements.txt = "\\")
   Sys.chmod(file.path(dir, "requirements.txt"), "000")
 
   withr::local_dir(dir)

@@ -1,7 +1,7 @@
 # uninstalled packages error
 
     Code
-      snapshotPackratDependencies(app)
+      snapshotPackratDependencies(dir)
     Condition
       Error in `addPackratSnapshot()`:
       ! Failed to snapshot dependencies

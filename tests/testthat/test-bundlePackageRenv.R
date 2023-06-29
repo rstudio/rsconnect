@@ -1,31 +1,31 @@
 # snapshotRenvDependencies() ----------------------------------------------
 
 test_that("non-R apps don't have packages", {
-  app_dir <- local_temp_app(list(index.html = ""))
-  out <- snapshotRenvDependencies(app_dir)
+  dir <- local_temp_app(index.html = "")
+  out <- snapshotRenvDependencies(dir)
   expect_equal(out, data.frame())
 })
 
 test_that("recommended packages are snapshotted", {
-  app <- local_temp_app(list("index.Rmd" = c(
+  dir <- local_temp_app(index.Rmd = c(
     "```{r}",
     "library(MASS)",
     "```"
-  )))
-  deps <- snapshotRenvDependencies(app)
+  ))
+  deps <- snapshotRenvDependencies(dir)
   expect_true("MASS" %in% deps$Package)
 })
 
 test_that("works with BioC packages", {
-  app <- local_temp_app(list("index.R" = c(
+  dir <- local_temp_app(index.R = c(
     "library(Biobase)"
-  )))
+  ))
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
     BioC = "https://bioconductor.org/packages/3.16/bioc"
   ))
   expect_no_condition(
-    deps <- snapshotRenvDependencies(app),
+    deps <- snapshotRenvDependencies(dir),
     class = "rsconnect_biocRepos"
   )
   Biobase <- deps[deps$Package == "Biobase", ]
@@ -36,7 +36,7 @@ test_that("works with BioC packages", {
     CRAN = "https://cran.rstudio.com"
   ))
   expect_condition(
-    deps <- snapshotRenvDependencies(app),
+    deps <- snapshotRenvDependencies(dir),
     class = "rsconnect_biocRepos"
   )
 
@@ -50,10 +50,10 @@ test_that("works with BioC packages", {
 test_that("gets DESCRIPTION from renv library", {
   withr::local_options(renv.verbose = FALSE)
 
-  app_dir <- local_temp_app(list("foo.R" = "library(withr); library(foreign)"))
-  renv::snapshot(app_dir, prompt = FALSE)
+  dir <- local_temp_app(foo.R = "library(withr); library(foreign)")
+  renv::snapshot(dir, prompt = FALSE)
 
-  deps <- parseRenvDependencies(app_dir)
+  deps <- parseRenvDependencies(dir)
   expect_setequal(deps$Package, c("foreign", "withr"))
 })
 

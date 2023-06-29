@@ -1,27 +1,27 @@
 test_that("errors if no deployments", {
-  app <- local_temp_app()
-  expect_snapshot(findDeployment(app), error = TRUE)
+  dir <- local_temp_app()
+  expect_snapshot(findDeployment(dir), error = TRUE)
 })
 
 test_that("finds single deployment", {
-  app <- local_temp_app()
+  dir <- local_temp_app()
   addTestServer()
   addTestAccount()
-  addTestDeployment(app)
+  addTestDeployment(dir)
 
-  dep <- findDeployment(app)
+  dep <- findDeployment(dir)
   expect_equal(dep$name, "test")
 })
 
 test_that("disambiguates multiple deployments", {
-  app <- local_temp_app()
+  dir <- local_temp_app()
   addTestServer()
   addTestAccount()
-  addTestDeployment(app, "test1")
-  addTestDeployment(app, "test2")
-  expect_snapshot(findDeployment(app), error = TRUE)
+  addTestDeployment(dir, "test1")
+  addTestDeployment(dir, "test2")
+  expect_snapshot(findDeployment(dir), error = TRUE)
 
   simulate_user_input(2)
-  expect_snapshot(dep <- findDeployment(app))
+  expect_snapshot(dep <- findDeployment(dir))
   expect_equal(dep$name, "test2")
 })

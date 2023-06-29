@@ -2,7 +2,7 @@
 # listDeploymentFiles ------------------------------------------------------
 
 test_that("can read all files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  dir <- local_temp_app(a.R = "", b.R = "")
   expect_equal(listDeploymentFiles(dir), c("a.R", "b.R"))
   expect_equal(listDeploymentFiles(dir, NULL, NULL), c("a.R", "b.R"))
 
@@ -11,7 +11,7 @@ test_that("can read all files from directory", {
 })
 
 test_that("can read selected files from directory", {
-  dir <- local_temp_app(list("a.R" = "", "b.R" = ""))
+  dir <- local_temp_app(a.R = "", b.R = "")
   expect_equal(listDeploymentFiles(dir, "b.R"), "b.R")
   expect_snapshot(out <- listDeploymentFiles(dir, c("b.R", "c.R")))
   expect_equal(out, "b.R")
@@ -19,30 +19,30 @@ test_that("can read selected files from directory", {
 })
 
 test_that("can read selected files from manifest", {
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = "b.R"
-  ))
+  dir <- local_temp_app(
+    a.R = "",
+    b.R = "",
+    manifest = "b.R"
+  )
   expect_equal(
     listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
     "b.R"
   )
 
-  dir <- local_temp_app(list(
-    "a.R" = "",
-    "b.R" = "",
-    "manifest" = c("b.R", "c.R")
-  ))
+  dir <- local_temp_app(
+    a.R = "",
+    b.R = "",
+    manifest = c("b.R", "c.R")
+  )
   expect_snapshot(
     out <- listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
   )
   expect_equal(out, "b.R")
 
   # errors if no matching files
-  dir <- local_temp_app(list(
-    "manifest" = ""
-  ))
+  dir <- local_temp_app(
+    manifest = ""
+  )
   expect_snapshot(
     listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
     error = TRUE
@@ -62,7 +62,7 @@ test_that("checks its inputs", {
 # listBundleFiles ---------------------------------------------------------
 
 test_that("bundle directories are recursively enumerated", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
 
   # tree that resembles the case from https://github.com/rstudio/rsconnect/issues/464
   files <- c(
@@ -88,14 +88,17 @@ test_that("bundle directories are recursively enumerated", {
 })
 
 test_that("ignores RStudio files", {
-  dir <- withr::local_tempdir()
-  file.create(file.path(dir, c("test.Rproj", ".Rproj.user", "rsconnect")))
+  dir <- local_temp_app(
+    test.Rproj = "",
+    .Rproj.user = "",
+    rsconnect = ""
+  )
 
   expect_equal(bundleFiles(dir), character())
 })
 
 test_that("ignores knitr cache directories", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, c("foo_cache", "bar_cache")))
   file.create(file.path(dir, c("foo_cache", "bar_cache"), "contents"))
   file.create(file.path(dir, c("foo.Rmd")))
@@ -104,7 +107,7 @@ test_that("ignores knitr cache directories", {
 })
 
 test_that("ignores files anywhere in path", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, "a/b/c"))
   file.create(file.path(dir, c("x", "a/b/.gitignore", "a/b/c/.DS_Store")))
 
@@ -133,7 +136,7 @@ test_that("ignores temporary files", {
 })
 
 test_that("ignores python virtual envs", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, "test", "bin"))
   file.create(file.path(dir, "test", "bin", "python"))
   dirCreate(file.path(dir, "venv"))
@@ -145,7 +148,7 @@ test_that("ignores python virtual envs", {
 # explodeFiles ------------------------------------------------------------
 
 test_that("returns relative paths", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, "x"))
   file.create(file.path(dir, "x", c("a", "b", "c")))
 
@@ -153,7 +156,7 @@ test_that("returns relative paths", {
 })
 
 test_that("drops drops non-existent files with warning", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   file.create(file.path(dir, c("a", "b", "c")))
 
   expect_snapshot(out <- explodeFiles(dir, c("a", "d")))
@@ -161,7 +164,7 @@ test_that("drops drops non-existent files with warning", {
 })
 
 test_that("expands files and directory", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, "x"))
   file.create(file.path(dir, "x", c("a", "b")))
   file.create(file.path(dir, "c"))
@@ -170,7 +173,7 @@ test_that("expands files and directory", {
 })
 
 test_that("can include nested files/directories", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, "x", "y"))
   file.create(file.path(dir, "x", c("a", "b", "c")))
   file.create(file.path(dir, "x", "y", c("d", "e")))
@@ -181,7 +184,7 @@ test_that("can include nested files/directories", {
 })
 
 test_that("doesn't ignore user supplied files", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, "x", "y"))
   file.create(file.path(dir, "x", "packrat"))
   file.create(file.path(dir, "x", "y", "packrat"))
@@ -192,7 +195,7 @@ test_that("doesn't ignore user supplied files", {
 # enforceBundleLimits -----------------------------------------------------
 
 test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   dirCreate(file.path(dir, c("a", "b")))
   file.create(file.path(dir, "a", letters))
   file.create(file.path(dir, "b", letters))
@@ -205,7 +208,7 @@ test_that("explodeFiles() and bundleFiles() both eagerly enforce limits", {
 })
 
 test_that("generate nicely formatted messages", {
-  dir <- withr::local_tempdir()
+  dir <- local_temp_app()
   file.create(file.path(dir, c("a", "b")))
   writeLines(letters, file.path(dir, "c"))
 
@@ -234,7 +237,7 @@ test_that("generate nicely formatted messages", {
 test_that("detectLongNames produces informative warning if needed", {
   skip_on_os("windows")
 
-  dir <- local_temp_app(c("a.r" = "", "b.r" = "", "c.r" = ""))
+  dir <- local_temp_app(a.r = "", b.r = "", c.r = "")
   expect_snapshot(detectLongNames(dir, 0))
   expect_silent(detectLongNames(dir, Inf))
 })

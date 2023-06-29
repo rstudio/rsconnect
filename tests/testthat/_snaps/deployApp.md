@@ -61,7 +61,7 @@
 # applicationDeleted() errors or prompts as needed
 
     Code
-      applicationDeleted(client, target, app)
+      applicationDeleted(client, target, dir)
     Condition
       Error in `applicationDeleted()`:
       ! Failed to find existing application on server; it's probably been deleted.
@@ -71,7 +71,7 @@
 ---
 
     Code
-      . <- applicationDeleted(client, target, app)
+      . <- applicationDeleted(client, target, dir)
     Message
       Failed to find existing application on server; it's probably been deleted.
       What do you want to do?
