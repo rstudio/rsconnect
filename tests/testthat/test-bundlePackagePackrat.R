@@ -9,7 +9,7 @@ test_that("manifest has correct data types", {
 
   deps <- snapshotPackratDependencies(app)
   expect_type(deps$description, "list")
-  expect_type(deps$description[[1]], "character")
+  expect_type(deps$description[[1]], "list")
 })
 
 test_that("uninstalled packages error", {
