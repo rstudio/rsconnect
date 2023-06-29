@@ -5,8 +5,8 @@ snapshotRenvDependencies <- function(bundleDir,
 
   old <- options(
     renv.verbose = FALSE,
-    renv.consent = TRUE,
-    pkgType = "source")
+    renv.consent = TRUE
+  )
   defer(options(old))
 
   renv::snapshot(bundleDir, prompt = FALSE)
@@ -33,10 +33,7 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
 
   if (snapshot) {
     # Can use system libraries
-    deps$description <- lapply(deps$Package, function(pkg) {
-      dcf <- read.dcf(system.file("DESCRIPTION", package = pkg))
-      as.list(as.data.frame(dcf, stringsAsFactors = FALSE))
-    })
+    deps$description <- lapply(deps$Package, package_record)
   } else {
     old <- options(renv.verbose = FALSE)
     defer(options(old))
@@ -46,10 +43,7 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
     renv::restore(bundleDir, library = lib_dir, prompt = FALSE)
     defer(unlink(lib_dir, recursive = TRUE))
 
-    deps$description <- lapply(deps$Package, function(pkg) {
-      dcf <- read.dcf(file.path(lib_dir, pkg, "DESCRIPTION"))
-      as.list(as.data.frame(dcf, stringsAsFactors = FALSE))
-    })
+    deps$description <- lapply(deps$Package, package_record, lib_dir = lib_dir)
   }
 
   deps

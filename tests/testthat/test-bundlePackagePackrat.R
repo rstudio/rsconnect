@@ -4,6 +4,14 @@ test_that("non-R apps don't have packages", {
   expect_equal(out, data.frame())
 })
 
+test_that("manifest has correct data types", {
+  app <- local_temp_app(list("index.Rmd" = ""))
+
+  deps <- snapshotPackratDependencies(app)
+  expect_type(deps$description, "list")
+  expect_type(deps$description[[1]], "character")
+})
+
 test_that("uninstalled packages error", {
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",

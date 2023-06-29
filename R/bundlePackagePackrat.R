@@ -25,10 +25,7 @@ snapshotPackratDependencies <- function(bundleDir,
   rownames(records) <- NULL
   records <- records[manifestPackageColumns(records)]
   records[c("Source", "Repository")] <- standardizeRecords(records, repos)
-
-  records$description <- lapply(records$Package, function(pkg) {
-    readLines(system.file("DESCRIPTION", package = pkg))
-  })
+  records$description <- lapply(records$Package, package_record)
 
   records
 }

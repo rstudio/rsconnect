@@ -23,6 +23,9 @@ bundlePackages <- function(bundleDir,
     out
   })
   names(packages_list) <- deps$Package
+
+  packages_list$Package <- NULL
+  packages_list$Version <- NULL
   packages_list
 }
 
@@ -92,4 +95,8 @@ availablePackages <- function(repos) {
     type = "source",
     filters = getOption("available_packages_filters", default = "duplicates")
   )
+}
+
+package_record <- function(name, lib_dir = NULL) {
+  readLines(system.file("DESCRIPTION", package = name, lib.loc = lib_dir))
 }
