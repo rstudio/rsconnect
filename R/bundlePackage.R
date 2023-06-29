@@ -23,6 +23,9 @@ bundlePackages <- function(bundleDir,
     out
   })
   names(packages_list) <- deps$Package
+
+  packages_list$Package <- NULL
+  packages_list$Version <- NULL
   packages_list
 }
 
