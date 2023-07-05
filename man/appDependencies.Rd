@@ -48,7 +48,7 @@ declared in a \code{DESCRIPTION} file, run
 mode.
 \item Dependency resolution using renv is a new feature in rsconnect 1.0.0, and
 while we have done our best to test it, it still might fail for your app.
-If this happens, please \href{http://github.com/rstudio/rsconnect/issues}{file an issue}
+If this happens, please \href{https://github.com/rstudio/rsconnect/issues}{file an issue}
 then set \code{options(rsconnect.packrat = TRUE)} to revert to the old
 dependency discovery mechanism.
 }
