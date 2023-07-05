@@ -25,7 +25,7 @@
 #'
 #' 3. Dependency resolution using renv is a new feature in rsconnect 1.0.0, and
 #'    while we have done our best to test it, it still might fail for your app.
-#'    If this happens, please [file an issue](http://github.com/rstudio/rsconnect/issues)
+#'    If this happens, please [file an issue](https://github.com/rstudio/rsconnect/issues)
 #'    then set `options(rsconnect.packrat = TRUE)` to revert to the old
 #'    dependency discovery mechanism.
 #'
