@@ -6,6 +6,12 @@
     git checkout -b release/0.8.26
     ```
 
+-   Regenerate the `README.md`.
+
+    ```r
+    devtools::build_readme()
+    ```
+
 -   Update version in `DESCRIPTION` file, if necessary.
 
 -   Update `NEWS.md`. Confirm recent changes are included.
@@ -13,10 +19,10 @@
     1. Update version in header, if necessary.
     2. Remove "(development version)" from the version header
 
--   Commit the `NEWS.md` and `DESCRIPTION` changes.
+-   Commit the `README.md`, `NEWS.md` and `DESCRIPTION` changes.
 
     ```bash
-    git commit -m 'prepare for CRAN release' NEWS.md DESCRIPTION
+    git commit -m 'prepare for CRAN release' README.md NEWS.md DESCRIPTION
     ```
 
 -   Check and fix URLs (from R):
