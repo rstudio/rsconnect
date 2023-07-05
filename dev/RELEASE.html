@@ -56,6 +56,11 @@
 <p>Create and switch to a release branch (e.g. <code>release/&lt;version&gt;</code>).</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> release/0.8.26</span></code></pre></div>
 </li>
+<li>
+<p>Regenerate the <code>README.md</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">build_readme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</li>
 <li><p>Update version in <code>DESCRIPTION</code> file, if necessary.</p></li>
 <li>
 <p>Update <code>NEWS.md</code>. Confirm recent changes are included.</p>
@@ -63,12 +68,12 @@
 <li>Remove “(development version)” from the version header</li>
 </ol></li>
 <li>
-<p>Commit the <code>NEWS.md</code> and <code>DESCRIPTION</code> changes.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">'prepare for CRAN release'</span> NEWS.md DESCRIPTION</span></code></pre></div>
+<p>Commit the <code>README.md</code>, <code>NEWS.md</code> and <code>DESCRIPTION</code> changes.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">'prepare for CRAN release'</span> README.md NEWS.md DESCRIPTION</span></code></pre></div>
 </li>
 <li>
 <p>Check and fix URLs (from R):</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"urlchecker"</span><span class="op">)</span></span>
 <span><span class="fu">urlchecker</span><span class="fu">::</span><span class="fu">url_check</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </li>
@@ -93,7 +98,7 @@ git push origin vX.Y.Z</code></pre>
 <li>
 <p>Create a branch to bump for development (e.g. <code>development/&lt;version&gt;</code>).</p>
 <p>Update <code>DESCRIPTION</code>, shifting to a “development” version like 0.8.29-1. Update <code>NEWS.md</code> with a version header for the next version like 0.8.30.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># rsconnect VERSION (development version)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># rsconnect VERSION (development version)</span></span></code></pre></div>
 <p>Squash-and-merge the PR for this branch back to <code>main</code>.</p>
 </li>
 </ul></div>
