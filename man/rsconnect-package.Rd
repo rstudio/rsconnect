@@ -4,7 +4,7 @@
 \name{rsconnect-package}
 \alias{rsconnect}
 \alias{rsconnect-package}
-\title{rsconnect: Deploy Docs, Apps, and APIs to Posit Connect, shinyapps.io, and RPubs}
+\title{rsconnect: Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
