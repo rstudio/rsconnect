@@ -66,7 +66,9 @@ shinyAppsClient <- function(service, authInfo) {
 
     getApplication = function(applicationId, deploymentRecordVersion) {
       path <- paste("/applications/", applicationId, sep = "")
-      GET(service, authInfo, path)
+      application <- GET(service, authInfo, path)
+      application$application_id <- application$id
+      application
     },
 
     getApplicationMetrics = function(applicationId, series, metrics, from = NULL, until = NULL, interval = NULL) {
