@@ -1,4 +1,5 @@
 test_that("can extract quarto metadata", {
+  skip_if_no_quarto()
   app <- local_temp_app(list(`_quarto.yaml` = c(
     "project:",
     "  type: website",
