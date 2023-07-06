@@ -16,6 +16,7 @@ test_that("quarto affects mode inference", {
 })
 
 test_that("quarto path is deprecated", {
+  skip_if_no_quarto()
   dir <- local_temp_app(list("foo.Rmd" = ""))
   expect_snapshot(. <- appMetadata(dir, quarto = "abc"))
 })
