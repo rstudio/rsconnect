@@ -8,6 +8,8 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^revdep$
 tags
 ^\.github$
 ^\.lintr$
+^cran-comments\.md$
