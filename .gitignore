@@ -9,4 +9,3 @@ docs/
 .rscignore
 tags
 inst/doc
-revdep/
