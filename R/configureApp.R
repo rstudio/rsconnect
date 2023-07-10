@@ -99,7 +99,12 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
                         appName = NULL, account = NULL, server = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- findDeployment(appPath, appName, account, server)
+  target <- findDeployment(
+    appPath = appPath,
+    appName = appName,
+    server = server,
+    account = account
+  )
   accountDetails <- accountInfo(target$account, target$server)
   checkShinyappsServer(accountDetails$server)
 
@@ -141,7 +146,12 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
                           account = NULL, server = NULL, force = FALSE) {
 
   # resolve the application target and target account info
-  target <- findDeployment(appPath, appName, account, server)
+  target <- findDeployment(
+    appPath = appPath,
+    appName = appName,
+    server = server,
+    account = account
+  )
   accountDetails <- accountInfo(target$account, target$server)
   checkShinyappsServer(accountDetails$server)
 
@@ -173,7 +183,11 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
 
   # determine the log target and target account info
-  target <- findDeployment(appPath, appName, account)
+  target <- findDeployment(
+    appPath = appPath,
+    appName = appName,
+    account = account
+  )
   accountDetails <- accountInfo(target$account)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, target$appName)
