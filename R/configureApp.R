@@ -98,18 +98,17 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 setProperty <- function(propertyName, propertyValue, appPath = getwd(),
                         appName = NULL, account = NULL, server = NULL, force = FALSE) {
 
-  # resolve the application target and target account info
-  target <- findDeployment(
+  deployment <- findDeployment(
     appPath = appPath,
     appName = appName,
     server = server,
     account = account
   )
-  accountDetails <- accountInfo(target$account, target$server)
+  accountDetails <- accountInfo(deployment$account, deployment$server)
   checkShinyappsServer(accountDetails$server)
 
   client <- clientForAccount(accountDetails)
-  application <- getAppByName(client, accountDetails, target$appName)
+  application <- getAppByName(client, accountDetails, deployment$name)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
@@ -145,18 +144,17 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
                           account = NULL, server = NULL, force = FALSE) {
 
-  # resolve the application target and target account info
-  target <- findDeployment(
+  deployment <- findDeployment(
     appPath = appPath,
     appName = appName,
     server = server,
     account = account
   )
-  accountDetails <- accountInfo(target$account, target$server)
+  accountDetails <- accountInfo(deployment$account, deployment$server)
   checkShinyappsServer(accountDetails$server)
 
   client <- clientForAccount(accountDetails)
-  application <- getAppByName(client, accountInfo, target$appName)
+  application <- getAppByName(client, accountInfo, deployment$name)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
@@ -182,15 +180,14 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 #' @export
 showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
 
-  # determine the log target and target account info
-  target <- findDeployment(
+  deployment <- findDeployment(
     appPath = appPath,
     appName = appName,
     account = account
   )
-  accountDetails <- accountInfo(target$account)
+  accountDetails <- accountInfo(deployment$account)
   client <- clientForAccount(accountDetails)
-  application <- getAppByName(client, accountDetails, target$appName)
+  application <- getAppByName(client, accountDetails, deployment$name)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
