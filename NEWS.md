@@ -1,43 +1,31 @@
 # rsconnect (development version)
 
-* `deployDoc()` and `deployApp()` now support deploying static content to Posit
+## New features
+
+* `deployApp()` and `deployDoc()` now support deploying static content to Posit
   Cloud. Static RMarkdown and Quarto content can be rendered server-side.
-
-* When recording details about deployments to Posit Cloud, appId now represents
-  the content id (as seen in URLs of the format 
-  `https://posit.cloud/content/{id}`) instead of the application id.
-
-* A `version` field has been added to deployment DCF files to facilitate file
-  format changes. Its value for this release is `1`.
-
-* `deployApp()` now gives an actionable error if you attempt to set
-  visiblity of an app deployed to posit.cloud (#838).
-
-* `deploySite()` now supports quarto websites (#813).
 
 * `deployApp()` and `writeManifest()` now respect renv lock files, if present. 
   If you don't want to use these lockfiles, and instead return the previous 
   behaviour of snapshotting on every deploy, add your `renv.lock` to 
   `.rscignore` (#671). Learn more `?appDependencies()`.
   
-* `deployApp()` and `writeManifest()` now use renv to capture app dependencies, 
-  rather than packrat. If this causes a previously working deploy to fail, 
-  please file an issue then set `options(rsconnect.packrat = TRUE)` to revert 
-  to the previous behaviour.
-
-* The built-in linter should have fewer false positives for path problems:
-  the relative path linter has been removed (#244) and the case-sensitive 
-  linter now only checks strings containing a `/` (#611).
+  Additionally, `deployApp()` and `writeManifest()` now use renv to capture app 
+  dependencies,  rather than packrat. If this causes a previously working deploy 
+  to fail, please file an issue then set `options(rsconnect.packrat = TRUE)` to 
+  revert to the previous behaviour.
 
 * `deployApp()`'s `quarto` argument now takes values `TRUE`, `FALSE` or 
-  `NA`. The previous value (a path to a quarto binary) is now deprecated,
-  and instead we automatically figure out the packge from `QUARTO_PATH` and
-  `PATH` env vars (#658).
+  `NA`. The previous value (a path to a quarto binary) is now ignored,
+  and instead we automatically figure out the package from `QUARTO_PATH` and
+  `PATH` env vars (#658). `deploySite()` now supports quarto websites (#813).
 
 * `deployApp()` gains a new `envVars` argument which takes a vector of the 
   names of environment variables that should be securely copied to the server. 
   The names (not values) of these environment variables are also saved in the
   deployment record and will be updated each time you re-deploy the app (#667).
+  This currently only works with Connect, but we hope to add support to 
+  Posit cloud and shinyapps.io in the future.
   
 * rsconnect gains two new functions for understanding and updating the 
   environment variables that your apps currently use. `listServerEnvVars()`
@@ -47,31 +35,7 @@
   environment variable with the current value of that environment variable
   (#667).
 
-* `deployTFModel()` is defunct. Posit Connect no longer supports hosting of
-  TensorFlow Model APIs. A TensorFlow model can be deployed as a [Plumber
-  API](https://tensorflow.rstudio.com/guides/deploy/plumber.html), [Shiny
-  application](https://tensorflow.rstudio.com/guides/deploy/shiny), or other
-  supported content type.
-
-* The default server name created by `addServer()` now includes the port,
-  if used.
-
-* New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
-  set extra arbitrary additional headers/cookies on each request (#405).
-  Their use is documented in the new `vignette("custom-http")`.
-
-* `deployApp()` now uses a stricter policy for determining whether or not
-  a local package can be successfully installed on the deployment server.
-  This means that you're more likely to get a clean failure prior to 
-  deployment (#659).
-
-* Deployment records no longer contain the time the app was deployed (`when`)
-  or when it's metadata was last synched (`lastSyncTime`) as these variables
-  are not very useful, and they lead to uninteresting diffs if you have 
-  committed the deployment records to git (#770).
-
-* `deployApp()` will now detect if you're attempting to publish to an app
-  that has been deleted and will prompt you to create a new app (#226).
+## Lifecycle changes
 
 * Non-libcurl `rsconnect.http` options have been deprecated. This allows us to 
   focus our efforts on a single backend, rather than spreading development
@@ -79,38 +43,104 @@
   years, but if you are using them because libcurl doesn't work for you, please
   report the problem ASAP so we can fix it.
 
-* Uploading large files to rpubs works once more (#450).
-
-* `deployApp()` includes some new conveniences for large uploads including
-  reporting the size of the bundle you're uploading and (if interative) a
-  progress bar (#754).
-
-* rsconnect now follows redirects, which should make it more robust to your
-  server moving to a new url (#674).
-
-* `appDependencies()` includes implicit dependencies.
-
-* New `listDeploymentFiles()`, which supsersedes `listBundleFiles()`.
-
 * `addConnectServer()` has been deprecated because it does the same
-  thing as `addServer()`.
+  thing as `addServer()` now that `addServer()` also validates URLs.
 
-* `serverInfo()` and `removeServer()` no longer require a `server` when 
-  called interactively.
-
-* `connectApiUser()` now clearly requires an `apiKey` (#741).
-
-* `deployApp()` now generates an interactive prompt to select 
-  `account`/`server` (if no previous deployments) or 
-  `appName`/`account`/`server` (if multiple previous deployments) (#691). 
+* `deployTFModel()` is defunct. Posit Connect no longer supports hosting of
+  TensorFlow Model APIs. A TensorFlow model can be deployed as a [Plumber
+  API](https://tensorflow.rstudio.com/guides/deploy/plumber.html), [Shiny
+  application](https://tensorflow.rstudio.com/guides/deploy/shiny), or other
+  supported content type.
 
 * `discoverServer()` has been deprecated; it never worked.
 
-* `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
-  same directory as the document.
+* `deployApp("foo.Rmd")` has been deprecated. It was never documented, and
+  it does the same job as `deployDoc()` (#698).
 
-* Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
-  been necessary, for quite some time (#106, #109).
+## Minor improvements and bug fixes
+
+* New `rsconnect.http.headers` and `rsconnect.http.cookies` allow you to
+  set extra arbitrary additional headers/cookies on each request (#405).
+  Their use is documented in the new `vignette("custom-http")`.
+
+* Uploading large files to RPubs works once more (#450).
+
+* When recording details about deployments to Posit Cloud, appId now represents
+  the content id (as seen in URLs of the format 
+  `https://posit.cloud/content/{id}`) instead of the application id.
+
+* Deployment records no longer contain the time the app was deployed (`when`)
+  or when it's metadata was last synced (`lastSyncTime`) as these variables
+  are not very useful, and they lead to uninteresting diffs if you have 
+  committed the deployment records to git (#770). A `version` field has been 
+  added to deployment DCF files to facilitate future file format changes, if
+  needed. Its value for this release is `1`.,
+
+* `accounts()` returns a zero-row data frame if no accounts are registered.
+
+* `accountInfo()` and `removeAccount()` no longer require `account` be 
+  supplied (#666).
+
+* `accountInfo()` and `servers()` redact sensitive information (secrets,
+  private keys, and certificates) to make it hard to accidentally reveal
+  such information in logs (#675).
+
+* `addServer()` includes the port in the default server name, if present.
+
+* `appDependencies()` includes implicit dependencies, and returns an additional 
+  column giving the Repository (#670). Its documentation contains more 
+  information about how dependency discovery works, and how you can control
+  it, if needed.
+
+* `applications()` now returns the application title, if available (#484),
+  and processes multiple pages of results from a Connect server (#860).
+
+* `connectApiUser()` now clearly requires an `apiKey` (#741).
+
+* `deployApp()` output has been thoroughly reviewed and tweaked. As well as 
+  general polish it now gives you more information about what it has discovered
+  about the deployment, like the app name, account & server, and which files
+  are included in the bundle (#669).
+
+* `deployApp()` is more aggressive about saving deployment data, which should
+  make it less likely that you need to repeat yourself after a failed 
+  deployment. In particular, it now saves both before and after uploading the
+  contents (#677) and it saves when you're updating content originally created
+  by someone else (#270).
+
+* `deployApp()` now gives an actionable error if you attempt to set
+  visibility of an app deployed to posit.cloud (#838).
+
+* `deployApp()` now uses a stricter policy for determining whether or not
+  a locally installed package can be successfully installed on the deployment 
+  server. This means that you're more likely to get a clean failure prior to 
+  deployment (#659).
+
+* `deployApp()` will now detect if you're attempting to publish to an app
+  that has been deleted and will prompt you to create a new app (#226).
+
+* `deployApp()` includes some new conveniences for large uploads including
+  reporting the size of the bundle you're uploading and showing a progress bar 
+  in interactive sessions  (#754).
+
+* `deployApp()` now follows redirects, which should make it more robust to your
+  server moving to a new url (#674).
+
+* `deployApp()` uses simpler logic for determining whether it should create a
+  new app or update an existing app. Now `appName`, `account`, and `server` are 
+  used to find existing deployments. If none are found, it will create a new 
+  deployment; if one is found, it'll be updated; if more than one are found, it 
+  will prompt you to disambiguate (#666).
+
+* `deployApp()` improves account resolution from `account` and `server` 
+  arguments by giving specific recommendations on the values that you might use 
+  in the case of ambiguity or lack of matches (#666). Additionally, you'll now 
+  receive a clear error if you accidentally provide something other than a 
+  string or `NULL` to these arguments.
+
+* `deployApp()` now generates an interactive prompt to select `account`/`server`
+  (if no previous deployments) or `appName`/`account`/`server` (if multiple 
+  previous deployments) (#691). 
 
 * `deployApp()` now advertises which startup scripts are run at the normal
   `logLevel`, and it evaluates each script in its own environment (#542).
@@ -120,79 +150,44 @@
   publishing to shinyapps.io, since its restrictions on application names are 
   much tighter than those of Posit Connect.
 
-* `deployApp()` output has been thorougly reviewed and tweaked. As well as 
-  general polish it now gives you more information about what it has discovered
-  about the deployment, like the app name, account & server, and which files
-  are included in the bundle (#669).
-
-* Locale detection has been improved on windows (#233).
-
 * `deployApp()` will now warn if `appFiles` or `appManifestFiles` contain
   files that don't exist, rather than silently ignoring them (#706).
 
 * `deployApp()` excludes temporary backup files (names starting or ending 
-  with `~`) when automatically determining files to bundle (#111) and 
-  excludes directories that are likely to be python virtual environments 
-  (#632). Additionally, ignore rules are always now applied to all directories;
-  previously some (like `.Rproj.user` and `"manifest.json"`) were only applied
-  to the root directory.
-
-* `deployApp()` is more aggressive about saving deployment data, which should
-  make it less likely that you need to repeat yourself after a failed 
-  deployment. In particular, it now saves both before and after uploading the
-  contents (#677) and it saves when you're updating content originally created
-  by someone else (#270).
-  
-* `deployApp("foo.Rmd")` has been deprecated. It was never documented, and
-  it does the same job as `deployDoc()` (#698).
+  with `~`) when automatically determining files to bundle (#111) as well as 
+  directories that are likely to be python virtual environments (#632). 
+  Additionally, ignore rules are always now applied to all directories; 
+  previously some (like `.Rproj.user` and `"manifest.json"`) were only 
+  applied to the root directory. It correctly handles `.rscignore`  files 
+  (i.e. as documented) (#568). 
 
 * `deployApp(appSourceDoc)` has been deprecated; it did the same job as
   `recordDir`.
 
-* `appDependencies()` now returns an additional column giving the Repository 
-  (#670)
+* `deployDoc()` includes a `.Rprofile` in the bundle, if one is found in the 
+  same directory as the document.
+
+* `lint()` should have fewer false positives for path problems:
+  the relative path linter has been removed (#244) and the case-sensitive 
+  linter now only checks strings containing a `/` (#611).
+
+* New `listDeploymentFiles()`, which supsersedes `listBundleFiles()`.
+  It now errors when if the bundle is either too large or contains too many 
+  files, rather than silently truncating as before (#684).
+
+* `serverInfo()` and `removeServer()` no longer require a `server` when 
+  called interactively.
+
+* `showMetrics()` once again returns a correctly named data frame (#528).
+
+* Removed Rmd generation code (`writeRmdIndex()`) which had not worked, or
+  been necessary, for quite some time (#106, #109).
+
+* Locale detection has been improved on windows (#233).
 
 * The `rsconnect.pre.deploy` and `rsconnect.post.deploy` hooks are now always
   called with the content directory, not sometimes the path to a specific file
   (#696).
-
-* `showMetrics()` once again returns a correctly named data frame (#528).
-
-* `listBundleFiles()` and hence `deployApp()` now correctly handles `.rscignore` 
-  files (i.e. as documented) (#568). 
-
-* `listBundleFiles()` now errors when if the bundle is either too large 
-  or contains too many files, rather than silently truncating as previously 
-  (#684).
-
-* `applications()` now returns the application title, if available (#484).
-
-* `applications()` processes multiple pages of results from a Connect server
-  (#860).
-
-* `addConnectServer()` is slightly more robust to incorrect specification 
-  (#603).
-
-* `accounts()` now returns a zero-row data frame if no accounts registered.
-
-* `accountInfo()` and `servers()` now redacts sensitive information (secrets,
-  private keys, and certificates) to make it hard to accidentally reveal
-  such information in logs (#675).
-
-* The logic used by `deployApp()` for determining whether you publish a 
-  new update or update an existing app has been simplified. Now `appName`,
-  `account`, and `server` are used to find existing deployments. If none
-  are found, it will create a new deployment; if one is found, it'll be 
-  updated; if more than one are found, it will error (#666).
-
-* Account resolution from `account` and `server` arguments now gives specific
-  recommendations on the values that you might use in the case of ambiguity
-  or lack of matches (#666). Additionally, you'll now recieve a clear error
-  message if you accidentally provide something other than a string or `NULL`
-  to these arguments.
-
-* `accountInfo()` and `removeAccount()` no longer require `account` be 
-  supplied (#666).
 
 * Functions that should only interact with shinyapps.io enforce the server
   type. Updated `addAuthorizedUser()`, `removeAuthorizedUser()`,
