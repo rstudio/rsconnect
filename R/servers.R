@@ -60,25 +60,22 @@ serverNames <- function(local = FALSE) {
   names
 }
 
-positCloudServers <- c("posit.cloud", "rstudio.cloud")
-cloudServers <- c("shinyapps.io", positCloudServers)
-
-isCloudServer <- function(server) {
-  server %in% cloudServers
+isShinyappsServer <- function(server) {
+  identical(server, "shinyapps.io")
 }
 
 isPositCloudServer <- function(server) {
-  server %in% positCloudServers
+  server %in% c("posit.cloud", "rstudio.cloud")
+}
+
+isCloudServer <- function(server) {
+  isPositCloudServer(server) || isShinyappsServer(server)
 }
 
 checkCloudServer <- function(server, call = caller_env()) {
   if (!isCloudServer(server)) {
     cli::cli_abort("`server` must be shinyapps.io or posit.cloud", call = call)
   }
-}
-
-isShinyappsServer <- function(server) {
-  identical(server, "shinyapps.io")
 }
 
 checkShinyappsServer <- function(server, call = caller_env()) {
@@ -96,8 +93,6 @@ isConnectServer <- function(server) {
 }
 
 cloudServerInfo <- function(name, url) {
-  name <- arg_match0(name, cloudServers)
-
   list(
     name = name,
     url = getOption("rsconnect.shinyapps_url", url),
