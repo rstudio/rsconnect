@@ -11,3 +11,5 @@
 tags
 ^\.github$
 ^\.lintr$
+^cran-comments\.md$
+^revdep$
