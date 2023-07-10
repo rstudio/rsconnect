@@ -170,10 +170,6 @@ test_that("cloud server info matches name given if valid", {
   expect_equal(rstudioServer$name, "rstudio.cloud")
 })
 
-test_that("cloud server errors if not cloud server", {
-  expect_snapshot(cloudServerInfo("foo"), error = TRUE)
-})
-
 # findServer --------------------------------------------------------------
 
 test_that("findServer() errors if no servers", {

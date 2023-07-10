@@ -6,7 +6,7 @@
                 name                         url          certificate
       1  cert_test_a     https://localhost:4567/ -----B... (redacted)
       2 shinyapps.io https://api.shinyapps.io/v1 Amazon... (redacted)
-      3  posit.cloud https://api.shinyapps.io/v1 Amazon... (redacted)
+      3  posit.cloud  https://api.posit.cloud/v1 Amazon... (redacted)
 
 # serverInfo() redacts the certificate
 
@@ -15,7 +15,7 @@
     Output
       List of 3
        $ name       : chr "posit.cloud"
-       $ url        : chr "https://api.shinyapps.io/v1"
+       $ url        : chr "https://api.posit.cloud/v1"
        $ certificate: Amazon... (redacted)
     Code
       str(serverInfo("shinyapps.io"))

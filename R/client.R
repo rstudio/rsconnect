@@ -5,7 +5,7 @@ clientForAccount <- function(account) {
 
   if (isShinyappsServer(account$server)) {
     shinyAppsClient(serverUrl, account)
-  } else if (isCloudServer(account$server)) {
+  } else if (isPositCloudServer(account$server)) {
     cloudClient(serverUrl, account)
   } else {
     connectClient(serverUrl, account)
