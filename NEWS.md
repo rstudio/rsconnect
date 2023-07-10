@@ -16,7 +16,7 @@
   revert to the previous behaviour.
 
 * `deployApp()`'s `quarto` argument now takes values `TRUE`, `FALSE` or 
-  `NA`. The previous value (a path to a quarto binary) is now deprecated,
+  `NA`. The previous value (a path to a quarto binary) is now ignored,
   and instead we automatically figure out the package from `QUARTO_PATH` and
   `PATH` env vars (#658). `deploySite()` now supports quarto websites (#813).
 
@@ -24,7 +24,9 @@
   names of environment variables that should be securely copied to the server. 
   The names (not values) of these environment variables are also saved in the
   deployment record and will be updated each time you re-deploy the app (#667).
-
+  This currently only works with Connect, but we hope to add support to 
+  Posit cloud and shinyapps.io in the future.
+  
 * rsconnect gains two new functions for understanding and updating the 
   environment variables that your apps currently use. `listServerEnvVars()`
   will return a data frame of applications, with a `envVars` list-column
@@ -42,10 +44,9 @@
   report the problem ASAP so we can fix it.
 
 * `addConnectServer()` has been deprecated because it does the same
-  thing as `addServer()`.
+  thing as `addServer()` now that `addServer()` also validates URLs.
 
-* `deployTFModel()` is defunct. Posit Connect no longer suppor
-ts hosting of
+* `deployTFModel()` is defunct. Posit Connect no longer supports hosting of
   TensorFlow Model APIs. A TensorFlow model can be deployed as a [Plumber
   API](https://tensorflow.rstudio.com/guides/deploy/plumber.html), [Shiny
   application](https://tensorflow.rstudio.com/guides/deploy/shiny), or other
@@ -62,7 +63,7 @@ ts hosting of
   set extra arbitrary additional headers/cookies on each request (#405).
   Their use is documented in the new `vignette("custom-http")`.
 
-* Uploading large files to rpubs works once more (#450).
+* Uploading large files to RPubs works once more (#450).
 
 * When recording details about deployments to Posit Cloud, appId now represents
   the content id (as seen in URLs of the format 
@@ -73,7 +74,7 @@ ts hosting of
   are not very useful, and they lead to uninteresting diffs if you have 
   committed the deployment records to git (#770). A `version` field has been 
   added to deployment DCF files to facilitate future file format changes, if
-  needed. Its value for this release is `1`.
+  needed. Its value for this release is `1`.,
 
 * `accounts()` returns a zero-row data frame if no accounts are registered.
 
