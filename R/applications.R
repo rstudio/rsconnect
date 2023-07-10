@@ -218,10 +218,15 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
                      account = NULL, server = NULL, entries = 50, streaming = FALSE) {
 
   # determine the log target and target account info
-  target <- findDeployment(appPath, appName, account, server)
-  accountDetails <- accountInfo(target$account, target$server)
+  deployment <- findDeployment(
+    appPath = appPath,
+    appName = appName,
+    server = server,
+    account = account
+  )
+  accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
-  application <- getAppByName(client, accountDetails, target$appName)
+  application <- getAppByName(client, accountDetails, deployment$name)
   if (is.null(application))
     stop("No application found. Specify the application's directory, name, ",
          "and/or associated account.")
