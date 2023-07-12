@@ -5,6 +5,8 @@
 * `deployApp()` and `deployDoc()` now support deploying static content to Posit
   Cloud. Static RMarkdown and Quarto content can be rendered server-side.
 
+* rsconnect requires renv 1.0.0.
+
 * `deployApp()` and `writeManifest()` now respect renv lock files, if present. 
   If you don't want to use these lockfiles, and instead return the previous 
   behaviour of snapshotting on every deploy, add your `renv.lock` to 
