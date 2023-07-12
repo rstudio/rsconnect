@@ -27,7 +27,7 @@ Imports:
     lifecycle,
     openssl (>= 2.0.0),
     packrat (>= 0.6),
-    renv (>= 0.17.0),
+    renv (>= 1.0.0),
     rlang (>= 1.0.0),
     rstudioapi (>= 0.5),
     tools,
