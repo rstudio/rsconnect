@@ -55,6 +55,7 @@
 <div class="section level3">
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
 <ul><li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/deployDoc.html">deployDoc()</a></code> now support deploying static content to Posit Cloud. Static RMarkdown and Quarto content can be rendered server-side.</p></li>
+<li><p>rsconnect requires renv 1.0.0.</p></li>
 <li>
 <p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> now respect renv lock files, if present. If you don’t want to use these lockfiles, and instead return the previous behaviour of snapshotting on every deploy, add your <code>renv.lock</code> to <code>.rscignore</code> (<a href="https://github.com/rstudio/rsconnect/issues/671" class="external-link">#671</a>). Learn more <code>?appDependencies()</code>.</p>
 <p>Additionally, <code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> now use renv to capture app dependencies, rather than packrat. If this causes a previously working deploy to fail, please file an issue then set <code>options(rsconnect.packrat = TRUE)</code> to revert to the previous behaviour.</p>
