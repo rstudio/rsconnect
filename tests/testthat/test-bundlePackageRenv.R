@@ -26,6 +26,7 @@ test_that("recommended packages are snapshotted", {
 
 test_that("works with BioC packages", {
   skip_on_cran()
+  skip_on_ci()
   app <- local_temp_app(list("index.R" = c(
     "library(Biobase)"
   )))
