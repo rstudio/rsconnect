@@ -1,5 +1,7 @@
 ## Release instructions
 
+> Try to use `usethis::use_release_issue()` rather than this checklist.
+
 -   Create and switch to a release branch (e.g. `release/<version>`).
 
     ```bash
