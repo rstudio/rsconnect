@@ -1,4 +1,4 @@
-test_that("appDepenencies includes implicit deps", {
+test_that("appDependencies includes implicit deps", {
   path <- local_temp_app(list("test.Rmd" = ""))
   deps <- appDependencies(path)
 
