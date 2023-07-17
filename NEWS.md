@@ -1,4 +1,4 @@
-# rsconnect (development version)
+# rsconnect 1.0.0
 
 ## New features
 

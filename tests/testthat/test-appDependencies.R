@@ -1,4 +1,6 @@
-test_that("appDepenencies includes implicit deps", {
+test_that("appDependencies includes implicit deps", {
+  withr::local_options(renv.verbose = TRUE)
+
   path <- local_temp_app(list("test.Rmd" = ""))
   deps <- appDependencies(path)
 

@@ -7,14 +7,15 @@ test_that("non-R apps don't have packages", {
 })
 
 test_that("manifest has correct data types", {
+  withr::local_options(renv.verbose = TRUE)
   app <- local_temp_app(list("index.Rmd" = ""))
-
   deps <- snapshotRenvDependencies(app)
   expect_type(deps$description, "list")
   expect_type(deps$description[[1]], "list")
 })
 
 test_that("recommended packages are snapshotted", {
+  withr::local_options(renv.verbose = TRUE)
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
     "library(MASS)",

@@ -193,6 +193,8 @@ test_that("Deploying static content with _quarto.yaml succeeds without quartoInf
 })
 
 test_that("Sets environment.image in the manifest if one is provided", {
+  withr::local_options(renv.verbose = TRUE)
+
   appDir <- test_path("shinyapp-simple")
 
   manifest <- makeManifest(appDir, image = "rstudio/content-base:latest")
