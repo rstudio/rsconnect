@@ -5,10 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Programmatic deployment interface for RPubs, shinyapps.io, and
-    Posit Connect. Supported content types include R Markdown documents,
-    Shiny applications, Plumber APIs, plots, and static web content.">
-<title>Deployment Interface for R Markdown Documents and Shiny Applications • rsconnect</title>
+<meta name="description" content="Programmatic deployment interface for RPubs,
+    shinyapps.io, and Posit Connect. Supported content types include R
+    Markdown documents, Shiny applications, Plumber APIs, plots, and
+    static web content.">
+<title>Deploy Docs, Apps, and APIs to Posit Connect, shinyapps.io, and RPubs • rsconnect</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -17,12 +18,15 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="deps/Source_Sans_Pro-0.4.7/font.css" rel="stylesheet">
+<link href="deps/Source_Code_Pro-0.4.7/font.css" rel="stylesheet">
+<!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Deployment Interface for R Markdown Documents and Shiny Applications">
-<meta property="og:description" content="Programmatic deployment interface for RPubs, shinyapps.io, and
-    Posit Connect. Supported content types include R Markdown documents,
-    Shiny applications, Plumber APIs, plots, and static web content.">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Deploy Docs, Apps, and APIs to Posit Connect, shinyapps.io, and RPubs">
+<meta property="og:description" content="Programmatic deployment interface for RPubs,
+    shinyapps.io, and Posit Connect. Supported content types include R
+    Markdown documents, Shiny applications, Plumber APIs, plots, and
+    static web content.">
 <meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -30,14 +34,14 @@
 <![endif]-->
 </head>
 <body>
-    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
+    <a href="#container" class="visually-hidden-focusable">Skip to content</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-none"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.29</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +52,12 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/custom-http.html">Customising HTTP requests</a>
+  </div>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="news/index.html">Changelog</a>
@@ -69,7 +79,7 @@
 
     
   </div>
-</nav><div class="container template-home">
+</nav><div class="container template-home" id="container">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
@@ -79,7 +89,9 @@
 </div>
 <!-- badges: start -->
 
-<p>An R package used for deploying applications to <a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a>, <a href="https://www.shinyapps.io/" class="external-link">ShinyApps.io</a>, and <a href="https://posit.cloud/" class="external-link">Posit Cloud</a>.</p>
+<!-- badges: end -->
+<p>rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto documents, and Plumber APIs to <a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a>, <a href="https://www.shinyapps.io/" class="external-link">ShinyApps.io</a>, and <a href="https://posit.cloud/" class="external-link">Posit Cloud</a> from R.</p>
+<p>(If you’re looking for the Python equivalent, try <a href="https://pypi.org/project/rsconnect-python/" class="external-link">rsconnect-python</a>)</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -89,19 +101,19 @@
 <p>And the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"rstudio/rsconnect"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"rstudio/rsconnect"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>To get started using ShinyApps check out the <a href="https://shiny.rstudio.com/articles/shinyapps.html" class="external-link">Getting Started Guide</a>.</p>
-<p>For more information using Posit Connect, see the <a href="https://docs.posit.co/connect/user/index.html" class="external-link">Posit Connect User Guide</a>.</p>
-<p>See the <a href="https://posit.cloud/learn/guide">Posit Cloud Guide</a> for details about <a href="https://posit.cloud/learn/guide#publish" class="external-link">publishing outputs</a> to Posit Cloud.</p>
-</div>
-<div class="section level2">
-<h2 id="legal-stuff">Legal Stuff<a class="anchor" aria-label="anchor" href="#legal-stuff"></a>
-</h2>
-<p>TensorFlow, the TensorFlow logo and any related marks are trademarks of Google Inc., and are not affiliated with Posit Software, PBC</p>
+<p>To use rsconnect, you first need to teach it about the server you want to publish to. If you use the RStudio IDE, the easiest way to get set up is to use the publishing dialog, which you can find by clicking the “Tools” menu, then selecting “Global options”, then clicking “Publishing”. Click “Connect” to add new servers.</p>
+<p>You can also connect from any R session by running a little code:</p>
+<ul>
+<li><p>For shinyapps.io, go to your <a href="https://www.shinyapps.io/admin/#/tokens" class="external-link">tokens page</a> and click “Add Token”, then follow the instructions to copy and paste the appropriate call to <code><a href="reference/setAccountInfo.html">setAccountInfo()</a></code>. Learn more in the <a href="https://shiny.rstudio.com/articles/shinyapps.html" class="external-link">Getting Started Guide</a>.</p></li>
+<li><p>For Posit Connect, first use <code><a href="reference/addServer.html">addServer()</a></code> to register your server with rsconnect, then call either <code><a href="reference/connectApiUser.html">connectUser()</a></code> or <code><a href="reference/connectApiUser.html">connectApiUser()</a></code>. <code><a href="reference/connectApiUser.html">connectUser()</a></code> is a bit simpler if you’re in an interactive session; <code><a href="reference/connectApiUser.html">connectApiUser()</a></code> works anywhere but requires a you to copy and paste an API key from your user profile.</p></li>
+<li><p>For Posit Cloud, login, then click your name in the top-right corner, click “Account”, then click “Tokens” in the navbar at the top of the page. Click “New Token”, then “Copy” next to the token you just created, and then follow the instructions to copy and paste the appropriate call to <code><a href="reference/setAccountInfo.html">setAccountInfo()</a></code>.</p></li>
+</ul>
+<p>Now that you’re setup you can use <code><a href="reference/deployApp.html">deployApp()</a></code>, <code><a href="reference/deployDoc.html">deployDoc()</a></code>, and friends to publish your apps, documentations, APIs and more.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -132,28 +144,27 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Aron Atkins <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Toph Allen <br><small class="roles"> Author </small>  </li>
+<li>
+<a href="http://hadley.nz" class="external-link">Hadley Wickham</a> <br><small class="roles"> Author </small>  </li>
 <li>Jonathan McPherson <br><small class="roles"> Author </small>  </li>
 <li>JJ Allaire <br><small class="roles"> Author </small>  </li>
-<li>Posit Software <br><small class="roles"> Copyright holder, funder </small>  </li>
+<li>
+<a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a> <br><small class="roles"> Copyright holder, funder </small>  </li>
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=rsconnect" class="external-link"><img src="https://www.r-pkg.org/badges/version/rsconnect" alt="CRAN status"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="lifecycle"></a></li>
-<li><a href="https://github.com/rstudio/rsconnect/actions" class="external-link"><img src="https://github.com/rstudio/rsconnect/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
 
 
-    <footer><div class="pkgdown-footer-left">
+   </div>
+  <footer><div class="container">
+  <div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Aron Atkins, Jonathan McPherson, JJ Allaire, Posit Software.</p>
+<p>Developed by Aron Atkins, Toph Allen, <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, Jonathan McPherson, JJ Allaire, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
@@ -161,12 +172,6 @@
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
-    </footer>
-</div>
-
-  
-
-  
-
-  </body>
+  </div></footer>
+</body>
 </html>

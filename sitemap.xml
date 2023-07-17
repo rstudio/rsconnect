@@ -7,6 +7,12 @@
     <loc>https://rstudio.github.io/rsconnect/RELEASE.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/articles/custom-http.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/articles/index.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/authors.html</loc>
   </url>
   <url>
@@ -25,7 +31,13 @@
     <loc>https://rstudio.github.io/rsconnect/reference/addAuthorizedUser.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/addConnectServer.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/addLinter.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/addServer.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/appDependencies.html</loc>
@@ -46,9 +58,6 @@
     <loc>https://rstudio.github.io/rsconnect/reference/connectApiUser.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/rsconnect/reference/connectUser.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/deployAPI.html</loc>
   </url>
   <url>
@@ -67,6 +76,9 @@
     <loc>https://rstudio.github.io/rsconnect/reference/deployments.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/discoverServers.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/forgetDeployment.html</loc>
   </url>
   <url>
@@ -82,7 +94,13 @@
     <loc>https://rstudio.github.io/rsconnect/reference/linter.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/listAccountEnvVars.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/rsconnect/reference/listBundleFiles.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/listDeploymentFiles.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/makeLinterMessage.html</loc>
@@ -116,6 +134,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/rsconnectPackages.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/rsconnect/reference/rsconnectProxies.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/rsconnect/reference/servers.html</loc>
