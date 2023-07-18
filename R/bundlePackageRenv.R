@@ -46,6 +46,11 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
     renv::restore(bundleDir, library = lib_dir, prompt = FALSE)
     defer(unlink(lib_dir, recursive = TRUE))
 
+    cat("PACKAGES:", paste0(deps$Package, collapse = ", "), "\n")
+    cat("LIBRARY:", lib_dir, "\n")
+    cat("LIBRARY FILES:", paste0(list.files(lib_dir), collapse = ", "), "\n")
+    cat(".libPaths():", paste0(.libPaths(), collapse = ", "), "\n")
+
     deps$description <- lapply(deps$Package, package_record, lib_dir = lib_dir)
   }
 
