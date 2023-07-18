@@ -9,7 +9,10 @@ snapshotRenvDependencies <- function(bundleDir,
   )
   defer(options(old))
 
-  renv::snapshot(bundleDir, prompt = FALSE)
+  # analyze code dependencies ourselves rather than relying on the scan during renv::snapshot, as
+  # that will add renv to renv.lock as a dependency.
+  deps <- renv::dependencies(bundleDir)
+  renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
   defer(removeRenv(bundleDir))
 
   parseRenvDependencies(bundleDir, snapshot = TRUE)
@@ -71,11 +74,6 @@ standardizeRenvPackage <- function(pkg,
                                    biocPackages = NULL,
                                    repos = character(),
                                    bioc) {
-  # Don't include renv itself
-  if (identical(pkg$Package, "renv")) {
-    return(NULL)
-  }
-
   # Convert renv source to manifest source/repository
   # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
 

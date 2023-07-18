@@ -65,7 +65,7 @@ test_that("gets DESCRIPTION from renv library", {
   renv::snapshot(app_dir, prompt = FALSE)
 
   deps <- parseRenvDependencies(app_dir)
-  expect_setequal(deps$Package, c("foreign", "withr"))
+  expect_setequal(deps$Package, c("foreign", "withr", "renv"))
   expect_type(deps$description, "list")
   expect_type(deps$description[[1]], "list")
 })
