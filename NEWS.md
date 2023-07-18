@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Explicit renv dependencies are preserved. (#916)
+
 # rsconnect 1.0.0
 
 ## New features
