@@ -25,7 +25,7 @@ test_that("can capture deps from renv lockfile", {
   app_dir <- local_temp_app(list(foo.R = "library(foreign)"))
   renv::snapshot(app_dir, prompt = FALSE)
   expect_snapshot(pkgs <- bundlePackages(app_dir))
-  expect_named(pkgs, "foreign")
+  expect_named(pkgs, c("foreign", "renv"))
   expect_named(pkgs$foreign, c("Source", "Repository", "description"))
 
   # No renv lockfile or directory left behind

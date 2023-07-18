@@ -62,14 +62,6 @@
       ! Certificates may only be attached to servers that use the HTTPS protocol.
       i Specify an HTTPS URL for the server, or omit the certificate.
 
-# cloud server errors if not cloud server
-
-    Code
-      cloudServerInfo("foo")
-    Condition
-      Error in `cloudServerInfo()`:
-      ! `name` must be one of "shinyapps.io", "posit.cloud", or "rstudio.cloud", not "foo".
-
 # findServer() errors if no servers
 
     Code
