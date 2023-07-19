@@ -46,6 +46,55 @@ test_that("regular rmd deploys .Rprofile, if present", {
   expect_equal(doc$appFiles, c("foo.Rmd", ".Rprofile"))
 })
 
+test_that("regular rmd deploys requirements.txt, if present", {
+  dir <- local_temp_app(list(
+    "foo.Rmd" = "",
+    "requirements.txt" = ""
+  ))
+
+  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.Rmd"), quiet = TRUE)
+  expect_equal(doc$appFiles, c("foo.Rmd", "requirements.txt"))
+})
+
+test_that("regular rmd deploys renv.lock, if present", {
+  dir <- local_temp_app(list(
+    "foo.Rmd" = "",
+    "renv.lock" = ""
+  ))
+
+  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.Rmd"), quiet = TRUE)
+  expect_equal(doc$appFiles, c("foo.Rmd", "renv.lock"))
+})
+
+test_that("regular html does not deploy .Rprofile", {
+  dir <- local_temp_app(list(
+    "foo.html" = "",
+    ".Rprofile" = ""
+  ))
+
+  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.html"), quiet = TRUE)
+  expect_equal(doc$appFiles, c("foo.html"))
+})
+
+test_that("regular html does not deploy requirements.txt", {
+  dir <- local_temp_app(list(
+    "foo.html" = "",
+    "requirements.txt" = ""
+  ))
+
+  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.html"), quiet = TRUE)
+  expect_equal(doc$appFiles, c("foo.html"))
+})
+
+test_that("regular html does not deploy renv.lock", {
+  dir <- local_temp_app(list(
+    "foo.html" = "",
+    "renv.lock" = ""
+  ))
+
+  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.html"), quiet = TRUE)
+  expect_equal(doc$appFiles, c("foo.html"))
+})
 
 test_that("other types deploy that one file", {
   dir <- local_temp_app(list("foo.R" = ""))
