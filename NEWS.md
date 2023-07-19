@@ -1,5 +1,9 @@
 # rsconnect (development version)
 
+* `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when
+  deploying `.Rmd` or `.qmd`. These additional files are not included with
+  rendered HTML documents. (#919)
+
 * Explicit renv dependencies are preserved. (#916)
 
 # rsconnect 1.0.0

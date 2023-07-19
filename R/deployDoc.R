@@ -58,9 +58,12 @@ standardizeSingleDocDeployment <- function(path,
 
     appFiles <- c(basename(path), resources$path)
 
-    if (file.exists(file.path(dirname(path), ".Rprofile"))) {
-      appFiles <- c(appFiles, ".Rprofile")
+    if (isRenderedFile(path)) {
+      candidates <- c(".Rprofile", "renv.lock", "requirements.txt")
+      exists <- file.exists(file.path(dirname(path), candidates))
+      appFiles <- c(appFiles, candidates[exists])
     }
+
     appFiles
   } else {
     # deploy just the file
@@ -77,4 +80,9 @@ standardizeSingleDocDeployment <- function(path,
 isStaticFile <- function(path) {
   ext <- tolower(tools::file_ext(path))
   ext %in% c("rmd", "qmd", "html", "htm")
+}
+
+isRenderedFile <- function(path) {
+  ext <- tolower(tools::file_ext(path))
+  ext %in% c("rmd", "qmd")
 }
