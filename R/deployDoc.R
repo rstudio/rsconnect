@@ -65,7 +65,7 @@ standardizeSingleDocDeployment <- function(path,
         }
       }
     }
-    
+
     appFiles
   } else {
     # deploy just the file
