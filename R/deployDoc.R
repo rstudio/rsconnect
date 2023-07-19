@@ -59,11 +59,9 @@ standardizeSingleDocDeployment <- function(path,
     appFiles <- c(basename(path), resources$path)
 
     if (isRenderedFile(path)) {
-      for (each in c(".Rprofile", "renv.lock", "requirements.txt")) {
-        if (file.exists(file.path(dirname(path), each))) {
-          appFiles <- c(appFiles, each)
-        }
-      }
+      candidates <- c(".Rprofile", "renv.lock", "requirements.txt")
+      exists <- file.exists(file.path(dirname(path), candidates))
+      appFiles <- c(appFiles, candidates[exists])
     }
 
     appFiles
