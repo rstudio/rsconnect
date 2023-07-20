@@ -1,7 +1,8 @@
-## CRAN check results
+## Summary
 
-Test errors reported in r-patched-linux-x86_64 against public Internet
-resources are now skipped.
+* CRAN test errors reported in r-patched-linux-x86_64 against public Internet
+  resources are now skipped.
+* Addresses a couple issues encountered by users with the previous release.
 
 ## R CMD check results
 
