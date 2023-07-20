@@ -1,4 +1,6 @@
 test_that("validateServerUrl() returns expected", {
+  skip_on_cran()
+
   expect_false(validateServerUrl("https://posit.cloud")$valid)
   expect_false(validateServerUrl("https://shinyapps.io")$valid)
   expect_true(validateServerUrl("https://connect.rstudioservices.com/")$valid)
@@ -6,11 +8,15 @@ test_that("validateServerUrl() returns expected", {
 })
 
 test_that("validateServerUrl() normalises urls", {
+  skip_on_cran()
+
   expect_true(validateServerUrl("connect.rstudioservices.com/")$valid)
   expect_true(validateServerUrl("colorado.posit.co/rsc")$valid)
 })
 
 test_that("validateConnectUrl() returns expected return for some known endpoints", {
+  skip_on_cran()
+
   expect_false(validateConnectUrl("https://posit.cloud")$valid)
   expect_false(validateConnectUrl("https://shinyapps.io")$valid)
   expect_true(validateConnectUrl("https://connect.rstudioservices.com/")$valid)
@@ -18,6 +24,8 @@ test_that("validateConnectUrl() returns expected return for some known endpoints
 })
 
 test_that("validateConnectUrl() normalises urls", {
+  skip_on_cran()
+
   api_url <- "https://connect.rstudioservices.com/__api__"
   expect_equal(validateConnectUrl("connect.rstudioservices.com")$url, api_url)
   expect_equal(validateConnectUrl("connect.rstudioservices.com")$url, api_url)
@@ -25,6 +33,8 @@ test_that("validateConnectUrl() normalises urls", {
 })
 
 test_that("validateConnectUrl() follows redirects", {
+  skip_on_cran()
+
   api_url <- "https://connect.rstudioservices.com:443/__api__"
   expect_equal(validateConnectUrl("http://connect.rstudioservices.com")$url, api_url)
 })
