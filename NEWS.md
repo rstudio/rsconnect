@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.0.1
 
 * `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when
