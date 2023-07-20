@@ -50,6 +50,7 @@ test_that("addServer() name defaults to hostname & port of url", {
 })
 
 test_that("addServer() normalises url", {
+  skip_on_cran()
   local_temp_config()
 
   addServer("connect.rstudioservices.com", name = "connect", quiet = TRUE)
