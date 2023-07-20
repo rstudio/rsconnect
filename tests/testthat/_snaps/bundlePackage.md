@@ -20,7 +20,7 @@
       pkgs <- bundlePackages(app_dir)
     Message
       i Capturing R dependencies from renv.lock
-      v Found 2 dependencies
+      v Found 3 dependencies
 
 # error if can't find source
 
