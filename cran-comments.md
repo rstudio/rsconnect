@@ -1,8 +1,11 @@
+## CRAN check results
+
+Test errors reported in r-patched-linux-x86_64 against public Internet
+resources are now skipped.
+
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-* This is a new release.
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
 
 ## revdepcheck results
 
@@ -10,4 +13,3 @@ We checked 19 reverse dependencies, comparing R CMD check results across CRAN an
 
  * We saw 0 new problems
  * We failed to check 0 packages
-
