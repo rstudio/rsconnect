@@ -43,8 +43,8 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
 
     # Generate a library from the lockfile
     lib_dir <- dirCreate(file.path(bundleDir, "renv_library"))
-    renv::restore(bundleDir, library = lib_dir, prompt = FALSE)
     defer(unlink(lib_dir, recursive = TRUE))
+    renv::restore(bundleDir, library = lib_dir, prompt = FALSE)
 
     deps$description <- lapply(
       deps$Package,
@@ -136,7 +136,9 @@ renvLockFile <- function(bundleDir) {
   file.path(bundleDir, "renv.lock")
 }
 
-removeRenv <- function(path) {
-  unlink(renvLockFile(path))
+removeRenv <- function(path, lockfile = TRUE) {
+  if (lockfile) {
+    unlink(renvLockFile(path))
+  }
   unlink(file.path(path, "renv"), recursive = TRUE)
 }

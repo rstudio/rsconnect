@@ -7,6 +7,27 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
   manifestJson
 }
 
+test_that("renv.lock is included for renv projects", {
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list(app.R = "library(foreign); library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+
+  manifest <- makeManifest(app_dir)
+  # note: we don't see an .Rprofile here because we only renv::snapshot and
+  # do not fully create an renv project.
+  expect_named(manifest$files, c("app.R", "renv.lock"))
+})
+
+test_that("renv.lock is not included for non-renv projects", {
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list(app.R = "library(foreign); library(MASS)"))
+
+  manifest <- makeManifest(app_dir)
+  expect_named(manifest$files, c("app.R"))
+})
+
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
   skip_on_cran()
   skip_if_not_installed("reticulate")
