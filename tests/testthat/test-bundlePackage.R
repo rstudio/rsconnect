@@ -29,8 +29,8 @@ test_that("can capture deps from renv lockfile", {
   expect_named(pkgs$foreign, c("Source", "Repository", "description"))
   expect_named(pkgs$MASS, c("Source", "Repository", "description"))
 
-  # No renv lockfile or directory left behind
-  expect_equal(list.files(app_dir), "foo.R")
+  # No renv directory left behind, but the renv.lock is preserved.
+  expect_equal(list.files(app_dir), c("foo.R", "renv.lock"))
 })
 
 # -------------------------------------------------------------------------

@@ -39,8 +39,9 @@ computePackageDependencies <- function(bundleDir,
     # responsibility to install any other packages you need
     taskStart(quiet, "Capturing R dependencies from renv.lock")
     deps <- parseRenvDependencies(bundleDir)
-    # Once we've captured the deps, we can remove renv from the bundle
-    removeRenv(bundleDir)
+    # Once we've captured the deps, we can remove the renv directory
+    # from the bundle (retaining the renv.lock).
+    removeRenv(bundleDir, lockfile = FALSE)
   } else if (isFALSE(getOption("rsconnect.packrat", FALSE))) {
     taskStart(quiet, "Capturing R dependencies with renv")
     # TODO: give user option to choose between implicit and explicit

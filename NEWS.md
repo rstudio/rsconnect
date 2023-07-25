@@ -5,6 +5,10 @@
   but that was (a) slow and (b) could lead to different results than what you
   see when running locally (#930).
 
+* Deploying from an renv project includes the `renv.lock` in the bundle. A
+  manifest created for an renv project references the `renv.lock` in the
+  `manifest.json`. (#926)
+
 # rsconnect 1.0.1
 
 * `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when
