@@ -52,7 +52,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>Deploying from an renv project includes the <code>renv.lock</code> in the bundle. A manifest created for an renv project references the <code>renv.lock</code> in the <code>manifest.json</code>. (<a href="https://github.com/rstudio/rsconnect/issues/926" class="external-link">#926</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.1" id="rsconnect-101">rsconnect 1.0.1<a class="anchor" aria-label="anchor" href="#rsconnect-101"></a></h2><p class="text-muted">CRAN release: 2023-07-20</p>
 <ul><li><p><code><a href="../reference/deployDoc.html">deployDoc()</a></code> includes <code>.Rprofile</code>, <code>requirements.txt</code> and <code>renv.lock</code> when deploying <code>.Rmd</code> or <code>.qmd</code>. These additional files are not included with rendered HTML documents. (<a href="https://github.com/rstudio/rsconnect/issues/919" class="external-link">#919</a>)</p></li>
