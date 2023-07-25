@@ -72,6 +72,17 @@ test_that("gets DESCRIPTION from renv & system libraries", {
   expect_type(deps$description[[which(deps$Package == "MASS")]], "list")
 })
 
+
+test_that("errors if library and project are inconsistent", {
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+  renv::record("MASS@0.1.1", project = app_dir)
+
+  expect_snapshot(parseRenvDependencies(app_dir), error = TRUE)
+})
+
 # standardizeRenvPackage -----------------------------------------
 
 test_that("SCM get names translated", {
