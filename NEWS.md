@@ -1,5 +1,9 @@
 # rsconnect (development version)
 
+* Deploying from an renv project includes the `renv.lock` in the bundle. A
+  manifest created for an renv project references the `renv.lock` in the
+  `manifest.json`. (#926)
+
 # rsconnect 1.0.1
 
 * `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when
