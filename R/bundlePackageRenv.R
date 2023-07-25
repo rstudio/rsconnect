@@ -34,8 +34,10 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
     return(data.frame())
   }
 
+  deps$description <- lapply(deps$Package, package_record)
+
   if (!snapshot) {
-    lib_versions <- unlist(lapply(deps$Package, packageDescription, fields = "Version"))
+    lib_versions <- unlist(lapply(deps$description, "[[", "Version"))
 
     if (any(deps$Version != lib_versions)) {
       cli::cli_abort(c(
@@ -46,7 +48,6 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
     }
   }
 
-  deps$description <- lapply(deps$Package, package_record)
   deps
 }
 
