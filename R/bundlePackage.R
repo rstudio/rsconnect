@@ -41,7 +41,7 @@ computePackageDependencies <- function(bundleDir,
     deps <- parseRenvDependencies(bundleDir)
     # Once we've captured the deps, we can remove the renv directory
     # from the bundle (retaining the renv.lock).
-    removeRenv(bundleDir, FALSE)
+    removeRenv(bundleDir, lockfile = FALSE)
   } else if (isFALSE(getOption("rsconnect.packrat", FALSE))) {
     taskStart(quiet, "Capturing R dependencies with renv")
     # TODO: give user option to choose between implicit and explicit
