@@ -26,7 +26,7 @@ deploymentTarget <- function(recordPath = ".",
     }
 
     appId <- NULL
-    if (!isCloudServer(fullAccount$server)) {
+    if (!isPositCloudServer(fullAccount$server)) {
       # Have we previously deployed elsewhere? We can't do this on cloud
       # because it assigns random app names (see #808 for details).
       existing <- applications(fullAccount$name, fullAccount$server)
