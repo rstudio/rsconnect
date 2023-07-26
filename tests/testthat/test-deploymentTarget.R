@@ -186,7 +186,7 @@ test_that("default title is the empty string", {
   expect_equal(target$appTitle, "")
 })
 
-confirm_existing_application_used <- function(server) {
+confirm_existing_app_used <- function(server) {
   local_temp_config()
   addTestServer()
   addTestAccount("ron", server = server)
@@ -206,14 +206,14 @@ confirm_existing_application_used <- function(server) {
 }
 
 test_that("can find existing application on server & use it", {
-  confirm_existing_application_used("example.com")
+  confirm_existing_app_used("example.com")
 })
 
 test_that("can find existing application on shinyapps.io & use it", {
-  confirm_existing_application_used("shinyapps.io")
+  confirm_existing_app_used("shinyapps.io")
 })
 
-confirm_existing_application_not_used <- function(server) {
+confirm_existing_app_not_used <- function(server) {
   local_temp_config()
   addTestServer()
   addTestAccount("ron", server = server)
@@ -234,11 +234,11 @@ confirm_existing_application_not_used <- function(server) {
 }
 
 test_that("can find existing application on server & not use it", {
-  confirm_existing_application_not_used("example.com")
+  confirm_existing_app_not_used("example.com")
 })
 
 test_that("can find existing application on shinyapps.io & not use it", {
-  confirm_existing_application_not_used("shinyapps.io")
+  confirm_existing_app_not_used("shinyapps.io")
 })
 
 # defaultAppName ----------------------------------------------------------
