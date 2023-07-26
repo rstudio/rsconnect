@@ -187,46 +187,42 @@ test_that("default title is the empty string", {
 })
 
 test_that("can find existing application on server & use it", {
-  for (server in c("example.com", "shinyapps.io")) {
-    local_temp_config()
-    addTestServer()
-    addTestAccount("ron", server = server)
-    local_mocked_bindings(
-      applications = function(...) data.frame(
-        name = "my_app",
-        id = 123,
-        url = "http://example.com/test",
-        stringsAsFactors = FALSE
-      ),
-      shouldUpdateApp = function(...) TRUE
-    )
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+  local_mocked_bindings(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
+    shouldUpdateApp = function(...) TRUE
+  )
 
-    app_dir <- withr::local_tempdir()
-    target <- deploymentTarget(app_dir, appName = "my_app", server = server)
-    expect_equal(target$appId, 123)
-  }
+  app_dir <- withr::local_tempdir()
+  target <- deploymentTarget(app_dir, appName = "my_app")
+  expect_equal(target$appId, 123)
 })
 
 test_that("can find existing application on server & not use it", {
-  for (server in c("example.com", "shinyapps.io")) {
-    local_temp_config()
-    addTestServer()
-    addTestAccount("ron", server = server)
-    local_mocked_bindings(
-      applications = function(...) data.frame(
-        name = "my_app",
-        id = 123,
-        url = "http://example.com/test",
-        stringsAsFactors = FALSE
-      ),
-      shouldUpdateApp = function(...) FALSE
-    )
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+  local_mocked_bindings(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
+    shouldUpdateApp = function(...) FALSE
+  )
 
-    app_dir <- withr::local_tempdir()
-    target <- deploymentTarget(app_dir, appName = "my_app", server = server)
-    expect_equal(target$appName, "my_app-1")
-    expect_equal(target$appId, NULL)
-  }
+  app_dir <- withr::local_tempdir()
+  target <- deploymentTarget(app_dir, appName = "my_app")
+  expect_equal(target$appName, "my_app-1")
+  expect_equal(target$appId, NULL)
 })
 
 # defaultAppName ----------------------------------------------------------

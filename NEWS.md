@@ -1,13 +1,5 @@
 # rsconnect (development version)
 
-* Fixed redeployments to shinyapps.io where `appName` is provided, but no local
-  record of the deployment exists. (#932)
-
-* `deployApp()` and `writeManifest()` now error if your library and `renv.lock`
-  are out-of-sync. Previously it always used what was defined in the `renv.lock`
-  but that was (a) slow and (b) could lead to different results than what you
-  see when running locally (#930).
-
 * Deploying from an renv project includes the `renv.lock` in the bundle. A
   manifest created for an renv project references the `renv.lock` in the
   `manifest.json`. (#926)
