@@ -186,47 +186,59 @@ test_that("default title is the empty string", {
   expect_equal(target$appTitle, "")
 })
 
-test_that("can find existing application on server & use it", {
-  for (server in c("example.com", "shinyapps.io")) {
-    local_temp_config()
-    addTestServer()
-    addTestAccount("ron", server = server)
-    local_mocked_bindings(
-      applications = function(...) data.frame(
-        name = "my_app",
-        id = 123,
-        url = "http://example.com/test",
-        stringsAsFactors = FALSE
-      ),
-      shouldUpdateApp = function(...) TRUE
-    )
+confirm_existing_application_used <- function(server) {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron", server = server)
+  local_mocked_bindings(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
+    shouldUpdateApp = function(...) TRUE
+  )
 
-    app_dir <- withr::local_tempdir()
-    target <- deploymentTarget(app_dir, appName = "my_app", server = server)
-    expect_equal(target$appId, 123)
-  }
+  app_dir <- withr::local_tempdir()
+  target <- deploymentTarget(app_dir, appName = "my_app", server = server)
+  expect_equal(target$appId, 123)
+}
+
+test_that("can find existing application on server & use it", {
+  confirm_existing_application_used("example.com")
 })
 
-test_that("can find existing application on server & not use it", {
-  for (server in c("example.com", "shinyapps.io")) {
-    local_temp_config()
-    addTestServer()
-    addTestAccount("ron", server = server)
-    local_mocked_bindings(
-      applications = function(...) data.frame(
-        name = "my_app",
-        id = 123,
-        url = "http://example.com/test",
-        stringsAsFactors = FALSE
-      ),
-      shouldUpdateApp = function(...) FALSE
-    )
+test_that("can find existing application on shinyapps.io & use it", {
+  confirm_existing_application_used("shinyapps.io")
+})
 
-    app_dir <- withr::local_tempdir()
-    target <- deploymentTarget(app_dir, appName = "my_app", server = server)
-    expect_equal(target$appName, "my_app-1")
-    expect_equal(target$appId, NULL)
-  }
+confirm_existing_application_not_used <- function(server) {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron", server = server)
+  local_mocked_bindings(
+    applications = function(...) data.frame(
+      name = "my_app",
+      id = 123,
+      url = "http://example.com/test",
+      stringsAsFactors = FALSE
+    ),
+    shouldUpdateApp = function(...) FALSE
+  )
+
+  app_dir <- withr::local_tempdir()
+  target <- deploymentTarget(app_dir, appName = "my_app", server = server)
+  expect_equal(target$appName, "my_app-1")
+  expect_equal(target$appId, NULL)
+}
+
+test_that("can find existing application on server & not use it", {
+  confirm_existing_application_not_used("example.com")
+})
+
+test_that("can find existing application on shinyapps.io & not use it", {
+  confirm_existing_application_not_used("shinyapps.io")
 })
 
 # defaultAppName ----------------------------------------------------------
