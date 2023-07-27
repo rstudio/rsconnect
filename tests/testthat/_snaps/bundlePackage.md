@@ -4,15 +4,23 @@
       pkgs <- bundlePackages(app_dir)
     Message
       i Capturing R dependencies with renv
-      v Found 1 dependency
+      v Found 2 dependencies
 
-# can snapshot deps with packrat
+# can snapshot deps with packrat (option)
 
     Code
       pkgs <- bundlePackages(app_dir)
     Message
       i Capturing R dependencies with packrat
-      v Found 1 dependency
+      v Found 2 dependencies
+
+# can snapshot deps with packrat (env var)
+
+    Code
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies with packrat
+      v Found 2 dependencies
 
 # can capture deps from renv lockfile
 
@@ -21,6 +29,14 @@
     Message
       i Capturing R dependencies from renv.lock
       v Found 3 dependencies
+
+# can capture deps with packrat even when renv lockfile present
+
+    Code
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies with packrat
+      v Found 2 dependencies
 
 # error if can't find source
 
