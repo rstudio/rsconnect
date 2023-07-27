@@ -36,7 +36,7 @@ usePackrat <- function() {
   if (is.na(env_value)) {
     return(truthy(getOption("rsconnect.packrat", default = FALSE)))
   }
-  
+
   return(truthy(env_value))
 }
 
