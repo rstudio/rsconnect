@@ -163,14 +163,10 @@ toJSON <- function(x, ...) {
 }
 
 truthy <- function(value, default = FALSE) {
-  if (length(value) == 0)
+  if (!is.atomic(value) || length(value) != 1 || is.na(value))
     default
   else if (is.character(value))
     value %in% c("TRUE", "True", "true", "T", "1")
-  else if (is.symbol(value))
-    as.character(value) %in% c("TRUE", "True", "true", "T", "1")
-  else if (is.na(value))
-    default
   else
     as.logical(value)
 }

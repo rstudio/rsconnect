@@ -32,12 +32,12 @@ bundlePackages <- function(bundleDir,
 usePackrat <- function() {
   # Use RSCONNECT_PACKRAT when it has any value; fall-back to rsconnect.packrat when the environment
   # variable is unset.
-  env_value <- Sys.getenv("RSCONNECT_PACKRAT", unset = NA)
-  if (is.na(env_value)) {
-    return(truthy(getOption("rsconnect.packrat", default = FALSE)))
+  value <- Sys.getenv("RSCONNECT_PACKRAT", unset = NA)
+  if (is.na(value)) {
+    value <- getOption("rsconnect.packrat", default = FALSE)
   }
 
-  return(truthy(env_value))
+  return(truthy(value))
 }
 
 computePackageDependencies <- function(bundleDir,
