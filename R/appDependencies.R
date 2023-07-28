@@ -58,7 +58,7 @@
 #'   have source `CORPORATE`. Posit Connect
 #'   [can be configured](https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository)
 #'   to override their repository url so that (e.g.) you can use different
-#'   packages versions on stagning and production servers.
+#'   packages versions on staging and production servers.
 #'
 #' * Packages installed from GitHub, GitLab, or BitBucket, have `Source`
 #'   `github`, `gitlab`, and `bitbucket` respectively. When deployed, the
@@ -77,7 +77,7 @@
 #' be detected.
 #'
 #' For example, ggplot2's `geom_hex()` requires the hexbin package to be
-#' installed, but it is only suggested by ggplot2. So if you app uses
+#' installed, but it is only suggested by ggplot2. So if your app uses
 #' `geom_hex()` it will fail, reporting that the hexbin package is not
 #' installed.
 #'
@@ -97,7 +97,7 @@
 #'      as described above.
 #'   * `Repository`: for CRAN and CRAN-like repositories, the URL to the
 #'      repository. This will be ignored by the server if it has been configured
-#'      with it's own repository name -> repository URL mapping.
+#'      with its own repository name -> repository URL mapping.
 #' @examples
 #' \dontrun{
 #'
