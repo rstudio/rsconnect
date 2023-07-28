@@ -98,7 +98,7 @@ and inferred), and 4 columns:</p><ul><li><p><code>Package</code>: package name.<
 as described above.</p></li>
 <li><p><code>Repository</code>: for CRAN and CRAN-like repositories, the URL to the
 repository. This will be ignored by the server if it has been configured
-with it's own repository name -&gt; repository URL mapping.</p></li>
+with its own repository name -&gt; repository URL mapping.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="dependency-discovery">Dependency discovery<a class="anchor" aria-label="anchor" href="#dependency-discovery"></a></h2>
@@ -139,7 +139,7 @@ if you've set the following options:</p>
 have source <code>CORPORATE</code>. Posit Connect
 <a href="https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository" class="external-link">can be configured</a>
 to override their repository url so that (e.g.) you can use different
-packages versions on stagning and production servers.</p></li>
+packages versions on staging and production servers.</p></li>
 <li><p>Packages installed from GitHub, GitLab, or BitBucket, have <code>Source</code>
 <code>github</code>, <code>gitlab</code>, and <code>bitbucket</code> respectively. When deployed, the
 bundle contains the additional metadata needed to precisely recreated
@@ -155,7 +155,7 @@ install from one of the known sources described above.</p>
 so it's possible that not every package required to run your application will
 be detected.</p>
 <p>For example, ggplot2's <code>geom_hex()</code> requires the hexbin package to be
-installed, but it is only suggested by ggplot2. So if you app uses
+installed, but it is only suggested by ggplot2. So if your app uses
 <code>geom_hex()</code> it will fail, reporting that the hexbin package is not
 installed.</p>
 <p>You can overcome this problem with (e.g.) <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace(hexbin)</a></code>.
