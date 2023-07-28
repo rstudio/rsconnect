@@ -78,3 +78,31 @@ test_that("we can hash a file with well known contents", {
 
   expect_equal(fileMD5(path), "52d2daa95d288f3c01e4d4d87f85727e")
 })
+
+test_that("truthy is truthy", {
+  # fallback-to-default checks
+  expect_false(truthy(c()))
+  expect_true(truthy(c(), default = TRUE))
+  expect_false(truthy(NA))
+  expect_true(truthy(NA, default = TRUE))
+
+  # true value checks
+  expect_true(truthy(TRUE, default = FALSE))
+  expect_true(truthy("TRUE", default = FALSE))
+  expect_true(truthy("True", default = FALSE))
+  expect_true(truthy("true", default = FALSE))
+  expect_true(truthy("T", default = FALSE))
+  expect_true(truthy("1", default = FALSE))
+  expect_true(truthy(1, default = FALSE))
+  expect_true(truthy(42, default = FALSE))
+
+  # false value checks
+  expect_false(truthy(FALSE, default = TRUE))
+  expect_false(truthy("FALSE", default = TRUE))
+  expect_false(truthy("False", default = TRUE))
+  expect_false(truthy("false", default = TRUE))
+  expect_false(truthy("F", default = TRUE))
+  expect_false(truthy("0", default = TRUE))
+  expect_false(truthy(0, default = TRUE))
+  expect_false(truthy("nonsense", default = TRUE))
+})

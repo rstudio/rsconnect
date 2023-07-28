@@ -1,9 +1,9 @@
 # Given a path to an directory and a list of files in that directory, copies
- # those files to a new temporary directory. Performes some small modifications
- # in this process, including renaming single-file Shiny apps to "app.R" and
- # stripping packrat and renv commands from .Rprofile. Returns the path to the
- # temporary directory.
- bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
+# those files to a new temporary directory. Performs some small modifications
+# in this process, including renaming single-file Shiny apps to "app.R" and
+# stripping packrat and renv commands from .Rprofile. Returns the path to the
+# temporary directory.
+bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
 
   logger <- verboseLogger(verbose)
   logger("Creating tempfile for appdir")

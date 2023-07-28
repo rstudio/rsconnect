@@ -12,6 +12,14 @@
   manifest created for an renv project references the `renv.lock` in the
   `manifest.json`. (#926)
 
+* Use the environment variable `RSCONNECT_PACKRAT` to analyze dependencies
+  using packrat, as was done prior to rsconnect-1.0.0. Use of the
+  `rsconnect.packrat` option is discouraged, as it is not effective when using
+  push-button deployment in the RStudio IDE. (#935)
+
+* The `renv.lock` is ignored when the `RSCONNECT_PACKRAT` environment variable
+  or the `rsconnect.packrat` option is set. (#936)
+
 # rsconnect 1.0.1
 
 * `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when

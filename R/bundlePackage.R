@@ -29,12 +29,30 @@ bundlePackages <- function(bundleDir,
   packages_list
 }
 
+usePackrat <- function() {
+  # Use RSCONNECT_PACKRAT when it has any value; fall-back to rsconnect.packrat when the environment
+  # variable is unset.
+  value <- Sys.getenv("RSCONNECT_PACKRAT", unset = NA)
+  if (is.na(value)) {
+    value <- getOption("rsconnect.packrat", default = FALSE)
+  }
+
+  return(truthy(value))
+}
+
 computePackageDependencies <- function(bundleDir,
                                        extraPackages = character(),
                                        quiet = FALSE,
                                        verbose = FALSE) {
 
-  if (file.exists(renvLockFile(bundleDir))) {
+  if (usePackrat()) {
+    taskStart(quiet, "Capturing R dependencies with packrat")
+    # Remove renv.lock so the packrat call to renv::dependencies does not report an implicit renv
+    # dependency. Mirrors rsconnect before 1.0.0, which did not include renv.lock in bundles.
+    # https://github.com/rstudio/rsconnect/blob/v0.8.29/R/bundle.R#L96
+    removeRenv(bundleDir)
+    deps <- snapshotPackratDependencies(bundleDir, extraPackages, verbose = verbose)
+  } else if (file.exists(renvLockFile(bundleDir))) {
     # This ignores extraPackages; if you're using a lockfile it's your
     # responsibility to install any other packages you need
     taskStart(quiet, "Capturing R dependencies from renv.lock")
@@ -42,13 +60,10 @@ computePackageDependencies <- function(bundleDir,
     # Once we've captured the deps, we can remove the renv directory
     # from the bundle (retaining the renv.lock).
     removeRenv(bundleDir, lockfile = FALSE)
-  } else if (isFALSE(getOption("rsconnect.packrat", FALSE))) {
+  } else {
     taskStart(quiet, "Capturing R dependencies with renv")
     # TODO: give user option to choose between implicit and explicit
     deps <- snapshotRenvDependencies(bundleDir, extraPackages, verbose = verbose)
-  } else {
-    taskStart(quiet, "Capturing R dependencies with packrat")
-    deps <- snapshotPackratDependencies(bundleDir, extraPackages, verbose = verbose)
   }
   taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}")
 
