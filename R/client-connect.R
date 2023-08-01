@@ -96,10 +96,6 @@ connectClient <- function(service, authInfo) {
       GET(service, authInfo, paste0("/applications/", applicationId))
     },
 
-    coerceStaticRmd = function(accountId) {
-      FALSE
-    },
-
     ## Tasks API
 
     listTasks = function() {
