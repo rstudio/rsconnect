@@ -336,7 +336,7 @@ deployApp <- function(appDir = getwd(),
     showCookies(serverInfo(accountDetails$server)$url)
   }
 
-  coerceStaticRmd <- client$coerceStaticRmd(accountDetails$accountId)
+  isShinyappsServer <- isShinyappsServer(target$server)
 
   logger("Inferring App mode and parameters")
   appMetadata <- appMetadata(
@@ -345,7 +345,7 @@ deployApp <- function(appDir = getwd(),
     appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
     contentCategory = contentCategory,
-    coerceStaticRmd = coerceStaticRmd,
+    isShinyappsServer = isShinyappsServer,
     metadata = metadata
   )
 

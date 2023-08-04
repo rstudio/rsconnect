@@ -302,15 +302,6 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "invitations")
     },
 
-    coerceStaticRmd = function(accountId) {
-      # Posit Cloud will gain support soon for rendering RMD into static content. When support is
-      # added, true_static_rmd_enabled will be TRUE. In the meantime, RMDs can be deployed by
-      # using Shiny.
-      # TODO once Cloud supports this, remove this coercion.
-      account <- GET(service, authInfo, paste0("/accounts/", accountId))
-      account$beta$coerce_static_rmd_enabled
-    },
-
     listTasks = function(accountId, filters = NULL) {
       if (is.null(filters)) {
         filters <- vector()
