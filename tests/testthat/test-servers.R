@@ -53,9 +53,9 @@ test_that("addServer() normalises url", {
   skip_on_cran()
   local_temp_config()
 
-  addServer("connect.rstudioservices.com", name = "connect", quiet = TRUE)
+  addServer("connect.posit.it", name = "connect", quiet = TRUE)
   info <- serverInfo("connect")
-  expect_equal(info$url, "https://connect.rstudioservices.com/__api__")
+  expect_equal(info$url, "https://connect.posit.it/__api__")
 })
 
 test_that("addServer() errors if url not a connect server", {
