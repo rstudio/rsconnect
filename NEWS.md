@@ -20,6 +20,8 @@
 * The `renv.lock` is ignored when the `RSCONNECT_PACKRAT` environment variable
   or the `rsconnect.packrat` option is set. (#936)
 
+* The content type is inferred by analyzing the set of top-level files. (#942)
+
 # rsconnect 1.0.1
 
 * `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when

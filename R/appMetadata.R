@@ -36,7 +36,7 @@ appMetadata <- function(appDir,
     # Inference only uses top-level files
     rootFiles <- appFiles[dirname(appFiles) == "."]
     appMode <- inferAppMode(
-      file.path(appDir, appFiles),
+      file.path(appDir, rootFiles),
       usesQuarto = quarto,
       isShinyappsServer = isShinyappsServer
     )
@@ -117,7 +117,7 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
 }
 
 # infer the mode of the application from files in the root dir
-inferAppMode <- function(absoluteAppFiles,
+inferAppMode <- function(absoluteRootFiles,
                          usesQuarto = NA,
                          isShinyappsServer = FALSE) {
 
@@ -127,24 +127,24 @@ inferAppMode <- function(absoluteAppFiles,
   }
 
   # plumber API
-  plumberFiles <- matchingNames(absoluteAppFiles, "^(plumber|entrypoint).r$")
+  plumberFiles <- matchingNames(absoluteRootFiles, "^(plumber|entrypoint).r$")
   if (length(plumberFiles) > 0) {
     return("api")
   }
 
   # Shiny application using single-file app.R style.
-  appR <- matchingNames(absoluteAppFiles, "^app.r$")
+  appR <- matchingNames(absoluteRootFiles, "^app.r$")
   if (length(appR) > 0) {
     return("shiny")
   }
 
-  rmdFiles <- matchingNames(absoluteAppFiles, "\\.rmd$")
-  qmdFiles <- matchingNames(absoluteAppFiles, "\\.qmd$")
+  rmdFiles <- matchingNames(absoluteRootFiles, "\\.rmd$")
+  qmdFiles <- matchingNames(absoluteRootFiles, "\\.qmd$")
 
   if (is.na(usesQuarto)) {
     # Can't use _quarto.yml alone because it causes deployment failures for
     # static content: https://github.com/rstudio/rstudio/issues/11444
-    quartoYml <- matchingNames(absoluteAppFiles, "^_quarto.y(a)?ml$")
+    quartoYml <- matchingNames(absoluteRootFiles, "^_quarto.y(a)?ml$")
 
     usesQuarto <- length(qmdFiles) > 0 ||
       (length(quartoYml) > 0 && length(rmdFiles > 0))
@@ -167,7 +167,7 @@ inferAppMode <- function(absoluteAppFiles,
   # Shiny application using server.R; checked later than Rmd with shiny runtime
   # because server.R may contain the server code paired with a ShinyRmd and needs
   # to be run by rmarkdown::run (rmd-shiny).
-  serverR <- matchingNames(absoluteAppFiles, "^server.r$")
+  serverR <- matchingNames(absoluteRootFiles, "^server.r$")
   if (length(serverR) > 0) {
     return("shiny")
   }
