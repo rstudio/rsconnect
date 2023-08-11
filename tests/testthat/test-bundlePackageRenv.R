@@ -33,7 +33,7 @@ test_that("works with BioC packages", {
   )))
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
-    BioC = "https://bioconductor.org/packages/3.16/bioc"
+    BioC = "https://bioconductor.org/packages/3.17/bioc"
   ))
   expect_no_condition(
     deps <- snapshotRenvDependencies(app),
@@ -41,7 +41,7 @@ test_that("works with BioC packages", {
   )
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")
-  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/3.16/bioc")
+  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/3.17/bioc")
 
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com"
