@@ -19,7 +19,7 @@ Connect](https://posit.co/products/enterprise/connect/),
 Cloud](https://posit.cloud/) from R.
 
 (If you’re looking for the Python equivalent, try
-[rsconnect-python](https://pypi.org/project/rsconnect-python/))
+[rsconnect-python](https://pypi.org/project/rsconnect-python/).)
 
 ## Installation
 
