@@ -9,6 +9,7 @@ writeManifest(
   appFiles = NULL,
   appFileManifest = NULL,
   appPrimaryDoc = NULL,
+  appMode = NULL,
   contentCategory = NULL,
   python = NULL,
   forceGeneratePythonEnvironment = FALSE,
@@ -33,6 +34,11 @@ exclusions and files listed in a \code{.rscignore} file. See
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be
 \code{NULL}, in which case the primary document is inferred from the contents
 being deployed.}
+
+\item{appMode}{Optional; the type of content being deployed (e.g. \code{"shiny"}).
+Provide this option when the inferred type of content is incorrect. This
+can happen, for example, when static HTML content includes a downloadable
+Shiny application \code{app.R}.}
 
 \item{contentCategory}{Set this to \code{"site"} if you'd deploy with
 \code{\link[=deploySite]{deploySite()}}; otherwise leave as is.}

@@ -1,0 +1,90 @@
+# appMode overrides
+
+These test deploying one project to multiple targets having different types,
+confirming `deployApp()` support for its `appMode`.
+
+1. Create a new project.
+
+    ```r
+    usethis::create_project("~/Desktop/appmode-lies")
+    ```
+
+2. Populate that project with content.
+
+    ```r
+    writeLines(c(
+        "shinyApp(ui = fluidPage('Shiny lying liars lie.'), server = function(input, output){})"
+    ), "app.R")
+    writeLines(c(
+        "<html>",
+        "<head><title>appmode lies</title></head>",
+        "<body>",
+        "<h1>Static lying liars lie.</h1>",
+        "<a href='app.R'>app.R</a>,",
+        "<a href='plumber.R'>plumber.R</a>,",
+        "<a href='report.Rmd'>report.Rmd</a>",
+        "</body>",
+        "</html>"
+    ), "index.html")
+    writeLines(c(
+        "---",
+        "title: Reporting lying liars lie.",
+        "---",
+        "",
+        "Reporting lying liars lie."
+    ), "report.Rmd")
+    writeLines(c(
+        "#* @get /lie",
+        "function() { 'API lying liars lie.' }"
+    ), "plumber.R")
+
+3. Deploy this content in a variety of ways.
+
+    ```r
+    account <- "<ACCOUNTNAME>"
+    server <- "<SERVERNAME>"
+    
+    rsconnect::deployApp(
+        appTitle = "lying: inference",
+        appFiles = c("app.R", "index.html", "plumber.R", "report.Rmd"),
+        account = account,
+        server = server
+    )
+    
+    rsconnect::deployApp(
+        appName = "appmode-lies-plumber",
+        appTitle = "lying: plumber",
+        appFiles = c("app.R", "index.html", "plumber.R", "report.Rmd"),
+        appMode = "api",
+        account = account,
+        server = server
+    )
+    
+    rsconnect::deployApp(
+        appName = "appmode-lies-shiny",
+        appTitle = "lying: shiny",
+        appFiles = c("app.R", "index.html", "plumber.R", "report.Rmd"),
+        appMode = "shiny",
+        account = account,
+        server = server
+    )
+    
+    rsconnect::deployApp(
+        appName = "appmode-lies-rmarkdown",
+        appTitle = "lying: rmarkdown",
+        appFiles = c("app.R", "index.html", "plumber.R", "report.Rmd"),
+        appMode = "rmd-static",
+        account = account,
+        server = server
+    )
+    
+    rsconnect::deployApp(
+        appName = "appmode-lies-static",
+        appTitle = "lying: static",
+        appFiles = c("app.R", "index.html", "plumber.R", "report.Rmd"),
+        appMode = "static",
+        account = account,
+        server = server
+    )
+    ```
+

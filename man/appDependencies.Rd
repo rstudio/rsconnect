@@ -4,14 +4,28 @@
 \alias{appDependencies}
 \title{Detect application dependencies}
 \usage{
-appDependencies(appDir = getwd(), appFiles = NULL)
+appDependencies(
+  appDir = getwd(),
+  appFiles = NULL,
+  appFileManifest = NULL,
+  appMode = NULL
+)
 }
 \arguments{
-\item{appDir}{Directory containing application. Defaults to current working
-directory.}
+\item{appDir}{A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.}
 
-\item{appFiles}{A character vector giving relative paths to the files to
-include in the deployed bundle.}
+\item{appFiles, appFileManifest}{Use \code{appFiles} to specify a
+character vector of files to bundle in the app or \code{appManifestFiles}
+to provide a path to a file containing a list of such files. If neither
+are supplied, will bundle all files in \code{appDir}, apart from standard
+exclusions and files listed in a \code{.rscignore} file. See
+\code{\link[=listDeploymentFiles]{listDeploymentFiles()}} for more details.}
+
+\item{appMode}{Optional; the type of content being deployed (e.g. \code{"shiny"}).
+Provide this option when the inferred type of content is incorrect. This
+can happen, for example, when static HTML content includes a downloadable
+Shiny application \code{app.R}.}
 }
 \value{
 A data frame with one row for each dependency (direct, indirect,
