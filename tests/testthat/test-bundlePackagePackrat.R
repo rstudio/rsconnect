@@ -37,6 +37,8 @@ test_that("recommended packages are snapshotted", {
 })
 
 test_that("works with BioC packages", {
+  skip_on_cran()
+  skip_on_ci()
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
     "library(Biobase)",
@@ -44,18 +46,18 @@ test_that("works with BioC packages", {
   )))
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
-    BioC = "https://bioconductor.org/packages/3.16/bioc"
+    BioC = "https://bioconductor.org/packages/release/bioc"
   ))
 
   deps <- snapshotPackratDependencies(app)
 
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")
-  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/3.16/bioc")
+  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/release/bioc")
 
   BiocGenerics <- deps[deps$Package == "BiocGenerics", ]
   expect_equal(BiocGenerics$Source, "Bioconductor")
-  expect_equal(BiocGenerics$Repository, "https://bioconductor.org/packages/3.16/bioc")
+  expect_equal(BiocGenerics$Repository, "https://bioconductor.org/packages/release/bioc")
 })
 
 # addPackratSnapshot() ----------------------------------------------------
