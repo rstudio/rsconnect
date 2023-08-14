@@ -1,43 +1,60 @@
 # appMetadata -------------------------------------------------------------
 
-test_that("clear error if no files", {
-  dir <- local_temp_app()
-  expect_snapshot(appMetadata(dir), error = TRUE)
-})
-
 test_that("quarto affects mode inference", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
 
-  metadata <- appMetadata(dir)
+  metadata <- appMetadata(dir, c("foo.Rmd"))
   expect_equal(metadata$appMode, "rmd-static")
 
-  metadata <- appMetadata(dir, metadata = list(quarto_version = 1))
+  metadata <- appMetadata(dir, c("foo.Rmd"), metadata = list(quarto_version = 1))
   expect_equal(metadata$appMode, "quarto-static")
 })
 
 test_that("quarto path is deprecated", {
   skip_if_no_quarto()
   dir <- local_temp_app(list("foo.Rmd" = ""))
-  expect_snapshot(. <- appMetadata(dir, quarto = "abc"))
+  expect_snapshot(. <- appMetadata(dir, c("foo.Rmd"), quarto = "abc"))
 })
 
 test_that("validates quarto argument", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
-  expect_snapshot(appMetadata(dir, quarto = 1), error = TRUE)
+  expect_snapshot(appMetadata(dir, c("foo.Rmd"), quarto = 1), error = TRUE)
 })
 
 
 test_that("handles special case of appPrimaryDoc as R file", {
   dir <- local_temp_app(list("foo.R" = ""))
-  metadata <- appMetadata(dir, appPrimaryDoc = "foo.R")
+  metadata <- appMetadata(dir, c("foo.R"), appPrimaryDoc = "foo.R")
   expect_equal(metadata$appMode, "shiny")
 })
 
 # https://github.com/rstudio/rsconnect/issues/942
 test_that("files beneath the root are not ignored when determining app-mode", {
   dir <- local_temp_app(list("app.R" = "", "plumber/api/plumber.R" = ""))
-  metadata <- appMetadata(dir)
+  metadata <- appMetadata(dir, c("app.R", "plumber/api/plumber.R"))
   expect_equal(metadata$appMode, "shiny")
+})
+
+test_that("content type (appMode) is inferred and can be overridden", {
+  dir <- local_temp_app(list(
+    "app.R" = "",
+    "plumber.R" = "",
+    "report.Rmd" = "",
+    "index.html" = ""
+  ))
+  files <- c("app.R", "plumber.R", "report.Rmd", "index.html")
+
+  metadata <- appMetadata(dir, files)
+  expect_equal(metadata$appMode, "api")
+
+  metadata <- appMetadata(dir, files, appMode = "shiny")
+  expect_equal(metadata$appMode, "shiny")
+
+  metadata <- appMetadata(dir, files, appMode = "rmd-static")
+  expect_equal(metadata$appMode, "rmd-static")
+
+  metadata <- appMetadata(dir, files, appMode = "static")
+  expect_equal(metadata$appMode, "static")
 })
 
 # checkLayout -------------------------------------------------------------

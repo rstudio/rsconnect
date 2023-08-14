@@ -75,8 +75,12 @@
 #'   You can find the `appId` in the following places:
 #'   * On shinyapps.io, it's the `id` listed on the applications page.
 #'   * For Posit Connect, it's `guid` from the info tab on the content page.
-#' @param contentCategory Optional; the kind of content being deployed (e.g.
-#'   `"plot"` or `"site"`).
+#' @param appMode Optional; the type of content being deployed (e.g. `"shiny"`).
+#'   Provide this option when the inferred type of content is incorrect. This
+#'   can happen, for example, when static HTML content includes a downloadable
+#'   Shiny application `app.R`.
+#' @param contentCategory Optional; classifies the kind of content being
+#'   deployed (e.g. `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
 #'   user `account`, the `server` name, or both. If neither are supplied, and
 #'   there are multiple options, you'll be prompted to pick one.
@@ -173,6 +177,7 @@ deployApp <- function(appDir = getwd(),
                       appTitle = NULL,
                       envVars = NULL,
                       appId = NULL,
+                      appMode = NULL,
                       contentCategory = NULL,
                       account = NULL,
                       server = NULL,
@@ -344,6 +349,7 @@ deployApp <- function(appDir = getwd(),
     appFiles = appFiles,
     appPrimaryDoc = appPrimaryDoc,
     quarto = quarto,
+    appMode = appMode,
     contentCategory = contentCategory,
     isShinyappsServer = isShinyappsServer,
     metadata = metadata

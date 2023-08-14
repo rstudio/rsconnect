@@ -7,6 +7,51 @@ test_that("appDependencies includes implicit deps", {
   expect_true("rmarkdown" %in% deps$Package)
 })
 
+test_that("appDependencies includes implicit deps when appMode forced", {
+  withr::local_options(renv.verbose = TRUE)
+
+  dir <- local_temp_app(list(
+    "app.R" = "",
+    "plumber.R" = "",
+    "report.Rmd" = "",
+    "index.html" = ""
+  ))
+  files <- c("app.R", "plumber.R", "report.Rmd", "index.html")
+
+  # unless forced to "static", the presence of *.Rmd forces rmarkdown as an R
+  # dependency, regardless of appMode.
+
+  # inference indicates a Plumber API.
+  deps <- appDependencies(dir)
+  expect_true("plumber" %in% deps$Package)
+  expect_false("shiny" %in% deps$Package)
+  expect_true("rmarkdown" %in% deps$Package)
+
+  deps <- appDependencies(dir, appMode = "api")
+  expect_true("plumber" %in% deps$Package)
+  expect_false("shiny" %in% deps$Package)
+  expect_true("rmarkdown" %in% deps$Package)
+
+  deps <- appDependencies(dir, appMode = "shiny")
+  expect_false("plumber" %in% deps$Package)
+  expect_true("shiny" %in% deps$Package)
+  expect_true("rmarkdown" %in% deps$Package)
+
+  deps <- appDependencies(dir, appMode = "rmd-static")
+  expect_false("plumber" %in% deps$Package)
+  expect_false("shiny" %in% deps$Package)
+  expect_true("rmarkdown" %in% deps$Package)
+
+  deps <- appDependencies(dir, appMode = "static")
+  expect_equal(deps, data.frame(
+    Package = character(),
+    Version = character(),
+    Source = character(),
+    Repository = character(),
+    stringsAsFactors = FALSE
+  ))
+})
+
 test_that("static project doesn't have deps", {
   path <- local_temp_app(list("index.html" = ""))
   deps <- appDependencies(path)

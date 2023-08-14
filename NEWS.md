@@ -22,6 +22,15 @@
 
 * The content type is inferred by analyzing the set of top-level files. (#942)
 
+* `deployApp()` and `writeManifest()` accept an optional `appMode` argument.
+  Provide this argument if your project includes auxiliary files which mislead
+  the existing `appMode` inference. For example, if an HTML project includes
+  a downloadable Shiny `app.R`, that content will be assumed to be a Shiny
+  application even if that application is not meant to be run. (#948)
+
+* `appDependencies()` accepts an `appFileManifest` argument as an alternate
+  way of providing the target set of files.
+
 # rsconnect 1.0.1
 
 * `deployDoc()` includes `.Rprofile`, `requirements.txt` and `renv.lock` when

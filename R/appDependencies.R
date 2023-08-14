@@ -85,9 +85,7 @@
 #' This will tell rsconnect that your app needs the hexbin package, without
 #' otherwise affecting your code.
 #'
-#' @inheritParams listDeploymentFiles
-#' @param appDir Directory containing application. Defaults to current working
-#'   directory.
+#' @inheritParams deployApp
 #' @returns A data frame with one row for each dependency (direct, indirect,
 #'   and inferred), and 4 columns:
 #'
@@ -109,9 +107,12 @@
 #' }
 #' @seealso [rsconnectPackages](Using Packages with rsconnect)
 #' @export
-appDependencies <- function(appDir = getwd(), appFiles = NULL) {
-  appFiles <- listDeploymentFiles(appDir, appFiles)
-  appMetadata <- appMetadata(appDir, appFiles = appFiles)
+appDependencies <- function(appDir = getwd(),
+                            appFiles = NULL,
+                            appFileManifest = NULL,
+                            appMode = NULL) {
+  appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
+  appMetadata <- appMetadata(appDir, appFiles = appFiles, appMode = appMode)
   if (!needsR(appMetadata)) {
     return(data.frame(
       Package = character(),
