@@ -46,18 +46,18 @@ test_that("works with BioC packages", {
   )))
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com",
-    BioC = "https://bioconductor.org/packages/3.17/bioc"
+    BioC = "https://bioconductor.org/packages/release/bioc"
   ))
 
   deps <- snapshotPackratDependencies(app)
 
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")
-  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/3.17/bioc")
+  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/release/bioc")
 
   BiocGenerics <- deps[deps$Package == "BiocGenerics", ]
   expect_equal(BiocGenerics$Source, "Bioconductor")
-  expect_equal(BiocGenerics$Repository, "https://bioconductor.org/packages/3.17/bioc")
+  expect_equal(BiocGenerics$Repository, "https://bioconductor.org/packages/release/bioc")
 })
 
 # addPackratSnapshot() ----------------------------------------------------
