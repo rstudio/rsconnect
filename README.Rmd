@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto documents, and Plumber APIs to [Posit Connect](https://posit.co/products/enterprise/connect/), [ShinyApps.io](https://www.shinyapps.io/), and [Posit Cloud](https://posit.cloud/) from R.
 
-(If you're looking for the Python equivalent, try [rsconnect-python](https://pypi.org/project/rsconnect-python/))
+(If you're looking for the Python equivalent, try [rsconnect-python](https://pypi.org/project/rsconnect-python/).)
 
 ## Installation
 

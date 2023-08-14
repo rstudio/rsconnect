@@ -33,6 +33,13 @@ test_that("handles special case of appPrimaryDoc as R file", {
   expect_equal(metadata$appMode, "shiny")
 })
 
+# https://github.com/rstudio/rsconnect/issues/942
+test_that("files beneath the root are not ignored when determining app-mode", {
+  dir <- local_temp_app(list("app.R" = "", "plumber/api/plumber.R" = ""))
+  metadata <- appMetadata(dir)
+  expect_equal(metadata$appMode, "shiny")
+})
+
 # checkLayout -------------------------------------------------------------
 
 test_that("checkLayout() errors if primary doc & app.R", {
