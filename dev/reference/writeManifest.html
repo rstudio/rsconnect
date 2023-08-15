@@ -80,6 +80,7 @@ these change.</p>
 <span>  appFiles <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appFileManifest <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appPrimaryDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appMode <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -111,6 +112,16 @@ exclusions and files listed in a <code>.rscignore</code> file. See
 parameter indicates the primary one, as a path relative to <code>appDir</code>. Can be
 <code>NULL</code>, in which case the primary document is inferred from the contents
 being deployed.</p></dd>
+
+
+<dt>appMode</dt>
+<dd><p>Optional; the type of content being deployed.
+Provide this option when the inferred type of content is incorrect. This
+can happen, for example, when static HTML content includes a downloadable
+Shiny application <code>app.R</code>. Accepted values include <code>"shiny"</code>, <code>"api"</code>,
+<code>"rmd-static"</code>, <code>"rmd-shiny"</code>, <code>"quarto-static"</code>, <code>"quarto-shiny"</code>, and
+<code>"static"</code>. The Posit Connect API Reference contains a full set of
+available values. Not all servers support all types of content.</p></dd>
 
 
 <dt>contentCategory</dt>

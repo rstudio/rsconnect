@@ -126,15 +126,13 @@ bundling a very large direcfory (i.e. you home directory).</p>
 or plumber API). Defaults to the current directory.</p></dd>
 
 
-<dt>appFiles</dt>
-<dd><p>A character vector giving relative paths to the files to
-include in the deployed bundle.</p></dd>
-
-
-<dt>appFileManifest</dt>
-<dd><p>An alternate way to specify the files to be deployed.
-Should be a path to a file that contains the names of the files and
-directories to deploy, one per line, relative to <code>appDir</code>.</p></dd>
+<dt>appFiles, appFileManifest</dt>
+<dd><p>Use <code>appFiles</code> to specify a
+character vector of files to bundle in the app or <code>appManifestFiles</code>
+to provide a path to a file containing a list of such files. If neither
+are supplied, will bundle all files in <code>appDir</code>, apart from standard
+exclusions and files listed in a <code>.rscignore</code> file. See
+<code>listDeploymentFiles()</code> for more details.</p></dd>
 
 
 <dt>error_call</dt>

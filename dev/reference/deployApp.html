@@ -73,6 +73,7 @@ content to a server.</p>
 <span>  appTitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envVars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appId <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appMode <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contentCategory <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -164,9 +165,19 @@ for re-deploying apps created by someone else.</p>
 </ul></dd>
 
 
+<dt>appMode</dt>
+<dd><p>Optional; the type of content being deployed.
+Provide this option when the inferred type of content is incorrect. This
+can happen, for example, when static HTML content includes a downloadable
+Shiny application <code>app.R</code>. Accepted values include <code>"shiny"</code>, <code>"api"</code>,
+<code>"rmd-static"</code>, <code>"rmd-shiny"</code>, <code>"quarto-static"</code>, <code>"quarto-shiny"</code>, and
+<code>"static"</code>. The Posit Connect API Reference contains a full set of
+available values. Not all servers support all types of content.</p></dd>
+
+
 <dt>contentCategory</dt>
-<dd><p>Optional; the kind of content being deployed (e.g.
-<code>"plot"</code> or <code>"site"</code>).</p></dd>
+<dd><p>Optional; classifies the kind of content being
+deployed (e.g. <code>"plot"</code> or <code>"site"</code>).</p></dd>
 
 
 <dt>account, server</dt>
