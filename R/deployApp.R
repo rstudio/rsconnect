@@ -75,10 +75,13 @@
 #'   You can find the `appId` in the following places:
 #'   * On shinyapps.io, it's the `id` listed on the applications page.
 #'   * For Posit Connect, it's `guid` from the info tab on the content page.
-#' @param appMode Optional; the type of content being deployed (e.g. `"shiny"`).
+#' @param appMode Optional; the type of content being deployed.
 #'   Provide this option when the inferred type of content is incorrect. This
 #'   can happen, for example, when static HTML content includes a downloadable
-#'   Shiny application `app.R`.
+#'   Shiny application `app.R`. Accepted values include `"shiny"`, `"api"`,
+#'   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`, and
+#'   `"static"`. The Posit Connect API Reference contains a full set of
+#'   available values. Not all servers support all types of content.
 #' @param contentCategory Optional; classifies the kind of content being
 #'   deployed (e.g. `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your

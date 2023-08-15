@@ -22,10 +22,13 @@ are supplied, will bundle all files in \code{appDir}, apart from standard
 exclusions and files listed in a \code{.rscignore} file. See
 \code{\link[=listDeploymentFiles]{listDeploymentFiles()}} for more details.}
 
-\item{appMode}{Optional; the type of content being deployed (e.g. \code{"shiny"}).
+\item{appMode}{Optional; the type of content being deployed.
 Provide this option when the inferred type of content is incorrect. This
 can happen, for example, when static HTML content includes a downloadable
-Shiny application \code{app.R}.}
+Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"api"},
+\code{"rmd-static"}, \code{"rmd-shiny"}, \code{"quarto-static"}, \code{"quarto-shiny"}, and
+\code{"static"}. The Posit Connect API Reference contains a full set of
+available values. Not all servers support all types of content.}
 }
 \value{
 A data frame with one row for each dependency (direct, indirect,

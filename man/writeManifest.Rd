@@ -35,10 +35,13 @@ parameter indicates the primary one, as a path relative to \code{appDir}. Can be
 \code{NULL}, in which case the primary document is inferred from the contents
 being deployed.}
 
-\item{appMode}{Optional; the type of content being deployed (e.g. \code{"shiny"}).
+\item{appMode}{Optional; the type of content being deployed.
 Provide this option when the inferred type of content is incorrect. This
 can happen, for example, when static HTML content includes a downloadable
-Shiny application \code{app.R}.}
+Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"api"},
+\code{"rmd-static"}, \code{"rmd-shiny"}, \code{"quarto-static"}, \code{"quarto-shiny"}, and
+\code{"static"}. The Posit Connect API Reference contains a full set of
+available values. Not all servers support all types of content.}
 
 \item{contentCategory}{Set this to \code{"site"} if you'd deploy with
 \code{\link[=deploySite]{deploySite()}}; otherwise leave as is.}
