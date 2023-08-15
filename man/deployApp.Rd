@@ -14,6 +14,7 @@ deployApp(
   appTitle = NULL,
   envVars = NULL,
   appId = NULL,
+  appMode = NULL,
   contentCategory = NULL,
   account = NULL,
   server = NULL,
@@ -94,8 +95,16 @@ You can find the \code{appId} in the following places:
 \item For Posit Connect, it's \code{guid} from the info tab on the content page.
 }}
 
-\item{contentCategory}{Optional; the kind of content being deployed (e.g.
-\code{"plot"} or \code{"site"}).}
+\item{appMode}{Optional; the type of content being deployed.
+Provide this option when the inferred type of content is incorrect. This
+can happen, for example, when static HTML content includes a downloadable
+Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"api"},
+\code{"rmd-static"}, \code{"rmd-shiny"}, \code{"quarto-static"}, \code{"quarto-shiny"}, and
+\code{"static"}. The Posit Connect API Reference contains a full set of
+available values. Not all servers support all types of content.}
+
+\item{contentCategory}{Optional; classifies the kind of content being
+deployed (e.g. \code{"plot"} or \code{"site"}).}
 
 \item{account, server}{Uniquely identify a remote server with either your
 user \code{account}, the \code{server} name, or both. If neither are supplied, and

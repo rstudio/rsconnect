@@ -46,6 +46,12 @@
 # checks its inputs
 
     Code
+      listDeploymentFiles(dir)
+    Condition
+      Error:
+      ! No content to deploy.
+      x `appDir` is empty.
+    Code
       listDeploymentFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
     Condition
       Error:

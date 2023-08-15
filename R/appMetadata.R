@@ -1,12 +1,12 @@
 appMetadata <- function(appDir,
-                        appFiles = NULL,
+                        appFiles,
                         appPrimaryDoc = NULL,
                         quarto = NA,
+                        appMode = NULL,
                         contentCategory = NULL,
                         isShinyappsServer = FALSE,
                         metadata = list()) {
 
-  appFiles <- listDeploymentFiles(appDir, appFiles)
   checkAppLayout(appDir, appPrimaryDoc)
 
   if (is_string(quarto)) {
@@ -27,19 +27,21 @@ appMetadata <- function(appDir,
     quarto <- TRUE
   }
 
-  # Generally we want to infer appPrimaryDoc from appMode, but there's one
-  # special case
-  if (!is.null(appPrimaryDoc) &&
-      tolower(tools::file_ext(appPrimaryDoc)) == "r") {
-    appMode <- "shiny"
-  } else {
-    # Inference only uses top-level files
-    rootFiles <- appFiles[dirname(appFiles) == "."]
-    appMode <- inferAppMode(
-      file.path(appDir, rootFiles),
-      usesQuarto = quarto,
-      isShinyappsServer = isShinyappsServer
-    )
+  if (is.null(appMode)) {
+    # Generally we want to infer appPrimaryDoc from appMode, but there's one
+    # special case
+    if (!is.null(appPrimaryDoc) &&
+          tolower(tools::file_ext(appPrimaryDoc)) == "r") {
+      appMode <- "shiny"
+    } else {
+      # Inference only uses top-level files
+      rootFiles <- appFiles[dirname(appFiles) == "."]
+      appMode <- inferAppMode(
+        file.path(appDir, rootFiles),
+        usesQuarto = quarto,
+        isShinyappsServer = isShinyappsServer
+      )
+    }
   }
 
   appPrimaryDoc <- inferAppPrimaryDoc(

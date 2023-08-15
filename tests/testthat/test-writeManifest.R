@@ -224,3 +224,31 @@ test_that("Sets environment.image in the manifest if one is provided", {
   manifest <- makeManifest(appDir)
   expect_null(manifest$environment)
 })
+
+# appMode Inference tests
+
+test_that("content type (appMode) is inferred and can be overridden", {
+  appDir <- local_temp_app(list(
+    "app.R" = "",
+    "index.html" = "",
+    "plumber.R" = "",
+    "report.Rmd" = ""
+  ))
+  files <- c("app.R", "index.html", "plumber.R", "report.Rmd")
+
+  manifest <- makeManifest(appDir)
+  expect_equal(manifest$metadata$appmode, "api")
+  expect_named(manifest$files, files)
+
+  manifest <- makeManifest(appDir, appMode = "shiny")
+  expect_equal(manifest$metadata$appmode, "shiny")
+  expect_named(manifest$files, files)
+
+  manifest <- makeManifest(appDir, appMode = "rmd-static")
+  expect_equal(manifest$metadata$appmode, "rmd-static")
+  expect_named(manifest$files, files)
+
+  manifest <- makeManifest(appDir, appMode = "static")
+  expect_equal(manifest$metadata$appmode, "static")
+  expect_named(manifest$files, files)
+})

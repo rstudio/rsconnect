@@ -25,11 +25,6 @@
 #' bundling a very large direcfory (i.e. you home directory).
 #'
 #' @inheritParams deployApp
-#' @param appFiles A character vector giving relative paths to the files to
-#'   include in the deployed bundle.
-#' @param appFileManifest An alternate way to specify the files to be deployed.
-#'   Should be a path to a file that contains the names of the files and
-#'   directories to deploy, one per line, relative to `appDir`.
 #' @param error_call The call or environment for error reporting; expert
 #'   use only.
 #' @return Character of paths to bundle, relative to `appDir`.

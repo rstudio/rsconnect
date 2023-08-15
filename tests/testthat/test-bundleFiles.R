@@ -52,6 +52,7 @@ test_that("can read selected files from manifest", {
 test_that("checks its inputs", {
   dir <- local_temp_app()
   expect_snapshot(error = TRUE, {
+    listDeploymentFiles(dir)
     listDeploymentFiles(dir, appFiles = "a.R", appFileManifest = "b.R")
     listDeploymentFiles(dir, appFiles = 1)
     listDeploymentFiles(dir, appFileManifest = "doestexist")

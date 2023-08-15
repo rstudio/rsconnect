@@ -10,7 +10,7 @@ These test the full end-to-end publishing experience with renv.
 
 3.  Create an `index.Rmd` containing the following:
 
-    ````         
+    ````markdown
     ```{r}
     library(rowr)
     ```
@@ -33,7 +33,7 @@ Expected behaviour:
 
 3.  Create an `index.Rmd` containing the following:
 
-    ````         
+    ````markdown
     ```{r}
     library(rlang)
     library(waldo)
