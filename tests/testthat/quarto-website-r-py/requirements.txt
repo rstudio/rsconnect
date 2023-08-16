@@ -1,0 +1,2 @@
+# stub requirements.txt
+# Its presence indicates the need for Python dependencies.
