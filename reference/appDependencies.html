@@ -20,7 +20,7 @@ package packages need to be installed to run the app."><meta property="og:image"
     
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,19 +72,38 @@ package packages need to be installed to run the app.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">appDependencies</span><span class="op">(</span>appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, appFiles <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">appDependencies</span><span class="op">(</span></span>
+<span>  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appFiles <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appFileManifest <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  appMode <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>appDir</dt>
-<dd><p>Directory containing application. Defaults to current working
-directory.</p></dd>
+<dd><p>A directory containing an application (e.g. a Shiny app
+or plumber API). Defaults to the current directory.</p></dd>
 
 
-<dt>appFiles</dt>
-<dd><p>A character vector giving relative paths to the files to
-include in the deployed bundle.</p></dd>
+<dt>appFiles, appFileManifest</dt>
+<dd><p>Use <code>appFiles</code> to specify a
+character vector of files to bundle in the app or <code>appManifestFiles</code>
+to provide a path to a file containing a list of such files. If neither
+are supplied, will bundle all files in <code>appDir</code>, apart from standard
+exclusions and files listed in a <code>.rscignore</code> file. See
+<code><a href="listDeploymentFiles.html">listDeploymentFiles()</a></code> for more details.</p></dd>
+
+
+<dt>appMode</dt>
+<dd><p>Optional; the type of content being deployed.
+Provide this option when the inferred type of content is incorrect. This
+can happen, for example, when static HTML content includes a downloadable
+Shiny application <code>app.R</code>. Accepted values include <code>"shiny"</code>, <code>"api"</code>,
+<code>"rmd-static"</code>, <code>"rmd-shiny"</code>, <code>"quarto-static"</code>, <code>"quarto-shiny"</code>, and
+<code>"static"</code>. The Posit Connect API Reference contains a full set of
+available values. Not all servers support all types of content.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -98,7 +117,7 @@ and inferred), and 4 columns:</p><ul><li><p><code>Package</code>: package name.<
 as described above.</p></li>
 <li><p><code>Repository</code>: for CRAN and CRAN-like repositories, the URL to the
 repository. This will be ignored by the server if it has been configured
-with it's own repository name -&gt; repository URL mapping.</p></li>
+with its own repository name -&gt; repository URL mapping.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="dependency-discovery">Dependency discovery<a class="anchor" aria-label="anchor" href="#dependency-discovery"></a></h2>
@@ -139,7 +158,7 @@ if you've set the following options:</p>
 have source <code>CORPORATE</code>. Posit Connect
 <a href="https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository" class="external-link">can be configured</a>
 to override their repository url so that (e.g.) you can use different
-packages versions on stagning and production servers.</p></li>
+packages versions on staging and production servers.</p></li>
 <li><p>Packages installed from GitHub, GitLab, or BitBucket, have <code>Source</code>
 <code>github</code>, <code>gitlab</code>, and <code>bitbucket</code> respectively. When deployed, the
 bundle contains the additional metadata needed to precisely recreated
@@ -155,7 +174,7 @@ install from one of the known sources described above.</p>
 so it's possible that not every package required to run your application will
 be detected.</p>
 <p>For example, ggplot2's <code>geom_hex()</code> requires the hexbin package to be
-installed, but it is only suggested by ggplot2. So if you app uses
+installed, but it is only suggested by ggplot2. So if your app uses
 <code>geom_hex()</code> it will fail, reporting that the hexbin package is not
 installed.</p>
 <p>You can overcome this problem with (e.g.) <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace(hexbin)</a></code>.
