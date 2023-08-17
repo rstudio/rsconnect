@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.0.2
 
 * Fixed redeployments to shinyapps.io where `appName` is provided, but no local
