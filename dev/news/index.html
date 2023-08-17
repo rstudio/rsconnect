@@ -54,7 +54,7 @@
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.2" id="rsconnect-102">rsconnect 1.0.2<a class="anchor" aria-label="anchor" href="#rsconnect-102"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.2" id="rsconnect-102">rsconnect 1.0.2<a class="anchor" aria-label="anchor" href="#rsconnect-102"></a></h2><p class="text-muted">CRAN release: 2023-08-17</p>
 <ul><li><p>Fixed redeployments to shinyapps.io where <code>appName</code> is provided, but no local record of the deployment exists. (<a href="https://github.com/rstudio/rsconnect/issues/932" class="external-link">#932</a>)</p></li>
 <li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> now error if your library and <code>renv.lock</code> are out-of-sync. Previously it always used what was defined in the <code>renv.lock</code> but that was (a) slow and (b) could lead to different results than what you see when running locally (<a href="https://github.com/rstudio/rsconnect/issues/930" class="external-link">#930</a>).</p></li>
 <li><p>Deploying from an renv project includes the <code>renv.lock</code> in the bundle. A manifest created for an renv project references the <code>renv.lock</code> in the <code>manifest.json</code>. (<a href="https://github.com/rstudio/rsconnect/issues/926" class="external-link">#926</a>)</p></li>
