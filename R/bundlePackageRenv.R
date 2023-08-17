@@ -43,7 +43,7 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
       cli::cli_abort(c(
         "Library and lockfile are out of sync",
         i = "Use renv::restore() or renv::snapshot() to synchronise",
-        i = "Or ignore the lockfile by adding to you .rscignore"
+        i = "Or ignore the lockfile by adding to your .rscignore"
       ))
     }
   }
