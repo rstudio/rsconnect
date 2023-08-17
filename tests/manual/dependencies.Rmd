@@ -4,49 +4,92 @@ These test the full end-to-end publishing experience with renv.
 
 ## Archived package
 
-1.  `usethis::create_project("~/desktop/rsconnect-archived")`
+1.  Create a new project.
 
-2.  `devtools::install_version('rowr', '1.1.3')`.
-
-3.  Create an `index.Rmd` containing the following:
-
-    ````markdown
-    ```{r}
-    library(rowr)
+    ```r
+    usethis::create_project("~/desktop/rsconnect-archived")
     ```
-    ````
 
-4.  `rsconnect::deployApp(server = "shinyapps.io")`
+    The remaining steps happen within this newly created project.
 
-5.  `rsconnect::deployApp(server = "colorado.posit.co")`
+2.  Install an old version of `rowr`.
+
+    ```r
+    devtools::install_version('rowr', '1.1.3')
+    ```
+
+3.  Run the following code to create an `app.R`:
+
+    ```r
+    writeLines(c(
+      "library(rowr)",
+      "shinyApp(ui = fluidPage('shiny rowr'), server = function(input, output){})"
+    ), "app.R")
+    ```
+
+4.  Deploy to shinyapps.io:
+
+    ```r
+    rsconnect::deployApp(server = "shinyapps.io")
+    ```
+
+5.  Deploy to colorado (Posit employees, only):
+
+    ```r
+    rsconnect::deployApp(server = "colorado.posit.co")
+    ```
 
 Expected behaviour:
 
 -   App successfully deploys to shinyapps.
--   App fails to deploy to colorado with error "Cannot transform manifest into packrat.lock: package rowr does not define Repository" during "Deploying to server" phase.
+-   App successfully deploys to colorado.
 
 ## CRAN, github, and BioC packages
 
-1.  `usethis::create_project("~/desktop/rsconnect-key-types")`
+1.  Create a new project:
 
-2.  `pak::pak(c("rlang", "r-lib/waldo", "bioc::Biobase"))`
-
-3.  Create an `index.Rmd` containing the following:
-
-    ````markdown
-    ```{r}
-    library(rlang)
-    library(waldo)
-    library(Biobase)
-    ```
+    ```r
+    usethis::create_project("~/desktop/rsconnect-key-types")
     ````
 
-4.  `rsconnect::deployApp()`
+    The remaining steps happen within this newly created project.
 
-5.  `renv::snapshot()`
+2.  Install CRAN, GitHub, and Bioconductor packages into your library:
 
-6.  `rsconnect::deployApp()`
+    ```r
+    pak::pak(c("rlang", "r-lib/waldo", "bioc::Biobase"))
+    ```
+
+3.  Run the following code to create an `app.R`:
+
+    ```r
+    writeLines(c(
+      "library(rlang)",
+      "library(waldo)",
+      "library(Biobase)",
+      "shinyApp(ui = fluidPage('shiny rowr'), server = function(input, output){})"
+    ), "app.R")
+    ```
+
+4.  Deploy this app (analyzing your library):
+
+    ```r
+    rsconnect::deployApp()
+    ```
+
+5.  Create an renv snapshot:
+
+    ```r
+    renv::snapshot()
+    ```
+
+6.  Deploy this app (using the `renv.lock`):
+
+    ```r
+    rsconnect::deployApp()
+    ```
 
 Expected behaviour:
 
--   App deploys without error in both cases
+-   App deploys without error when analyzing your R library.
+-   App deploys without error when analyzing the `renv.lock`.

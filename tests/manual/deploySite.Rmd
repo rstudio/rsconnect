@@ -2,32 +2,123 @@
 
 ## Quarto
 
-1. Check out <https://github.com/rstudio/connect-content>
+### Quarto using R (no additional dependencies)
 
-1. Run the following code:
+1.  Clone <https://github.com/rstudio/connect-content>
 
-    ```{r}
-    deploySite("bundles/quarto-website-r", render = "local")
-    # Should redeploy without prompting for account
-    deploySite("bundles/quarto-website-r", render = "local")
+1.  Open the RStudio project `bundles/quarto-website-r`.
 
-    deploySite("bundles/quarto-website-r", render = "none")
+1.  When opened, you may see a message indicating that the project library
+    and lockfile are out of sync. If so, restore its environment:
 
-    deploySite("bundles/quarto-website-r-deps", render = "server")
+    ```r
+    renv::restore()
     ```
+
+1.  Update rsconnect and renv within this project; as the lockfile probably
+    references different versions than what you want to test:
+
+    ```r
+    install.packages(c("renv","rsconnect"))
+    ```
+
+1.  Deploy, then re-deploy. If this is the first time deploying from this
+    directory, you will be prompted for a deployment target. The re-deploy
+    should NEVER prompt.
+
+    ```r
+    # initial deploy: renders, then publishes.
+    rsconnect::deploySite(render = "local")
+    # re-deply: renders, then publishes.
+    rsconnect::deploySite(render = "local")
+    # re-deploy: NO RENDER, only publishes.
+    rsconnect::deploySite(render = "none")
+    ```
+
+    The content successfully deploys as static (HTML) that was rendered on the
+    client.
+
+1.  Deploy having the content render on the server. If this is the first time
+    deploying with this title, you will be prompted for a deployment target.
+
+    ```r
+    # initial deploy: publishes on the server.
+    rsconnect::deploySite(siteName = "quarto-website-r-renders", render = "server")
+    ```
+
+    The content successfully deploys as Quarto to be rendered by Connect.
+
+### Quarto using R (having additional dependencies)
+
+1.  Clone <https://github.com/rstudio/connect-content>
+
+1.  Open the RStudio project `bundles/quarto-website-r-deps`.
+
+1.  When opened, you may see a message indicating that the project library
+    and lockfile are out of sync. If so, restore its environment:
+
+    ```r
+    renv::restore()
+    ```
+
+1.  Update rsconnect and renv within this project; as the lockfile probably
+    references different versions than what you want to test:
+
+    ```r
+    install.packages(c("renv","rsconnect"))
+    ```
+
+1.  Deploy this content. Rendering happens on the server. If this is the first time
+    deploying with this title, you will be prompted for a deployment target.
+
+    ```r
+    rsconnect::deploySite(render = "server")
+    ```
+
+    The content successfully deploys as Quarto to be rendered by Connect.
 
 ## RMarkdown 
 
-1. Check out <https://github.com/rstudio/connect-content>
+1.  Clone <https://github.com/rstudio/connect-content>
 
-1. Run the following code:
+1.  Open the RStudio project `bundles/rmd-site`.
 
-    ```{r}
-    deploySite("bundles/rmd-site", render = "local")
-    # Should redploy without prompting for account
-    deploySite("bundles/rmd-site", render = "local")
+1.  When opened, you may see a message indicating that the project library
+    and lockfile are out of sync. If so, restore its environment:
 
-    deploySite("bundles/rmd-site", render = "none")
-
-    deploySite("bundles/rmd-site", siteName = "rmd-site-server", render = "server")
+    ```r
+    renv::restore()
     ```
+
+1.  Update rsconnect and renv within this project; as the lockfile probably
+    references different versions than what you want to test:
+
+    ```r
+    install.packages(c("renv","rsconnect"))
+    ```
+
+1.  Deploy, then re-deploy. If this is the first time deploying from this
+    directory, you will be prompted for a deployment target. The re-deploy
+    should NEVER prompt.
+
+    ```r
+    # initial deploy: renders, then publishes.
+    rsconnect::deploySite(render = "local")
+    # re-deply: renders, then publishes.
+    rsconnect::deploySite(render = "local")
+    # re-deploy: NO RENDER, only publishes.
+    rsconnect::deploySite(render = "none")
+    ```
+
+    The content successfully deploys as static (HTML) that was rendered on the
+    client.
+
+1.  Deploy having the content render on the server. If this is the first time
+    deploying with this title, you will be prompted for a deployment target.
+
+    ```r
+    # initial deploy: publishes on the server.
+    rsconnect::deploySite(siteName = "rmd-site-renders", render = "server")
+    ```
+
+    The content successfully deploys as R Markdown to be rendered by Connect.
