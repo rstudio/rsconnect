@@ -1,7 +1,7 @@
 ## Summary
 
-* CRAN test errors reported in r-patched-linux-x86_64 against public Internet
-  resources are now skipped.
+* Address CRAN-observed test failures caused by problems with some
+  Bioconductor mirrors.
 * Addresses a couple issues encountered by users with the previous release.
 
 ## R CMD check results
