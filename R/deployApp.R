@@ -40,7 +40,7 @@
 #'   `recordDir` instead.
 #' @param appName Application name, a string consisting of letters, numbers,
 #'   `_` and `-`. The application name is used to identify applications on a
-#'   server, so much be unique.
+#'   server, so must be unique.
 #'
 #'   If not specified, the first deployment will be automatically it from the
 #'   `appDir` for directory and website, and from the `appPrimaryDoc` for
