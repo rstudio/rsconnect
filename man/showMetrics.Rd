@@ -30,7 +30,7 @@ or plumber API). Defaults to the current directory.}
 
 \item{appName}{Application name, a string consisting of letters, numbers,
 \verb{_} and \code{-}. The application name is used to identify applications on a
-server, so much be unique.
+server, so must be unique.
 
 If not specified, the first deployment will be automatically it from the
 \code{appDir} for directory and website, and from the \code{appPrimaryDoc} for
