@@ -9,9 +9,18 @@ snapshotRenvDependencies <- function(bundleDir,
   )
   defer(options(old))
 
+  dependenciesLimit <- getOption("renv.config.dependencies.limit")
+  if (is.null(dependenciesLimit)) {
+    maxFiles <- getOption("rsconnect.max.bundle.files", 10000)
+    oldlim <- options(
+      renv.config.dependencies.limit = maxFiles
+    )
+    defer(options(oldlim))
+  }
+
   # analyze code dependencies ourselves rather than relying on the scan during renv::snapshot, as
   # that will add renv to renv.lock as a dependency.
-  deps <- renv::dependencies(bundleDir)
+  deps <- renv::dependencies(bundleDir, root = bundleDir, progress = FALSE)
   renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
   defer(removeRenv(bundleDir))
 
