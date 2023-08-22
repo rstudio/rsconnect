@@ -58,6 +58,8 @@ test_that("works with BioC packages", {
 
 # https://github.com/rstudio/rsconnect/issues/968
 test_that("large directories are analyzed", {
+  skip_on_cran()
+  skip_on_ci()
   app_dir <- local_temp_app(list("foo.R" = "library(foreign)"))
   data_dir <- file.path(app_dir, "data")
   dir.create(data_dir)
