@@ -1,5 +1,9 @@
 # rsconnect (development version)
 
+* Fixed analysis of directories that were smaller than the
+  `rsconnect.max.bundle.files=10000` limit but larger than the
+  `renv.config.dependencies.limit=1000` limit. (#968)
+
 # rsconnect 1.0.2
 
 * Fixed redeployments to shinyapps.io where `appName` is provided, but no local
