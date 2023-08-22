@@ -20,7 +20,7 @@ snapshotRenvDependencies <- function(bundleDir,
 
   # analyze code dependencies ourselves rather than relying on the scan during renv::snapshot, as
   # that will add renv to renv.lock as a dependency.
-  deps <- renv::dependencies(bundleDir, root = bundleDir)
+  deps <- renv::dependencies(bundleDir, root = bundleDir, progress = FALSE)
   renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
   defer(removeRenv(bundleDir))
 
