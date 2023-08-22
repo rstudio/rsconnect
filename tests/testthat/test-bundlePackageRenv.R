@@ -56,6 +56,20 @@ test_that("works with BioC packages", {
   expect_equal(Biobase$Repository, biocRepos(".")[[1]])
 })
 
+# https://github.com/rstudio/rsconnect/issues/968
+test_that("large directories are analyzed", {
+  app_dir <- local_temp_app(list("foo.R" = "library(foreign)"))
+  data_dir <- file.path(app_dir, "data")
+  dir.create(data_dir)
+  for (each in seq_len(1001)) {
+    writeLines(character(0), file.path(data_dir, paste0(each, ".txt")))
+  }
+  expect_snapshot(
+    deps <- snapshotRenvDependencies(app_dir)
+  )
+  expect_contains(deps$Package, "foreign")
+})
+
 # parseRenvDependencies ---------------------------------------------------
 
 test_that("gets DESCRIPTION from renv & system libraries", {

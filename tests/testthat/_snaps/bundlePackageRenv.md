@@ -1,3 +1,8 @@
+# large directories are analyzed
+
+    Code
+      deps <- snapshotRenvDependencies(app_dir)
+
 # errors if library and project are inconsistent
 
     Code
