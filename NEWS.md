@@ -4,9 +4,8 @@
   `rsconnect.max.bundle.files=10000` limit but larger than the
   `renv.config.dependencies.limit=1000` limit. (#968)
 
-* Allow `.env` files in bundles, as they are likely to contain environment
-  variables needed by the deployed code. Ignore `.env` directories, as they
-  are likely to be Python virtual environments. (#972)
+* Ignore `.env`, `.venv`, and `venv` files only when they reference Python
+  virtual environments. (#972)
 
 # rsconnect 1.0.2
 
