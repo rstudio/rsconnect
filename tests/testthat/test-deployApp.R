@@ -6,12 +6,14 @@ test_that("appDir must be an existing directory", {
 })
 
 test_that("single document appDir is deprecated", {
+  skip_on_cran()
   expect_snapshot(error = TRUE, {
     deployApp("foo.Rmd")
   })
 })
 
 test_that("appPrimaryDoc must exist, if supplied", {
+  skip_on_cran()
   dir <- local_temp_app()
 
   expect_snapshot(error = TRUE, {
