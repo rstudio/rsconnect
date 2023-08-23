@@ -133,7 +133,7 @@ test_that("ignores temporary files", {
   expect_equal(ignored, c("foo.xlsx", "foo.csv"))
 })
 
-test_that("ignores Python virtual envs", {
+test_that("ignores Python virtual envs (non-Windows)", {
   dir <- withr::local_tempdir()
 
   names <- c(
@@ -146,6 +146,23 @@ test_that("ignores Python virtual envs", {
 
   dirCreate(file.path(dir, names, "bin"))
   file.create(file.path(dir, names, "bin", "python"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
+test_that("ignores Python virtual envs (Windows)", {
+  dir <- withr::local_tempdir()
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "Scripts"))
+  file.create(file.path(dir, names, "Scripts", "python.exe"))
 
   expect_equal(bundleFiles(dir), character())
 })

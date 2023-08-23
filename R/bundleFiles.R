@@ -210,7 +210,8 @@ isKnitrCacheDir <- function(files) {
 
 # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d6/rsconnect/bundle.py#L541-L543
 isPythonEnv <- function(dir, files) {
-  file.exists(file.path(dir, files, "bin", "python"))
+  (file.exists(file.path(dir, files, "bin", "python")) |
+     file.exists(file.path(dir, files, "Scripts", "python.exe")))
 }
 
 enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
