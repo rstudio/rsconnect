@@ -167,6 +167,40 @@ test_that("ignores Python virtual envs (Windows)", {
   expect_equal(bundleFiles(dir), character())
 })
 
+test_that("ignores Python virtual envs (Windows-GUI)", {
+  dir <- withr::local_tempdir()
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "Scripts"))
+  file.create(file.path(dir, names, "Scripts", "pythonw.exe"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
+test_that("ignores Python virtual envs (Windows-debug)", {
+  dir <- withr::local_tempdir()
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "Scripts"))
+  file.create(file.path(dir, names, "Scripts", "pythond.exe"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
 test_that("preserves well-known names when not Python virtual environment", {
   dir <- withr::local_tempdir()
   file.create(file.path(dir, c(".env", ".venv", "venv")))
