@@ -1,10 +1,12 @@
 test_that("deployDoc correctly reports bad path", {
+  skip_on_cran()
   expect_snapshot(deployDoc("doesntexist.Rmd"), error = TRUE)
 })
 
 # standardizeSingleDocDeployment ------------------------------------------
 
 test_that("turns appDir into appDir + appPrimarySourceDoc", {
+  skip_on_cran()
   dir <- local_temp_app(list("foo.R" = ""))
 
   doc <- standardizeSingleDocDeployment(file.path(dir, "foo.R"))
@@ -13,6 +15,7 @@ test_that("turns appDir into appDir + appPrimarySourceDoc", {
 })
 
 test_that("shiny rmd deploys whole directory", {
+  skip_on_cran()
   dir <- local_temp_app(list("foo.Rmd" = c(
     "---",
     "runtime: shiny",
@@ -23,6 +26,7 @@ test_that("shiny rmd deploys whole directory", {
 })
 
 test_that("regular rmd deploys file and dependencies", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.Rmd" = c(
       "---",
@@ -37,6 +41,7 @@ test_that("regular rmd deploys file and dependencies", {
 })
 
 test_that("regular rmd deploys .Rprofile, if present", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.Rmd" = "",
     ".Rprofile" = ""
@@ -47,6 +52,7 @@ test_that("regular rmd deploys .Rprofile, if present", {
 })
 
 test_that("regular rmd deploys requirements.txt, if present", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.Rmd" = "",
     "requirements.txt" = ""
@@ -57,6 +63,7 @@ test_that("regular rmd deploys requirements.txt, if present", {
 })
 
 test_that("regular rmd deploys renv.lock, if present", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.Rmd" = "",
     "renv.lock" = ""
@@ -67,6 +74,7 @@ test_that("regular rmd deploys renv.lock, if present", {
 })
 
 test_that("regular html does not deploy .Rprofile", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.html" = "",
     ".Rprofile" = ""
@@ -77,6 +85,7 @@ test_that("regular html does not deploy .Rprofile", {
 })
 
 test_that("regular html does not deploy requirements.txt", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.html" = "",
     "requirements.txt" = ""
@@ -87,6 +96,7 @@ test_that("regular html does not deploy requirements.txt", {
 })
 
 test_that("regular html does not deploy renv.lock", {
+  skip_on_cran()
   dir <- local_temp_app(list(
     "foo.html" = "",
     "renv.lock" = ""
@@ -97,6 +107,7 @@ test_that("regular html does not deploy renv.lock", {
 })
 
 test_that("other types deploy that one file", {
+  skip_on_cran()
   dir <- local_temp_app(list("foo.R" = ""))
   doc <- standardizeSingleDocDeployment(file.path(dir, "foo.R"))
   expect_equal(doc$appFiles, "foo.R")
