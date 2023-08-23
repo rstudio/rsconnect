@@ -170,7 +170,8 @@ recursiveBundleFiles <- function(dir,
 }
 
 ignoreBundleFiles <- function(dir, contents) {
-  ignore <- c(
+  # entries ignored regardless of type
+  ignored_names <- c(
     # rsconnect packages
     "rsconnect", "rsconnect-python", "manifest.json",
     # packrat + renv,
@@ -181,11 +182,22 @@ ignoreBundleFiles <- function(dir, contents) {
     ".Rhistory", ".Rproj.user",
     # python virtual envs
     # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d66411f736da6edc29fcf44ed/rsconnect/bundle.py#L37-L50
-    ".env", "env", ".venv", "venv",  "__pycache__/",
+    "env", ".venv", "venv",  "__pycache__/",
     # other
     ".DS_Store", ".quarto", "app_cache"
   )
-  contents <- setdiff(contents, ignore)
+  contents <- setdiff(contents, ignored_names)
+
+  # entries ignored when a directory
+  ignored_directories <- c(
+    # python virtual env when a directory (ignored); environment variables when a file (kept)
+    # https://github.com/rstudio/rsconnect/issues/972
+    ".env"
+  )
+
+  is_dir <- dir.exists(file.path(dir, contents))
+  contents <- contents[!((contents %in% ignored_directories) & is_dir)]
+
   contents <- contents[!isKnitrCacheDir(contents)]
   contents <- contents[!isPythonEnv(dir, contents)]
   contents <- contents[!grepl("^~|~$", contents)]

@@ -143,6 +143,20 @@ test_that("ignores python virtual envs", {
   expect_equal(bundleFiles(dir), character())
 })
 
+test_that("preserves .env when a file", {
+  dir <- withr::local_tempdir()
+  file.create(file.path(dir, ".env"))
+
+  expect_equal(bundleFiles(dir), c(".env"))
+})
+
+test_that("ignores .env when a directory", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, ".env"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
 # explodeFiles ------------------------------------------------------------
 
 test_that("returns relative paths", {

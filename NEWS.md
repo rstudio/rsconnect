@@ -4,6 +4,10 @@
   `rsconnect.max.bundle.files=10000` limit but larger than the
   `renv.config.dependencies.limit=1000` limit. (#968)
 
+* Allow `.env` files in bundles, as they are likely to contain environment
+  variables needed by the deployed code. Ignore `.env` directories, as they
+  are likely to be Python virtual environments. (#972)
+
 # rsconnect 1.0.2
 
 * Fixed redeployments to shinyapps.io where `appName` is provided, but no local
@@ -204,7 +208,7 @@
 
 * `deployApp()` excludes temporary backup files (names starting or ending 
   with `~`) when automatically determining files to bundle (#111) as well as 
-  directories that are likely to be python virtual environments (#632). 
+  directories that are likely to be Python virtual environments (#632). 
   Additionally, ignore rules are always now applied to all directories; 
   previously some (like `.Rproj.user` and `"manifest.json"`) were only 
   applied to the root directory. It correctly handles `.rscignore`  files 
