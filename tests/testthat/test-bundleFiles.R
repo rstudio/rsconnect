@@ -133,14 +133,79 @@ test_that("ignores temporary files", {
   expect_equal(ignored, c("foo.xlsx", "foo.csv"))
 })
 
-test_that("ignores python virtual envs", {
+test_that("ignores Python virtual envs (non-Windows)", {
   dir <- withr::local_tempdir()
-  dirCreate(file.path(dir, "test", "bin"))
-  file.create(file.path(dir, "test", "bin", "python"))
-  dirCreate(file.path(dir, "venv"))
-  file.create(file.path(dir, "venv", "somefile"))
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "bin"))
+  file.create(file.path(dir, names, "bin", "python"))
 
   expect_equal(bundleFiles(dir), character())
+})
+
+test_that("ignores Python virtual envs (Windows)", {
+  dir <- withr::local_tempdir()
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "Scripts"))
+  file.create(file.path(dir, names, "Scripts", "python.exe"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
+test_that("ignores Python virtual envs (Windows-GUI)", {
+  dir <- withr::local_tempdir()
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "Scripts"))
+  file.create(file.path(dir, names, "Scripts", "pythonw.exe"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
+test_that("ignores Python virtual envs (Windows-debug)", {
+  dir <- withr::local_tempdir()
+
+  names <- c(
+    # well-known names ...
+    ".env", ".venv", "venv",
+
+    # other names ...
+    "test"
+  )
+
+  dirCreate(file.path(dir, names, "Scripts"))
+  file.create(file.path(dir, names, "Scripts", "pythond.exe"))
+
+  expect_equal(bundleFiles(dir), character())
+})
+
+test_that("preserves well-known names when not Python virtual environment", {
+  dir <- withr::local_tempdir()
+  file.create(file.path(dir, c(".env", ".venv", "venv")))
+
+  expect_setequal(bundleFiles(dir), c(".env", ".venv", "venv"))
 })
 
 # explodeFiles ------------------------------------------------------------

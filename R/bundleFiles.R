@@ -170,7 +170,8 @@ recursiveBundleFiles <- function(dir,
 }
 
 ignoreBundleFiles <- function(dir, contents) {
-  ignore <- c(
+  # entries ignored regardless of type
+  ignored <- c(
     # rsconnect packages
     "rsconnect", "rsconnect-python", "manifest.json",
     # packrat + renv,
@@ -179,13 +180,11 @@ ignoreBundleFiles <- function(dir, contents) {
     ".git", ".gitignore", ".svn",
     # R/RStudio
     ".Rhistory", ".Rproj.user",
-    # python virtual envs
-    # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d66411f736da6edc29fcf44ed/rsconnect/bundle.py#L37-L50
-    ".env", "env", ".venv", "venv",  "__pycache__/",
     # other
-    ".DS_Store", ".quarto", "app_cache"
+    ".DS_Store", ".quarto", "app_cache", "__pycache__/"
   )
-  contents <- setdiff(contents, ignore)
+
+  contents <- setdiff(contents, ignored)
   contents <- contents[!isKnitrCacheDir(contents)]
   contents <- contents[!isPythonEnv(dir, contents)]
   contents <- contents[!grepl("^~|~$", contents)]
@@ -211,7 +210,10 @@ isKnitrCacheDir <- function(files) {
 
 # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d6/rsconnect/bundle.py#L541-L543
 isPythonEnv <- function(dir, files) {
-  file.exists(file.path(dir, files, "bin", "python"))
+  (file.exists(file.path(dir, files, "bin", "python")) |
+     file.exists(file.path(dir, files, "Scripts", "python.exe")) |
+     file.exists(file.path(dir, files, "Scripts", "pythond.exe")) |
+     file.exists(file.path(dir, files, "Scripts", "pythonw.exe")))
 }
 
 enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
