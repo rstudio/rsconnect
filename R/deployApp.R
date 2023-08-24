@@ -142,11 +142,12 @@
 #' @param image Optional. The name of the image to use when building and
 #'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements.
-#' @param envManagement Optional. Should Connect install R and Python packages
-#'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
-#'   not write any values to the bundle manifest, and Connect will fall back to
-#'   the application default environment management strategy, or the server
-#'   default if no application default is defined.
+#' @param envManagement Optional. Should Posit Connect install R and Python
+#'   packages for this content? (`TRUE`, `FALSE`, or `NULL`).
+#'   The default, `NULL`, will not write any values to the bundle manifest,
+#'   and Connect will fall back to the application default environment
+#'   management strategy, or the server default if no application default
+#'   is defined.
 #'
 #'   (This option is a shorthand flag which overwrites the values of both
 #'   `envManagementR` and `envManagementPy`.)
@@ -155,11 +156,15 @@
 #'   not write any values to the bundle manifest, and Connect will fall back to
 #'   the application default R environment management strategy, or the server
 #'   default if no application default is defined.
+#'
+#'   (This option is ignored when `envManagement` is non-`NULL`.)
 #' @param envManagementPy Optional. Should Connect install Python packages
 #'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
 #'   not write any values to the bundle manifest, and Connect will fall back to
 #'   the application default Python environment management strategy, or the server
 #'   default if no application default is defined.
+#'
+#'   (This option is ignored when `envManagement` is non-`NULL`.)
 #' @examples
 #' \dontrun{
 #'
