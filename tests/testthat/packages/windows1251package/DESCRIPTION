@@ -1,0 +1,10 @@
+Package: windows1251package
+Type: Package
+Title: Provides some funky characters.
+Version: 0.1.0
+Author: Сергей Брин
+Maintainer: Сергей Брин <some.guy@i.made.him.up>
+Description: a test package
+License: GPL-2
+Encoding: Windows-1251
+LazyData: true
