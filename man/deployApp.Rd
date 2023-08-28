@@ -30,7 +30,8 @@ deployApp(
   forceGeneratePythonEnvironment = FALSE,
   quarto = NA,
   appVisibility = NULL,
-  image = NULL
+  image = NULL,
+  space = NULL
 )
 }
 \arguments{
@@ -177,6 +178,11 @@ made. Currently has an effect only on deployments to shinyapps.io.}
 \item{image}{Optional. The name of the image to use when building and
 executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements.}
+
+\item{space}{Optional. For Posit Cloud, the id of the space where the content
+should be deployed. If none is provided, content will be deployed to the
+deploying user's workspace or deployed to the same space in case of
+redeploy.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
