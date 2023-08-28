@@ -90,7 +90,7 @@ shinyAppsClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId, appMode) {
+    createApplication = function(name, title, template, accountId, appMode, spaceId) {
       json <- list()
       json$name <- name
       # the title field is only used on connect

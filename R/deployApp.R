@@ -142,6 +142,10 @@
 #' @param image Optional. The name of the image to use when building and
 #'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements.
+#' @param space Optional. For Posit Cloud, the id of the space where the content
+#'   should be deployed. If none is provided, content will be deployed to the
+#'   deploying user's workspace or deployed to the same space in case of
+#'   redeploy.
 #' @examples
 #' \dontrun{
 #'
@@ -197,7 +201,8 @@ deployApp <- function(appDir = getwd(),
                       forceGeneratePythonEnvironment = FALSE,
                       quarto = NA,
                       appVisibility = NULL,
-                      image = NULL
+                      image = NULL,
+                      space = NULL
                       ) {
 
   check_string(appDir)
@@ -365,7 +370,8 @@ deployApp <- function(appDir = getwd(),
       target$appTitle,
       "shiny",
       accountDetails$accountId,
-      appMetadata$appMode
+      appMetadata$appMode,
+      space
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
@@ -453,7 +459,7 @@ deployApp <- function(appDir = getwd(),
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application, bundle$id)
+  task <- client$deployApplication(application, bundle$id, space)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)

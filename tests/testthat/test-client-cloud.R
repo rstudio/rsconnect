@@ -303,6 +303,50 @@ test_that("Create application", {
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
+test_that("Create application with space id", {
+  mockServer <- mockServerFactory(list(
+    "^POST /outputs" = list(
+      content = function(methodAndPath, match, contentFile, ...) {
+        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        expect_equal(content$application_type, "connect")
+        expect_equal(content$space, 333)
+        list(
+          "id" = 1,
+          "source_id" = 2,
+          "url" = "http://fake-url.test.me/",
+          "state" = "active"
+        )
+      }
+    ),
+    "^GET /applications/([0-9]+)" = list(
+      content = function(methodAndPath, match, ...) {
+        end <- attr(match, "match.length")[2] + match[2]
+        application_id <- strtoi(substr(methodAndPath, match[2], end))
+
+        list(
+          "id" = application_id,
+          "content_id" = 1
+        )
+      })
+  ))
+
+  restoreOpt <- options(rsconnect.http = mockServer$impl)
+  withr::defer(options(restoreOpt))
+
+  fakeService <- list(
+    protocol = "test",
+    host = "unit-test",
+    port = 42
+  )
+  client <- cloudClient(fakeService, NULL)
+
+  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny", 333)
+
+  expect_equal(app$id, 1)
+  expect_equal(app$application_id, 2)
+  expect_equal(app$url, "http://fake-url.test.me/")
+})
+
 test_that("Create static application", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
@@ -408,6 +452,7 @@ test_that("deployApplication updates the parent project", {
       content = function(methodAndPath, match, contentFile, ...) {
         content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
         expect_equal(content$project, 41)
+        expect_equal(content$space, 333)
         list(
           "id" = 41
         )
@@ -442,7 +487,7 @@ test_that("deployApplication updates the parent project", {
     "id" = 100,
     "application_id" = 101
   )
-  client$deployApplication(application)
+  client$deployApplication(application, spaceId = 333)
 })
 
 test_that("Create static RMD application", {

@@ -161,7 +161,7 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId, appMode) {
+    createApplication = function(name, title, template, accountId, appMode, spaceId = NULL) {
       json <- list()
       json$name <- name
       json$application_type <- if (appMode %in% c("rmd-static", "quarto-static", "static")) "static" else "connect"
@@ -169,15 +169,19 @@ cloudClient <- function(service, authInfo) {
         json$render_by <- "server"
       }
 
-      currentProjectId <- getCurrentProjectId(service, authInfo)
-      # in case the source cloud project is a temporary copy, there is no
-      # content id. The output will be published without a space id.
-      if (!is.null(currentProjectId)) {
-        json$project <- currentProjectId
+      if (is.null(spaceId)) {
+        currentProjectId <- getCurrentProjectId(service, authInfo)
+        # in case the source cloud project is a temporary copy, there is no
+        # content id. The output will be published without a space id.
+        if (!is.null(currentProjectId)) {
+          json$project <- currentProjectId
 
-        path <- paste0("/content/", currentProjectId)
-        currentProject <- GET(service, authInfo, path)
-        json$space <- currentProject$space_id
+          path <- paste0("/content/", currentProjectId)
+          currentProject <- GET(service, authInfo, path)
+          json$space <- currentProject$space_id
+        }
+      } else {
+        json$space <- spaceId
       }
 
       output <- POST_JSON(service, authInfo, "/outputs", json)
@@ -230,12 +234,21 @@ cloudClient <- function(service, authInfo) {
         revision$application_id
     },
 
-    deployApplication = function(application, bundleId = NULL) {
+    deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
+      outputPatchData <- list()
+
       currentProjectId <- getCurrentProjectId(service, authInfo)
       if (!is.null(currentProjectId)) {
+        outputPatchData$project <- currentProjectId
+      }
+
+      if (!is.null(spaceId)) {
+        outputPatchData$space <- spaceId
+      }
+
+      if (length(outputPatchData) > 0) {
         path <- paste0("/outputs/", application$id)
-        json <- list(project = currentProjectId)
-        PATCH_JSON(service, authInfo, path, json)
+        PATCH_JSON(service, authInfo, path, outputPatchData)
       }
 
       path <- paste0("/applications/", application$application_id, "/deploy")

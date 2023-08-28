@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Added `space` parameter to deploy directly to a space in Posit Cloud.
+
 * Fixed analysis of directories that were smaller than the
   `rsconnect.max.bundle.files=10000` limit but larger than the
   `renv.config.dependencies.limit=1000` limit. (#968)
