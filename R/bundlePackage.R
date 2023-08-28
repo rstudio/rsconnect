@@ -114,6 +114,6 @@ availablePackages <- function(repos) {
 }
 
 package_record <- function(name, lib_dir = NULL) {
-  path <- system.file("DESCRIPTION", package = name, lib.loc = lib_dir)
-  as.list(as.data.frame(read.dcf(path)))
+  record <- packageDescription(name, lib.loc = lib_dir, encoding = "UTF-8")
+  unclass(record)
 }

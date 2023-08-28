@@ -1,0 +1,10 @@
+Package: utf8package
+Type: Package
+Title: Provides some funky characters.
+Version: 0.1.0
+Author: Jens Fröhling
+Maintainer: Jens Fröhling <some.guy@i.made.him.up>
+Description: a test package
+License: GPL-2
+Encoding: UTF-8
+LazyData: true

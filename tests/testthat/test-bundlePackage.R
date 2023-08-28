@@ -133,3 +133,14 @@ test_that("usePackrat prefers the environment variable over the option", {
   withr::local_options(rsconnect.packrat = TRUE)
   expect_false(usePackrat())
 })
+
+test_that("package_record works", {
+  latin1Record <- package_record("latin1package", lib_dir = test_path("packages"))
+  expect_equal(latin1Record$Author, "Jens Fröhling")
+
+  utf8Record <- package_record("utf8package", lib_dir = test_path("packages"))
+  expect_equal(utf8Record$Author, "Jens Fröhling")
+
+  windows1251Record <- package_record("windows1251package", lib_dir = test_path("packages"))
+  expect_equal(windows1251Record$Author, "Сергей Брин")
+})
