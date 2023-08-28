@@ -115,5 +115,5 @@ availablePackages <- function(repos) {
 
 package_record <- function(name, lib_dir = NULL) {
   record <- packageDescription(name, lib.loc = lib_dir, encoding = "UTF-8")
-  lapply(record, identity)
+  unclass(record)
 }
