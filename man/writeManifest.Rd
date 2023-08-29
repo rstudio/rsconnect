@@ -15,6 +15,9 @@ writeManifest(
   forceGeneratePythonEnvironment = FALSE,
   quarto = NA,
   image = NULL,
+  envManagement = NULL,
+  envManagementR = NULL,
+  envManagementPy = NULL,
   verbose = FALSE,
   quiet = FALSE
 )
@@ -68,6 +71,32 @@ there are \code{.qmd} files in the bundle, or if there is a
 \item{image}{Optional. The name of the image to use when building and
 executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements.}
+
+\item{envManagement}{Optional. Should Posit Connect install R and Python
+packages for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}).
+The default, \code{NULL}, will not write any values to the bundle manifest,
+and Connect will fall back to the application default environment
+management strategy, or the server default if no application default
+is defined.
+
+(This option is a shorthand flag which overwrites the values of both
+\code{envManagementR} and \code{envManagementPy}.)}
+
+\item{envManagementR}{Optional. Should Posit Connect install R packages
+for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default, \code{NULL}, will
+not write any values to the bundle manifest, and Connect will fall back to
+the application default R environment management strategy, or the server
+default if no application default is defined.
+
+(This option is ignored when \code{envManagement} is non-\code{NULL}.)}
+
+\item{envManagementPy}{Optional. Should Posit Connect install Python packages
+for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default, \code{NULL}, will
+not write any values to the bundle manifest, and Connect will fall back to
+the application default Python environment management strategy, or the
+server default if no application default is defined.
+
+(This option is ignored when \code{envManagement} is non-\code{NULL}.)}
 
 \item{verbose}{If \code{TRUE}, prints detailed progress messages.}
 

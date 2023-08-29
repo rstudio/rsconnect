@@ -142,6 +142,29 @@
 #' @param image Optional. The name of the image to use when building and
 #'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements.
+#' @param envManagement Optional. Should Posit Connect install R and Python
+#'   packages for this content? (`TRUE`, `FALSE`, or `NULL`).
+#'   The default, `NULL`, will not write any values to the bundle manifest,
+#'   and Connect will fall back to the application default environment
+#'   management strategy, or the server default if no application default
+#'   is defined.
+#'
+#'   (This option is a shorthand flag which overwrites the values of both
+#'   `envManagementR` and `envManagementPy`.)
+#' @param envManagementR Optional. Should Posit Connect install R packages
+#'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
+#'   not write any values to the bundle manifest, and Connect will fall back to
+#'   the application default R environment management strategy, or the server
+#'   default if no application default is defined.
+#'
+#'   (This option is ignored when `envManagement` is non-`NULL`.)
+#' @param envManagementPy Optional. Should Posit Connect install Python packages
+#'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
+#'   not write any values to the bundle manifest, and Connect will fall back to
+#'   the application default Python environment management strategy, or the
+#'   server default if no application default is defined.
+#'
+#'   (This option is ignored when `envManagement` is non-`NULL`.)
 #' @param space Optional. For Posit Cloud, the id of the space where the content
 #'   should be deployed. If none is provided, content will be deployed to the
 #'   deploying user's workspace or deployed to the same space in case of
@@ -202,6 +225,9 @@ deployApp <- function(appDir = getwd(),
                       quarto = NA,
                       appVisibility = NULL,
                       image = NULL,
+                      envManagement = NULL,
+                      envManagementR = NULL,
+                      envManagementPy = NULL,
                       space = NULL
                       ) {
 
@@ -430,7 +456,10 @@ deployApp <- function(appDir = getwd(),
       quiet = quiet,
       verbose = verbose,
       pythonConfig = pythonConfig,
-      image = image
+      image = image,
+      envManagement = envManagement,
+      envManagementR = envManagementR,
+      envManagementPy = envManagementPy
     )
     size <- format(file_size(bundlePath), big.mark = ",")
     taskComplete(quiet, "Created {size}b bundle")
@@ -595,7 +624,10 @@ bundleApp <- function(appName,
                       verbose = FALSE,
                       quiet = FALSE,
                       pythonConfig = NULL,
-                      image = NULL) {
+                      image = NULL,
+                      envManagement = NULL,
+                      envManagementR = NULL,
+                      envManagementPy = NULL) {
   logger <- verboseLogger(verbose)
 
   # get application users (for non-document deployments)
@@ -621,6 +653,9 @@ bundleApp <- function(appName,
     pythonConfig = pythonConfig,
     retainPackratDirectory = TRUE,
     image = image,
+    envManagement = envManagement,
+    envManagementR = envManagementR,
+    envManagementPy = envManagementPy,
     verbose = verbose,
     quiet = quiet
   )

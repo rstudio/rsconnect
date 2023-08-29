@@ -225,6 +225,29 @@ test_that("Sets environment.image in the manifest if one is provided", {
   expect_null(manifest$environment)
 })
 
+test_that("Sets environment.environment_management in the manifest if envManagement is defined", {
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-simple")
+
+  # test shorthand arg
+  manifest <- makeManifest(appDir, envManagement = FALSE, envManagementR = TRUE, envManagementPy = TRUE)
+  expect_equal(manifest$environment$environment_management$r, FALSE)
+  expect_equal(manifest$environment$environment_management$python, FALSE)
+
+  # test R and Python args
+  manifest <- makeManifest(appDir, envManagementR = TRUE)
+  expect_equal(manifest$environment$environment_management$r, TRUE)
+  expect_null(manifest$environment$environment_management$python)
+  manifest <- makeManifest(appDir, envManagementPy = TRUE)
+  expect_equal(manifest$environment$environment_management$python, TRUE)
+  expect_null(manifest$environment$environment_management$r)
+
+  # environment_management is not defined when envManagementR and envManagementPy are NULL
+  manifest <- makeManifest(appDir, image = "rstudio/content-base:latest")
+  expect_null(manifest$environment$environment_management)
+})
+
 # appMode Inference tests
 
 test_that("content type (appMode) is inferred and can be overridden", {
