@@ -151,18 +151,18 @@
 #'
 #'   (This option is a shorthand flag which overwrites the values of both
 #'   `envManagementR` and `envManagementPy`.)
-#' @param envManagementR Optional. Should Connect install R packages
+#' @param envManagementR Optional. Should Posit Connect install R packages
 #'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
 #'   not write any values to the bundle manifest, and Connect will fall back to
 #'   the application default R environment management strategy, or the server
 #'   default if no application default is defined.
 #'
 #'   (This option is ignored when `envManagement` is non-`NULL`.)
-#' @param envManagementPy Optional. Should Connect install Python packages
+#' @param envManagementPy Optional. Should Posit Connect install Python packages
 #'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
 #'   not write any values to the bundle manifest, and Connect will fall back to
-#'   the application default Python environment management strategy, or the server
-#'   default if no application default is defined.
+#'   the application default Python environment management strategy, or the
+#'   server default if no application default is defined.
 #'
 #'   (This option is ignored when `envManagement` is non-`NULL`.)
 #' @examples

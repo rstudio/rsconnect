@@ -82,7 +82,7 @@ is defined.
 (This option is a shorthand flag which overwrites the values of both
 \code{envManagementR} and \code{envManagementPy}.)}
 
-\item{envManagementR}{Optional. Should Connect install R packages
+\item{envManagementR}{Optional. Should Posit Connect install R packages
 for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default, \code{NULL}, will
 not write any values to the bundle manifest, and Connect will fall back to
 the application default R environment management strategy, or the server
@@ -90,11 +90,11 @@ default if no application default is defined.
 
 (This option is ignored when \code{envManagement} is non-\code{NULL}.)}
 
-\item{envManagementPy}{Optional. Should Connect install Python packages
+\item{envManagementPy}{Optional. Should Posit Connect install Python packages
 for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default, \code{NULL}, will
 not write any values to the bundle manifest, and Connect will fall back to
-the application default Python environment management strategy, or the server
-default if no application default is defined.
+the application default Python environment management strategy, or the
+server default if no application default is defined.
 
 (This option is ignored when \code{envManagement} is non-\code{NULL}.)}
 
