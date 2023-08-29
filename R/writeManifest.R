@@ -26,6 +26,9 @@ writeManifest <- function(appDir = getwd(),
                           forceGeneratePythonEnvironment = FALSE,
                           quarto = NA,
                           image = NULL,
+                          envManagement = NULL,
+                          envManagementR = NULL,
+                          envManagementPy = NULL,
                           verbose = FALSE,
                           quiet = FALSE) {
   appFiles <- listDeploymentFiles(
@@ -61,6 +64,9 @@ writeManifest <- function(appDir = getwd(),
     pythonConfig = pythonConfig,
     retainPackratDirectory = FALSE,
     image = image,
+    envManagement = envManagement,
+    envManagementR = envManagementR,
+    envManagementPy = envManagementPy,
     verbose = verbose,
     quiet = quiet
   )

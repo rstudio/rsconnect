@@ -109,6 +109,9 @@ createAppManifest <- function(appDir,
                               pythonConfig = NULL,
                               retainPackratDirectory = TRUE,
                               image = NULL,
+                              envManagement = NULL,
+                              envManagementR = NULL,
+                              envManagementPy = NULL,
                               verbose = FALSE,
                               quiet = FALSE) {
 
@@ -191,9 +194,36 @@ createAppManifest <- function(appDir,
   # add metadata
   manifest$metadata <- metadata
 
-  # if there is a target image, attach it to the environment
-  if (!is.null(image)) {
-    manifest$environment <- list(image = image)
+  # handle shorthand arg to enable/disable both R and Python
+  if (!is.null(envManagement)) {
+    envManagementR <- envManagement
+    envManagementPy <- envManagement
+  }
+
+  # if envManagement is explicitly enabled/disabled,
+  # create an environment_management obj
+  envManagementInfo <- list()
+  if (!is.null(envManagementR)) {
+    envManagementInfo$r <- envManagementR
+  }
+  if (!is.null(envManagementPy)) {
+    envManagementInfo$python <- envManagementPy
+  }
+
+  # emit the environment field
+  if (!is.null(image) || length(envManagementInfo) > 0) {
+    manifest$environment <- list()
+
+    # if there is a target image, attach it to the environment
+    if (!is.null(image)) {
+      manifest$environment$image <- image
+    }
+
+    # if either environment_management.r or environment_management.python
+    # is provided, write the environment_management field
+    if (length(envManagementInfo) > 0) {
+      manifest$environment$environment_management <- envManagementInfo
+    }
   }
 
   # indicate whether this is a quarto app/doc

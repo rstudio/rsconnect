@@ -6,6 +6,18 @@
 
 * Ignore `.env`, `.venv`, and `venv` files only when they reference Python
   virtual environments. (#972)
+  
+* `deployApp()` and `writeManifest()` accept optional `envManagement`,
+  `envManagementR`, and `envManagementPy` arguments. These args specify whether
+  Posit Connect should install packages in the package cache.
+  If `envManagement` is `FALSE` then Connect will not perform any package
+  installation and it is the administrator's responsibility to ensure the
+  required R/Python packages are available in the runtime environment. This is
+  especially useful if off-host execution is enabled, when the execution
+  environment (specified by the `image` argument) already contains the required
+  packages. These values are ignored when
+  `Applications.ManifestEnvironmentManagementSelection = false`.
+  Requires Posit Connect `>=2023.07.0`. (#977)
 
 # rsconnect 1.0.2
 
