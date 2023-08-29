@@ -89,7 +89,10 @@ content to a server.</p>
 <span>  forceGeneratePythonEnvironment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  quarto <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  appVisibility <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  image <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  image <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  envManagement <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  envManagementR <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  envManagementPy <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -275,6 +278,35 @@ made. Currently has an effect only on deployments to shinyapps.io.</p></dd>
 <dd><p>Optional. The name of the image to use when building and
 executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements.</p></dd>
+
+
+<dt>envManagement</dt>
+<dd><p>Optional. Should Posit Connect install R and Python
+packages for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>).
+The default, <code>NULL</code>, will not write any values to the bundle manifest,
+and Connect will fall back to the application default environment
+management strategy, or the server default if no application default
+is defined.</p>
+<p>(This option is a shorthand flag which overwrites the values of both
+<code>envManagementR</code> and <code>envManagementPy</code>.)</p></dd>
+
+
+<dt>envManagementR</dt>
+<dd><p>Optional. Should Posit Connect install R packages
+for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>). The default, <code>NULL</code>, will
+not write any values to the bundle manifest, and Connect will fall back to
+the application default R environment management strategy, or the server
+default if no application default is defined.</p>
+<p>(This option is ignored when <code>envManagement</code> is non-<code>NULL</code>.)</p></dd>
+
+
+<dt>envManagementPy</dt>
+<dd><p>Optional. Should Posit Connect install Python packages
+for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>). The default, <code>NULL</code>, will
+not write any values to the bundle manifest, and Connect will fall back to
+the application default Python environment management strategy, or the
+server default if no application default is defined.</p>
+<p>(This option is ignored when <code>envManagement</code> is non-<code>NULL</code>.)</p></dd>
 
 </dl></div>
     <div class="section level2">
