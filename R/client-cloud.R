@@ -169,18 +169,18 @@ cloudClient <- function(service, authInfo) {
         json$render_by <- "server"
       }
 
-      if (is.null(spaceId)) {
-        currentProjectId <- getCurrentProjectId(service, authInfo)
-        # in case the source cloud project is a temporary copy, there is no
-        # content id. The output will be published without a space id.
-        if (!is.null(currentProjectId)) {
-          json$project <- currentProjectId
+      currentProjectId <- getCurrentProjectId(service, authInfo)
+      # in case the source cloud project is a temporary copy, there is no
+      # content id. The output will be published without a space id.
+      if (!is.null(currentProjectId)) {
+        json$project <- currentProjectId
 
-          path <- paste0("/content/", currentProjectId)
-          currentProject <- GET(service, authInfo, path)
-          json$space <- currentProject$space_id
-        }
-      } else {
+        path <- paste0("/content/", currentProjectId)
+        currentProject <- GET(service, authInfo, path)
+        json$space <- currentProject$space_id
+      }
+
+      if (is.null(currentProjectId) && !is.null(spaceId)) {
         json$space <- spaceId
       }
 
