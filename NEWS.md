@@ -19,6 +19,8 @@
   `Applications.ManifestEnvironmentManagementSelection = false`.
   Requires Posit Connect `>=2023.07.0`. (#977)
 
+* Fix account discovery by `showProperties()`. (#980)
+
 # rsconnect 1.0.2
 
 * Fixed redeployments to shinyapps.io where `appName` is provided, but no local
