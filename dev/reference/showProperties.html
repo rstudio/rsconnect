@@ -57,7 +57,12 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">showProperties</span><span class="op">(</span>appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, appName <span class="op">=</span> <span class="cn">NULL</span>, account <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">showProperties</span><span class="op">(</span></span>
+<span>  appPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,9 +76,11 @@ working directory.</p></dd>
 <dd><p>Name of application</p></dd>
 
 
-<dt>account</dt>
-<dd><p>Account name. If a single account is registered on the
-system then this parameter can be omitted.</p></dd>
+<dt>account, server</dt>
+<dd><p>Uniquely identify a remote server with either your
+user <code>account</code>, the <code>server</code> name, or both. If neither are supplied, and
+there are multiple options, you'll be prompted to pick one.</p>
+<p>Use <code><a href="accounts.html">accounts()</a></code> to see the full list of available options.</p></dd>
 
 </dl></div>
     <div class="section level2">
