@@ -74,8 +74,8 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 #'
 #' Set a property on currently deployed ShinyApps application.
 #'
-#' @param propertyName Name of property to set
-#' @param propertyValue Nalue to set property to
+#' @param propertyName Name of property
+#' @param propertyValue Property value
 #' @param appName Name of application
 #' @param appPath Directory or file that was deployed. Defaults to current
 #'   working directory.
@@ -124,11 +124,7 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 #' Unset a property on currently deployed ShinyApps application (restoring to
 #' its default value)
 #'
-#' @param propertyName Name of property to unset
-#' @param appName Name of application
-#' @param appPath Directory or file that was deployed. Defaults to current
-#'   working directory.
-#' @inheritParams deployApp
+#' @inheritParams setProperty
 #' @param force Forcibly unset the property
 #'
 #' @note This function only works for ShinyApps servers.
@@ -172,20 +168,20 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 #' @param appName Name of application
 #' @param appPath Directory or file that was deployed. Defaults to current
 #'   working directory.
-#' @param account Account name. If a single account is registered on the
-#'   system then this parameter can be omitted.
+#' @inheritParams deployApp
 #'
 #' @note This function works only for ShinyApps servers.
 #'
 #' @export
-showProperties <- function(appPath = getwd(), appName = NULL, account = NULL) {
+showProperties <- function(appPath = getwd(), appName = NULL, account = NULL, server = NULL) {
 
   deployment <- findDeployment(
     appPath = appPath,
     appName = appName,
-    account = account
+    account = account,
+    server = server
   )
-  accountDetails <- accountInfo(deployment$account)
+  accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
   if (is.null(application))
