@@ -1,7 +1,7 @@
 ## Summary
 
 * Address CRAN-observed test failures caused by too-low Pandoc versions on
-  some CRAN hosts.
+  the r-release-macos-x86_64 CRAN hosts.
 * Addresses a couple issues encountered by users with the previous release.
 
 ## R CMD check results
@@ -10,7 +10,7 @@
 
 ## revdepcheck results
 
-We checked 19 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 20 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
  * We failed to check 0 packages
