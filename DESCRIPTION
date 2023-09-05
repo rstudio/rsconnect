@@ -1,7 +1,7 @@
 Type: Package
 Package: rsconnect
 Title: Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'
-Version: 1.1.0
+Version: 1.1.0.9000
 Authors@R: c(
     person("Aron", "Atkins", , "aron@posit.co", role = c("aut", "cre")),
     person("Toph", "Allen", role = "aut"),
