@@ -171,8 +171,7 @@ test_that("Get application", {
     )
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -237,8 +236,7 @@ test_that("Get application output trashed", {
     )
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -286,8 +284,7 @@ test_that("Create application", {
       })
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -330,8 +327,7 @@ test_that("Create application with space id", {
       })
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -373,8 +369,7 @@ test_that("Create static application", {
       })
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -417,8 +412,7 @@ test_that("Create static server-side-rendered application", {
       })
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -517,8 +511,7 @@ test_that("Create static RMD application", {
       })
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   fakeService <- list(
     protocol = "test",
@@ -569,8 +562,7 @@ test_that("Create application with linked source project", {
     )
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   Sys.setenv(LUCID_APPLICATION_ID = "42")
   withr::defer(Sys.unsetenv("LUCID_APPLICATION_ID"))
@@ -618,8 +610,7 @@ test_that("deploymentTargetForApp() results in correct Cloud API calls", {
     )
   ))
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   testAccount <- configureTestAccount()
   withr::defer(removeAccount(testAccount))
@@ -802,8 +793,7 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
   mock <- deployAppMockServerFactory(expectedAppType = "connect", outputState = "active")
   mockServer <- mock$server
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   testAccount <- configureTestAccount()
   withr::defer(removeAccount(testAccount))
@@ -896,8 +886,7 @@ test_that("deployDoc() results in correct Cloud API calls", {
   mock <- deployAppMockServerFactory(expectedAppType = "static", outputState = "active")
   mockServer <- mock$server
 
-  restoreOpt <- options(rsconnect.http = mockServer$impl)
-  withr::defer(options(restoreOpt))
+  withr::local_options(rsconnect.http = mockServer$impl)
 
   testAccount <- configureTestAccount()
   withr::defer(removeAccount(testAccount))
