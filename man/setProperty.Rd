@@ -15,9 +15,9 @@ setProperty(
 )
 }
 \arguments{
-\item{propertyName}{Name of property to set}
+\item{propertyName}{Name of property}
 
-\item{propertyValue}{Nalue to set property to}
+\item{propertyValue}{Property value}
 
 \item{appPath}{Directory or file that was deployed. Defaults to current
 working directory.}

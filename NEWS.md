@@ -2,6 +2,8 @@
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.
 
+# rsconnect 1.1.0
+
 * Fixed analysis of directories that were smaller than the
   `rsconnect.max.bundle.files=10000` limit but larger than the
   `renv.config.dependencies.limit=1000` limit. (#968)
@@ -20,6 +22,8 @@
   packages. These values are ignored when
   `Applications.ManifestEnvironmentManagementSelection = false`.
   Requires Posit Connect `>=2023.07.0`. (#977)
+
+* Fix account discovery by `showProperties()`. (#980)
 
 # rsconnect 1.0.2
 

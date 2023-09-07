@@ -14,7 +14,7 @@ unsetProperty(
 )
 }
 \arguments{
-\item{propertyName}{Name of property to unset}
+\item{propertyName}{Name of property}
 
 \item{appPath}{Directory or file that was deployed. Defaults to current
 working directory.}
