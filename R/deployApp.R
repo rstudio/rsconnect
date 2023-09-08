@@ -432,7 +432,7 @@ deployApp <- function(appDir = getwd(),
     taskComplete(quiet, "Visibility updated")
   }
   if (length(target$envVars) > 0) {
-    taskStart(quiet, "Updating environment variables {envVars}...")
+    taskStart(quiet, "Updating {length(envVars)} environment variable{?s}: {.field {names(envVars)}}...")
     client$setEnvVars(application$guid, target$envVars)
     taskComplete(quiet, "Environment variables updated")
   }
