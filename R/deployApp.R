@@ -360,12 +360,14 @@ deployApp <- function(appDir = getwd(),
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
   }
-  if (!isConnectServer(target$server) && length(envVars) > 0) {
-    cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
-  }
 
   accountDetails <- accountInfo(target$account, target$server)
   client <- clientForAccount(accountDetails)
+
+  if (length(envVars) > 0 && !"setEnvVars" %in% names(client)) {
+    cli::cli_abort("{target$server} does not support setting {.arg envVars}")
+  }
+
   if (verbose) {
     showCookies(serverInfo(accountDetails$server)$url)
   }
