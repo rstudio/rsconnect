@@ -360,7 +360,7 @@ deployApp <- function(appDir = getwd(),
     stop("Posit Connect does not support deploying without uploading. ",
          "Specify upload=TRUE to upload and re-deploy your application.")
   }
-  if (!isConnectServer(target$server) && length(envVars) > 1) {
+  if (!isConnectServer(target$server) && length(envVars) > 0) {
     cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
   }
 
