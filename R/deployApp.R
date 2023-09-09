@@ -50,9 +50,10 @@
 #'   on second and subsequent deploys, the title will be unchanged.
 #' @param envVars A character vector giving the names of environment variables
 #'   whose values should be synchronised with the server (currently supported by
-#'   Connect only). The values of the environment variables are sent over an
-#'   encrypted connection and are not stored in the bundle, making this a safe
-#'   way to send private data to Connect.
+#'   Connect only). The values of the environment variables should be set in the
+#'   current session with [Sys.setenv()] or via an `.Renviron` file. Values are
+#'   sent over an encrypted connection and are not stored in the bundle, making
+#'   this a safe way to send private data to Connect.
 #'
 #'   The names (not values) are stored in the deployment record so that future
 #'   deployments will automatically update their values. Other environment
