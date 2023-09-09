@@ -260,7 +260,7 @@ deployApp <- function(appDir = getwd(),
   }
 
   check_character(envVars, allow_null = TRUE)
-  if (!is.null(envVars) && any(nzchar(names2(envVars)))) {
+  if (!is.null(envVars) && !is.null(names(envVars))) {
     cli::cli_abort(c(
       "{.arg envVars} must be a character vector containing only environment variable {.strong names}.",
       "i" = "Set environment variables with `Sys.setenv() or an `.Renviron` file.",
