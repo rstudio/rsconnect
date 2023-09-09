@@ -259,6 +259,15 @@ deployApp <- function(appDir = getwd(),
     }
   }
 
+  check_character(envVars, allow_null = TRUE)
+  if (!is.null(envVars) && any(nzchar(names2(envVars)))) {
+    cli::cli_abort(c(
+      "{.arg envVars} must be a character vector containing only environment variable {.strong names}.",
+      "i" = "Set environment variables with `Sys.setenv() or an `.Renviron` file.",
+      "i" = "Use `unname()`` to remove the names from the vector passed to {.arg envVars}."
+    ))
+  }
+
   if (!is.null(appSourceDoc)) {
     # Used by IDE so can't deprecate
     recordDir <- appSourceDoc

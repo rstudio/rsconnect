@@ -79,3 +79,13 @@
       2: Delete existing deployment & create a new app
       Selection: 2
 
+# deployApp() errors if envVars is given a named vector
+
+    Code
+      deployApp(local_temp_app(), envVars = c(FLAG = "true"))
+    Condition
+      Error in `deployApp()`:
+      ! `envVars` must be a character vector containing only environment variable names.
+      i Set environment variables with `Sys.setenv() or an `.Renviron` file.
+      i Use `unname()`` to remove the names from the vector passed to `envVars`.
+
