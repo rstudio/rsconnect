@@ -161,8 +161,13 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
+<<<<<<< Updated upstream
     createApplication = function(name, title, template, accountId, appMode, contentCategory = NULL) {
       json <- list()
+=======
+    createApplication = function(name, title, template, accountId, appMode, contentCategory) {
+      json <- list(content_)
+>>>>>>> Stashed changes
       json$name <- name
       json$application_type <- if (appMode %in% c("rmd-static", "quarto-static", "static")) "static" else "connect"
       if (appMode %in% c("rmd-static", "quarto-static")) {
@@ -180,9 +185,7 @@ cloudClient <- function(service, authInfo) {
         json$space <- currentProject$space_id
       }
 
-      if (!is.null(contentCategory)) {
-        json$content_category <- contentCategory
-      }
+      json$content_category <- contentCategory
 
       output <- POST_JSON(service, authInfo, "/outputs", json)
       path <- paste0("/applications/", output$source_id)
@@ -231,7 +234,7 @@ cloudClient <- function(service, authInfo) {
     createRevision = function(application, contentCategory) {
         path <- paste0("/outputs/", application$id, "/revisions")
         json <- list(content_category = contentCategory)
-        revision <- POST_JSON(service, authInfo, path, contentCategory)
+        revision <- POST_JSON(service, authInfo, path, json)
         revision$application_id
     },
 
