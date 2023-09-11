@@ -48,7 +48,7 @@ connectClient <- function(service, authInfo) {
       listApplicationsRequest(service, authInfo, path, query, "applications")
     },
 
-    createApplication = function(name, title, template, accountId, appMode) {
+    createApplication = function(name, title, template, accountId, appMode, contentCategory) {
       # add name; inject title if specified
       details <- list(name = name)
       if (!is.null(title) && nzchar(title))
