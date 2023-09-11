@@ -296,7 +296,7 @@ test_that("Create application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny", NULL)
+  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny")
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -540,7 +540,7 @@ test_that("Create application with linked source project", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static", NULL)
+  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static")
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
