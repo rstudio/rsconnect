@@ -161,13 +161,8 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-<<<<<<< Updated upstream
     createApplication = function(name, title, template, accountId, appMode, contentCategory = NULL) {
       json <- list()
-=======
-    createApplication = function(name, title, template, accountId, appMode, contentCategory) {
-      json <- list(content_)
->>>>>>> Stashed changes
       json$name <- name
       json$application_type <- if (appMode %in% c("rmd-static", "quarto-static", "static")) "static" else "connect"
       if (appMode %in% c("rmd-static", "quarto-static")) {
