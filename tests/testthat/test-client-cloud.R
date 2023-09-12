@@ -349,6 +349,7 @@ test_that("Create static application", {
       content = function(methodAndPath, match, contentFile, ...) {
         content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
         expect_equal(content$application_type, "static")
+        expect_equal(content$content_category, "document")
         list(
           "id" = 1,
           "source_id" = 2,
@@ -378,7 +379,7 @@ test_that("Create static application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static")
+  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static", "document")
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -392,6 +393,7 @@ test_that("Create static server-side-rendered application", {
         content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
         expect_equal(content$application_type, "static")
         expect_equal(content$render_by, "server")
+        expect_equal(content$content_category, "document")
         list(
           "id" = 1,
           "source_id" = 2,
@@ -421,7 +423,7 @@ test_that("Create static server-side-rendered application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "quarto-static")
+  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "quarto-static", "document")
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -491,6 +493,7 @@ test_that("Create static RMD application", {
         content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
         expect_equal(content$application_type, "static")
         expect_equal(content$render_by, "server")
+        expect_equal(content$content_category, "document")
         list(
           "id" = 1,
           "source_id" = 2,
@@ -520,7 +523,7 @@ test_that("Create static RMD application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "1", "rmd-static")
+  app <- client$createApplication("test app", "unused?", "unused?", "1", "rmd-static", "document")
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)

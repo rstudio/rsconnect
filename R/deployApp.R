@@ -397,6 +397,7 @@ deployApp <- function(appDir = getwd(),
       "shiny",
       accountDetails$accountId,
       appMetadata$appMode,
+      contentCategory,
       space
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
@@ -408,7 +409,7 @@ deployApp <- function(appDir = getwd(),
         taskComplete(quiet, "Found application {.url {application$url}}")
 
         if (identical(application$type, "static")) {
-          application$application_id <- client$createRevision(application)
+          application$application_id <- client$createRevision(application, contentCategory)
         }
 
         application
