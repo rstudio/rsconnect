@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Added `space` parameter to deploy directly to a space in Posit Cloud.
+
 # rsconnect 1.1.0
 
 * Fixed analysis of directories that were smaller than the

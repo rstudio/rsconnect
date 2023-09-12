@@ -165,6 +165,10 @@
 #'   server default if no application default is defined.
 #'
 #'   (This option is ignored when `envManagement` is non-`NULL`.)
+#' @param space Optional. For Posit Cloud, the id of the space where the content
+#'   should be deployed. If none is provided, content will be deployed to the
+#'   deploying user's workspace or deployed to the same space in case of
+#'   redeploy.
 #' @examples
 #' \dontrun{
 #'
@@ -223,7 +227,8 @@ deployApp <- function(appDir = getwd(),
                       image = NULL,
                       envManagement = NULL,
                       envManagementR = NULL,
-                      envManagementPy = NULL
+                      envManagementPy = NULL,
+                      space = NULL
                       ) {
 
   check_string(appDir)
@@ -392,7 +397,8 @@ deployApp <- function(appDir = getwd(),
       "shiny",
       accountDetails$accountId,
       appMetadata$appMode,
-      contentCategory
+      contentCategory,
+      space
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
@@ -483,7 +489,7 @@ deployApp <- function(appDir = getwd(),
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application, bundle$id)
+  task <- client$deployApplication(application, bundle$id, space)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)

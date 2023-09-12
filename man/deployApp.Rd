@@ -33,7 +33,8 @@ deployApp(
   image = NULL,
   envManagement = NULL,
   envManagementR = NULL,
-  envManagementPy = NULL
+  envManagementPy = NULL,
+  space = NULL
 )
 }
 \arguments{
@@ -206,6 +207,11 @@ the application default Python environment management strategy, or the
 server default if no application default is defined.
 
 (This option is ignored when \code{envManagement} is non-\code{NULL}.)}
+
+\item{space}{Optional. For Posit Cloud, the id of the space where the content
+should be deployed. If none is provided, content will be deployed to the
+deploying user's workspace or deployed to the same space in case of
+redeploy.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

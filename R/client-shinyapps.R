@@ -90,7 +90,7 @@ shinyAppsClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId, appMode, contentCategory) {
+    createApplication = function(name, title, template, accountId, appMode, contentCategory = NULL, spaceId = NULL) {
       json <- list()
       json$name <- name
       # the title field is only used on connect
@@ -138,7 +138,7 @@ shinyAppsClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(application, bundleId = NULL) {
+    deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
       path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId))
