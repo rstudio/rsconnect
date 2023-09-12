@@ -238,8 +238,6 @@ cloudClient <- function(service, authInfo) {
     },
 
     deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
-      outputPatchData <- list()
-
       currentProjectId <- getCurrentProjectId(service, authInfo)
       if (!is.null(currentProjectId)) {
         PATCH_JSON(service, authInfo, paste0("/outputs/", application$id), list(project = currentProjectId))
@@ -247,7 +245,6 @@ cloudClient <- function(service, authInfo) {
 
       if (!is.null(spaceId)) {
         PATCH_JSON(service, authInfo, paste0("/outputs/", application$id), list(space = spaceId))
-        outputPatchData$space <- spaceId
       }
 
       path <- paste0("/applications/", application$application_id, "/deploy")
