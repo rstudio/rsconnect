@@ -242,16 +242,12 @@ cloudClient <- function(service, authInfo) {
 
       currentProjectId <- getCurrentProjectId(service, authInfo)
       if (!is.null(currentProjectId)) {
-        outputPatchData$project <- currentProjectId
+        PATCH_JSON(service, authInfo, paste0("/outputs/", application$id), list(project = currentProjectId))
       }
 
       if (!is.null(spaceId)) {
+        PATCH_JSON(service, authInfo, paste0("/outputs/", application$id), list(space = spaceId))
         outputPatchData$space <- spaceId
-      }
-
-      if (length(outputPatchData) > 0) {
-        path <- paste0("/outputs/", application$id)
-        PATCH_JSON(service, authInfo, path, outputPatchData)
       }
 
       path <- paste0("/applications/", application$application_id, "/deploy")

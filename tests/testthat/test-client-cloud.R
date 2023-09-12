@@ -447,8 +447,11 @@ test_that("deployApplication updates the parent project", {
     "^PATCH /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
         content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
-        expect_equal(content$project, 41)
-        expect_equal(content$space, 333)
+        if (!is.null(content$project)) {
+          expect_equal(content$project, 41)
+        } else {
+          expect_equal(content$space, 333)
+        }
         list(
           "id" = 41
         )
