@@ -336,7 +336,7 @@ test_that("Create application with space id", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny", 333)
+  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny", spaceId = 333)
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
