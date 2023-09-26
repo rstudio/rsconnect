@@ -2,6 +2,9 @@
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.
 
+* Do not use `getOption("available_packages_filters")` option when calling
+  `available.packages()`. (#1002)
+
 # rsconnect 1.1.0
 
 * Fixed analysis of directories that were smaller than the

@@ -106,10 +106,14 @@ availablePackages <- function(repos) {
   # in use can still be marked as available on CRAN -- for example, currently
   # the package "foreign" requires "R (>= 4.0.0)" but older versions of R
   # can still successfully install older versions from the CRAN archive
+  filters <- c(
+    getOption("rsconnect.available_packages_filters", default = c()),
+    "duplicates"
+  )
   available.packages(
     repos = repos,
     type = "source",
-    filters = getOption("available_packages_filters", default = "duplicates")
+    filters = filters
   )
 }
 
