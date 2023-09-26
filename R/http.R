@@ -150,7 +150,7 @@ handleResponse <- function(response, error_call = caller_env()) {
     if (response$status %in% 200:399) {
       out <- json
     } else if (!is.null(json$error)) {
-      reportError(json$error)
+      reportError(unlist(json$error))
     } else {
       reportError(paste("Unexpected json response:", response$content))
     }
