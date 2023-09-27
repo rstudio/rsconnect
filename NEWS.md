@@ -5,6 +5,9 @@
 * Do not use `getOption("available_packages_filters")` option when calling
   `available.packages()`. (#1002)
 
+* Packages installed from source within an renv project are not associated
+  with repositories. (#1004)
+
 # rsconnect 1.1.0
 
 * Fixed analysis of directories that were smaller than the

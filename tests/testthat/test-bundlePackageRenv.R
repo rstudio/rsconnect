@@ -173,10 +173,18 @@ test_that("packages installed from other repos get correctly named", {
   )
 })
 
-test_that("source packages get NA source", {
-  source <- list(Package = "pkg", Source = "unknown")
+test_that("source packages get NA source + repository", {
+  source <- list(Package = "pkg", Source = "unknown", Repository = "useless")
   expect_equal(
     standardizeRenvPackage(source),
-    list(Package = "pkg", Source = NA_character_)
+    list(Package = "pkg", Source = NA_character_, Repository = NA_character_)
+  )
+})
+
+test_that("Local packages get NA source + repository", {
+  source <- list(Package = "pkg", Source = "Local", Repository = "useless")
+  expect_equal(
+    standardizeRenvPackage(source),
+    list(Package = "pkg", Source = NA_character_, Repository = NA_character_)
   )
 })
