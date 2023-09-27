@@ -115,8 +115,13 @@ standardizeRenvPackage <- function(pkg,
   } else if (pkg$Source %in% c("Bitbucket", "GitHub", "GitLab")) {
     pkg$Source <- tolower(pkg$Source)
   } else if (pkg$Source %in% c("Local", "unknown")) {
-    pkg$Source <- NA_character_
-    pkg$Repository <- NA_character_
+    # When installed from source or using some unknown technique, try to find
+    # the package from the known set of repositories.
+    #
+    # The incoming (optional) $Repository comes from DESCRIPTION and is set by
+    # the repository and can be anything.
+    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+    pkg$Source <- findRepoName(pkg$Repository, repos)
   }
 
   # Remove Remote fields that pak adds for "standard" installs from CRAN

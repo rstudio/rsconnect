@@ -88,7 +88,11 @@ standardizePackratPackage <- function(record, availablePackages, repos = charact
 
 findRepoName <- function(repository, repos) {
   idx <- match(repository, repos)
-  names(repos)[idx]
+  if (!is.na(idx)) {
+    names(repos)[idx]
+  } else {
+    NA_character_
+  }
 }
 
 findRepoUrl <- function(pkg, availablePackages) {

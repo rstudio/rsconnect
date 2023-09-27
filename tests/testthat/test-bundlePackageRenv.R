@@ -173,18 +173,72 @@ test_that("packages installed from other repos get correctly named", {
   )
 })
 
-test_that("source packages get NA source + repository", {
-  source <- list(Package = "pkg", Source = "unknown", Repository = "useless")
+test_that("source packages are looked up", {
+  repos <- c(CRAN = "https://cran.r-project.org")
+  ap <- availablePackages(repos)
+
+  # unknown package name
+  source <- list(
+    Package = "package.does.not.exist",
+    Source = "unknown",
+    Repository = "useless"
+  )
   expect_equal(
-    standardizeRenvPackage(source),
-    list(Package = "pkg", Source = NA_character_, Repository = NA_character_)
+    standardizeRenvPackage(source, ap, repos = repos),
+    list(
+      Package = "package.does.not.exist",
+      Source = NA_character_,
+      Repository = NA_character_
+    )
+  )
+
+  # known package name
+  source <- list(
+    Package = "shiny",
+    Source = "unknown",
+    Repository = "useless"
+  )
+  expect_equal(
+    standardizeRenvPackage(source, ap, repos = repos),
+    list(
+      Package = "shiny",
+      Source = "CRAN",
+      Repository = "https://cran.r-project.org"
+    )
   )
 })
 
-test_that("Local packages get NA source + repository", {
-  source <- list(Package = "pkg", Source = "Local", Repository = "useless")
+test_that("Local packages are looked up", {
+  repos <- c(CRAN = "https://cran.r-project.org")
+  ap <- availablePackages(repos)
+
+  # unknown package name
+  source <- list(
+    Package = "package.does.not.exist",
+    Source = "Local",
+    Repository = "useless"
+  )
   expect_equal(
-    standardizeRenvPackage(source),
-    list(Package = "pkg", Source = NA_character_, Repository = NA_character_)
+    standardizeRenvPackage(source, ap, repos = repos),
+    list(
+      Package = "package.does.not.exist",
+      Source = NA_character_,
+      Repository = NA_character_
+    )
+  )
+
+  # known package name
+  source <- list(
+    Package = "shiny",
+    Source = "Local",
+    Repository = "useless"
+  )
+  expect_equal(
+    standardizeRenvPackage(source, ap, repos = repos),
+    list(
+      Package = "shiny",
+      Source = "CRAN",
+      Repository = "https://cran.r-project.org"
+    )
   )
 })
