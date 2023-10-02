@@ -112,10 +112,11 @@ standardizeRenvPackage <- function(pkg,
       # Try packages defined from default bioC repos
       pkg$Repository <- findRepoUrl(pkg$Package, biocPackages)
     }
-  } else if (pkg$Source == "unknown") {
-    pkg$Source <- NA_character_
   } else if (pkg$Source %in% c("Bitbucket", "GitHub", "GitLab")) {
     pkg$Source <- tolower(pkg$Source)
+  } else if (pkg$Source %in% c("Local", "unknown")) {
+    pkg$Source <- NA_character_
+    pkg$Repository <- NA_character_
   }
 
   # Remove Remote fields that pak adds for "standard" installs from CRAN

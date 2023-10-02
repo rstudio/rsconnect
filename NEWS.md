@@ -2,13 +2,15 @@
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.
 
-* Do not use `getOption("available_packages_filters")` option when calling
-  `available.packages()`. (#1002)
-
 * Improve reporting of errors returned by shinyapps.io. (#997)
 
 * Remove most directory layout validation checks. (#998)
 
+* Do not use `getOption("available_packages_filters")` option when calling
+  `available.packages()`. (#1002)
+
+* Packages installed from source within an renv project are not associated
+  with repositories. (#1004)
 
 # rsconnect 1.1.0
 
