@@ -1,12 +1,14 @@
 # snapshotRenvDependencies() ----------------------------------------------
 
 test_that("non-R apps don't have packages", {
+  skip_on_cran()
   app_dir <- local_temp_app(list(index.html = ""))
   out <- snapshotRenvDependencies(app_dir)
   expect_equal(out, data.frame())
 })
 
 test_that("manifest has correct data types", {
+  skip_on_cran()
   withr::local_options(renv.verbose = TRUE)
   app <- local_temp_app(list("index.Rmd" = ""))
   deps <- snapshotRenvDependencies(app)
@@ -15,6 +17,7 @@ test_that("manifest has correct data types", {
 })
 
 test_that("recommended packages are snapshotted", {
+  skip_on_cran()
   withr::local_options(renv.verbose = TRUE)
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
@@ -23,6 +26,14 @@ test_that("recommended packages are snapshotted", {
   )))
   deps <- snapshotRenvDependencies(app)
   expect_true("MASS" %in% deps$Package)
+})
+
+test_that("extra packages are snapshotted", {
+  skip_on_cran()
+  withr::local_options(renv.verbose = TRUE)
+  app <- local_temp_app(list("index.Rmd" = ""))
+  deps <- snapshotRenvDependencies(app, extraPackages = c("foreign"))
+  expect_true("foreign" %in% deps$Package)
 })
 
 test_that("works with BioC packages", {
@@ -58,6 +69,7 @@ test_that("works with BioC packages", {
 
 # https://github.com/rstudio/rsconnect/issues/968
 test_that("large directories are analyzed", {
+  skip_on_cran()
   app_dir <- local_temp_app(list("foo.R" = "library(foreign)"))
   data_dir <- file.path(app_dir, "data")
   dir.create(data_dir)

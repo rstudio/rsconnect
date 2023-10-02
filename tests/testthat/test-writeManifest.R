@@ -8,6 +8,8 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
 }
 
 test_that("renv.lock is included for renv projects", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = FALSE)
 
   app_dir <- local_temp_app(list(app.R = "library(foreign); library(MASS)"))
@@ -20,6 +22,8 @@ test_that("renv.lock is included for renv projects", {
 })
 
 test_that("renv.lock is not included for non-renv projects", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = FALSE)
 
   app_dir <- local_temp_app(list(app.R = "library(foreign); library(MASS)"))
@@ -88,6 +92,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 # Quarto Tests
 
 test_that("Quarto website includes quarto in the manifest", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-website-r")
@@ -99,6 +104,7 @@ test_that("Quarto website includes quarto in the manifest", {
 })
 
 test_that("Quarto document includes quarto in the manifest", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-doc-none")
@@ -111,6 +117,7 @@ test_that("Quarto document includes quarto in the manifest", {
 })
 
 test_that("Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.qmd)", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-doc-none")
@@ -123,6 +130,7 @@ test_that("Specifying quarto arg includes quarto in the manifest, even with no a
 })
 
 test_that("Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.Rmd)", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("shiny-rmds")
@@ -135,6 +143,7 @@ test_that("Specifying quarto arg includes quarto in the manifest, even with no a
 })
 
 test_that("specifying quarto arg with non-quarto app does not include quarto in the manifest", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("shinyapp-singleR")
@@ -145,6 +154,7 @@ test_that("specifying quarto arg with non-quarto app does not include quarto in 
 })
 
 test_that("Quarto shiny project includes quarto in the manifest", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-proj-r-shiny")
@@ -156,6 +166,7 @@ test_that("Quarto shiny project includes quarto in the manifest", {
 })
 
 test_that("Quarto R + Python website includes quarto and python in the manifest", {
+  skip_on_cran()
   skip_if_not_installed("reticulate")
   skip_if_no_quarto()
   python <- pythonPathOrSkip()
@@ -172,6 +183,7 @@ test_that("Quarto R + Python website includes quarto and python in the manifest"
 })
 
 test_that("Quarto Python-only website gets correct manifest data", {
+  skip_on_cran()
   skip_if_not_installed("reticulate")
   skip_if_no_quarto()
 
@@ -190,6 +202,7 @@ test_that("Quarto Python-only website gets correct manifest data", {
 })
 
 test_that("Deploying a Quarto project without Quarto is an error", {
+  skip_on_cran()
   local_mocked_bindings(quarto_path = function() NULL)
 
   appDir <- test_path("quarto-website-r")
@@ -197,6 +210,7 @@ test_that("Deploying a Quarto project without Quarto is an error", {
 })
 
 test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd", quarto = TRUE)
@@ -207,6 +221,7 @@ test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {
 })
 
 test_that("Deploying static content with _quarto.yaml succeeds without quartoInfo", {
+  skip_on_cran()
 
   manifest <- makeManifest(test_path("static-with-quarto-yaml"))
 
@@ -214,6 +229,8 @@ test_that("Deploying static content with _quarto.yaml succeeds without quartoInf
 })
 
 test_that("Sets environment.image in the manifest if one is provided", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("shinyapp-simple")
@@ -226,6 +243,8 @@ test_that("Sets environment.image in the manifest if one is provided", {
 })
 
 test_that("Sets environment.environment_management in the manifest if envManagement is defined", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("shinyapp-simple")
@@ -251,6 +270,8 @@ test_that("Sets environment.environment_management in the manifest if envManagem
 # appMode Inference tests
 
 test_that("content type (appMode) is inferred and can be overridden", {
+  skip_on_cran()
+
   appDir <- local_temp_app(list(
     "app.R" = "",
     "index.html" = "",

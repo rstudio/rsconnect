@@ -10,11 +10,12 @@ test_that("simple Shiny app bundle is runnable", {
 })
 
 test_that("app.R Shiny app bundle is runnable", {
+  skip_on_cran()
+  skip_if_not_installed("shiny")
+
   # shiny:::shinyAppDir() attach shiny so do it here so we can do it quietly
   library(shiny, warn.conflicts = FALSE, quietly = TRUE)
 
-  skip_on_cran()
-  skip_if_not_installed("shiny")
   bundleTempDir <- local_shiny_bundle(
     "app_r_shiny",
     test_path("shinyapp-appR"),
