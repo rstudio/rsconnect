@@ -82,8 +82,6 @@ appMetadata <- function(appDir,
 
 checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
   appFilesBase <- tolower(list.files(appDir))
-  wwwFiles <- tolower(list.files(file.path(appDir, "www/")))
-
   primaryIsRScript <- identical(tolower(tools::file_ext(appPrimaryDoc)), "r")
 
   # check for single-file app collision
@@ -93,29 +91,8 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
     )
   }
 
-  # Do some checks for a valid application structure
-  satisfiedLayouts <- c(
-    shinyAndUi = all(c("server.r", "ui.r") %in% appFilesBase),
-    shinyAndIndex = "server.r" %in% appFilesBase && "index.html" %in% wwwFiles,
-    app = primaryIsRScript || any("app.r" %in% appFilesBase),
-    Rmd = any(grepl(glob2rx("*.rmd"), appFilesBase)),
-    Qmd = any(grepl(glob2rx("*.qmd"), appFilesBase)),
-    static = any(grepl("(?:html?|pdf)$", appFilesBase)),
-    plumber = any(c("entrypoint.r", "plumber.r") %in% appFilesBase)
-  )
-
-  if (any(satisfiedLayouts)) {
-    return()
-  }
-
-  cli::cli_abort(c(
-    "Cancelling deployment: invalid project layout.",
-    i = "Expecting one of the following publication types:",
-    " " = "1. A Shiny app with `app.R` or `server.R` + `ui.R`",
-    " " = "2. R Markdown (`.Rmd`) or Quarto (`.qmd`) documents.",
-    " " = "3. A website containing `.html` and/or `.pdf` files.",
-    " " = "4. A plumber API with `plumber.R` or `entrypoint.R`."
-  ))
+  # all other layouts are allowed; the server determines (with the required packages) if the content
+  # can be run/served.
 }
 
 # infer the mode of the application from files in the root dir

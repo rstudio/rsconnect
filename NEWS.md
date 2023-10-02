@@ -2,6 +2,10 @@
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.
 
+* Improve reporting of errors returned by shinyapps.io. (#997)
+
+* Remove most directory layout validation checks. (#998)
+
 * Do not use `getOption("available_packages_filters")` option when calling
   `available.packages()`. (#1002)
 
