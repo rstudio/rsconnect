@@ -1,8 +1,7 @@
 ## Summary
 
-* Address CRAN-observed test failures caused by too-low Pandoc versions on
-  the r-release-macos-x86_64 CRAN hosts.
-* Addresses a couple issues encountered by users with the previous release.
+* Address revdep failures seen during the recent release of the curl package.
+* Address a couple issues encountered by users with the previous release.
 
 ## R CMD check results
 
