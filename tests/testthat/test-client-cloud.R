@@ -794,6 +794,8 @@ deployAppMockServerFactory <- function(expectedAppType, outputState) {
 }
 
 test_that("deployApp() for shiny results in correct Cloud API calls", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = TRUE)
 
   mock <- deployAppMockServerFactory(expectedAppType = "connect", outputState = "active")

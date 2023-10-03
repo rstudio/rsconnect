@@ -1,4 +1,6 @@
 test_that("appDependencies includes implicit deps", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = TRUE)
 
   path <- local_temp_app(list("test.Rmd" = ""))
@@ -8,6 +10,8 @@ test_that("appDependencies includes implicit deps", {
 })
 
 test_that("appDependencies includes implicit deps when appMode forced", {
+  skip_on_cran()
+
   withr::local_options(renv.verbose = TRUE)
 
   dir <- local_temp_app(list(
@@ -53,6 +57,8 @@ test_that("appDependencies includes implicit deps when appMode forced", {
 })
 
 test_that("static project doesn't have deps", {
+  skip_on_cran()
+
   path <- local_temp_app(list("index.html" = ""))
   deps <- appDependencies(path)
 
@@ -66,6 +72,8 @@ test_that("static project doesn't have deps", {
 })
 
 test_that("infers correct packages for each source", {
+  skip_on_cran()
+
   simulateMetadata <- function(appMode,
                                hasParameters = FALSE,
                                documentsHavePython = FALSE) {
