@@ -14,7 +14,7 @@ content to a server."><meta property="og:image" content="https://rstudio.github.
     
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,8 @@ content to a server.</p>
 <span>  image <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envManagement <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envManagementR <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  envManagementPy <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  envManagementPy <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  space <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -307,6 +308,13 @@ not write any values to the bundle manifest, and Connect will fall back to
 the application default Python environment management strategy, or the
 server default if no application default is defined.</p>
 <p>(This option is ignored when <code>envManagement</code> is non-<code>NULL</code>.)</p></dd>
+
+
+<dt>space</dt>
+<dd><p>Optional. For Posit Cloud, the id of the space where the content
+should be deployed. If none is provided, content will be deployed to the
+deploying user's workspace or deployed to the same space in case of
+redeploy.</p></dd>
 
 </dl></div>
     <div class="section level2">
