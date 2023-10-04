@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.1.1
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.
