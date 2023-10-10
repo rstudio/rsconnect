@@ -1,10 +1,11 @@
-# errors if no deployments
+# error when no deployments and no accounts
 
     Code
-      findDeployment(app)
+      findDeployment(app, appName = "placeholder")
     Condition
-      Error:
-      ! Couldn't find any deployments matching supplied criteria.
+      Error in `accountInfo()`:
+      ! No accounts registered.
+      i Call `rsconnect::setAccountInfo()` to register an account.
 
 # disambiguates multiple deployments
 

@@ -121,6 +121,19 @@ applications <- function(account = NULL, server = NULL) {
   return(res)
 }
 
+# Use the API to filter applications by name.
+getAppByName <- function(client, accountInfo, name) {
+  # NOTE: returns a list with 0 or 1 elements
+  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  if (length(app)) {
+    return(app[[1]])
+  }
+
+  stop("No application found. Specify the application's directory, name, ",
+       "and/or associated account.", call. = FALSE)
+}
+
+# Use the API to list all applications then filter the results client-side.
 resolveApplication <- function(accountDetails, appName) {
   client <- clientForAccount(accountDetails)
   apps <- client$listApplications(accountDetails$accountId)
@@ -145,7 +158,7 @@ getApplication <- function(account, server, appId) {
 }
 
 stopWithApplicationNotFound <- function(appName) {
-  stop(paste("No application named '", appName, "' is currently deployed",
+  stop(paste("No application named '", appName, "' is currently deployed.",
              sep = ""), call. = FALSE)
 }
 
@@ -227,9 +240,6 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
-  if (is.null(application))
-    stop("No application found. Specify the application's directory, name, ",
-         "and/or associated account.")
 
   if (streaming) {
     # streaming; poll for the entries directly

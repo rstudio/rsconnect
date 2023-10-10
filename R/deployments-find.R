@@ -1,4 +1,4 @@
-findDeployment <- function(appPath = ".",
+findDeployment <- function(appPath = getwd(),
                            appName = NULL,
                            server = NULL,
                            account = NULL,
@@ -11,9 +11,18 @@ findDeployment <- function(appPath = ".",
   )
 
   if (nrow(deps) == 0) {
-    cli::cli_abort(
-      "Couldn't find any deployments matching supplied criteria.",
-      call = error_call
+    # When the name and account information does not discover a single deployment, return a skeleton
+    # deployment object, which can subsequently be used to query the service.
+
+    # Infers account when not provided...
+    accountDetails <- accountInfo(account, server)
+    if (is.null(appName)) {
+      appName <- generateAppName(NULL, appPath, account = accountDetails$name, unique = FALSE)
+    }
+    list(
+      name = appName,
+      account = accountDetails$name,
+      server = accountDetails$server
     )
   } else if (nrow(deps) == 1) {
     as.list(deps)
