@@ -27,6 +27,8 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
+  if (is.null(appName))
+    appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(identical(logLevel, "quiet"))
@@ -109,9 +111,6 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
-  if (is.null(application))
-    stop("No application found. Specify the application's directory, name, ",
-         "and/or associated account.")
 
   invisible(client$setApplicationProperty(application$id,
                                          propertyName,
@@ -151,9 +150,6 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountInfo, deployment$name)
-  if (is.null(application))
-    stop("No application found. Specify the application's directory, name, ",
-         "and/or associated account.")
 
   invisible(client$unsetApplicationProperty(application$id,
                                            propertyName,
@@ -163,7 +159,7 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 
 #' Show Application property
 #'
-#' Show propreties of an application deployed to ShinyApps.
+#' Show properties of an application deployed to ShinyApps.
 #'
 #' @param appName Name of application
 #' @param appPath Directory or file that was deployed. Defaults to current
@@ -182,11 +178,10 @@ showProperties <- function(appPath = getwd(), appName = NULL, account = NULL, se
     server = server
   )
   accountDetails <- accountInfo(deployment$account, deployment$server)
+  checkShinyappsServer(accountDetails$server)
+
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
-  if (is.null(application))
-    stop("No application found. Specify the application's directory, name, ",
-         "and/or associated account.")
 
   # convert to data frame
   res <- do.call(rbind, application$deployment$properties)

@@ -671,12 +671,6 @@ bundleApp <- function(appName,
   bundlePath
 }
 
-getAppByName <- function(client, accountInfo, name) {
-  # NOTE: returns a list with 0 or 1 elements
-  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
-  if (length(app)) app[[1]] else NULL
-}
-
 validURL <- function(url) {
   !(is.null(url) || url == "")
 }
