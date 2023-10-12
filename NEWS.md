@@ -4,6 +4,9 @@
   search for the application by name when there are no matching deployment
   records. (#985, #989)
 
+* `rpubsUpload()` correctly records the initial RPubs destination, allowing
+  republishing.
+
 # rsconnect 1.1.1
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.

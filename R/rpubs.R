@@ -144,8 +144,15 @@ rpubsUpload <- function(title,
     recordName <- ifelse(is.null(title) || nchar(title) == 0,
                          basename(recordSource), title)
 
-    rpubsRec <- deploymentRecord(recordName, "", "", "rpubs", "rpubs.com", "rpubs.com", id, id,
-                                 url, as.numeric(Sys.time()))
+    rpubsRec <- deploymentRecord(name = recordName,
+                                 title = "",
+                                 username = "",
+                                 account = "rpubs",
+                                 server = "rpubs.com",
+                                 hostUrl = "rpubs.com",
+                                 appId = id,
+                                 bundleId = id,
+                                 url = url)
     rpubsRecFile <- deploymentConfigFile(recordSource, recordName, "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile, width = 4096)
