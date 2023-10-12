@@ -152,8 +152,8 @@ rpubsUpload <- function(title,
                                  hostUrl = "rpubs.com",
                                  appId = id,
                                  bundleId = id,
-                                 url=url,
-                                 version=as.numeric(Sys.time()))
+                                 url = url,
+                                 version = as.numeric(Sys.time()))
     rpubsRecFile <- deploymentConfigFile(recordSource, recordName, "rpubs",
                                    "rpubs.com")
     write.dcf(rpubsRec, rpubsRecFile, width = 4096)
