@@ -61,7 +61,10 @@ potentially problematic code?}
 
 \item{metadata}{Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
-\code{\link[=deployments]{deployments()}}.}
+\code{\link[=deployments]{deployments()}}.
+
+Multi-value fields are recorded as comma-separated values and returned in
+that form. Custom value serialization is the responsibility of the caller.}
 
 \item{python}{Full path to a python binary for use by \code{reticulate}.
 Required if \code{reticulate} is a dependency of the app being deployed.

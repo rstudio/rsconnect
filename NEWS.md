@@ -7,6 +7,9 @@
 * `rpubsUpload()` correctly records the initial RPubs destination, allowing
   republishing. (#976)
 
+* `deployApp()` and friends record multi-value `metadata` entries as
+  comma-separated values. (#1017)
+
 # rsconnect 1.1.1
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.

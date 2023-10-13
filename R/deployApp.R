@@ -112,6 +112,9 @@
 #' @param metadata Additional metadata fields to save with the deployment
 #'   record. These fields will be returned on subsequent calls to
 #'   [deployments()].
+#'
+#'   Multi-value fields are recorded as comma-separated values and returned in
+#'   that form. Custom value serialization is the responsibility of the caller.
 #' @param forceUpdate What should happen if there's no deployment record for
 #'   the app, but there's an app with the same name on the server? If `TRUE`,
 #'   will always update the previously-deployed app. If `FALSE`, will ask
