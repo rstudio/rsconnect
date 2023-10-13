@@ -5,7 +5,7 @@
   records. (#985, #989)
 
 * `rpubsUpload()` correctly records the initial RPubs destination, allowing
-  republishing.
+  republishing. (#976)
 
 # rsconnect 1.1.1
 
