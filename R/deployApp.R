@@ -134,6 +134,12 @@ deployApp <- function(appDir = getwd(),
                       image = NULL
                       ) {
 
+  cat(paste("deployApp entry:",
+            "name:", appName,
+            "account:", account,
+            "server:",server,
+            "appId:", appId,
+            "\n"))
   condaMode <- FALSE
 
   if (!isStringParam(appDir))
@@ -333,6 +339,8 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   target <- deploymentTarget(appPath, appName, appTitle, appId, account, server)
+  cat(paste("deploymentTarget result:",target,"\n"))
+
   accountDetails <- accountInfo(target$account, target$server)
 
   # test for compatibility between account type and publish intent
@@ -611,6 +619,14 @@ getPythonForTarget <- function(path, accountDetails) {
 deploymentTarget <- function(appPath, appName, appTitle, appId, account,
                              server = NULL) {
 
+  cat(paste("deploymentTarget entry:",
+            "name:", appName,
+            "title:", appTitle,
+            "id:", appId,
+            "account:", account,
+            "server:", server,
+            "\n"))
+
   # read existing accounts
   accounts <- accounts(server)[, "name"]
   if (length(accounts) == 0)
@@ -656,6 +672,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
             identical(existingDeployments[[i, "server"]], server))
         {
           # account and server matches a locally configured account
+          cat("appid discovered from account+server match\n")
           appId <- existingDeployments[[i, "appId"]]
           break
         }
@@ -663,6 +680,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
                  identical(existingDeployments[[i, "host"]], serverDetails$url))
         {
           # username and host match the user and host we're deploying to
+          cat("appid discovered from username+url match\n")
           appId <- existingDeployments[[i, "appId"]]
           break
         }
@@ -681,12 +699,14 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
   # both appName and account explicitly specified
   if (!is.null(appName) && !is.null(account)) {
     accountDetails <- accountInfo(account, server)
+    cat("name and account\n")
     createDeploymentTarget(appName, appTitle, appId, accountDetails$username,
                            account, accountDetails$server)
   }
 
   # just appName specified
   else if (!is.null(appName)) {
+    cat("name only\n")
 
     # find any existing deployments of this application
     appDeployments <- deployments(appPath,
@@ -695,6 +715,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
     # if there are none then we can create it if there is a single account
     # registered that we can default to
     if (nrow(appDeployments) == 0) {
+      cat("name only + no deployments\n")
       if (length(accounts) == 1) {
         # read the server associated with the account
         accountDetails <- accountInfo(accounts, server)
@@ -707,6 +728,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
 
     # single existing deployment
     else if (nrow(appDeployments) == 1) {
+      cat("name only + single deployment\n")
       createDeploymentTarget(appName, appTitle, appId,
                              usernameFromDeployment(appDeployments), appDeployments$account,
                              appDeployments$server)
@@ -724,6 +746,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
   # just account/server specified, that's fine we just default the app name
   # based on the basename of the application directory
   else if (!is.null(account) || !is.null(server)) {
+    cat("account or server\n")
     if (is.null(account)) {
       account <- accounts(server)[, "name"]
       if (length(account) > 1) {
@@ -738,6 +761,7 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
 
   # neither specified but a single existing deployment
   else if (nrow(appDeployments) == 1) {
+    cat("single deployment\n")
     createDeploymentTarget(appDeployments$name,
                            appDeployments$title,
                            appDeployments$appId,
@@ -748,9 +772,11 @@ deploymentTarget <- function(appPath, appName, appTitle, appId, account,
 
   # neither specified and no existing deployments
   else if (nrow(appDeployments) == 0) {
+    cat("no deployment\n")
 
     # single account we can default to
     if (length(accounts) == 1) {
+      cat("no deployment + single account\n")
       accountDetails <- accountInfo(accounts)
       createDeploymentTarget(
         generateAppName(appTitle, appPath, account, unique = FALSE),
