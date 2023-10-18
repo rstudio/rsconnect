@@ -105,7 +105,8 @@ getAppById <- function(id, account, server, hostUrl) {
     }
   }
 
-  getApplication(account, server, id)
+  accountDetails <- accountInfo(account, server)
+  getApplication(accountDetails, id)
 }
 
 

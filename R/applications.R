@@ -145,8 +145,7 @@ resolveApplication <- function(accountDetails, appName) {
   stopWithApplicationNotFound(appName)
 }
 
-getApplication <- function(account, server, appId) {
-  accountDetails <- accountInfo(account, server)
+getApplication <- function(accountDetails, appId) {
   client <- clientForAccount(accountDetails)
 
   withCallingHandlers(
