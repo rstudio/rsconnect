@@ -69,6 +69,15 @@ test_that("can read/write metadata", {
   expect_equal(out$meta2, "two")
 })
 
+test_that("can read/write metadata having multiple values", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, metadata = list(engines = c("knitr", "markdown")))
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(nrow(out), 1)
+  expect_equal(out$engines, "knitr, markdown")
+})
+
 test_that("can read/write version", {
   dir <- local_temp_app()
 

@@ -145,6 +145,9 @@ deploymentRecord <- function(name,
     url = url %||% "",
     version = version
   )
+  # convert any multi-value metadata entries into comma-separated values
+  # this prevents write.dcf from writing multiple records into one file.
+  metadata <- lapply(metadata, function(v) paste0(v, collapse = ", "))
   c(standard, metadata)
 }
 

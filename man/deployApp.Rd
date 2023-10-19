@@ -144,7 +144,10 @@ potentially problematic code?}
 
 \item{metadata}{Additional metadata fields to save with the deployment
 record. These fields will be returned on subsequent calls to
-\code{\link[=deployments]{deployments()}}.}
+\code{\link[=deployments]{deployments()}}.
+
+Multi-value fields are recorded as comma-separated values and returned in
+that form. Custom value serialization is the responsibility of the caller.}
 
 \item{forceUpdate}{What should happen if there's no deployment record for
 the app, but there's an app with the same name on the server? If \code{TRUE},
