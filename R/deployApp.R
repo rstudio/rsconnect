@@ -324,32 +324,17 @@ deployApp <- function(appDir = getwd(),
 
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  if (!is.null(appId) && is.null(appName)) {
-    # User has supplied only appId, so retrieve app data from server
-    # IDE supplies both appId and appName so should never hit this branch
-    target <- deploymentTargetForApp(
-      appId = appId,
-      appTitle = appTitle,
-      account = account,
-      server = server
-    )
-  } else {
-    forceUpdate <- forceUpdate %||% getOption("rsconnect.force.update.apps") %||%
-      fromIDE()
-
-    # Use name/account/server to look up existing deployment;
-    # create new deployment if no match found
-    target <- deploymentTarget(
-      recordPath = recordPath,
-      appId = appId,
-      appName = appName,
-      appTitle = appTitle,
-      envVars = envVars,
-      account = account,
-      server = server,
-      forceUpdate = forceUpdate
-    )
-  }
+  forceUpdate <- forceUpdate %||% getOption("rsconnect.force.update.apps") %||% fromIDE()
+  target <- deploymentTarget(
+    recordPath = recordPath,
+    appId = appId,
+    appName = appName,
+    appTitle = appTitle,
+    envVars = envVars,
+    account = account,
+    server = server,
+    forceUpdate = forceUpdate
+  )
   if (is.null(target$appId)) {
     dest <- accountLabel(target$username, target$server)
     taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
@@ -421,6 +406,8 @@ deployApp <- function(appDir = getwd(),
       }
     )
   }
+
+  # TODO: save only when the actor is the owner.
   saveDeployment(
     recordPath,
     target = target,
@@ -474,6 +461,7 @@ deployApp <- function(appDir = getwd(),
     }
     taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
 
+    # TODO: save only when the actor is the owner.
     saveDeployment(
       recordPath,
       target = target,
