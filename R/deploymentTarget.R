@@ -10,6 +10,19 @@ deploymentTarget <- function(recordPath = ".",
                              forceUpdate = FALSE,
                              error_call = caller_env()) {
 
+  if (!is.null(appId) && is.null(appName)) {
+    # User has supplied only appId, so retrieve app data from server
+    # IDE supplies both appId and appName so should never hit this branch
+    return(deploymentTargetForApp(
+      appId = appId,
+      appTitle = appTitle,
+      account = account,
+      server = server
+    ))
+  }
+
+  # Use name/account/server to look up existing deployment;
+  # create new deployment if no match found
   appDeployments <- deployments(
     appPath = recordPath,
     nameFilter = appName,

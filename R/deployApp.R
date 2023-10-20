@@ -325,34 +325,20 @@ deployApp <- function(appDir = getwd(),
     cli::cli_rule("Preparing for deployment")
   }
 
+  forceUpdate <- forceUpdate %||% getOption("rsconnect.force.update.apps") %||% fromIDE()
+
   # determine the deployment target and target account info
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  if (!is.null(appId) && is.null(appName)) {
-    # User has supplied only appId, so retrieve app data from server
-    # IDE supplies both appId and appName so should never hit this branch
-    target <- deploymentTargetForApp(
-      appId = appId,
-      appTitle = appTitle,
-      account = account,
-      server = server
-    )
-  } else {
-    forceUpdate <- forceUpdate %||% getOption("rsconnect.force.update.apps") %||%
-      fromIDE()
-
-    # Use name/account/server to look up existing deployment;
-    # create new deployment if no match found
-    target <- deploymentTarget(
-      recordPath = recordPath,
-      appId = appId,
-      appName = appName,
-      appTitle = appTitle,
-      envVars = envVars,
-      account = account,
-      server = server,
-      forceUpdate = forceUpdate
-    )
-  }
+  target <- deploymentTarget(
+    recordPath = recordPath,
+    appId = appId,
+    appName = appName,
+    appTitle = appTitle,
+    envVars = envVars,
+    account = account,
+    server = server,
+    forceUpdate = forceUpdate
+  )
   if (is.null(target$appId)) {
     dest <- accountLabel(target$username, target$server)
     taskComplete(quiet, "Deploying {.val {target$appName}} to {.val {dest}}")
