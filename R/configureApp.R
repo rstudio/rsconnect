@@ -111,6 +111,10 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
+  if (is.null(application)) {
+    stop("No application found. Specify the application's directory, name, ",
+         "and/or associated account.", call. = FALSE)
+  }
 
   invisible(client$setApplicationProperty(application$id,
                                          propertyName,
@@ -150,6 +154,10 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountInfo, deployment$name)
+  if (is.null(application)) {
+    stop("No application found. Specify the application's directory, name, ",
+         "and/or associated account.", call. = FALSE)
+  }
 
   invisible(client$unsetApplicationProperty(application$id,
                                            propertyName,
@@ -182,6 +190,10 @@ showProperties <- function(appPath = getwd(), appName = NULL, account = NULL, se
 
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
+  if (is.null(application)) {
+    stop("No application found. Specify the application's directory, name, ",
+         "and/or associated account.", call. = FALSE)
+  }
 
   # convert to data frame
   res <- do.call(rbind, application$deployment$properties)

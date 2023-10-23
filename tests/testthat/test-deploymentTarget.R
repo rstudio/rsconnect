@@ -36,7 +36,7 @@ test_that("handles accounts if only server specified", {
   addTestServer("foo")
   addTestAccount("ron", "foo")
   addTestAccount("john", "foo")
-  local_mocked_bindings(applications = function(...) data.frame())
+  local_mocked_bindings(getAppByName = function(...) NULL)
 
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
@@ -48,7 +48,13 @@ test_that("handles accounts if only server specified", {
     server = "foo",
     account = "ron"
   )
-  expect_equal(target$username, "ron")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "foo")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "foo")
 })
 
 test_that("errors/prompts if multiple deployments", {
@@ -68,13 +74,17 @@ test_that("errors/prompts if multiple deployments", {
   })
 
   simulate_user_input(1)
-  expect_snapshot(out <- deploymentTarget(app_dir))
-  expect_equal(out$appName, "test")
+  expect_snapshot(target <- deploymentTarget(app_dir))
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "server1.com")
+  expect_equal(deployment$appName, "test")
 })
 
 test_that("succeeds if there's a single existing deployment", {
   local_temp_config()
-  addTestServer()
+  addTestServer("example.com")
   addTestAccount("ron")
 
   app_dir <- withr::local_tempdir()
@@ -83,46 +93,70 @@ test_that("succeeds if there's a single existing deployment", {
     appName = "test",
     appId = "1",
     username = "ron",
+    account = "ron",
+    server = "example.com",
     version = "999"
   )
+  expect_equal(nrow(deployments(app_dir, accountFilter = "ron", serverFilter = "example.com")), 1)
+  expect_equal(nrow(deployments(app_dir)), 1)
 
   target <- deploymentTarget(app_dir)
-  expect_equal(target$appId, "1")
-  expect_equal(target$username, "ron")
-  expect_equal(target$version, "999")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appId, "1")
+  expect_equal(deployment$appName, "test")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "example.com")
+  expect_equal(deployment$version, "999")
 
   target <- deploymentTarget(app_dir, appName = "test")
-  expect_equal(target$appId, "1")
-  expect_equal(target$username, "ron")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appId, "1")
+  expect_equal(deployment$appName, "test")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "example.com")
+  expect_equal(deployment$version, "999")
 })
 
-test_that("errors if single deployment and appId doesn't match", {
+test_that("appId is used even when name does not match", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
 
   app_dir <- withr::local_tempdir()
   addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
+  addTestDeployment(app_dir, appName = "second", appId = "2", username = "ron")
 
-  expect_snapshot(
-    error = TRUE,
-    deploymentTarget(app_dir, appName = "test", appId = "2")
-  )
+  target <- deploymentTarget(app_dir, appName = "mismatched", appId = "1")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appId, "1")
 })
 
 test_that("new title overrides existing title", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  local_mocked_bindings(applications = function(...) data.frame())
+
   app_dir <- withr::local_tempdir()
   addTestDeployment(app_dir, appTitle = "old title")
 
   target <- deploymentTarget(app_dir)
-  expect_equal(target$appTitle, "old title")
+  deployment <- target$deployment
+  expect_equal(deployment$appTitle, "old title")
 
   target <- deploymentTarget(app_dir, appTitle = "new title")
-  expect_equal(target$appTitle, "new title")
+  deployment <- target$deployment
+  expect_equal(deployment$appTitle, "new title")
 })
 
 test_that("new env vars overrides existing", {
@@ -133,18 +167,22 @@ test_that("new env vars overrides existing", {
   addTestDeployment(app, envVars = "TEST1")
 
   target <- deploymentTarget(app)
-  expect_equal(target$envVars, "TEST1")
+  deployment <- target$deployment
+  expect_equal(deployment$envVars, "TEST1")
 
   target <- deploymentTarget(app, envVars = "TEST2")
-  expect_equal(target$envVars, "TEST2")
+  deployment <- target$deployment
+  expect_equal(deployment$envVars, "TEST2")
 
   # And check that it works with vectors
   addTestDeployment(app, envVars = c("TEST1", "TEST2"))
   target <- deploymentTarget(app)
-  expect_equal(target$envVars, c("TEST1", "TEST2"))
+  deployment <- target$deployment
+  expect_equal(deployment$envVars, c("TEST1", "TEST2"))
 
   target <- deploymentTarget(app, envVars = "TEST2")
-  expect_equal(target$envVars, "TEST2")
+  deployment <- target$deployment
+  expect_equal(deployment$envVars, "TEST2")
 })
 
 test_that("empty character vector removes env vars", {
@@ -155,43 +193,82 @@ test_that("empty character vector removes env vars", {
   addTestDeployment(app, envVars = "TEST1")
 
   target <- deploymentTarget(app, envVars = character())
-  expect_equal(target$envVars, character())
+  deployment <- target$deployment
+  expect_equal(deployment$envVars, character())
 })
 
 test_that("succeeds if there are no deployments and a single account", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  local_mocked_bindings(applications = function(...) data.frame())
+  local_mocked_bindings(getAppByName = function(...) data.frame(name="remotename", url="app-url"))
 
   app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
 
-  target <- deploymentTarget(app_dir, envVars = c("TEST1", "TEST2"))
-  expect_equal(target$appName, "my_app")
-  expect_equal(target$username, "ron")
-  expect_equal(target$envVars, c("TEST1", "TEST2"))
+  expect_snapshot(error = TRUE, {
+    deploymentTarget(app_dir)
+  })
 
-  target <- deploymentTarget(app_dir, appName = "foo")
-  expect_equal(target$username, "ron")
+  simulate_user_input(1)
+  target <- deploymentTarget(app_dir)
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "example.com")
+
+  target <- deploymentTarget(app_dir, forceUpdate = TRUE)
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "example.com")
+
+  target <- deploymentTarget(app_dir, envVars = c("TEST1", "TEST2"), forceUpdate = TRUE)
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "example.com")
+  expect_equal(deployment$envVars, c("TEST1", "TEST2"))
+
+  target <- deploymentTarget(app_dir, appName = "foo", forceUpdate = TRUE)
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "ron")
+  expect_equal(accountDetails$server, "example.com")
+  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "example.com")
 })
 
 test_that("default title is the empty string", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  local_mocked_bindings(applications = function(...) data.frame())
+  local_mocked_bindings(getAppByName = function(...) data.frame(name="remotename", url="app-url"))
 
   app_dir <- withr::local_tempdir()
-  target <- deploymentTarget(app_dir)
-  expect_equal(target$appTitle, "")
+  target <- deploymentTarget(app_dir, forceUpdate = TRUE)
+  deployment <- target$deployment
+  expect_equal(deployment$appTitle, "")
 })
 
 confirm_existing_app_used <- function(server) {
   local_temp_config()
   addTestServer()
   addTestAccount("ron", server = server)
-  local_mocked_bindings(
-    applications = function(...) data.frame(
+  local_mocked_bindings(getAppByName = function(...) data.frame(
       name = "my_app",
       id = 123,
       url = "http://example.com/test",
@@ -202,7 +279,8 @@ confirm_existing_app_used <- function(server) {
 
   app_dir <- withr::local_tempdir()
   target <- deploymentTarget(app_dir, appName = "my_app", server = server)
-  expect_equal(target$appId, 123)
+  deployment <- target$deployment
+  expect_equal(deployment$appId, 123)
 }
 
 test_that("can find existing application on server & use it", {
@@ -217,8 +295,7 @@ confirm_existing_app_not_used <- function(server) {
   local_temp_config()
   addTestServer()
   addTestAccount("ron", server = server)
-  local_mocked_bindings(
-    applications = function(...) data.frame(
+  local_mocked_bindings(getAppByName = function(...) data.frame(
       name = "my_app",
       id = 123,
       url = "http://example.com/test",
@@ -229,8 +306,9 @@ confirm_existing_app_not_used <- function(server) {
 
   app_dir <- withr::local_tempdir()
   target <- deploymentTarget(app_dir, appName = "my_app", server = server)
-  expect_equal(target$appName, "my_app-1")
-  expect_equal(target$appId, NULL)
+  deployment <- target$deployment
+  expect_equal(deployment$appName, "my_app-1")
+  expect_equal(deployment$appId, NULL)
 }
 
 test_that("can find existing application on server & not use it", {
@@ -256,18 +334,6 @@ test_that("defaultAppName reifies appNames for shinyApps", {
 
   long_name <- strrep("abcd", 64 / 4)
   expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
-})
-
-test_that("deploymentTargetForApp works with cloud", {
-  local_temp_config()
-  addTestServer()
-  addTestAccount("ron")
-  local_mocked_bindings(
-    getApplication = function(...) list(name = "name", id = "id")
-  )
-
-  target <- deploymentTargetForApp("123")
-  expect_equal(target$username, "ron")
 })
 
 # helpers -----------------------------------------------------------------

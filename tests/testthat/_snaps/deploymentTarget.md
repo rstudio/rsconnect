@@ -3,7 +3,7 @@
     Code
       deploymentTarget()
     Condition
-      Error in `deploymentTarget()`:
+      Error in `accountInfo()`:
       ! No accounts registered.
       i Call `rsconnect::setAccountInfo()` to register an account.
 
@@ -12,13 +12,13 @@
     Code
       deploymentTarget(server = "unknown")
     Condition
-      Error in `deploymentTarget()`:
+      Error in `accountInfo()`:
       ! Can't find any accounts with `server` = "unknown".
       i Known servers are "bar".
     Code
       deploymentTarget(account = "john")
     Condition
-      Error in `deploymentTarget()`:
+      Error in `accountInfo()`:
       ! Can't find any accounts with `account` = "john".
       i Available account names: "foo".
 
@@ -27,7 +27,7 @@
     Code
       deploymentTarget(app_dir)
     Condition
-      Error in `deploymentTarget()`:
+      Error in `accountInfo()`:
       ! Found multiple accounts.
       Please disambiguate by setting `server` and/or `account`.
       i Available servers: "foo1" and "foo2".
@@ -35,7 +35,7 @@
     Code
       deploymentTarget(app_dir, appName = "test")
     Condition
-      Error in `deploymentTarget()`:
+      Error in `accountInfo()`:
       ! Found multiple accounts.
       Please disambiguate by setting `server` and/or `account`.
       i Available servers: "foo1" and "foo2".
@@ -46,7 +46,7 @@
     Code
       deploymentTarget(app_dir, server = "foo")
     Condition
-      Error in `deploymentTarget()`:
+      Error in `accountInfo()`:
       ! Found multiple accounts for `server` = "foo".
       Please disambiguate by setting `account`.
       i Known account names are "john" and "ron".
@@ -75,7 +75,7 @@
 ---
 
     Code
-      out <- deploymentTarget(app_dir)
+      target <- deploymentTarget(app_dir)
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?
@@ -83,15 +83,16 @@
       2: test (server: server2.com / username: ron): <https://server2.com/ron/123>
       Selection: 1
 
-# errors if single deployment and appId doesn't match
+# succeeds if there are no deployments and a single account
 
     Code
-      deploymentTarget(app_dir, appName = "test", appId = "2")
+      deploymentTarget(app_dir)
     Condition
-      Error:
-      ! Supplied `appId` (2) does not match deployment record (1).
-      i Omit `appId` to use existing for deployment for app "test", or
-      i Omit `appName` to create new deployment record.
+      Error in `shouldUpdateApp()`:
+      ! Discovered a previously deployed app named "remotename"
+      (View it at <app-url>)
+      i Set `forceUpdate = TRUE` to update it.
+      i Supply a unique `appName` to deploy a new application.
 
 # shouldUpdateApp errors when non-interactive
 

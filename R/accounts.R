@@ -352,5 +352,7 @@ registerAccount <- function(serverName,
 }
 
 accountLabel <- function(account, server) {
+  # Note: The incoming "account" may correspond to our local account name, which does not always
+  # match the remote username.
   paste0("server: ", server, " / username: ", account)
 }
