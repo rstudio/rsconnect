@@ -303,7 +303,9 @@ test_that("succeeds if there are no deployments and a single account", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  local_mocked_bindings(getAppByName = function(...) data.frame(name="remotename", url="app-url"))
+  local_mocked_bindings(
+    getAppByName = function(...) data.frame(name = "remotename", url = "app-url")
+  )
 
   app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
 
@@ -358,7 +360,9 @@ test_that("default title is the empty string", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
-  local_mocked_bindings(getAppByName = function(...) data.frame(name="remotename", url="app-url"))
+  local_mocked_bindings(
+    getAppByName = function(...) data.frame(name = "remotename", url = "app-url")
+  )
 
   app_dir <- withr::local_tempdir()
   target <- deploymentTarget(app_dir, forceUpdate = TRUE)
