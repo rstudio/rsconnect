@@ -31,6 +31,108 @@ test_that("errors if no previous deployments and multiple accounts", {
   })
 })
 
+test_that("uses appId given a local deployment record; created by a local account", {
+  # Demonstrates that the deployment record is sufficient without a call to
+  # the remote server.
+  local_temp_config()
+  addTestServer("local")
+  addTestAccount("leslie", "local")
+
+  app_dir <- withr::local_tempdir()
+  addTestDeployment(app_dir, appName = "local-record", appId = "the-appid", account = "leslie", server = "local")
+
+  target <- deploymentTarget(app_dir, appId = "the-appid")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "leslie")
+  expect_equal(accountDetails$server, "local")
+  expect_equal(deployment$appId, "the-appid")
+  expect_equal(deployment$appName, "local-record")
+  expect_equal(deployment$username, "leslie")
+  expect_equal(deployment$account, "leslie")
+  expect_equal(deployment$server, "local")
+})
+
+test_that("uses appId given a local deployment record; created by a collaborator", {
+  # Demonstrates that the target account does not need to be the account that
+  # created the deployment record. The deployment record is sufficient without
+  # a call to the remote server.
+  local_temp_config()
+  addTestServer("local")
+  addTestAccount("leslie", "local")
+
+  app_dir <- withr::local_tempdir()
+  addTestDeployment(app_dir, appName = "local-record", appId = "the-appid", account = "ron", server = "local")
+
+  target <- deploymentTarget(app_dir, appId = "the-appid")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "leslie")
+  expect_equal(accountDetails$server, "local")
+  expect_equal(deployment$appId, "the-appid")
+  expect_equal(deployment$appName, "local-record")
+  expect_equal(deployment$username, "ron")
+  expect_equal(deployment$account, "ron")
+  expect_equal(deployment$server, "local")
+})
+
+test_that("uses appId without local deployment record; created by local account", {
+  local_temp_config()
+  addTestServer("local")
+  addTestAccount("leslie", "local")
+
+  local_mocked_bindings(
+    getApplication = function(...) data.frame(
+      id = "the-appid",
+      name = "remote-record",
+      owner_username = "leslie"
+    )
+  )
+
+  app_dir <- withr::local_tempdir()
+
+  target <- deploymentTarget(app_dir, appId = "the-appid")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "leslie")
+  expect_equal(accountDetails$server, "local")
+  expect_equal(deployment$appId, "the-appid")
+  expect_equal(deployment$appName, "remote-record")
+  expect_equal(deployment$username, "leslie")
+  expect_equal(deployment$account, "leslie")
+  expect_equal(deployment$server, "local")
+})
+
+test_that("uses appId without local deployment record; created by collaborator", {
+  local_temp_config()
+  addTestServer("local")
+  addTestAccount("leslie", "local")
+
+  app_dir <- withr::local_tempdir()
+
+  local_mocked_bindings(
+    getApplication = function(...) data.frame(
+      id = "the-appid",
+      name = "remote-record",
+      owner_username = "ron"
+    )
+  )
+
+  target <- deploymentTarget(app_dir, appId = "the-appid")
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+  expect_equal(accountDetails$name, "leslie")
+  expect_equal(accountDetails$server, "local")
+  expect_equal(deployment$appId, "the-appid")
+  expect_equal(deployment$appName, "remote-record")
+  expect_equal(deployment$username, "ron")
+  # note: account+server does not correspond to the "ron" account, but this is
+  # the best we can do, as we do not have the original deployment record.
+  expect_equal(deployment$account, "leslie")
+  expect_equal(deployment$server, "local")
+})
+
+
 test_that("handles accounts if only server specified", {
   local_temp_config()
   addTestServer("foo")
