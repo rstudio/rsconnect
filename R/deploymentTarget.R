@@ -5,14 +5,25 @@
 #
 # When appId is provided, it must identify an existing application. The
 # application may have been created by some other user. That application may
-# or may not have an existing deployment record on disk. It is an error when
-# appId does not identify an application.
+# or may not have an existing deployment record on disk.
+#
+# When using appId, a search across all deployment records occurs, even when
+# there is no local account+server referenced by the deployment record. This
+# lets us identify on-disk deployment records created by some collaborator.
+#
+# It is an error when appId does not identify an existing application.
 #
 # When appName is provided, it may identify an existing application owned by
 # the calling user (e.g. associated with a locally known account).
 #
-# Without appId or appName to identify an existing deployment, local
-# deployment records are considered before falling back to a generated name.
+# When using appName, the search across deployment records is restricted to
+# the incoming account+server. When there is no incoming account+server, the
+# search is restricted to deployments which have a corresponding local
+# account.
+#
+# Without appId or appName to identify an existing deployment, deployment
+# records associated with local accounts (possibly restricted by incoming
+# account+server) are considered before falling back to a generated name.
 #
 # When the targeted name does not exist, a deployment record with NULL appId
 # is returned, which signals to the caller that an application should be
@@ -93,12 +104,12 @@ findDeploymentTarget <- function(
 
 # Discover the deployment target given appId.
 #
-# When appId is provided, all other information is secondary. An appId is an indication from the
-# caller that the content has already been deployed elsewhere. If we cannot locate that content,
-# deployment fails.
+# When appId is provided, all other information is secondary. An appId is an
+# indication from the caller that the content has already been deployed
+# elsewhere. If we cannot locate that content, deployment fails.
 #
-# The target content may have been created by some other user; the account for this session may
-# differ from the account used when creating the content.
+# The target content may have been created by some other user; the account for
+# this session may differ from the account used when creating the content.
 findDeploymentTargetByAppId <- function(
   recordPath = ".",
   appId = NULL,
