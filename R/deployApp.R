@@ -271,15 +271,6 @@ deployApp <- function(appDir = getwd(),
     recordDir <- appSourceDoc
   }
 
-  cat(paste("deployApp entry:",
-            "appDir:", appDir,
-            "appId:", appId,
-            "appName:", appName,
-            "appTitle:", appTitle,
-            "account:", account,
-            "server:", server,
-            "\n"))
-
   # set up logging helpers
   logLevel <- match.arg(logLevel)
   quiet <- identical(logLevel, "quiet")
