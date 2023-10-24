@@ -121,14 +121,21 @@ applications <- function(account = NULL, server = NULL) {
   return(res)
 }
 
-# Use the API to filter applications by name.
+# Use the API to filter applications by name and error when it does not exist.
 getAppByName <- function(client, accountInfo, name) {
   # NOTE: returns a list with 0 or 1 elements
   app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
   if (length(app)) {
     return(app[[1]])
   }
-  return(NULL)
+  cli::cli_abort(
+    c(
+      "No application found",
+      i = "Specify the application directory, name, and/or associated account."
+    ),
+    call = NULL,
+    class = "rsconnect_app_not_found"
+  )
 }
 
 # Use the API to list all applications then filter the results client-side.
@@ -238,10 +245,6 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
-  if (is.null(application)) {
-    stop("No application found. Specify the application's directory, name, ",
-         "and/or associated account.", call. = FALSE)
-  }
 
   if (streaming) {
     # streaming; poll for the entries directly

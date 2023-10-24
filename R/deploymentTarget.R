@@ -199,7 +199,10 @@ deploymentTargetFromAppName <- function(
   accountDetails <- accountInfo(account, server)
   if (!isPositCloudServer(accountDetails$server)) {
     client <- clientForAccount(accountDetails)
-    application <- getAppByName(client, accountDetails, appName)
+    application <- tryCatch(
+      getAppByName(client, accountDetails, appName),
+      rsconnect_app_not_found = function(err) NULL
+    )
     if (!is.null(application)) {
       uniqueName <- findUnique(appName, application$name)
       if (shouldUpdateApp(application, uniqueName, forceUpdate)) {
