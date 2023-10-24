@@ -79,7 +79,7 @@ findDeploymentTarget <- function(
   if (nrow(allDeployments) > 0) {
     deployment <- disambiguateDeployments(allDeployments, error_call = error_call)
     deployment <- updateDeployment(deployment, appTitle, envVars)
-    accountDetails <- accountInfo(deployment$account, deployment$server)
+    accountDetails <- findAccountInfo(deployment$account, deployment$server, error_call = error_call)
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -88,7 +88,7 @@ findDeploymentTarget <- function(
 
   # Otherwise, identify a target account (given just one available or prompted
   # by the user), generate a name, and locate the deployment.
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- findAccountInfo(account, server, error_call = error_call)
   appName <- generateAppName(appTitle, recordPath, accountDetails$name, unique = FALSE)
   return(findDeploymentTargetByAppName(
     recordPath = recordPath,
@@ -123,7 +123,7 @@ findDeploymentTargetByAppId <- function(
 
   # We must have a target account+server in order to use the appId.
   # The selected account may not be the original creator of the content.
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- findAccountInfo(account, server, error_call = error_call)
 
   # Filtering is only by server and includes all deployments in case we have a deployment record
   # from a collaborator.
@@ -195,7 +195,7 @@ findDeploymentTargetByAppName <- function(
   if (nrow(appDeployments) == 1) {
     deployment <- appDeployments[1, ]
     deployment <- updateDeployment(deployment, appTitle, envVars)
-    accountDetails <- accountInfo(deployment$account, deployment$server)
+    accountDetails <- findAccountInfo(deployment$account, deployment$server, error_call = error_call)
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -207,7 +207,7 @@ findDeploymentTargetByAppName <- function(
   if (nrow(appDeployments) > 1) {
     deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
     deployment <- updateDeployment(deployment, appTitle, envVars)
-    accountDetails <- accountInfo(deployment$account, deployment$server)
+    accountDetails <- findAccountInfo(deployment$account, deployment$server, error_call = error_call)
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -216,7 +216,7 @@ findDeploymentTargetByAppName <- function(
 
   # When the appName does not identify a target, see if it exists on the server. That content is
   # conditionally used. A resolved account is required.
-  accountDetails <- accountInfo(account, server)
+  accountDetails <- findAccountInfo(account, server, error_call = error_call)
   if (!isPositCloudServer(accountDetails$server)) {
     client <- clientForAccount(accountDetails)
     application <- tryCatch(

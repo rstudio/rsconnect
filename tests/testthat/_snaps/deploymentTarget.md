@@ -3,7 +3,7 @@
     Code
       findDeploymentTarget()
     Condition
-      Error in `accountInfo()`:
+      Error:
       ! No accounts registered.
       i Call `rsconnect::setAccountInfo()` to register an account.
 
@@ -12,13 +12,13 @@
     Code
       findDeploymentTarget(server = "unknown")
     Condition
-      Error in `accountInfo()`:
+      Error:
       ! Can't find any accounts with `server` = "unknown".
       i Known servers are "bar".
     Code
       findDeploymentTarget(account = "john")
     Condition
-      Error in `accountInfo()`:
+      Error:
       ! Can't find any accounts with `account` = "john".
       i Available account names: "foo".
 
@@ -27,7 +27,7 @@
     Code
       findDeploymentTarget(app_dir)
     Condition
-      Error in `accountInfo()`:
+      Error:
       ! Found multiple accounts.
       Please disambiguate by setting `server` and/or `account`.
       i Available servers: "foo1" and "foo2".
@@ -35,7 +35,7 @@
     Code
       findDeploymentTarget(app_dir, appName = "test")
     Condition
-      Error in `accountInfo()`:
+      Error:
       ! Found multiple accounts.
       Please disambiguate by setting `server` and/or `account`.
       i Available servers: "foo1" and "foo2".
@@ -46,7 +46,7 @@
     Code
       findDeploymentTarget(app_dir, server = "foo")
     Condition
-      Error in `accountInfo()`:
+      Error:
       ! Found multiple accounts for `server` = "foo".
       Please disambiguate by setting `account`.
       i Known account names are "john" and "ron".
