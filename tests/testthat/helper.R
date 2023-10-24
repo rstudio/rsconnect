@@ -117,7 +117,7 @@ addTestDeployment <- function(path,
                               metadata = list()) {
   saveDeployment(
     path,
-    createDeploymentTarget(
+    createDeployment(
       appName = appName,
       appTitle = appTitle,
       appId = appId,

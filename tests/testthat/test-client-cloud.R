@@ -587,7 +587,7 @@ test_that("Create application with linked source project", {
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
-test_that("deploymentTarget() results in correct Cloud API calls when given appId", {
+test_that("findDeploymentTarget() results in correct Cloud API calls when given appId", {
   local_temp_config()
 
   mockServer <- mockServerFactory(list(
@@ -623,7 +623,7 @@ test_that("deploymentTarget() results in correct Cloud API calls when given appI
   testAccount <- configureTestAccount()
   withr::defer(removeAccount(testAccount))
 
-  target <- deploymentTarget(
+  target <- findDeploymentTarget(
     appId = 3,
     account = testAccount,
     server = "posit.cloud",

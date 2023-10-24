@@ -1,7 +1,7 @@
 # errors if no accounts
 
     Code
-      deploymentTarget()
+      findDeploymentTarget()
     Condition
       Error in `accountInfo()`:
       ! No accounts registered.
@@ -10,13 +10,13 @@
 # errors if unknown account or server
 
     Code
-      deploymentTarget(server = "unknown")
+      findDeploymentTarget(server = "unknown")
     Condition
       Error in `accountInfo()`:
       ! Can't find any accounts with `server` = "unknown".
       i Known servers are "bar".
     Code
-      deploymentTarget(account = "john")
+      findDeploymentTarget(account = "john")
     Condition
       Error in `accountInfo()`:
       ! Can't find any accounts with `account` = "john".
@@ -25,7 +25,7 @@
 # errors if no previous deployments and multiple accounts
 
     Code
-      deploymentTarget(app_dir)
+      findDeploymentTarget(app_dir)
     Condition
       Error in `accountInfo()`:
       ! Found multiple accounts.
@@ -33,7 +33,7 @@
       i Available servers: "foo1" and "foo2".
       i Available account names: "ron".
     Code
-      deploymentTarget(app_dir, appName = "test")
+      findDeploymentTarget(app_dir, appName = "test")
     Condition
       Error in `accountInfo()`:
       ! Found multiple accounts.
@@ -44,7 +44,7 @@
 # handles accounts if only server specified
 
     Code
-      deploymentTarget(app_dir, server = "foo")
+      findDeploymentTarget(app_dir, server = "foo")
     Condition
       Error in `accountInfo()`:
       ! Found multiple accounts for `server` = "foo".
@@ -54,7 +54,7 @@
 # errors/prompts if multiple deployments
 
     Code
-      deploymentTarget(app_dir, appName = "test")
+      findDeploymentTarget(app_dir, appName = "test")
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -63,7 +63,7 @@
       * test (server: server1.com / username: ron): <https://server1.com/ron/123>
       * test (server: server2.com / username: ron): <https://server2.com/ron/123>
     Code
-      deploymentTarget(app_dir)
+      findDeploymentTarget(app_dir)
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -75,7 +75,7 @@
 ---
 
     Code
-      target <- deploymentTarget(app_dir)
+      target <- findDeploymentTarget(app_dir)
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?
@@ -86,7 +86,7 @@
 # succeeds if there are no deployments and a single account
 
     Code
-      deploymentTarget(app_dir)
+      findDeploymentTarget(app_dir)
     Condition
       Error in `shouldUpdateApp()`:
       ! Discovered a previously deployed app named "remotename"

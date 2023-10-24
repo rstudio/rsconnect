@@ -1,6 +1,23 @@
-# calculate the deployment target based on the passed parameters and
-# any saved deployments that we have
-deploymentTarget <- function(
+# Discover the deployment target given the passed information.
+#
+# Returns a list containing a deployment record and the account details to use
+# when performing the deployment.
+#
+# When appId is provided, it must identify an existing application. The
+# application may have been created by some other user. That application may
+# or may not have an existing deployment record on disk. It is an error when
+# appId does not identify an application.
+#
+# When appName is provided, it may identify an existing application owned by
+# the calling user (e.g. associated with a locally known account).
+#
+# Without appId or appName to identify an existing deployment, local
+# deployment records are considered before falling back to a generated name.
+#
+# When the targeted name does not exist, a deployment record with NULL appId
+# is returned, which signals to the caller that an application should be
+# created.
+findDeploymentTarget <- function(
   recordPath = ".",
   appId = NULL,
   appName = NULL,
@@ -13,7 +30,7 @@ deploymentTarget <- function(
 ) {
 
   if (!is.null(appId)) {
-    return(deploymentTargetFromAppId(
+    return(findDeploymentTargetByAppId(
       recordPath = recordPath,
       appId = appId,
       appName = appName,
@@ -26,7 +43,7 @@ deploymentTarget <- function(
   }
 
   if (!is.null(appName)) {
-    return(deploymentTargetFromAppName(
+    return(findDeploymentTargetByAppName(
       recordPath = recordPath,
       appName = appName,
       appTitle = appTitle,
@@ -50,7 +67,7 @@ deploymentTarget <- function(
   )
   if (nrow(allDeployments) > 0) {
     deployment <- disambiguateDeployments(allDeployments, error_call = error_call)
-    deployment <- updateDeploymentTarget(deployment, appTitle, envVars)
+    deployment <- updateDeployment(deployment, appTitle, envVars)
     accountDetails <- accountInfo(deployment$account, deployment$server)
     return(list(
       accountDetails = accountDetails,
@@ -62,7 +79,7 @@ deploymentTarget <- function(
   # by the user), generate a name, and locate the deployment.
   accountDetails <- accountInfo(account, server)
   appName <- generateAppName(appTitle, recordPath, accountDetails$name, unique = FALSE)
-  return(deploymentTargetFromAppName(
+  return(findDeploymentTargetByAppName(
     recordPath = recordPath,
     appName = appName,
     appTitle = appTitle,
@@ -82,7 +99,7 @@ deploymentTarget <- function(
 #
 # The target content may have been created by some other user; the account for this session may
 # differ from the account used when creating the content.
-deploymentTargetFromAppId <- function(
+findDeploymentTargetByAppId <- function(
   recordPath = ".",
   appId = NULL,
   appName = NULL,
@@ -118,7 +135,7 @@ deploymentTargetFromAppId <- function(
   # Existing local deployment record.
   if (nrow(appDeployments) == 1) {
     deployment <- appDeployments[1, ]
-    deployment <- updateDeploymentTarget(deployment, appTitle, envVars)
+    deployment <- updateDeployment(deployment, appTitle, envVars)
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -130,7 +147,7 @@ deploymentTargetFromAppId <- function(
 
   # Note: The account+server of this deployment record may
   # not correspond to the original content creator.
-  deployment <- createDeploymentTarget(
+  deployment <- createDeployment(
     appName = application$name,
     appTitle = application$title %||% appTitle,
     appId = application$id,
@@ -152,7 +169,7 @@ deploymentTargetFromAppId <- function(
 #
 # The account details from the deployment record identify the final credentials we will use, as
 # account+server may not have been specified by the caller.
-deploymentTargetFromAppName <- function(
+findDeploymentTargetByAppName <- function(
   recordPath = ".",
   appName = NULL,
   appTitle = NULL,
@@ -174,7 +191,7 @@ deploymentTargetFromAppName <- function(
   # deployment, use it.
   if (nrow(appDeployments) == 1) {
     deployment <- appDeployments[1, ]
-    deployment <- updateDeploymentTarget(deployment, appTitle, envVars)
+    deployment <- updateDeployment(deployment, appTitle, envVars)
     accountDetails <- accountInfo(deployment$account, deployment$server)
     return(list(
       accountDetails = accountDetails,
@@ -186,7 +203,7 @@ deploymentTargetFromAppName <- function(
   # Ask the user to choose.
   if (nrow(appDeployments) > 1) {
     deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
-    deployment <- updateDeploymentTarget(deployment, appTitle, envVars)
+    deployment <- updateDeployment(deployment, appTitle, envVars)
     accountDetails <- accountInfo(deployment$account, deployment$server)
     return(list(
       accountDetails = accountDetails,
@@ -206,7 +223,7 @@ deploymentTargetFromAppName <- function(
     if (!is.null(application)) {
       uniqueName <- findUnique(appName, application$name)
       if (shouldUpdateApp(application, uniqueName, forceUpdate)) {
-        deployment <- createDeploymentTarget(
+        deployment <- createDeployment(
           appName = application$name,
           appTitle = application$title %||% appTitle,
           appId = application$id,
@@ -226,7 +243,7 @@ deploymentTargetFromAppName <- function(
   }
 
   # No existing target, or the caller does not want to re-use that content.
-  deployment <- createDeploymentTarget(
+  deployment <- createDeployment(
     appName = appName,
     appTitle = appTitle,
     appId = NULL,
@@ -241,14 +258,14 @@ deploymentTargetFromAppName <- function(
   ))
 }
 
-createDeploymentTarget <- function(appName,
-                                   appTitle,
-                                   appId,
-                                   envVars,
-                                   username,
-                                   account,
-                                   server,
-                                   version = deploymentRecordVersion) {
+createDeployment <- function(appName,
+                             appTitle,
+                             appId,
+                             envVars,
+                             username,
+                             account,
+                             server,
+                             version = deploymentRecordVersion) {
   list(
     appName = appName,
     appTitle = appTitle %||% "",
@@ -261,8 +278,8 @@ createDeploymentTarget <- function(appName,
   )
 }
 
-updateDeploymentTarget <- function(previous, appTitle = NULL, envVars = NULL) {
-  createDeploymentTarget(
+updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
+  createDeployment(
     appName = previous$name,
     appTitle = appTitle %||% previous$title,
     appId = previous$appId,

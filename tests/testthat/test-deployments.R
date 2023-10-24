@@ -141,7 +141,7 @@ test_that("saveDeployment appends to global history", {
 
   saveDeployment(
     dir,
-    createDeploymentTarget(
+    createDeployment(
       appName = "my-app",
       appTitle = "",
       appId = 10,
@@ -168,7 +168,7 @@ test_that("saveDeployment captures hostUrl", {
   dir <- local_temp_app()
   saveDeployment(
     dir,
-    createDeploymentTarget(
+    createDeployment(
       appName = "my-app",
       appTitle = "",
       appId = 10,

@@ -1,7 +1,7 @@
 test_that("errors if no accounts", {
   local_temp_config()
 
-  expect_snapshot(deploymentTarget(), error = TRUE)
+  expect_snapshot(findDeploymentTarget(), error = TRUE)
 })
 
 test_that("errors if unknown account or server", {
@@ -10,8 +10,8 @@ test_that("errors if unknown account or server", {
   addTestAccount("foo", "bar")
 
   expect_snapshot(error = TRUE, {
-    deploymentTarget(server = "unknown")
-    deploymentTarget(account = "john")
+    findDeploymentTarget(server = "unknown")
+    findDeploymentTarget(account = "john")
   })
 })
 
@@ -26,8 +26,8 @@ test_that("errors if no previous deployments and multiple accounts", {
   file.create(file.path(app_dir, "app.R"))
 
   expect_snapshot(error = TRUE, {
-    deploymentTarget(app_dir)
-    deploymentTarget(app_dir, appName = "test")
+    findDeploymentTarget(app_dir)
+    findDeploymentTarget(app_dir, appName = "test")
   })
 })
 
@@ -41,7 +41,7 @@ test_that("uses appId given a local deployment record; created by a local accoun
   app_dir <- withr::local_tempdir()
   addTestDeployment(app_dir, appName = "local-record", appId = "the-appid", account = "leslie", server = "local")
 
-  target <- deploymentTarget(app_dir, appId = "the-appid")
+  target <- findDeploymentTarget(app_dir, appId = "the-appid")
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "leslie")
@@ -64,7 +64,7 @@ test_that("uses appId given a local deployment record; created by a collaborator
   app_dir <- withr::local_tempdir()
   addTestDeployment(app_dir, appName = "local-record", appId = "the-appid", account = "ron", server = "local")
 
-  target <- deploymentTarget(app_dir, appId = "the-appid")
+  target <- findDeploymentTarget(app_dir, appId = "the-appid")
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "leslie")
@@ -91,7 +91,7 @@ test_that("uses appId without local deployment record; created by local account"
 
   app_dir <- withr::local_tempdir()
 
-  target <- deploymentTarget(app_dir, appId = "the-appid")
+  target <- findDeploymentTarget(app_dir, appId = "the-appid")
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "leslie")
@@ -118,7 +118,7 @@ test_that("uses appId without local deployment record; created by collaborator",
     )
   )
 
-  target <- deploymentTarget(app_dir, appId = "the-appid")
+  target <- findDeploymentTarget(app_dir, appId = "the-appid")
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "leslie")
@@ -143,9 +143,9 @@ test_that("handles accounts if only server specified", {
   app_dir <- withr::local_tempdir()
   file.create(file.path(app_dir, "app.R"))
 
-  expect_snapshot(deploymentTarget(app_dir, server = "foo"), error = TRUE)
+  expect_snapshot(findDeploymentTarget(app_dir, server = "foo"), error = TRUE)
 
-  target <- deploymentTarget(
+  target <- findDeploymentTarget(
     app_dir,
     server = "foo",
     account = "ron"
@@ -171,12 +171,12 @@ test_that("errors/prompts if multiple deployments", {
   addTestDeployment(app_dir, server = "server2.com")
 
   expect_snapshot(error = TRUE, {
-    deploymentTarget(app_dir, appName = "test")
-    deploymentTarget(app_dir)
+    findDeploymentTarget(app_dir, appName = "test")
+    findDeploymentTarget(app_dir)
   })
 
   simulate_user_input(1)
-  expect_snapshot(target <- deploymentTarget(app_dir))
+  expect_snapshot(target <- findDeploymentTarget(app_dir))
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -202,7 +202,7 @@ test_that("succeeds if there's a single existing deployment", {
   expect_equal(nrow(deployments(app_dir, accountFilter = "ron", serverFilter = "example.com")), 1)
   expect_equal(nrow(deployments(app_dir)), 1)
 
-  target <- deploymentTarget(app_dir)
+  target <- findDeploymentTarget(app_dir)
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -214,7 +214,7 @@ test_that("succeeds if there's a single existing deployment", {
   expect_equal(deployment$server, "example.com")
   expect_equal(deployment$version, "999")
 
-  target <- deploymentTarget(app_dir, appName = "test")
+  target <- findDeploymentTarget(app_dir, appName = "test")
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -236,7 +236,7 @@ test_that("appId is used even when name does not match", {
   addTestDeployment(app_dir, appName = "test", appId = "1", username = "ron")
   addTestDeployment(app_dir, appName = "second", appId = "2", username = "ron")
 
-  target <- deploymentTarget(app_dir, appName = "mismatched", appId = "1")
+  target <- findDeploymentTarget(app_dir, appName = "mismatched", appId = "1")
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -252,11 +252,11 @@ test_that("new title overrides existing title", {
   app_dir <- withr::local_tempdir()
   addTestDeployment(app_dir, appTitle = "old title")
 
-  target <- deploymentTarget(app_dir)
+  target <- findDeploymentTarget(app_dir)
   deployment <- target$deployment
   expect_equal(deployment$appTitle, "old title")
 
-  target <- deploymentTarget(app_dir, appTitle = "new title")
+  target <- findDeploymentTarget(app_dir, appTitle = "new title")
   deployment <- target$deployment
   expect_equal(deployment$appTitle, "new title")
 })
@@ -268,21 +268,21 @@ test_that("new env vars overrides existing", {
   addTestAccount()
   addTestDeployment(app, envVars = "TEST1")
 
-  target <- deploymentTarget(app)
+  target <- findDeploymentTarget(app)
   deployment <- target$deployment
   expect_equal(deployment$envVars, "TEST1")
 
-  target <- deploymentTarget(app, envVars = "TEST2")
+  target <- findDeploymentTarget(app, envVars = "TEST2")
   deployment <- target$deployment
   expect_equal(deployment$envVars, "TEST2")
 
   # And check that it works with vectors
   addTestDeployment(app, envVars = c("TEST1", "TEST2"))
-  target <- deploymentTarget(app)
+  target <- findDeploymentTarget(app)
   deployment <- target$deployment
   expect_equal(deployment$envVars, c("TEST1", "TEST2"))
 
-  target <- deploymentTarget(app, envVars = "TEST2")
+  target <- findDeploymentTarget(app, envVars = "TEST2")
   deployment <- target$deployment
   expect_equal(deployment$envVars, "TEST2")
 })
@@ -294,7 +294,7 @@ test_that("empty character vector removes env vars", {
   addTestAccount()
   addTestDeployment(app, envVars = "TEST1")
 
-  target <- deploymentTarget(app, envVars = character())
+  target <- findDeploymentTarget(app, envVars = character())
   deployment <- target$deployment
   expect_equal(deployment$envVars, character())
 })
@@ -310,11 +310,11 @@ test_that("succeeds if there are no deployments and a single account", {
   app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
 
   expect_snapshot(error = TRUE, {
-    deploymentTarget(app_dir)
+    findDeploymentTarget(app_dir)
   })
 
   simulate_user_input(1)
-  target <- deploymentTarget(app_dir)
+  target <- findDeploymentTarget(app_dir)
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -324,7 +324,7 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
 
-  target <- deploymentTarget(app_dir, forceUpdate = TRUE)
+  target <- findDeploymentTarget(app_dir, forceUpdate = TRUE)
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -334,7 +334,7 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
 
-  target <- deploymentTarget(app_dir, envVars = c("TEST1", "TEST2"), forceUpdate = TRUE)
+  target <- findDeploymentTarget(app_dir, envVars = c("TEST1", "TEST2"), forceUpdate = TRUE)
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -345,7 +345,7 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(deployment$server, "example.com")
   expect_equal(deployment$envVars, c("TEST1", "TEST2"))
 
-  target <- deploymentTarget(app_dir, appName = "foo", forceUpdate = TRUE)
+  target <- findDeploymentTarget(app_dir, appName = "foo", forceUpdate = TRUE)
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -365,7 +365,7 @@ test_that("default title is the empty string", {
   )
 
   app_dir <- withr::local_tempdir()
-  target <- deploymentTarget(app_dir, forceUpdate = TRUE)
+  target <- findDeploymentTarget(app_dir, forceUpdate = TRUE)
   deployment <- target$deployment
   expect_equal(deployment$appTitle, "")
 })
@@ -384,7 +384,7 @@ confirm_existing_app_used <- function(server) {
   )
 
   app_dir <- withr::local_tempdir()
-  target <- deploymentTarget(app_dir, appName = "my_app", server = server)
+  target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
   deployment <- target$deployment
   expect_equal(deployment$appId, 123)
 }
@@ -411,7 +411,7 @@ confirm_existing_app_not_used <- function(server) {
   )
 
   app_dir <- withr::local_tempdir()
-  target <- deploymentTarget(app_dir, appName = "my_app", server = server)
+  target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
   deployment <- target$deployment
   expect_equal(deployment$appName, "my_app-1")
   expect_equal(deployment$appId, NULL)

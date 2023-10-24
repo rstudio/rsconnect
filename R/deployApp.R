@@ -329,7 +329,7 @@ deployApp <- function(appDir = getwd(),
 
   # determine the target deployment record and deploying account
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
-  target <- deploymentTarget(
+  target <- findDeploymentTarget(
     recordPath = recordPath,
     appId = appId,
     appName = appName,
