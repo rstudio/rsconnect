@@ -85,7 +85,8 @@ test_that("uses appId without local deployment record; created by local account"
     getApplication = function(...) data.frame(
       id = "the-appid",
       name = "remote-record",
-      owner_username = "leslie"
+      owner_username = "leslie",
+      stringsAsFactors = FALSE
     )
   )
 
@@ -114,7 +115,8 @@ test_that("uses appId without local deployment record; created by collaborator",
     getApplication = function(...) data.frame(
       id = "the-appid",
       name = "remote-record",
-      owner_username = "ron"
+      owner_username = "ron",
+      stringsAsFactors = FALSE
     )
   )
 
@@ -304,7 +306,11 @@ test_that("succeeds if there are no deployments and a single account", {
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...) data.frame(name = "remotename", url = "app-url")
+    getAppByName = function(...) data.frame(
+      name = "remotename",
+      url = "app-url",
+      stringsAsFactors = FALSE
+    )
   )
 
   app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
@@ -361,7 +367,11 @@ test_that("default title is the empty string", {
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...) data.frame(name = "remotename", url = "app-url")
+    getAppByName = function(...) data.frame(
+      name = "remotename",
+      url = "app-url",
+      stringsAsFactors = FALSE
+    )
   )
 
   app_dir <- withr::local_tempdir()
