@@ -632,7 +632,7 @@ test_that("findDeploymentTarget() results in correct Cloud API calls when given 
   accountDetails <- target$accountDetails
   deployment <- target$deployment
 
-  expect_equal(deployment$appName, "my output")
+  expect_equal(deployment$name, "my output")
   expect_equal(deployment$account, testAccount)
   expect_equal(deployment$server, "posit.cloud")
   expect_equal(deployment$appId, 3)

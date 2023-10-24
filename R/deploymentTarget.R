@@ -158,16 +158,8 @@ findDeploymentTargetByAppId <- function(
 
   # Note: The account+server of this deployment record may
   # not correspond to the original content creator.
-  deployment <- createDeployment(
-    appName = application$name,
-    appTitle = application$title %||% appTitle,
-    appId = application$id,
-    envVars = envVars,
-    username = application$owner_username %||% accountDetails$name,
-    account = accountDetails$name,
-    server = accountDetails$server
-  )
-
+  deployment <- createDeploymentFromApplication(application, accountDetails)
+  deployment <- updateDeployment(deployment, appTitle, envVars)
   return(list(
     accountDetails = accountDetails,
     deployment = deployment
@@ -234,15 +226,8 @@ findDeploymentTargetByAppName <- function(
     if (!is.null(application)) {
       uniqueName <- findUnique(appName, application$name)
       if (shouldUpdateApp(application, uniqueName, forceUpdate)) {
-        deployment <- createDeployment(
-          appName = application$name,
-          appTitle = application$title %||% appTitle,
-          appId = application$id,
-          envVars = envVars,
-          username = application$owner_username %||% accountDetails$name,
-          account = accountDetails$name,
-          server = accountDetails$server
-        )
+        deployment <- createDeploymentFromApplication(application, accountDetails)
+        deployment <- updateDeployment(deployment, appTitle, envVars)
         return(list(
           accountDetails = accountDetails,
           deployment = deployment
@@ -277,15 +262,34 @@ createDeployment <- function(appName,
                              account,
                              server,
                              version = deploymentRecordVersion) {
+  # Consider merging this object with the object returned by
+  # deploymentRecord().
+  #
+  # Field names are shared with deploymentRecord() objects to avoid lots of
+  # record rewriting. Objects returned by findDeploymentTargetByAppName may
+  # have fields from the on-disk records, which were created by
+  # deploymentRecord().
   list(
-    appName = appName,
-    appTitle = appTitle %||% "",
+    name = appName,
+    title = appTitle %||% "",
     envVars = envVars,
     appId = appId,
     username = username,
     account = account,
     server = server,
     version = version
+  )
+}
+
+createDeploymentFromApplication <- function(application, accountDetails) {
+  createDeployment(
+    appName = application$name,
+    appTitle = application$title,
+    appId = application$id,
+    envVars = NULL,
+    username = application$owner_username %||% accountDetails$name,
+    account = accountDetails$name,
+    server = accountDetails$server
   )
 }
 

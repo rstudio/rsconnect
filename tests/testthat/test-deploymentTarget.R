@@ -47,7 +47,7 @@ test_that("uses appId given a local deployment record; created by a local accoun
   expect_equal(accountDetails$name, "leslie")
   expect_equal(accountDetails$server, "local")
   expect_equal(deployment$appId, "the-appid")
-  expect_equal(deployment$appName, "local-record")
+  expect_equal(deployment$name, "local-record")
   expect_equal(deployment$username, "leslie")
   expect_equal(deployment$account, "leslie")
   expect_equal(deployment$server, "local")
@@ -70,7 +70,7 @@ test_that("uses appId given a local deployment record; created by a collaborator
   expect_equal(accountDetails$name, "leslie")
   expect_equal(accountDetails$server, "local")
   expect_equal(deployment$appId, "the-appid")
-  expect_equal(deployment$appName, "local-record")
+  expect_equal(deployment$name, "local-record")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "local")
@@ -97,7 +97,7 @@ test_that("uses appId without local deployment record; created by local account"
   expect_equal(accountDetails$name, "leslie")
   expect_equal(accountDetails$server, "local")
   expect_equal(deployment$appId, "the-appid")
-  expect_equal(deployment$appName, "remote-record")
+  expect_equal(deployment$name, "remote-record")
   expect_equal(deployment$username, "leslie")
   expect_equal(deployment$account, "leslie")
   expect_equal(deployment$server, "local")
@@ -124,7 +124,7 @@ test_that("uses appId without local deployment record; created by collaborator",
   expect_equal(accountDetails$name, "leslie")
   expect_equal(accountDetails$server, "local")
   expect_equal(deployment$appId, "the-appid")
-  expect_equal(deployment$appName, "remote-record")
+  expect_equal(deployment$name, "remote-record")
   expect_equal(deployment$username, "ron")
   # note: account+server does not correspond to the "ron" account, but this is
   # the best we can do, as we do not have the original deployment record.
@@ -181,7 +181,7 @@ test_that("errors/prompts if multiple deployments", {
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "server1.com")
-  expect_equal(deployment$appName, "test")
+  expect_equal(deployment$name, "test")
 })
 
 test_that("succeeds if there's a single existing deployment", {
@@ -208,7 +208,7 @@ test_that("succeeds if there's a single existing deployment", {
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "example.com")
   expect_equal(deployment$appId, "1")
-  expect_equal(deployment$appName, "test")
+  expect_equal(deployment$name, "test")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
@@ -220,7 +220,7 @@ test_that("succeeds if there's a single existing deployment", {
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "example.com")
   expect_equal(deployment$appId, "1")
-  expect_equal(deployment$appName, "test")
+  expect_equal(deployment$name, "test")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
@@ -254,11 +254,11 @@ test_that("new title overrides existing title", {
 
   target <- findDeploymentTarget(app_dir)
   deployment <- target$deployment
-  expect_equal(deployment$appTitle, "old title")
+  expect_equal(deployment$title, "old title")
 
   target <- findDeploymentTarget(app_dir, appTitle = "new title")
   deployment <- target$deployment
-  expect_equal(deployment$appTitle, "new title")
+  expect_equal(deployment$title, "new title")
 })
 
 test_that("new env vars overrides existing", {
@@ -319,7 +319,7 @@ test_that("succeeds if there are no deployments and a single account", {
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "example.com")
-  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$name, "remotename")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
@@ -329,7 +329,7 @@ test_that("succeeds if there are no deployments and a single account", {
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "example.com")
-  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$name, "remotename")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
@@ -339,7 +339,7 @@ test_that("succeeds if there are no deployments and a single account", {
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "example.com")
-  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$name, "remotename")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
@@ -350,7 +350,7 @@ test_that("succeeds if there are no deployments and a single account", {
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
   expect_equal(accountDetails$server, "example.com")
-  expect_equal(deployment$appName, "remotename")
+  expect_equal(deployment$name, "remotename")
   expect_equal(deployment$username, "ron")
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
@@ -367,7 +367,7 @@ test_that("default title is the empty string", {
   app_dir <- withr::local_tempdir()
   target <- findDeploymentTarget(app_dir, forceUpdate = TRUE)
   deployment <- target$deployment
-  expect_equal(deployment$appTitle, "")
+  expect_equal(deployment$title, "")
 })
 
 confirm_existing_app_used <- function(server) {
@@ -413,7 +413,7 @@ confirm_existing_app_not_used <- function(server) {
   app_dir <- withr::local_tempdir()
   target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
   deployment <- target$deployment
-  expect_equal(deployment$appName, "my_app-1")
+  expect_equal(deployment$name, "my_app-1")
   expect_equal(deployment$appId, NULL)
 }
 
@@ -471,4 +471,80 @@ test_that("findUnique always returns unique name", {
   expect_equal(findUnique("x", c("x", "y")), "x-1")
   expect_equal(findUnique("x", c("x", "x-1")), "x-2")
   expect_equal(findUnique("x", c("x", "x-1", "x-2")), "x-3")
+})
+
+test_that("createDeploymentFromApplication promotes fields", {
+  expect_equal(createDeploymentFromApplication(
+    application = list(
+      id = "1",
+      name = "app-name",
+      title = "app-title",
+      owner_username = "alice.username"
+    ),
+    accountDetails = list(
+      name = "alice",
+      server = "example.com"
+    )
+  ), list(
+    name = "app-name",
+    title = "app-title",
+    envVars = NULL,
+    appId = "1",
+    username = "alice.username",
+    account = "alice",
+    server = "example.com",
+    version = deploymentRecordVersion
+  ))
+})
+
+test_that("updateDeployment updates fields", {
+  expect_equal(updateDeployment(
+    list(
+      name = "app-name",
+      title = "app-title",
+      envVars = NULL,
+      appId = "1",
+      username = "alice.username",
+      account = "alice",
+      server = "example.com",
+      version = deploymentRecordVersion
+    ),
+    appTitle = "updated-title",
+    envVars = c("VAR-NAME")
+  ), list(
+    name = "app-name",
+    title = "updated-title",
+    envVars = c("VAR-NAME"),
+    appId = "1",
+    username = "alice.username",
+    account = "alice",
+    server = "example.com",
+    version = deploymentRecordVersion
+  ))
+})
+
+test_that("updateDeployment ignores NULL updates", {
+  expect_equal(updateDeployment(
+    list(
+      name = "app-name",
+      title = "app-title",
+      envVars = c("VAR-NAME"),
+      appId = "1",
+      username = "alice.username",
+      account = "alice",
+      server = "example.com",
+      version = deploymentRecordVersion
+    ),
+    appTitle = NULL,
+    envVars = NULL
+  ), list(
+    name = "app-name",
+    title = "app-title",
+    envVars = c("VAR-NAME"),
+    appId = "1",
+    username = "alice.username",
+    account = "alice",
+    server = "example.com",
+    version = deploymentRecordVersion
+  ))
 })

@@ -344,10 +344,10 @@ deployApp <- function(appDir = getwd(),
 
   if (is.null(deployment$appId)) {
     dest <- accountLabel(accountDetails$name, accountDetails$server)
-    taskComplete(quiet, "Deploying {.val {deployment$appName}} using {.val {dest}}")
+    taskComplete(quiet, "Deploying {.val {deployment$name}} using {.val {dest}}")
   } else {
     dest <- accountLabel(accountDetails$name, accountDetails$server)
-    taskComplete(quiet, "Re-deploying {.val {deployment$appName}} using {.val {dest}}")
+    taskComplete(quiet, "Re-deploying {.val {deployment$name}} using {.val {dest}}")
   }
 
   # Run checks prior to first saveDeployment() to avoid errors that will always
@@ -383,8 +383,8 @@ deployApp <- function(appDir = getwd(),
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating application on server...")
     application <- client$createApplication(
-      deployment$appName,
-      deployment$appTitle,
+      deployment$name,
+      deployment$title,
       "shiny",
       accountDetails$accountId,
       appMetadata$appMode,
@@ -441,7 +441,7 @@ deployApp <- function(appDir = getwd(),
 
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
-      appName = deployment$appName,
+      appName = deployment$name,
       appDir = appDir,
       appFiles = appFiles,
       appMetadata = appMetadata,
@@ -589,7 +589,7 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
 
   path <- deploymentConfigFile(
     recordPath,
-    deployment$appName,
+    deployment$name,
     deployment$account,
     deployment$server
   )
@@ -597,8 +597,8 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
 
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client$createApplication(
-    deployment$appName,
-    deployment$appTitle,
+    deployment$name,
+    deployment$title,
     "shiny",
     accountDetails$accountId,
     appMetadata$appMode

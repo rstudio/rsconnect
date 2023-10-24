@@ -93,8 +93,8 @@ saveDeployment <- function(recordDir,
                            metadata = list(),
                            addToHistory = TRUE) {
   deployment <- deploymentRecord(
-    name = target$appName,
-    title = target$appTitle,
+    name = target$name,
+    title = target$title,
     username = target$username,
     account = target$account,
     server = target$server,
@@ -106,7 +106,7 @@ saveDeployment <- function(recordDir,
     url = application$url,
     metadata = metadata
   )
-  path <- deploymentConfigFile(recordDir, target$appName, target$account, target$server)
+  path <- deploymentConfigFile(recordDir, target$name, target$account, target$server)
   writeDeploymentRecord(deployment, path)
 
   # also save to global history
