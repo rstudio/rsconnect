@@ -88,7 +88,7 @@
     Code
       findDeploymentTarget(app_dir)
     Condition
-      Error in `shouldUpdateApp()`:
+      Error:
       ! Discovered a previously deployed app named "remotename"
       (View it at <app-url>)
       i Set `forceUpdate = TRUE` to update it.
@@ -99,7 +99,7 @@
     Code
       shouldUpdateApp(app, "my_app-1")
     Condition
-      Error in `shouldUpdateApp()`:
+      Error:
       ! Discovered a previously deployed app named "my_app"
       (View it at <https://example.com>)
       i Set `forceUpdate = TRUE` to update it.

@@ -225,7 +225,7 @@ findDeploymentTargetByAppName <- function(
     )
     if (!is.null(application)) {
       uniqueName <- findUnique(appName, application$name)
-      if (shouldUpdateApp(application, uniqueName, forceUpdate)) {
+      if (shouldUpdateApp(application, uniqueName, forceUpdate, error_call = error_call)) {
         deployment <- createDeploymentFromApplication(application, accountDetails)
         deployment <- updateDeployment(deployment, appTitle, envVars)
         return(list(
@@ -333,7 +333,10 @@ defaultAppName <- function(recordPath, server = NULL) {
   name
 }
 
-shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
+shouldUpdateApp <- function(application,
+                            uniqueName,
+                            forceUpdate = FALSE,
+                            error_call = caller_env()) {
   if (forceUpdate) {
     return(TRUE)
   }
@@ -356,7 +359,7 @@ shouldUpdateApp <- function(application, uniqueName, forceUpdate = FALSE) {
     i = "Supply a unique `appName` to deploy a new application."
   )
 
-  cli_menu(message, prompt, choices, not_interactive, quit = 3) == 1
+  cli_menu(message, prompt, choices, not_interactive, quit = 3, error_call = error_call) == 1
 }
 
 
