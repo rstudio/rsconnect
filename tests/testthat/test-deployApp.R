@@ -100,3 +100,11 @@ test_that("applicationDeleted() errors or prompts as needed", {
   expect_snapshot(. <- applicationDeleted(client, target, app))
   expect_length(dir(app, recursive = TRUE), 0)
 })
+
+# envvars -----------------------------------------------------------------
+
+test_that("deployApp() errors if envVars is given a named vector", {
+  expect_snapshot(error = TRUE, {
+    deployApp(local_temp_app(), envVars = c("FLAG" = "true"))
+  })
+})
