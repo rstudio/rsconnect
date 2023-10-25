@@ -1,41 +1,41 @@
 # errors if no accounts
 
     Code
-      deploymentTarget()
+      findDeploymentTarget()
     Condition
-      Error in `deploymentTarget()`:
+      Error:
       ! No accounts registered.
       i Call `rsconnect::setAccountInfo()` to register an account.
 
 # errors if unknown account or server
 
     Code
-      deploymentTarget(server = "unknown")
+      findDeploymentTarget(server = "unknown")
     Condition
-      Error in `deploymentTarget()`:
+      Error:
       ! Can't find any accounts with `server` = "unknown".
       i Known servers are "bar".
     Code
-      deploymentTarget(account = "john")
+      findDeploymentTarget(account = "john")
     Condition
-      Error in `deploymentTarget()`:
+      Error:
       ! Can't find any accounts with `account` = "john".
       i Available account names: "foo".
 
 # errors if no previous deployments and multiple accounts
 
     Code
-      deploymentTarget(app_dir)
+      findDeploymentTarget(app_dir)
     Condition
-      Error in `deploymentTarget()`:
+      Error:
       ! Found multiple accounts.
       Please disambiguate by setting `server` and/or `account`.
       i Available servers: "foo1" and "foo2".
       i Available account names: "ron".
     Code
-      deploymentTarget(app_dir, appName = "test")
+      findDeploymentTarget(app_dir, appName = "test")
     Condition
-      Error in `deploymentTarget()`:
+      Error:
       ! Found multiple accounts.
       Please disambiguate by setting `server` and/or `account`.
       i Available servers: "foo1" and "foo2".
@@ -44,9 +44,9 @@
 # handles accounts if only server specified
 
     Code
-      deploymentTarget(app_dir, server = "foo")
+      findDeploymentTarget(app_dir, server = "foo")
     Condition
-      Error in `deploymentTarget()`:
+      Error:
       ! Found multiple accounts for `server` = "foo".
       Please disambiguate by setting `account`.
       i Known account names are "john" and "ron".
@@ -54,7 +54,7 @@
 # errors/prompts if multiple deployments
 
     Code
-      deploymentTarget(app_dir, appName = "test")
+      findDeploymentTarget(app_dir, appName = "test")
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -63,7 +63,7 @@
       * test (server: server1.com / username: ron): <https://server1.com/ron/123>
       * test (server: server2.com / username: ron): <https://server2.com/ron/123>
     Code
-      deploymentTarget(app_dir)
+      findDeploymentTarget(app_dir)
     Condition
       Error:
       ! This directory has been previously deployed in multiple places.
@@ -75,7 +75,7 @@
 ---
 
     Code
-      out <- deploymentTarget(app_dir)
+      target <- findDeploymentTarget(app_dir)
     Message
       This directory has been previously deployed in multiple places.
       Which deployment do you want to use?
@@ -83,22 +83,23 @@
       2: test (server: server2.com / username: ron): <https://server2.com/ron/123>
       Selection: 1
 
-# errors if single deployment and appId doesn't match
+# succeeds if there are no deployments and a single account
 
     Code
-      deploymentTarget(app_dir, appName = "test", appId = "2")
+      findDeploymentTarget(app_dir)
     Condition
       Error:
-      ! Supplied `appId` (2) does not match deployment record (1).
-      i Omit `appId` to use existing for deployment for app "test", or
-      i Omit `appName` to create new deployment record.
+      ! Discovered a previously deployed app named "remotename"
+      (View it at <app-url>)
+      i Set `forceUpdate = TRUE` to update it.
+      i Supply a unique `appName` to deploy a new application.
 
 # shouldUpdateApp errors when non-interactive
 
     Code
       shouldUpdateApp(app, "my_app-1")
     Condition
-      Error in `shouldUpdateApp()`:
+      Error:
       ! Discovered a previously deployed app named "my_app"
       (View it at <https://example.com>)
       i Set `forceUpdate = TRUE` to update it.

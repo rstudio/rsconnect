@@ -90,7 +90,7 @@ test_that("applicationDeleted() errors or prompts as needed", {
   addTestAccount("a", "s")
   app <- local_temp_app()
   addTestDeployment(app, appName = "name", account = "a", server = "s")
-  target <- createDeploymentTarget("name", "title", "id", NULL, "a", "a", "s", 1)
+  target <- createDeployment("name", "title", "id", NULL, "a", "a", "s", 1)
   client <- list(createApplication = function(...) NULL)
 
   expect_snapshot(applicationDeleted(client, target, app), error = TRUE)

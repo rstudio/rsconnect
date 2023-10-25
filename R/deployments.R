@@ -85,28 +85,32 @@ deploymentFields <- c(
 
 deploymentRecordVersion <- 1L
 
+# Save a deployment record to disk using an incoming record (which may or may
+# not correspond to an existing on-disk deployment record). Created by
+# deploymentRecord() or by findDeploymentTarget(), and possibly loaded from
+# disk.
 saveDeployment <- function(recordDir,
-                           target,
+                           deployment,
                            application,
                            bundleId = NULL,
-                           hostUrl = serverInfo(target$server)$url,
+                           hostUrl = serverInfo(deployment$server)$url,
                            metadata = list(),
                            addToHistory = TRUE) {
   deployment <- deploymentRecord(
-    name = target$appName,
-    title = target$appTitle,
-    username = target$username,
-    account = target$account,
-    server = target$server,
-    envVars = target$envVars,
-    version = target$version,
+    name = deployment$name,
+    title = deployment$title,
+    username = deployment$username,
+    account = deployment$account,
+    server = deployment$server,
+    envVars = deployment$envVars,
+    version = deployment$version,
     hostUrl = hostUrl,
     appId = application$id,
     bundleId = bundleId,
     url = application$url,
     metadata = metadata
   )
-  path <- deploymentConfigFile(recordDir, target$appName, target$account, target$server)
+  path <- deploymentConfigFile(recordDir, deployment$name, deployment$account, deployment$server)
   writeDeploymentRecord(deployment, path)
 
   # also save to global history

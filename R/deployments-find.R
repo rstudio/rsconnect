@@ -32,6 +32,10 @@ findDeployment <- function(appPath = getwd(),
 }
 
 disambiguateDeployments <- function(appDeployments, error_call = caller_env()) {
+  if (nrow(appDeployments) == 1) {
+    return(appDeployments[1, ])
+  }
+
   apps <- paste0(
     appDeployments$name, " ",
     "(", accountLabel(appDeployments$account, appDeployments$server), "): ",

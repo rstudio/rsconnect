@@ -283,7 +283,13 @@ findShinyAppsAccountId <- function(name,
 #' @family Account functions
 #' @export
 accountInfo <- function(name = NULL, server = NULL) {
-  fullAccount <- findAccount(name, server)
+  findAccountInfo(name, server)
+}
+
+# Discovers then loads details about an account from disk.
+# Internal equivalent to accountInfo that lets callers provide error context.
+findAccountInfo <- function(name = NULL, server = NULL, error_call = caller_env()) {
+  fullAccount <- findAccount(name, server, error_call = error_call)
   configFile <- accountConfigFile(fullAccount$name, fullAccount$server)
 
   accountDcf <- read.dcf(configFile, all = TRUE)
@@ -352,5 +358,7 @@ registerAccount <- function(serverName,
 }
 
 accountLabel <- function(account, server) {
+  # Note: The incoming "account" may correspond to our local account name, which does not always
+  # match the remote username.
   paste0("server: ", server, " / username: ", account)
 }

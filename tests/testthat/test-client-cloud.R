@@ -587,7 +587,9 @@ test_that("Create application with linked source project", {
   expect_equal(app$url, "http://fake-url.test.me/")
 })
 
-test_that("deploymentTargetForApp() results in correct Cloud API calls", {
+test_that("findDeploymentTarget() results in correct Cloud API calls when given appId", {
+  local_temp_config()
+
   mockServer <- mockServerFactory(list(
     "^GET /v1/applications/([0-9]+)" = list(
       content = function(methodAndPath, match, ...) {
@@ -621,16 +623,19 @@ test_that("deploymentTargetForApp() results in correct Cloud API calls", {
   testAccount <- configureTestAccount()
   withr::defer(removeAccount(testAccount))
 
-  target <- deploymentTargetForApp(
+  target <- findDeploymentTarget(
     appId = 3,
     account = testAccount,
     server = "posit.cloud",
   )
 
-  expect_equal(target$appName, "my output")
-  expect_equal(target$account, testAccount)
-  expect_equal(target$server, "posit.cloud")
-  expect_equal(target$appId, 3)
+  accountDetails <- target$accountDetails
+  deployment <- target$deployment
+
+  expect_equal(deployment$name, "my output")
+  expect_equal(deployment$account, testAccount)
+  expect_equal(deployment$server, "posit.cloud")
+  expect_equal(deployment$appId, 3)
 })
 
 deployAppMockServerFactory <- function(expectedAppType, outputState) {
@@ -796,6 +801,8 @@ deployAppMockServerFactory <- function(expectedAppType, outputState) {
 test_that("deployApp() for shiny results in correct Cloud API calls", {
   skip_on_cran()
 
+  local_temp_config()
+
   withr::local_options(renv.verbose = TRUE)
 
   mock <- deployAppMockServerFactory(expectedAppType = "connect", outputState = "active")
@@ -891,6 +898,8 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 })
 
 test_that("deployDoc() results in correct Cloud API calls", {
+  local_temp_config()
+
   mock <- deployAppMockServerFactory(expectedAppType = "static", outputState = "active")
   mockServer <- mock$server
 
