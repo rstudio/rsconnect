@@ -90,27 +90,27 @@ deploymentRecordVersion <- 1L
 # deploymentRecord() or by findDeploymentTarget(), and possibly loaded from
 # disk.
 saveDeployment <- function(recordDir,
-                           previous,
+                           deployment,
                            application,
                            bundleId = NULL,
-                           hostUrl = serverInfo(previous$server)$url,
+                           hostUrl = serverInfo(deployment$server)$url,
                            metadata = list(),
                            addToHistory = TRUE) {
   deployment <- deploymentRecord(
-    name = previous$name,
-    title = previous$title,
-    username = previous$username,
-    account = previous$account,
-    server = previous$server,
-    envVars = previous$envVars,
-    version = previous$version,
+    name = deployment$name,
+    title = deployment$title,
+    username = deployment$username,
+    account = deployment$account,
+    server = deployment$server,
+    envVars = deployment$envVars,
+    version = deployment$version,
     hostUrl = hostUrl,
     appId = application$id,
     bundleId = bundleId,
     url = application$url,
     metadata = metadata
   )
-  path <- deploymentConfigFile(recordDir, previous$name, previous$account, previous$server)
+  path <- deploymentConfigFile(recordDir, deployment$name, deployment$account, deployment$server)
   writeDeploymentRecord(deployment, path)
 
   # also save to global history

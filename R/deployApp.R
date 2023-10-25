@@ -414,7 +414,7 @@ deployApp <- function(appDir = getwd(),
   }
   saveDeployment(
     recordPath,
-    previous = deployment,
+    deployment = deployment,
     application = application,
     metadata = metadata
   )
@@ -467,7 +467,7 @@ deployApp <- function(appDir = getwd(),
 
     saveDeployment(
       recordPath,
-      previous = deployment,
+      deployment = deployment,
       application = application,
       bundleId = bundle$id,
       metadata = metadata
