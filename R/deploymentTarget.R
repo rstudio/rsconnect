@@ -10,6 +10,8 @@
 # When using appId, a search across all deployment records occurs, even when
 # there is no local account+server referenced by the deployment record. This
 # lets us identify on-disk deployment records created by some collaborator.
+# When there is no on-disk deployment record, the configured account+server is
+# queried for the appId.
 #
 # It is an error when appId does not identify an existing application.
 #
@@ -25,9 +27,9 @@
 # records associated with local accounts (possibly restricted by incoming
 # account+server) are considered before falling back to a generated name.
 #
-# When the targeted name does not exist, a deployment record with NULL appId
-# is returned, which signals to the caller that an application should be
-# created.
+# When the targeted name does not exist locally or on the targeted
+# account+server, a deployment record with NULL appId is returned, which
+# signals to the caller that an application should be created.
 findDeploymentTarget <- function(
   recordPath = ".",
   appId = NULL,
@@ -108,6 +110,9 @@ findDeploymentTarget <- function(
 # indication from the caller that the content has already been deployed
 # elsewhere. If we cannot locate that content, deployment fails.
 #
+# Local deployment records are considered first before looking for the appId
+# on the target server.
+#
 # The target content may have been created by some other user; the account for
 # this session may differ from the account used when creating the content.
 findDeploymentTargetByAppId <- function(
@@ -168,10 +173,12 @@ findDeploymentTargetByAppId <- function(
 
 # Discover the deployment target given appName.
 #
-# When appName is provided it identifies content previously created by a locally configured account.
+# When appName is provided it identifies content previously created by a
+# locally configured account.
 #
-# The account details from the deployment record identify the final credentials we will use, as
-# account+server may not have been specified by the caller.
+# The account details from the deployment record identify the final
+# credentials we will use, as account+server may not have been specified by
+# the caller.
 findDeploymentTargetByAppName <- function(
   recordPath = ".",
   appName = NULL,
@@ -190,8 +197,8 @@ findDeploymentTargetByAppName <- function(
     serverFilter = server
   )
 
-  # When the appName along with the (optional) account+server identifies exactly one previous
-  # deployment, use it.
+  # When the appName along with the (optional) account+server identifies
+  # exactly one previous deployment, use it.
   if (nrow(appDeployments) == 1) {
     deployment <- appDeployments[1, ]
     deployment <- updateDeployment(deployment, appTitle, envVars)
@@ -202,8 +209,8 @@ findDeploymentTargetByAppName <- function(
     ))
   }
 
-  # When the appName identifies multiple targets, we may not have had an account+server constraint.
-  # Ask the user to choose.
+  # When the appName identifies multiple records, we may not have had an
+  # account+server constraint. Ask the user to choose.
   if (nrow(appDeployments) > 1) {
     deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
     deployment <- updateDeployment(deployment, appTitle, envVars)
@@ -214,8 +221,9 @@ findDeploymentTargetByAppName <- function(
     ))
   }
 
-  # When the appName does not identify a target, see if it exists on the server. That content is
-  # conditionally used. A resolved account is required.
+  # When the appName does not identify a record, see if it exists on the
+  # server. That content is conditionally used. A resolved account is
+  # required.
   accountDetails <- findAccountInfo(account, server, error_call = error_call)
   if (!isPositCloudServer(accountDetails$server)) {
     client <- clientForAccount(accountDetails)
@@ -238,7 +246,7 @@ findDeploymentTargetByAppName <- function(
     }
   }
 
-  # No existing target, or the caller does not want to re-use that content.
+  # No existing deployment, or the caller does not want to re-use that content.
   deployment <- createDeployment(
     appName = appName,
     appTitle = appTitle,
