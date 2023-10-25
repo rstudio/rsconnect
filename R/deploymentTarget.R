@@ -220,7 +220,7 @@ findDeploymentTargetByAppName <- function(
   if (!isPositCloudServer(accountDetails$server)) {
     client <- clientForAccount(accountDetails)
     application <- tryCatch(
-      getAppByName(client, accountDetails, appName),
+      getAppByName(client, accountDetails, appName, error_call = error_call),
       rsconnect_app_not_found = function(err) NULL
     )
     if (!is.null(application)) {

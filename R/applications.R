@@ -122,7 +122,7 @@ applications <- function(account = NULL, server = NULL) {
 }
 
 # Use the API to filter applications by name and error when it does not exist.
-getAppByName <- function(client, accountInfo, name) {
+getAppByName <- function(client, accountInfo, name, error_call = caller_env()) {
   # NOTE: returns a list with 0 or 1 elements
   app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
   if (length(app)) {
@@ -133,7 +133,7 @@ getAppByName <- function(client, accountInfo, name) {
       "No application found",
       i = "Specify the application directory, name, and/or associated account."
     ),
-    call = NULL,
+    call = error_call,
     class = "rsconnect_app_not_found"
   )
 }
