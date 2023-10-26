@@ -1,5 +1,9 @@
 # rsconnect (development version)
 
+* Addressed a number of republishing and collaboration issues where the
+  content was incorrectly published to a new location rather than reusing an
+  existing deployment. (#981, #1007, #1013, #1019)
+
 * `showLogs()`, `configureApp()`, `setProperty()`, and `unsetProperty()`
   search for the application by name when there are no matching deployment
   records. (#985, #989)
