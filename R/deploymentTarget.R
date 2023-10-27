@@ -91,7 +91,11 @@ findDeploymentTarget <- function(
   # Otherwise, identify a target account (given just one available or prompted
   # by the user), generate a name, and locate the deployment.
   accountDetails <- findAccountInfo(account, server, error_call = error_call)
-  appName <- generateAppName(appTitle, recordPath, accountDetails$name, unique = FALSE)
+  appName <- generateDefaultName(
+    recordPath = recordPath,
+    title = appTitle,
+    server = accountDetails$server
+  )
   return(findDeploymentTargetByAppName(
     recordPath = recordPath,
     appName = appName,
@@ -315,27 +319,56 @@ updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
   )
 }
 
-defaultAppName <- function(recordPath, server = NULL) {
+normalizeName <- function(name, server = NULL) {
+  if (is.null(name)) {
+    return("")
+  }
+
+  if (isShinyappsServer(server)) {
+    name <- tolower(name)
+  }
+
+  # Replace non-alphanumerics with underscores, trim to length 64
+  name <- gsub("[^[:alnum:]_-]+", "_", name, perl = TRUE)
+  name <- gsub("_+", "_", name)
+  if (nchar(name) > 64) {
+    name <- substr(name, 1, 64)
+  }
+
+  name
+}
+
+titleFromPath <- function(recordPath) {
   if (isDocumentPath(recordPath)) {
-    name <- file_path_sans_ext(basename(recordPath))
-    if (name == "index") {
-      # parent directory will give more informative name
-      name <- basename(dirname(recordPath))
+    title <- file_path_sans_ext(basename(recordPath))
+    if (title == "index") {
+      # parent directory will give more informative name+title
+      title <- basename(dirname(recordPath))
     } else {
       # deploying a document
     }
   } else {
     # deploying a directory
-    name <- basename(recordPath)
+    title <- basename(recordPath)
   }
+  title
+}
 
-  if (isShinyappsServer(server)) {
-    # Replace non-alphanumerics with underscores, trim to length 64
-    name <- tolower(gsub("[^[:alnum:]_-]+", "_", name, perl = TRUE))
-    name <- gsub("_+", "_", name)
-    if (nchar(name) > 64) {
-      name <- substr(name, 1, 64)
-    }
+# Determine name given a file or directory path and (optional) title.
+#
+# Prefer generating the name from the incoming title when provided and
+# fall-back to one derived from the target filename.
+#
+# Name is guaranteed to conform to [a-zA-Z0-9_-]{0,64}. Minimum length is
+# enforced by the server.
+#
+# Names produced for Shinyapps.io deployments are lower-cased.
+generateDefaultName <- function(recordPath, title = NULL, server = NULL) {
+  name <- normalizeName(title, server = server)
+
+  if (nchar(name) < 3) {
+    title <- titleFromPath(recordPath)
+    name <- normalizeName(title, server = server)
   }
 
   name

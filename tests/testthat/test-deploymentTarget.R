@@ -435,21 +435,102 @@ test_that("can find existing application on shinyapps.io & not use it", {
   confirm_existing_app_not_used("shinyapps.io")
 })
 
-# defaultAppName ----------------------------------------------------------
+# generateDefaultName ---------------------------------------------------------
 
-test_that("defaultAppName works with sites, documents, and directories", {
-  expect_equal(defaultAppName("foo/bar.Rmd"), "bar")
-  expect_equal(defaultAppName("foo/index.html"), "foo")
-  expect_equal(defaultAppName("foo/bar"), "bar")
+test_that("generateDefaultName works with sites, documents, and directories", {
+  expect_equal(
+    generateDefaultName("foo/bar.Rmd", "This/is/a/TITLE"),
+    "This_is_a_TITLE"
+  )
+  expect_equal(
+    generateDefaultName("foo/bar.Rmd", "NO"),
+    "bar"
+  )
+
+  expect_equal(
+    generateDefaultName("foo/bar.Rmd"),
+    "bar"
+  )
+  expect_equal(
+    generateDefaultName("foo/index.html"),
+    "foo"
+  )
+  expect_equal(
+    generateDefaultName("foo/bar"),
+    "bar"
+  )
+
+  expect_equal(
+    generateDefaultName("foo/Awesome Document.Rmd"),
+    "Awesome_Document"
+  )
+  expect_equal(
+    generateDefaultName("My Report/index.html"),
+    "My_Report"
+  )
+  expect_equal(
+    generateDefaultName("foo/The-Application"),
+    "The-Application"
+  )
+
+  long_name <- strrep("AbCd", 64 / 4)
+  even_longer_name <- paste(long_name, "...")
+  expect_equal(
+    generateDefaultName(even_longer_name),
+    long_name
+  )
+  expect_equal(
+    generateDefaultName("short-file-path", even_longer_name),
+    long_name
+  )
 })
 
-test_that("defaultAppName reifies appNames for shinyApps", {
-  expect_equal(defaultAppName("a b c", "shinyapps.io"), "a_b_c")
-  expect_equal(defaultAppName("a!b!c", "shinyapps.io"), "a_b_c")
-  expect_equal(defaultAppName("a  b  c", "shinyapps.io"), "a_b_c")
+test_that("generateDefaultName lower-cases names shinyApps", {
+  expect_equal(
+    generateDefaultName("foo/bar.Rmd", "This/is/a/TITLE", server = "shinyapps.io"),
+    "this_is_a_title"
+  )
+  expect_equal(
+    generateDefaultName("foo/bar.Rmd", "NO", server = "shinyapps.io"),
+    "bar"
+  )
 
-  long_name <- strrep("abcd", 64 / 4)
-  expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
+  expect_equal(
+    generateDefaultName("foo/bar.Rmd", server = "shinyapps.io"),
+    "bar"
+  )
+  expect_equal(
+    generateDefaultName("foo/index.html", server = "shinyapps.io"),
+    "foo"
+  )
+  expect_equal(
+    generateDefaultName("foo/bar", server = "shinyapps.io"),
+    "bar"
+  )
+
+  expect_equal(
+    generateDefaultName("foo/Awesome Document.Rmd", server = "shinyapps.io"),
+    "awesome_document"
+  )
+  expect_equal(
+    generateDefaultName("My Report/index.html", server = "shinyapps.io"),
+    "my_report"
+  )
+  expect_equal(
+    generateDefaultName("foo/The-Application", server = "shinyapps.io"),
+    "the-application"
+  )
+
+  long_name <- strrep("AbCd", 64 / 4)
+  even_longer_name <- paste(long_name, "...")
+  expect_equal(
+    generateDefaultName(even_longer_name, server = "shinyapps.io"),
+    tolower(long_name)
+  )
+  expect_equal(
+    generateDefaultName("short-file-path", even_longer_name, server = "shinyapps.io"),
+    tolower(long_name)
+  )
 })
 
 # helpers -----------------------------------------------------------------

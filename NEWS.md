@@ -4,6 +4,10 @@
   content was incorrectly published to a new location rather than reusing an
   existing deployment. (#981, #1007, #1013, #1019)
 
+* Generated application names are always normalized and lower-cased when
+  deploying to shinyapps.io. The name is derived from an incoming title, when
+  provided, and otherwise from the content path. (#1022)
+
 * `showLogs()`, `configureApp()`, `setProperty()`, and `unsetProperty()`
   search for the application by name when there are no matching deployment
   records. (#985, #989)
