@@ -362,22 +362,19 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(deployment$server, "example.com")
 })
 
-test_that("default title is the empty string", {
+test_that("default name and title derived from path", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...) data.frame(
-      name = "remotename",
-      url = "app-url",
-      stringsAsFactors = FALSE
-    )
+    getAppByName = function(...) NULL
   )
 
-  app_dir <- withr::local_tempdir()
+  app_dir <- dirCreate(file.path(withr::local_tempdir(), "MyApplication"))
   target <- findDeploymentTarget(app_dir, forceUpdate = TRUE)
   deployment <- target$deployment
-  expect_equal(deployment$title, "")
+  expect_equal(deployment$title, "MyApplication")
+  expect_equal(deployment$name, "myapplication")
 })
 
 confirm_existing_app_used <- function(server) {
@@ -385,7 +382,8 @@ confirm_existing_app_used <- function(server) {
   addTestServer()
   addTestAccount("ron", server = server)
   local_mocked_bindings(getAppByName = function(...) data.frame(
-      name = "my_app",
+      name = "remoteapp",
+      title = "Remote Application",
       id = 123,
       url = "http://example.com/test",
       stringsAsFactors = FALSE
@@ -397,6 +395,8 @@ confirm_existing_app_used <- function(server) {
   target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
   deployment <- target$deployment
   expect_equal(deployment$appId, 123)
+  expect_equal(deployment$name, "remoteapp")
+  expect_equal(deployment$title, "Remote Application")
 }
 
 test_that("can find existing application on server & use it", {
@@ -435,101 +435,42 @@ test_that("can find existing application on shinyapps.io & not use it", {
   confirm_existing_app_not_used("shinyapps.io")
 })
 
-# generateDefaultName ---------------------------------------------------------
+# generateTitle ---------------------------------------------------------
 
-test_that("generateDefaultName works with sites, documents, and directories", {
+test_that("generateTitle works with sites, documents, and directories", {
   expect_equal(
-    generateDefaultName("foo/bar.Rmd", "This/is/a/TITLE"),
-    "This_is_a_TITLE"
+    generateTitle("foo/bar.Rmd", "This/is/a/TITLE"),
+    "This/is/a/TITLE"
   )
   expect_equal(
-    generateDefaultName("foo/bar.Rmd", "NO"),
+    generateTitle("foo/bar.Rmd", "NO"),
+    "NO"
+  )
+
+  expect_equal(
+    generateTitle("foo/bar.Rmd"),
     "bar"
   )
-
   expect_equal(
-    generateDefaultName("foo/bar.Rmd"),
-    "bar"
-  )
-  expect_equal(
-    generateDefaultName("foo/index.html"),
+    generateTitle("foo/index.html"),
     "foo"
   )
   expect_equal(
-    generateDefaultName("foo/bar"),
+    generateTitle("foo/bar"),
     "bar"
   )
 
   expect_equal(
-    generateDefaultName("foo/Awesome Document.Rmd"),
-    "Awesome_Document"
+    generateTitle("foo/Awesome Document.Rmd"),
+    "Awesome Document"
   )
   expect_equal(
-    generateDefaultName("My Report/index.html"),
-    "My_Report"
+    generateTitle("My Report/index.html"),
+    "My Report"
   )
   expect_equal(
-    generateDefaultName("foo/The-Application"),
+    generateTitle("foo/The-Application"),
     "The-Application"
-  )
-
-  long_name <- strrep("AbCd", 64 / 4)
-  even_longer_name <- paste(long_name, "...")
-  expect_equal(
-    generateDefaultName(even_longer_name),
-    long_name
-  )
-  expect_equal(
-    generateDefaultName("short-file-path", even_longer_name),
-    long_name
-  )
-})
-
-test_that("generateDefaultName lower-cases names shinyApps", {
-  expect_equal(
-    generateDefaultName("foo/bar.Rmd", "This/is/a/TITLE", server = "shinyapps.io"),
-    "this_is_a_title"
-  )
-  expect_equal(
-    generateDefaultName("foo/bar.Rmd", "NO", server = "shinyapps.io"),
-    "bar"
-  )
-
-  expect_equal(
-    generateDefaultName("foo/bar.Rmd", server = "shinyapps.io"),
-    "bar"
-  )
-  expect_equal(
-    generateDefaultName("foo/index.html", server = "shinyapps.io"),
-    "foo"
-  )
-  expect_equal(
-    generateDefaultName("foo/bar", server = "shinyapps.io"),
-    "bar"
-  )
-
-  expect_equal(
-    generateDefaultName("foo/Awesome Document.Rmd", server = "shinyapps.io"),
-    "awesome_document"
-  )
-  expect_equal(
-    generateDefaultName("My Report/index.html", server = "shinyapps.io"),
-    "my_report"
-  )
-  expect_equal(
-    generateDefaultName("foo/The-Application", server = "shinyapps.io"),
-    "the-application"
-  )
-
-  long_name <- strrep("AbCd", 64 / 4)
-  even_longer_name <- paste(long_name, "...")
-  expect_equal(
-    generateDefaultName(even_longer_name, server = "shinyapps.io"),
-    tolower(long_name)
-  )
-  expect_equal(
-    generateDefaultName("short-file-path", even_longer_name, server = "shinyapps.io"),
-    tolower(long_name)
   )
 })
 

@@ -98,7 +98,7 @@ saveDeployment <- function(recordDir,
                            addToHistory = TRUE) {
   deployment <- deploymentRecord(
     name = deployment$name,
-    title = deployment$title,
+    title = application$title %||% deployment$title,
     username = deployment$username,
     account = deployment$account,
     server = deployment$server,

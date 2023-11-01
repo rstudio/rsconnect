@@ -91,10 +91,12 @@ findDeploymentTarget <- function(
   # Otherwise, identify a target account (given just one available or prompted
   # by the user), generate a name, and locate the deployment.
   accountDetails <- findAccountInfo(account, server, error_call = error_call)
-  appName <- generateDefaultName(
-    recordPath = recordPath,
-    title = appTitle,
-    server = accountDetails$server
+  appTitle <- generateTitle(recordPath = recordPath, title = appTitle)
+  appName <- generateAppName(
+    appTitle = appTitle,
+    appPath = recordPath,
+    account = accountDetails$name,
+    unique = FALSE
   )
   return(findDeploymentTargetByAppName(
     recordPath = recordPath,
@@ -319,25 +321,7 @@ updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
   )
 }
 
-normalizeName <- function(name, server = NULL) {
-  if (is.null(name)) {
-    return("")
-  }
-
-  if (isShinyappsServer(server)) {
-    name <- tolower(name)
-  }
-
-  # Replace non-alphanumerics with underscores, trim to length 64
-  name <- gsub("[^[:alnum:]_-]+", "_", name, perl = TRUE)
-  name <- gsub("_+", "_", name)
-  if (nchar(name) > 64) {
-    name <- substr(name, 1, 64)
-  }
-
-  name
-}
-
+# Generate a title from a content path.
 titleFromPath <- function(recordPath) {
   if (isDocumentPath(recordPath)) {
     title <- file_path_sans_ext(basename(recordPath))
@@ -354,24 +338,13 @@ titleFromPath <- function(recordPath) {
   title
 }
 
-# Determine name given a file or directory path and (optional) title.
-#
-# Prefer generating the name from the incoming title when provided and
-# fall-back to one derived from the target filename.
-#
-# Name is guaranteed to conform to [a-zA-Z0-9_-]{0,64}. Minimum length is
-# enforced by the server.
-#
-# Names produced for Shinyapps.io deployments are lower-cased.
-generateDefaultName <- function(recordPath, title = NULL, server = NULL) {
-  name <- normalizeName(title, server = server)
-
-  if (nchar(name) < 3) {
-    title <- titleFromPath(recordPath)
-    name <- normalizeName(title, server = server)
+# Generate a title when a title was not already specified.
+generateTitle <- function(recordPath, title = NULL) {
+  if (is.null(title)) {
+    titleFromPath(recordPath)
+  } else {
+    title
   }
-
-  name
 }
 
 shouldUpdateApp <- function(application,
