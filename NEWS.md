@@ -14,6 +14,11 @@
 * `deployApp()` and friends record multi-value `metadata` entries as
   comma-separated values. (#1017)
 
+* `accountInfo()` includes `name` and `username` fields. Older versions of
+  rsconnect store account records with a `username` field. Recent rsconnect
+  versions record `name`. Both `name` and `username` should contain the same
+  value. (#1024)
+
 # rsconnect 1.1.1
 
 * Added `space` parameter to deploy directly to a space in Posit Cloud.

@@ -294,6 +294,12 @@ findAccountInfo <- function(name = NULL, server = NULL, error_call = caller_env(
 
   accountDcf <- read.dcf(configFile, all = TRUE)
   info <- as.list(accountDcf)
+
+  # Account records previously had username, now have name. Internal callers expect "name", but
+  # external callers may expect "username". (#1024)
+  info$name <- info$name %||% info$username
+  info$username <- info$name
+
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
     info$private_key <- gsub("[[:space:]]", "", info$private_key)
