@@ -197,6 +197,10 @@
 #' # deploy a Quarto website, using the quarto package to
 #' # find the Quarto binary
 #' deployApp("~/projects/quarto/site1")
+#'
+#' # deploy application with environment variables
+#' Sys.setenv(SECRET = "mytoken")
+#' rsconnect::deployApp(envVars = c("SECRET"))
 #' }
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
