@@ -269,7 +269,8 @@ deployApp(launch.browser = FALSE)
 # find the Quarto binary
 deployApp("~/projects/quarto/site1")
 
-# deploy application with environment variables (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)
+# deploy application with environment variables
+# (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)
 rsconnect::deployApp(envVars = c("SECRET_PASSWORD"))
 }
 }
