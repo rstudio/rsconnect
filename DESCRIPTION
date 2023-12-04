@@ -1,4 +1,3 @@
-Type: Package
 Package: rsconnect
 Title: Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'
 Version: 1.1.1.9000
@@ -15,7 +14,7 @@ Description: Programmatic deployment interface for 'RPubs',
     Markdown documents, Shiny applications, Plumber APIs, plots, and
     static web content.
 License: GPL-2
-URL: https://github.com/rstudio/rsconnect
+URL: http://rstudio.github.io/rsconnect/, https://github.com/rstudio/rsconnect
 BugReports: https://github.com/rstudio/rsconnect/issues
 Depends:
     R (>= 3.5.0)
