@@ -15,14 +15,14 @@ This example is taken from the [Quarto website](https://quarto.org/docs/interact
 ```{r}
 #| panel: sidebar
 vars <- setdiff(names(iris), "Species")
-selectInput('xcol', 'X Variable', vars)
-selectInput('ycol', 'Y Variable', vars, selected = vars[[2]])
-numericInput('clusters', 'Cluster count', 3, min = 1, max = 9)
+selectInput("xcol", "X Variable", vars)
+selectInput("ycol", "Y Variable", vars, selected = vars[[2]])
+numericInput("clusters", "Cluster count", 3, min = 1, max = 9)
 ```
 
 ```{r}
 #| panel: fill
-plotOutput('plot1')
+plotOutput("plot1")
 ```
 
 ```{r}
