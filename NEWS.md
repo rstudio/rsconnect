@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.2.0
 
 * Addressed a number of republishing and collaboration issues where the
