@@ -28,14 +28,14 @@ snapshotRenvDependencies <- function(bundleDir,
 }
 
 parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
-  renv <- jsonlite::read_json(renvLockFile(bundleDir))
+  renvLock <- jsonlite::read_json(renvLockFile(bundleDir))
 
   repos <- setNames(
-    vapply(renv$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
-    vapply(renv$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
+    vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
+    vapply(renvLock$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
   )
   deps <- standardizeRenvPackages(
-    renv$Packages,
+    renvLock$Packages,
     repos,
     biocPackages = biocPackages(bundleDir)
   )
