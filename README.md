@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rsconnect <a href='https://rstudio.github.io/rstudioapi/'><img src="man/figures/logo.png" align="right" height="139"/></a>
+# rsconnect <a href='https://rstudio.github.io/rsconnect/'><img src="man/figures/logo.png" align="right" height="139"/></a>
 
 <!-- badges: start -->
 
