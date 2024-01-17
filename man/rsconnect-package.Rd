@@ -13,6 +13,7 @@ Programmatic deployment interface for 'RPubs', 'shinyapps.io', and 'Posit Connec
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://rstudio.github.io/rsconnect/}
   \item \url{https://github.com/rstudio/rsconnect}
   \item Report bugs at \url{https://github.com/rstudio/rsconnect/issues}
 }
