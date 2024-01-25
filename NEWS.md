@@ -5,6 +5,7 @@
   needed to be quoted. The resulting manifest lacked information about the
   Quarto runtime, which caused difficult-to-understand deployment errors.
   (#1037)
+* Produce an error when Quarto content cannot be inspected. (#1032)
 
 # rsconnect 1.2.0
 

@@ -1,3 +1,4 @@
+# Called only when the content is known to be Quarto.
 inferQuartoInfo <- function(metadata, appDir, appPrimaryDoc) {
   if (hasQuartoMetadata(metadata)) {
     return(list(
@@ -11,10 +12,6 @@ inferQuartoInfo <- function(metadata, appDir, appPrimaryDoc) {
     appDir = appDir,
     appPrimaryDoc = appPrimaryDoc
   )
-  if (is.null(inspect)) {
-    return(NULL)
-  }
-
   list(
     version = inspect[["quarto"]][["version"]],
     engines = I(inspect[["engines"]])
@@ -37,20 +34,34 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
     ))
   }
 
-  paths <- c(appDir, file.path(appDir, appPrimaryDoc))
+  json <- suppressWarnings(
+    system2(
+      quarto, c("inspect", shQuote(appDir)),
+      stdout = TRUE, stderr = TRUE
+    )
+  )
+  status <- attr(json, "status")
 
-  for (path in paths) {
-    args <- c("inspect", shQuote(path.expand(path)))
-    inspect <- tryCatch(
-      {
-        json <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
-        parsed <- jsonlite::fromJSON(json)
-        return(parsed)
-      },
-      error = function(e) NULL
+  if (!is.null(status) && !is.null(appPrimaryDoc)) {
+    json <- suppressWarnings(
+      system2(
+        quarto, c("inspect", shQuote(file.path(appDir, appPrimaryDoc))),
+        stdout = TRUE, stderr = TRUE
+      )
+    )
+    status <- attr(json, "status")
+  }
+
+  if (!is.null(status)) {
+    cli::cli_abort(
+      c(
+        "Unable to run `quarto inspect` against your content:",
+        json
+      )
     )
   }
-  return(NULL)
+  parsed <- jsonlite::fromJSON(json)
+  return(parsed)
 }
 
 # inlined from quarto::quarto_path()
