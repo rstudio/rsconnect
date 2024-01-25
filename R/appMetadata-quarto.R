@@ -40,7 +40,7 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
   paths <- c(appDir, file.path(appDir, appPrimaryDoc))
 
   for (path in paths) {
-    args <- c("inspect", path.expand(path))
+    args <- c("inspect", shQuote(path.expand(path)))
     inspect <- tryCatch(
       {
         json <- suppressWarnings(system2(quarto, args, stdout = TRUE, stderr = TRUE))
