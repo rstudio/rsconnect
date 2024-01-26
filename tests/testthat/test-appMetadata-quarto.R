@@ -99,6 +99,18 @@ test_that("quartoInspect processes content with filenames containing spaces", {
   expect_equal(inspect$engines, c("markdown"))
 })
 
+# Some versions of Quarto show Quarto stack traces with source references when
+# inspect fails.
+#
+# Only preserve:
+#
+#   Error in `quartoInspect()`:
+#   ! Failed to run `quarto inspect` against your content:
+#   ERROR: Unsupported project type unsupported
+strip_quarto_trace <- function(lines) {
+  head(lines, 3)
+}
+
 test_that("quartoInspect produces an error when a document cannot be inspected", {
   skip_if_no_quarto()
 
@@ -108,10 +120,10 @@ test_that("quartoInspect produces an error when a document cannot be inspected",
     "---",
     "this is a document using an unsupported format."
   )))
-  expect_error(
+  expect_snapshot(
     quartoInspect(dir, "bad.qmd"),
-    "Unable to run `quarto inspect` against your content",
-    fixed = TRUE
+    error = TRUE,
+    transform = strip_quarto_trace
   )
 })
 
@@ -132,9 +144,9 @@ test_that("quartoInspect produces an error when a project cannot be inspected", 
       )
     )
   )
-  expect_error(
+  expect_snapshot(
     quartoInspect(dir, "bad.qmd"),
-    "Unable to run `quarto inspect` against your content",
-    fixed = TRUE
+    error = TRUE,
+    transform = strip_quarto_trace
   )
 })

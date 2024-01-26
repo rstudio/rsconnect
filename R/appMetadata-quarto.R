@@ -55,13 +55,12 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
   if (!is.null(status)) {
     cli::cli_abort(
       c(
-        "Unable to run `quarto inspect` against your content:",
+        "Failed to run `quarto inspect` against your content:",
         json
       )
     )
   }
-  parsed <- jsonlite::fromJSON(json)
-  return(parsed)
+  jsonlite::fromJSON(json)
 }
 
 # inlined from quarto::quarto_path()
