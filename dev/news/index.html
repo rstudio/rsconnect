@@ -53,6 +53,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
 <ul><li>Restore the <code>LC_TIME</code> locale after computing an RFC-2616 date. (<a href="https://github.com/rstudio/rsconnect/issues/1035" class="external-link">#1035</a>)</li>
+<li>Address a problem inspecting Quarto content when the file names and paths needed to be quoted. The resulting manifest lacked information about the Quarto runtime, which caused difficult-to-understand deployment errors. (<a href="https://github.com/rstudio/rsconnect/issues/1037" class="external-link">#1037</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="rsconnect-120">rsconnect 1.2.0<a class="anchor" aria-label="anchor" href="#rsconnect-120"></a></h2><p class="text-muted">CRAN release: 2023-12-15</p>
@@ -272,7 +273,7 @@
    </div>
   <footer><div class="container">
   <div class="pkgdown-footer-left">
-  <p></p><p>Developed by Aron Atkins, Toph Allen, <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, Jonathan McPherson, JJ Allaire, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
+  <p></p><p>Developed by Aron Atkins, Toph Allen, <a href="https://hadley.nz" class="external-link">Hadley Wickham</a>, Jonathan McPherson, JJ Allaire, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
