@@ -94,6 +94,35 @@ test_that("quartoInspect identifies Quarto documents", {
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
 })
 
+test_that("quartoInspect processes content within paths containing spaces", {
+  skip_if_no_quarto()
+
+  parent <- withr::local_tempdir()
+  dir <- file.path(parent, "space dir")
+  dir.create(dir)
+  writeLines(c(
+    "---",
+    "title: space path",
+    "---",
+    "this is a document within a path having spaces."
+  ), file.path(dir, "index.qmd"))
+  inspect <- quartoInspect(dir, "index.qmd")
+  expect_equal(inspect$engines, c("markdown"))
+})
+
+test_that("quartoInspect processes content with filenames containing spaces", {
+  skip_if_no_quarto()
+
+  dir <- local_temp_app(list("space file.qmd" = c(
+    "---",
+    "title: space name",
+    "---",
+    "this is a document with a filename having spaces."
+  )))
+  inspect <- quartoInspect(dir, "space file.qmd")
+  expect_equal(inspect$engines, c("markdown"))
+})
+
 test_that("quartoInspect returns NULL on non-quarto Quarto content", {
   skip_if_no_quarto()
 

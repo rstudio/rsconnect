@@ -1,6 +1,10 @@
 # rsconnect (development version)
 
 * Restore the `LC_TIME` locale after computing an RFC-2616 date. (#1035)
+* Address a problem inspecting Quarto content when the file names and paths
+  needed to be quoted. The resulting manifest lacked information about the
+  Quarto runtime, which caused difficult-to-understand deployment errors.
+  (#1037)
 
 # rsconnect 1.2.0
 
