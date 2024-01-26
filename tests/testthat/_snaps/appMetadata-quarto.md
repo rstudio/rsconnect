@@ -14,7 +14,7 @@
     Condition
       Error in `quartoInspect()`:
       ! Failed to run `quarto inspect` against your content:
-      [91mERROR: Unknown format unsupported[39m
+      ERROR: Unknown format unsupported
 
 # quartoInspect produces an error when a project cannot be inspected
 
@@ -23,5 +23,5 @@
     Condition
       Error in `quartoInspect()`:
       ! Failed to run `quarto inspect` against your content:
-      [91mERROR: Unsupported project type unsupported[39m
+      ERROR: Unsupported project type unsupported
 

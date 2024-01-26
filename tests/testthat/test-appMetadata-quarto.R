@@ -114,6 +114,9 @@ strip_quarto_trace <- function(lines) {
 test_that("quartoInspect produces an error when a document cannot be inspected", {
   skip_if_no_quarto()
 
+  # Suppress colors from Quarto errors.
+  withr::local_envvar(NO_COLOR = "1")
+
   dir <- local_temp_app(list("bad.qmd" = c(
     "---",
     "format: unsupported",
@@ -129,6 +132,9 @@ test_that("quartoInspect produces an error when a document cannot be inspected",
 
 test_that("quartoInspect produces an error when a project cannot be inspected", {
   skip_if_no_quarto()
+
+  # Suppress colors from Quarto errors.
+  withr::local_envvar(NO_COLOR = "1")
 
   dir <- local_temp_app(
     list(
