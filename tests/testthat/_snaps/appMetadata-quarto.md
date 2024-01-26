@@ -7,3 +7,21 @@
       ! `quarto` not found.
       i Check that it is installed and available on your `PATH`.
 
+# quartoInspect produces an error when a document cannot be inspected
+
+    Code
+      quartoInspect(dir, "bad.qmd")
+    Condition
+      Error in `quartoInspect()`:
+      ! Failed to run `quarto inspect` against your content:
+      ERROR: Unknown format unsupported
+
+# quartoInspect produces an error when a project cannot be inspected
+
+    Code
+      quartoInspect(dir, "bad.qmd")
+    Condition
+      Error in `quartoInspect()`:
+      ! Failed to run `quarto inspect` against your content:
+      ERROR: Unsupported project type unsupported
+
