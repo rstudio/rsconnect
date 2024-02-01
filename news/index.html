@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,12 @@
       <small>Source: <a href="https://github.com/rstudio/rsconnect/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.1" id="rsconnect-121">rsconnect 1.2.1<a class="anchor" aria-label="anchor" href="#rsconnect-121"></a></h2><p class="text-muted">CRAN release: 2024-01-31</p>
+<ul><li>Restore the <code>LC_TIME</code> locale after computing an RFC-2616 date. (<a href="https://github.com/rstudio/rsconnect/issues/1035" class="external-link">#1035</a>)</li>
+<li>Address a problem inspecting Quarto content when the file names and paths needed to be quoted. The resulting manifest lacked information about the Quarto runtime, which caused difficult-to-understand deployment errors. (<a href="https://github.com/rstudio/rsconnect/issues/1037" class="external-link">#1037</a>)</li>
+<li>Produce an error when Quarto content cannot be inspected. (<a href="https://github.com/rstudio/rsconnect/issues/1032" class="external-link">#1032</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="rsconnect-120">rsconnect 1.2.0<a class="anchor" aria-label="anchor" href="#rsconnect-120"></a></h2><p class="text-muted">CRAN release: 2023-12-15</p>
 <ul><li><p>Addressed a number of republishing and collaboration issues where the content was incorrectly published to a new location rather than reusing an existing deployment. (<a href="https://github.com/rstudio/rsconnect/issues/981" class="external-link">#981</a>, <a href="https://github.com/rstudio/rsconnect/issues/1007" class="external-link">#1007</a>, <a href="https://github.com/rstudio/rsconnect/issues/1013" class="external-link">#1013</a>, <a href="https://github.com/rstudio/rsconnect/issues/1019" class="external-link">#1019</a>)</p></li>
@@ -268,7 +274,7 @@
    </div>
   <footer><div class="container">
   <div class="pkgdown-footer-left">
-  <p></p><p>Developed by Aron Atkins, Toph Allen, <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, Jonathan McPherson, JJ Allaire, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
+  <p></p><p>Developed by Aron Atkins, Toph Allen, <a href="https://hadley.nz" class="external-link">Hadley Wickham</a>, Jonathan McPherson, JJ Allaire, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
