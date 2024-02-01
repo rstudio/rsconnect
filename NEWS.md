@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.2.1
 
 * Restore the `LC_TIME` locale after computing an RFC-2616 date. (#1035)
