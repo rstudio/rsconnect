@@ -362,22 +362,19 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(deployment$server, "example.com")
 })
 
-test_that("default title is the empty string", {
+test_that("default name and title derived from path", {
   local_temp_config()
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...) data.frame(
-      name = "remotename",
-      url = "app-url",
-      stringsAsFactors = FALSE
-    )
+    getAppByName = function(...) NULL
   )
 
-  app_dir <- withr::local_tempdir()
+  app_dir <- dirCreate(file.path(withr::local_tempdir(), "MyApplication"))
   target <- findDeploymentTarget(app_dir, forceUpdate = TRUE)
   deployment <- target$deployment
-  expect_equal(deployment$title, "")
+  expect_equal(deployment$title, "MyApplication")
+  expect_equal(deployment$name, "myapplication")
 })
 
 confirm_existing_app_used <- function(server) {
@@ -385,7 +382,8 @@ confirm_existing_app_used <- function(server) {
   addTestServer()
   addTestAccount("ron", server = server)
   local_mocked_bindings(getAppByName = function(...) data.frame(
-      name = "my_app",
+      name = "remoteapp",
+      title = "Remote Application",
       id = 123,
       url = "http://example.com/test",
       stringsAsFactors = FALSE
@@ -397,6 +395,8 @@ confirm_existing_app_used <- function(server) {
   target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
   deployment <- target$deployment
   expect_equal(deployment$appId, 123)
+  expect_equal(deployment$name, "remoteapp")
+  expect_equal(deployment$title, "Remote Application")
 }
 
 test_that("can find existing application on server & use it", {
@@ -435,21 +435,43 @@ test_that("can find existing application on shinyapps.io & not use it", {
   confirm_existing_app_not_used("shinyapps.io")
 })
 
-# defaultAppName ----------------------------------------------------------
+# generateTitle ---------------------------------------------------------
 
-test_that("defaultAppName works with sites, documents, and directories", {
-  expect_equal(defaultAppName("foo/bar.Rmd"), "bar")
-  expect_equal(defaultAppName("foo/index.html"), "foo")
-  expect_equal(defaultAppName("foo/bar"), "bar")
-})
+test_that("generateTitle works with sites, documents, and directories", {
+  expect_equal(
+    generateTitle("foo/bar.Rmd", "This/is/a/TITLE"),
+    "This/is/a/TITLE"
+  )
+  expect_equal(
+    generateTitle("foo/bar.Rmd", "NO"),
+    "NO"
+  )
 
-test_that("defaultAppName reifies appNames for shinyApps", {
-  expect_equal(defaultAppName("a b c", "shinyapps.io"), "a_b_c")
-  expect_equal(defaultAppName("a!b!c", "shinyapps.io"), "a_b_c")
-  expect_equal(defaultAppName("a  b  c", "shinyapps.io"), "a_b_c")
+  expect_equal(
+    generateTitle("foo/bar.Rmd"),
+    "bar"
+  )
+  expect_equal(
+    generateTitle("foo/index.html"),
+    "foo"
+  )
+  expect_equal(
+    generateTitle("foo/bar"),
+    "bar"
+  )
 
-  long_name <- strrep("abcd", 64 / 4)
-  expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
+  expect_equal(
+    generateTitle("foo/Awesome Document.Rmd"),
+    "Awesome Document"
+  )
+  expect_equal(
+    generateTitle("My Report/index.html"),
+    "My Report"
+  )
+  expect_equal(
+    generateTitle("foo/The-Application"),
+    "The-Application"
+  )
 })
 
 # helpers -----------------------------------------------------------------
