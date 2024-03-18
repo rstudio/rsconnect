@@ -22,8 +22,8 @@ test_that("authHeaders() picks correct method based on supplied fields", {
   )
 
   # Dummy key created with
-  # openssl::base64_encode(openssl::ed25519_keygen())
-  key <- "MC4CAQAwBQYDK2VwBCIEIDztfEgkp5CX7Jz0NCyrToaRW1L2tfmrWxNDgYyjO9bQ"
+  # openssl::base64_encode(openssl::rsa_keygen(2048L))
+  key <- readLines(test_path("fake-key"))
 
   expect_snapshot({
     str(authHeaders(list(secret = "123"), url, "GET"))
