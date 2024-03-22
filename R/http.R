@@ -501,9 +501,7 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
       der = TRUE
     )
 
-    # OpenSSL defaults to sha1 hash function (which is what we need)
-    rawsig <- openssl::signature_create(charToRaw(canonicalRequest), key = private_key)
-    signature <- openssl::base64_encode(rawsig)
+    signature <- signRequestPrivateKey(private_key, canonicalRequest)
   } else {
     stop("can't sign request: no shared secret or private key")
   }
@@ -514,6 +512,20 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
   headers$`X-Auth-Signature` <- signature
   headers$`X-Content-Checksum` <- md5
   headers
+}
+
+signRequestPrivateKey <- function(private_key, canonicalRequest) {
+  # convert key into PKI format for signing, note this only accepts RSA, but
+  # that's what rsconnect generates already
+  pem <- openssl::write_pem(private_key)
+  pem_lines <- readLines(textConnection(pem))
+  pki_key <- PKI::PKI.load.key(pem_lines, format = "PEM")
+
+  # use sha1 digest and then sign. digest and PKI avoid using system openssl which
+  # can be problematic in strict FIPS environments
+  digested <- digest::digest(charToRaw(canonicalRequest), "sha1", serialize = FALSE, raw = TRUE)
+  rawsig <- PKI::PKI.sign(key = pki_key, digest = digested)
+  openssl::base64_encode(rawsig)
 }
 
 rfc2616Date <- function(time = Sys.time()) {

@@ -22,13 +22,59 @@ test_that("authHeaders() picks correct method based on supplied fields", {
   )
 
   # Dummy key created with
-  # openssl::base64_encode(openssl::ed25519_keygen())
-  key <- "MC4CAQAwBQYDK2VwBCIEIDztfEgkp5CX7Jz0NCyrToaRW1L2tfmrWxNDgYyjO9bQ"
+  # openssl::base64_encode(openssl::rsa_keygen(2048L))
+  key_string <- "-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC/eiSQAKXADslq
+GGsbsQu2eEgEHD06BtUhaeU1nvsY7a6u12xpG0OAGYWhnGhR+1K/3qoZQQNmN0MC
+ZV0zhueREu3YaqtNwXbnbGCqp7tsLsx2cb2TZscmBNXkOLah2PlsBTfInNlKrpKH
+wsMtsL7yruXwJ767ey8JujMAqO90jj57idfhkr4IU47EL8DiIHTOAYLddKe/d4AL
+skoEFQM37SJ9JUwZUsvz2eqEXFPV4QrS93T79sA7QfH5zOYTLKPEDxV0U7AYUVKW
+bBieVRlu3DIQfdsqXwYYzHUR+HBlxe1VowCS5p5c6coNLdb+RElcSSY2Gd06eBg0
+wSoxkyT3AgMBAAECggEAHmQinYCczkkKiv5pMbH+K+4XcB+TUDx5Y55NNR+Qtzoy
+eanTmTMsmY5zeV076Zc8YRvUX8HD6ltnFWBFVMJaytn4SltT6TmFx+GZzjxlMRyU
+c1BGSLkNbulhkaG2yyWHITAK1Jqgmovu0gGFvSDKjfZYpK+KRHOe2apmIfquVw9d
+6CLm7swx30x8qFKEACc3iM/Mcc9uKOWn+NjVKqUVfU/9ZmNxmjZ9e3wkwieI1mSB
+gq9q7fmCHHkGWbUkGMphgRyssaJbz+bn/Wz2uwevvtebkTOzvWtKhUGgDByCCCtq
+J1ehPCjdRjylb6C5tLbyeng5QnYC7uZJmRsEOUwMEQKBgQD6PsHXwKJ8JRlDGu4G
+JQ9fKzYA+B+No0GKtGuuRDD8tJouj5rb1dZt181UHUW/UtjNpz8j8l1RN2gPcu/v
+VjwSXDcZHohv4cgQfRCN47wREEEb/LP/fhxIt2H320vh5qvwdJJoGvGoJfR5vO1X
+ysdIPBajIgnEo4U7cawaNfeS1QKBgQDD4WgXUb0AYvK6lggVVqgNzxxMQRWCQSGb
+y4RISHlC2TpftpbLFdr6fHuf8bzGq462xG5MFMMGBsbESXKNW18QA+uIBIDwttaj
+AfQ4+PNu4m+2Ump+RcGu2MYoBJoxjMx00Ba76cEMF0+X+RO4zcfwZ6Y869Fakq+D
+7rn4ZetGmwKBgQCMtgsjeUMkUWwCCrt6ow4gslh8dQixCPKKvuapp9hv0FG+CqvG
+H1iijSz8tjUI3tnf0cI0QUztpR0TSsrVpoTCwi2NJ1kKqEdp1hkf38VZRu2FgjPo
+Xw4iaVNiHmJt1NorrDDC7xuhNC5i4bQHoJMr7/W+px4c/uGkykc+ucfLPQKBgQCG
+/E/KOibgHFAfawLZCaW4FnDuz68t2wp5HY/kbCU8fwxuJxrVixMjqSNcfq9TzagE
+pWtI/MnE3midnevWJBBnrfvi+Q+OUsGpBdCybkT7tgm8ACGpMRMfFf3AWCOWX+wJ
+19jC2HyTg4DzPs9rfEv7jMIPm4bjPtC7P4li94FiXwKBgBTh5tPUEvG0chZvqRT2
+g0vvWgJGF52FCXBij3dnNl1eNRQYbDI+hNbZYcHCKHKaOoDWaqYhyjLk6Tz0LhLe
+XWAlOP6tE2UbEgi10wyaEI9EyfXg1mgiHlSg+oZMCx05TUE6PrzddS6qUOJfN7P3
+a3hEFijsjg/+FDMr+iAVzjry
+-----END PRIVATE KEY-----"
+  key <- openssl::base64_encode(openssl::read_key(key_string))
 
   expect_snapshot({
     str(authHeaders(list(secret = "123"), url, "GET"))
     str(authHeaders(list(private_key = key), url, "GET"))
   })
+
+  # and that signRequestPrivateKey() is the same as openssl equivalent
+  # authHeaders does this conversion internally
+  private_key <- openssl::read_key(
+    openssl::base64_decode(key),
+    der = TRUE
+  )
+
+  # an alternative implementation with openssl
+  signRequestPrivateKeyOpenSSL <- function(private_key, canonicalRequest) {
+    rawsig <- openssl::signature_create(charToRaw(canonicalRequest), key = private_key)
+    openssl::base64_encode(rawsig)
+  }
+
+  expect_identical(
+    signRequestPrivateKey(private_key, url),
+    signRequestPrivateKeyOpenSSL(private_key, url)
+  )
 })
 
 test_that("can add user specific headers", {

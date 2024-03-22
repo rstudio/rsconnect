@@ -26,6 +26,7 @@ Imports:
     jsonlite,
     lifecycle,
     openssl (>= 2.0.0),
+    PKI,
     packrat (>= 0.6),
     renv (>= 1.0.0),
     rlang (>= 1.0.0),

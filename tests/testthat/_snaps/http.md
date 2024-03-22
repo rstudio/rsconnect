@@ -22,7 +22,7 @@
     Output
       List of 3
        $ Date              : chr "Thu, 09 Mar 2023 14:29:00 GMT"
-       $ X-Auth-Signature  : chr "tqz4HGcSmuWKIGzIj42OEkwYZQzfJBdrUynlBQKSEEok2zMFZwsgEpEzU8PzpoeMEmcX5+Cr1IuDLLASz0ivAQ=="
+       $ X-Auth-Signature  : chr "mk4e1sdK0Gy9Uex2nJMtkntdT/boQWRakSRB6iYw9hmP2zMHQjvynY+Kc5hqbGAK7tbzG52fC+5MQSOUapNKBF6GNnVe1cp2jFq4pmhEL2yhlkB"| __truncated__
        $ X-Content-Checksum: chr "1B2M2Y8AsgTpgAmY7PhCfg=="
 
 # includes body in error if available

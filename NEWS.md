@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Use internally computed SHA1 sums and PKI signing when SHA1 is disabled 
+  in FIPS mode (#768, #1054)
+
 # rsconnect 1.2.1
 
 * Restore the `LC_TIME` locale after computing an RFC-2616 date. (#1035)
