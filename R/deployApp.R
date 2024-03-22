@@ -637,7 +637,9 @@ bundleApp <- function(appName,
   bundleDir <- bundleAppDir(
       appDir = appDir,
       appFiles = appFiles,
-      appPrimaryDoc = appMetadata$appPrimaryDoc)
+      appPrimaryDoc = appMetadata$appPrimaryDoc,
+      appMode = appMetadata$appMode
+  )
   defer(unlink(bundleDir, recursive = TRUE))
 
   # generate the manifest and write it into the bundle dir

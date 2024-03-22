@@ -3,27 +3,38 @@
 # in this process, including renaming single-file Shiny apps to "app.R" and
 # stripping packrat and renv commands from .Rprofile. Returns the path to the
 # temporary directory.
-bundleAppDir <- function(appDir, appFiles, appPrimaryDoc = NULL, verbose = FALSE) {
-
+bundleAppDir <- function(
+  appDir,
+  appFiles,
+  appPrimaryDoc = NULL,
+  appMode = NULL,
+  verbose = FALSE
+) {
   logger <- verboseLogger(verbose)
-  logger("Creating tempfile for appdir")
-  # create a directory to stage the application bundle in
+
+  logger("Creating bundle staging directory")
   bundleDir <- dirCreate(tempfile())
   defer(unlink(bundleDir))
 
-  logger("Copying files")
-  # copy the files into the bundle dir
+  logger("Copying files into bundle staging directory")
   for (file in appFiles) {
     logger("Copying", file)
     from <- file.path(appDir, file)
     to <- file.path(bundleDir, file)
-    # if deploying a single-file Shiny application, name it "app.R" so it can
-    # be run as an ordinary Shiny application
-    if (is.character(appPrimaryDoc) &&
-        tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
-        file == appPrimaryDoc) {
-      to <- file.path(bundleDir, "app.R")
+
+    if (!is.null(appMode) && appMode == "shiny") {
+      # When deploying a single-file Shiny application and we have been provided
+      # appPrimaryDoc (usually by RStudio), rename that file to `app.R` so it
+      # will be discovered and run by shiny::runApp(getwd()).
+      #
+      # Note: We do not expect to see writeManifest(appPrimaryDoc="notapp.R").
+      if (is.character(appPrimaryDoc) &&
+            tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
+            file == appPrimaryDoc) {
+        to <- file.path(bundleDir, "app.R")
+      }
     }
+
     dirCreate(dirname(to))
     file.copy(from, to, copy.date = TRUE)
 

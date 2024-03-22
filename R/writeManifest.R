@@ -50,7 +50,8 @@ writeManifest <- function(appDir = getwd(),
   bundleDir <- bundleAppDir(
     appDir = appDir,
     appFiles = appFiles,
-    appPrimaryDoc = appMetadata$appPrimaryDoc
+    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    appMode = appMetadata$appMode
   )
   defer(unlink(bundleDir, recursive = TRUE))
 
