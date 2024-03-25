@@ -116,14 +116,45 @@ test_that("can infer mode for shiny apps", {
   expect_equal(inferAppMode("server.R"), "shiny")
 })
 
-test_that("can infer mode for static quarto and rmd docs", {
+test_that("can infer mode for static rmd", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
   paths <- list.files(dir, full.names = TRUE)
-
   expect_equal(inferAppMode(paths), "rmd-static")
+})
+
+test_that("can infer mode for rmd as static quarto with guidance", {
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths, usesQuarto = TRUE), "quarto-static")
+})
+
+test_that("can infer mode for rmd as shiny quarto with guidance", {
   # Static R Markdown treated as rmd-shiny for shinyapps targets
+  dir <- local_temp_app(list("foo.Rmd" = ""))
+  paths <- list.files(dir, full.names = TRUE)
   expect_equal(inferAppMode(paths, isShinyappsServer = TRUE), "rmd-shiny")
+})
+
+test_that("can infer mode for static quarto", {
+  dir <- local_temp_app(list("foo.qmd" = ""))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "quarto-static")
+
+  dir <- local_temp_app(list("_quarto.yml" = "", "foo.qmd" = ""))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "quarto-static")
+
+  dir <- local_temp_app(list("_quarto.yml" = "", "foo.rmd" = ""))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "quarto-static")
+
+  dir <- local_temp_app(list("_quarto.yml" = "", "foo.r" = ""))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "quarto-static")
+
+  dir <- local_temp_app(list("foo.r" = ""))
+  paths <- list.files(dir, full.names = TRUE)
+  expect_equal(inferAppMode(paths), "quarto-static")
 })
 
 test_that("can infer mode for shiny rmd docs", {
@@ -218,7 +249,10 @@ test_that("otherwise fails back to first file with matching extensions", {
 test_that("errors if no files with needed extension", {
   expect_snapshot(error = TRUE, {
     inferAppPrimaryDoc(NULL, "a.R", "static")
-    inferAppPrimaryDoc(NULL, "a.R", "rmd-shiny")
+    inferAppPrimaryDoc(NULL, "a.html", "rmd-static")
+    inferAppPrimaryDoc(NULL, "a.html", "rmd-shiny")
+    inferAppPrimaryDoc(NULL, "a.html", "quarto-static")
+    inferAppPrimaryDoc(NULL, "a.html", "quarto-shiny")
   })
 })
 

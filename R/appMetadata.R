@@ -29,7 +29,10 @@ appMetadata <- function(appDir,
 
   if (is.null(appMode)) {
     # Generally we want to infer appPrimaryDoc from appMode, but there's one
-    # special case
+    # special case: RStudio provides appPrimaryDoc when deploying Shiny
+    # applications. They may have name.R, not app.R or server.R.
+    #
+    # This file is later renamed to app.R when deployed by bundleAppDir().
     if (!is.null(appPrimaryDoc) &&
           tolower(tools::file_ext(appPrimaryDoc)) == "r") {
       appMode <- "shiny"
@@ -118,15 +121,27 @@ inferAppMode <- function(absoluteRootFiles,
   }
 
   rmdFiles <- matchingNames(absoluteRootFiles, "\\.rmd$")
+  hasRmd <- length(rmdFiles) > 0
   qmdFiles <- matchingNames(absoluteRootFiles, "\\.qmd$")
+  hasQmd <- length(qmdFiles) > 0
+  rFiles <- matchingNames(absoluteRootFiles, "\\.r$")
+  hasR <- length(rFiles) > 0
+  quartoYml <- matchingNames(absoluteRootFiles, "^_quarto.y(a)?ml$")
+  hasQuartoYml <- length(quartoYml) > 0
 
   if (is.na(usesQuarto)) {
-    # Can't use _quarto.yml alone because it causes deployment failures for
-    # static content: https://github.com/rstudio/rstudio/issues/11444
-    quartoYml <- matchingNames(absoluteRootFiles, "^_quarto.y(a)?ml$")
-
-    usesQuarto <- length(qmdFiles) > 0 ||
-      (length(quartoYml) > 0 && length(rmdFiles > 0))
+    # Determine if the incoming content implies the need for Quarto.
+    #
+    # *.qmd files are enough of an indication by themselves.
+    # *.rmd and *.r files need a _quarto.yml file to emphasize the need for Quarto.
+    #
+    # Do not rely on _quarto.yml alone, as RStudio includes that file even when
+    # publishing HTML. https://github.com/rstudio/rstudio/issues/11444
+    usesQuarto <- (
+      hasQmd ||
+      (hasQuartoYml && hasRmd) ||
+      (hasQuartoYml && hasR)
+    )
   }
 
   # Documents with "server: shiny" in their YAML front matter need shiny too
@@ -144,8 +159,8 @@ inferAppMode <- function(absoluteRootFiles,
   }
 
   # Shiny application using server.R; checked later than Rmd with shiny runtime
-  # because server.R may contain the server code paired with a ShinyRmd and needs
-  # to be run by rmarkdown::run (rmd-shiny).
+  # because server.R may contain the server code paired with a ShinyRmd and
+  # needs to be run by rmarkdown::run (rmd-shiny).
   serverR <- matchingNames(absoluteRootFiles, "^server.r$")
   if (length(serverR) > 0) {
     return("shiny")
@@ -164,6 +179,15 @@ inferAppMode <- function(absoluteRootFiles,
       }
       return("rmd-static")
     }
+  }
+
+  if (hasR) {
+    # We have R scripts but it was not otherwise identified as Shiny or Plumber
+    # and also not accompanied by *.qmd or *.rmd files.
+    #
+    # Assume that this is a rendered script, as this is a better fall-back than
+    # "static".
+    return("quarto-static")
   }
 
   # no renderable content
@@ -227,7 +251,11 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
   }
 
   # determine expected primary document extension
-  ext <- if (appMode == "static") "\\.html?$" else "\\.[Rq]md$"
+  ext <- switch(appMode,
+                "static"        = "\\.html?$",
+                "quarto-static" = "\\.(r|rmd|qmd)",
+                "quarto-shiny"  = "\\.(rmd|qmd)",
+                "\\.rmd$")
 
   # use index file if it exists
   matching <- grepl(paste0("^index", ext), appFiles, ignore.case = TRUE)
@@ -237,7 +265,7 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
 
     if (!any(matching)) {
       cli::cli_abort(c(
-        "Failed to determine {.arg appPrimaryDoc}.",
+        "Failed to determine {.arg appPrimaryDoc} for {.str {appMode}} content.",
         x = "No files matching {.str {ext}}."
       ))
     }
