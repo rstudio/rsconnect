@@ -1,4 +1,4 @@
-# rsconnect (development version)
+# rsconnect 1.2.2
 
 * Use internally computed SHA1 sums and PKI signing when SHA1 is disabled 
   in FIPS mode. (#768, #1054)
