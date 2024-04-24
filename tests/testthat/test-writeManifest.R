@@ -250,6 +250,18 @@ test_that("environment.image is set when image is provided", {
   expect_equal(manifest$environment$image, "rstudio/content-base:latest")
 })
 
+test_that("environment.image is set and uses a provided image even when RSCONNECT_IMAGE is set", {
+  skip_on_cran()
+
+  withr::local_options(renv.verbose = TRUE)
+  withr::local_envvar(RSCONNECT_IMAGE = "rstudio/content-base:older")
+
+  appDir <- test_path("shinyapp-simple")
+
+  manifest <- makeManifest(appDir, image = "rstudio/content-base:latest")
+  expect_equal(manifest$environment$image, "rstudio/content-base:latest")
+})
+
 test_that("environment.image is not set when RSCONNECT_IMAGE is empty", {
   skip_on_cran()
 
