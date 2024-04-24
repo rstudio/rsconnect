@@ -183,7 +183,8 @@ made. Currently has an effect only on deployments to shinyapps.io.}
 
 \item{image}{Optional. The name of the image to use when building and
 executing this content. If none is provided, Posit Connect will
-attempt to choose an image based on the content requirements.}
+attempt to choose an image based on the content requirements. You can
+override the default by setting the environment variable \code{RSCONNECT_IMAGE}.}
 
 \item{envManagement}{Optional. Should Posit Connect install R and Python
 packages for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}).

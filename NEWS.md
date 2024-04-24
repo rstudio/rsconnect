@@ -6,6 +6,9 @@
 * `deployApp(logLevel = "quiet")` and `writeManifest(quiet=TRUE)` suppress
   output when using renv to analyze dependencies. (#1051)
 
+* `deployApp()` and `writeManifest()` receive the default value for the
+  `image` argument from the `RSCONNECT_IMAGE` environment variable. (#1063)
+
 # rsconnect 1.2.2
 
 * Use internally computed SHA1 sums and PKI signing when SHA1 is disabled 
