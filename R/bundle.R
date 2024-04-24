@@ -126,6 +126,13 @@ createAppManifest <- function(appDir,
                               verbose = FALSE,
                               quiet = FALSE) {
 
+  if (is.null(image)) {
+    imageEnv <- Sys.getenv("RSCONNECT_IMAGE", unset = NA)
+    if (!is.na(imageEnv) && nchar(imageEnv) > 0) {
+      image <- imageEnv
+    }
+  }
+
   if (needsR(appMetadata)) {
     extraPackages <- inferRPackageDependencies(appMetadata)
     # provide package entries for all dependencies

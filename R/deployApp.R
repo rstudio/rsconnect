@@ -144,7 +144,8 @@
 #'   made. Currently has an effect only on deployments to shinyapps.io.
 #' @param image Optional. The name of the image to use when building and
 #'   executing this content. If none is provided, Posit Connect will
-#'   attempt to choose an image based on the content requirements.
+#'   attempt to choose an image based on the content requirements. You can
+#'   override the default by setting the environment variable `RSCONNECT_IMAGE`.
 #' @param envManagement Optional. Should Posit Connect install R and Python
 #'   packages for this content? (`TRUE`, `FALSE`, or `NULL`).
 #'   The default, `NULL`, will not write any values to the bundle manifest,
