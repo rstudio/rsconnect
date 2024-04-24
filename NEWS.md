@@ -1,5 +1,11 @@
 # rsconnect (development version)
 
+* `deployApp(logLevel = "quiet")` suppresses Posit Connect deployment task
+  output. (#1051)
+
+* `deployApp(logLevel = "quiet")` and `writeManifest(quiet=TRUE)` suppress
+  output when using renv to analyze dependencies. (#1051)
+
 # rsconnect 1.2.2
 
 * Use internally computed SHA1 sums and PKI signing when SHA1 is disabled 

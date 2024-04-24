@@ -1,5 +1,11 @@
 # Docs: https://docs.posit.co/connect/api/
 
+stripConnectTimestamps <- function(messages) {
+  # Strip timestamps, if found
+  timestamp_re <- "^\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
+  gsub(timestamp_re, "", messages)
+}
+
 connectClient <- function(service, authInfo) {
   list(
 
@@ -113,23 +119,22 @@ connectClient <- function(service, authInfo) {
       POST_JSON(service, authInfo, path, list())
     },
 
-    waitForTask = function(taskId, quiet) {
+    waitForTask = function(taskId, quiet = FALSE) {
       start <- 0
       while (TRUE) {
         path <- paste0(file.path("/tasks", taskId), "?first_status=", start)
         response <- GET(service, authInfo, path)
 
         if (length(response$status) > 0) {
-          messages <- unlist(response$status)
+          if (!quiet) {
+            messages <- unlist(response$status)
+            messages <- stripConnectTimestamps(messages)
 
-          # Strip timestamps, if found
-          timestamp_re <- "\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
-          messages <- gsub(timestamp_re, "", messages)
-
-          # Made headers more prominent.
-          heading <- grepl("^# ", messages)
-          messages[heading] <- cli::style_bold(messages[heading])
-          cat(paste0(messages, "\n", collapse = ""))
+            # Made headers more prominent.
+            heading <- grepl("^# ", messages)
+            messages[heading] <- cli::style_bold(messages[heading])
+            cat(paste0(messages, "\n", collapse = ""))
+          }
 
           start <- response$last_status
         }

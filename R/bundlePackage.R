@@ -63,7 +63,7 @@ computePackageDependencies <- function(bundleDir,
   } else {
     taskStart(quiet, "Capturing R dependencies with renv")
     # TODO: give user option to choose between implicit and explicit
-    deps <- snapshotRenvDependencies(bundleDir, extraPackages, verbose = verbose)
+    deps <- snapshotRenvDependencies(bundleDir, extraPackages, quiet = quiet, verbose = verbose)
   }
   taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}")
 
