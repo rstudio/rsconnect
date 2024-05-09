@@ -57,18 +57,7 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = T
   # if we wound up with too few characters, try generating from the directory
   # name instead
   if (nchar(name) < 3 && !is.null(appPath) && file.exists(appPath)) {
-    # strip extension if present
-    base <- basename(appPath)
-    if (nzchar(tools::file_ext(base))) {
-      base <- file_path_sans_ext(base)
-
-      # if we stripped an extension and the name is now "index", use the parent
-      # folder's name
-      if (identical(base, "index")) {
-        base <- basename(dirname(appPath))
-      }
-    }
-    name <- munge(base)
+    name <- munge(titleFromPath(appPath))
   }
 
   # validate that we wound up with a valid name
