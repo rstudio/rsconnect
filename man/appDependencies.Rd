@@ -16,7 +16,7 @@ appDependencies(
 or plumber API). Defaults to the current directory.}
 
 \item{appFiles, appFileManifest}{Use \code{appFiles} to specify a
-character vector of files to bundle in the app or \code{appManifestFiles}
+character vector of files to bundle in the app or \code{appFileManifest}
 to provide a path to a file containing a list of such files. If neither
 are supplied, will bundle all files in \code{appDir}, apart from standard
 exclusions and files listed in a \code{.rscignore} file. See
