@@ -38,9 +38,9 @@ appMetadata <- function(appDir,
       appMode <- "shiny"
     } else {
       # Inference only uses top-level files
-      rootFiles <- appFiles[dirname(appFiles) == "."]
       appMode <- inferAppMode(
-        file.path(appDir, rootFiles),
+        appDir,
+        appFiles,
         usesQuarto = quarto,
         isShinyappsServer = isShinyappsServer
       )
@@ -98,10 +98,18 @@ checkAppLayout <- function(appDir, appPrimaryDoc = NULL) {
   # can be run/served.
 }
 
-# infer the mode of the application from files in the root dir
-inferAppMode <- function(absoluteRootFiles,
-                         usesQuarto = NA,
-                         isShinyappsServer = FALSE) {
+# Infer the mode of the application from included files. Most content types
+# only consider files at the directory root. TensorFlow saved models may be
+# anywhere in the hierarchy.
+inferAppMode <- function(
+  appDir,
+  appFiles,
+  usesQuarto = NA,
+  isShinyappsServer = FALSE) {
+
+  rootFiles <- appFiles[dirname(appFiles) == "."]
+  absoluteRootFiles <- file.path(appDir, rootFiles)
+  absoluteAppFiles <- file.path(appDir, appFiles)
 
   matchingNames <- function(paths, pattern) {
     idx <- grepl(pattern, basename(paths), ignore.case = TRUE, perl = TRUE)
@@ -188,6 +196,12 @@ inferAppMode <- function(absoluteRootFiles,
     # Assume that this is a rendered script, as this is a better fall-back than
     # "static".
     return("quarto-static")
+  }
+
+  # TensorFlow model files are lower in the hierarchy, not at the root.
+  modelFiles <- matchingNames(absoluteAppFiles, "^(saved_model.pb|saved_model.pbtxt)$")
+  if (length(modelFiles) > 0) {
+    return("tensorflow-saved-model")
   }
 
   # no renderable content

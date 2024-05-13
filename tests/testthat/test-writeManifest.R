@@ -239,6 +239,18 @@ test_that("environment.image is not set when image is not provided", {
   expect_null(manifest$environment)
 })
 
+test_that("TensorFlow models are identified", {
+  skip_on_cran()
+
+  app_dir <- local_temp_app(list(
+    "1/saved_model.pb" = "fake-saved-model"
+  ))
+  manifest <- makeManifest(app_dir)
+  expect_equal(manifest$metadata$appmode, "tensorflow-saved-model")
+  expect_null(manifest$packages)
+  expect_named(manifest$files, c("1/saved_model.pb"))
+})
+
 test_that("environment.image is set when image is provided", {
   skip_on_cran()
 

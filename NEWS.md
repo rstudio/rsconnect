@@ -9,6 +9,9 @@
 * `deployApp()` and `writeManifest()` receive the default value for the
   `image` argument from the `RSCONNECT_IMAGE` environment variable. (#1063)
 
+* `deployTF()` can deploy a TensorFlow model to Posit Connect. Requires Posit
+  Connect 2024.05.0 or higher.
+
 # rsconnect 1.2.2
 
 * Use internally computed SHA1 sums and PKI signing when SHA1 is disabled 

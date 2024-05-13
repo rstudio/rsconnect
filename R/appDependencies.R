@@ -136,7 +136,7 @@ appDependencies <- function(appDir = getwd(),
 }
 
 needsR <- function(appMetadata) {
-  if (appMetadata$appMode == "static") {
+  if (appMetadata$appMode %in% c("static", "tensorflow-saved-model")) {
     return(FALSE)
   }
 
