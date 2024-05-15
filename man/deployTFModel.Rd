@@ -6,11 +6,11 @@
 \usage{
 deployTFModel(...)
 }
+\arguments{
+\item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
+}
 \description{
 Deploys a directory containing a TensorFlow saved model.
-}
-\details{
-#' @inheritParams deployApp
 }
 \seealso{
 Other Deployment functions: 

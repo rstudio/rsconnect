@@ -2,7 +2,7 @@
 #'
 #' Deploys a directory containing a TensorFlow saved model.
 #'
-#' #' @inheritParams deployApp
+#' @param ... Additional arguments to [deployApp()].
 #'
 #' @family Deployment functions
 #' @export
