@@ -4,19 +4,13 @@
 \alias{deployTFModel}
 \title{Deploy a TensorFlow saved model}
 \usage{
-deployTFModel(modelDir, ...)
+deployTFModel(...)
 }
 \arguments{
-\item{modelDir}{Path to the saved model directory. Unused.}
-
-\item{...}{Unused.}
+\item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
 }
 \description{
-This function is defunct. Posit Connect no longer supports hosting of
-TensorFlow Model APIs. A TensorFlow model can be deployed as a
-\href{https://tensorflow.rstudio.com/guides/deploy/plumber.html}{Plumber API},
-\href{https://tensorflow.rstudio.com/guides/deploy/shiny}{Shiny application}, or
-other supported content type.
+Deploys a directory containing a TensorFlow saved model.
 }
 \seealso{
 Other Deployment functions: 
