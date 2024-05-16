@@ -686,7 +686,8 @@ openURL <- function(client, application, launch.browser, on.failure, deploymentS
   # Check to see if we should open config url or app url
   if (!is.null(client$configureApplication)) {
     config <- client$configureApplication(application$id)
-    url <- config$config_url
+    # Direct the publisher to the access pane to share
+    url <- paste0(config$config_url, "/access")
     if (!deploymentSucceeded && validURL(config$logs_url)) {
       # With 1.5.5+, Connect application configuration includes
       # a logs URL to be shown on unsuccessful deployment.
