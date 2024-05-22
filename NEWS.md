@@ -13,7 +13,7 @@
   Connect 2024.05.0 or higher.
 
 * Skip tests when suggested packages are not available. Skip Quarto tests when
-  run by CRAN.
+  run by CRAN. (#1074)
 
 # rsconnect 1.2.2
 
