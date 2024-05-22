@@ -11,6 +11,9 @@ test_that("appDependencies includes implicit deps", {
 
 test_that("appDependencies includes implicit deps when appMode forced", {
   skip_on_cran()
+  skip_if_not_installed("plumber")
+  skip_if_not_installed("shiny")
+  skip_if_not_installed("rmarkdown")
 
   withr::local_options(renv.verbose = TRUE)
 

@@ -898,6 +898,9 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 })
 
 test_that("deployDoc() results in correct Cloud API calls", {
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+
   local_temp_config()
 
   mock <- deployAppMockServerFactory(expectedAppType = "static", outputState = "active")

@@ -1,5 +1,7 @@
 test_that("basic HTTP methods work", {
   skip_if_not_installed("RCurl")
+  skip_if_not_installed("webfakes")
+
   withr::local_options(rsconnect.http = "rcurl", lifecycle_verbosity = "quiet")
 
   test_http_GET()

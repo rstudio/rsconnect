@@ -78,6 +78,8 @@ a3hEFijsjg/+FDMr+iAVzjry
 })
 
 test_that("can add user specific headers", {
+  skip_if_not_installed("webfakes")
+
   withr::local_options(rsconnect.http.headers = c(a = "1", b = "2"))
 
   service <- httpbin_service()
@@ -88,6 +90,8 @@ test_that("can add user specific headers", {
 
 test_that("can add user specific cookies", {
   skip_on_cran()
+  skip_if_not_installed("webfakes")
+
   # uses live httpbin since webfakes doesn't support cookie endpoints
   withr::local_options(rsconnect.http.cookies = c("a=1", "b=2"))
   service <- parseHttpUrl("http://httpbin.org/")
@@ -163,6 +167,8 @@ test_that("but still gives got error if no body", {
 })
 
 test_that("errors contain method", {
+  skip_if_not_installed("webfakes")
+
   service <- httpbin_service()
   expect_snapshot(error = TRUE, {
     GET(service, list(), path = "status/404")
@@ -171,6 +177,8 @@ test_that("errors contain method", {
 })
 
 test_that("http error includes status in error class", {
+  skip_if_not_installed("webfakes")
+
   service <- httpbin_service()
   expect_error(
     GET(service, list(), path = "status/404"),
@@ -183,6 +191,8 @@ test_that("http error includes status in error class", {
 })
 
 test_that("handles redirects", {
+  skip_if_not_installed("webfakes")
+
   service <- httpbin_service()
   out <- GET(service, list(), "absolute-redirect/3")
   expect_equal(out$url, paste0(buildHttpUrl(service), "get"))

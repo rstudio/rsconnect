@@ -33,6 +33,8 @@ test_that("messages without recognized timestamps are unmodified", {
 })
 
 test_that("waitForTask", {
+  skip_if_not_installed("webfakes")
+
   task_app <- webfakes::new_app()
   task_app$use(webfakes::mw_json())
   task_app$get("/tasks/:id", function(req, res) {

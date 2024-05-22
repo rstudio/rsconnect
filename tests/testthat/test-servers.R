@@ -59,6 +59,8 @@ test_that("addServer() normalises url", {
 })
 
 test_that("addServer() errors if url not a connect server", {
+  skip_if_not_installed("webfakes")
+
   local_temp_config()
 
   service <- httpbin_service()
