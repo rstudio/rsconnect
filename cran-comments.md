@@ -1,11 +1,9 @@
 ## Summary
 
-* Address request signing issues and improve Quarto publishing.
-
-CRAN Package Check is reporting an R session crash on r-devel-windows-x86_64,
-but that is unlikely to be related to rsconnect. This version has been sent
-through winbuilder and succeeded.
-https://cran.rstudio.org/web/checks/check_results_rsconnect.html
+* Suppress more deployment output when requested.
+* Reintroduce TensorFlow saved model support.
+* Avoid refuse reported by the CRAN donttest check by skipping tests that use Quarto.
+* Skip tests that use unavailable packages, identified by the CRAN noSuggests check.
 
 ## R CMD check results
 
@@ -13,8 +11,7 @@ https://cran.rstudio.org/web/checks/check_results_rsconnect.html
 
 ## revdepcheck results
 
-We checked 25 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 24 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
  * We failed to check 0 packages
-
