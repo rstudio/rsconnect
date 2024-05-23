@@ -42,17 +42,15 @@ test_that("works with BioC packages", {
   app <- local_temp_app(list("index.R" = c(
     "library(Biobase)"
   )))
-  withr::local_options(repos = c(
-    CRAN = "https://cran.rstudio.com",
-    BioC = "https://bioconductor.org/packages/release/bioc"
-  ))
+  biocRepos <- BiocManager::repositories()
+  withr::local_options(repos = biocRepos)
   expect_no_condition(
-    deps <- snapshotRenvDependencies(app),
+    { deps <- snapshotRenvDependencies(app) },
     class = "rsconnect_biocRepos"
   )
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")
-  expect_equal(Biobase$Repository, "https://bioconductor.org/packages/release/bioc")
+  expect_equal(Biobase$Repository, biocRepos[["BioCsoft"]])
 
   withr::local_options(repos = c(
     CRAN = "https://cran.rstudio.com"
