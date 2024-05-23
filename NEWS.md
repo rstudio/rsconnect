@@ -12,6 +12,9 @@
 * `deployTF()` can deploy a TensorFlow model to Posit Connect. Requires Posit
   Connect 2024.05.0 or higher.
 
+* Skip tests when suggested packages are not available. Skip Quarto tests when
+  run by CRAN. (#1074)
+
 # rsconnect 1.2.2
 
 * Use internally computed SHA1 sums and PKI signing when SHA1 is disabled 

@@ -1,5 +1,8 @@
 test_that("can extract quarto metadata", {
+  skip_on_cran()
   skip_if_no_quarto()
+  skip_if_not_installed("quarto")
+
   app <- local_temp_app(list(`_quarto.yaml` = c(
     "project:",
     "  type: website",
@@ -14,6 +17,9 @@ test_that("can extract quarto metadata", {
 })
 
 test_that("can extract rmarkdown metadata", {
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+
   app <- local_temp_app(list(
     `_site.yml` = 'name: "my-website"'
   ))

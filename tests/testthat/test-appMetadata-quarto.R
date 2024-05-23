@@ -10,6 +10,7 @@ fakeQuartoMetadata <- function(version, engines) {
 }
 
 test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   quartoInfo <- inferQuartoInfo(
@@ -51,6 +52,7 @@ test_that("quartoInspect requires quarto", {
 })
 
 test_that("quartoInspect identifies Quarto projects", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   inspect <- quartoInspect(test_path("quarto-website-r"))
@@ -61,6 +63,7 @@ test_that("quartoInspect identifies Quarto projects", {
 })
 
 test_that("quartoInspect identifies Quarto documents", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   inspect <- quartoInspect(
@@ -71,6 +74,7 @@ test_that("quartoInspect identifies Quarto documents", {
 })
 
 test_that("quartoInspect processes content within paths containing spaces", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   parent <- withr::local_tempdir()
@@ -87,6 +91,7 @@ test_that("quartoInspect processes content within paths containing spaces", {
 })
 
 test_that("quartoInspect processes content with filenames containing spaces", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   dir <- local_temp_app(list("space file.qmd" = c(
@@ -112,6 +117,7 @@ strip_quarto_trace <- function(lines) {
 }
 
 test_that("quartoInspect produces an error when a document cannot be inspected", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   # Suppress colors from Quarto errors.
@@ -131,6 +137,7 @@ test_that("quartoInspect produces an error when a document cannot be inspected",
 })
 
 test_that("quartoInspect produces an error when a project cannot be inspected", {
+  skip_on_cran()
   skip_if_no_quarto()
 
   # Suppress colors from Quarto errors.

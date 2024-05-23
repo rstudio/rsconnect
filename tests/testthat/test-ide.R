@@ -67,6 +67,8 @@ current_user_service <- function() {
 }
 
 test_that("getUserFromRawToken having a single matching server", {
+  skip_if_not_installed("webfakes")
+
   local_temp_config()
 
   service <- current_user_service()
@@ -82,6 +84,8 @@ test_that("getUserFromRawToken having a single matching server", {
 })
 
 test_that("getUserFromRawToken having multiple matching servers", {
+  skip_if_not_installed("webfakes")
+
   local_temp_config()
 
   service <- current_user_service()

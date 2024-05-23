@@ -1,4 +1,6 @@
 test_that("basic HTTP methods work", {
+  skip_if_not_installed("webfakes")
+
   withr::local_options(rsconnect.http = "libcurl")
 
   test_http_GET()
@@ -9,6 +11,8 @@ test_that("basic HTTP methods work", {
 })
 
 test_that("can trace JSON", {
+  skip_if_not_installed("webfakes")
+
   withr::local_options(rsconnect.http.trace.json = TRUE)
   service <- httpbin_service()
 
@@ -27,6 +31,8 @@ test_that("can trace JSON", {
 
 test_that("can get and set cookies", {
   skip_on_cran()
+  skip_if_not_installed("webfakes")
+
   # uses live httpbin since webfakes doesn't support cookie endpoints
   service <- parseHttpUrl("http://httpbin.org/")
 
