@@ -1,4 +1,7 @@
 test_that("can snapshot deps with renv", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
 
   expect_snapshot(pkgs <- bundlePackages(app_dir))
@@ -13,6 +16,9 @@ test_that("can snapshot deps with renv", {
 })
 
 test_that("can snapshot deps with packrat (option)", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   withr::local_options(rsconnect.packrat = TRUE)
 
   app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
@@ -28,6 +34,9 @@ test_that("can snapshot deps with packrat (option)", {
 })
 
 test_that("can snapshot deps with packrat (env var)", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   withr::local_envvar(RSCONNECT_PACKRAT = "TRUE")
 
   app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
@@ -43,6 +52,9 @@ test_that("can snapshot deps with packrat (env var)", {
 })
 
 test_that("can capture deps from renv lockfile", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   withr::local_options(renv.verbose = FALSE)
 
   app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
@@ -60,6 +72,9 @@ test_that("can capture deps from renv lockfile", {
 })
 
 test_that("can capture deps with packrat even when renv lockfile present", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   withr::local_envvar(RSCONNECT_PACKRAT = "TRUE")
   withr::local_options(renv.verbose = FALSE)
 

@@ -18,6 +18,8 @@ test_that("manifest has correct data types", {
 
 test_that("recommended packages are snapshotted", {
   skip_on_cran()
+  skip_if_not_installed("MASS")
+
   withr::local_options(renv.verbose = TRUE)
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
@@ -30,6 +32,8 @@ test_that("recommended packages are snapshotted", {
 
 test_that("extra packages are snapshotted", {
   skip_on_cran()
+  skip_if_not_installed("foreign")
+
   withr::local_options(renv.verbose = TRUE)
   app <- local_temp_app(list("index.Rmd" = ""))
   deps <- snapshotRenvDependencies(app, extraPackages = c("foreign"))
@@ -39,6 +43,7 @@ test_that("extra packages are snapshotted", {
 test_that("works with BioC packages", {
   skip_on_cran()
   skip_on_ci()
+
   app <- local_temp_app(list("index.R" = c(
     "library(Biobase)"
   )))
@@ -68,6 +73,8 @@ test_that("works with BioC packages", {
 # https://github.com/rstudio/rsconnect/issues/968
 test_that("large directories are analyzed", {
   skip_on_cran()
+  skip_if_not_installed("foreign")
+
   app_dir <- local_temp_app(list("foo.R" = "library(foreign)"))
   data_dir <- file.path(app_dir, "data")
   dir.create(data_dir)
@@ -83,6 +90,9 @@ test_that("large directories are analyzed", {
 # parseRenvDependencies ---------------------------------------------------
 
 test_that("gets DESCRIPTION from renv & system libraries", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   withr::local_options(renv.verbose = FALSE)
 
   app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
@@ -98,6 +108,9 @@ test_that("gets DESCRIPTION from renv & system libraries", {
 
 
 test_that("errors if library and project are inconsistent", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
   withr::local_options(renv.verbose = FALSE)
 
   app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
