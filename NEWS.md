@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Skip tests when packages "foreign" and "MASS" are not available. (#1081)
+
 # rsconnect 1.3.0
 
 * `deployApp(logLevel = "quiet")` suppresses Posit Connect deployment task
