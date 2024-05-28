@@ -27,6 +27,7 @@ test_that("uninstalled packages error", {
 })
 
 test_that("recommended packages are snapshotted", {
+  skip_if_not_installed("MASS")
   app <- local_temp_app(list("index.Rmd" = c(
     "```{r}",
     "library(MASS)",

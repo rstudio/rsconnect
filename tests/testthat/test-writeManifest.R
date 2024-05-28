@@ -9,6 +9,8 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
 
 test_that("renv.lock is included for renv projects", {
   skip_on_cran()
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
 
   withr::local_options(renv.verbose = FALSE)
 
@@ -23,6 +25,8 @@ test_that("renv.lock is included for renv projects", {
 
 test_that("renv.lock is not included for non-renv projects", {
   skip_on_cran()
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
 
   withr::local_options(renv.verbose = FALSE)
 
