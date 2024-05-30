@@ -1,9 +1,7 @@
 ## Summary
 
-* Suppress more deployment output when requested.
-* Reintroduce TensorFlow saved model support.
-* Avoid refuse reported by the CRAN donttest check by skipping tests that use Quarto.
-* Skip tests that use unavailable packages, identified by the CRAN noSuggests check.
+Skip tests when "foreign" and "MASS" are not available, identified by the CRAN
+noSuggests check. This should resolve the remaining noSuggests failures.
 
 ## R CMD check results
 
