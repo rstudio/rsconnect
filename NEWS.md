@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.3.1
 
 * Skip tests when packages "foreign" and "MASS" are not available. (#1081)
