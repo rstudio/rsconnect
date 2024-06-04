@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,59 +52,13 @@
 
 <div class="section level2">
 <h2 id="release-instructions">Release instructions<a class="anchor" aria-label="anchor" href="#release-instructions"></a></h2>
-<blockquote>
-<p>Try to use <code>usethis::use_release_issue()</code> rather than this checklist.</p>
-</blockquote>
-<ul><li>
-<p>Create and switch to a release branch (e.g. <code>release/&lt;version&gt;</code>).</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> release/0.8.26</span></code></pre></div>
-</li>
-<li>
-<p>Regenerate the <code>README.md</code>.</p>
+<p>Create a release issue with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">use_release_issue</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Run noSuggests test:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">build_readme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</li>
-<li><p>Update version in <code>DESCRIPTION</code> file, if necessary.</p></li>
-<li>
-<p>Update <code>NEWS.md</code>. Confirm recent changes are included.</p>
-<ol style="list-style-type: decimal"><li>Update version in header, if necessary.</li>
-<li>Remove “(development version)” from the version header</li>
-</ol></li>
-<li>
-<p>Commit the <code>README.md</code>, <code>NEWS.md</code> and <code>DESCRIPTION</code> changes.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">'prepare for CRAN release'</span> README.md NEWS.md DESCRIPTION</span></code></pre></div>
-</li>
-<li>
-<p>Check and fix URLs (from R):</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"urlchecker"</span><span class="op">)</span></span>
-<span><span class="fu">urlchecker</span><span class="fu">::</span><span class="fu">url_check</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</li>
-<li>
-<p>Generate a release <code>.tar.gz</code> by running the following command from the parent directory of your <code>rsconnect</code> repository:</p>
-<pre class="console"><code>R CMD build rsconnect</code></pre>
-</li>
-<li>
-<p>Test the package (also from the parent directory):</p>
-<pre class="console"><code>R CMD check --as-cran rsconnect_*.tar.gz</code></pre>
-</li>
-<li><p>Push the branch to GitHub and let our CI workflow run.</p></li>
-<li><p>Fix any issues identified by the previous steps. Rinse and repeat.</p></li>
-<li><p>Submit to CRAN. Cross fingers. <a href="https://cran.r-project.org/" class="external-link uri">https://cran.r-project.org/</a></p></li>
-<li><p>After acceptance, squash-and-merge the <code>release/&lt;version&gt;</code> branch back to <code>main</code>.</p></li>
-<li>
-<p>Create a git tag for your new release and push that tag.</p>
-<pre class="console"><code>git tag -a -m 'CRAN release: vX.Y.Z' vX.Y.Z COMMIT_HASH
-git push origin vX.Y.Z</code></pre>
-</li>
-<li><p>Create a GitHub release against that tag and include the NEWS.md items in its notes.</p></li>
-<li>
-<p>Create a branch to bump for development (e.g. <code>development/&lt;version&gt;</code>).</p>
-<p>Update <code>DESCRIPTION</code>, shifting to a “development” version like 0.8.29-1. Update <code>NEWS.md</code> with a version header for the next version like 0.8.30.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu"># rsconnect VERSION (development version)</span></span></code></pre></div>
-<p>Squash-and-merge the PR for this branch back to <code>main</code>.</p>
-</li>
-</ul></div>
+<code class="sourceCode R"><span><span class="fu">rhub</span><span class="fu">::</span><span class="fu">rhub_check</span><span class="op">(</span>platforms<span class="op">=</span><span class="st">"nosuggests"</span><span class="op">)</span></span></code></pre></div>
+</div>
 
   </main></div>
 
