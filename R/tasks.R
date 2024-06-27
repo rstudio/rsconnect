@@ -18,11 +18,14 @@
 #'
 #' }
 #' @seealso [taskLog()]
+#' @note This function works only with shinyapps.io and posit.cloud.
 #' @export
 tasks <- function(account = NULL, server = NULL) {
 
   # resolve account and create connect client
   accountDetails <- accountInfo(account, server)
+  checkCloudServer(accountDetails$server)
+
   client <- clientForAccount(accountDetails)
 
   # list tasks
@@ -55,10 +58,13 @@ tasks <- function(account = NULL, server = NULL) {
 #'
 #' }
 #' @seealso [tasks()]
+#' @note This function works only with shinyapps.io and posit.cloud.
 #' @export
 taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 
   accountDetails <- accountInfo(account, server)
+  checkCloudServer(accountDetails$server)
+
   client <- clientForAccount(accountDetails)
 
   if (identical(output, "stderr")) {

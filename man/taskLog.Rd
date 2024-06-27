@@ -20,6 +20,9 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 \description{
 Writes the task log for the given task
 }
+\note{
+This function works only with shinyapps.io and posit.cloud.
+}
 \examples{
 \dontrun{
 

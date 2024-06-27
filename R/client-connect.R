@@ -102,23 +102,6 @@ connectClient <- function(service, authInfo) {
       GET(service, authInfo, paste0("/applications/", applicationId))
     },
 
-    ## Tasks API
-
-    listTasks = function() {
-      path <- "/tasks"
-      GET(service, authInfo, path)
-    },
-
-    getTask = function(taskId) {
-      path <- file.path("/tasks", taskId)
-      GET(service, authInfo, path)
-    },
-
-    killTask = function(taskId) {
-      path <- file.path("/tasks", taskId, "kill")
-      POST_JSON(service, authInfo, path, list())
-    },
-
     waitForTask = function(taskId, quiet = FALSE) {
       start <- 0
       while (TRUE) {
