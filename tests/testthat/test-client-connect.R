@@ -37,12 +37,12 @@ test_that("waitForTask", {
 
   task_app <- webfakes::new_app()
   task_app$use(webfakes::mw_json())
-  task_app$get("/tasks/:id", function(req, res) {
+  task_app$get("/v1/tasks/:id", function(req, res) {
     res$set_status(200L)$send_json(
       list(
         id = I(req$params$id),
         user_id = I(42),
-        status = c(
+        output = c(
           "2024/04/24 13:08:04.901698921 [rsc-session] Content GUID: 3bfbd98a-6d6d-41bd-a15f-cab52025742f",
           "2024/04/24 13:08:04.901734307 [rsc-session] Content ID: 43888",
           "2024/04/24 13:08:04.901742487 [rsc-session] Bundle ID: 94502",
@@ -52,7 +52,7 @@ test_that("waitForTask", {
         finished = TRUE,
         code = 0,
         error = "",
-        last_status = 4
+        last = 4
       ), auto_unbox = TRUE
     )
   })
