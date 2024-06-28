@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Use the public Connect server API endpoint `/v1/tasks/{id}` to poll task
+  progress. (#1088)
+
 # rsconnect 1.3.1
 
 * Skip tests when packages "foreign" and "MASS" are not available. (#1081)
