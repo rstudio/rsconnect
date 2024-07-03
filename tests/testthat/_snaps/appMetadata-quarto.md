@@ -14,7 +14,7 @@
     Condition
       Error in `quartoInspect()`:
       ! Failed to run `quarto inspect` against your content:
-      ERROR: Unknown format unsupported
+      ERROR: Validation of YAML front matter failed.
 
 # quartoInspect produces an error when a project cannot be inspected
 
