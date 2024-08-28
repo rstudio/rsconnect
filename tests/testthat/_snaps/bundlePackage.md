@@ -3,7 +3,7 @@
     Code
       pkgs <- bundlePackages(app_dir)
     Message
-      i Capturing R dependencies with renv
+      i Capturing R dependencies
       v Found 2 dependencies
 
 # can snapshot deps with packrat (option)
@@ -43,7 +43,7 @@
     Code
       . <- bundlePackages(app_dir)
     Message
-      i Capturing R dependencies with renv
+      i Capturing R dependencies
       v Found 1 dependency
     Condition
       Error:
