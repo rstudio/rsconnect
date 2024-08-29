@@ -132,6 +132,7 @@ deploymentRecord <- function(name,
                              bundleId = NULL,
                              url = NULL,
                              version = deploymentRecordVersion,
+                             timestamp = NULL,
                              metadata = list()) {
 
   check_character(envVars, allow_null = TRUE)
@@ -147,6 +148,7 @@ deploymentRecord <- function(name,
     appId = appId %||% "",
     bundleId = bundleId %||% "",
     url = url %||% "",
+    timestamp = timestamp %||% format(as.numeric(as.POSIXct(Sys.time())) * 1000, scientific = FALSE),
     version = version
   )
   # convert any multi-value metadata entries into comma-separated values
@@ -164,6 +166,7 @@ writeDeploymentRecord <- function(record, filePath) {
 addToDeploymentHistory <- function(appPath, deploymentRecord) {
   # add the appPath to the deploymentRecord
   deploymentRecord$appPath <- appPath
+  deploymentRecord$timestamp <- format(as.numeric(as.POSIXct(Sys.time())) * 1000, scientific = FALSE)
 
   # write new history file
   newHistory <- deploymentHistoryPath(new = TRUE)
