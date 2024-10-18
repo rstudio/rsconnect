@@ -263,9 +263,20 @@ test_that("uses index file if present", {
 })
 
 test_that("otherwise fails back to first file with matching extensions", {
-  files <- c("a.html", "b.html", "a.Rmd", "b.Rmd")
+  files <- c(".Rprofile", "a.html", "b.html", "a.Rmd", "b.Rmd")
   expect_equal(inferAppPrimaryDoc(NULL, files, "static"), "a.html")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "rmd-static"), "a.Rmd")
   expect_equal(inferAppPrimaryDoc(NULL, files, "rmd-shiny"), "a.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "quarto-static"), "a.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, files, "quarto-shiny"), "a.Rmd")
+})
+
+test_that("can use R, Rmd, and qmd files for Quarto modes", {
+  expect_equal(inferAppPrimaryDoc(NULL, c(".Rprofile", "foo.R"), "quarto-static"), "foo.R")
+  expect_equal(inferAppPrimaryDoc(NULL, c(".Rprofile", "foo.Rmd"), "quarto-static"), "foo.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, c(".Rprofile", "foo.qmd"), "quarto-static"), "foo.qmd")
+  expect_equal(inferAppPrimaryDoc(NULL, c(".Rprofile", "foo.Rmd"), "quarto-shiny"), "foo.Rmd")
+  expect_equal(inferAppPrimaryDoc(NULL, c(".Rprofile", "foo.qmd"), "quarto-shiny"), "foo.qmd")
 })
 
 test_that("errors if no files with needed extension", {

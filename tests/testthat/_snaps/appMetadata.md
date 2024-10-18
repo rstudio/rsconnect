@@ -48,11 +48,11 @@
     Condition
       Error in `inferAppPrimaryDoc()`:
       ! Failed to determine `appPrimaryDoc` for "quarto-static" content.
-      x No files matching "\\.(r|rmd|qmd)".
+      x No files matching "\\.(r|rmd|qmd)$".
     Code
       inferAppPrimaryDoc(NULL, "a.html", "quarto-shiny")
     Condition
       Error in `inferAppPrimaryDoc()`:
       ! Failed to determine `appPrimaryDoc` for "quarto-shiny" content.
-      x No files matching "\\.(rmd|qmd)".
+      x No files matching "\\.(rmd|qmd)$".
 

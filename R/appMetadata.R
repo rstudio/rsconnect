@@ -267,8 +267,8 @@ inferAppPrimaryDoc <- function(appPrimaryDoc, appFiles, appMode) {
   # determine expected primary document extension
   ext <- switch(appMode,
                 "static"        = "\\.html?$",
-                "quarto-static" = "\\.(r|rmd|qmd)",
-                "quarto-shiny"  = "\\.(rmd|qmd)",
+                "quarto-static" = "\\.(r|rmd|qmd)$",
+                "quarto-shiny"  = "\\.(rmd|qmd)$",
                 "\\.rmd$")
 
   # use index file if it exists
