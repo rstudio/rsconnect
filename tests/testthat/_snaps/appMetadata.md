@@ -15,14 +15,6 @@
       Error in `appMetadata()`:
       ! `quarto` must be `TRUE`, `FALSE`, or `NA`, not the number 1.
 
-# checkLayout() errors if primary doc & app.R
-
-    Code
-      checkAppLayout(dir, appPrimaryDoc = "myscript.R")
-    Condition
-      Error in `checkAppLayout()`:
-      ! Project must not contain both 'app.R' and a single-file Shiny app.
-
 # errors if no files with needed extension
 
     Code
