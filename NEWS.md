@@ -4,6 +4,8 @@
   end-of-file extensions. Previously, a file with `.R` elsewhere in its name,
   such as `.Rprofile`, was incorrectly considered. (#1106)
 
+* Remove remaining directory layout validation check. (#1102)
+
 * Use the public Connect server API endpoint `/v1/tasks/{id}` to poll task
   progress. (#1088)
 
