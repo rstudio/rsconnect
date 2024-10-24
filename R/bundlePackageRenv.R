@@ -108,8 +108,15 @@ standardizeRenvPackage <- function(pkg,
     } else {
       # $Repository comes from DESCRIPTION and is set by repo, so can be
       # anything. So we must look up from the package name
+      originalRepository <- pkg$Repository
       pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
       pkg$Source <- findRepoName(pkg$Repository, repos)
+      if (is.na(pkg$Source)) {
+        # Archived packages are not publicized by available.packages(). Use
+        # the renv.lock repository as source, expecting that the package is
+        # available through one of the repository URLs.
+        pkg$Source <- originalRepository
+      }
     }
   } else if (pkg$Source == "Bioconductor") {
     pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
