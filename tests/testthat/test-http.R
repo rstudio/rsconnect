@@ -238,7 +238,7 @@ test_that("rcf2616 returns an ASCII date and undoes changes to the locale", {
   old <- Sys.getlocale("LC_TIME")
   defer(Sys.setlocale("LC_TIME", old))
 
-  date <- rfc2616Date(time = as.POSIXct("2024-01-01 01:02:03", tz = "EST"))
+  date <- rfc2616Date(time = as.POSIXct("2024-01-01 01:02:03", tz = "America/New_York"))
   expect_equal(date, "Mon, 01 Jan 2024 06:02:03 GMT")
   expect_equal(Sys.getlocale("LC_TIME"), old)
 })
