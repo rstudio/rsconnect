@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Avoid "legacy" time zone names in tests, as they are not available by
+  default in all environments. Addresses CRAN test failures. (#1115)
+
 # rsconnect 1.3.2
 
 * Primary Quarto document detection only considers `.R`, `.Rmd`, and `.qmd` as
