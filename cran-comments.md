@@ -1,6 +1,7 @@
 ## Summary
 
-Minor adjustments and bug fixes.
+Address test failures seen after a Debian tzdata update; failures were caused
+by use of the "EST" name.
 
 ## R CMD check results
 
