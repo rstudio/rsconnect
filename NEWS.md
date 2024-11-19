@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.3.3
 
 * Avoid "legacy" time zone names in tests, as they are not available by
