@@ -31,6 +31,58 @@ skip_on_http_failure <- function(code) {
   )
 }
 
+# Service that 404s for server settings.
+service_settings_404 <- function() {
+  app <- env_cache(
+    cache,
+    "service_settings_404",
+    {
+      json_app <- webfakes::new_app()
+      json_app$use(webfakes::mw_json())
+      json_app$get("/__api__/server_settings", function(req, res) {
+        res$set_status(404L)$send_json(list(error = jsonlite::unbox("not found")))
+      })
+      app <- webfakes::new_app_process(json_app)
+    }
+  )
+  parseHttpUrl(app$url())
+}
+
+# Service that 200s for server settings.
+service_settings_200 <- function() {
+  app <- env_cache(
+    cache,
+    "service_settings_200",
+    {
+      json_app <- webfakes::new_app()
+      json_app$use(webfakes::mw_json())
+      json_app$get("/__api__/server_settings", function(req, res) {
+        res$set_status(200L)$send_json(list(data = jsonlite::unbox("ok")))
+      })
+      app <- webfakes::new_app_process(json_app)
+    }
+  )
+  parseHttpUrl(app$url())
+}
+
+# Service that redirects for server settings.
+service_redirect <- function(target) {
+  app <- env_cache(
+    cache,
+    "service_redirect",
+    {
+      json_app <- webfakes::new_app()
+      json_app$use(webfakes::mw_json())
+      json_app$get("/__api__/server_settings", function(req, res) {
+        res$redirect(target)
+      })
+      app <- webfakes::new_app_process(json_app)
+    }
+  )
+  parseHttpUrl(app$url())
+}
+
+
 # Generic tests of various http methods -----------------------------------
 
 test_http_GET <- function() {

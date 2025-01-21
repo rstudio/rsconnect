@@ -1,42 +1,53 @@
-test_that("validateServerUrl() returns expected", {
+test_that("validateServerUrl() when not Connect", {
+  skip_on_cran()
+  skip_if_not_installed("webfakes")
+
+  service <- service_settings_404()
+
+  url <- buildHttpUrl(service)
+  expect_false(validateServerUrl(url)$valid)
+})
+
+test_that("validateServerUrl() when Connect", {
+  skip_on_cran()
+  skip_if_not_installed("webfakes")
+
+  service <- service_settings_200()
+  url <- buildHttpUrl(service)
+  expected_url <- paste0(url, "__api__")
+
+  redirect <- service_redirect(paste0(url, "__api__/server_settings"))
+  redirect_url <- buildHttpUrl(redirect)
+
+  # Full server URL.
+  result <- validateServerUrl(url)
+  expect_true(result$valid, info = url)
+  expect_equal(result$url, expected_url, info = url)
+
+  # Overspecified (includes /__api__)
+  result <- validateServerUrl(expected_url)
+  expect_true(result$valid, info = expected_url)
+  expect_equal(result$url, expected_url, info = expected_url)
+
+  # Incomplete (lacks path).
+  # Lack of protocol is not easily tested because validateConnectUrl()
+  # prefers https://.
+  partial_url <- paste0(service$protocol, "://", service$host, ":", service$port)
+  result <- validateServerUrl(partial_url)
+  expect_true(result$valid, info = partial_url)
+  expect_equal(result$url, expected_url, info = partial_url)
+
+  # Redirects
+  result <- validateServerUrl(redirect_url)
+  expect_true(result$valid)
+  expect_equal(result$url, expected_url)
+})
+
+test_that("validateServerUrl() hosted", {
   skip_on_cran()
 
   expect_false(validateServerUrl("https://posit.cloud")$valid)
   expect_false(validateServerUrl("https://shinyapps.io")$valid)
-  expect_true(validateServerUrl("https://connect.posit.it/")$valid)
-  expect_true(validateServerUrl("https://colorado.posit.co/rsc")$valid)
-})
-
-test_that("validateServerUrl() normalises urls", {
-  skip_on_cran()
-
-  expect_true(validateServerUrl("connect.posit.it/")$valid)
-  expect_true(validateServerUrl("colorado.posit.co/rsc")$valid)
-})
-
-test_that("validateConnectUrl() returns expected return for some known endpoints", {
-  skip_on_cran()
-
-  expect_false(validateConnectUrl("https://posit.cloud")$valid)
-  expect_false(validateConnectUrl("https://shinyapps.io")$valid)
-  expect_true(validateConnectUrl("https://connect.posit.it/")$valid)
-  expect_true(validateConnectUrl("https://colorado.posit.co/rsc")$valid)
-})
-
-test_that("validateConnectUrl() normalises urls", {
-  skip_on_cran()
-
-  api_url <- "https://connect.posit.it/__api__"
-  expect_equal(validateConnectUrl("connect.posit.it")$url, api_url)
-  expect_equal(validateConnectUrl("connect.posit.it")$url, api_url)
-  expect_equal(validateConnectUrl("https://connect.posit.it/")$url, api_url)
-})
-
-test_that("validateConnectUrl() follows redirects", {
-  skip_on_cran()
-
-  api_url <- "https://connect.posit.it:443/__api__"
-  expect_equal(validateConnectUrl("http://connect.posit.it")$url, api_url)
 })
 
 test_that("getAppById() fails where expected", {
