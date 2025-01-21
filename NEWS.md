@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Use base64 encoded test data. Addresses CRAN test failures when run with
+  newer libssl. (#1130)
+
 # rsconnect 1.3.3
 
 * Avoid "legacy" time zone names in tests, as they are not available by

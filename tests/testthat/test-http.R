@@ -54,7 +54,7 @@ a3hEFijsjg/+FDMr+iAVzjry
   key <- openssl::base64_encode(openssl::read_key(key_string))
 
   expect_snapshot({
-    str(authHeaders(list(secret = "123"), url, "GET"))
+    str(authHeaders(list(secret = openssl::base64_encode("123")), url, "GET"))
     str(authHeaders(list(private_key = key), url, "GET"))
   })
 
