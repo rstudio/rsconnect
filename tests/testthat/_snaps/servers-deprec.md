@@ -1,7 +1,7 @@
 # addConnectServer is deprecated
 
     Code
-      addConnectServer("https://connect.posit.it/", quiet = TRUE)
+      addConnectServer(url, quiet = TRUE)
     Condition
       Warning:
       `addConnectServer()` was deprecated in rsconnect 1.0.0.

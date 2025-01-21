@@ -51,11 +51,21 @@ test_that("addServer() name defaults to hostname & port of url", {
 
 test_that("addServer() normalises url", {
   skip_on_cran()
+  skip_if_not_installed("webfakes")
+
   local_temp_config()
 
-  addServer("connect.posit.it", name = "connect", quiet = TRUE)
+  service <- service_settings_200()
+  url <- buildHttpUrl(service)
+  expected_url <- paste0(url, "__api__")
+
+  # Incomplete (lacks path).
+  # Lack of protocol is not easily tested because validateConnectUrl()
+  # prefers https://.
+  partial_url <- paste0(service$protocol, "://", service$host, ":", service$port)
+  addServer(partial_url, name = "connect", quiet = TRUE)
   info <- serverInfo("connect")
-  expect_equal(info$url, "https://connect.posit.it/__api__")
+  expect_equal(info$url, expected_url)
 })
 
 test_that("addServer() errors if url not a connect server", {
