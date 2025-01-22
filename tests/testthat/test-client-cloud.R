@@ -120,7 +120,7 @@ configureTestAccount <- function(server = "posit.cloud", name = NULL) {
     setAccountInfo(
       name = name,
       token = "foo",
-      secret = "bar",
+      secret = openssl::base64_encode("bar"),
       server = server
     )
   }
