@@ -67,6 +67,14 @@
   content was incorrectly published to a new location rather than reusing an
   existing deployment. (#981, #1007, #1013, #1019)
 
+* When `deployApp()` is not given `appName`, the name is generated from an
+  incoming title, when provided. When the title is not provided, a title is
+  generated from the content path, which is then used to generate the
+  normalized application name. (#1022)
+
+* The application title recorded in the deployment record is updated with
+  server data. (#1008)
+
 * `showLogs()`, `configureApp()`, `setProperty()`, and `unsetProperty()`
   search for the application by name when there are no matching deployment
   records. (#985, #989)
