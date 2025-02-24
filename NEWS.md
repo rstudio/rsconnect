@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Content directories with a period in their name are no longer treated as a
+  document path when computing the location for deployment records. (#1138)
+
 # rsconnect 1.3.4
 
 * Use base64 encoded test data. Addresses CRAN test failures when run with

@@ -55,7 +55,11 @@ local_temp_app <- function(files = list(), env = caller_env()) {
     if (!hier == ".") {
       dir.create(file.path(dir, hier), recursive = TRUE)
     }
-    writeLines(content, file.path(dir, name))
+    if (length(content) > 0) {
+      writeLines(content, file.path(dir, name))
+    } else {
+      file.create(file.path(dir, name))
+    }
   }
 
   dir
