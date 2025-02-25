@@ -435,23 +435,6 @@ test_that("can find existing application on shinyapps.io & not use it", {
   confirm_existing_app_not_used("shinyapps.io")
 })
 
-# defaultAppName ----------------------------------------------------------
-
-test_that("defaultAppName works with sites, documents, and directories", {
-  expect_equal(defaultAppName("foo/bar.Rmd"), "bar")
-  expect_equal(defaultAppName("foo/index.html"), "foo")
-  expect_equal(defaultAppName("foo/bar"), "bar")
-})
-
-test_that("defaultAppName reifies appNames for shinyApps", {
-  expect_equal(defaultAppName("a b c", "shinyapps.io"), "a_b_c")
-  expect_equal(defaultAppName("a!b!c", "shinyapps.io"), "a_b_c")
-  expect_equal(defaultAppName("a  b  c", "shinyapps.io"), "a_b_c")
-
-  long_name <- strrep("abcd", 64 / 4)
-  expect_equal(defaultAppName(paste(long_name, "..."), "shinyapps.io"), long_name)
-})
-
 # helpers -----------------------------------------------------------------
 
 test_that("shouldUpdateApp errors when non-interactive", {

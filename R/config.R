@@ -131,6 +131,10 @@ deploymentConfigFiles <- function(recordPath) {
 }
 
 # Does the path point to an individual piece of content?
-isDocumentPath <- function(path) {
-  tools::file_ext(path) != ""
+isDocumentPath <- function(recordPath) {
+  # deployDoc and deployApp have already decided if the record path corresponds to a file
+  # (single-file document deploys) or a directory (all other content).
+  #
+  # The record path is a document path whenever it is not a directory.
+  !dir.exists(recordPath)
 }
