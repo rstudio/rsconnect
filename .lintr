@@ -6,6 +6,6 @@ linters: linters_with_defaults(
     object_usage_linter = NULL,
     brace_linter = NULL,
     commented_code_linter = NULL,
-    cyclocomp_linter = NULL,
-    seq_linter = NULL
+    seq_linter = NULL,
+    return_linter = NULL
   )
