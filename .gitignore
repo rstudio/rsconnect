@@ -9,3 +9,6 @@ docs/
 .rscignore
 tags
 inst/doc
+
+# license files should not be commited to this repository
+*.lic
