@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   custom-http: custom-http.html
-last_built: 2025-02-25T19:39Z
+last_built: 2025-02-28T20:40Z
 urls:
   reference: https://rstudio.github.io/rsconnect/reference
   article: https://rstudio.github.io/rsconnect/articles
