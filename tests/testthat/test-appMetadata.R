@@ -63,6 +63,17 @@ test_that("content type (appMode) is inferred and can be overridden", {
   expect_equal(metadata$appMode, "static")
 })
 
+test_that("Shiny Quarto without an appropriate engine is an error", {
+  skip_on_cran()
+
+  dir <- local_temp_app(list(
+    "index.qmd" = c("---", "server: shiny", "---"))
+  )
+  files <- list.files(dir)
+  expect_snapshot(appMetadata(dir, files), error = TRUE)
+})
+
+
 # checkLayout -------------------------------------------------------------
 
 # inferAppMode ------------------------------------------------------------
@@ -168,7 +179,11 @@ test_that("can infer mode for shiny rmd docs", {
 
 test_that("can infer mode for shiny qmd docs", {
   yaml_runtime <- function(runtime) {
-    c("---", paste0("runtime: ", runtime), "---")
+    c(
+      "---",
+      paste0("runtime: ", runtime),
+      paste0("engine: knitr"),
+      "---")
   }
 
   dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))

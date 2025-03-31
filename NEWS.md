@@ -5,6 +5,9 @@
 
 * A `_server.yml` file indicates that the content is an API. (#1144)
 
+* Quarto documents which specify a server must include executable code or an
+  engine declaration. (#1145)
+
 # rsconnect 1.3.4
 
 * Use base64 encoded test data. Addresses CRAN test failures when run with

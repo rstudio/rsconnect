@@ -15,6 +15,15 @@
       Error in `appMetadata()`:
       ! `quarto` must be `TRUE`, `FALSE`, or `NA`, not the number 1.
 
+# Shiny Quarto without an appropriate engine is an error
+
+    Code
+      appMetadata(dir, files)
+    Condition
+      Error in `appMetadata()`:
+      ! The Quarto document requires a server but does not use an executable engine.
+      Consider including some executable code, specifying an engine, or removing the server configuration.
+
 # errors if no files with needed extension
 
     Code
