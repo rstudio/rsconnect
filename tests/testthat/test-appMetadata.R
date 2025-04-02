@@ -79,6 +79,12 @@ test_that("can infer mode for API with entrypoint.R", {
   expect_equal(inferAppMode(dir, paths), "api")
 })
 
+test_that("can infer mode for API with _server.yml", {
+  dir <- local_temp_app(list("_server.yml" = ""))
+  paths <- list.files(dir)
+  expect_equal(inferAppMode(dir, paths), "api")
+})
+
 test_that("can infer mode for shiny apps with app.R", {
   dir <- local_temp_app(list("app.R" = ""))
   paths <- list.files(dir)

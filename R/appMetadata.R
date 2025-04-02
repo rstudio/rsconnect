@@ -105,6 +105,12 @@ inferAppMode <- function(
     return("api")
   }
 
+  # general API
+  server_yml <- matchingNames(absoluteRootFiles, "^_server.yml$")
+  if (length(server_yml) > 0) {
+    return("api")
+  }
+
   # Shiny application using single-file app.R style.
   appR <- matchingNames(absoluteRootFiles, "^app.r$")
   if (length(appR) > 0) {
