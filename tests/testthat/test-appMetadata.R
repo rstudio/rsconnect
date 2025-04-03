@@ -73,6 +73,28 @@ test_that("Shiny Quarto without an appropriate engine is an error", {
   expect_snapshot(appMetadata(dir, files), error = TRUE)
 })
 
+test_that("Shiny Quarto with the knitr engine is OK", {
+  skip_on_cran()
+
+  dir <- local_temp_app(list(
+    "index.qmd" = c("---", "server: shiny", "engine: knitr", "---"))
+  )
+  files <- list.files(dir)
+  metadata <- appMetadata(dir, files)
+  expect_contains(metadata$quartoInfo$engines, "knitr")
+})
+
+test_that("Shiny Quarto with the jupyter engine is OK", {
+  skip_on_cran()
+
+  dir <- local_temp_app(list(
+    "index.qmd" = c("---", "server: shiny", "engine: jupyter", "---"))
+  )
+  files <- list.files(dir)
+  metadata <- appMetadata(dir, files)
+  expect_contains(metadata$quartoInfo$engines, "jupyter")
+})
+
 
 # checkLayout -------------------------------------------------------------
 

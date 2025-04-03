@@ -68,7 +68,7 @@ appMetadata <- function(appDir,
       appPrimaryDoc = appPrimaryDoc
     )
     if (appMode == "quarto-shiny") {
-      if (!"knitr" %in% quartoInfo[["engines"]]) {
+      if (!any(c("knitr", "jupyter") %in% quartoInfo[["engines"]])) {
         cli::cli_abort(c(
           "The Quarto document requires a server but does not use an executable engine.",
           "Consider including some executable code, specifying an engine, or removing the server configuration."
