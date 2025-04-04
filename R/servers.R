@@ -168,12 +168,12 @@ findServer <- function(server = NULL,
 #' connectUser(server = "myserver")
 #' }
 #' @export
-addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, quiet = FALSE) {
+addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, snowflake_connection_name = NULL, quiet = FALSE) {
   check_string(url)
   check_name(name, allow_null = TRUE)
 
   if (validate) {
-    out <- validateConnectUrl(url, certificate)
+    out <- validateConnectUrl(url, certificate, snowflake_connection_name)
     if (!out$valid) {
       cli::cli_abort("{.arg url} does not appear to be a Posit Connect server.")
     }
@@ -192,7 +192,7 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, qui
 # Validate a connect server URL by hitting a known configuration endpoint
 # The URL may be specified with or without the protocol and port; this function
 # will try both http and https and follow any redirects given by the server.
-validateConnectUrl <- function(url, certificate = NULL) {
+validateConnectUrl <- function(url, certificate = NULL, snowflake_connection_name = NULL) {
   # Add protocol if missing, assuming https except for local installs
   if (!grepl("://", url, fixed = TRUE)) {
     if (grepl(":3939", url, fixed = TRUE)) {
@@ -207,6 +207,15 @@ validateConnectUrl <- function(url, certificate = NULL) {
   GET_server_settings <- function(url) {
     timeout <- getOption("rsconnect.http.timeout", if (isWindows()) 20 else 10)
     auth_info <- list(certificate = inferCertificateContents(certificate))
+
+    if (!is.null(snowflake_connection_name)) {
+      token <- snowflakeauth::snowflake_credentials(
+        snowflakeauth::snowflake_connection(snowflake_connection_name),
+        spcs_endpoint = httr2::url_parse(url)$hostname
+      )
+      auth_info$snowflakeToken <- token$Authorization
+
+    }
     GET(
       parseHttpUrl(url),
       auth_info,
@@ -214,9 +223,9 @@ validateConnectUrl <- function(url, certificate = NULL) {
       timeout = timeout
     )
   }
-
   response <- NULL
   cnd <- catch_cnd(response <- GET_server_settings(url), "error")
+
   if (is_http && cnd_inherits(cnd, "OPERATION_TIMEDOUT")) {
     url <- gsub("^http://", "https://", url)
     cnd <- catch_cnd(response <- GET_server_settings(url), "error")

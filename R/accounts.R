@@ -72,6 +72,58 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
   invisible()
 }
 
+connectSPCSUser <- function(account = NULL, server = NULL, snowflake_connection_name, quiet = FALSE) {
+  server <- findServer(server)
+  user <- getSPCSAuthedUser(server, snowflake_connection_name)
+
+  ingressURL <- serverInfo(server)$url
+  if (!is.null(snowflake_connection_name)) {
+    token <- snowflakeauth::snowflake_credentials(
+      snowflakeauth::snowflake_connection(snowflake_connection_name),
+      spcs_endpoint = httr2::url_parse(ingressURL)$hostname
+    )
+  }
+
+  registerAccount(
+    serverName = server,
+    accountName = account %||% user$username,
+    snowflakeToken = token$Authorization,
+    accountId = user$id
+  )
+
+  account <- list(
+    server = server,
+    snowflake_connection_name = snowflake_connection_name,
+    snowflakeToken = token$Authorization
+  )
+
+  if (!quiet) {
+    accountLabel <- accountLabel(user$username, server)
+    cli::cli_alert_success("Registered account for {accountLabel}")
+  }
+
+  invisible()
+}
+
+getSPCSAuthedUser <- function(server, snowflake_connection_name) {
+  ingressURL <- serverInfo(server)$url
+
+  if (!is.null(snowflake_connection_name)) {
+    token <- snowflakeauth::snowflake_credentials(
+      snowflakeauth::snowflake_connection(snowflake_connection_name),
+      spcs_endpoint = httr2::url_parse(ingressURL)$hostname
+    )
+  }
+
+  account <- list(
+    server = server,
+    snowflakeToken =  token$Authorization
+  )
+
+  client <- clientForAccount(account)
+  client$currentUser()
+}
+
 #' @rdname connectApiUser
 #' @export
 connectUser <- function(account = NULL,
@@ -309,6 +361,7 @@ findAccountInfo <- function(name = NULL, server = NULL, error_call = caller_env(
   info$private_key <- secret(info$private_key)
   info$secret <- secret(info$secret)
   info$apiKey <- secret(info$apiKey)
+  info$snowflakeToken <- secret(info$snowflakeToken)
 
   info
 }
@@ -334,7 +387,9 @@ registerAccount <- function(serverName,
                             token = NULL,
                             secret = NULL,
                             private_key = NULL,
-                            apiKey = NULL) {
+                            apiKey = NULL,
+                            snowflakeToken = NULL)
+                            {
 
   check_string(serverName)
   check_string(accountName)
@@ -349,7 +404,8 @@ registerAccount <- function(serverName,
     token = token,
     secret = secret,
     private_key = private_key,
-    apiKey = apiKey
+    apiKey = apiKey,
+    snowflakeToken = snowflakeToken
   )
 
   path <- accountConfigFile(accountName, serverName)
