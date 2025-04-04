@@ -34,14 +34,16 @@ accounts <- function(server = NULL) {
 #' Register account on Posit Connect
 #
 #' @description
-#' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
+#' `connectUser()`, `connectApiUser()`, and `connectSPCSUser()`
+#' connect your Posit Connect account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf.
 #'
 #' `connectUser()` is the easiest place to start because it allows you to
 #' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
 #' appropriate for non-interactive settings; you'll need to copy-and-paste the
-#' API key from your account settings.
+#' API key from your account settings. Use `connectSPCSUser()` for Posit Connect
+#' deployments in Snowpark Container Services.
 #'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.
@@ -50,6 +52,8 @@ accounts <- function(server = NULL) {
 #'   interactive sessions only. If a function is passed, it will be called
 #'   after the app is started, with the app URL as a parameter.
 #' @param apiKey The API key used to authenticate the user
+#' @param snowflakeConnectionName Name for the Snowflake connection parameters
+#'   stored in `config.toml` or `connections.toml`.
 #' @param quiet Whether or not to show messages and prompts while connecting the
 #'   account.
 #' @family Account functions
@@ -70,6 +74,40 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
     cli::cli_alert_success("Registered account for {accountLabel}")
   }
   invisible()
+}
+
+
+#' @rdname connectApiUser
+#' @export
+connectSPCSUser <- function(account = NULL, server = NULL, snowflakeConnectionName, quiet = FALSE) {
+  server <- findServer(server)
+  user <- getSPCSAuthedUser(server, snowflakeConnectionName)
+
+  registerAccount(
+    serverName = server,
+    accountName = account %||% user$username,
+    accountId = user$id,
+    snowflakeConnectionName = snowflakeConnectionName
+  )
+
+  if (!quiet) {
+    accountLabel <- accountLabel(user$username, server)
+    cli::cli_alert_success("Registered account for {accountLabel}")
+  }
+
+  invisible()
+}
+
+getSPCSAuthedUser <- function(server, snowflakeConnectionName) {
+
+  serverAddress <- serverInfo(server)
+  account <- list(
+    server = server,
+    snowflakeToken = getSnowflakeAuthToken(serverAddress$url, snowflakeConnectionName)
+  )
+
+  client <- clientForAccount(account)
+  client$currentUser()
 }
 
 #' @rdname connectApiUser
@@ -309,6 +347,7 @@ findAccountInfo <- function(name = NULL, server = NULL, error_call = caller_env(
   info$private_key <- secret(info$private_key)
   info$secret <- secret(info$secret)
   info$apiKey <- secret(info$apiKey)
+  info$snowflakeToken <- secret(info$snowflakeToken)
 
   info
 }
@@ -334,7 +373,9 @@ registerAccount <- function(serverName,
                             token = NULL,
                             secret = NULL,
                             private_key = NULL,
-                            apiKey = NULL) {
+                            apiKey = NULL,
+                            snowflakeConnectionName = NULL)
+                            {
 
   check_string(serverName)
   check_string(accountName)
@@ -349,7 +390,8 @@ registerAccount <- function(serverName,
     token = token,
     secret = secret,
     private_key = private_key,
-    apiKey = apiKey
+    apiKey = apiKey,
+    snowflakeConnectionName = snowflakeConnectionName
   )
 
   path <- accountConfigFile(accountName, serverName)

@@ -142,7 +142,12 @@ handleResponse <- function(response, error_call = caller_env()) {
   if (isContentType(response$contentType, "application/json")) {
     # parse json responses
     if (nzchar(response$content)) {
-      json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
+      json <- tryCatch({
+        jsonlite::fromJSON(response$content, simplifyVector = FALSE)
+      }, error = function(e) {
+
+        return(response$content)
+      })
     } else {
       json <- list()
     }
@@ -460,7 +465,10 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
     signatureHeaders(authInfo, method, path, file)
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
-  } else {
+  } else if (!is.null(authInfo$snowflakeToken)) {
+    # snowflakeauth returns a list
+    authInfo$snowflakeToken
+  } else{
     # The value doesn't actually matter here, but the header needs to be set.
     list(`X-Auth-Token` = "anonymous-access")
   }
