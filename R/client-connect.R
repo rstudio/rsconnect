@@ -197,3 +197,16 @@ validateUserRecord <- function(record) {
   }
   record
 }
+
+getSnowflakeAuthToken <- function(url, snowflake_connection_name) {
+
+  parsedURL <- parseHttpUrl(url)
+  ingressURL <- parsedURL$host
+
+  token <- snowflakeauth::snowflake_credentials(
+    snowflakeauth::snowflake_connection(snowflake_connection_name),
+    spcs_endpoint = ingressURL
+  )
+
+  token$Authorization
+}

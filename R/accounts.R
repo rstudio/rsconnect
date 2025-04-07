@@ -76,27 +76,11 @@ connectSPCSUser <- function(account = NULL, server = NULL, snowflake_connection_
   server <- findServer(server)
   user <- getSPCSAuthedUser(server, snowflake_connection_name)
 
-  ingressURL <- serverInfo(server)$url
-  parsedIngress <- parseHttpUrl(ingressURL)
-
-  if (!is.null(snowflake_connection_name)) {
-    token <- snowflakeauth::snowflake_credentials(
-      snowflakeauth::snowflake_connection(snowflake_connection_name),
-      spcs_endpoint = parsedIngress$host
-    )
-  }
-
   registerAccount(
     serverName = server,
     accountName = account %||% user$username,
-    snowflakeToken = token$Authorization,
-    accountId = user$id
-  )
-
-  account <- list(
-    server = server,
-    snowflake_connection_name = snowflake_connection_name,
-    snowflakeToken = token$Authorization
+    accountId = user$id,
+    snowflakeConnectionName = snowflake_connection_name
   )
 
   if (!quiet) {
@@ -109,19 +93,10 @@ connectSPCSUser <- function(account = NULL, server = NULL, snowflake_connection_
 
 getSPCSAuthedUser <- function(server, snowflake_connection_name) {
 
-  ingressURL <- serverInfo(server)$url
-  parsedIngress <- parseHttpUrl(ingressURL)
-
-  if (!is.null(snowflake_connection_name)) {
-    token <- snowflakeauth::snowflake_credentials(
-      snowflakeauth::snowflake_connection(snowflake_connection_name),
-      spcs_endpoint = parsedIngress$host
-    )
-  }
-
+  serverAddress <- serverInfo(server)
   account <- list(
     server = server,
-    snowflakeToken =  token$Authorization
+    snowflakeToken = getSnowflakeAuthToken(serverAddress$url, snowflake_connection_name)
   )
 
   client <- clientForAccount(account)
@@ -392,7 +367,7 @@ registerAccount <- function(serverName,
                             secret = NULL,
                             private_key = NULL,
                             apiKey = NULL,
-                            snowflakeToken = NULL)
+                            snowflakeConnectionName = NULL)
                             {
 
   check_string(serverName)
@@ -409,12 +384,12 @@ registerAccount <- function(serverName,
     secret = secret,
     private_key = private_key,
     apiKey = apiKey,
-    snowflakeToken = snowflakeToken
+    snowflakeConnectionName = snowflakeConnectionName
   )
 
   path <- accountConfigFile(accountName, serverName)
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(compact(fields), path, width = 100, keep.white = c("snowflakeToken"))
+  write.dcf(compact(fields), path, width = 100)
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))

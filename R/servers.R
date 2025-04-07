@@ -72,6 +72,11 @@ isCloudServer <- function(server) {
   isPositCloudServer(server) || isShinyappsServer(server)
 }
 
+isSPCSServer <- function(server) {
+  info <- serverInfo(server)
+  grepl(pattern = "snowflakecomputing.app", x = info$url, fixed = TRUE)
+}
+
 checkCloudServer <- function(server, call = caller_env()) {
   if (!isCloudServer(server)) {
     cli::cli_abort("`server` must be shinyapps.io or posit.cloud", call = call)
@@ -209,12 +214,7 @@ validateConnectUrl <- function(url, certificate = NULL, snowflake_connection_nam
     auth_info <- list(certificate = inferCertificateContents(certificate))
 
     if (!is.null(snowflake_connection_name)) {
-      token <- snowflakeauth::snowflake_credentials(
-        snowflakeauth::snowflake_connection(snowflake_connection_name),
-        spcs_endpoint = httr2::url_parse(url)$hostname
-      )
-      auth_info$snowflakeToken <- token$Authorization
-
+      auth_info$snowflakeToken <- getSnowflakeAuthToken(url, snowflake_connection_name)
     }
     GET(
       parseHttpUrl(url),
