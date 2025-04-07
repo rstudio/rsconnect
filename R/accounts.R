@@ -77,10 +77,12 @@ connectSPCSUser <- function(account = NULL, server = NULL, snowflake_connection_
   user <- getSPCSAuthedUser(server, snowflake_connection_name)
 
   ingressURL <- serverInfo(server)$url
+  parsedIngress <- parseHttpUrl(ingressURL)
+
   if (!is.null(snowflake_connection_name)) {
     token <- snowflakeauth::snowflake_credentials(
       snowflakeauth::snowflake_connection(snowflake_connection_name),
-      spcs_endpoint = httr2::url_parse(ingressURL)$hostname
+      spcs_endpoint = parsedIngress$host
     )
   }
 
@@ -106,12 +108,14 @@ connectSPCSUser <- function(account = NULL, server = NULL, snowflake_connection_
 }
 
 getSPCSAuthedUser <- function(server, snowflake_connection_name) {
+
   ingressURL <- serverInfo(server)$url
+  parsedIngress <- parseHttpUrl(ingressURL)
 
   if (!is.null(snowflake_connection_name)) {
     token <- snowflakeauth::snowflake_credentials(
       snowflakeauth::snowflake_connection(snowflake_connection_name),
-      spcs_endpoint = httr2::url_parse(ingressURL)$hostname
+      spcs_endpoint = parsedIngress$host
     )
   }
 
@@ -410,7 +414,7 @@ registerAccount <- function(serverName,
 
   path <- accountConfigFile(accountName, serverName)
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  write.dcf(compact(fields), path, width = 100)
+  write.dcf(compact(fields), path, width = 100, keep.white = c("snowflakeToken"))
 
   # set restrictive permissions on it if possible
   if (identical(.Platform$OS.type, "unix"))
