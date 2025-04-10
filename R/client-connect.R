@@ -208,5 +208,5 @@ getSnowflakeAuthToken <- function(url, snowflake_connection_name) {
     spcs_endpoint = ingressURL
   )
 
-  token$Authorization
+  token
 }

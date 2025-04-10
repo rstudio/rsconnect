@@ -461,7 +461,8 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
   } else if (!is.null(authInfo$snowflakeToken)) {
-    list(`Authorization` = paste(authInfo$snowflakeToken))
+    # snowflakeauth returns a list
+    authInfo$snowflakeToken
   } else{
     # The value doesn't actually matter here, but the header needs to be set.
     list(`X-Auth-Token` = "anonymous-access")
