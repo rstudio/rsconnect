@@ -72,6 +72,37 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
   invisible()
 }
 
+connectSPCSUser <- function(account = NULL, server = NULL, snowflake_connection_name, quiet = FALSE) {
+  server <- findServer(server)
+  user <- getSPCSAuthedUser(server, snowflake_connection_name)
+
+  registerAccount(
+    serverName = server,
+    accountName = account %||% user$username,
+    accountId = user$id,
+    snowflakeConnectionName = snowflake_connection_name
+  )
+
+  if (!quiet) {
+    accountLabel <- accountLabel(user$username, server)
+    cli::cli_alert_success("Registered account for {accountLabel}")
+  }
+
+  invisible()
+}
+
+getSPCSAuthedUser <- function(server, snowflake_connection_name) {
+
+  serverAddress <- serverInfo(server)
+  account <- list(
+    server = server,
+    snowflakeToken = getSnowflakeAuthToken(serverAddress$url, snowflake_connection_name)
+  )
+
+  client <- clientForAccount(account)
+  client$currentUser()
+}
+
 #' @rdname connectApiUser
 #' @export
 connectUser <- function(account = NULL,
@@ -309,6 +340,7 @@ findAccountInfo <- function(name = NULL, server = NULL, error_call = caller_env(
   info$private_key <- secret(info$private_key)
   info$secret <- secret(info$secret)
   info$apiKey <- secret(info$apiKey)
+  info$snowflakeToken <- secret(info$snowflakeToken)
 
   info
 }
@@ -334,7 +366,9 @@ registerAccount <- function(serverName,
                             token = NULL,
                             secret = NULL,
                             private_key = NULL,
-                            apiKey = NULL) {
+                            apiKey = NULL,
+                            snowflakeConnectionName = NULL)
+                            {
 
   check_string(serverName)
   check_string(accountName)
@@ -349,7 +383,8 @@ registerAccount <- function(serverName,
     token = token,
     secret = secret,
     private_key = private_key,
-    apiKey = apiKey
+    apiKey = apiKey,
+    snowflakeConnectionName = snowflakeConnectionName
   )
 
   path <- accountConfigFile(accountName, serverName)
