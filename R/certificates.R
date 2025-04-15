@@ -16,7 +16,7 @@ createCertificateFile <- function(certificate) {
   # start by checking for a cert file specified in an environment variable
   if (!is.null(systemStore) && nzchar(systemStore)) {
     if (file.exists(systemStore)) {
-      certificateFile <- systemStore
+      certificateFile <- path.expand(systemStore)
     } else {
       warning("The certificate store '", systemStore, "' specified in the ",
               if (identical(systemStore, getOption("rsconnect.ca.bundle")))
