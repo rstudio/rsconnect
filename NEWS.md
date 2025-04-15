@@ -8,6 +8,8 @@
 * Quarto documents which specify a server must include executable code or an
   engine declaration. (#1145)
 
+* Expand tilde when resolving the `rsconnect.ca.bundle` option. (#1152)
+
 # rsconnect 1.3.4
 
 * Use base64 encoded test data. Addresses CRAN test failures when run with
