@@ -67,7 +67,10 @@ a3hEFijsjg/+FDMr+iAVzjry
 
   # an alternative implementation with openssl
   signRequestPrivateKeyOpenSSL <- function(private_key, canonicalRequest) {
-    rawsig <- openssl::signature_create(charToRaw(canonicalRequest), key = private_key)
+    rawsig <- openssl::signature_create(
+      charToRaw(canonicalRequest),
+      key = private_key
+    )
     openssl::base64_encode(rawsig)
   }
 
@@ -170,10 +173,14 @@ test_that("errors contain method", {
   skip_if_not_installed("webfakes")
 
   service <- httpbin_service()
-  expect_snapshot(error = TRUE, {
-    GET(service, list(), path = "status/404")
-    POST(service, list(), path = "status/403")
-  }, transform = strip_port(service))
+  expect_snapshot(
+    error = TRUE,
+    {
+      GET(service, list(), path = "status/404")
+      POST(service, list(), path = "status/403")
+    },
+    transform = strip_port(service)
+  )
 })
 
 test_that("http error includes status in error class", {
@@ -238,7 +245,26 @@ test_that("rcf2616 returns an ASCII date and undoes changes to the locale", {
   old <- Sys.getlocale("LC_TIME")
   defer(Sys.setlocale("LC_TIME", old))
 
-  date <- rfc2616Date(time = as.POSIXct("2024-01-01 01:02:03", tz = "America/New_York"))
+  date <- rfc2616Date(
+    time = as.POSIXct("2024-01-01 01:02:03", tz = "America/New_York")
+  )
   expect_equal(date, "Mon, 01 Jan 2024 06:02:03 GMT")
   expect_equal(Sys.getlocale("LC_TIME"), old)
+})
+
+test_that("authHeaders handles snowflakeToken", {
+  # Create mock authInfo with snowflakeToken
+  authInfo <- list(
+    snowflakeToken = list(
+      Authorization = "Snowflake Token=\"mock_token\"",
+      `X-Custom-Header` = "custom-value"
+    )
+  )
+
+  # Test authHeaders
+  headers <- authHeaders(authInfo, "GET", "/path")
+
+  # Verify snowflakeToken headers were used
+  expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
+  expect_equal(headers$`X-Custom-Header`, "custom-value")
 })

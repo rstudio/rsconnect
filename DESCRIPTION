@@ -32,7 +32,9 @@ Imports:
     rlang (>= 1.0.0),
     rstudioapi (>= 0.5),
     tools,
-    yaml (>= 2.1.5)
+    yaml (>= 2.1.5),
+    RcppTOML,
+    jose
 Suggests:
     Biobase,
     BiocManager,
@@ -48,11 +50,11 @@ Suggests:
     testthat (>= 3.1.9),
     webfakes,
     withr
-VignetteBuilder: 
+VignetteBuilder:
     knitr, rmarkdown
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

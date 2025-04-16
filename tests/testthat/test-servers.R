@@ -38,7 +38,10 @@ test_that("normalizes connect urls", {
   expect_equal(ensureConnectServerUrl("https://myserver.com"), expected)
   expect_equal(ensureConnectServerUrl("https://myserver.com/"), expected)
   expect_equal(ensureConnectServerUrl("https://myserver.com/__api__"), expected)
-  expect_equal(ensureConnectServerUrl("https://myserver.com/__api__/"), expected)
+  expect_equal(
+    ensureConnectServerUrl("https://myserver.com/__api__/"),
+    expected
+  )
 })
 
 
@@ -62,7 +65,13 @@ test_that("addServer() normalises url", {
   # Incomplete (lacks path).
   # Lack of protocol is not easily tested because validateConnectUrl()
   # prefers https://.
-  partial_url <- paste0(service$protocol, "://", service$host, ":", service$port)
+  partial_url <- paste0(
+    service$protocol,
+    "://",
+    service$host,
+    ":",
+    service$port
+  )
   addServer(partial_url, name = "connect", quiet = TRUE)
   info <- serverInfo("connect")
   expect_equal(info$url, expected_url)
@@ -102,7 +111,8 @@ test_that("can add certificates after creation", {
   local_temp_config()
 
   addTestServer("test")
-  addServerCertificate("test",
+  addServerCertificate(
+    "test",
     certificate = test_path("certs/sample.crt"),
     quiet = TRUE
   )
@@ -215,4 +225,54 @@ test_that("findServer checks server name", {
     findServer(1)
     findServer("foo")
   })
+})
+
+test_that("isSPCSServer correctly identifies Snowpark Container Services servers", {
+  local_temp_config()
+
+  # Register a server with a snowflakecomputing.app URL
+  addTestServer(
+    url = "https://test-abc123.snowflakecomputing.app/__api__",
+    name = "spcs_server"
+  )
+
+  # Mock serverInfo to return the URL for our test
+  local_mocked_bindings(
+    serverInfo = function(server) {
+      if (server == "spcs_server") {
+        return(list(url = "https://test-abc123.snowflakecomputing.app/__api__"))
+      }
+      list(url = "https://example.com")
+    }
+  )
+
+  expect_true(isSPCSServer("spcs_server"))
+  expect_false(isSPCSServer("example.com"))
+})
+
+test_that("addServer accepts snowflakeConnectionName parameter", {
+  local_temp_config()
+
+  # Mock validateConnectUrl to avoid actual HTTP requests
+  local_mocked_bindings(
+    validateConnectUrl = function(url, certificate, snowflakeConnectionName) {
+      if (!is.null(snowflakeConnectionName)) {
+        expect_equal(snowflakeConnectionName, "test_connection")
+      }
+      list(valid = TRUE, url = url)
+    }
+  )
+
+  # Run addServer with snowflakeConnectionName
+  addServer(
+    url = "https://test-abc123.snowflakecomputing.app",
+    name = "spcs_server",
+    snowflakeConnectionName = "test_connection",
+    quiet = TRUE,
+    validate = TRUE
+  )
+
+  # Check server was added
+  server_list <- servers(local = TRUE)
+  expect_true("spcs_server" %in% server_list$name)
 })
