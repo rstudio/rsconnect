@@ -3,7 +3,11 @@ test_that("no accounts returns empty data frame", {
 
   expect_equal(
     accounts(),
-    data.frame(name = character(), server = character(), stringsAsFactors = FALSE)
+    data.frame(
+      name = character(),
+      server = character(),
+      stringsAsFactors = FALSE
+    )
   )
 })
 
@@ -82,7 +86,7 @@ test_that("accountInfo() returns pre-rsconnect-1.0.0 account information", {
 
 test_that("registerAccount stores snowflakeConnectionName", {
   local_temp_config()
-  
+
   # Register an account with snowflakeConnectionName
   registerAccount(
     serverName = "example.com",
@@ -90,7 +94,7 @@ test_that("registerAccount stores snowflakeConnectionName", {
     accountId = "user123",
     snowflakeConnectionName = "test_connection"
   )
-  
+
   # Check the account info has the snowflakeConnectionName
   info <- accountInfo("testuser", "example.com")
   expect_equal(info$snowflakeConnectionName, "test_connection")
@@ -98,7 +102,7 @@ test_that("registerAccount stores snowflakeConnectionName", {
 
 test_that("findAccountInfo redacts snowflakeToken", {
   local_temp_config()
-  
+
   # Create mock account info with snowflakeToken
   fields <- list(
     name = "testuser",
@@ -106,11 +110,11 @@ test_that("findAccountInfo redacts snowflakeToken", {
     accountId = "user123",
     snowflakeToken = "sensitive_token_data"
   )
-  
+
   path <- accountConfigFile("testuser", "example.com")
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   write.dcf(compact(fields), path, width = 100)
-  
+
   # Get account info and check that snowflakeToken is redacted
   info <- findAccountInfo("testuser", "example.com")
   expect_s3_class(info$snowflakeToken, "rsconnect_secret")
