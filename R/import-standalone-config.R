@@ -63,6 +63,7 @@
 #' )
 #' }
 #' @examples
+#' \dontrun{
 #' # Pass connection parameters manually, which is useful if there is no
 #' # connections.toml file. For example, to use key-pair authentication:
 #' conn <- snowflake_connection(
@@ -70,6 +71,7 @@
 #'   user = "me",
 #'   private_key = "rsa_key.p8"
 #' )
+#' }
 #' @keywords internal
 snowflake_connection <- function(name = NULL, ..., .config_dir = NULL) {
   params <- list(name = name)
