@@ -70,7 +70,7 @@
 #'   user = "me",
 #'   private_key = "rsa_key.p8"
 #' )
-#' @export
+#' @keywords internal
 snowflake_connection <- function(name = NULL, ..., .config_dir = NULL) {
   params <- list(name = name)
   config_dir <- .config_dir %||% default_config_dir()

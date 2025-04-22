@@ -1,12 +1,12 @@
 # Support for Snowflake key-pair authentication for SPCS and the REST API.
 keypair_credentials <- function(
-  account,
-  user,
+  snowflake_account,
+  snowflake_user,
   private_key,
   spcs_endpoint = NULL,
   role = "PUBLIC"
 ) {
-  jwt <- generate_jwt(account, user, private_key)
+  jwt <- generate_jwt(snowflake_account, snowflake_user, private_key)
   # Important: the SPCS ingress handles key-pair authentication *differently*
   # than the REST API. In particular, we can't pass the signed JWT as a bearer
   # token, we have to go through an exchange step.
@@ -18,7 +18,7 @@ keypair_credentials <- function(
       `X-Snowflake-Authorization-Token-Type` = "KEYPAIR_JWT"
     ))
   }
-  account_url <- sprintf("https://%s.snowflakecomputing.com", account)
+  account_url <- sprintf("https://%s.snowflakecomputing.com", snowflake_account)
   token <- exchange_jwt_for_token(account_url, jwt, spcs_endpoint, role)
   # Yes, this is actually the format of the Authorization header that SPCS
   # requires.
@@ -29,7 +29,6 @@ keypair_credentials <- function(
 
 # Generate a JWT that can be used for Snowflake "key-pair" authentication.
 generate_jwt <- function(account, user, private_key, iat = NULL, jti = NULL) {
-  check_installed("jose", "for key-pair authentication")
   key <- openssl::read_key(private_key)
   if (is.null(iat)) {
     iat <- as.integer(Sys.time())
@@ -87,6 +86,7 @@ exchange_jwt_for_token <- function(
     path = "/oauth/token",
     content = payload,
     authInfo = list(),
-    contentType = "application/x-www-form-urlencoded"
+    contentType = "application/x-www-form-urlencoded",
+    rawResponse = TRUE
   )
 }

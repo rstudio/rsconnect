@@ -34,16 +34,14 @@ accounts <- function(server = NULL) {
 #' Register account on Posit Connect
 #
 #' @description
-#' `connectUser()`, `connectApiUser()`, and `connectSPCSUser()`
-#' connect your Posit Connect account to
+#' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf.
 #'
 #' `connectUser()` is the easiest place to start because it allows you to
 #' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
 #' appropriate for non-interactive settings; you'll need to copy-and-paste the
-#' API key from your account settings. Use `connectSPCSUser()` for Posit Connect
-#' deployments in Snowpark Container Services.
+#' API key from your account settings.
 #'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.
@@ -52,8 +50,6 @@ accounts <- function(server = NULL) {
 #'   interactive sessions only. If a function is passed, it will be called
 #'   after the app is started, with the app URL as a parameter.
 #' @param apiKey The API key used to authenticate the user
-#' @param snowflakeConnectionName Name for the Snowflake connection parameters
-#'   stored in `config.toml` or `connections.toml`.
 #' @param quiet Whether or not to show messages and prompts while connecting the
 #'   account.
 #' @family Account functions
@@ -77,7 +73,19 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
 }
 
 
-#' @rdname connectApiUser
+#' Register account on Posit Connect in Snowpark Container Services
+#'
+#' @description
+#' `connectSPCSUser()` connects your Posit Connect account to the rsconnect
+#' package so it can deploy and manage applications on your behalf.
+#' Configure a
+#' [`connections.toml` file](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil)
+#' in the appropriate location.
+#'
+#'
+#' @inheritParams connectApiUser
+#' @param snowflakeConnectionName Name for the Snowflake connection parameters
+#'   stored in `config.toml` or `connections.toml`.
 #' @export
 connectSPCSUser <- function(account = NULL, server = NULL, snowflakeConnectionName, quiet = FALSE) {
   server <- findServer(server)

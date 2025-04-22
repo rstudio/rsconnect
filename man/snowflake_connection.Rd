@@ -73,3 +73,4 @@ conn <- snowflake_connection(
   private_key = "rsa_key.p8"
 )
 }
+\keyword{internal}

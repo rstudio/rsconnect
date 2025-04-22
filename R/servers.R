@@ -222,7 +222,7 @@ validateConnectUrl <- function(url, certificate = NULL, snowflakeConnectionName 
       parseHttpUrl(url),
       auth_info,
       "/server_settings",
-      timeout = timeout
+      timeout = timeout, rawResponse = TRUE
     )
   }
   response <- NULL

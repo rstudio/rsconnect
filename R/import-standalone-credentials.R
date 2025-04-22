@@ -10,7 +10,7 @@
 #' @param ... Additional Snowflake connection parameters
 #'
 #' @returns A list of HTTP headers.
-#' @export
+#' @keywords internal
 snowflake_credentials <- function(
   params,
   role = NULL,
@@ -22,11 +22,11 @@ snowflake_credentials <- function(
     params$authenticator,
     oauth = oauth_credentials(params$token, params$token_file_path),
     SNOWFLAKE_JWT = keypair_credentials(
-      account = params$account,
-      user = params$user,
-      private_key = params$private_key_file %||% params$private_key,
-      spcs_endpoint = spcs_endpoint,
-      role = role
+      params$account,
+      params$user,
+      params$private_key_file %||% params$private_key,
+      spcs_endpoint,
+      role
     ),
     cli::cli_abort(c(
       "Unsupported authenticator: {.str {params$authenticator}}.",

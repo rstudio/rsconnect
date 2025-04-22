@@ -2,18 +2,10 @@
 % Please edit documentation in R/accounts.R
 \name{connectApiUser}
 \alias{connectApiUser}
-\alias{connectSPCSUser}
 \alias{connectUser}
 \title{Register account on Posit Connect}
 \usage{
 connectApiUser(account = NULL, server = NULL, apiKey, quiet = FALSE)
-
-connectSPCSUser(
-  account = NULL,
-  server = NULL,
-  snowflakeConnectionName,
-  quiet = FALSE
-)
 
 connectUser(
   account = NULL,
@@ -32,25 +24,20 @@ connectUser(
 \item{quiet}{Whether or not to show messages and prompts while connecting the
 account.}
 
-\item{snowflakeConnectionName}{Name for the Snowflake connection parameters
-stored in \code{config.toml} or \code{connections.toml}.}
-
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in
 interactive sessions only. If a function is passed, it will be called
 after the app is started, with the app URL as a parameter.}
 }
 \description{
-\code{connectUser()}, \code{connectApiUser()}, and \code{connectSPCSUser()}
-connect your Posit Connect account to
+\code{connectUser()} and \code{connectApiUser()} connect your Posit Connect account to
 the rsconnect package so that it can deploy and manage applications on
 your behalf.
 
 \code{connectUser()} is the easiest place to start because it allows you to
 authenticate in-browser to your Posit Connect server. \code{connectApiUser()} is
 appropriate for non-interactive settings; you'll need to copy-and-paste the
-API key from your account settings. Use \code{connectSPCSUser()} for Posit Connect
-deployments in Snowpark Container Services.
+API key from your account settings.
 }
 \seealso{
 Other Account functions: 

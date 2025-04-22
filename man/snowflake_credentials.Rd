@@ -21,3 +21,4 @@ A list of HTTP headers.
 \description{
 Get credentials for a Snowflake connection
 }
+\keyword{internal}
