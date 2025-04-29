@@ -6,7 +6,14 @@
 \alias{addServerCertificate}
 \title{Server management}
 \usage{
-addServer(url, name = NULL, certificate = NULL, validate = TRUE, quiet = FALSE)
+addServer(
+  url,
+  name = NULL,
+  certificate = NULL,
+  validate = TRUE,
+  snowflakeConnectionName = NULL,
+  quiet = FALSE
+)
 
 removeServer(name = NULL)
 
@@ -23,6 +30,9 @@ character vector containing the certificate's contents.}
 
 \item{validate}{Validate that \code{url} actually points to a Posit Connect
 server?}
+
+\item{snowflakeConnectionName}{Name for the Snowflake connection parameters
+stored in \code{connections.toml}.}
 
 \item{quiet}{Suppress output and prompts where possible.}
 }

@@ -72,6 +72,52 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
   invisible()
 }
 
+
+#' Register account on Posit Connect in Snowpark Container Services
+#'
+#' @description
+#' `connectSPCSUser()` connects your Posit Connect account to the rsconnect
+#' package so it can deploy and manage applications on your behalf.
+#' Configure a
+#' [`connections.toml` file](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil)
+#' in the appropriate location.
+#'
+#'
+#' @inheritParams connectApiUser
+#' @param snowflakeConnectionName Name for the Snowflake connection parameters
+#'   stored in `connections.toml`.
+#' @export
+connectSPCSUser <- function(account = NULL, server = NULL, snowflakeConnectionName, quiet = FALSE) {
+  server <- findServer(server)
+  user <- getSPCSAuthedUser(server, snowflakeConnectionName)
+
+  registerAccount(
+    serverName = server,
+    accountName = account %||% user$username,
+    accountId = user$id,
+    snowflakeConnectionName = snowflakeConnectionName
+  )
+
+  if (!quiet) {
+    accountLabel <- accountLabel(user$username, server)
+    cli::cli_alert_success("Registered account for {accountLabel}")
+  }
+
+  invisible()
+}
+
+getSPCSAuthedUser <- function(server, snowflakeConnectionName) {
+
+  serverAddress <- serverInfo(server)
+  account <- list(
+    server = server,
+    snowflakeToken = getSnowflakeAuthToken(serverAddress$url, snowflakeConnectionName)
+  )
+
+  client <- clientForAccount(account)
+  client$currentUser()
+}
+
 #' @rdname connectApiUser
 #' @export
 connectUser <- function(account = NULL,
@@ -309,6 +355,7 @@ findAccountInfo <- function(name = NULL, server = NULL, error_call = caller_env(
   info$private_key <- secret(info$private_key)
   info$secret <- secret(info$secret)
   info$apiKey <- secret(info$apiKey)
+  info$snowflakeToken <- secret(info$snowflakeToken)
 
   info
 }
@@ -334,7 +381,9 @@ registerAccount <- function(serverName,
                             token = NULL,
                             secret = NULL,
                             private_key = NULL,
-                            apiKey = NULL) {
+                            apiKey = NULL,
+                            snowflakeConnectionName = NULL)
+                            {
 
   check_string(serverName)
   check_string(accountName)
@@ -349,7 +398,8 @@ registerAccount <- function(serverName,
     token = token,
     secret = secret,
     private_key = private_key,
-    apiKey = apiKey
+    apiKey = apiKey,
+    snowflakeConnectionName = snowflakeConnectionName
   )
 
   path <- accountConfigFile(accountName, serverName)

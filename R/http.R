@@ -15,6 +15,7 @@ httpRequest <- function(service,
                         query,
                         headers = list(),
                         timeout = NULL,
+                        rawResponse = FALSE,
                         error_call = caller_env()) {
 
   storeCookies(service, httpCookies())
@@ -49,7 +50,7 @@ httpRequest <- function(service,
     )
   }
 
-  handleResponse(httpResponse, error_call = error_call)
+  handleResponse(httpResponse, rawResponse = rawResponse, error_call = error_call)
 }
 
 httpRequestWithBody <- function(service,
@@ -61,6 +62,7 @@ httpRequestWithBody <- function(service,
                                 file = NULL,
                                 content = NULL,
                                 headers = list(),
+                                rawResponse = FALSE,
                                 error_call = caller_env()) {
   if ((is.null(file) && is.null(content))) {
     stop("You must specify either the file or content parameter.")
@@ -112,7 +114,7 @@ httpRequestWithBody <- function(service,
     httpResponse
   }
 
-  handleResponse(httpResponse, error_call = error_call)
+  handleResponse(httpResponse, rawResponse = rawResponse, error_call = error_call)
 }
 
 isRedirect <- function(status) {
@@ -128,7 +130,7 @@ redirectService <- function(service, location) {
   }
 }
 
-handleResponse <- function(response, error_call = caller_env()) {
+handleResponse <- function(response, rawResponse = FALSE, error_call = caller_env()) {
   url <- buildHttpUrl(response$req)
   reportError <- function(msg) {
 
@@ -139,7 +141,13 @@ handleResponse <- function(response, error_call = caller_env()) {
     )
   }
 
-  if (isContentType(response$contentType, "application/json")) {
+  if (rawResponse) {
+    if (response$status %in% 200:399) {
+      out <- response$content
+    } else {
+      reportError(response$content)
+    }
+  } else if (isContentType(response$contentType, "application/json")) {
     # parse json responses
     if (nzchar(response$content)) {
       json <- jsonlite::fromJSON(response$content, simplifyVector = FALSE)
@@ -193,16 +201,18 @@ GET <- function(service,
                 path,
                 query = NULL,
                 headers = list(),
-                timeout = NULL) {
-  httpRequest(service, authInfo, "GET", path, query, headers, timeout)
+                timeout = NULL,
+                rawResponse = FALSE) {
+  httpRequest(service, authInfo, "GET", path, query, headers, timeout, rawResponse)
 }
 
 DELETE <- function(service,
                    authInfo,
                    path,
                    query = NULL,
-                   headers = list()) {
-  httpRequest(service, authInfo, "DELETE", path, query, headers)
+                   headers = list(),
+                   rawResponse = FALSE) {
+  httpRequest(service, authInfo, "DELETE", path, query, headers, rawResponse = rawResponse)
 }
 
 POST <- function(service,
@@ -212,11 +222,12 @@ POST <- function(service,
                  contentType = NULL,
                  file = NULL,
                  content = NULL,
-                 headers = list()) {
+                 headers = list(),
+                 rawResponse = FALSE) {
   # check if the request needs a body
   if ((is.null(file) && is.null(content))) {
     # no file or content, don't include a body with the request
-    httpRequest(service, authInfo, "POST", path, query, headers)
+    httpRequest(service, authInfo, "POST", path, query, headers, rawResponse = rawResponse)
   } else {
     # include the request's data in the body
     httpRequestWithBody(
@@ -228,7 +239,8 @@ POST <- function(service,
     contentType = contentType,
     file = file,
     content = content,
-    headers = headers
+    headers = headers,
+    rawResponse = rawResponse
     )
   }
 }
@@ -238,7 +250,8 @@ POST_JSON <- function(service,
                       path,
                       json,
                       query = NULL,
-                      headers = list()) {
+                      headers = list(),
+                      rawResponse = FALSE) {
   POST(
     service = service,
     authInfo = authInfo,
@@ -246,7 +259,8 @@ POST_JSON <- function(service,
     query = query,
     contentType = "application/json",
     content = toJSON(json),
-    headers = headers
+    headers = headers,
+    rawResponse = rawResponse
   )
 }
 
@@ -257,7 +271,8 @@ PUT <- function(service,
                 contentType = NULL,
                 file = NULL,
                 content = NULL,
-                headers = list()) {
+                headers = list(),
+                rawResponse = FALSE) {
   httpRequestWithBody(
     service = service,
     authInfo = authInfo,
@@ -267,7 +282,8 @@ PUT <- function(service,
     contentType = contentType,
     file = file,
     content = content,
-    headers = headers
+    headers = headers,
+    rawResponse = rawResponse
   )
 }
 
@@ -276,7 +292,8 @@ PUT_JSON <- function(service,
                      path,
                      json,
                      query = NULL,
-                     headers = list()) {
+                     headers = list(),
+                     rawResponse = FALSE) {
   PUT(
     service = service,
     authInfo = authInfo,
@@ -284,7 +301,8 @@ PUT_JSON <- function(service,
     query = query,
     contentType = "application/json",
     content = toJSON(json),
-    headers = headers
+    headers = headers,
+    rawResponse = rawResponse
   )
 }
 
@@ -295,7 +313,8 @@ PATCH <- function(service,
                   contentType = NULL,
                   file = NULL,
                   content = NULL,
-                  headers = list()) {
+                  headers = list(),
+                  rawResponse = FALSE) {
   httpRequestWithBody(
     service = service,
     authInfo = authInfo,
@@ -305,7 +324,8 @@ PATCH <- function(service,
     contentType = contentType,
     file = file,
     content = content,
-    headers = headers
+    headers = headers,
+    rawResponse = rawResponse
   )
 }
 
@@ -314,7 +334,8 @@ PATCH_JSON <- function(service,
                        path,
                        json,
                        query = NULL,
-                       headers = list()) {
+                       headers = list(),
+                       rawResponse = FALSE) {
   PATCH(
     service = service,
     authInfo = authInfo,
@@ -322,7 +343,8 @@ PATCH_JSON <- function(service,
     query = query,
     contentType = "application/json",
     content = toJSON(json),
-    headers = headers
+    headers = headers,
+    rawResponse = rawResponse
   )
 }
 
@@ -460,7 +482,10 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
     signatureHeaders(authInfo, method, path, file)
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
-  } else {
+  } else if (!is.null(authInfo$snowflakeToken)) {
+    # snowflakeauth returns a list of named header values
+    authInfo$snowflakeToken
+  } else{
     # The value doesn't actually matter here, but the header needs to be set.
     list(`X-Auth-Token` = "anonymous-access")
   }
