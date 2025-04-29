@@ -32,7 +32,7 @@ character vector containing the certificate's contents.}
 server?}
 
 \item{snowflakeConnectionName}{Name for the Snowflake connection parameters
-stored in \code{config.toml} or \code{connections.toml}.}
+stored in \code{connections.toml}.}
 
 \item{quiet}{Suppress output and prompts where possible.}
 }

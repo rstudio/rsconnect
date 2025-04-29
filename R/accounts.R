@@ -85,7 +85,7 @@ connectApiUser <- function(account = NULL, server = NULL, apiKey, quiet = FALSE)
 #'
 #' @inheritParams connectApiUser
 #' @param snowflakeConnectionName Name for the Snowflake connection parameters
-#'   stored in `config.toml` or `connections.toml`.
+#'   stored in `connections.toml`.
 #' @export
 connectSPCSUser <- function(account = NULL, server = NULL, snowflakeConnectionName, quiet = FALSE) {
   server <- findServer(server)

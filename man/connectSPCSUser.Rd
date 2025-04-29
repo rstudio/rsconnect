@@ -17,7 +17,7 @@ connectSPCSUser(
 \item{server}{The server to connect to.}
 
 \item{snowflakeConnectionName}{Name for the Snowflake connection parameters
-stored in \code{config.toml} or \code{connections.toml}.}
+stored in \code{connections.toml}.}
 
 \item{quiet}{Whether or not to show messages and prompts while connecting the
 account.}

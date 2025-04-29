@@ -160,7 +160,7 @@ findServer <- function(server = NULL,
 #' @param validate Validate that `url` actually points to a Posit Connect
 #'   server?
 #' @param snowflakeConnectionName Name for the Snowflake connection parameters
-#'   stored in `config.toml` or `connections.toml`.
+#'   stored in `connections.toml`.
 #' @param quiet Suppress output and prompts where possible.
 #' @export
 #' @examples
