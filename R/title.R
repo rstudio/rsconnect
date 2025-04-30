@@ -31,7 +31,12 @@
 #' }
 #' @export
 
-generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = TRUE) {
+generateAppName <- function(
+  appTitle,
+  appPath = NULL,
+  account = NULL,
+  unique = TRUE
+) {
   munge <- function(title) {
     # safe default if no title specified
     if (is.null(title)) {
@@ -73,8 +78,12 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = T
 
   # validate that we wound up with a valid name
   if (nchar(name) < 3) {
-    stop("The generated app name '", name, "' is invalid. Include at least 3 ",
-         "alphanumeric characters in the title.")
+    stop(
+      "The generated app name '",
+      name,
+      "' is invalid. Include at least 3 ",
+      "alphanumeric characters in the title."
+    )
   }
 
   # if we have an account and a directory, make the new app name unique to the
@@ -89,8 +98,8 @@ generateAppName <- function(appTitle, appPath = NULL, account = NULL, unique = T
 
       # keep incrementing the suffix until we find a unique name
       while (candidate %in% apps$name) {
-         suffix <- suffix + 1
-         candidate <- paste0(base, suffix)
+        suffix <- suffix + 1
+        candidate <- paste0(base, suffix)
       }
       name <- candidate
     }

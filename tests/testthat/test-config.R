@@ -12,7 +12,12 @@ test_that("account file returned with server name", {
 
 test_that("account file containing pattern characters found with server name", {
   local_temp_config()
-  registerAccount("complex", "hatter+mad@example.com", 42, apiKey = "hatter-api-key")
+  registerAccount(
+    "complex",
+    "hatter+mad@example.com",
+    42,
+    apiKey = "hatter-api-key"
+  )
 
   # https://github.com/rstudio/rsconnect/issues/620
   expected <- normalizePath(file.path(

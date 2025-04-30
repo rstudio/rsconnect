@@ -1,4 +1,3 @@
-
 # This is the server logic for a Shiny web application.
 # You can find out more about building applications with Shiny here:
 #
@@ -8,9 +7,7 @@
 library(shiny)
 
 shinyServer(function(input, output) {
-
   output$distPlot <- renderPlot({
-
     # read a file on disk
     otherFile <- read.table("~/.rsconnect-tests/local-file.txt")
     anotherFile <- readLines("../../foo.bar")
@@ -18,7 +15,7 @@ shinyServer(function(input, output) {
     validWeblink <- "//www.google.com/"
 
     # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2]
+    x <- faithful[, 2]
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
 
     # don't warn on this line
@@ -33,7 +30,5 @@ shinyServer(function(input, output) {
 
     ## don't warn about absolute paths that could be URL query paths
     file <- paste("/applcations")
-
   })
-
 })

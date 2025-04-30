@@ -107,10 +107,7 @@ cloudServerInfo <- function(name, url) {
   )
 }
 
-findServer <- function(server = NULL,
-                       local = TRUE,
-                       error_call = caller_env()) {
-
+findServer <- function(server = NULL, local = TRUE, error_call = caller_env()) {
   if (!is.null(server)) {
     check_string(server, call = error_call)
 
@@ -175,7 +172,14 @@ findServer <- function(server = NULL,
 #' connectUser(server = "myserver")
 #' }
 #' @export
-addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, snowflakeConnectionName = NULL, quiet = FALSE) {
+addServer <- function(
+  url,
+  name = NULL,
+  certificate = NULL,
+  validate = TRUE,
+  snowflakeConnectionName = NULL,
+  quiet = FALSE
+) {
   check_string(url)
   check_name(name, allow_null = TRUE)
 
@@ -191,7 +195,7 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, sno
   registerServer(name, url, certificate)
 
   if (!quiet) {
-    message("Server '", name,  "' added successfully: ", url)
+    message("Server '", name, "' added successfully: ", url)
   }
 }
 
@@ -199,7 +203,11 @@ addServer <- function(url, name = NULL, certificate = NULL, validate = TRUE, sno
 # Validate a connect server URL by hitting a known configuration endpoint
 # The URL may be specified with or without the protocol and port; this function
 # will try both http and https and follow any redirects given by the server.
-validateConnectUrl <- function(url, certificate = NULL, snowflakeConnectionName = NULL) {
+validateConnectUrl <- function(
+  url,
+  certificate = NULL,
+  snowflakeConnectionName = NULL
+) {
   # Add protocol if missing, assuming https except for local installs
   if (!grepl("://", url, fixed = TRUE)) {
     if (grepl(":3939", url, fixed = TRUE)) {
@@ -216,13 +224,17 @@ validateConnectUrl <- function(url, certificate = NULL, snowflakeConnectionName 
     auth_info <- list(certificate = inferCertificateContents(certificate))
 
     if (!is.null(snowflakeConnectionName)) {
-      auth_info$snowflakeToken <- getSnowflakeAuthToken(url, snowflakeConnectionName)
+      auth_info$snowflakeToken <- getSnowflakeAuthToken(
+        url,
+        snowflakeConnectionName
+      )
     }
     GET(
       parseHttpUrl(url),
       auth_info,
       "/server_settings",
-      timeout = timeout, rawResponse = TRUE
+      timeout = timeout,
+      rawResponse = TRUE
     )
   }
   response <- NULL
@@ -252,13 +264,17 @@ ensureConnectServerUrl <- function(url) {
   url <- gsub("/$", "", url)
 
   # ensure 'url' ends with '/__api__'
-  if (!grepl("/__api__$", url))
-    url <- paste(url, "/__api__", sep = "")
+  if (!grepl("/__api__$", url)) url <- paste(url, "/__api__", sep = "")
 
   url
 }
 
-registerServer <- function(name, url, certificate = NULL, error_call = caller_env()) {
+registerServer <- function(
+  name,
+  url,
+  certificate = NULL,
+  error_call = caller_env()
+) {
   certificate <- inferCertificateContents(certificate)
 
   if (!identical(substr(url, 1, 5), "https") && !is.null(certificate)) {
@@ -295,8 +311,7 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
   info <- serverInfo(name)
   registerServer(name, info$url, certificate)
 
-  if (!quiet)
-    message("Certificate added to server '", name, "'")
+  if (!quiet) message("Certificate added to server '", name, "'")
 
   invisible(NULL)
 }

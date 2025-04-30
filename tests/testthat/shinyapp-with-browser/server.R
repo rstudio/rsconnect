@@ -8,5 +8,7 @@ shinyServer(function(input, output) {
     # stop to examine state
     browser()
   })
-  output$obs <- renderText({paste(input$obs, "\n", input$obs)})
+  output$obs <- renderText({
+    paste(input$obs, "\n", input$obs)
+  })
 })

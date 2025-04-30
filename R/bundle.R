@@ -28,9 +28,11 @@ bundleAppDir <- function(
       # will be discovered and run by shiny::runApp(getwd()).
       #
       # Note: We do not expect to see writeManifest(appPrimaryDoc="notapp.R").
-      if (is.character(appPrimaryDoc) &&
-            tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
-            file == appPrimaryDoc) {
+      if (
+        is.character(appPrimaryDoc) &&
+          tolower(tools::file_ext(appPrimaryDoc)) == "r" &&
+          file == appPrimaryDoc
+      ) {
         to <- file.path(bundleDir, "app.R")
       }
     }
@@ -42,7 +44,6 @@ bundleAppDir <- function(
     if (basename(to) == ".Rprofile") {
       tweakRProfile(to)
     }
-
   }
   bundleDir
 }
@@ -53,21 +54,21 @@ tweakRProfile <- function(path) {
   packratLines <- grep('source("packrat/init.R")', lines, fixed = TRUE)
   if (length(packratLines) > 0) {
     lines[packratLines] <- paste0(
-       "# Packrat initialization disabled in published application\n",
-       '# source("packrat/init.R")'
-      )
+      "# Packrat initialization disabled in published application\n",
+      '# source("packrat/init.R")'
+    )
   }
 
   renvLines <- grep('source("renv/activate.R")', lines, fixed = TRUE)
   if (length(renvLines) > 0) {
     lines[renvLines] <- paste0(
-       "# renv initialization disabled in published application\n",
-       '# source("renv/activate.R")'
-      )
+      "# renv initialization disabled in published application\n",
+      '# source("renv/activate.R")'
+    )
   }
 
   if (length(renvLines) > 0 || length(packratLines) > 0) {
-    msg <-  sprintf(
+    msg <- sprintf(
       "# Modified by rsconnect package %s on %s",
       packageVersion("rsconnect"),
       Sys.time()
@@ -92,7 +93,12 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
     detectLongNames(bundleDir)
   }
 
-  utils::tar(bundlePath, files = NULL, compression = "gzip", tar = tarImplementation)
+  utils::tar(
+    bundlePath,
+    files = NULL,
+    compression = "gzip",
+    tar = tarImplementation
+  )
 }
 
 
@@ -114,18 +120,19 @@ isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
 
-createAppManifest <- function(appDir,
-                              appMetadata,
-                              users = NULL,
-                              pythonConfig = NULL,
-                              retainPackratDirectory = TRUE,
-                              image = NULL,
-                              envManagement = NULL,
-                              envManagementR = NULL,
-                              envManagementPy = NULL,
-                              verbose = FALSE,
-                              quiet = FALSE) {
-
+createAppManifest <- function(
+  appDir,
+  appMetadata,
+  users = NULL,
+  pythonConfig = NULL,
+  retainPackratDirectory = TRUE,
+  image = NULL,
+  envManagement = NULL,
+  envManagementR = NULL,
+  envManagementPy = NULL,
+  verbose = FALSE,
+  quiet = FALSE
+) {
   if (is.null(image)) {
     imageEnv <- Sys.getenv("RSCONNECT_IMAGE", unset = NA)
     if (!is.na(imageEnv) && nchar(imageEnv) > 0) {
@@ -166,8 +173,12 @@ createAppManifest <- function(appDir,
   }
 
   # build the list of files to checksum
-  files <- list.files(appDir, recursive = TRUE, all.files = TRUE,
-                      full.names = FALSE)
+  files <- list.files(
+    appDir,
+    recursive = TRUE,
+    all.files = TRUE,
+    full.names = FALSE
+  )
 
   # provide checksums for all files
   filelist <- list()
@@ -198,15 +209,30 @@ createAppManifest <- function(appDir,
   metadata <- list(appmode = appMetadata$appMode)
 
   # emit appropriate primary document information
-  primaryDoc <- ifelse(is.null(appMetadata$appPrimaryDoc) ||
-                         tolower(tools::file_ext(appMetadata$appPrimaryDoc)) == "r",
-                       NA, appMetadata$appPrimaryDoc)
-  metadata$primary_rmd <- ifelse(appMetadata$appMode %in% c("rmd-shiny", "rmd-static", "quarto-shiny", "quarto-static"), primaryDoc, NA)
-  metadata$primary_html <- ifelse(appMetadata$appMode == "static", primaryDoc, NA)
+  primaryDoc <- ifelse(
+    is.null(appMetadata$appPrimaryDoc) ||
+      tolower(tools::file_ext(appMetadata$appPrimaryDoc)) == "r",
+    NA,
+    appMetadata$appPrimaryDoc
+  )
+  metadata$primary_rmd <- ifelse(
+    appMetadata$appMode %in%
+      c("rmd-shiny", "rmd-static", "quarto-shiny", "quarto-static"),
+    primaryDoc,
+    NA
+  )
+  metadata$primary_html <- ifelse(
+    appMetadata$appMode == "static",
+    primaryDoc,
+    NA
+  )
 
   # emit content category (plots, etc)
-  metadata$content_category <- ifelse(!is.null(appMetadata$contentCategory),
-                                      appMetadata$contentCategory, NA)
+  metadata$content_category <- ifelse(
+    !is.null(appMetadata$contentCategory),
+    appMetadata$contentCategory,
+    NA
+  )
   metadata$has_parameters <- appMetadata$hasParameters
 
   # add metadata

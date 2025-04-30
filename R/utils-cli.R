@@ -8,13 +8,15 @@ simulate_user_input <- function(x, env = caller_env()) {
   )
 }
 
-cli_menu <- function(header,
-                     prompt,
-                     choices,
-                     not_interactive = choices,
-                     quit = integer(),
-                     .envir = caller_env(),
-                     error_call = caller_env()) {
+cli_menu <- function(
+  header,
+  prompt,
+  choices,
+  not_interactive = choices,
+  quit = integer(),
+  .envir = caller_env(),
+  error_call = caller_env()
+) {
   if (!is_interactive()) {
     cli::cli_abort(
       c(header, not_interactive),

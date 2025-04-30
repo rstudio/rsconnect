@@ -21,7 +21,6 @@
 #' @note This function works only with shinyapps.io and posit.cloud.
 #' @export
 tasks <- function(account = NULL, server = NULL) {
-
   # resolve account and create connect client
   accountDetails <- accountInfo(account, server)
   checkCloudServer(accountDetails$server)
@@ -61,7 +60,6 @@ tasks <- function(account = NULL, server = NULL) {
 #' @note This function works only with shinyapps.io and posit.cloud.
 #' @export
 taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
-
   accountDetails <- accountInfo(account, server)
   checkCloudServer(accountDetails$server)
 
@@ -69,7 +67,7 @@ taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
 
   if (identical(output, "stderr")) {
     conn <- stderr()
-  } else{
+  } else {
     conn <- ""
   }
 
@@ -77,12 +75,13 @@ taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
   cat(client$getTaskLogs(taskId), file = conn)
 
   # get child tasks
-  tasks <- client$listTasks(accountDetails$accountId,
-                            filters = filterQuery("parent_id", taskId))
+  tasks <- client$listTasks(
+    accountDetails$accountId,
+    filters = filterQuery("parent_id", taskId)
+  )
 
   # get child task logs
   for (task in tasks) {
     taskLog(task["id"], account = account, server = server, output = output)
   }
-
 }

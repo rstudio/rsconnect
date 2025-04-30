@@ -40,7 +40,9 @@ service_settings_404 <- function() {
       json_app <- webfakes::new_app()
       json_app$use(webfakes::mw_json())
       json_app$get("/__api__/server_settings", function(req, res) {
-        res$set_status(404L)$send_json(list(error = jsonlite::unbox("not found")))
+        res$set_status(404L)$send_json(list(
+          error = jsonlite::unbox("not found")
+        ))
       })
       app <- webfakes::new_app_process(json_app)
     }

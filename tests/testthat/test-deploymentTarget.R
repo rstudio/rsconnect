@@ -39,7 +39,13 @@ test_that("uses appId given a local deployment record; created by a local accoun
   addTestAccount("leslie", "local")
 
   app_dir <- withr::local_tempdir()
-  addTestDeployment(app_dir, appName = "local-record", appId = "the-appid", account = "leslie", server = "local")
+  addTestDeployment(
+    app_dir,
+    appName = "local-record",
+    appId = "the-appid",
+    account = "leslie",
+    server = "local"
+  )
 
   target <- findDeploymentTarget(app_dir, appId = "the-appid")
   accountDetails <- target$accountDetails
@@ -62,7 +68,13 @@ test_that("uses appId given a local deployment record; created by a collaborator
   addTestAccount("leslie", "local")
 
   app_dir <- withr::local_tempdir()
-  addTestDeployment(app_dir, appName = "local-record", appId = "the-appid", account = "ron", server = "local")
+  addTestDeployment(
+    app_dir,
+    appName = "local-record",
+    appId = "the-appid",
+    account = "ron",
+    server = "local"
+  )
 
   target <- findDeploymentTarget(app_dir, appId = "the-appid")
   accountDetails <- target$accountDetails
@@ -82,12 +94,13 @@ test_that("uses appId without local deployment record; created by local account"
   addTestAccount("leslie", "local")
 
   local_mocked_bindings(
-    getApplication = function(...) data.frame(
-      id = "the-appid",
-      name = "remote-record",
-      owner_username = "leslie",
-      stringsAsFactors = FALSE
-    )
+    getApplication = function(...)
+      data.frame(
+        id = "the-appid",
+        name = "remote-record",
+        owner_username = "leslie",
+        stringsAsFactors = FALSE
+      )
   )
 
   app_dir <- withr::local_tempdir()
@@ -112,12 +125,13 @@ test_that("uses appId without local deployment record; created by collaborator",
   app_dir <- withr::local_tempdir()
 
   local_mocked_bindings(
-    getApplication = function(...) data.frame(
-      id = "the-appid",
-      name = "remote-record",
-      owner_username = "ron",
-      stringsAsFactors = FALSE
-    )
+    getApplication = function(...)
+      data.frame(
+        id = "the-appid",
+        name = "remote-record",
+        owner_username = "ron",
+        stringsAsFactors = FALSE
+      )
   )
 
   target <- findDeploymentTarget(app_dir, appId = "the-appid")
@@ -201,7 +215,14 @@ test_that("succeeds if there's a single existing deployment", {
     server = "example.com",
     version = "999"
   )
-  expect_equal(nrow(deployments(app_dir, accountFilter = "ron", serverFilter = "example.com")), 1)
+  expect_equal(
+    nrow(deployments(
+      app_dir,
+      accountFilter = "ron",
+      serverFilter = "example.com"
+    )),
+    1
+  )
   expect_equal(nrow(deployments(app_dir)), 1)
 
   target <- findDeploymentTarget(app_dir)
@@ -306,11 +327,12 @@ test_that("succeeds if there are no deployments and a single account", {
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...) data.frame(
-      name = "remotename",
-      url = "app-url",
-      stringsAsFactors = FALSE
-    )
+    getAppByName = function(...)
+      data.frame(
+        name = "remotename",
+        url = "app-url",
+        stringsAsFactors = FALSE
+      )
   )
 
   app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
@@ -340,7 +362,11 @@ test_that("succeeds if there are no deployments and a single account", {
   expect_equal(deployment$account, "ron")
   expect_equal(deployment$server, "example.com")
 
-  target <- findDeploymentTarget(app_dir, envVars = c("TEST1", "TEST2"), forceUpdate = TRUE)
+  target <- findDeploymentTarget(
+    app_dir,
+    envVars = c("TEST1", "TEST2"),
+    forceUpdate = TRUE
+  )
   accountDetails <- target$accountDetails
   deployment <- target$deployment
   expect_equal(accountDetails$name, "ron")
@@ -367,11 +393,12 @@ test_that("default title is the empty string", {
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...) data.frame(
-      name = "remotename",
-      url = "app-url",
-      stringsAsFactors = FALSE
-    )
+    getAppByName = function(...)
+      data.frame(
+        name = "remotename",
+        url = "app-url",
+        stringsAsFactors = FALSE
+      )
   )
 
   app_dir <- withr::local_tempdir()
@@ -384,12 +411,14 @@ confirm_existing_app_used <- function(server) {
   local_temp_config()
   addTestServer()
   addTestAccount("ron", server = server)
-  local_mocked_bindings(getAppByName = function(...) data.frame(
-      name = "my_app",
-      id = 123,
-      url = "http://example.com/test",
-      stringsAsFactors = FALSE
-    ),
+  local_mocked_bindings(
+    getAppByName = function(...)
+      data.frame(
+        name = "my_app",
+        id = 123,
+        url = "http://example.com/test",
+        stringsAsFactors = FALSE
+      ),
     shouldUpdateApp = function(...) TRUE
   )
 
@@ -411,12 +440,14 @@ confirm_existing_app_not_used <- function(server) {
   local_temp_config()
   addTestServer()
   addTestAccount("ron", server = server)
-  local_mocked_bindings(getAppByName = function(...) data.frame(
-      name = "my_app",
-      id = 123,
-      url = "http://example.com/test",
-      stringsAsFactors = FALSE
-    ),
+  local_mocked_bindings(
+    getAppByName = function(...)
+      data.frame(
+        name = "my_app",
+        id = 123,
+        url = "http://example.com/test",
+        stringsAsFactors = FALSE
+      ),
     shouldUpdateApp = function(...) FALSE
   )
 
@@ -467,31 +498,19 @@ test_that("findUnique always returns unique name", {
 })
 
 test_that("createDeploymentFromApplication promotes fields", {
-  expect_equal(createDeploymentFromApplication(
-    application = list(
-      id = "1",
-      name = "app-name",
-      title = "app-title",
-      owner_username = "alice.username"
+  expect_equal(
+    createDeploymentFromApplication(
+      application = list(
+        id = "1",
+        name = "app-name",
+        title = "app-title",
+        owner_username = "alice.username"
+      ),
+      accountDetails = list(
+        name = "alice",
+        server = "example.com"
+      )
     ),
-    accountDetails = list(
-      name = "alice",
-      server = "example.com"
-    )
-  ), list(
-    name = "app-name",
-    title = "app-title",
-    envVars = NULL,
-    appId = "1",
-    username = "alice.username",
-    account = "alice",
-    server = "example.com",
-    version = deploymentRecordVersion
-  ))
-})
-
-test_that("updateDeployment updates fields", {
-  expect_equal(updateDeployment(
     list(
       name = "app-name",
       title = "app-title",
@@ -501,23 +520,55 @@ test_that("updateDeployment updates fields", {
       account = "alice",
       server = "example.com",
       version = deploymentRecordVersion
+    )
+  )
+})
+
+test_that("updateDeployment updates fields", {
+  expect_equal(
+    updateDeployment(
+      list(
+        name = "app-name",
+        title = "app-title",
+        envVars = NULL,
+        appId = "1",
+        username = "alice.username",
+        account = "alice",
+        server = "example.com",
+        version = deploymentRecordVersion
+      ),
+      appTitle = "updated-title",
+      envVars = c("VAR-NAME")
     ),
-    appTitle = "updated-title",
-    envVars = c("VAR-NAME")
-  ), list(
-    name = "app-name",
-    title = "updated-title",
-    envVars = c("VAR-NAME"),
-    appId = "1",
-    username = "alice.username",
-    account = "alice",
-    server = "example.com",
-    version = deploymentRecordVersion
-  ))
+    list(
+      name = "app-name",
+      title = "updated-title",
+      envVars = c("VAR-NAME"),
+      appId = "1",
+      username = "alice.username",
+      account = "alice",
+      server = "example.com",
+      version = deploymentRecordVersion
+    )
+  )
 })
 
 test_that("updateDeployment ignores NULL updates", {
-  expect_equal(updateDeployment(
+  expect_equal(
+    updateDeployment(
+      list(
+        name = "app-name",
+        title = "app-title",
+        envVars = c("VAR-NAME"),
+        appId = "1",
+        username = "alice.username",
+        account = "alice",
+        server = "example.com",
+        version = deploymentRecordVersion
+      ),
+      appTitle = NULL,
+      envVars = NULL
+    ),
     list(
       name = "app-name",
       title = "app-title",
@@ -527,17 +578,6 @@ test_that("updateDeployment ignores NULL updates", {
       account = "alice",
       server = "example.com",
       version = deploymentRecordVersion
-    ),
-    appTitle = NULL,
-    envVars = NULL
-  ), list(
-    name = "app-name",
-    title = "app-title",
-    envVars = c("VAR-NAME"),
-    appId = "1",
-    username = "alice.username",
-    account = "alice",
-    server = "example.com",
-    version = deploymentRecordVersion
-  ))
+    )
+  )
 })

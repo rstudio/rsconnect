@@ -1,8 +1,17 @@
 # Return a list containing the name and server associated with a matching account.
 #
 # Use `accountInfo()` and `findAccountInfo()` to load credentials associated with this account.
-findAccount <- function(accountName = NULL, server = NULL, error_call = caller_env()) {
-  check_string(accountName, allow_null = TRUE, arg = "account", call = error_call)
+findAccount <- function(
+  accountName = NULL,
+  server = NULL,
+  error_call = caller_env()
+) {
+  check_string(
+    accountName,
+    allow_null = TRUE,
+    arg = "account",
+    call = error_call
+  )
   check_string(server, allow_null = TRUE, call = error_call)
 
   accounts <- accounts()
@@ -17,7 +26,11 @@ findAccount <- function(accountName = NULL, server = NULL, error_call = caller_e
   }
 
   if (!is.null(accountName) && !is.null(server)) {
-    theseAccounts <- accounts[accounts$server == server & accounts$name == accountName, , drop = FALSE]
+    theseAccounts <- accounts[
+      accounts$server == server & accounts$name == accountName,
+      ,
+      drop = FALSE
+    ]
     if (nrow(theseAccounts) == 0) {
       cli::cli_abort(
         c(
@@ -91,7 +104,6 @@ findAccount <- function(accountName = NULL, server = NULL, error_call = caller_e
         )
       }
     }
-
   }
   as.list(theseAccounts)
 }

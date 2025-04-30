@@ -91,7 +91,10 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
   expect_true("reticulate" %in% names(manifest$packages))
-  expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
+  expect_true(file.exists(file.path(
+    bundleTempDir,
+    manifest$python$package_manager$package_file
+  )))
 })
 
 test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
@@ -110,7 +113,10 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "implicit.Rmd")
   expect_true("reticulate" %in% names(manifest$packages))
-  expect_true(file.exists(file.path(bundleTempDir, manifest$python$package_manager$package_file)))
+  expect_true(file.exists(file.path(
+    bundleTempDir,
+    manifest$python$package_manager$package_file
+  )))
 })
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest", {
@@ -192,13 +198,15 @@ test_that(".Rprofile without renv/packrt left as is", {
 })
 
 test_that("removes renv/packrat activation", {
-  path <- withr::local_tempfile(lines = c(
-    "# Line 1",
-    'source("renv/activate.R")',
-    "# Line 3",
-    'source("packrat/init.R")',
-    "# Line 5"
-  ))
+  path <- withr::local_tempfile(
+    lines = c(
+      "# Line 1",
+      'source("renv/activate.R")',
+      "# Line 3",
+      'source("packrat/init.R")',
+      "# Line 5"
+    )
+  )
 
   expect_snapshot(
     {

@@ -36,10 +36,12 @@ deployDoc <- function(doc, ..., logLevel = c("normal", "quiet", "verbose")) {
   )
 }
 
-standardizeSingleDocDeployment <- function(path,
-                                           quiet = FALSE,
-                                           error_call = caller_env(),
-                                           error_arg = caller_arg(path)) {
+standardizeSingleDocDeployment <- function(
+  path,
+  quiet = FALSE,
+  error_call = caller_env(),
+  error_arg = caller_arg(path)
+) {
   check_installed(
     "rmarkdown",
     version = "0.5.2",

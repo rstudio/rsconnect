@@ -6,7 +6,8 @@ verboseLogger <- function(verbose) {
       cat(paste0(timestamp, " ", ..., "\n"))
     }
   } else {
-    function(...) {}
+    function(...) {
+    }
   }
 }
 
@@ -31,8 +32,10 @@ displayStatus <- function(quiet) {
 }
 
 httpDiagnosticsEnabled <- function() {
-  return(getOption("rsconnect.http.trace", FALSE) ||
-    getOption("rsconnect.http.verbose", FALSE))
+  return(
+    getOption("rsconnect.http.trace", FALSE) ||
+      getOption("rsconnect.http.verbose", FALSE)
+  )
 }
 
 # Replacement for tools::file_path_sans_ext to work around an issue where
@@ -62,9 +65,11 @@ fileMD5 <- function(path, raw = FALSE) {
   }
 }
 
-check_file <- function(x,
-                       error_arg = caller_arg(x),
-                       error_call = caller_env()) {
+check_file <- function(
+  x,
+  error_arg = caller_arg(x),
+  error_call = caller_env()
+) {
   check_string(
     x,
     allow_empty = FALSE,
@@ -79,9 +84,11 @@ check_file <- function(x,
   }
 }
 
-check_directory <- function(x,
-                            error_arg = caller_arg(x),
-                            error_call = caller_env()) {
+check_directory <- function(
+  x,
+  error_arg = caller_arg(x),
+  error_call = caller_env()
+) {
   check_file(x, error_arg = error_arg, error_call = error_call)
   if (!dirExists(x)) {
     cli::cli_abort(
@@ -103,7 +110,6 @@ rbind_fill <- function(dfs, col_names = character()) {
     names(df) <- col_names
     return(as.data.frame(df))
   }
-
 
   all_names <- unique(unlist(lapply(dfs, names)))
   all_names <- union(col_names, all_names)
@@ -146,7 +152,8 @@ dirCreate <- function(paths) {
 }
 
 fromIDE <- function() {
-  !is.na(Sys.getenv("RSTUDIO", unset = NA)) && !identical(.Platform$GUI, "RStudio")
+  !is.na(Sys.getenv("RSTUDIO", unset = NA)) &&
+    !identical(.Platform$GUI, "RStudio")
 }
 
 toJSON <- function(x, ...) {
@@ -163,10 +170,8 @@ toJSON <- function(x, ...) {
 }
 
 truthy <- function(value, default = FALSE) {
-  if (!is.atomic(value) || length(value) != 1 || is.na(value))
-    default
-  else if (is.character(value))
-    value %in% c("TRUE", "True", "true", "T", "1")
-  else
-    as.logical(value)
+  if (!is.atomic(value) || length(value) != 1 || is.na(value)) default else if (
+    is.character(value)
+  )
+    value %in% c("TRUE", "True", "true", "T", "1") else as.logical(value)
 }

@@ -8,7 +8,10 @@ clientForAccount <- function(account) {
   } else if (isPositCloudServer(account$server)) {
     cloudClient(serverUrl, account)
   } else if (isSPCSServer(account$server)) {
-    account$snowflakeToken <- getSnowflakeAuthToken(serverInfo$url, account$snowflakeConnectionName)
+    account$snowflakeToken <- getSnowflakeAuthToken(
+      serverInfo$url,
+      account$snowflakeConnectionName
+    )
     connectClient(serverUrl, account)
   } else {
     connectClient(serverUrl, account)
@@ -17,9 +20,15 @@ clientForAccount <- function(account) {
 
 # Appropriate when the list API includes "count" and "total" fields in the response JSON and the API
 # supports pagination with the query arguments count=PAGE_SIZE&offset=STARTING_POINT.
-listRequest <- function(service, authInfo, path, query, listName, page = 100,
-                       max = NULL) {
-
+listRequest <- function(
+  service,
+  authInfo,
+  path,
+  query,
+  listName,
+  page = 100,
+  max = NULL
+) {
   # accumulate multiple pages of results
   offset <- 0
   results <- list()
@@ -41,8 +50,7 @@ listRequest <- function(service, authInfo, path, query, listName, page = 100,
     }
 
     # exit if we've got them all
-    if (length(results) >= response$total || length(results) >= max)
-      break
+    if (length(results) >= response$total || length(results) >= max) break
   }
 
   return(results)
@@ -50,9 +58,15 @@ listRequest <- function(service, authInfo, path, query, listName, page = 100,
 
 # /__api__/applications response with { applications: [], count: M, total: N, continuation: "CONTINUATION" }
 # To paginate, use the query arguments cont=CONTINUATION&start=START&count=MAX
-listApplicationsRequest <- function(service, authInfo, path, query, listName, page = 100,
-                       max = NULL) {
-
+listApplicationsRequest <- function(
+  service,
+  authInfo,
+  path,
+  query,
+  listName,
+  page = 100,
+  max = NULL
+) {
   # accumulate multiple pages of results
   start <- 0
   cont <- ""
@@ -60,11 +74,16 @@ listApplicationsRequest <- function(service, authInfo, path, query, listName, pa
 
   repeat {
     # add query params
-    queryWithList <- paste(query,
-                           "&count=", page,
-                           "&start=", start,
-                           "&cont=", cont,
-                           sep = "")
+    queryWithList <- paste(
+      query,
+      "&count=",
+      page,
+      "&start=",
+      start,
+      "&cont=",
+      cont,
+      sep = ""
+    )
 
     # make request and append the results
     response <- GET(service, authInfo, path, queryWithList)
@@ -80,8 +99,7 @@ listApplicationsRequest <- function(service, authInfo, path, query, listName, pa
     }
 
     # exit if we've got them all
-    if (length(results) >= response$total || length(results) >= max)
-      break
+    if (length(results) >= response$total || length(results) >= max) break
   }
 
   return(results)
@@ -101,10 +119,12 @@ isContentType <- function(x, contentType) {
   grepl(contentType, x, fixed = TRUE)
 }
 
-uploadCloudBundle <- function(client,
-                              application_id,
-                              bundlePath,
-                              verbose = FALSE) {
+uploadCloudBundle <- function(
+  client,
+  application_id,
+  bundlePath,
+  verbose = FALSE
+) {
   # Step 1. Create presigned URL and register pending bundle.
   bundleSize <- file.info(bundlePath)$size
   bundle <- client$createBundle(
@@ -130,15 +150,14 @@ uploadCloudBundle <- function(client,
 }
 
 uploadBundle <- function(bundle, bundleSize, bundlePath) {
-
   presigned_service <- parseHttpUrl(bundle$presigned_url)
 
   headers <- list()
-  headers$`Content-Type` <-  "application/x-tar"
-  headers$`Content-Length` <-  bundleSize
+  headers$`Content-Type` <- "application/x-tar"
+  headers$`Content-Length` <- bundleSize
 
   # AWS requires a base64 encoded hash
-  headers$`Content-MD5` <-  bundle$presigned_checksum
+  headers$`Content-MD5` <- bundle$presigned_checksum
 
   # AWS seems very sensitive to additional headers (likely becauseit was not included and signed
   # for when the presigned link was created). So the lower level library is used here.

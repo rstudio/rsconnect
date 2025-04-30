@@ -15,11 +15,17 @@ test_that("returns stubbed details when single account has no deployments", {
 
   # derived from directory name.
   dep <- findDeployment(app)
-  expect_equal(dep, list(name = basename(app), account = "ron", server = "example.com"))
+  expect_equal(
+    dep,
+    list(name = basename(app), account = "ron", server = "example.com")
+  )
 
   # name given.
   dep <- findDeployment(app, appName = "placeholder")
-  expect_equal(dep, list(name = "placeholder", account = "ron", server = "example.com"))
+  expect_equal(
+    dep,
+    list(name = "placeholder", account = "ron", server = "example.com")
+  )
 })
 
 test_that("finds single deployment", {

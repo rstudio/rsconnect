@@ -21,8 +21,7 @@
 #' @seealso [applications()], [deployApp()], and
 #'   [restartApp()]
 #' @export
-purgeApp <- function(appName, account = NULL, server = NULL,
-                     quiet = FALSE) {
+purgeApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 

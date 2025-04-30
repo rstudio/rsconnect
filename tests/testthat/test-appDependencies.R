@@ -50,13 +50,16 @@ test_that("appDependencies includes implicit deps when appMode forced", {
   expect_true("rmarkdown" %in% deps$Package)
 
   deps <- appDependencies(dir, appMode = "static")
-  expect_equal(deps, data.frame(
-    Package = character(),
-    Version = character(),
-    Source = character(),
-    Repository = character(),
-    stringsAsFactors = FALSE
-  ))
+  expect_equal(
+    deps,
+    data.frame(
+      Package = character(),
+      Version = character(),
+      Source = character(),
+      Repository = character(),
+      stringsAsFactors = FALSE
+    )
+  )
 })
 
 test_that("static project doesn't have deps", {
@@ -65,21 +68,26 @@ test_that("static project doesn't have deps", {
   path <- local_temp_app(list("index.html" = ""))
   deps <- appDependencies(path)
 
-  expect_equal(deps, data.frame(
-    Package = character(),
-    Version = character(),
-    Source = character(),
-    Repository = character(),
-    stringsAsFactors = FALSE
-  ))
+  expect_equal(
+    deps,
+    data.frame(
+      Package = character(),
+      Version = character(),
+      Source = character(),
+      Repository = character(),
+      stringsAsFactors = FALSE
+    )
+  )
 })
 
 test_that("infers correct packages for each source", {
   skip_on_cran()
 
-  simulateMetadata <- function(appMode,
-                               hasParameters = FALSE,
-                               documentsHavePython = FALSE) {
+  simulateMetadata <- function(
+    appMode,
+    hasParameters = FALSE,
+    documentsHavePython = FALSE
+  ) {
     list(
       appMode = appMode,
       hasParameters = hasParameters,
@@ -90,12 +98,18 @@ test_that("infers correct packages for each source", {
   # Simple regression test in preparation for refactoring
   expect_snapshot({
     inferRPackageDependencies(simulateMetadata("rmd-static"))
-    inferRPackageDependencies(simulateMetadata("rmd-static", hasParameters = TRUE))
+    inferRPackageDependencies(simulateMetadata(
+      "rmd-static",
+      hasParameters = TRUE
+    ))
     inferRPackageDependencies(simulateMetadata("quarto-static"))
     inferRPackageDependencies(simulateMetadata("quarto-shiny"))
     inferRPackageDependencies(simulateMetadata("rmd-shiny"))
     inferRPackageDependencies(simulateMetadata("shiny"))
     inferRPackageDependencies(simulateMetadata("api"))
-    inferRPackageDependencies(simulateMetadata("api", documentsHavePython = TRUE))
+    inferRPackageDependencies(simulateMetadata(
+      "api",
+      documentsHavePython = TRUE
+    ))
   })
 })

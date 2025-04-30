@@ -1,7 +1,9 @@
-snapshotRenvDependencies <- function(bundleDir,
-                                     extraPackages = character(),
-                                     quiet = FALSE,
-                                     verbose = FALSE) {
+snapshotRenvDependencies <- function(
+  bundleDir,
+  extraPackages = character(),
+  quiet = FALSE,
+  verbose = FALSE
+) {
   recordExtraDependencies(bundleDir, extraPackages)
 
   old <- options(
@@ -25,7 +27,8 @@ snapshotRenvDependencies <- function(bundleDir,
     bundleDir,
     root = bundleDir,
     quiet = if (quiet) TRUE else NULL,
-    progress = FALSE)
+    progress = FALSE
+  )
   renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
   defer(removeRenv(bundleDir))
 
@@ -82,15 +85,21 @@ standardizeRenvPackages <- function(packages, repos, biocPackages = NULL) {
   rbind_fill(out)
 }
 
-standardizeRenvPackage <- function(pkg,
-                                   availablePackages,
-                                   biocPackages = NULL,
-                                   repos = character(),
-                                   bioc) {
+standardizeRenvPackage <- function(
+  pkg,
+  availablePackages,
+  biocPackages = NULL,
+  repos = character(),
+  bioc
+) {
   # Convert renv source to manifest source/repository
   # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
 
-  if (is.null(pkg$Repository) && !is.null(pkg$RemoteRepos) && grepl("bioconductor.org", pkg$RemoteRepos)) {
+  if (
+    is.null(pkg$Repository) &&
+      !is.null(pkg$RemoteRepos) &&
+      grepl("bioconductor.org", pkg$RemoteRepos)
+  ) {
     # Work around bug where renv fails to detect BioC package installed by pak
     # https://github.com/rstudio/renv/issues/1202
     pkg$Source <- "Bioconductor"

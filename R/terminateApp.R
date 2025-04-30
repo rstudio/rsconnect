@@ -21,8 +21,12 @@
 #' @seealso [applications()], [deployApp()], and
 #'   [restartApp()]
 #' @export
-terminateApp <- function(appName, account = NULL, server = NULL,
-                         quiet = FALSE) {
+terminateApp <- function(
+  appName,
+  account = NULL,
+  server = NULL,
+  quiet = FALSE
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 

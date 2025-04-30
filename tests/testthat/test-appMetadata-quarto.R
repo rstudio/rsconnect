@@ -1,4 +1,3 @@
-
 # quarto ------------------------------------------------------------------
 
 fakeQuartoMetadata <- function(version, engines) {
@@ -31,17 +30,23 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
 })
 
 test_that("inferQuartoInfo prefers metadata over quarto inspect", {
-  metadata <- fakeQuartoMetadata(version = "99.9.9", engines = c("internal-combustion"))
+  metadata <- fakeQuartoMetadata(
+    version = "99.9.9",
+    engines = c("internal-combustion")
+  )
 
   quartoInfo <- inferQuartoInfo(
     appDir = test_path("quarto-website-r"),
     appPrimaryDoc = NULL,
     metadata = metadata
   )
-  expect_equal(quartoInfo, list(
-    version = "99.9.9",
-    engines = I("internal-combustion")
-  ))
+  expect_equal(
+    quartoInfo,
+    list(
+      version = "99.9.9",
+      engines = I("internal-combustion")
+    )
+  )
 })
 
 test_that("quartoInspect requires quarto", {
@@ -80,12 +85,15 @@ test_that("quartoInspect processes content within paths containing spaces", {
   parent <- withr::local_tempdir()
   dir <- file.path(parent, "space dir")
   dir.create(dir)
-  writeLines(c(
-    "---",
-    "title: space path",
-    "---",
-    "this is a document within a path having spaces."
-  ), file.path(dir, "index.qmd"))
+  writeLines(
+    c(
+      "---",
+      "title: space path",
+      "---",
+      "this is a document within a path having spaces."
+    ),
+    file.path(dir, "index.qmd")
+  )
   inspect <- quartoInspect(dir, "index.qmd")
   expect_equal(inspect$engines, c("markdown"))
 })
@@ -94,12 +102,14 @@ test_that("quartoInspect processes content with filenames containing spaces", {
   skip_on_cran()
   skip_if_no_quarto()
 
-  dir <- local_temp_app(list("space file.qmd" = c(
-    "---",
-    "title: space name",
-    "---",
-    "this is a document with a filename having spaces."
-  )))
+  dir <- local_temp_app(list(
+    "space file.qmd" = c(
+      "---",
+      "title: space name",
+      "---",
+      "this is a document with a filename having spaces."
+    )
+  ))
   inspect <- quartoInspect(dir, "space file.qmd")
   expect_equal(inspect$engines, c("markdown"))
 })
@@ -123,12 +133,14 @@ test_that("quartoInspect produces an error when a document cannot be inspected",
   # Suppress colors from Quarto errors.
   withr::local_envvar(NO_COLOR = "1")
 
-  dir <- local_temp_app(list("bad.qmd" = c(
-    "---",
-    "format: unsupported",
-    "---",
-    "this is a document using an unsupported format."
-  )))
+  dir <- local_temp_app(list(
+    "bad.qmd" = c(
+      "---",
+      "format: unsupported",
+      "---",
+      "this is a document using an unsupported format."
+    )
+  ))
   expect_snapshot(
     quartoInspect(dir, "bad.qmd"),
     error = TRUE,

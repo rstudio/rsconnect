@@ -41,7 +41,6 @@ test_that("findRecordPath() uses recordDir, then appPrimaryDoc, then appDir", {
 # app visibility ----------------------------------------------------------
 
 test_that("needsVisibilityChange() returns FALSE when no change needed", {
-
   dummyApp <- function(visibility) {
     list(
       deployment = list(
@@ -54,13 +53,22 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
 
   expect_false(needsVisibilityChange("connect.com"))
   expect_false(needsVisibilityChange("shinyapps.io", dummyApp("public"), NULL))
-  expect_false(needsVisibilityChange("shinyapps.io", dummyApp("public"), "public"))
+  expect_false(needsVisibilityChange(
+    "shinyapps.io",
+    dummyApp("public"),
+    "public"
+  ))
   expect_true(needsVisibilityChange("shinyapps.io", dummyApp(NULL), "private"))
-  expect_true(needsVisibilityChange("shinyapps.io", dummyApp("public"), "private"))
+  expect_true(needsVisibilityChange(
+    "shinyapps.io",
+    dummyApp("public"),
+    "private"
+  ))
 })
 
 test_that("needsVisibilityChange() errors for cloud", {
-  expect_snapshot(error = TRUE,
+  expect_snapshot(
+    error = TRUE,
     needsVisibilityChange("posit.cloud", appVisibility = "public")
   )
 })

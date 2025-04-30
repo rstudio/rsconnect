@@ -16,11 +16,13 @@ test_that("turns appDir into appDir + appPrimarySourceDoc", {
 
 test_that("shiny rmd deploys whole directory", {
   skip_on_cran()
-  dir <- local_temp_app(list("foo.Rmd" = c(
-    "---",
-    "runtime: shiny",
-    "---"
-  )))
+  dir <- local_temp_app(list(
+    "foo.Rmd" = c(
+      "---",
+      "runtime: shiny",
+      "---"
+    )
+  ))
   doc <- standardizeSingleDocDeployment(file.path(dir, "foo.Rmd"))
   expect_equal(doc$appFiles, NULL)
 })
@@ -80,7 +82,10 @@ test_that("regular html does not deploy .Rprofile", {
     ".Rprofile" = ""
   ))
 
-  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.html"), quiet = TRUE)
+  doc <- standardizeSingleDocDeployment(
+    file.path(dir, "foo.html"),
+    quiet = TRUE
+  )
   expect_equal(doc$appFiles, c("foo.html"))
 })
 
@@ -91,7 +96,10 @@ test_that("regular html does not deploy requirements.txt", {
     "requirements.txt" = ""
   ))
 
-  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.html"), quiet = TRUE)
+  doc <- standardizeSingleDocDeployment(
+    file.path(dir, "foo.html"),
+    quiet = TRUE
+  )
   expect_equal(doc$appFiles, c("foo.html"))
 })
 
@@ -102,7 +110,10 @@ test_that("regular html does not deploy renv.lock", {
     "renv.lock" = ""
   ))
 
-  doc <- standardizeSingleDocDeployment(file.path(dir, "foo.html"), quiet = TRUE)
+  doc <- standardizeSingleDocDeployment(
+    file.path(dir, "foo.html"),
+    quiet = TRUE
+  )
   expect_equal(doc$appFiles, c("foo.html"))
 })
 

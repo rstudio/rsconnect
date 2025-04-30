@@ -1,4 +1,3 @@
-
 #' @param authInfo Typically an object created by `accountInfo()` augmented
 #'   with the `certificate` from the corresponding `serverInfo()`.
 #'
@@ -8,16 +7,17 @@
 #'   * `apiKey`: set in `connectApiUser()`
 #'
 #' @noRd
-httpRequest <- function(service,
-                        authInfo,
-                        method,
-                        path,
-                        query,
-                        headers = list(),
-                        timeout = NULL,
-                        rawResponse = FALSE,
-                        error_call = caller_env()) {
-
+httpRequest <- function(
+  service,
+  authInfo,
+  method,
+  path,
+  query,
+  headers = list(),
+  timeout = NULL,
+  rawResponse = FALSE,
+  error_call = caller_env()
+) {
   storeCookies(service, httpCookies())
   path <- buildPath(service$path, path, query)
   headers <- c(headers, authHeaders(authInfo, method, path), httpHeaders())
@@ -50,20 +50,26 @@ httpRequest <- function(service,
     )
   }
 
-  handleResponse(httpResponse, rawResponse = rawResponse, error_call = error_call)
+  handleResponse(
+    httpResponse,
+    rawResponse = rawResponse,
+    error_call = error_call
+  )
 }
 
-httpRequestWithBody <- function(service,
-                                authInfo,
-                                method,
-                                path,
-                                query = NULL,
-                                contentType = NULL,
-                                file = NULL,
-                                content = NULL,
-                                headers = list(),
-                                rawResponse = FALSE,
-                                error_call = caller_env()) {
+httpRequestWithBody <- function(
+  service,
+  authInfo,
+  method,
+  path,
+  query = NULL,
+  contentType = NULL,
+  file = NULL,
+  content = NULL,
+  headers = list(),
+  rawResponse = FALSE,
+  error_call = caller_env()
+) {
   if ((is.null(file) && is.null(content))) {
     stop("You must specify either the file or content parameter.")
   }
@@ -114,7 +120,11 @@ httpRequestWithBody <- function(service,
     httpResponse
   }
 
-  handleResponse(httpResponse, rawResponse = rawResponse, error_call = error_call)
+  handleResponse(
+    httpResponse,
+    rawResponse = rawResponse,
+    error_call = error_call
+  )
 }
 
 isRedirect <- function(status) {
@@ -130,10 +140,13 @@ redirectService <- function(service, location) {
   }
 }
 
-handleResponse <- function(response, rawResponse = FALSE, error_call = caller_env()) {
+handleResponse <- function(
+  response,
+  rawResponse = FALSE,
+  error_call = caller_env()
+) {
   url <- buildHttpUrl(response$req)
   reportError <- function(msg) {
-
     cli::cli_abort(
       c("<{url}> failed with HTTP status {response$status}", msg),
       class = c(paste0("rsconnect_http_", response$status), "rsconnect_http"),
@@ -196,62 +209,95 @@ handleResponse <- function(response, rawResponse = FALSE, error_call = caller_en
 
 # Wrappers for HTTP methods -----------------------------------------------
 
-GET <- function(service,
-                authInfo,
-                path,
-                query = NULL,
-                headers = list(),
-                timeout = NULL,
-                rawResponse = FALSE) {
-  httpRequest(service, authInfo, "GET", path, query, headers, timeout, rawResponse)
+GET <- function(
+  service,
+  authInfo,
+  path,
+  query = NULL,
+  headers = list(),
+  timeout = NULL,
+  rawResponse = FALSE
+) {
+  httpRequest(
+    service,
+    authInfo,
+    "GET",
+    path,
+    query,
+    headers,
+    timeout,
+    rawResponse
+  )
 }
 
-DELETE <- function(service,
-                   authInfo,
-                   path,
-                   query = NULL,
-                   headers = list(),
-                   rawResponse = FALSE) {
-  httpRequest(service, authInfo, "DELETE", path, query, headers, rawResponse = rawResponse)
+DELETE <- function(
+  service,
+  authInfo,
+  path,
+  query = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
+  httpRequest(
+    service,
+    authInfo,
+    "DELETE",
+    path,
+    query,
+    headers,
+    rawResponse = rawResponse
+  )
 }
 
-POST <- function(service,
-                 authInfo,
-                 path,
-                 query = NULL,
-                 contentType = NULL,
-                 file = NULL,
-                 content = NULL,
-                 headers = list(),
-                 rawResponse = FALSE) {
+POST <- function(
+  service,
+  authInfo,
+  path,
+  query = NULL,
+  contentType = NULL,
+  file = NULL,
+  content = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
   # check if the request needs a body
   if ((is.null(file) && is.null(content))) {
     # no file or content, don't include a body with the request
-    httpRequest(service, authInfo, "POST", path, query, headers, rawResponse = rawResponse)
+    httpRequest(
+      service,
+      authInfo,
+      "POST",
+      path,
+      query,
+      headers,
+      rawResponse = rawResponse
+    )
   } else {
     # include the request's data in the body
     httpRequestWithBody(
-    service = service,
-    authInfo = authInfo,
-    method = "POST",
-    path = path,
-    query = query,
-    contentType = contentType,
-    file = file,
-    content = content,
-    headers = headers,
-    rawResponse = rawResponse
+      service = service,
+      authInfo = authInfo,
+      method = "POST",
+      path = path,
+      query = query,
+      contentType = contentType,
+      file = file,
+      content = content,
+      headers = headers,
+      rawResponse = rawResponse
     )
   }
 }
 
-POST_JSON <- function(service,
-                      authInfo,
-                      path,
-                      json,
-                      query = NULL,
-                      headers = list(),
-                      rawResponse = FALSE) {
+POST_JSON <- function(
+  service,
+  authInfo,
+  path,
+  json,
+  query = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
   POST(
     service = service,
     authInfo = authInfo,
@@ -264,15 +310,17 @@ POST_JSON <- function(service,
   )
 }
 
-PUT <- function(service,
-                authInfo,
-                path,
-                query = NULL,
-                contentType = NULL,
-                file = NULL,
-                content = NULL,
-                headers = list(),
-                rawResponse = FALSE) {
+PUT <- function(
+  service,
+  authInfo,
+  path,
+  query = NULL,
+  contentType = NULL,
+  file = NULL,
+  content = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
   httpRequestWithBody(
     service = service,
     authInfo = authInfo,
@@ -287,13 +335,15 @@ PUT <- function(service,
   )
 }
 
-PUT_JSON <- function(service,
-                     authInfo,
-                     path,
-                     json,
-                     query = NULL,
-                     headers = list(),
-                     rawResponse = FALSE) {
+PUT_JSON <- function(
+  service,
+  authInfo,
+  path,
+  json,
+  query = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
   PUT(
     service = service,
     authInfo = authInfo,
@@ -306,15 +356,17 @@ PUT_JSON <- function(service,
   )
 }
 
-PATCH <- function(service,
-                  authInfo,
-                  path,
-                  query = NULL,
-                  contentType = NULL,
-                  file = NULL,
-                  content = NULL,
-                  headers = list(),
-                  rawResponse = FALSE) {
+PATCH <- function(
+  service,
+  authInfo,
+  path,
+  query = NULL,
+  contentType = NULL,
+  file = NULL,
+  content = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
   httpRequestWithBody(
     service = service,
     authInfo = authInfo,
@@ -329,13 +381,15 @@ PATCH <- function(service,
   )
 }
 
-PATCH_JSON <- function(service,
-                       authInfo,
-                       path,
-                       json,
-                       query = NULL,
-                       headers = list(),
-                       rawResponse = FALSE) {
+PATCH_JSON <- function(
+  service,
+  authInfo,
+  path,
+  json,
+  query = NULL,
+  headers = list(),
+  rawResponse = FALSE
+) {
   PATCH(
     service = service,
     authInfo = authInfo,
@@ -360,7 +414,13 @@ httpTraceJson <- function() {
 
 httpTrace <- function(method, path, time) {
   if (getOption("rsconnect.http.trace", FALSE)) {
-    cat(method, " ", path, " ", as.integer(time[["elapsed"]] * 1000), "ms\n",
+    cat(
+      method,
+      " ",
+      path,
+      " ",
+      as.integer(time[["elapsed"]] * 1000),
+      "ms\n",
       sep = ""
     )
   }
@@ -400,7 +460,8 @@ httpFunction <- function() {
     httpType
   } else {
     stop(paste(
-      "Invalid http option specified:", httpType,
+      "Invalid http option specified:",
+      httpType,
       ". Valid values are libcurl, rcurl, curl, and internal"
     ))
   }
@@ -485,7 +546,7 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
   } else if (!is.null(authInfo$snowflakeToken)) {
     # snowflakeauth returns a list of named header values
     authInfo$snowflakeToken
-  } else{
+  } else {
     # The value doesn't actually matter here, but the header needs to be set.
     list(`X-Auth-Token` = "anonymous-access")
   }
@@ -548,7 +609,12 @@ signRequestPrivateKey <- function(private_key, canonicalRequest) {
 
   # use sha1 digest and then sign. digest and PKI avoid using system openssl which
   # can be problematic in strict FIPS environments
-  digested <- digest::digest(charToRaw(canonicalRequest), "sha1", serialize = FALSE, raw = TRUE)
+  digested <- digest::digest(
+    charToRaw(canonicalRequest),
+    "sha1",
+    serialize = FALSE,
+    raw = TRUE
+  )
   rawsig <- PKI::PKI.sign(key = pki_key, digest = digested)
   openssl::base64_encode(rawsig)
 }
@@ -633,7 +699,8 @@ readHttpResponse <- function(request, conn) {
   } else {
     # we know the content length, so read exactly that many bytes
     content <- rawToChar(readBin(
-      con = conn, what = "raw",
+      con = conn,
+      what = "raw",
       n = contentLength
     ))
   }

@@ -38,17 +38,18 @@ mockServerFactory <- function(initialResponses) {
     mockServer$responses <- append(mockServer$responses, response)
   }
 
-  mockServer$impl <- function(protocol,
-                          host,
-                          port,
-                          method,
-                          path,
-                          headers,
-                          contentType = NULL,
-                          contentFile = NULL,
-                          certificate = NULL,
-                          timeout = NULL) {
-
+  mockServer$impl <- function(
+    protocol,
+    host,
+    port,
+    method,
+    path,
+    headers,
+    contentType = NULL,
+    contentFile = NULL,
+    certificate = NULL,
+    timeout = NULL
+  ) {
     methodAndPath <- paste(method, path)
 
     request <- list(
@@ -76,19 +77,25 @@ mockServerFactory <- function(initialResponses) {
 
         for (respProperty in names(responseSupplement)) {
           if (is.function(responseSupplement[[respProperty]])) {
-            responseSupplement[[respProperty]] <- responseSupplement[[respProperty]](
+            responseSupplement[[respProperty]] <- responseSupplement[[
+              respProperty
+            ]](
               methodAndPath,
               match,
               headers = headers,
               contentType = contentType,
-              contentFile = contentFile)
+              contentFile = contentFile
+            )
           }
 
           response[[respProperty]] <- responseSupplement[[respProperty]]
         }
 
         if (is.list(response$content)) {
-          response$content <- jsonlite::toJSON(response$content, auto_unbox = TRUE)
+          response$content <- jsonlite::toJSON(
+            response$content,
+            auto_unbox = TRUE
+          )
         }
 
         break
@@ -113,7 +120,9 @@ configureTestAccount <- function(server = "posit.cloud", name = NULL) {
   existingAccount <- NULL
   tryCatch(
     existingAccount <- accountInfo(name, server),
-    error = function(e) { existingAccount <- NULL }
+    error = function(e) {
+      existingAccount <- NULL
+    }
   )
 
   if (is.null(existingAccount)) {
@@ -161,7 +170,6 @@ test_that("Get application", {
             class = "rsconnect_http_404"
           )
         }
-
 
         list(
           "id" = application_id,
@@ -262,7 +270,10 @@ test_that("Create application", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$application_type, "connect")
         list(
           "id" = 1,
@@ -281,7 +292,8 @@ test_that("Create application", {
           "id" = application_id,
           "content_id" = 1
         )
-      })
+      }
+    )
   ))
 
   withr::local_options(rsconnect.http = mockServer$impl)
@@ -293,7 +305,13 @@ test_that("Create application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny")
+  app <- client$createApplication(
+    "test app",
+    "unused?",
+    "unused?",
+    "unused?",
+    "shiny"
+  )
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -304,7 +322,10 @@ test_that("Create application with space id", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$application_type, "connect")
         expect_equal(content$space, 333)
         list(
@@ -324,7 +345,8 @@ test_that("Create application with space id", {
           "id" = application_id,
           "content_id" = 1
         )
-      })
+      }
+    )
   ))
 
   withr::local_options(rsconnect.http = mockServer$impl)
@@ -336,7 +358,14 @@ test_that("Create application with space id", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "shiny", spaceId = 333)
+  app <- client$createApplication(
+    "test app",
+    "unused?",
+    "unused?",
+    "unused?",
+    "shiny",
+    spaceId = 333
+  )
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -347,7 +376,10 @@ test_that("Create static application", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$application_type, "static")
         expect_equal(content$content_category, "document")
         list(
@@ -367,7 +399,8 @@ test_that("Create static application", {
           "id" = application_id,
           "content_id" = 1
         )
-      })
+      }
+    )
   ))
 
   withr::local_options(rsconnect.http = mockServer$impl)
@@ -379,7 +412,14 @@ test_that("Create static application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static", "document")
+  app <- client$createApplication(
+    "test app",
+    "unused?",
+    "unused?",
+    "unused?",
+    "static",
+    "document"
+  )
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -390,7 +430,10 @@ test_that("Create static server-side-rendered application", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$application_type, "static")
         expect_equal(content$render_by, "server")
         expect_equal(content$content_category, "document")
@@ -411,7 +454,8 @@ test_that("Create static server-side-rendered application", {
           "id" = application_id,
           "content_id" = 1
         )
-      })
+      }
+    )
   ))
 
   withr::local_options(rsconnect.http = mockServer$impl)
@@ -423,7 +467,14 @@ test_that("Create static server-side-rendered application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "quarto-static", "document")
+  app <- client$createApplication(
+    "test app",
+    "unused?",
+    "unused?",
+    "unused?",
+    "quarto-static",
+    "document"
+  )
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -446,7 +497,10 @@ test_that("deployApplication updates the parent project", {
     ),
     "^PATCH /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         if (!is.null(content$project)) {
           expect_equal(content$project, 41)
         } else {
@@ -463,7 +517,10 @@ test_that("deployApplication updates the parent project", {
         application_id <- substr(methodAndPath, match[2], end)
         expect_equal(application_id, "101/")
 
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$rebuild, FALSE)
         list(
           "id" = 101
@@ -493,7 +550,10 @@ test_that("Create static RMD application", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
       content = function(methodAndPath, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$application_type, "static")
         expect_equal(content$render_by, "server")
         expect_equal(content$content_category, "document")
@@ -514,7 +574,8 @@ test_that("Create static RMD application", {
           "id" = application_id,
           "content_id" = 1
         )
-      })
+      }
+    )
   ))
 
   withr::local_options(rsconnect.http = mockServer$impl)
@@ -526,7 +587,14 @@ test_that("Create static RMD application", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "1", "rmd-static", "document")
+  app <- client$createApplication(
+    "test app",
+    "unused?",
+    "unused?",
+    "1",
+    "rmd-static",
+    "document"
+  )
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -537,16 +605,19 @@ test_that("Create application with linked source project", {
   mockServer <- mockServerFactory(list(
     "^POST /outputs" = list(
       content = function(methodAndPAth, match, contentFile, ...) {
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
 
         expect_equal(content$project, 41)
         expect_equal(content$space, 99)
 
         list(
-        "id" = 1,
-        "source_id" = 2,
-        "url" = "http://fake-url.test.me/",
-        "state" = "active"
+          "id" = 1,
+          "source_id" = 2,
+          "url" = "http://fake-url.test.me/",
+          "state" = "active"
         )
       }
     ),
@@ -580,7 +651,13 @@ test_that("Create application with linked source project", {
   )
   client <- cloudClient(fakeService, NULL)
 
-  app <- client$createApplication("test app", "unused?", "unused?", "unused?", "static")
+  app <- client$createApplication(
+    "test app",
+    "unused?",
+    "unused?",
+    "unused?",
+    "static"
+  )
 
   expect_equal(app$id, 1)
   expect_equal(app$application_id, 2)
@@ -672,7 +749,10 @@ deployAppMockServerFactory <- function(expectedAppType, outputState) {
         p <- parent.env(e)
         p$actualCalls$outputCreated <- TRUE
 
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
 
         expect_equal(content$application_type, expectedAppType)
         expect_equal(content$name, "Desired name here")
@@ -699,7 +779,10 @@ deployAppMockServerFactory <- function(expectedAppType, outputState) {
         p <- parent.env(e)
         p$actualCalls$bundleReady <- TRUE
 
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
         expect_equal(content$status, "ready")
 
         list()
@@ -711,7 +794,10 @@ deployAppMockServerFactory <- function(expectedAppType, outputState) {
         p <- parent.env(e)
         p$actualCalls$bundleCreated <- TRUE
 
-        content <- jsonlite::fromJSON(readChar(contentFile, file.info(contentFile)$size))
+        content <- jsonlite::fromJSON(readChar(
+          contentFile,
+          file.info(contentFile)$size
+        ))
 
         list(
           id = 123,
@@ -805,7 +891,10 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
 
   withr::local_options(renv.verbose = TRUE)
 
-  mock <- deployAppMockServerFactory(expectedAppType = "connect", outputState = "active")
+  mock <- deployAppMockServerFactory(
+    expectedAppType = "connect",
+    outputState = "active"
+  )
   mockServer <- mock$server
 
   withr::local_options(rsconnect.http = mockServer$impl)
@@ -857,7 +946,9 @@ test_that("deployApp() for shiny results in correct Cloud API calls", {
   mock$reset_calls()
   forgetDeployment(appPath = sourcePath, force = TRUE)
 
-  extraLocalAccount <- configureTestAccount(name = "testthat-superfluous-account")
+  extraLocalAccount <- configureTestAccount(
+    name = "testthat-superfluous-account"
+  )
   withr::defer(removeAccount(extraLocalAccount))
 
   deployApp(
@@ -903,7 +994,10 @@ test_that("deployDoc() results in correct Cloud API calls", {
 
   local_temp_config()
 
-  mock <- deployAppMockServerFactory(expectedAppType = "static", outputState = "active")
+  mock <- deployAppMockServerFactory(
+    expectedAppType = "static",
+    outputState = "active"
+  )
   mockServer <- mock$server
 
   withr::local_options(rsconnect.http = mockServer$impl)
