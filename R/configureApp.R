@@ -33,7 +33,9 @@ configureApp <- function(
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(identical(logLevel, "quiet"))

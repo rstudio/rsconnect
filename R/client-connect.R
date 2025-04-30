@@ -67,7 +67,9 @@ connectClient <- function(service, authInfo) {
     ) {
       # add name; inject title if specified
       details <- list(name = name)
-      if (!is.null(title) && nzchar(title)) details$title <- title
+      if (!is.null(title) && nzchar(title)) {
+        details$title <- title
+      }
 
       # RSC doesn't currently use the template or account ID
       # parameters; they exist for compatibility with lucid.

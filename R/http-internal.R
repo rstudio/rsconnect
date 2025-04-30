@@ -14,11 +14,14 @@ httpInternal <- function(
   certificate = NULL,
   timeout = NULL
 ) {
-  if (!is.null(contentFile) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType)) {
     stop("You must specify a contentType for the specified file")
+  }
 
   # default port to 80 if necessary
-  if (!nzchar(port)) port <- "80"
+  if (!nzchar(port)) {
+    port <- "80"
+  }
 
   # read file in binary mode
   if (!is.null(contentFile)) {
@@ -52,7 +55,9 @@ httpInternal <- function(
   request <- c(request, "\r\n")
 
   # output request if in verbose mode
-  if (httpVerbose()) cat(request)
+  if (httpVerbose()) {
+    cat(request)
+  }
 
   # use timeout if supplied, default timeout if not (matches parameter behavior
   # for socketConnection)
@@ -90,11 +95,14 @@ httpInternal <- function(
   httpTrace(method, path, time)
 
   # print if in verbose mode
-  if (httpVerbose()) print(response)
+  if (httpVerbose()) {
+    print(response)
+  }
 
   # output JSON if requested
-  if (httpTraceJson() && identical(contentType, "application/json"))
+  if (httpTraceJson() && identical(contentType, "application/json")) {
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
+  }
 
   # return it
   response

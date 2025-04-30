@@ -50,7 +50,9 @@ listRequest <- function(
     }
 
     # exit if we've got them all
-    if (length(results) >= response$total || length(results) >= max) break
+    if (length(results) >= response$total || length(results) >= max) {
+      break
+    }
   }
 
   return(results)
@@ -99,7 +101,9 @@ listApplicationsRequest <- function(
     }
 
     # exit if we've got them all
-    if (length(results) >= response$total || length(results) >= max) break
+    if (length(results) >= response$total || length(results) >= max) {
+      break
+    }
   }
 
   return(results)

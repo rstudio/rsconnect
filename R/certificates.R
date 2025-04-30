@@ -21,16 +21,20 @@ createCertificateFile <- function(certificate) {
         "The certificate store '",
         systemStore,
         "' specified in the ",
-        if (identical(systemStore, getOption("rsconnect.ca.bundle")))
-          "rsconnect.ca.bundle option " else
-          "RSCONNECT_CA_BUNDLE environment variable ",
+        if (identical(systemStore, getOption("rsconnect.ca.bundle"))) {
+          "rsconnect.ca.bundle option "
+        } else {
+          "RSCONNECT_CA_BUNDLE environment variable "
+        },
         "does not exist. The system certificate store will be used instead."
       )
     }
   }
 
   # if no certificate contents specified, we're done
-  if (is.null(certificate)) return(certificateFile)
+  if (is.null(certificate)) {
+    return(certificateFile)
+  }
 
   # if we don't have a certificate file yet, try to find the system store
   if (is.null(certificateFile)) {
@@ -105,14 +109,19 @@ inferCertificateContents <- function(certificate) {
   # infer which we're dealing with
 
   # tolerate NULL, which is a valid case representing no certificate
-  if (is.null(certificate) || identical(certificate, "")) return(NULL)
+  if (is.null(certificate) || identical(certificate, "")) {
+    return(NULL)
+  }
 
   # collapse to a single string if we got a vector of lines
-  if (length(certificate) > 1)
+  if (length(certificate) > 1) {
     certificate <- paste(certificate, collapse = "\n")
+  }
 
   # looks like ASCII armored certificate data, return as-is
-  if (validateCertificate(substr(certificate, 1, 27))) return(certificate)
+  if (validateCertificate(substr(certificate, 1, 27))) {
+    return(certificate)
+  }
 
   # looks like a file; return its contents
   if (file.exists(certificate)) {
@@ -128,7 +137,9 @@ inferCertificateContents <- function(certificate) {
       readLines(con = certificate, warn = FALSE),
       collapse = "\n"
     )
-    if (validateCertificate(contents)) return(contents) else
+    if (validateCertificate(contents)) {
+      return(contents)
+    } else {
       stop(
         "The file '",
         certificate,
@@ -136,6 +147,7 @@ inferCertificateContents <- function(certificate) {
         "Certificate files should be in ASCII armored PEM format, with a ",
         "first line reading -----BEGIN CERTIFICATE-----."
       )
+    }
   }
 
   # doesn't look like something we can deal with; guess error based on length

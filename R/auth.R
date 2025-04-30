@@ -57,7 +57,9 @@ addAuthorizedUser <- function(
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # check for and remove password file
@@ -196,7 +198,9 @@ showInvited <- function(
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # fetch invitation list

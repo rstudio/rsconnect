@@ -46,7 +46,9 @@ httpRCurl <- function(
     options$ssl.verifypeer <- TRUE
 
     # apply certificate information if present
-    if (!is.null(certificate)) options$cainfo <- certificate
+    if (!is.null(certificate)) {
+      options$cainfo <- certificate
+    }
   } else {
     # don't verify peer (less secure but tolerant to self-signed cert issues)
     options$ssl.verifypeer <- FALSE
@@ -66,7 +68,9 @@ httpRCurl <- function(
   }
 
   # verbose if requested
-  if (httpVerbose()) options$verbose <- TRUE
+  if (httpVerbose()) {
+    options$verbose <- TRUE
+  }
 
   # add extra headers
   headers <- appendCookieHeaders(
@@ -115,9 +119,11 @@ httpRCurl <- function(
               e$message,
               "transfer closed with outstanding read data remaining"
             )
-        )
-          return(NULL) # bubble remaining errors through
-        else stop(e)
+        ) {
+          return(NULL)
+        } else {
+          stop(e) # bubble remaining errors through
+        }
       }
     )
   )
@@ -140,8 +146,11 @@ httpRCurl <- function(
   # by default but they're typically capitalized in HTTP/1
   names(headers) <- tolower(names(headers))
 
-  if ("location" %in% names(headers)) location <- headers[["location"]] else
+  if ("location" %in% names(headers)) {
+    location <- headers[["location"]]
+  } else {
     location <- NULL
+  }
 
   # presume a plain text response unless specified otherwise
   contentType <- if ("content-type" %in% names(headers)) {
@@ -155,8 +164,9 @@ httpRCurl <- function(
     !is.null(contentFile) &&
       httpTraceJson() &&
       identical(contentType, "application/json")
-  )
+  ) {
     cat(paste0("<< ", rawToChar(fileContents), "\n"))
+  }
 
   # Parse cookies from header; bear in mind that there may be multiple headers
   cookieHeaders <- headers[names(headers) == "set-cookie"]
@@ -168,8 +178,9 @@ httpRCurl <- function(
   contentValue <- textGatherer$value()
 
   # emit JSON trace if requested
-  if (httpTraceJson() && identical(contentType, "application/json"))
+  if (httpTraceJson() && identical(contentType, "application/json")) {
     cat(paste0(">> ", contentValue, "\n"))
+  }
 
   list(
     req = list(

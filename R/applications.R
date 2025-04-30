@@ -81,9 +81,13 @@ applications <- function(account = NULL, server = NULL) {
     lapply(res, function(x) {
       # promote the size and instance data to first-level fields
       x$size <- x$deployment$properties$application.instances.template
-      if (is.null(x$size)) x$size <- NA
+      if (is.null(x$size)) {
+        x$size <- NA
+      }
       x$instances <- x$deployment$properties$application.instances.count
-      if (is.null(x$instances)) x$instances <- NA
+      if (is.null(x$instances)) {
+        x$instances <- NA
+      }
       x$deployment <- NULL
       x$guid <- NA
       x$title <- NA_character_
@@ -113,10 +117,14 @@ applications <- function(account = NULL, server = NULL) {
 
   # Ensure the Connect and ShinyApps.io data frames have same column names
   idx <- match("last_deployed_time", names(res))
-  if (!is.na(idx)) names(res)[idx] <- "updated_time"
+  if (!is.na(idx)) {
+    names(res)[idx] <- "updated_time"
+  }
 
   idx <- match("build_status", names(res))
-  if (!is.na(idx)) names(res)[idx] <- "status"
+  if (!is.na(idx)) {
+    names(res)[idx] <- "status"
+  }
 
   return(res)
 }
@@ -146,7 +154,9 @@ resolveApplication <- function(accountDetails, appName) {
   client <- clientForAccount(accountDetails)
   apps <- client$listApplications(accountDetails$accountId)
   for (app in apps) {
-    if (identical(app$name, appName)) return(app)
+    if (identical(app$name, appName)) {
+      return(app)
+    }
   }
 
   stopWithApplicationNotFound(appName)
@@ -220,7 +230,11 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   curl::curl_fetch_stream(
     url = url,
     fun = function(data) {
-      if (skip > 0) skip <<- skip - 1 else cat(rawToChar(data))
+      if (skip > 0) {
+        skip <<- skip - 1
+      } else {
+        cat(rawToChar(data))
+      }
     },
     handle = handle
   )

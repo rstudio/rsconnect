@@ -98,7 +98,9 @@ addLinter(
         results <- vector("list", length(content))
         for (i in seq_along(matches)) {
           x <- matches[[i]]
-          if (x[[1]] == -1L || length(x) %% 2 != 0) next
+          if (x[[1]] == -1L || length(x) %% 2 != 0) {
+            next
+          }
           starts <- x[seq(1, length(x), by = 2)]
           ends <- x[seq(2, length(x), by = 2)]
           results[[i]] <- character(length(starts))
@@ -120,7 +122,9 @@ addLinter(
         results <- vector("list", length(content))
         for (i in seq_along(matches)) {
           x <- matches[[i]]
-          if (x[[1]] == -1L) next
+          if (x[[1]] == -1L) {
+            next
+          }
           results[[i]] <- character(length(x))
           attr <- attributes(x)
           for (j in seq_along(x)) {
@@ -172,7 +176,9 @@ addLinter(
         })
       )
 
-      if (!length(indices)) return(integer())
+      if (!length(indices)) {
+        return(integer())
+      }
 
       from <- lapply(inferredFiles, function(x) x[indices])
       to <- lapply(from, function(x) {
@@ -183,7 +189,7 @@ addLinter(
 
       messages <- lapply(seq_along(from), function(regex) {
         lapply(seq_along(regex), function(i) {
-          if (length(from[[regex]][[i]]))
+          if (length(from[[regex]][[i]])) {
             paste(
               collapse = ", ",
               paste(
@@ -194,7 +200,10 @@ addLinter(
                 "]",
                 sep = ""
               )
-            ) else ""
+            )
+          } else {
+            ""
+          }
         })
       })
 
@@ -306,7 +315,9 @@ hasAbsolutePaths <- function(content) {
     matches <- gregexpr(regex, content, perl = TRUE)
     lapply(seq_along(matches), function(i) {
       match <- matches[[i]]
-      if (c(match[[1]]) == -1L) return(character())
+      if (c(match[[1]]) == -1L) {
+        return(character())
+      }
       starts <- as.integer(match) + 1
       ends <- starts + attr(match, "match.length") - 3
       substring(content[[i]], starts, ends)

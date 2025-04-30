@@ -39,10 +39,18 @@ cloudClient <- function(service, authInfo) {
     ) {
       path <- paste0("/accounts/", accountId, "/usage/", usageType, "/")
       query <- list()
-      if (!is.null(applicationId)) query$application <- applicationId
-      if (!is.null(from)) query$from <- from
-      if (!is.null(until)) query$until <- until
-      if (!is.null(interval)) query$interval <- interval
+      if (!is.null(applicationId)) {
+        query$application <- applicationId
+      }
+      if (!is.null(from)) {
+        query$from <- from
+      }
+      if (!is.null(until)) {
+        query$until <- until
+      }
+      if (!is.null(interval)) {
+        query$interval <- interval
+      }
       GET(service, authInfo, path, queryString(query))
     },
 
@@ -167,9 +175,15 @@ cloudClient <- function(service, authInfo) {
         }),
         collapse = "&"
       )
-      if (!is.null(from)) query$from <- from
-      if (!is.null(until)) query$until <- until
-      if (!is.null(interval)) query$interval <- interval
+      if (!is.null(from)) {
+        query$from <- from
+      }
+      if (!is.null(until)) {
+        query$until <- until
+      }
+      if (!is.null(interval)) {
+        query$interval <- interval
+      }
       GET(service, authInfo, path, paste(m, queryString(query), sep = "&"))
     },
 
@@ -192,8 +206,11 @@ cloudClient <- function(service, authInfo) {
       json$name <- name
       json$application_type <- if (
         appMode %in% c("rmd-static", "quarto-static", "static")
-      )
-        "static" else "connect"
+      ) {
+        "static"
+      } else {
+        "connect"
+      }
       if (appMode %in% c("rmd-static", "quarto-static")) {
         json$render_by <- "server"
       }
@@ -303,8 +320,11 @@ cloudClient <- function(service, authInfo) {
 
       path <- paste0("/applications/", application$application_id, "/deploy")
       json <- list()
-      if (length(bundleId) > 0 && nzchar(bundleId))
-        json$bundle <- as.numeric(bundleId) else json$rebuild <- FALSE
+      if (length(bundleId) > 0 && nzchar(bundleId)) {
+        json$bundle <- as.numeric(bundleId)
+      } else {
+        json$rebuild <- FALSE
+      }
       POST_JSON(service, authInfo, path, json)
     },
 
@@ -327,9 +347,12 @@ cloudClient <- function(service, authInfo) {
       path <- paste0("/applications/", applicationId, "/authorization/users")
       json <- list()
       json$email <- email
-      if (!is.null(invite_email)) json$invite_email <- invite_email
-      if (!is.null(invite_email_message))
+      if (!is.null(invite_email)) {
+        json$invite_email <- invite_email
+      }
+      if (!is.null(invite_email_message)) {
         json$invite_email_message <- invite_email_message
+      }
       POST_JSON(service, authInfo, path, json)
     },
 

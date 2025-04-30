@@ -722,10 +722,11 @@ openURL <- function(
 ) {
   # function to browse to a URL using user-supplied browser (config or final)
   showURL <- function(url) {
-    if (isTRUE(launch.browser)) utils::browseURL(url) else if (
-      is.function(launch.browser)
-    )
+    if (isTRUE(launch.browser)) {
+      utils::browseURL(url)
+    } else if (is.function(launch.browser)) {
       launch.browser(url)
+    }
   }
 
   # Check to see if we should open config url or app url

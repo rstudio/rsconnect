@@ -16,7 +16,9 @@ httpCurl <- function(
   if (!is.null(contentFile) && is.null(contentType))
     stop("You must specify a contentType for the specified file")
 
-  if (!is.null(contentFile)) fileLength <- file.info(contentFile)$size
+  if (!is.null(contentFile)) {
+    fileLength <- file.info(contentFile)$size
+  }
 
   headers <- appendCookieHeaders(
     list(protocol = protocol, host = host, port = port, path = path),
@@ -39,9 +41,13 @@ httpCurl <- function(
 
   command <- paste("curl", "-i", "-X", method)
 
-  if (httpVerbose()) command <- paste(command, "-v")
+  if (httpVerbose()) {
+    command <- paste(command, "-v")
+  }
 
-  if (!is.null(timeout)) command <- paste(command, "--connect-timeout", timeout)
+  if (!is.null(timeout)) {
+    command <- paste(command, "--connect-timeout", timeout)
+  }
 
   if (!is.null(contentFile)) {
     command <- paste(
@@ -56,7 +62,9 @@ httpCurl <- function(
   }
 
   # add prefix to port if necessary
-  if (nzchar(port)) port <- paste(":", port, sep = "")
+  if (nzchar(port)) {
+    port <- paste(":", port, sep = "")
+  }
 
   if (!isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
     # suppressed certificate check

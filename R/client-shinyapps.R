@@ -35,10 +35,18 @@ shinyAppsClient <- function(service, authInfo) {
         sep = ""
       )
       query <- list()
-      if (!is.null(applicationId)) query$application <- applicationId
-      if (!is.null(from)) query$from <- from
-      if (!is.null(until)) query$until <- until
-      if (!is.null(interval)) query$interval <- interval
+      if (!is.null(applicationId)) {
+        query$application <- applicationId
+      }
+      if (!is.null(from)) {
+        query$from <- from
+      }
+      if (!is.null(until)) {
+        query$until <- until
+      }
+      if (!is.null(interval)) {
+        query$interval <- interval
+      }
       GET(service, authInfo, path, queryString(query))
     },
 
@@ -110,9 +118,15 @@ shinyAppsClient <- function(service, authInfo) {
         }),
         collapse = "&"
       )
-      if (!is.null(from)) query$from <- from
-      if (!is.null(until)) query$until <- until
-      if (!is.null(interval)) query$interval <- interval
+      if (!is.null(from)) {
+        query$from <- from
+      }
+      if (!is.null(until)) {
+        query$until <- until
+      }
+      if (!is.null(interval)) {
+        query$interval <- interval
+      }
       GET(service, authInfo, path, paste(m, queryString(query), sep = "&"))
     },
 
@@ -198,8 +212,11 @@ shinyAppsClient <- function(service, authInfo) {
     deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
       path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
-      if (length(bundleId) > 0 && nzchar(bundleId))
-        json$bundle <- as.numeric(bundleId) else json$rebuild <- FALSE
+      if (length(bundleId) > 0 && nzchar(bundleId)) {
+        json$bundle <- as.numeric(bundleId)
+      } else {
+        json$rebuild <- FALSE
+      }
       POST_JSON(service, authInfo, path, json)
     },
 
@@ -227,9 +244,12 @@ shinyAppsClient <- function(service, authInfo) {
       )
       json <- list()
       json$email <- email
-      if (!is.null(invite_email)) json$invite_email <- invite_email
-      if (!is.null(invite_email_message))
+      if (!is.null(invite_email)) {
+        json$invite_email <- invite_email
+      }
+      if (!is.null(invite_email_message)) {
         json$invite_email_message <- invite_email_message
+      }
       POST_JSON(service, authInfo, path, json)
     },
 

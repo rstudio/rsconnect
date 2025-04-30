@@ -46,16 +46,17 @@ applicationConfigDir <- function() {
     # In older versions of R, use an implementation derived from R_user_dir
     home <- Sys.getenv("HOME", unset = normalizePath("~"))
     path <-
-      if (nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR"))) p else if (
-        nzchar(p <- Sys.getenv("XDG_CONFIG_HOME"))
-      )
-        p else if (.Platform$OS.type == "windows")
-        file.path(Sys.getenv("APPDATA"), "R", "config") else if (
-        Sys.info()["sysname"] == "Darwin"
-      )
-        file.path(home, "Library", "Preferences", "org.R-project.R") else
+      if (nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR"))) {
+        p
+      } else if (nzchar(p <- Sys.getenv("XDG_CONFIG_HOME"))) {
+        p
+      } else if (.Platform$OS.type == "windows") {
+        file.path(Sys.getenv("APPDATA"), "R", "config")
+      } else if (Sys.info()["sysname"] == "Darwin") {
+        file.path(home, "Library", "Preferences", "org.R-project.R")
+      } else {
         file.path(home, ".config")
-
+      }
     file.path(path, "R", "rsconnect")
   }
 }

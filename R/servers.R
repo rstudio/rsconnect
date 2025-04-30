@@ -264,7 +264,9 @@ ensureConnectServerUrl <- function(url) {
   url <- gsub("/$", "", url)
 
   # ensure 'url' ends with '/__api__'
-  if (!grepl("/__api__$", url)) url <- paste(url, "/__api__", sep = "")
+  if (!grepl("/__api__$", url)) {
+    url <- paste(url, "/__api__", sep = "")
+  }
 
   url
 }
@@ -311,7 +313,9 @@ addServerCertificate <- function(name, certificate, quiet = FALSE) {
   info <- serverInfo(name)
   registerServer(name, info$url, certificate)
 
-  if (!quiet) message("Certificate added to server '", name, "'")
+  if (!quiet) {
+    message("Certificate added to server '", name, "'")
+  }
 
   invisible(NULL)
 }

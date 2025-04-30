@@ -239,9 +239,9 @@ forgetDeployment <- function(
 ) {
   if (is.null(name) && is.null(account) && is.null(server)) {
     dcfDir <- deploymentConfigDir(appPath)
-    if (dryRun) message("Would remove the directory ", dcfDir) else if (
-      file.exists(dcfDir)
-    ) {
+    if (dryRun) {
+      message("Would remove the directory ", dcfDir)
+    } else if (file.exists(dcfDir)) {
       if (!force) {
         prompt <- paste(
           "Forget all deployment records for ",
@@ -250,8 +250,9 @@ forgetDeployment <- function(
           sep = ""
         )
         input <- readline(prompt)
-        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y")) {
           stop("No deployment records removed.", call. = FALSE)
+        }
       }
       unlink(dcfDir, recursive = TRUE)
     } else {
@@ -266,9 +267,9 @@ forgetDeployment <- function(
       )
     }
     dcf <- deploymentConfigFile(appPath, name, account, server)
-    if (dryRun) message("Would remove the file ", dcf) else if (
-      file.exists(dcf)
-    ) {
+    if (dryRun) {
+      message("Would remove the file ", dcf)
+    } else if (file.exists(dcf)) {
       if (!force) {
         prompt <- paste(
           "Forget deployment of ",
@@ -281,8 +282,9 @@ forgetDeployment <- function(
           sep = ""
         )
         input <- readline(prompt)
-        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y")) {
           stop("Cancelled. No deployment records removed.", call. = FALSE)
+        }
       }
       unlink(dcf)
     } else {

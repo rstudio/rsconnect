@@ -21,7 +21,11 @@ findAndRegisterLocalServer <- function(url) {
   findServerByUrl <- function(url) {
     allServers <- rsconnect::servers(local = TRUE)
     match <- allServers[allServers$url == url, , drop = FALSE]
-    if (nrow(match) == 0) NULL else as.character(match[1, "name"])
+    if (nrow(match) == 0) {
+      NULL
+    } else {
+      as.character(match[1, "name"])
+    }
   }
 
   # if there are no local servers with the given URL, add one and return its

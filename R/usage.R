@@ -30,7 +30,9 @@ showUsage <- function(
   api <- clientForAccount(accountDetails)
 
   # resolve application
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
@@ -97,7 +99,9 @@ showMetrics <- function(
   api <- clientForAccount(accountDetails)
 
   # resolve application
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage

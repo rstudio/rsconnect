@@ -48,11 +48,17 @@ rpubsUpload <- function(
 ) {
   check_string(title, allow_empty = FALSE)
   check_file(contentFile)
-  if (!is.list(properties)) stop("properties paramater must be a named list")
+  if (!is.list(properties)) {
+    stop("properties paramater must be a named list")
+  }
 
   pathFromId <- function(id) {
     split <- strsplit(id, "^https?://[^/]+")[[1]]
-    if (length(split) == 2) return(split[2]) else return(NULL)
+    if (length(split) == 2) {
+      return(split[2])
+    } else {
+      return(NULL)
+    }
   }
 
   buildPackage <- function(title, contentFile, properties = list()) {
@@ -116,10 +122,11 @@ rpubsUpload <- function(
 
   # check for success
   succeeded <- FALSE
-  if (isUpdate && (result$status == 200)) succeeded <- TRUE else if (
-    result$status == 201
-  )
+  if (isUpdate && (result$status == 200)) {
     succeeded <- TRUE
+  } else if (result$status == 201) {
+    succeeded <- TRUE
+  }
 
   # mark content as UTF-8
   content <- result$content
@@ -166,8 +173,9 @@ rpubsUpload <- function(
     write.dcf(rpubsRec, rpubsRecFile, width = 4096)
 
     # record in global history
-    if (!is.null(originalDoc) && nzchar(originalDoc))
+    if (!is.null(originalDoc) && nzchar(originalDoc)) {
       addToDeploymentHistory(originalDoc, rpubsRec)
+    }
 
     # return the publish information
     return(list(id = id, continueUrl = url))

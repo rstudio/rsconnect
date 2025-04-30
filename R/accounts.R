@@ -159,10 +159,11 @@ connectUser <- function(
 getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
   token <- getAuthToken(server)
 
-  if (isTRUE(launch.browser)) utils::browseURL(token$claim_url) else if (
-    is.function(launch.browser)
-  )
+  if (isTRUE(launch.browser)) {
+    utils::browseURL(token$claim_url)
+  } else if (is.function(launch.browser)) {
     launch.browser(token$claim_url)
+  }
 
   if (isFALSE(launch.browser)) {
     cli::cli_alert_warning("Open {.url {token$claim_url}} to authenticate")
@@ -439,7 +440,9 @@ registerAccount <- function(
   write.dcf(compact(fields), path, width = 100)
 
   # set restrictive permissions on it if possible
-  if (identical(.Platform$OS.type, "unix")) Sys.chmod(path, mode = "0600")
+  if (identical(.Platform$OS.type, "unix")) {
+    Sys.chmod(path, mode = "0600")
+  }
 
   path
 }
