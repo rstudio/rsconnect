@@ -1,6 +1,9 @@
 test_that("Parsing cookies works", {
   # Note that the Expires field is ignored
-  cookie <- parseCookie("mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly", "/")
+  cookie <- parseCookie(
+    "mycookie=myvalue; Path=/; Expires=Sat, 24 Jun 2017 16:16:05 GMT; Max-Age=3600; HttpOnly",
+    "/"
+  )
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
   expect_true(cookie$expires > Sys.time() + 3595)
@@ -42,7 +45,9 @@ test_that("Parsing cookies works", {
   expect_true(cookie$secure)
 
   # Full cookie with spaces around =s
-  cookie <- parseCookie("mycookie = myvalue; SEcure; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly")
+  cookie <- parseCookie(
+    "mycookie = myvalue; SEcure; Path = /; Expires = Sat, 24 Jun 2017 16:16:05 GMT; Max-Age = 3600; HttpOnly"
+  )
   expect_equal(cookie$name, "mycookie")
   expect_equal(cookie$value, "myvalue")
   expect_true(cookie$secure)
@@ -57,7 +62,9 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$path, "/")
 
   # prove #229 is fixed
-  cookie <- parseCookie("my_cookie-which/uses%20strange?characters=foo_-%20+?1234bar; Path = /")
+  cookie <- parseCookie(
+    "my_cookie-which/uses%20strange?characters=foo_-%20+?1234bar; Path = /"
+  )
   expect_equal(cookie$name, "my_cookie-which/uses%20strange?characters")
   expect_equal(cookie$value, "foo_-%20+?1234bar")
   expect_equal(cookie$path, "/")
@@ -77,15 +84,21 @@ test_that("cookies can be stored", {
   local_cookie_store()
 
   parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
-  expect_warning({
-    storeCookies(parsedUrl, c(
-      "mycookie=myvalue; Path=/; Max-Age=3600; HttpOnly",
-      "anotherCookie=what; Path=/test; Max-Age=100",
-      "wrongpath=huh; Path=/uhoh; Max-Age=100",
-      "secureCookie=123; Secure",
-      "third=cookie; Path=/; Max-Age=500")
-    )
-  }, "Invalid path set for cookie")
+  expect_warning(
+    {
+      storeCookies(
+        parsedUrl,
+        c(
+          "mycookie=myvalue; Path=/; Max-Age=3600; HttpOnly",
+          "anotherCookie=what; Path=/test; Max-Age=100",
+          "wrongpath=huh; Path=/uhoh; Max-Age=100",
+          "secureCookie=123; Secure",
+          "third=cookie; Path=/; Max-Age=500"
+        )
+      )
+    },
+    "Invalid path set for cookie"
+  )
   cookies <- get("fakedomain:123", envir = .cookieStore)
   expect_equal(nrow(cookies), 4)
 
@@ -170,7 +183,10 @@ test_that("appending cookie headers works", {
   # Store a couple more cookies
   storeCookies(parsedUrl, "cookie2=value2; Path=/test; Max-Age=3600")
   # This one has the wrong path, will be filtered out
-  storeCookies(parseHttpUrl("http://fakedomain:123/another"), "cookie3=value3; Path=/another; Max-Age=3600")
+  storeCookies(
+    parseHttpUrl("http://fakedomain:123/another"),
+    "cookie3=value3; Path=/another; Max-Age=3600"
+  )
 
   headers <- appendCookieHeaders(parsedUrl, c(header1 = 123, header2 = "abc"))
   expect_length(headers, 3)
@@ -185,13 +201,22 @@ test_that("appending cookie headers works", {
   expect_equal(headers[2], c(cookie = "cookie2=value2; cookie1=value1"))
 
   # Add a secure cookie
-  storeCookies(parsedUrl, "securecookie=secureval; Path=/; Max-Age=3600; Secure")
+  storeCookies(
+    parsedUrl,
+    "securecookie=secureval; Path=/; Max-Age=3600; Secure"
+  )
   headers <- appendCookieHeaders(parsedUrl, c())
   expect_equal(headers[["cookie"]], "cookie2=value2; cookie1=value1")
 
   # But over a secure channel, you'd include the secure cookie
-  headers <- appendCookieHeaders(parseHttpUrl("https://fakedomain:123/test/stuff"), c())
-  expect_equal(headers[["cookie"]], "securecookie=secureval; cookie2=value2; cookie1=value1")
+  headers <- appendCookieHeaders(
+    parseHttpUrl("https://fakedomain:123/test/stuff"),
+    c()
+  )
+  expect_equal(
+    headers[["cookie"]],
+    "securecookie=secureval; cookie2=value2; cookie1=value1"
+  )
 })
 
 test_that("Expired cookies are removed", {
@@ -229,9 +254,15 @@ test_that("Expired cookies are removed", {
 
 test_that("getCookieHost works", {
   expect_equal(getCookieHost(parseHttpUrl("http://rstudio.com")), "rstudio.com")
-  expect_equal(getCookieHost(parseHttpUrl("http://rstudio.com:3939")), "rstudio.com:3939")
+  expect_equal(
+    getCookieHost(parseHttpUrl("http://rstudio.com:3939")),
+    "rstudio.com:3939"
+  )
   expect_equal(getCookieHost(parseHttpUrl("http://127.0.0.1")), "127.0.0.1")
-  expect_equal(getCookieHost(parseHttpUrl("http://127.0.0.1:3939")), "127.0.0.1:3939")
+  expect_equal(
+    getCookieHost(parseHttpUrl("http://127.0.0.1:3939")),
+    "127.0.0.1:3939"
+  )
 })
 
 test_that("getting and clearing cookies works", {

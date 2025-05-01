@@ -1,15 +1,16 @@
-
 # 定义用户界面
 fluidPage(
-
   # 标题
   titlePanel("麻麻再也不用担心我的Shiny应用不能显示中文了"),
 
   # 侧边栏布局
   sidebarLayout(
     sidebarPanel(
-      selectInput("dataset", "请选一个数据：",
-                  choices = c("岩石", "pressure", "cars")),
+      selectInput(
+        "dataset",
+        "请选一个数据：",
+        choices = c("岩石", "pressure", "cars")
+      ),
 
       uiOutput("rockvars"),
 

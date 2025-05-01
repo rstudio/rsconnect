@@ -4,5 +4,7 @@ shinyServer(function(input, output) {
     dist <- rnorm(input$obs)
     hist(dist)
   })
-  output$obs <- renderText({paste(input$obs, "\n", input$obs)})
+  output$obs <- renderText({
+    paste(input$obs, "\n", input$obs)
+  })
 })

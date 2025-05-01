@@ -29,12 +29,12 @@
 #'   use only.
 #' @return Character of paths to bundle, relative to `appDir`.
 #' @export
-listDeploymentFiles <- function(appDir,
-                                appFiles = NULL,
-                                appFileManifest = NULL,
-                                error_call = caller_env()) {
-
-
+listDeploymentFiles <- function(
+  appDir,
+  appFiles = NULL,
+  appFileManifest = NULL,
+  error_call = caller_env()
+) {
   no_content <- function(message) {
     cli::cli_abort(
       c("No content to deploy.", x = message),
@@ -121,12 +121,14 @@ explodeFiles <- function(dir, files, error_arg = "appFiles") {
   recursiveBundleFiles(dir, contents = files, ignoreFiles = FALSE)$contents
 }
 
-recursiveBundleFiles <- function(dir,
-                                 contents = NULL,
-                                 rootDir = dir,
-                                 totalFiles = 0,
-                                 totalSize = 0,
-                                 ignoreFiles = TRUE) {
+recursiveBundleFiles <- function(
+  dir,
+  contents = NULL,
+  rootDir = dir,
+  totalFiles = 0,
+  totalSize = 0,
+  ignoreFiles = TRUE
+) {
   # generate a list of files at this level
   if (is.null(contents)) {
     contents <- list.files(dir, all.files = TRUE, no.. = TRUE)
@@ -173,15 +175,24 @@ ignoreBundleFiles <- function(dir, contents) {
   # entries ignored regardless of type
   ignored <- c(
     # rsconnect packages
-    "rsconnect", "rsconnect-python", "manifest.json",
+    "rsconnect",
+    "rsconnect-python",
+    "manifest.json",
     # packrat + renv,
-    "renv", "packrat",
+    "renv",
+    "packrat",
     # version control
-    ".git", ".gitignore", ".svn",
+    ".git",
+    ".gitignore",
+    ".svn",
     # R/RStudio
-    ".Rhistory", ".Rproj.user",
+    ".Rhistory",
+    ".Rproj.user",
     # other
-    ".DS_Store", ".quarto", "app_cache", "__pycache__/"
+    ".DS_Store",
+    ".quarto",
+    "app_cache",
+    "__pycache__/"
   )
 
   contents <- setdiff(contents, ignored)
@@ -211,9 +222,9 @@ isKnitrCacheDir <- function(files) {
 # https://github.com/rstudio/rsconnect-python/blob/94dbd28797ee503d6/rsconnect/bundle.py#L541-L543
 isPythonEnv <- function(dir, files) {
   (file.exists(file.path(dir, files, "bin", "python")) |
-     file.exists(file.path(dir, files, "Scripts", "python.exe")) |
-     file.exists(file.path(dir, files, "Scripts", "pythond.exe")) |
-     file.exists(file.path(dir, files, "Scripts", "pythonw.exe")))
+    file.exists(file.path(dir, files, "Scripts", "python.exe")) |
+    file.exists(file.path(dir, files, "Scripts", "pythond.exe")) |
+    file.exists(file.path(dir, files, "Scripts", "pythonw.exe")))
 }
 
 enforceBundleLimits <- function(appDir, totalFiles, totalSize) {

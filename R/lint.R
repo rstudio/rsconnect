@@ -21,14 +21,16 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
   linters <- mget(objects(.__LINTERS__.), envir = .__LINTERS__.)
 
   # Identify all files that will be read in by one or more linters
-  projectFilesToLint <- Reduce(union, lapply(linters, function(linter) {
-    getLinterApplicableFiles(linter, files)
-  }))
+  projectFilesToLint <- Reduce(
+    union,
+    lapply(linters, function(linter) {
+      getLinterApplicableFiles(linter, files)
+    })
+  )
 
   # Read in the files
   encoding <- activeEncoding(project)
   projectContent <- lapply(projectFilesToLint, function(file) {
-
     # force native encoding (disable any potential internal conversion)
     old <- options(encoding = "native.enc")
     defer(options(old))
@@ -36,7 +38,6 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
     # read content with requested encoding
     # TODO: may consider converting from native encoding to UTF-8 if appropriate
     readLines(file, encoding = encoding, warn = FALSE)
-
   })
 
   names(projectContent) <- projectFilesToLint
@@ -55,11 +56,13 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
       file <- applicableFiles[[j]]
       tryCatch(
         expr = {
-          lintIndices[[j]] <- applyLinter(linter,
-                                          projectContent[[file]],
-                                          project = project,
-                                          path = file,
-                                          files = files)
+          lintIndices[[j]] <- applyLinter(
+            linter,
+            projectContent[[file]],
+            project = project,
+            path = file,
+            files = files
+          )
         },
         error = function(e) {
           message("Failed to lint file '", file, "'")
@@ -91,13 +94,15 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
       message = lintMessages,
       suggestion = linter$suggestion
     )
-
   }
 
   ## Get all of the linted files, and transform the results into a by-file format
-  lintedFiles <- Reduce(union, lapply(lintResults, function(x) {
-    names(x$indices)
-  }))
+  lintedFiles <- Reduce(
+    union,
+    lapply(lintResults, function(x) {
+      names(x$indices)
+    })
+  )
 
   lintFields <- c("indices", "message")
   fileResults <- lapply(lintedFiles, function(file) {
@@ -122,9 +127,12 @@ lint <- function(project, files = NULL, appPrimaryDoc = NULL) {
 lintHeader <- function(file) {
   dashSep <- paste(rep("-", nchar(file)), collapse = "")
   header <- paste0(
-    dashSep, "\n",
-    file, "\n",
-    dashSep, "\n"
+    dashSep,
+    "\n",
+    file,
+    "\n",
+    dashSep,
+    "\n"
   )
   cat(paste(header, collapse = "\n"))
 }
@@ -173,14 +181,17 @@ showLintResults <- function(appDir, lintResults) {
   if (interactive()) {
     # if enabled, show warnings in friendly marker tab in addition to
     # printing to console
-    if (getOption("rsconnect.rstudio_source_markers", TRUE) &&
-        rstudioapi::hasFun("sourceMarkers"))
-    {
+    if (
+      getOption("rsconnect.rstudio_source_markers", TRUE) &&
+        rstudioapi::hasFun("sourceMarkers")
+    ) {
       showRstudioSourceMarkers(appDir, lintResults)
     }
   }
 
-  message("The following potential problems were identified in the project files:\n")
+  message(
+    "The following potential problems were identified in the project files:\n"
+  )
   print(lintResults)
 
   if (interactive()) {
@@ -194,8 +205,10 @@ showLintResults <- function(appDir, lintResults) {
     #   "\tdeployApp(lint = FALSE)\n\n",
     #   "to disable linting."
     # )
-    message("If your code fails to run post-deployment, ",
-            "please double-check these messages.")
+    message(
+      "If your code fails to run post-deployment, ",
+      "please double-check these messages."
+    )
 
     invisible()
   }
@@ -210,15 +223,17 @@ showLintResults <- function(appDir, lintResults) {
 #' @param content The content of the file that was linted.
 #' @param lines The line numbers from `content` that contain lint.
 makeLinterMessage <- function(header, content, lines) {
-
   lint <- attr(lines, "lint")
 
   c(
     paste0(header, ":"),
-    paste(lines, ": ",
-          content[lines],
-          if (!is.null(lint)) paste("    ", lint, sep = ""),
-          sep = ""),
+    paste(
+      lines,
+      ": ",
+      content[lines],
+      if (!is.null(lint)) paste("    ", lint, sep = ""),
+      sep = ""
+    ),
     "\n"
   )
 }
@@ -242,24 +257,25 @@ hasLint <- function(x) {
 }
 
 activeEncoding <- function(project = getwd()) {
-
   defaultEncoding <- getOption("encoding")
-  if (identical(defaultEncoding, "native.enc"))
+  if (identical(defaultEncoding, "native.enc")) {
     defaultEncoding <- "unknown"
+  }
 
   # attempt to locate .Rproj file
   files <- list.files(project, full.names = TRUE)
   rprojFile <- grep("\\.Rproj$", files, value = TRUE)
-  if (length(rprojFile) != 1)
+  if (length(rprojFile) != 1) {
     return(defaultEncoding)
+  }
 
   # read the file
   contents <- readLines(rprojFile, warn = FALSE, encoding = "UTF-8")
   encodingLine <- grep("^Encoding:", contents, value = TRUE)
-  if (length(encodingLine) != 1)
+  if (length(encodingLine) != 1) {
     return(defaultEncoding)
+  }
 
   # remove "Encoding:" prefix
   sub("^Encoding:\\s*", "", encodingLine)
-
 }

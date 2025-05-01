@@ -21,11 +21,13 @@ test_that("recommended packages are snapshotted", {
   skip_if_not_installed("MASS")
 
   withr::local_options(renv.verbose = TRUE)
-  app <- local_temp_app(list("index.Rmd" = c(
-    "```{r}",
-    "library(MASS)",
-    "```"
-  )))
+  app <- local_temp_app(list(
+    "index.Rmd" = c(
+      "```{r}",
+      "library(MASS)",
+      "```"
+    )
+  ))
   deps <- snapshotRenvDependencies(app)
   expect_true("MASS" %in% deps$Package)
 })
@@ -44,22 +46,28 @@ test_that("works with BioC packages", {
   skip_on_cran()
   skip_on_ci()
 
-  app <- local_temp_app(list("index.R" = c(
-    "library(Biobase)"
-  )))
+  app <- local_temp_app(list(
+    "index.R" = c(
+      "library(Biobase)"
+    )
+  ))
   biocRepos <- BiocManager::repositories()
   withr::local_options(repos = biocRepos)
   expect_no_condition(
-    { deps <- snapshotRenvDependencies(app) },
+    {
+      deps <- snapshotRenvDependencies(app)
+    },
     class = "rsconnect_biocRepos"
   )
   Biobase <- deps[deps$Package == "Biobase", ]
   expect_equal(Biobase$Source, "Bioconductor")
   expect_equal(Biobase$Repository, biocRepos[["BioCsoft"]])
 
-  withr::local_options(repos = c(
-    CRAN = "https://cran.rstudio.com"
-  ))
+  withr::local_options(
+    repos = c(
+      CRAN = "https://cran.rstudio.com"
+    )
+  )
   expect_condition(
     deps <- snapshotRenvDependencies(app),
     class = "rsconnect_biocRepos"
@@ -181,7 +189,11 @@ test_that("has special handling for CRAN packages", {
 })
 
 test_that("packages installed from other repos get correctly named", {
-  pkg <- list(Package = "pkg", Source = "Repository", Repository = "https://test2.com")
+  pkg <- list(
+    Package = "pkg",
+    Source = "Repository",
+    Repository = "https://test2.com"
+  )
   packages <- as.matrix(data.frame(
     Package = "pkg",
     Version = "1.0.0",

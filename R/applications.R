@@ -1,4 +1,3 @@
-
 #' List Deployed Applications
 #'
 #' List all applications currently deployed for a given account.
@@ -35,7 +34,6 @@
 #' @family Deployment functions
 #' @export
 applications <- function(account = NULL, server = NULL) {
-
   # resolve account and create connect client
   accountDetails <- accountInfo(account, server)
   serverDetails <- serverInfo(accountDetails$server)
@@ -83,11 +81,13 @@ applications <- function(account = NULL, server = NULL) {
     lapply(res, function(x) {
       # promote the size and instance data to first-level fields
       x$size <- x$deployment$properties$application.instances.template
-      if (is.null(x$size))
+      if (is.null(x$size)) {
         x$size <- NA
+      }
       x$instances <- x$deployment$properties$application.instances.count
-      if (is.null(x$instances))
+      if (is.null(x$instances)) {
         x$instances <- NA
+      }
       x$deployment <- NULL
       x$guid <- NA
       x$title <- NA_character_
@@ -102,7 +102,11 @@ applications <- function(account = NULL, server = NULL) {
       prefix <- sub("/__api__", "", serverDetails$url)
       row$config_url <- paste(prefix, "connect/#/apps", row$id, sep = "/")
     } else {
-      row$config_url <- paste("https://www.shinyapps.io/admin/#/application", row$id, sep = "/")
+      row$config_url <- paste(
+        "https://www.shinyapps.io/admin/#/application",
+        row$id,
+        sep = "/"
+      )
     }
     row
   })
@@ -113,10 +117,14 @@ applications <- function(account = NULL, server = NULL) {
 
   # Ensure the Connect and ShinyApps.io data frames have same column names
   idx <- match("last_deployed_time", names(res))
-  if (!is.na(idx)) names(res)[idx] <- "updated_time"
+  if (!is.na(idx)) {
+    names(res)[idx] <- "updated_time"
+  }
 
   idx <- match("build_status", names(res))
-  if (!is.na(idx)) names(res)[idx] <- "status"
+  if (!is.na(idx)) {
+    names(res)[idx] <- "status"
+  }
 
   return(res)
 }
@@ -124,7 +132,10 @@ applications <- function(account = NULL, server = NULL) {
 # Use the API to filter applications by name and error when it does not exist.
 getAppByName <- function(client, accountInfo, name, error_call = caller_env()) {
   # NOTE: returns a list with 0 or 1 elements
-  app <- client$listApplications(accountInfo$accountId, filters = list(name = name))
+  app <- client$listApplications(
+    accountInfo$accountId,
+    filters = list(name = name)
+  )
   if (length(app)) {
     return(app[[1]])
   }
@@ -143,8 +154,9 @@ resolveApplication <- function(accountDetails, appName) {
   client <- clientForAccount(accountDetails)
   apps <- client$listApplications(accountDetails$accountId)
   for (app in apps) {
-    if (identical(app$name, appName))
+    if (identical(app$name, appName)) {
       return(app)
+    }
   }
 
   stopWithApplicationNotFound(appName)
@@ -163,12 +175,18 @@ getApplication <- function(account, server, appId) {
 }
 
 stopWithApplicationNotFound <- function(appName) {
-  stop(paste("No application named '", appName, "' is currently deployed.",
-             sep = ""), call. = FALSE)
+  stop(
+    paste(
+      "No application named '",
+      appName,
+      "' is currently deployed.",
+      sep = ""
+    ),
+    call. = FALSE
+  )
 }
 
 applicationTask <- function(taskDef, appName, accountDetails, quiet) {
-
   # resolve target account and application
   application <- resolveApplication(accountDetails, appName)
 
@@ -188,26 +206,38 @@ applicationTask <- function(taskDef, appName, accountDetails, quiet) {
 # streams application logs from ShinyApps
 streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   # build the URL
-  url <- paste0(serverInfo("shinyapps.io")$url, "/applications/", applicationId,
-                "/logs?", "count=", entries, "&tail=1")
+  url <- paste0(
+    serverInfo("shinyapps.io")$url,
+    "/applications/",
+    applicationId,
+    "/logs?",
+    "count=",
+    entries,
+    "&tail=1"
+  )
   parsed <- parseHttpUrl(url)
 
   # create the curl handle and perform the minimum necessary to create an
   # authenticated request. we ignore the rsconnect.http option here because only
   # curl supports the kind of streaming connection that we need.
   handle <- createCurlHandle("GET")
-  curl::handle_setheaders(handle,
+  curl::handle_setheaders(
+    handle,
     .list = signatureHeaders(authInfo, "GET", parsed$path, NULL)
   )
 
   # begin the stream
-  curl::curl_fetch_stream(url = url,
+  curl::curl_fetch_stream(
+    url = url,
     fun = function(data) {
-      if (skip > 0)
+      if (skip > 0) {
         skip <<- skip - 1
-      else
+      } else {
         cat(rawToChar(data))
-    }, handle = handle)
+      }
+    },
+    handle = handle
+  )
 }
 
 #' Show Application Logs
@@ -232,9 +262,15 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #'   ShinyApps servers.
 #'
 #' @export
-showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
-                     account = NULL, server = NULL, entries = 50, streaming = FALSE) {
-
+showLogs <- function(
+  appPath = getwd(),
+  appFile = NULL,
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  entries = 50,
+  streaming = FALSE
+) {
   # determine the log target and target account info
   deployment <- findDeployment(
     appPath = appPath,
@@ -250,22 +286,28 @@ showLogs <- function(appPath = getwd(), appFile = NULL, appName = NULL,
     # streaming; poll for the entries directly
     skip <- 0
     repeat {
-      tryCatch({
-         streamApplicationLogs(accountDetails, application$id, entries, skip)
-         # after the first fetch, we've seen all recent entries, so show
-         # only new entries. unfortunately /logs/ doesn't support getting 0
-         # entries, so get one and don't log it.
-         entries <- 1
-         skip <- 1
-       },
-       error = function(e) {
-         # if the server times out, ignore the error; otherwise, let it
-         # bubble through
-         if (!identical(e$message,
-                  "transfer closed with outstanding read data remaining")) {
-           stop(e)
-         }
-       })
+      tryCatch(
+        {
+          streamApplicationLogs(accountDetails, application$id, entries, skip)
+          # after the first fetch, we've seen all recent entries, so show
+          # only new entries. unfortunately /logs/ doesn't support getting 0
+          # entries, so get one and don't log it.
+          entries <- 1
+          skip <- 1
+        },
+        error = function(e) {
+          # if the server times out, ignore the error; otherwise, let it
+          # bubble through
+          if (
+            !identical(
+              e$message,
+              "transfer closed with outstanding read data remaining"
+            )
+          ) {
+            stop(e)
+          }
+        }
+      )
     }
   } else {
     # if not streaming, poll for the entries directly
@@ -302,7 +344,9 @@ syncAppMetadata <- function(appPath = ".") {
       rsconnect_http_404 = function(c) {
         # if the app has been deleted, delete the deployment record
         file.remove(curDeploy$deploymentFile)
-        cli::cli_inform("Deleting deployment record for deleted app {curDeploy$appId}.")
+        cli::cli_inform(
+          "Deleting deployment record for deleted app {curDeploy$appId}."
+        )
         NULL
       }
     )

@@ -5,7 +5,9 @@ test_that("system and server cert stores are concatenated", {
   withr::local_options(rsconnect.ca.bundle = test_path("certs/store.crt"))
 
   # create and then read the temporary certificate file
-  concatenated <- createCertificateFile(readLines(test_path("certs/localhost.crt")))
+  concatenated <- createCertificateFile(readLines(test_path(
+    "certs/localhost.crt"
+  )))
   withr::defer(unlink(concatenated))
   store <- paste(readLines(concatenated), collapse = "\n")
 
@@ -31,10 +33,10 @@ test_that("certificates not used when making plain http connections", {
 
   GET(
     list(
-      protocol  = "http",
-      host      = "localhost:4567",
-      port      = "80",
-      path      = "apps"
+      protocol = "http",
+      host = "localhost:4567",
+      port = "80",
+      path = "apps"
     ),
     authInfo = list(certificate = test_path("certs/localhost.crt")),
     "apps"
@@ -48,10 +50,10 @@ test_that("certificates used when making https connections", {
 
   GET(
     list(
-      protocol  = "https",
-      host      = "localhost:4567",
-      port      = "443",
-      path      = "apps"
+      protocol = "https",
+      host = "localhost:4567",
+      port = "443",
+      path = "apps"
     ),
     authInfo = list(certificate = test_path("certs/localhost.crt")),
     "apps"

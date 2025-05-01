@@ -1,14 +1,15 @@
-httpLibCurl <- function(protocol,
-                        host,
-                        port,
-                        method,
-                        path,
-                        headers,
-                        contentType = NULL,
-                        contentFile = NULL,
-                        certificate = NULL,
-                        timeout = NULL) {
-
+httpLibCurl <- function(
+  protocol,
+  host,
+  port,
+  method,
+  path,
+  headers,
+  contentType = NULL,
+  contentFile = NULL,
+  certificate = NULL,
+  timeout = NULL
+) {
   request <- list(
     protocol = protocol,
     host = host,
@@ -83,7 +84,12 @@ httpLibCurl <- function(protocol,
   jsonTracingEnabled <- httpTraceJson() && contentType == "application/json"
   if (jsonTracingEnabled) {
     if (!is.null(contentFile)) {
-      cat(paste0("<< ", readLines(contentFile, warn = FALSE), "\n", collapse = ""))
+      cat(paste0(
+        "<< ",
+        readLines(contentFile, warn = FALSE),
+        "\n",
+        collapse = ""
+      ))
     }
     lines <- strsplit(contentValue, "\n")[[1]]
     cat(paste0(">> ", lines, "\n", collapse = ""))
@@ -98,9 +104,7 @@ httpLibCurl <- function(protocol,
   )
 }
 
-createCurlHandle <- function(method,
-                             timeout = NULL,
-                             certificate = NULL) {
+createCurlHandle <- function(method, timeout = NULL, certificate = NULL) {
   # create curl handle
   handle <- curl::new_handle()
 

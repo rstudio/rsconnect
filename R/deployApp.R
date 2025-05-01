@@ -206,39 +206,38 @@
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
 #' @export
-deployApp <- function(appDir = getwd(),
-                      appFiles = NULL,
-                      appFileManifest = NULL,
-                      appPrimaryDoc = NULL,
-                      appSourceDoc = NULL,
-                      appName = NULL,
-                      appTitle = NULL,
-                      envVars = NULL,
-                      appId = NULL,
-                      appMode = NULL,
-                      contentCategory = NULL,
-                      account = NULL,
-                      server = NULL,
-                      upload = TRUE,
-                      recordDir = NULL,
-                      launch.browser = getOption("rsconnect.launch.browser",
-                                                 is_interactive()),
-                      on.failure = NULL,
-                      logLevel = c("normal", "quiet", "verbose"),
-                      lint = TRUE,
-                      metadata = list(),
-                      forceUpdate = NULL,
-                      python = NULL,
-                      forceGeneratePythonEnvironment = FALSE,
-                      quarto = NA,
-                      appVisibility = NULL,
-                      image = NULL,
-                      envManagement = NULL,
-                      envManagementR = NULL,
-                      envManagementPy = NULL,
-                      space = NULL
-                      ) {
-
+deployApp <- function(
+  appDir = getwd(),
+  appFiles = NULL,
+  appFileManifest = NULL,
+  appPrimaryDoc = NULL,
+  appSourceDoc = NULL,
+  appName = NULL,
+  appTitle = NULL,
+  envVars = NULL,
+  appId = NULL,
+  appMode = NULL,
+  contentCategory = NULL,
+  account = NULL,
+  server = NULL,
+  upload = TRUE,
+  recordDir = NULL,
+  launch.browser = getOption("rsconnect.launch.browser", is_interactive()),
+  on.failure = NULL,
+  logLevel = c("normal", "quiet", "verbose"),
+  lint = TRUE,
+  metadata = list(),
+  forceUpdate = NULL,
+  python = NULL,
+  forceGeneratePythonEnvironment = FALSE,
+  quarto = NA,
+  appVisibility = NULL,
+  image = NULL,
+  envManagement = NULL,
+  envManagementR = NULL,
+  envManagementPy = NULL,
+  space = NULL
+) {
   check_string(appDir)
   if (isStaticFile(appDir) && !dirExists(appDir)) {
     lifecycle::deprecate_warn(
@@ -330,7 +329,9 @@ deployApp <- function(appDir = getwd(),
     cli::cli_rule("Preparing for deployment")
   }
 
-  forceUpdate <- forceUpdate %||% getOption("rsconnect.force.update.apps") %||% fromIDE()
+  forceUpdate <- forceUpdate %||%
+    getOption("rsconnect.force.update.apps") %||%
+    fromIDE()
 
   # determine the target deployment record and deploying account
   recordPath <- findRecordPath(appDir, recordDir, appPrimaryDoc)
@@ -349,18 +350,26 @@ deployApp <- function(appDir = getwd(),
 
   if (is.null(deployment$appId)) {
     dest <- accountLabel(accountDetails$name, accountDetails$server)
-    taskComplete(quiet, "Deploying {.val {deployment$name}} using {.val {dest}}")
+    taskComplete(
+      quiet,
+      "Deploying {.val {deployment$name}} using {.val {dest}}"
+    )
   } else {
     dest <- accountLabel(accountDetails$name, accountDetails$server)
-    taskComplete(quiet, "Re-deploying {.val {deployment$name}} using {.val {dest}}")
+    taskComplete(
+      quiet,
+      "Re-deploying {.val {deployment$name}} using {.val {dest}}"
+    )
   }
 
   # Run checks prior to first saveDeployment() to avoid errors that will always
   # prevent a successful upload from generating a partial deployment
   if (!isCloudServer(accountDetails$server) && identical(upload, FALSE)) {
     # it is not possible to deploy to Connect without uploading
-    stop("Posit Connect does not support deploying without uploading. ",
-         "Specify upload=TRUE to upload and re-deploy your application.")
+    stop(
+      "Posit Connect does not support deploying without uploading. ",
+      "Specify upload=TRUE to upload and re-deploy your application."
+    )
   }
   if (!isConnectServer(accountDetails$server) && length(envVars) > 1) {
     cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
@@ -398,21 +407,38 @@ deployApp <- function(appDir = getwd(),
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
-    taskStart(quiet, "Looking up application with id {.val {deployment$appId}}...")
+    taskStart(
+      quiet,
+      "Looking up application with id {.val {deployment$appId}}..."
+    )
     application <- tryCatch(
       {
-        application <- client$getApplication(deployment$appId, deployment$version)
+        application <- client$getApplication(
+          deployment$appId,
+          deployment$version
+        )
         taskComplete(quiet, "Found application {.url {application$url}}")
 
         if (identical(application$type, "static")) {
-          application$application_id <- client$createRevision(application, contentCategory)
+          application$application_id <- client$createRevision(
+            application,
+            contentCategory
+          )
         }
 
         application
       },
       rsconnect_http_404 = function(err) {
-        application <- applicationDeleted(client, deployment, recordPath, appMetadata)
-        taskComplete(quiet, "Created application with id {.val {application$id}}")
+        application <- applicationDeleted(
+          client,
+          deployment,
+          recordPath,
+          appMetadata
+        )
+        taskComplete(
+          quiet,
+          "Created application with id {.val {application$id}}"
+        )
         application
       }
     )
@@ -425,7 +451,9 @@ deployApp <- function(appDir = getwd(),
   )
 
   # Change _visibility_ & set env vars before uploading contents
-  if (needsVisibilityChange(accountDetails$server, application, appVisibility)) {
+  if (
+    needsVisibilityChange(accountDetails$server, application, appVisibility)
+  ) {
     taskStart(quiet, "Setting visibility to {appVisibility}...")
     client$setApplicationProperty(
       application$id,
@@ -464,7 +492,11 @@ deployApp <- function(appDir = getwd(),
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
     if (isCloudServer(accountDetails$server)) {
-      bundle <- uploadCloudBundle(client, application$application_id, bundlePath)
+      bundle <- uploadCloudBundle(
+        client,
+        application$application_id,
+        bundlePath
+      )
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
     }
@@ -500,14 +532,22 @@ deployApp <- function(appDir = getwd(),
   deploymentSucceeded <- is.null(response$code) || response$code == 0
   if (!quiet) {
     if (deploymentSucceeded) {
-      cli::cli_alert_success("Successfully deployed to {.url {application$url}}")
+      cli::cli_alert_success(
+        "Successfully deployed to {.url {application$url}}"
+      )
     } else {
       cli::cli_alert_danger("Deployment failed with error: {response$error}")
     }
   }
 
   if (!quiet)
-    openURL(client, application, launch.browser, on.failure, deploymentSucceeded)
+    openURL(
+      client,
+      application,
+      launch.browser,
+      on.failure,
+      deploymentSucceeded
+    )
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
@@ -528,9 +568,7 @@ taskComplete <- function(quiet, message, .envir = caller_env()) {
   cli::cli_alert_success(message, .envir = .envir)
 }
 
-findRecordPath <- function(appDir,
-                           recordDir = NULL,
-                           appPrimaryDoc = NULL) {
+findRecordPath <- function(appDir, recordDir = NULL, appPrimaryDoc = NULL) {
   if (!is.null(recordDir)) {
     recordDir
   } else if (!is.null(appPrimaryDoc)) {
@@ -614,17 +652,19 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
 # deployApp() instead of being exposed to the user. Returns the path to the
 # bundle directory, whereas writeManifest() returns nothing and deletes the
 # bundle directory after writing the manifest.
-bundleApp <- function(appName,
-                      appDir,
-                      appFiles,
-                      appMetadata,
-                      verbose = FALSE,
-                      quiet = FALSE,
-                      pythonConfig = NULL,
-                      image = NULL,
-                      envManagement = NULL,
-                      envManagementR = NULL,
-                      envManagementPy = NULL) {
+bundleApp <- function(
+  appName,
+  appDir,
+  appFiles,
+  appMetadata,
+  verbose = FALSE,
+  quiet = FALSE,
+  pythonConfig = NULL,
+  image = NULL,
+  envManagement = NULL,
+  envManagementR = NULL,
+  envManagementPy = NULL
+) {
   logger <- verboseLogger(verbose)
 
   # get application users (for non-document deployments)
@@ -636,10 +676,10 @@ bundleApp <- function(appName,
   # copy files to bundle dir to stage
   logger("Bundling app dir")
   bundleDir <- bundleAppDir(
-      appDir = appDir,
-      appFiles = appFiles,
-      appPrimaryDoc = appMetadata$appPrimaryDoc,
-      appMode = appMetadata$appMode
+    appDir = appDir,
+    appFiles = appFiles,
+    appPrimaryDoc = appMetadata$appPrimaryDoc,
+    appMode = appMetadata$appMode
   )
   defer(unlink(bundleDir, recursive = TRUE))
 
@@ -673,14 +713,20 @@ validURL <- function(url) {
   !(is.null(url) || url == "")
 }
 
-openURL <- function(client, application, launch.browser, on.failure, deploymentSucceeded) {
-
+openURL <- function(
+  client,
+  application,
+  launch.browser,
+  on.failure,
+  deploymentSucceeded
+) {
   # function to browse to a URL using user-supplied browser (config or final)
   showURL <- function(url) {
-    if (isTRUE(launch.browser))
+    if (isTRUE(launch.browser)) {
       utils::browseURL(url)
-    else if (is.function(launch.browser))
+    } else if (is.function(launch.browser)) {
       launch.browser(url)
+    }
   }
 
   # Check to see if we should open config url or app url
@@ -706,7 +752,7 @@ openURL <- function(client, application, launch.browser, on.failure, deploymentS
   } else if (is.function(on.failure)) {
     on.failure(NULL)
   }
-    # or open no url if things failed
+  # or open no url if things failed
 }
 
 runStartupScripts <- function(appDir, quiet = FALSE, verbose = FALSE) {

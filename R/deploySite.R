@@ -24,20 +24,21 @@
 #'   `deploySite()`.
 #' @family Deployment functions
 #' @export
-deploySite <- function(siteDir = getwd(),
-                       siteName = NULL,
-                       siteTitle = NULL,
-                       account = NULL,
-                       server = NULL,
-                       render = c("none", "local", "server"),
-                       launch.browser = getOption("rsconnect.launch.browser", interactive()),
-                       logLevel = c("normal", "quiet", "verbose"),
-                       lint = FALSE,
-                       metadata = list(),
-                       python = NULL,
-                       recordDir = NULL,
-                       ...) {
-
+deploySite <- function(
+  siteDir = getwd(),
+  siteName = NULL,
+  siteTitle = NULL,
+  account = NULL,
+  server = NULL,
+  render = c("none", "local", "server"),
+  launch.browser = getOption("rsconnect.launch.browser", interactive()),
+  logLevel = c("normal", "quiet", "verbose"),
+  lint = FALSE,
+  metadata = list(),
+  python = NULL,
+  recordDir = NULL,
+  ...
+) {
   check_directory(siteDir)
   isQuarto <- file.exists(file.path(siteDir, "_quarto.yml")) ||
     file.exists(file.path(siteDir, "_quarto.yaml"))
@@ -67,7 +68,7 @@ deploySite <- function(siteDir = getwd(),
     # We're deploying an entire directory, so we don't really need to set
     # a path here, but we don't want to break existing deployments so
     # we leave the existing behaviour for RMarkdown
-    if (!isQuarto)  {
+    if (!isQuarto) {
       name <- if (file.exists("index.Rmd")) "index.Rmd" else "index.md"
       recordDir <- file.path(siteDir, name)
     } else {
@@ -102,7 +103,8 @@ quartoSite <- function(path, quiet = FALSE, error_call = caller_env()) {
   config <- quarto::quarto_inspect(path)$config
 
   list(
-    render = function() quarto::quarto_render(path, quiet = quiet, as_job = FALSE),
+    render = function()
+      quarto::quarto_render(path, quiet = quiet, as_job = FALSE),
     name = basename(normalizePath(path)),
     title = config$website$title %||% config$book$title %||% config$title,
     # non-site projects build in current directory

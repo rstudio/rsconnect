@@ -36,12 +36,13 @@
 #' @seealso [applications()] to get a list of deployments from the
 #'   server, and [deployApp()] to create a new deployment.
 #' @export
-deployments <- function(appPath = ".",
-                        nameFilter = NULL,
-                        accountFilter = NULL,
-                        serverFilter = NULL,
-                        excludeOrphaned = TRUE) {
-
+deployments <- function(
+  appPath = ".",
+  nameFilter = NULL,
+  accountFilter = NULL,
+  serverFilter = NULL,
+  excludeOrphaned = TRUE
+) {
   migrateDeploymentsConfig(appPath)
   paths <- deploymentConfigFiles(appPath)
 
@@ -64,9 +65,14 @@ deployments <- function(appPath = ".",
   }
   if (excludeOrphaned) {
     activeAccounts <- accounts()
-    activeAccountServers <- paste0(activeAccounts$server, "@", activeAccounts$name)
+    activeAccountServers <- paste0(
+      activeAccounts$server,
+      "@",
+      activeAccounts$name
+    )
     accountServer <- paste0(deployments$server, "@", deployments$account)
-    okServer <- isRPubs(deployments$server) | accountServer %in% activeAccountServers
+    okServer <- isRPubs(deployments$server) |
+      accountServer %in% activeAccountServers
     ok <- ok & okServer
   }
 
@@ -79,8 +85,17 @@ deployments <- function(appPath = ".",
 }
 
 deploymentFields <- c(
-  "name", "title", "username", "account", "server", "hostUrl", "appId",
-  "bundleId", "url", "envVars", "version"
+  "name",
+  "title",
+  "username",
+  "account",
+  "server",
+  "hostUrl",
+  "appId",
+  "bundleId",
+  "url",
+  "envVars",
+  "version"
 )
 
 deploymentRecordVersion <- 1L
@@ -89,13 +104,15 @@ deploymentRecordVersion <- 1L
 # not correspond to an existing on-disk deployment record). Created by
 # deploymentRecord() or by findDeploymentTarget(), and possibly loaded from
 # disk.
-saveDeployment <- function(recordDir,
-                           deployment,
-                           application,
-                           bundleId = NULL,
-                           hostUrl = serverInfo(deployment$server)$url,
-                           metadata = list(),
-                           addToHistory = TRUE) {
+saveDeployment <- function(
+  recordDir,
+  deployment,
+  application,
+  bundleId = NULL,
+  hostUrl = serverInfo(deployment$server)$url,
+  metadata = list(),
+  addToHistory = TRUE
+) {
   deployment <- deploymentRecord(
     name = deployment$name,
     title = deployment$title,
@@ -110,7 +127,12 @@ saveDeployment <- function(recordDir,
     url = application$url,
     metadata = metadata
   )
-  path <- deploymentConfigFile(recordDir, deployment$name, deployment$account, deployment$server)
+  path <- deploymentConfigFile(
+    recordDir,
+    deployment$name,
+    deployment$account,
+    deployment$server
+  )
   writeDeploymentRecord(deployment, path)
 
   # also save to global history
@@ -121,19 +143,20 @@ saveDeployment <- function(recordDir,
   invisible(path)
 }
 
-deploymentRecord <- function(name,
-                             title,
-                             username,
-                             account,
-                             server,
-                             envVars = NULL,
-                             hostUrl = NULL,
-                             appId = NULL,
-                             bundleId = NULL,
-                             url = NULL,
-                             version = deploymentRecordVersion,
-                             metadata = list()) {
-
+deploymentRecord <- function(
+  name,
+  title,
+  username,
+  account,
+  server,
+  envVars = NULL,
+  hostUrl = NULL,
+  appId = NULL,
+  bundleId = NULL,
+  url = NULL,
+  version = deploymentRecordVersion,
+  metadata = list()
+) {
   check_character(envVars, allow_null = TRUE)
 
   standard <- list(
@@ -206,19 +229,30 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 #'   specified deployment is forgotten.
 #'
 #' @export
-forgetDeployment <- function(appPath = getwd(), name = NULL,
-                             account = NULL, server = NULL,
-                             dryRun = FALSE, force = !interactive()) {
+forgetDeployment <- function(
+  appPath = getwd(),
+  name = NULL,
+  account = NULL,
+  server = NULL,
+  dryRun = FALSE,
+  force = !interactive()
+) {
   if (is.null(name) && is.null(account) && is.null(server)) {
     dcfDir <- deploymentConfigDir(appPath)
-    if (dryRun)
+    if (dryRun) {
       message("Would remove the directory ", dcfDir)
-    else if (file.exists(dcfDir)) {
+    } else if (file.exists(dcfDir)) {
       if (!force) {
-        prompt <- paste("Forget all deployment records for ", appPath, "? [Y/n] ", sep = "")
+        prompt <- paste(
+          "Forget all deployment records for ",
+          appPath,
+          "? [Y/n] ",
+          sep = ""
+        )
         input <- readline(prompt)
-        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y")) {
           stop("No deployment records removed.", call. = FALSE)
+        }
       }
       unlink(dcfDir, recursive = TRUE)
     } else {
@@ -226,25 +260,43 @@ forgetDeployment <- function(appPath = getwd(), name = NULL,
     }
   } else {
     if (is.null(name) || is.null(account) || is.null(server)) {
-      stop("Invalid argument. ",
-           "Supply the name, account, and server of the deployment record to delete. ",
-           "Supply NULL for all three to delete all deployment records.")
+      stop(
+        "Invalid argument. ",
+        "Supply the name, account, and server of the deployment record to delete. ",
+        "Supply NULL for all three to delete all deployment records."
+      )
     }
     dcf <- deploymentConfigFile(appPath, name, account, server)
-    if (dryRun)
+    if (dryRun) {
       message("Would remove the file ", dcf)
-    else if (file.exists(dcf)) {
+    } else if (file.exists(dcf)) {
       if (!force) {
-        prompt <- paste("Forget deployment of ", appPath, " to '", name, "' on ",
-                        server, "? [Y/n] ", sep = "")
+        prompt <- paste(
+          "Forget deployment of ",
+          appPath,
+          " to '",
+          name,
+          "' on ",
+          server,
+          "? [Y/n] ",
+          sep = ""
+        )
         input <- readline(prompt)
-        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y"))
+        if (nzchar(input) && !identical(input, "y") && !identical(input, "Y")) {
           stop("Cancelled. No deployment records removed.", call. = FALSE)
+        }
       }
       unlink(dcf)
     } else {
-      message("No deployment of ", appPath, " to '", name, "' on ", server,
-              " found.")
+      message(
+        "No deployment of ",
+        appPath,
+        " to '",
+        name,
+        "' on ",
+        server,
+        " found."
+      )
     }
   }
 

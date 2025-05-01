@@ -1,4 +1,3 @@
-
 # Environment in which cookies will be stored. Cookies are expected to survive
 # the duration of the R session, but are not persisted outside of the R
 # session.
@@ -72,10 +71,15 @@ storeCookies <- function(requestURL, cookieHeaders) {
   lapply(cookies, function(co) {
     # Remove any duplicates
     # RFC says duplicate cookies are ones that have the same domain, name, and path
-    hostCookies <<- hostCookies[!(co$name == hostCookies$name & co$path == hostCookies$path), ]
+    hostCookies <<- hostCookies[
+      !(co$name == hostCookies$name & co$path == hostCookies$path),
+    ]
 
     # append this new cookie on
-    hostCookies <<- rbind(as.data.frame(co, stringsAsFactors = FALSE), hostCookies)
+    hostCookies <<- rbind(
+      as.data.frame(co, stringsAsFactors = FALSE),
+      hostCookies
+    )
   })
 
   # Save this host's cookies into the cookies store.
@@ -87,11 +91,17 @@ storeCookies <- function(requestURL, cookieHeaders) {
 #   header name omitted.
 # @param requestPath the parsed URL as returned from `parseHttpUrl`
 parseCookie <- function(cookieHeader, requestPath = NULL) {
-  keyval <- regmatches(cookieHeader, regexec(
-    # https://curl.haxx.se/rfc/cookie_spec.html
-    # "characters excluding semi-colon, comma and white space"
-    # white space is not excluded from values so we can capture `expires`
-    "^([^;=, ]+)\\s*=\\s*([^;,]*)(;|$)", cookieHeader, ignore.case = TRUE))[[1]]
+  keyval <- regmatches(
+    cookieHeader,
+    regexec(
+      # https://curl.haxx.se/rfc/cookie_spec.html
+      # "characters excluding semi-colon, comma and white space"
+      # white space is not excluded from values so we can capture `expires`
+      "^([^;=, ]+)\\s*=\\s*([^;,]*)(;|$)",
+      cookieHeader,
+      ignore.case = TRUE
+    )
+  )[[1]]
   if (length(keyval) == 0) {
     # Invalid cookie format.
     warning("Unable to parse set-cookie header: ", cookieHeader)
@@ -101,8 +111,14 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
   val <- keyval[3]
 
   # Path
-  path <- regmatches(cookieHeader, regexec(
-    "^.*\\sPath\\s*=\\s*([^;]+)(;|$).*$", cookieHeader, ignore.case = TRUE))[[1]]
+  path <- regmatches(
+    cookieHeader,
+    regexec(
+      "^.*\\sPath\\s*=\\s*([^;]+)(;|$).*$",
+      cookieHeader,
+      ignore.case = TRUE
+    )
+  )[[1]]
   if (length(path) == 0) {
     path <- "/"
   } else {
@@ -111,13 +127,24 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
 
   # Per the RFC, the cookie's path must be a prefix of the request URL
   if (!is.null(requestPath) && !hasPrefix(requestPath, path)) {
-    warning("Invalid path set for cookie on request for '", requestPath, "': ", cookieHeader)
+    warning(
+      "Invalid path set for cookie on request for '",
+      requestPath,
+      "': ",
+      cookieHeader
+    )
     return(NULL)
   }
 
   # MaxAge
-  maxage <- regmatches(cookieHeader, regexec(
-    "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|$).*$", cookieHeader, ignore.case = TRUE))[[1]]
+  maxage <- regmatches(
+    cookieHeader,
+    regexec(
+      "^.*\\sMax-Age\\s*=\\s*(-?\\d+)(;|$).*$",
+      cookieHeader,
+      ignore.case = TRUE
+    )
+  )[[1]]
   # If no maxage specified, then this is a session cookie, which means that
   # (since our cookies only survive for a single session anyways...) we should
   # keep this cookie around as long as we're alive.
@@ -130,11 +157,7 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
   # Secure
   secure <- grepl(";\\s+Secure(;|$)", cookieHeader, ignore.case = TRUE)
 
-  list(name = key,
-       value = val,
-       expires = expires,
-       path = path,
-       secure = secure)
+  list(name = key, value = val, expires = expires, path = path, secure = secure)
 }
 
 # Appends a cookie header from the .cookieStore to the existing set of headers
@@ -163,7 +186,9 @@ appendCookieHeaders <- function(requestURL, headers) {
   }
 
   # Filter to only include cookies that match the path prefix
-  cookies <- cookies[substring(requestURL$path, 1, nchar(cookies$path)) == cookies$path, ]
+  cookies <- cookies[
+    substring(requestURL$path, 1, nchar(cookies$path)) == cookies$path,
+  ]
 
   # If insecure channel, filter out secure cookies
   if (tolower(requestURL$protocol) != "https") {

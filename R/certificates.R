@@ -1,4 +1,3 @@
-
 # sanity check to make sure we're looking at an ASCII armored cert
 validateCertificate <- function(certificate) {
   return(any(grepl("-----BEGIN CERTIFICATE-----", certificate, fixed = TRUE)))
@@ -18,42 +17,56 @@ createCertificateFile <- function(certificate) {
     if (file.exists(systemStore)) {
       certificateFile <- path.expand(systemStore)
     } else {
-      warning("The certificate store '", systemStore, "' specified in the ",
-              if (identical(systemStore, getOption("rsconnect.ca.bundle")))
-                "rsconnect.ca.bundle option "
-              else
-                "RSCONNECT_CA_BUNDLE environment variable ",
-              "does not exist. The system certificate store will be used instead.")
+      warning(
+        "The certificate store '",
+        systemStore,
+        "' specified in the ",
+        if (identical(systemStore, getOption("rsconnect.ca.bundle"))) {
+          "rsconnect.ca.bundle option "
+        } else {
+          "RSCONNECT_CA_BUNDLE environment variable "
+        },
+        "does not exist. The system certificate store will be used instead."
+      )
     }
   }
 
   # if no certificate contents specified, we're done
-  if (is.null(certificate))
+  if (is.null(certificate)) {
     return(certificateFile)
+  }
 
   # if we don't have a certificate file yet, try to find the system store
   if (is.null(certificateFile)) {
     if (.Platform$OS.type == "unix") {
       # search known locations on Unix-like
-      stores <- c("/etc/ssl/certs/ca-certificates.crt",
-                  "/etc/pki/tls/certs/ca-bundle.crt",
-                  "/usr/share/ssl/certs/ca-bundle.crt",
-                  "/usr/local/share/certs/ca-root.crt",
-                  "/etc/ssl/cert.pem",
-                  "/var/lib/ca-certificates/ca-bundle.pem")
+      stores <- c(
+        "/etc/ssl/certs/ca-certificates.crt",
+        "/etc/pki/tls/certs/ca-bundle.crt",
+        "/usr/share/ssl/certs/ca-bundle.crt",
+        "/usr/local/share/certs/ca-root.crt",
+        "/etc/ssl/cert.pem",
+        "/var/lib/ca-certificates/ca-bundle.pem"
+      )
     } else {
       # mirror behavior of curl on Windows, which looks in system folders,
       # the working directory, and %PATH%.
-      stores <- c(file.path(getwd(), "curl-ca-bundle.crt"),
-                  "C:/Windows/System32/curl-ca-bundle.crt",
-                  "C:/Windows/curl-ca-bundle.crt",
-                  file.path(strsplit(Sys.getenv("PATH"), ";", fixed = TRUE),
-                            "curl-ca-bundle.crt"))
-
+      stores <- c(
+        file.path(getwd(), "curl-ca-bundle.crt"),
+        "C:/Windows/System32/curl-ca-bundle.crt",
+        "C:/Windows/curl-ca-bundle.crt",
+        file.path(
+          strsplit(Sys.getenv("PATH"), ";", fixed = TRUE),
+          "curl-ca-bundle.crt"
+        )
+      )
     }
 
     # use our own baked-in bundle as a last resort
-    stores <- c(stores, system.file(package = "rsconnect", "cert", "cacert.pem"))
+    stores <- c(
+      stores,
+      system.file(package = "rsconnect", "cert", "cacert.pem")
+    )
 
     for (store in stores) {
       if (file.exists(store)) {
@@ -96,39 +109,58 @@ inferCertificateContents <- function(certificate) {
   # infer which we're dealing with
 
   # tolerate NULL, which is a valid case representing no certificate
-  if (is.null(certificate) || identical(certificate, ""))
+  if (is.null(certificate) || identical(certificate, "")) {
     return(NULL)
+  }
 
   # collapse to a single string if we got a vector of lines
-  if (length(certificate) > 1)
+  if (length(certificate) > 1) {
     certificate <- paste(certificate, collapse = "\n")
+  }
 
   # looks like ASCII armored certificate data, return as-is
-  if (validateCertificate(substr(certificate, 1, 27)))
+  if (validateCertificate(substr(certificate, 1, 27))) {
     return(certificate)
+  }
 
   # looks like a file; return its contents
   if (file.exists(certificate)) {
     if (file.size(certificate) > 1048576) {
-      stop("The file '", certificate, "' is too large. Certificate files must ",
-           "be less than 1MB.")
+      stop(
+        "The file '",
+        certificate,
+        "' is too large. Certificate files must ",
+        "be less than 1MB."
+      )
     }
-    contents <- paste(readLines(con = certificate, warn = FALSE), collapse = "\n")
-    if (validateCertificate(contents))
+    contents <- paste(
+      readLines(con = certificate, warn = FALSE),
+      collapse = "\n"
+    )
+    if (validateCertificate(contents)) {
       return(contents)
-    else
-      stop("The file '", certificate, "' does not appear to be a certificate. ",
-           "Certificate files should be in ASCII armored PEM format, with a ",
-           "first line reading -----BEGIN CERTIFICATE-----.")
+    } else {
+      stop(
+        "The file '",
+        certificate,
+        "' does not appear to be a certificate. ",
+        "Certificate files should be in ASCII armored PEM format, with a ",
+        "first line reading -----BEGIN CERTIFICATE-----."
+      )
+    }
   }
 
   # doesn't look like something we can deal with; guess error based on length
   if (nchar(certificate) < 200) {
     stop("The certificate file '", certificate, "' does not exist.")
   } else {
-    stop("The certificate '", substr(certificate, 1, 10), "...' is not ",
-    "correctly formed. Specify the certificate as either an ASCII armored string, ",
-    "beginning with -----BEGIN CERTIFICATE----, or a valid path to a file ",
-    "containing the certificate.")
+    stop(
+      "The certificate '",
+      substr(certificate, 1, 10),
+      "...' is not ",
+      "correctly formed. Specify the certificate as either an ASCII armored string, ",
+      "beginning with -----BEGIN CERTIFICATE----, or a valid path to a file ",
+      "containing the certificate."
+    )
   }
 }

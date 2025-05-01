@@ -16,21 +16,23 @@
 #' @param verbose If `TRUE`, prints detailed progress messages.
 #' @param quiet If `FALSE`, prints progress messages.
 #' @export
-writeManifest <- function(appDir = getwd(),
-                          appFiles = NULL,
-                          appFileManifest = NULL,
-                          appPrimaryDoc = NULL,
-                          appMode = NULL,
-                          contentCategory = NULL,
-                          python = NULL,
-                          forceGeneratePythonEnvironment = FALSE,
-                          quarto = NA,
-                          image = NULL,
-                          envManagement = NULL,
-                          envManagementR = NULL,
-                          envManagementPy = NULL,
-                          verbose = FALSE,
-                          quiet = FALSE) {
+writeManifest <- function(
+  appDir = getwd(),
+  appFiles = NULL,
+  appFileManifest = NULL,
+  appPrimaryDoc = NULL,
+  appMode = NULL,
+  contentCategory = NULL,
+  python = NULL,
+  forceGeneratePythonEnvironment = FALSE,
+  quarto = NA,
+  image = NULL,
+  envManagement = NULL,
+  envManagementR = NULL,
+  envManagementPy = NULL,
+  verbose = FALSE,
+  quiet = FALSE
+) {
   appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,

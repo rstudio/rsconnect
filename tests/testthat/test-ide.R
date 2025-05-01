@@ -32,7 +32,13 @@ test_that("validateServerUrl() when Connect", {
   # Incomplete (lacks path).
   # Lack of protocol is not easily tested because validateConnectUrl()
   # prefers https://.
-  partial_url <- paste0(service$protocol, "://", service$host, ":", service$port)
+  partial_url <- paste0(
+    service$protocol,
+    "://",
+    service$host,
+    ":",
+    service$port
+  )
   result <- validateServerUrl(partial_url)
   expect_true(result$valid, info = partial_url)
   expect_equal(result$url, expected_url, info = partial_url)
@@ -69,7 +75,9 @@ current_user_service <- function() {
       json_app <- webfakes::new_app()
       json_app$use(webfakes::mw_json())
       json_app$get("/users/current", function(req, res) {
-        res$set_status(200L)$send_json(list(username = jsonlite::unbox("susan")))
+        res$set_status(200L)$send_json(list(
+          username = jsonlite::unbox("susan")
+        ))
       })
       app <- webfakes::new_app_process(json_app)
     }

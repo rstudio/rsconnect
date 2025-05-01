@@ -37,7 +37,6 @@ rsconnectConfigDir <- function(subDir = NULL) {
 #'
 #' @keywords internal
 applicationConfigDir <- function() {
-
   if (exists("R_user_dir", envir = asNamespace("tools"))) {
     # In newer versions of R (>=4.0), we can ask R itself where configuration should be stored.
     # Load from the namespace to avoid check warnings with old R.
@@ -47,17 +46,17 @@ applicationConfigDir <- function() {
     # In older versions of R, use an implementation derived from R_user_dir
     home <- Sys.getenv("HOME", unset = normalizePath("~"))
     path <-
-      if (nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR")))
+      if (nzchar(p <- Sys.getenv("R_USER_CONFIG_DIR"))) {
         p
-      else if (nzchar(p <- Sys.getenv("XDG_CONFIG_HOME")))
+      } else if (nzchar(p <- Sys.getenv("XDG_CONFIG_HOME"))) {
         p
-      else if (.Platform$OS.type == "windows")
+      } else if (.Platform$OS.type == "windows") {
         file.path(Sys.getenv("APPDATA"), "R", "config")
-      else if (Sys.info()["sysname"] == "Darwin")
+      } else if (Sys.info()["sysname"] == "Darwin") {
         file.path(home, "Library", "Preferences", "org.R-project.R")
-      else
+      } else {
         file.path(home, ".config")
-
+      }
     file.path(path, "R", "rsconnect")
   }
 }
@@ -96,7 +95,12 @@ accountConfigFiles <- function(server = NULL) {
     path <- file.path(path, server)
   }
 
-  list.files(path, pattern = glob2rx("*.dcf"), recursive = TRUE, full.names = TRUE)
+  list.files(
+    path,
+    pattern = glob2rx("*.dcf"),
+    recursive = TRUE,
+    full.names = TRUE
+  )
 }
 
 
@@ -113,7 +117,12 @@ deploymentHistoryPath <- function(new = FALSE) {
 # stored
 deploymentConfigDir <- function(recordPath) {
   if (isDocumentPath(recordPath)) {
-    file.path(dirname(recordPath), "rsconnect", "documents", basename(recordPath))
+    file.path(
+      dirname(recordPath),
+      "rsconnect",
+      "documents",
+      basename(recordPath)
+    )
   } else {
     file.path(recordPath, "rsconnect")
   }

@@ -20,15 +20,22 @@
 #' @seealso [applications()], [deployApp()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-configureApp <- function(appName, appDir = getwd(), account = NULL, server = NULL,
-                         redeploy = TRUE, size = NULL,
-                         instances = NULL, logLevel = c("normal", "quiet", "verbose")) {
-
+configureApp <- function(
+  appName,
+  appDir = getwd(),
+  account = NULL,
+  server = NULL,
+  redeploy = TRUE,
+  size = NULL,
+  instances = NULL,
+  logLevel = c("normal", "quiet", "verbose")
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
-  if (is.null(appName))
+  if (is.null(appName)) {
     appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   displayStatus <- displayStatus(identical(logLevel, "quiet"))
@@ -38,10 +45,10 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 
   # get a list of properties to set
   properties <- list()
-  if (! is.null(size)) {
+  if (!is.null(size)) {
     properties[["application.instances.template"]] <- size
   }
-  if (! is.null(instances)) {
+  if (!is.null(instances)) {
     properties[["application.instances.count"]] <- instances
   }
 
@@ -53,20 +60,34 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 
     # dispatch to the appropriate client implementation
     if (is.function(client$configureApplication))
-      client$configureApplication(application$id, propertyName, propertyValue)
-    else if (is.function(client$setApplicationProperty))
-      client$setApplicationProperty(application$id, propertyName, propertyValue)
-    else
-      stop("Server ", accountDetails$server, " has no appropriate configuration method.")
+      client$configureApplication(
+        application$id,
+        propertyName,
+        propertyValue
+      ) else if (is.function(client$setApplicationProperty))
+      client$setApplicationProperty(
+        application$id,
+        propertyName,
+        propertyValue
+      ) else
+      stop(
+        "Server ",
+        accountDetails$server,
+        " has no appropriate configuration method."
+      )
   }
 
   # redeploy application if requested
   if (redeploy) {
     if (length(properties) > 0) {
-      deployApp(appDir = appDir, appName = appName, account = account, logLevel = logLevel, upload = rebuildRequired)
-    }
-    else
-    {
+      deployApp(
+        appDir = appDir,
+        appName = appName,
+        account = account,
+        logLevel = logLevel,
+        upload = rebuildRequired
+      )
+    } else {
       displayStatus("No configuration changes to deploy")
     }
   }
@@ -97,9 +118,15 @@ configureApp <- function(appName, appDir = getwd(), account = NULL, server = NUL
 #'
 #' }
 #' @export
-setProperty <- function(propertyName, propertyValue, appPath = getwd(),
-                        appName = NULL, account = NULL, server = NULL, force = FALSE) {
-
+setProperty <- function(
+  propertyName,
+  propertyValue,
+  appPath = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  force = FALSE
+) {
   deployment <- findDeployment(
     appPath = appPath,
     appName = appName,
@@ -112,10 +139,12 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
 
-  invisible(client$setApplicationProperty(application$id,
-                                         propertyName,
-                                         propertyValue,
-                                         force))
+  invisible(client$setApplicationProperty(
+    application$id,
+    propertyName,
+    propertyValue,
+    force
+  ))
 }
 
 #' Unset Application property
@@ -136,9 +165,14 @@ setProperty <- function(propertyName, propertyValue, appPath = getwd(),
 #'
 #' }
 #' @export
-unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
-                          account = NULL, server = NULL, force = FALSE) {
-
+unsetProperty <- function(
+  propertyName,
+  appPath = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  force = FALSE
+) {
   deployment <- findDeployment(
     appPath = appPath,
     appName = appName,
@@ -151,9 +185,11 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountInfo, deployment$name)
 
-  invisible(client$unsetApplicationProperty(application$id,
-                                           propertyName,
-                                           force))
+  invisible(client$unsetApplicationProperty(
+    application$id,
+    propertyName,
+    force
+  ))
 }
 
 
@@ -169,8 +205,12 @@ unsetProperty <- function(propertyName, appPath = getwd(), appName = NULL,
 #' @note This function works only for ShinyApps servers.
 #'
 #' @export
-showProperties <- function(appPath = getwd(), appName = NULL, account = NULL, server = NULL) {
-
+showProperties <- function(
+  appPath = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL
+) {
   deployment <- findDeployment(
     appPath = appPath,
     appName = appName,

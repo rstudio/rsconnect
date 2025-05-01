@@ -6,10 +6,11 @@ test_that("lints give have useful print method", {
 })
 
 test_that("The linter believes that the Shiny example apps are okay", {
-
-  examples <- list.files(system.file("examples", package = "shiny"), full.names = TRUE)
+  examples <- list.files(
+    system.file("examples", package = "shiny"),
+    full.names = TRUE
+  )
   if (length(examples)) {
-
     results <- lapply(examples, lint)
 
     expect_output(lints <- lapply(results, print))

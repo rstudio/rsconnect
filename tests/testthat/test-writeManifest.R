@@ -43,7 +43,10 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
 
   appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, python = python)
-  requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
+  requirements_file <- file.path(
+    appDir,
+    manifest$python$package_manager$package_file
+  )
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
   defer(unlink(requirements_file))
 
@@ -59,7 +62,10 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
 
   appDir <- test_path("test-reticulate-rmds")
   manifest <- makeManifest(appDir, "implicit.Rmd", python = python)
-  requirements_file <- file.path(appDir, manifest$python$package_manager$package_file)
+  requirements_file <- file.path(
+    appDir,
+    manifest$python$package_manager$package_file
+  )
   expect_equal(requirements_file, "test-reticulate-rmds/requirements.txt")
   defer(unlink(requirements_file))
 
@@ -310,7 +316,12 @@ test_that("Sets environment.environment_management in the manifest if envManagem
   appDir <- test_path("shinyapp-simple")
 
   # test shorthand arg
-  manifest <- makeManifest(appDir, envManagement = FALSE, envManagementR = TRUE, envManagementPy = TRUE)
+  manifest <- makeManifest(
+    appDir,
+    envManagement = FALSE,
+    envManagementR = TRUE,
+    envManagementPy = TRUE
+  )
   expect_equal(manifest$environment$environment_management$r, FALSE)
   expect_equal(manifest$environment$environment_management$python, FALSE)
 

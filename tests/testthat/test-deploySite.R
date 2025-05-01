@@ -3,13 +3,15 @@ test_that("can extract quarto metadata", {
   skip_if_no_quarto()
   skip_if_not_installed("quarto")
 
-  app <- local_temp_app(list(`_quarto.yaml` = c(
-    "project:",
-    "  type: website",
-    "",
-    "website:",
-    "  title: 'website-quarto'"
-  )))
+  app <- local_temp_app(list(
+    `_quarto.yaml` = c(
+      "project:",
+      "  type: website",
+      "",
+      "website:",
+      "  title: 'website-quarto'"
+    )
+  ))
 
   site <- quartoSite(app)
   expect_equal(site$title, "website-quarto")

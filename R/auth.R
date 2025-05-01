@@ -1,5 +1,4 @@
 cleanupPasswordFile <- function(appDir) {
-
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
@@ -11,11 +10,13 @@ cleanupPasswordFile <- function(appDir) {
 
   # check if password file exists
   if (file.exists(passwordFile)) {
-    message("WARNING: Password file found! This application is configured to use scrypt ",
-            "authentication, which is no longer supported.\nIf you choose to proceed, ",
-            "all existing users of this application will be removed, ",
-            "and will NOT be recoverable.\nFor for more information please visit: ",
-            "http://shiny.rstudio.com/articles/migration.html")
+    message(
+      "WARNING: Password file found! This application is configured to use scrypt ",
+      "authentication, which is no longer supported.\nIf you choose to proceed, ",
+      "all existing users of this application will be removed, ",
+      "and will NOT be recoverable.\nFor for more information please visit: ",
+      "http://shiny.rstudio.com/articles/migration.html"
+    )
     response <- readline("Do you want to proceed? [Y/n]: ")
     if (tolower(substring(response, 1, 1)) != "y") {
       stop("Cancelled", call. = FALSE)
@@ -43,16 +44,22 @@ cleanupPasswordFile <- function(appDir) {
 #' @seealso [removeAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
-                              account = NULL, server = NULL, sendEmail = NULL,
-                              emailMessage = NULL) {
-
+addAuthorizedUser <- function(
+  email,
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  sendEmail = NULL,
+  emailMessage = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName))
+  if (is.null(appName)) {
     appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # check for and remove password file
@@ -60,8 +67,12 @@ addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
 
   # fetch authoriztion list
   api <- clientForAccount(accountDetails)
-  api$inviteApplicationUser(application$id, validateEmail(email), sendEmail,
-                            emailMessage)
+  api$inviteApplicationUser(
+    application$id,
+    validateEmail(email),
+    sendEmail,
+    emailMessage
+  )
 
   message(paste("Added:", email, "to application", sep = " "))
 
@@ -78,15 +89,18 @@ addAuthorizedUser <- function(email, appDir = getwd(), appName = NULL,
 #' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-removeAuthorizedUser <- function(user, appDir = getwd(), appName = NULL,
-                                 account = NULL, server = NULL) {
-
+removeAuthorizedUser <- function(
+  user,
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName))
-    appName <- basename(appDir)
+  if (is.null(appName)) appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # check and remove password file
@@ -129,15 +143,17 @@ removeAuthorizedUser <- function(user, appDir = getwd(), appName = NULL,
 #' @seealso [addAuthorizedUser()] and [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-showUsers <- function(appDir = getwd(), appName = NULL, account = NULL,
-                      server = NULL) {
-
+showUsers <- function(
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName))
-    appName <- basename(appDir)
+  if (is.null(appName)) appName <- basename(appDir)
   application <- resolveApplication(accountDetails, appName)
 
   # fetch authoriztion list
@@ -172,15 +188,19 @@ showUsers <- function(appDir = getwd(), appName = NULL, account = NULL,
 #' @seealso [addAuthorizedUser()] and [showUsers()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-showInvited <- function(appDir = getwd(), appName = NULL, account = NULL,
-                        server = NULL) {
-
+showInvited <- function(
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName))
+  if (is.null(appName)) {
     appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # fetch invitation list
@@ -215,10 +235,14 @@ showInvited <- function(appDir = getwd(), appName = NULL, account = NULL,
 #' @seealso [showInvited()]
 #' @note This function works only for ShinyApps servers.
 #' @export
-resendInvitation <- function(invite, regenerate = FALSE,
-                             appDir = getwd(), appName = NULL,
-                             account = NULL, server = NULL) {
-
+resendInvitation <- function(
+  invite,
+  regenerate = FALSE,
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
@@ -270,7 +294,6 @@ authorizedUsers <- function(appDir = getwd()) {
 }
 
 validateEmail <- function(email) {
-
   if (is.null(email) || !grepl(".+\\@.+\\..+", email)) {
     stop("Invalid email address.", call. = FALSE)
   }
@@ -301,7 +324,6 @@ readPasswordFile <- function(path) {
 }
 
 writePasswordFile <- function(path, passwords) {
-
   # open and file
   f <- file(path, open = "w")
   defer(close(f))
@@ -311,5 +333,7 @@ writePasswordFile <- function(path, passwords) {
     l <- paste(r[1], ":", r[2], "\n", sep = "")
     cat(l, file = f, sep = "")
   })
-  message("Password file updated. You must deploy your application for these changes to take effect.")
+  message(
+    "Password file updated. You must deploy your application for these changes to take effect."
+  )
 }

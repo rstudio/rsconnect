@@ -41,7 +41,6 @@ findDeploymentTarget <- function(
   forceUpdate = FALSE,
   error_call = caller_env()
 ) {
-
   if (!is.null(appId)) {
     return(findDeploymentTargetByAppId(
       recordPath = recordPath,
@@ -79,9 +78,16 @@ findDeploymentTarget <- function(
     serverFilter = server
   )
   if (nrow(allDeployments) > 0) {
-    deployment <- disambiguateDeployments(allDeployments, error_call = error_call)
+    deployment <- disambiguateDeployments(
+      allDeployments,
+      error_call = error_call
+    )
     deployment <- updateDeployment(deployment, appTitle, envVars)
-    accountDetails <- findAccountInfo(deployment$account, deployment$server, error_call = error_call)
+    accountDetails <- findAccountInfo(
+      deployment$account,
+      deployment$server,
+      error_call = error_call
+    )
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -91,7 +97,12 @@ findDeploymentTarget <- function(
   # Otherwise, identify a target account (given just one available or prompted
   # by the user), generate a name, and locate the deployment.
   accountDetails <- findAccountInfo(account, server, error_call = error_call)
-  appName <- generateAppName(appTitle, recordPath, accountDetails$name, unique = FALSE)
+  appName <- generateAppName(
+    appTitle,
+    recordPath,
+    accountDetails$name,
+    unique = FALSE
+  )
   return(findDeploymentTargetByAppName(
     recordPath = recordPath,
     appName = appName,
@@ -125,7 +136,6 @@ findDeploymentTargetByAppId <- function(
   server = NULL,
   error_call = caller_env()
 ) {
-
   # We must have a target account+server in order to use the appId.
   # The selected account may not be the original creator of the content.
   accountDetails <- findAccountInfo(account, server, error_call = error_call)
@@ -159,7 +169,11 @@ findDeploymentTargetByAppId <- function(
   }
 
   # No local deployment record. Get it from the server.
-  application <- getApplication(accountDetails$name, accountDetails$server, appId)
+  application <- getApplication(
+    accountDetails$name,
+    accountDetails$server,
+    appId
+  )
 
   # Note: The account+server of this deployment record may
   # not correspond to the original content creator.
@@ -189,7 +203,6 @@ findDeploymentTargetByAppName <- function(
   forceUpdate = FALSE,
   error_call = caller_env()
 ) {
-
   appDeployments <- deployments(
     appPath = recordPath,
     nameFilter = appName,
@@ -202,7 +215,11 @@ findDeploymentTargetByAppName <- function(
   if (nrow(appDeployments) == 1) {
     deployment <- appDeployments[1, ]
     deployment <- updateDeployment(deployment, appTitle, envVars)
-    accountDetails <- findAccountInfo(deployment$account, deployment$server, error_call = error_call)
+    accountDetails <- findAccountInfo(
+      deployment$account,
+      deployment$server,
+      error_call = error_call
+    )
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -212,9 +229,16 @@ findDeploymentTargetByAppName <- function(
   # When the appName identifies multiple records, we may not have had an
   # account+server constraint. Ask the user to choose.
   if (nrow(appDeployments) > 1) {
-    deployment <- disambiguateDeployments(appDeployments, error_call = error_call)
+    deployment <- disambiguateDeployments(
+      appDeployments,
+      error_call = error_call
+    )
     deployment <- updateDeployment(deployment, appTitle, envVars)
-    accountDetails <- findAccountInfo(deployment$account, deployment$server, error_call = error_call)
+    accountDetails <- findAccountInfo(
+      deployment$account,
+      deployment$server,
+      error_call = error_call
+    )
     return(list(
       accountDetails = accountDetails,
       deployment = deployment
@@ -233,8 +257,18 @@ findDeploymentTargetByAppName <- function(
     )
     if (!is.null(application)) {
       uniqueName <- findUnique(appName, application$name)
-      if (shouldUpdateApp(application, uniqueName, forceUpdate, error_call = error_call)) {
-        deployment <- createDeploymentFromApplication(application, accountDetails)
+      if (
+        shouldUpdateApp(
+          application,
+          uniqueName,
+          forceUpdate,
+          error_call = error_call
+        )
+      ) {
+        deployment <- createDeploymentFromApplication(
+          application,
+          accountDetails
+        )
         deployment <- updateDeployment(deployment, appTitle, envVars)
         return(list(
           accountDetails = accountDetails,
@@ -262,14 +296,16 @@ findDeploymentTargetByAppName <- function(
   ))
 }
 
-createDeployment <- function(appName,
-                             appTitle,
-                             appId,
-                             envVars,
-                             username,
-                             account,
-                             server,
-                             version = deploymentRecordVersion) {
+createDeployment <- function(
+  appName,
+  appTitle,
+  appId,
+  envVars,
+  username,
+  account,
+  server,
+  version = deploymentRecordVersion
+) {
   # Consider merging this object with the object returned by
   # deploymentRecord().
   #
@@ -315,10 +351,12 @@ updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
   )
 }
 
-shouldUpdateApp <- function(application,
-                            uniqueName,
-                            forceUpdate = FALSE,
-                            error_call = caller_env()) {
+shouldUpdateApp <- function(
+  application,
+  uniqueName,
+  forceUpdate = FALSE,
+  error_call = caller_env()
+) {
   if (forceUpdate) {
     return(TRUE)
   }
@@ -341,7 +379,15 @@ shouldUpdateApp <- function(application,
     i = "Supply a unique `appName` to deploy a new application."
   )
 
-  cli_menu(message, prompt, choices, not_interactive, quit = 3, error_call = error_call) == 1
+  cli_menu(
+    message,
+    prompt,
+    choices,
+    not_interactive,
+    quit = 3,
+    error_call = error_call
+  ) ==
+    1
 }
 
 

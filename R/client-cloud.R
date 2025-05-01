@@ -11,9 +11,8 @@ getCurrentProjectId <- function(service, authInfo) {
 
 cloudClient <- function(service, authInfo) {
   list(
-
     status = function() {
-      GET(service, authInfo,  "/internal/status")
+      GET(service, authInfo, "/internal/status")
     },
 
     service = function() {
@@ -30,18 +29,28 @@ cloudClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "accounts")
     },
 
-    getAccountUsage = function(accountId, usageType = "hours", applicationId = NULL,
-                               from = NULL, until = NULL, interval = NULL) {
+    getAccountUsage = function(
+      accountId,
+      usageType = "hours",
+      applicationId = NULL,
+      from = NULL,
+      until = NULL,
+      interval = NULL
+    ) {
       path <- paste0("/accounts/", accountId, "/usage/", usageType, "/")
       query <- list()
-      if (!is.null(applicationId))
+      if (!is.null(applicationId)) {
         query$application <- applicationId
-      if (!is.null(from))
+      }
+      if (!is.null(from)) {
         query$from <- from
-      if (!is.null(until))
+      }
+      if (!is.null(until)) {
         query$until <- until
-      if (!is.null(interval))
+      }
+      if (!is.null(interval)) {
         query$interval <- interval
+      }
       GET(service, authInfo, path, queryString(query))
     },
 
@@ -57,7 +66,12 @@ cloudClient <- function(service, authInfo) {
       POST_JSON(service, authInfo, path, json)
     },
 
-    createBundle = function(application, content_type, content_length, checksum) {
+    createBundle = function(
+      application,
+      content_type,
+      content_length,
+      checksum
+    ) {
       json <- list()
       json$application <- application
       json$content_type <- content_type
@@ -68,10 +82,13 @@ cloudClient <- function(service, authInfo) {
 
     listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
-      query <- paste(filterQuery(
-        c("account_id", "type", names(filters)),
-        c(accountId, "connect", unname(filters))
-      ), collapse = "&")
+      query <- paste(
+        filterQuery(
+          c("account_id", "type", names(filters)),
+          c(accountId, "connect", unname(filters))
+        ),
+        collapse = "&"
+      )
       listRequest(service, authInfo, path, query, "applications")
     },
 
@@ -142,16 +159,31 @@ cloudClient <- function(service, authInfo) {
       application
     },
 
-    getApplicationMetrics = function(applicationId, series, metrics, from = NULL, until = NULL, interval = NULL) {
+    getApplicationMetrics = function(
+      applicationId,
+      series,
+      metrics,
+      from = NULL,
+      until = NULL,
+      interval = NULL
+    ) {
       path <- paste0("/applications/", applicationId, "/metrics/", series, "/")
       query <- list()
-      m <- paste(lapply(metrics, function(x) { paste("metric", urlEncode(x), sep = "=") }), collapse = "&")
-      if (!is.null(from))
+      m <- paste(
+        lapply(metrics, function(x) {
+          paste("metric", urlEncode(x), sep = "=")
+        }),
+        collapse = "&"
+      )
+      if (!is.null(from)) {
         query$from <- from
-      if (!is.null(until))
+      }
+      if (!is.null(until)) {
         query$until <- until
-      if (!is.null(interval))
+      }
+      if (!is.null(interval)) {
         query$interval <- interval
+      }
       GET(service, authInfo, path, paste(m, queryString(query), sep = "&"))
     },
 
@@ -161,10 +193,24 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId, appMode, contentCategory = NULL, spaceId = NULL) {
+    createApplication = function(
+      name,
+      title,
+      template,
+      accountId,
+      appMode,
+      contentCategory = NULL,
+      spaceId = NULL
+    ) {
       json <- list()
       json$name <- name
-      json$application_type <- if (appMode %in% c("rmd-static", "quarto-static", "static")) "static" else "connect"
+      json$application_type <- if (
+        appMode %in% c("rmd-static", "quarto-static", "static")
+      ) {
+        "static"
+      } else {
+        "connect"
+      }
       if (appMode %in% c("rmd-static", "quarto-static")) {
         json$render_by <- "server"
       }
@@ -201,20 +247,35 @@ cloudClient <- function(service, authInfo) {
       GET(service, authInfo, path)
     },
 
-    setApplicationProperty = function(applicationId, propertyName,
-                                      propertyValue, force = FALSE) {
-      path <- paste0("/applications/", applicationId, "/properties/",
-                    propertyName)
+    setApplicationProperty = function(
+      applicationId,
+      propertyName,
+      propertyValue,
+      force = FALSE
+    ) {
+      path <- paste0(
+        "/applications/",
+        applicationId,
+        "/properties/",
+        propertyName
+      )
       v <- list()
       v$value <- propertyValue
       query <- paste0("force=", if (force) "1" else "0")
       PUT_JSON(service, authInfo, path, v, query)
     },
 
-    unsetApplicationProperty = function(applicationId, propertyName,
-                                        force = FALSE) {
-      path <- paste0("/applications/", applicationId, "/properties/",
-                    propertyName)
+    unsetApplicationProperty = function(
+      applicationId,
+      propertyName,
+      force = FALSE
+    ) {
+      path <- paste0(
+        "/applications/",
+        applicationId,
+        "/properties/",
+        propertyName
+      )
       query <- paste0("force=", if (force) "1" else "0")
       DELETE(service, authInfo, path, query)
     },
@@ -231,28 +292,39 @@ cloudClient <- function(service, authInfo) {
     },
 
     createRevision = function(application, contentCategory) {
-        path <- paste0("/outputs/", application$id, "/revisions")
-        json <- list(content_category = contentCategory)
-        revision <- POST_JSON(service, authInfo, path, json)
-        revision$application_id
+      path <- paste0("/outputs/", application$id, "/revisions")
+      json <- list(content_category = contentCategory)
+      revision <- POST_JSON(service, authInfo, path, json)
+      revision$application_id
     },
 
     deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
       currentProjectId <- getCurrentProjectId(service, authInfo)
       if (!is.null(currentProjectId)) {
-        PATCH_JSON(service, authInfo, paste0("/outputs/", application$id), list(project = currentProjectId))
+        PATCH_JSON(
+          service,
+          authInfo,
+          paste0("/outputs/", application$id),
+          list(project = currentProjectId)
+        )
       }
 
       if (!is.null(spaceId)) {
-        PATCH_JSON(service, authInfo, paste0("/outputs/", application$id), list(space = spaceId))
+        PATCH_JSON(
+          service,
+          authInfo,
+          paste0("/outputs/", application$id),
+          list(space = spaceId)
+        )
       }
 
       path <- paste0("/applications/", application$application_id, "/deploy")
       json <- list()
-      if (length(bundleId) > 0 && nzchar(bundleId))
+      if (length(bundleId) > 0 && nzchar(bundleId)) {
         json$bundle <- as.numeric(bundleId)
-      else
+      } else {
         json$rebuild <- FALSE
+      }
       POST_JSON(service, authInfo, path, json)
     },
 
@@ -266,27 +338,41 @@ cloudClient <- function(service, authInfo) {
       POST(service, authInfo, path)
     },
 
-    inviteApplicationUser = function(applicationId, email,
-                                     invite_email = NULL, invite_email_message = NULL) {
+    inviteApplicationUser = function(
+      applicationId,
+      email,
+      invite_email = NULL,
+      invite_email_message = NULL
+    ) {
       path <- paste0("/applications/", applicationId, "/authorization/users")
       json <- list()
       json$email <- email
-      if (!is.null(invite_email))
+      if (!is.null(invite_email)) {
         json$invite_email <- invite_email
-      if (!is.null(invite_email_message))
+      }
+      if (!is.null(invite_email_message)) {
         json$invite_email_message <- invite_email_message
+      }
       POST_JSON(service, authInfo, path, json)
     },
 
     addApplicationUser = function(applicationId, userId) {
-      path <- paste0("/applications/", applicationId, "/authorization/users/",
-                    userId)
+      path <- paste0(
+        "/applications/",
+        applicationId,
+        "/authorization/users/",
+        userId
+      )
       PUT(service, authInfo, path, NULL)
     },
 
     removeApplicationUser = function(applicationId, userId) {
-      path <- paste0("/applications/", applicationId, "/authorization/users/",
-                    userId)
+      path <- paste0(
+        "/applications/",
+        applicationId,
+        "/authorization/users/",
+        userId
+      )
       DELETE(service, authInfo, path)
     },
 
@@ -332,7 +418,6 @@ cloudClient <- function(service, authInfo) {
     },
 
     waitForTask = function(taskId, quiet = FALSE) {
-
       if (!quiet) {
         cat("Waiting for task: ", taskId, "\n", sep = "")
       }
@@ -341,7 +426,6 @@ cloudClient <- function(service, authInfo) {
 
       lastStatus <- NULL
       while (TRUE) {
-
         # check status
         status <- GET(service, authInfo, path)
 

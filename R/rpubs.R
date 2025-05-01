@@ -39,29 +39,29 @@
 #'                             id = result$id)
 #' }
 #' @export
-rpubsUpload <- function(title,
-                        contentFile,
-                        originalDoc,
-                        id = NULL,
-                        properties = list()) {
-
+rpubsUpload <- function(
+  title,
+  contentFile,
+  originalDoc,
+  id = NULL,
+  properties = list()
+) {
   check_string(title, allow_empty = FALSE)
   check_file(contentFile)
-  if (!is.list(properties))
+  if (!is.list(properties)) {
     stop("properties paramater must be a named list")
+  }
 
   pathFromId <- function(id) {
     split <- strsplit(id, "^https?://[^/]+")[[1]]
-    if (length(split) == 2)
+    if (length(split) == 2) {
       return(split[2])
-    else
+    } else {
       return(NULL)
+    }
   }
 
-  buildPackage <- function(title,
-                           contentFile,
-                           properties = list()) {
-
+  buildPackage <- function(title, contentFile, properties = list()) {
     # build package.json
     properties$title <- title
     packageJson <- toJSON(properties)
@@ -109,21 +109,24 @@ rpubsUpload <- function(title,
   }
 
   # send the request
-  result <- http(protocol = protocol,
-                 host = "api.rpubs.com",
-                 port = port,
-                 method = method,
-                 path = path,
-                 headers = headers,
-                 contentType = "application/x-compressed",
-                 contentFile = packageFile)
+  result <- http(
+    protocol = protocol,
+    host = "api.rpubs.com",
+    port = port,
+    method = method,
+    path = path,
+    headers = headers,
+    contentType = "application/x-compressed",
+    contentFile = packageFile
+  )
 
   # check for success
   succeeded <- FALSE
-  if (isUpdate && (result$status == 200))
+  if (isUpdate && (result$status == 200)) {
     succeeded <- TRUE
-  else if (result$status == 201)
+  } else if (result$status == 201) {
     succeeded <- TRUE
+  }
 
   # mark content as UTF-8
   content <- result$content
@@ -137,33 +140,45 @@ rpubsUpload <- function(title,
 
     # we use the source doc as the key for the deployment record as long as
     # it's a recognized document path; otherwise we use the content file
-    recordSource <- ifelse(!is.null(originalDoc) && isDocumentPath(originalDoc),
-                           originalDoc, contentFile)
+    recordSource <- ifelse(
+      !is.null(originalDoc) && isDocumentPath(originalDoc),
+      originalDoc,
+      contentFile
+    )
 
     # use the title if given, and the filename name of the document if not
-    recordName <- ifelse(is.null(title) || nchar(title) == 0,
-                         basename(recordSource), title)
+    recordName <- ifelse(
+      is.null(title) || nchar(title) == 0,
+      basename(recordSource),
+      title
+    )
 
-    rpubsRec <- deploymentRecord(name = recordName,
-                                 title = "",
-                                 username = "",
-                                 account = "rpubs",
-                                 server = "rpubs.com",
-                                 hostUrl = "rpubs.com",
-                                 appId = id,
-                                 bundleId = id,
-                                 url = url)
-    rpubsRecFile <- deploymentConfigFile(recordSource, recordName, "rpubs",
-                                   "rpubs.com")
+    rpubsRec <- deploymentRecord(
+      name = recordName,
+      title = "",
+      username = "",
+      account = "rpubs",
+      server = "rpubs.com",
+      hostUrl = "rpubs.com",
+      appId = id,
+      bundleId = id,
+      url = url
+    )
+    rpubsRecFile <- deploymentConfigFile(
+      recordSource,
+      recordName,
+      "rpubs",
+      "rpubs.com"
+    )
     write.dcf(rpubsRec, rpubsRecFile, width = 4096)
 
     # record in global history
-    if (!is.null(originalDoc) && nzchar(originalDoc))
+    if (!is.null(originalDoc) && nzchar(originalDoc)) {
       addToDeploymentHistory(originalDoc, rpubsRec)
+    }
 
     # return the publish information
-    return(list(id = id,
-                 continueUrl = url))
+    return(list(id = id, continueUrl = url))
   } else {
     return(list(error = content))
   }

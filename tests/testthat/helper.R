@@ -7,17 +7,19 @@ showDcf <- function(df) {
 httpLastRequest <- list()
 
 # HTTP function which just saves the result for analysis
-httpTestRecorder <- function(protocol,
-                             host,
-                             port,
-                             method,
-                             path,
-                             headers,
-                             contentType = NULL,
-                             file = NULL,
-                             certificate = NULL,
-                             writer = NULL,
-                             timeout = NULL) {
+httpTestRecorder <- function(
+  protocol,
+  host,
+  port,
+  method,
+  path,
+  headers,
+  contentType = NULL,
+  file = NULL,
+  certificate = NULL,
+  writer = NULL,
+  timeout = NULL
+) {
   httpLastRequest <<- list(
     protocol = protocol,
     host = host,
@@ -89,12 +91,20 @@ local_shiny_bundle <- function(appName, appDir, appPrimaryDoc, python = NULL) {
 
 # Servers and accounts ----------------------------------------------------
 
-addTestAccount <- function(account = "ron", server = "example.com", userId = account) {
+addTestAccount <- function(
+  account = "ron",
+  server = "example.com",
+  userId = account
+) {
   registerAccount(server, account, userId, apiKey = "123")
   invisible()
 }
 
-addTestServer <- function(name = NULL, url = "https://example.com", certificate = NULL) {
+addTestServer <- function(
+  name = NULL,
+  url = "https://example.com",
+  certificate = NULL
+) {
   if (is.null(name)) {
     serverUrl <- parseHttpUrl(url)
     name <- serverUrl$host
@@ -107,18 +117,20 @@ addTestServer <- function(name = NULL, url = "https://example.com", certificate 
   )
   invisible()
 }
-addTestDeployment <- function(path,
-                              appName = "test",
-                              appTitle = "",
-                              appId = "123",
-                              account = "ron",
-                              envVars = NULL,
-                              username = account,
-                              server = "example.com",
-                              url = paste0("https://", server, "/", username, "/", appId),
-                              hostUrl = NULL,
-                              version = deploymentRecordVersion,
-                              metadata = list()) {
+addTestDeployment <- function(
+  path,
+  appName = "test",
+  appTitle = "",
+  appId = "123",
+  account = "ron",
+  envVars = NULL,
+  username = account,
+  server = "example.com",
+  url = paste0("https://", server, "/", username, "/", appId),
+  hostUrl = NULL,
+  version = deploymentRecordVersion,
+  metadata = list()
+) {
   saveDeployment(
     path,
     createDeployment(

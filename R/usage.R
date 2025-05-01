@@ -14,26 +14,36 @@
 #'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @note This function only works for ShinyApps servers.
 #' @export
-showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server = NULL,
-                      usageType = "hours", from = NULL, until = NULL, interval = NULL) {
-
+showUsage <- function(
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  usageType = "hours",
+  from = NULL,
+  until = NULL,
+  interval = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
   api <- clientForAccount(accountDetails)
 
   # resolve application
-  if (is.null(appName))
+  if (is.null(appName)) {
     appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
-  data <- api$getAccountUsage(accountDetails$accountId,
-                              usageType,
-                              application$id,
-                              from,
-                              until,
-                              interval)
+  data <- api$getAccountUsage(
+    accountDetails$accountId,
+    usageType,
+    application$id,
+    from,
+    until,
+    interval
+  )
 
   if (length(data$points) < 1) {
     stop("No data.", call. = FALSE)
@@ -47,7 +57,10 @@ showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server =
   })
 
   # convert to data frame
-  df <- data.frame(matrix(unlist(points), nrow = length(points), byrow = TRUE), stringsAsFactors = FALSE)
+  df <- data.frame(
+    matrix(unlist(points), nrow = length(points), byrow = TRUE),
+    stringsAsFactors = FALSE
+  )
   colnames(df) <- c("timestamp", usageType)
   return(df)
 }
@@ -71,31 +84,35 @@ showUsage <- function(appDir = getwd(), appName = NULL, account = NULL, server =
 #' @param interval Summarization interval. Data points at intervals less then this
 #'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @export
-showMetrics <- function(metricSeries,
-                        metricNames,
-                        appDir = getwd(),
-                        appName = NULL,
-                        account = NULL,
-                        server = "shinyapps.io",
-                        from = NULL,
-                        until = NULL,
-                        interval = NULL) {
-
+showMetrics <- function(
+  metricSeries,
+  metricNames,
+  appDir = getwd(),
+  appName = NULL,
+  account = NULL,
+  server = "shinyapps.io",
+  from = NULL,
+  until = NULL,
+  interval = NULL
+) {
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
 
   # resolve application
-  if (is.null(appName))
+  if (is.null(appName)) {
     appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
-  data <- api$getApplicationMetrics(application$id,
-                                    metricSeries,
-                                    metricNames,
-                                    from,
-                                    until,
-                                    interval)
+  data <- api$getApplicationMetrics(
+    application$id,
+    metricSeries,
+    metricNames,
+    from,
+    until,
+    interval
+  )
 
   if (length(data$points) < 1) {
     stop("No data.", call. = FALSE)
@@ -120,18 +137,26 @@ showMetrics <- function(metricSeries,
 #'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
 #' @note This function only works for ShinyApps servers.
 #' @export
-accountUsage <- function(account = NULL, server = NULL, usageType = "hours",
-                         from = NULL, until = NULL, interval = NULL) {
+accountUsage <- function(
+  account = NULL,
+  server = NULL,
+  usageType = "hours",
+  from = NULL,
+  until = NULL,
+  interval = NULL
+) {
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
   api <- clientForAccount(accountDetails)
 
   # get application usage
-  data <- api$getAccountUsage(accountDetails$accountId,
-                              usageType,
-                              NULL,
-                              from,
-                              until,
-                              interval)
+  data <- api$getAccountUsage(
+    accountDetails$accountId,
+    usageType,
+    NULL,
+    from,
+    until,
+    interval
+  )
 }

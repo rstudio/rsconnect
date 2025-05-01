@@ -7,14 +7,14 @@ test_that("linter warns about absolute paths and relative paths", {
   expect_snapshot(result)
 
   absPathLintedIndices <- result[["server.R"]]$absolute.paths$indices
-  expect_identical(as.numeric(absPathLintedIndices), 15)
+  expect_identical(as.numeric(absPathLintedIndices), 12)
 })
 
 test_that("The linter identifies files not matching in case sensitivity", {
   result <- lint(test_path("shinyapp-with-absolute-paths"))
   server.R <- result[["server.R"]]
   filepath.capitalization <- server.R[["filepath.capitalization"]]
-  expect_equal(as.integer(filepath.capitalization$indices), 31)
+  expect_equal(as.integer(filepath.capitalization$indices), 28)
 })
 
 test_that("The linter identifies files with Markdown links not matching in case sensitivity", {

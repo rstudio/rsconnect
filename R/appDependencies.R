@@ -107,10 +107,12 @@
 #' }
 #' @seealso [rsconnectPackages](Using Packages with rsconnect)
 #' @export
-appDependencies <- function(appDir = getwd(),
-                            appFiles = NULL,
-                            appFileManifest = NULL,
-                            appMode = NULL) {
+appDependencies <- function(
+  appDir = getwd(),
+  appFiles = NULL,
+  appFileManifest = NULL,
+  appMode = NULL
+) {
   appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
   appMetadata <- appMetadata(appDir, appFiles = appFiles, appMode = appMode)
   if (!needsR(appMetadata)) {
@@ -148,7 +150,8 @@ needsR <- function(appMetadata) {
 }
 
 inferRPackageDependencies <- function(appMetadata) {
-  deps <- switch(appMetadata$appMode,
+  deps <- switch(
+    appMetadata$appMode,
     "rmd-static" = c("rmarkdown", if (appMetadata$hasParameters) "shiny"),
     "quarto-static" = "rmarkdown",
     "quarto-shiny" = c("rmarkdown", "shiny"),

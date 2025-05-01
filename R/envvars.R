@@ -49,7 +49,9 @@ updateAccountEnvVars <- function(envVars, server = NULL, account = NULL) {
   )
   uses_vars <- vapply(apps$envVars, function(x) any(envVars %in% x), logical(1))
   if (!any(uses_vars)) {
-    cli::cli_abort("No applications use environment variable{?s} {.arg {envVars}}")
+    cli::cli_abort(
+      "No applications use environment variable{?s} {.arg {envVars}}"
+    )
   }
 
   guids <- apps$guid[uses_vars]

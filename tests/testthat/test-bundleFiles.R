@@ -1,4 +1,3 @@
-
 # listDeploymentFiles ------------------------------------------------------
 
 test_that("can read all files from directory", {
@@ -35,7 +34,10 @@ test_that("can read selected files from manifest", {
     "manifest" = c("b.R", "c.R")
   ))
   expect_snapshot(
-    out <- listDeploymentFiles(dir, appFileManifest = file.path(dir, "manifest")),
+    out <- listDeploymentFiles(
+      dir,
+      appFileManifest = file.path(dir, "manifest")
+    ),
   )
   expect_equal(out, "b.R")
 
@@ -138,7 +140,9 @@ test_that("ignores Python virtual envs (non-Windows)", {
 
   names <- c(
     # well-known names ...
-    ".env", ".venv", "venv",
+    ".env",
+    ".venv",
+    "venv",
 
     # other names ...
     "test"
@@ -155,7 +159,9 @@ test_that("ignores Python virtual envs (Windows)", {
 
   names <- c(
     # well-known names ...
-    ".env", ".venv", "venv",
+    ".env",
+    ".venv",
+    "venv",
 
     # other names ...
     "test"
@@ -172,7 +178,9 @@ test_that("ignores Python virtual envs (Windows-GUI)", {
 
   names <- c(
     # well-known names ...
-    ".env", ".venv", "venv",
+    ".env",
+    ".venv",
+    "venv",
 
     # other names ...
     "test"
@@ -189,7 +197,9 @@ test_that("ignores Python virtual envs (Windows-debug)", {
 
   names <- c(
     # well-known names ...
-    ".env", ".venv", "venv",
+    ".env",
+    ".venv",
+    "venv",
 
     # other names ...
     "test"

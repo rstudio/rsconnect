@@ -1,7 +1,8 @@
-snapshotPackratDependencies <- function(bundleDir,
-                                        implicit_dependencies = character(),
-                                        verbose = FALSE) {
-
+snapshotPackratDependencies <- function(
+  bundleDir,
+  implicit_dependencies = character(),
+  verbose = FALSE
+) {
   addPackratSnapshot(bundleDir, implicit_dependencies, verbose = verbose)
 
   lockFilePath <- packratLockFile(bundleDir)
@@ -10,7 +11,11 @@ snapshotPackratDependencies <- function(bundleDir,
 
   # get repos defined in the lockfile
   repos <- gsub("[\r\n]", " ", df[1, "Repos"])
-  repos <- strsplit(unlist(strsplit(repos, "\\s*,\\s*", perl = TRUE)), "=", fixed = TRUE)
+  repos <- strsplit(
+    unlist(strsplit(repos, "\\s*,\\s*", perl = TRUE)),
+    "=",
+    fixed = TRUE
+  )
   repos <- setNames(
     sapply(repos, "[[", 2),
     sapply(repos, "[[", 1)
@@ -55,7 +60,11 @@ standardizeRepos <- function(repos) {
   repos
 }
 
-standardizePackratPackage <- function(record, availablePackages, repos = character()) {
+standardizePackratPackage <- function(
+  record,
+  availablePackages,
+  repos = character()
+) {
   pkg <- record$Package
   source <- record$Source
 
@@ -68,7 +77,10 @@ standardizePackratPackage <- function(record, availablePackages, repos = charact
     # can't install source packages elsewhere
     repository <- NA_character_
     source <- NA_character_
-  } else if (source == "CustomCRANLikeRepository" && isDevVersion(record, availablePackages)) {
+  } else if (
+    source == "CustomCRANLikeRepository" &&
+      isDevVersion(record, availablePackages)
+  ) {
     # Package was installed from source, but packrat guessed it was installed
     # from a known repo.
     repository <- NA_character_
@@ -117,9 +129,11 @@ isDevVersion <- function(record, availablePackages) {
   package_version(local_version) > package_version(repo_version)
 }
 
-addPackratSnapshot <- function(bundleDir,
-                               implicit_dependencies = character(),
-                               verbose = FALSE) {
+addPackratSnapshot <- function(
+  bundleDir,
+  implicit_dependencies = character(),
+  verbose = FALSE
+) {
   # if we discovered any extra dependencies, write them to a file for packrat to
   # discover when it creates the snapshot
   recordExtraDependencies(bundleDir, implicit_dependencies)

@@ -5,7 +5,7 @@
 validateServerUrl <- function(url, certificate = NULL) {
   res <- validateConnectUrl(url, certificate)
 
-  if (res$valid)  {
+  if (res$valid) {
     name <- findAndRegisterLocalServer(res$url)
     c(list(valid = TRUE, url = res$url, name = name), res$response)
   } else {
@@ -21,10 +21,11 @@ findAndRegisterLocalServer <- function(url) {
   findServerByUrl <- function(url) {
     allServers <- rsconnect::servers(local = TRUE)
     match <- allServers[allServers$url == url, , drop = FALSE]
-    if (nrow(match) == 0)
+    if (nrow(match) == 0) {
       NULL
-    else
+    } else {
       as.character(match[1, "name"])
+    }
   }
 
   # if there are no local servers with the given URL, add one and return its
@@ -45,7 +46,13 @@ findAndRegisterLocalServer <- function(url) {
   }
 }
 
-registerUserToken <- function(serverName, accountName, userId, token, privateKey) {
+registerUserToken <- function(
+  serverName,
+  accountName,
+  userId,
+  token,
+  privateKey
+) {
   registerAccount(
     serverName = serverName,
     accountName = accountName,
@@ -73,11 +80,13 @@ showRstudioSourceMarkers <- function(basePath, lint) {
     })
   })
 
-  rstudioapi::callFun("sourceMarkers",
-                      name = "Publish Content Issues",
-                      markers = markers,
-                      basePath = basePath,
-                      autoSelect = "first")
+  rstudioapi::callFun(
+    "sourceMarkers",
+    name = "Publish Content Issues",
+    markers = markers,
+    basePath = basePath,
+    autoSelect = "first"
+  )
 }
 
 # getAppById() -----------------------------------------------------------------
@@ -112,11 +121,12 @@ getAppById <- function(id, account, server, hostUrl) {
 # -------------------------------------------------------------------------
 
 # passthrough function for compatibility with old IDE versions
-getUserFromRawToken <- function(serverUrl,
-                                token,
-                                privateKey,
-                                serverCertificate = NULL) {
-
+getUserFromRawToken <- function(
+  serverUrl,
+  token,
+  privateKey,
+  serverCertificate = NULL
+) {
   # Look up server name from url
   servers <- servers()
   matches <- servers$url == serverUrl

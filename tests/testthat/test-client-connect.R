@@ -53,7 +53,8 @@ test_that("waitForTask", {
         code = 0,
         error = "",
         last = 4
-      ), auto_unbox = TRUE
+      ),
+      auto_unbox = TRUE
     )
   })
   app <- webfakes::new_app_process(task_app)
@@ -92,7 +93,6 @@ findConnect <- function() {
 }
 
 test_that("Users API", {
-
   skip_on_cran()
   skip_on_os("windows")
   skip("connect user test skipped.")
@@ -132,9 +132,11 @@ test_that("Users API", {
   accountId <- response$id
   token <- generateToken()
 
-  tokenResponse <- connect$addToken(list(token = token$token,
-                                         public_key = token$public_key,
-                                         user_id = accountId))
+  tokenResponse <- connect$addToken(list(
+    token = token$token,
+    public_key = token$public_key,
+    user_id = accountId
+  ))
 
   Sys.sleep(1)
 
@@ -146,23 +148,26 @@ test_that("Users API", {
 
   # finally, create a fully authenticated client using the new token, and
   # keep trying to authenticate until we're successful
-  connect <- connectClient(service = server$url, authInfo =
-                             list(token = token$token,
-                                  private_key = token$private_key))
+  connect <- connectClient(
+    service = server$url,
+    authInfo = list(token = token$token, private_key = token$private_key)
+  )
 
   repeat {
-    tryCatch({
-      user <- connect$currentUser()
-      break
-    },
-    error = function(e, ...) {
-      # we expect this to return unauthorized until the token becomes active,
-      # but bubble other errors
-      if (length(grep("401 - Unauthorized", e$message)) == 0) {
-        stop(e)
+    tryCatch(
+      {
+        user <- connect$currentUser()
+        break
+      },
+      error = function(e, ...) {
+        # we expect this to return unauthorized until the token becomes active,
+        # but bubble other errors
+        if (length(grep("401 - Unauthorized", e$message)) == 0) {
+          stop(e)
+        }
+        Sys.sleep(1)
       }
-      Sys.sleep(1)
-    })
+    )
   }
 
   # Create and remove an example application
@@ -205,5 +210,4 @@ test_that("Users API", {
 
   apps <- connect$listApplications(accountId)
   expect_false(response$id %in% sapply(apps, "[[", "id"))
-
 })

@@ -8,7 +8,6 @@ stripConnectTimestamps <- function(messages) {
 
 connectClient <- function(service, authInfo) {
   list(
-
     service = function() {
       "connect"
     },
@@ -47,18 +46,30 @@ connectClient <- function(service, authInfo) {
         filters <- vector()
       }
       path <- "/applications"
-      query <- paste(filterQuery(
-        c("account_id", names(filters)),
-        c(accountId, unname(filters))
-      ), collapse = "&")
+      query <- paste(
+        filterQuery(
+          c("account_id", names(filters)),
+          c(accountId, unname(filters))
+        ),
+        collapse = "&"
+      )
       listApplicationsRequest(service, authInfo, path, query, "applications")
     },
 
-    createApplication = function(name, title, template, accountId, appMode, contentCategory = NULL, spaceId = NULL) {
+    createApplication = function(
+      name,
+      title,
+      template,
+      accountId,
+      appMode,
+      contentCategory = NULL,
+      spaceId = NULL
+    ) {
       # add name; inject title if specified
       details <- list(name = name)
-      if (!is.null(title) && nzchar(title))
+      if (!is.null(title) && nzchar(title)) {
         details$title <- title
+      }
 
       # RSC doesn't currently use the template or account ID
       # parameters; they exist for compatibility with lucid.
@@ -94,8 +105,16 @@ connectClient <- function(service, authInfo) {
     },
 
     configureApplication = function(applicationId) {
-      GET(service, authInfo, paste(
-        "/applications/", applicationId, "/config", sep = ""))
+      GET(
+        service,
+        authInfo,
+        paste(
+          "/applications/",
+          applicationId,
+          "/config",
+          sep = ""
+        )
+      )
     },
 
     getApplication = function(applicationId, deploymentRecordVersion) {
@@ -107,9 +126,13 @@ connectClient <- function(service, authInfo) {
       wait <- 1
       while (TRUE) {
         path <- paste0(
-          "/v1/tasks/", taskId,
-          "?first=", first,
-          "&wait=", wait)
+          "/v1/tasks/",
+          taskId,
+          "?first=",
+          first,
+          "&wait=",
+          wait
+        )
         response <- GET(service, authInfo, path)
 
         if (length(response$output) > 0) {
@@ -171,25 +194,40 @@ userRecord <- function(email, username, first_name, last_name, password) {
 
 prettyPasteFields <- function(message, fields) {
   header <- paste(message, ":\n- ", sep = "")
-  body <- paste(strwrap(paste(shQuote(fields), collapse = ", ")),
-                collapse = "\n")
+  body <- paste(
+    strwrap(paste(shQuote(fields), collapse = ", ")),
+    collapse = "\n"
+  )
   paste(header, body, sep = "")
 }
 
 validateUserRecord <- function(record) {
-  requiredFields <- c("email", "username", "first_name", "last_name", "password")
+  requiredFields <- c(
+    "email",
+    "username",
+    "first_name",
+    "last_name",
+    "password"
+  )
   missingFields <- setdiff(requiredFields, names(record))
   extraFields <- setdiff(names(record), requiredFields)
 
   ## Construct error message if necessary
   msg <- NULL
   if (length(missingFields)) {
-    msg <- prettyPasteFields("The following required fields are missing",
-                             missingFields)
+    msg <- prettyPasteFields(
+      "The following required fields are missing",
+      missingFields
+    )
   }
   if (length(extraFields)) {
-    msg <- paste(msg, prettyPasteFields("The following extraneous fields were found",
-                                        extraFields))
+    msg <- paste(
+      msg,
+      prettyPasteFields(
+        "The following extraneous fields were found",
+        extraFields
+      )
+    )
   }
 
   if (!is.null(msg)) {
@@ -199,7 +237,6 @@ validateUserRecord <- function(record) {
 }
 
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
-
   parsedURL <- parseHttpUrl(url)
   ingressURL <- parsedURL$host
 

@@ -1,7 +1,10 @@
 test_that("basic HTTP methods work", {
   skip_if_not_installed("webfakes")
 
-  withr::local_options(rsconnect.http = "internal", lifecycle_verbosity = "quiet")
+  withr::local_options(
+    rsconnect.http = "internal",
+    lifecycle_verbosity = "quiet"
+  )
 
   test_http_GET()
   test_http_POST_JSON()

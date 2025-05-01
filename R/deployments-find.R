@@ -1,8 +1,10 @@
-findDeployment <- function(appPath = getwd(),
-                           appName = NULL,
-                           server = NULL,
-                           account = NULL,
-                           error_call = caller_env()) {
+findDeployment <- function(
+  appPath = getwd(),
+  appName = NULL,
+  server = NULL,
+  account = NULL,
+  error_call = caller_env()
+) {
   deps <- deployments(
     appPath,
     nameFilter = appName,
@@ -17,7 +19,12 @@ findDeployment <- function(appPath = getwd(),
     # Infers account when not provided...
     accountDetails <- accountInfo(account, server)
     if (is.null(appName)) {
-      appName <- generateAppName(NULL, appPath, account = accountDetails$name, unique = FALSE)
+      appName <- generateAppName(
+        NULL,
+        appPath,
+        account = accountDetails$name,
+        unique = FALSE
+      )
     }
     list(
       name = appName,
@@ -36,10 +43,11 @@ disambiguateDeployments <- function(appDeployments, error_call = caller_env()) {
     return(appDeployments[1, ])
   }
 
-  apps <- paste0(
-    appDeployments$name, " ",
-    "(", accountLabel(appDeployments$account, appDeployments$server), "): ",
-    "{.url ", appDeployments$url, "}"
+  apps <- sprintf(
+    "%s (%s): {.url %s}",
+    appDeployments$name,
+    accountLabel(appDeployments$account, appDeployments$server),
+    appDeployments$url
   )
   not_interactive <- c(
     "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",

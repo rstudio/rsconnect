@@ -22,8 +22,7 @@ str.rsconnect_secret <- function(object, ...) {
 }
 
 #' @export
-as.data.frame.rsconnect_secret <- function(x,
-                                           ...) {
+as.data.frame.rsconnect_secret <- function(x, ...) {
   structure(
     list(x),
     row.names = .set_row_names(length(x)),

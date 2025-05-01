@@ -11,7 +11,6 @@ migrateConfig <- function(configDir) {
 
   # We have no configuration directory but we do have an old one; migrate it.
   if (dirExists(oldConfigDir)) {
-
     # Create the parent folder if necessary
     dirCreate(dirname(configDir))
 
@@ -35,7 +34,6 @@ migrateConfig <- function(configDir) {
 #'
 #' @keywords internal
 oldApplicationConfigDir <- function(appName) {
-
   # get the home directory from the operating system (in case
   # the user has redefined the meaning of ~) but fault back
   # to ~ if there is no HOME variable defined
@@ -50,12 +48,13 @@ oldApplicationConfigDir <- function(appName) {
   } else {
     # no R specific config dir; determine application config dir (platform specific)
     sysName <- Sys.info()[["sysname"]]
-    if (identical(sysName, "Windows"))
+    if (identical(sysName, "Windows")) {
       configDir <- Sys.getenv("APPDATA")
-    else if (identical(sysName, "Darwin"))
+    } else if (identical(sysName, "Darwin")) {
       configDir <- file.path(homeDir, "Library/Application Support")
-    else
+    } else {
       configDir <- Sys.getenv("XDG_CONFIG_HOME", file.path(homeDir, ".config"))
+    }
 
     # append the application name
     configDir <- file.path(configDir, "R", appName)
@@ -71,7 +70,11 @@ migrateDeploymentsConfig <- function(appPath) {
   # calculate migration dir--all shinyapps deployment records go into the root
   # folder since it wasn't possible to deploy individual docs using the
   # shinyapps package
-  migrateRoot <- if (isDocumentPath(appPath)) dirname(appPath) else appPath
+  migrateRoot <- if (isDocumentPath(appPath)) {
+    dirname(appPath)
+  } else {
+    appPath
+  }
 
   # migrate shinyapps package created records if necessary
   shinyappsDir <- file.path(migrateRoot, "shinyapps")
@@ -80,12 +83,17 @@ migrateDeploymentsConfig <- function(appPath) {
   }
 
   migrateDir <- file.path(migrateRoot, "rsconnect")
-  for (shinyappsFile in list.files(shinyappsDir, glob2rx("*.dcf"),
-                                   recursive = TRUE)) {
+  for (shinyappsFile in list.files(
+    shinyappsDir,
+    glob2rx("*.dcf"),
+    recursive = TRUE
+  )) {
     # read deployment record
     shinyappsDCF <- file.path(shinyappsDir, shinyappsFile)
-    deployment <- as.data.frame(read.dcf(shinyappsDCF),
-                                stringsAsFactors = FALSE)
+    deployment <- as.data.frame(
+      read.dcf(shinyappsDCF),
+      stringsAsFactors = FALSE
+    )
     deployment$server <- "shinyapps.io"
 
     # write the new record
@@ -98,9 +106,8 @@ migrateDeploymentsConfig <- function(appPath) {
   }
 
   # remove shinyapps dir if it's completely empty
-  remainingFiles <- list.files(shinyappsDir,
-                               recursive = TRUE,
-                               all.files = TRUE)
-  if (length(remainingFiles) == 0)
+  remainingFiles <- list.files(shinyappsDir, recursive = TRUE, all.files = TRUE)
+  if (length(remainingFiles) == 0) {
     unlink(shinyappsDir, recursive = TRUE)
+  }
 }

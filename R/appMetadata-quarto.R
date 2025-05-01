@@ -36,8 +36,10 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
 
   json <- suppressWarnings(
     system2(
-      quarto, c("inspect", shQuote(appDir)),
-      stdout = TRUE, stderr = TRUE
+      quarto,
+      c("inspect", shQuote(appDir)),
+      stdout = TRUE,
+      stderr = TRUE
     )
   )
   status <- attr(json, "status")
@@ -45,8 +47,10 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
   if (!is.null(status) && !is.null(appPrimaryDoc)) {
     json <- suppressWarnings(
       system2(
-        quarto, c("inspect", shQuote(file.path(appDir, appPrimaryDoc))),
-        stdout = TRUE, stderr = TRUE
+        quarto,
+        c("inspect", shQuote(file.path(appDir, appPrimaryDoc))),
+        stdout = TRUE,
+        stderr = TRUE
       )
     )
     status <- attr(json, "status")

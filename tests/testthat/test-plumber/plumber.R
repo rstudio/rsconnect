@@ -1,5 +1,4 @@
-
 #* @get /foo
 fooRoute <- function() {
-    "hello world"
+  "hello world"
 }

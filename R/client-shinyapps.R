@@ -1,8 +1,7 @@
 shinyAppsClient <- function(service, authInfo) {
   list(
-
     status = function() {
-      GET(service, authInfo,  "/internal/status")
+      GET(service, authInfo, "/internal/status")
     },
 
     service = function() {
@@ -19,18 +18,35 @@ shinyAppsClient <- function(service, authInfo) {
       listRequest(service, authInfo, path, query, "accounts")
     },
 
-    getAccountUsage = function(accountId, usageType = "hours", applicationId = NULL,
-                               from = NULL, until = NULL, interval = NULL) {
-      path <- paste("/accounts/", accountId, "/usage/", usageType, "/", sep = "")
+    getAccountUsage = function(
+      accountId,
+      usageType = "hours",
+      applicationId = NULL,
+      from = NULL,
+      until = NULL,
+      interval = NULL
+    ) {
+      path <- paste(
+        "/accounts/",
+        accountId,
+        "/usage/",
+        usageType,
+        "/",
+        sep = ""
+      )
       query <- list()
-      if (!is.null(applicationId))
+      if (!is.null(applicationId)) {
         query$application <- applicationId
-      if (!is.null(from))
+      }
+      if (!is.null(from)) {
         query$from <- from
-      if (!is.null(until))
+      }
+      if (!is.null(until)) {
         query$until <- until
-      if (!is.null(interval))
+      }
+      if (!is.null(interval)) {
         query$interval <- interval
+      }
       GET(service, authInfo, path, queryString(query))
     },
 
@@ -46,7 +62,12 @@ shinyAppsClient <- function(service, authInfo) {
       POST_JSON(service, authInfo, path, json)
     },
 
-    createBundle = function(application, content_type, content_length, checksum) {
+    createBundle = function(
+      application,
+      content_type,
+      content_length,
+      checksum
+    ) {
       json <- list()
       json$application <- application
       json$content_type <- content_type
@@ -55,12 +76,15 @@ shinyAppsClient <- function(service, authInfo) {
       POST_JSON(service, authInfo, "/bundles", json)
     },
 
-   listApplications = function(accountId, filters = list()) {
+    listApplications = function(accountId, filters = list()) {
       path <- "/applications/"
-      query <- paste(filterQuery(
-        c("account_id", "type", names(filters)),
-        c(accountId, "shiny", unname(filters))
-      ), collapse = "&")
+      query <- paste(
+        filterQuery(
+          c("account_id", "type", names(filters)),
+          c(accountId, "shiny", unname(filters))
+        ),
+        collapse = "&"
+      )
       listRequest(service, authInfo, path, query, "applications")
     },
 
@@ -71,16 +95,38 @@ shinyAppsClient <- function(service, authInfo) {
       application
     },
 
-    getApplicationMetrics = function(applicationId, series, metrics, from = NULL, until = NULL, interval = NULL) {
-      path <- paste("/applications/", applicationId, "/metrics/", series, "/", sep = "")
+    getApplicationMetrics = function(
+      applicationId,
+      series,
+      metrics,
+      from = NULL,
+      until = NULL,
+      interval = NULL
+    ) {
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/metrics/",
+        series,
+        "/",
+        sep = ""
+      )
       query <- list()
-      m <- paste(lapply(metrics, function(x) { paste("metric", urlEncode(x), sep = "=") }), collapse = "&")
-      if (!is.null(from))
+      m <- paste(
+        lapply(metrics, function(x) {
+          paste("metric", urlEncode(x), sep = "=")
+        }),
+        collapse = "&"
+      )
+      if (!is.null(from)) {
         query$from <- from
-      if (!is.null(until))
+      }
+      if (!is.null(until)) {
         query$until <- until
-      if (!is.null(interval))
+      }
+      if (!is.null(interval)) {
         query$interval <- interval
+      }
       GET(service, authInfo, path, paste(m, queryString(query), sep = "&"))
     },
 
@@ -90,7 +136,15 @@ shinyAppsClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    createApplication = function(name, title, template, accountId, appMode, contentCategory = NULL, spaceId = NULL) {
+    createApplication = function(
+      name,
+      title,
+      template,
+      accountId,
+      appMode,
+      contentCategory = NULL,
+      spaceId = NULL
+    ) {
       json <- list()
       json$name <- name
       # the title field is only used on connect
@@ -109,20 +163,37 @@ shinyAppsClient <- function(service, authInfo) {
       GET(service, authInfo, path)
     },
 
-    setApplicationProperty = function(applicationId, propertyName,
-                                      propertyValue, force = FALSE) {
-      path <- paste("/applications/", applicationId, "/properties/",
-                    propertyName, sep = "")
+    setApplicationProperty = function(
+      applicationId,
+      propertyName,
+      propertyValue,
+      force = FALSE
+    ) {
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/properties/",
+        propertyName,
+        sep = ""
+      )
       v <- list()
       v$value <- propertyValue
       query <- paste("force=", if (force) "1" else "0", sep = "")
       PUT_JSON(service, authInfo, path, v, query)
     },
 
-    unsetApplicationProperty = function(applicationId, propertyName,
-                                        force = FALSE) {
-      path <- paste("/applications/", applicationId, "/properties/",
-                    propertyName, sep = "")
+    unsetApplicationProperty = function(
+      applicationId,
+      propertyName,
+      force = FALSE
+    ) {
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/properties/",
+        propertyName,
+        sep = ""
+      )
       query <- paste("force=", if (force) "1" else "0", sep = "")
       DELETE(service, authInfo, path, query)
     },
@@ -141,10 +212,11 @@ shinyAppsClient <- function(service, authInfo) {
     deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
       path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
-      if (length(bundleId) > 0 && nzchar(bundleId))
+      if (length(bundleId) > 0 && nzchar(bundleId)) {
         json$bundle <- as.numeric(bundleId)
-      else
+      } else {
         json$rebuild <- FALSE
+      }
       POST_JSON(service, authInfo, path, json)
     },
 
@@ -158,46 +230,73 @@ shinyAppsClient <- function(service, authInfo) {
       POST(service, authInfo, path)
     },
 
-    inviteApplicationUser = function(applicationId, email,
-                                     invite_email = NULL, invite_email_message = NULL) {
-      path <- paste("/applications/", applicationId, "/authorization/users",
-                    sep = "")
+    inviteApplicationUser = function(
+      applicationId,
+      email,
+      invite_email = NULL,
+      invite_email_message = NULL
+    ) {
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/authorization/users",
+        sep = ""
+      )
       json <- list()
       json$email <- email
-      if (!is.null(invite_email))
+      if (!is.null(invite_email)) {
         json$invite_email <- invite_email
-      if (!is.null(invite_email_message))
+      }
+      if (!is.null(invite_email_message)) {
         json$invite_email_message <- invite_email_message
+      }
       POST_JSON(service, authInfo, path, json)
     },
 
     addApplicationUser = function(applicationId, userId) {
-      path <- paste("/applications/", applicationId, "/authorization/users/",
-                    userId, sep = "")
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/authorization/users/",
+        userId,
+        sep = ""
+      )
       PUT(service, authInfo, path, NULL)
     },
 
     removeApplicationUser = function(applicationId, userId) {
-      path <- paste("/applications/", applicationId, "/authorization/users/",
-                    userId, sep = "")
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/authorization/users/",
+        userId,
+        sep = ""
+      )
       DELETE(service, authInfo, path, NULL)
     },
 
     listApplicationAuthorization = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/authorization",
-                    sep = "")
+      path <- paste("/applications/", applicationId, "/authorization", sep = "")
       listRequest(service, authInfo, path, NULL, "authorization")
     },
 
     listApplicationUsers = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/authorization/users",
-                    sep = "")
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/authorization/users",
+        sep = ""
+      )
       listRequest(service, authInfo, path, NULL, "users")
     },
 
     listApplicationGroups = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/authorization/groups",
-                    sep = "")
+      path <- paste(
+        "/applications/",
+        applicationId,
+        "/authorization/groups",
+        sep = ""
+      )
       listRequest(service, authInfo, path, NULL, "groups")
     },
 
@@ -235,7 +334,6 @@ shinyAppsClient <- function(service, authInfo) {
     },
 
     waitForTask = function(taskId, quiet = FALSE) {
-
       if (!quiet) {
         cat("Waiting for task: ", taskId, "\n", sep = "")
       }
@@ -244,7 +342,6 @@ shinyAppsClient <- function(service, authInfo) {
 
       lastStatus <- NULL
       while (TRUE) {
-
         # check status
         status <- GET(service, authInfo, path)
 
