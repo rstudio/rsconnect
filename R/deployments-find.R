@@ -43,15 +43,11 @@ disambiguateDeployments <- function(appDeployments, error_call = caller_env()) {
     return(appDeployments[1, ])
   }
 
-  apps <- paste0(
+  apps <- sprintf(
+    "%s (%s): {.url %s}",
     appDeployments$name,
-    " ",
-    "(",
     accountLabel(appDeployments$account, appDeployments$server),
-    "): ",
-    "{.url ",
-    appDeployments$url,
-    "}"
+    appDeployments$url
   )
   not_interactive <- c(
     "Please use {.arg appName}, {.arg server} or {.arg account} to disambiguate.",
