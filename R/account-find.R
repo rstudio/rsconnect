@@ -26,11 +26,8 @@ findAccount <- function(
   }
 
   if (!is.null(accountName) && !is.null(server)) {
-    theseAccounts <- accounts[
-      accounts$server == server & accounts$name == accountName,
-      ,
-      drop = FALSE
-    ]
+    selected <- accounts$server == server & accounts$name == accountName
+    theseAccounts <- accounts[selected, , drop = FALSE]
     if (nrow(theseAccounts) == 0) {
       cli::cli_abort(
         c(
@@ -41,7 +38,8 @@ findAccount <- function(
       )
     }
   } else if (is.null(accountName) && !is.null(server)) {
-    theseAccounts <- accounts[accounts$server == server, , drop = FALSE]
+    selected <- accounts$server == server
+    theseAccounts <- accounts[selected, , drop = FALSE]
     if (nrow(theseAccounts) == 0) {
       cli::cli_abort(
         c(
@@ -61,7 +59,8 @@ findAccount <- function(
       )
     }
   } else if (!is.null(accountName) && is.null(server)) {
-    theseAccounts <- accounts[accounts$name == accountName, , drop = FALSE]
+    selected <- accounts$name == accountName
+    theseAccounts <- accounts[selected, , drop = FALSE]
     if (nrow(theseAccounts) == 0) {
       cli::cli_abort(
         c(
