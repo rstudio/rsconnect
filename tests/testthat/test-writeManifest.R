@@ -350,26 +350,45 @@ test_that("environment.r.requires - DESCRIPTION file - existing Depends R is add
 
 test_that("environment.r.requires - renv.lock - Existing R version is added", {
   skip_on_cran()
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
 
-  withr::local_options(renv.verbose = TRUE)
+  withr::local_options(renv.verbose = FALSE)
 
-  appDir <- test_path("shinyapp-simple-renv")
+  appDir <- local_temp_app(list(app.R = "library(foreign); library(MASS)"))
+  renv::snapshot(appDir, prompt = FALSE)
+
   manifest <- makeManifest(appDir)
-  expect_equal(manifest$environment$r$requires, ">= 4.3.0")
+  expect_equal(
+    manifest$environment$r$requires,
+    paste(">= ", R.Version()$major, ".", R.Version()$minor, sep = "")
+  )
 })
 
 test_that("environment.r.requires - DESCRIPTION file takes precedence over renv.lock", {
   skip_on_cran()
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
 
-  withr::local_options(renv.verbose = TRUE)
+  withr::local_options(renv.verbose = FALSE)
 
-  appDir <- test_path("shinyapp-desc-n-renv")
+  descFile <- "
+Package: oneshinyapp
+Title: Target for tests
+Version: 0.1.0
+Description: a test package
+Depends: R (>= 4.3.2)
+"
+  appDir <- local_temp_app(list(
+    app.R = "library(foreign); library(MASS)",
+    DESCRIPTION = descFile
+  ))
+  renv::snapshot(appDir, prompt = FALSE)
+
   manifest <- makeManifest(appDir)
-
-  # DESCRIPTION holds 4.4.0 and renv.lock 4.3.0
-  # not sure if this is a valid scenario
+  # Not sure if this is a valid or common scenario
   # but here we are testing that DESCRIPTION file "Depends" takes precedence
-  expect_equal(manifest$environment$r$requires, ">= 4.4.0")
+  expect_equal(manifest$environment$r$requires, ">= 4.3.2")
 })
 
 test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {
