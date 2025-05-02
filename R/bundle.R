@@ -136,13 +136,15 @@ versionFromDescription <- function(appDir) {
 }
 
 versionFromLockfile <- function(appDir) {
-  tryCatch({
-    lockfile <- suppressWarnings(renv::lockfile_read(project = appDir))
-    paste(">=", lockfile$R$Version)
-  },
-  error = function(e) {
-    return(NULL)
-  })
+  tryCatch(
+    {
+      lockfile <- suppressWarnings(renv::lockfile_read(project = appDir))
+      paste(">=", lockfile$R$Version)
+    },
+    error = function(e) {
+      return(NULL)
+    }
+  )
 }
 
 rVersionRequires <- function(appDir) {
@@ -295,7 +297,9 @@ createAppManifest <- function(
   }
 
   # emit the environment field
-  if (!is.null(image) || length(envManagementInfo) > 0 || !is.null(rVersionReq)) {
+  if (
+    !is.null(image) || length(envManagementInfo) > 0 || !is.null(rVersionReq)
+  ) {
     manifest$environment <- list()
 
     # if there is a target image, attach it to the environment
