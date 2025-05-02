@@ -338,6 +338,50 @@ test_that("Sets environment.environment_management in the manifest if envManagem
   expect_null(manifest$environment$environment_management)
 })
 
+test_that("environment.r.requires - DESCRIPTION file - existing Depends R is added", {
+  skip_on_cran()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("packages/utf8package")
+  manifest <- makeManifest(appDir, appPrimaryDoc = "R/hello.R")
+  expect_equal(manifest$environment$r$requires, ">= 3.5.0")
+})
+
+test_that("environment.r.requires - renv.lock - Existing R version is added", {
+  skip_on_cran()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-simple-renv")
+  manifest <- makeManifest(appDir)
+  expect_equal(manifest$environment$r$requires, ">= 4.3.0")
+})
+
+test_that("environment.r.requires - DESCRIPTION file takes precedence over renv.lock", {
+  skip_on_cran()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-desc-n-renv")
+  manifest <- makeManifest(appDir)
+
+  # DESCRIPTION holds 4.4.0 and renv.lock 4.3.0
+  # not sure if this is a valid scenario
+  # but here we are testing that DESCRIPTION file "Depends" takes precedence
+  expect_equal(manifest$environment$r$requires, ">= 4.4.0")
+})
+
+test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {
+  skip_on_cran()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("packages/windows1251package")
+  manifest <- makeManifest(appDir, appPrimaryDoc = "R/hello.R")
+  expect_null(manifest$environment)
+})
+
 # appMode Inference tests
 
 test_that("content type (appMode) is inferred and can be overridden", {
