@@ -361,7 +361,7 @@ test_that("environment.r.requires - renv.lock - Existing R version is added", {
   manifest <- makeManifest(appDir)
   expect_equal(
     manifest$environment$r$requires,
-    paste(">= ", R.Version()$major, ".", R.Version()$minor, sep = "")
+    paste("~= ", R.Version()$major, ".", R.Version()$minor, sep = "")
   )
 })
 
@@ -377,7 +377,7 @@ Package: oneshinyapp
 Title: Target for tests
 Version: 0.1.0
 Description: a test package
-Depends: R (>= 4.3.2)
+Depends: R (>= 1.42.0)
 "
   appDir <- local_temp_app(list(
     app.R = "library(foreign); library(MASS)",
@@ -388,7 +388,7 @@ Depends: R (>= 4.3.2)
   manifest <- makeManifest(appDir)
   # Not sure if this is a valid or common scenario
   # but here we are testing that DESCRIPTION file "Depends" takes precedence
-  expect_equal(manifest$environment$r$requires, ">= 4.3.2")
+  expect_equal(manifest$environment$r$requires, ">= 1.42.0")
 })
 
 test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {

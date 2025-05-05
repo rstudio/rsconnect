@@ -139,7 +139,7 @@ versionFromLockfile <- function(appDir) {
   tryCatch(
     {
       lockfile <- suppressWarnings(renv::lockfile_read(project = appDir))
-      paste(">=", lockfile$R$Version)
+      paste("~=", lockfile$R$Version)
     },
     error = function(e) {
       return(NULL)
@@ -309,8 +309,7 @@ createAppManifest <- function(
 
     # if there is an R version constraint
     if (!is.null(rVersionReq)) {
-      manifest$environment$r <- list()
-      manifest$environment$r$requires <- rVersionReq
+      manifest$environment$r <- list(requires = rVersionReq)
     }
 
     # if either environment_management.r or environment_management.python
