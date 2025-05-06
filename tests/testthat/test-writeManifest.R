@@ -1,3 +1,5 @@
+skip_on_cran()
+
 makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
   writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ..., quiet = TRUE)
   manifestFile <- file.path(appDir, "manifest.json")
@@ -8,7 +10,6 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
 }
 
 test_that("renv.lock is included for renv projects", {
-  skip_on_cran()
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
 
@@ -24,7 +25,6 @@ test_that("renv.lock is included for renv projects", {
 })
 
 test_that("renv.lock is not included for non-renv projects", {
-  skip_on_cran()
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
 
@@ -37,7 +37,6 @@ test_that("renv.lock is not included for non-renv projects", {
 })
 
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
-  skip_on_cran()
   skip_if_not_installed("reticulate")
   python <- pythonPathOrSkip()
 
@@ -56,7 +55,6 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
 })
 
 test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
-  skip_on_cran()
   skip_if_not_installed("reticulate")
   python <- pythonPathOrSkip()
 
@@ -75,8 +73,6 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
 })
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest", {
-  skip_on_cran()
-
   manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd", python = NULL)
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
@@ -84,7 +80,6 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 })
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
-  skip_on_cran()
   skip_if_not_installed("reticulate")
   python <- pythonPathOrSkip()
 
@@ -102,7 +97,6 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 # Quarto Tests
 
 test_that("Quarto website includes quarto in the manifest", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-website-r")
@@ -114,7 +108,6 @@ test_that("Quarto website includes quarto in the manifest", {
 })
 
 test_that("Quarto document includes quarto in the manifest", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-doc-none")
@@ -127,7 +120,6 @@ test_that("Quarto document includes quarto in the manifest", {
 })
 
 test_that("Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.qmd)", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-doc-none")
@@ -140,7 +132,6 @@ test_that("Specifying quarto arg includes quarto in the manifest, even with no a
 })
 
 test_that("Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.Rmd)", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("shiny-rmds")
@@ -153,7 +144,6 @@ test_that("Specifying quarto arg includes quarto in the manifest, even with no a
 })
 
 test_that("specifying quarto arg with non-quarto app does not include quarto in the manifest", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("shinyapp-singleR")
@@ -164,7 +154,6 @@ test_that("specifying quarto arg with non-quarto app does not include quarto in 
 })
 
 test_that("Quarto shiny project includes quarto in the manifest", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   appDir <- test_path("quarto-proj-r-shiny")
@@ -176,7 +165,6 @@ test_that("Quarto shiny project includes quarto in the manifest", {
 })
 
 test_that("Quarto R + Python website includes quarto and python in the manifest", {
-  skip_on_cran()
   skip_if_not_installed("reticulate")
   skip_if_no_quarto()
   python <- pythonPathOrSkip()
@@ -193,7 +181,6 @@ test_that("Quarto R + Python website includes quarto and python in the manifest"
 })
 
 test_that("Quarto Python-only website gets correct manifest data", {
-  skip_on_cran()
   skip_if_not_installed("reticulate")
   skip_if_no_quarto()
 
@@ -212,7 +199,6 @@ test_that("Quarto Python-only website gets correct manifest data", {
 })
 
 test_that("Deploying a Quarto project without Quarto is an error", {
-  skip_on_cran()
   local_mocked_bindings(quarto_path = function() NULL)
 
   appDir <- test_path("quarto-website-r")
@@ -220,7 +206,6 @@ test_that("Deploying a Quarto project without Quarto is an error", {
 })
 
 test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {
-  skip_on_cran()
   skip_if_no_quarto()
 
   manifest <- makeManifest(test_path("test-rmds"), "simple.Rmd", quarto = TRUE)
@@ -231,16 +216,12 @@ test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {
 })
 
 test_that("Deploying static content with _quarto.yaml succeeds without quartoInfo", {
-  skip_on_cran()
-
   manifest <- makeManifest(test_path("static-with-quarto-yaml"))
 
   expect_equal(manifest$metadata$appmode, "static")
 })
 
 test_that("environment.image is not set when image is not provided", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("shinyapp-simple")
@@ -250,8 +231,6 @@ test_that("environment.image is not set when image is not provided", {
 })
 
 test_that("TensorFlow models are identified", {
-  skip_on_cran()
-
   app_dir <- local_temp_app(list(
     "1/saved_model.pb" = "fake-saved-model"
   ))
@@ -262,8 +241,6 @@ test_that("TensorFlow models are identified", {
 })
 
 test_that("environment.image is set when image is provided", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("shinyapp-simple")
@@ -273,8 +250,6 @@ test_that("environment.image is set when image is provided", {
 })
 
 test_that("environment.image is set and uses a provided image even when RSCONNECT_IMAGE is set", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
   withr::local_envvar(RSCONNECT_IMAGE = "rstudio/content-base:older")
 
@@ -285,8 +260,6 @@ test_that("environment.image is set and uses a provided image even when RSCONNEC
 })
 
 test_that("environment.image is not set when RSCONNECT_IMAGE is empty", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
   withr::local_envvar(RSCONNECT_IMAGE = "")
 
@@ -297,8 +270,6 @@ test_that("environment.image is not set when RSCONNECT_IMAGE is empty", {
 })
 
 test_that("environment.image is set when RSCONNECT_IMAGE is nonempty", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
   withr::local_envvar(RSCONNECT_IMAGE = "rstudio/content-base:latest")
 
@@ -309,8 +280,6 @@ test_that("environment.image is set when RSCONNECT_IMAGE is nonempty", {
 })
 
 test_that("Sets environment.environment_management in the manifest if envManagement is defined", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("shinyapp-simple")
@@ -339,8 +308,6 @@ test_that("Sets environment.environment_management in the manifest if envManagem
 })
 
 test_that("environment.r.requires - DESCRIPTION file - existing Depends R is added", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("packages/utf8package")
@@ -349,7 +316,6 @@ test_that("environment.r.requires - DESCRIPTION file - existing Depends R is add
 })
 
 test_that("environment.r.requires - renv.lock - Existing R version is added", {
-  skip_on_cran()
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
 
@@ -366,7 +332,6 @@ test_that("environment.r.requires - renv.lock - Existing R version is added", {
 })
 
 test_that("environment.r.requires - DESCRIPTION file takes precedence over renv.lock", {
-  skip_on_cran()
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
 
@@ -392,8 +357,6 @@ Depends: R (>= 1.42.0)
 })
 
 test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {
-  skip_on_cran()
-
   withr::local_options(renv.verbose = TRUE)
 
   appDir <- test_path("packages/windows1251package")
@@ -404,8 +367,6 @@ test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {
 # appMode Inference tests
 
 test_that("content type (appMode) is inferred and can be overridden", {
-  skip_on_cran()
-
   appDir <- local_temp_app(list(
     "app.R" = "",
     "index.html" = "",
