@@ -120,6 +120,46 @@ isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
 
+versionFromDescription <- function(appDir) {
+  descriptionFilepath <- file.path(appDir, "DESCRIPTION")
+  if (!file.exists(descriptionFilepath)) {
+    return(NULL)
+  }
+
+  desc <- read.dcf(descriptionFilepath)
+  depends <- as.list(desc[1, ])$Depends
+  if (is.null(depends)) {
+    return(NULL)
+  }
+
+  regexExtract("R \\((.*?)\\)", depends)
+}
+
+versionFromLockfile <- function(appDir) {
+  tryCatch(
+    {
+      lockfile <- suppressWarnings(renv::lockfile_read(project = appDir))
+      paste("~=", lockfile$R$Version)
+    },
+    error = function(e) {
+      return(NULL)
+    }
+  )
+}
+
+rVersionRequires <- function(appDir) {
+  # Look for requriement at DESCRIPTION file
+  requires <- versionFromDescription(appDir)
+
+  # If DESCRIPTION file does not have R requirement
+  # Look it up on renv lockfile
+  if (is.null(requires)) {
+    requires <- versionFromLockfile(appDir)
+  }
+
+  requires
+}
+
 createAppManifest <- function(
   appDir,
   appMetadata,
@@ -149,8 +189,10 @@ createAppManifest <- function(
       verbose = verbose,
       quiet = quiet
     )
+    rVersionReq <- rVersionRequires(appDir)
   } else {
     packages <- list()
+    rVersionReq <- NULL
   }
 
   needsPython <- appMetadata$documentsHavePython ||
@@ -255,12 +297,19 @@ createAppManifest <- function(
   }
 
   # emit the environment field
-  if (!is.null(image) || length(envManagementInfo) > 0) {
+  if (
+    !is.null(image) || length(envManagementInfo) > 0 || !is.null(rVersionReq)
+  ) {
     manifest$environment <- list()
 
     # if there is a target image, attach it to the environment
     if (!is.null(image)) {
       manifest$environment$image <- image
+    }
+
+    # if there is an R version constraint
+    if (!is.null(rVersionReq)) {
+      manifest$environment$r <- list(requires = rVersionReq)
     }
 
     # if either environment_management.r or environment_management.python

@@ -6,5 +6,6 @@ Author: Jens Fröhling
 Maintainer: Jens Fröhling <some.guy@i.made.him.up>
 Description: a test package
 License: GPL-2
+Depends: R (>= 3.5.0)
 Encoding: UTF-8
 LazyData: true
