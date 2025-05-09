@@ -326,7 +326,7 @@ test_that("environment.r.requires - renv.lock - Existing R version is added", {
 
   manifest <- makeManifest(appDir)
 
-  maj  <- R.Version()$major
+  maj <- R.Version()$major
   min1 <- strsplit(R.Version()$minor, "\\.")[[1]][1]
   expected <- sprintf("~=%s.%s.0", maj, min1)
   expect_equal(
@@ -337,7 +337,14 @@ test_that("environment.r.requires - renv.lock - Existing R version is added", {
 
 test_that("versionFromLockfile formats various R versions with patch .0", {
   versions <- c("3", "3.8", "3.8.11", "3.25", "4.0.2", "10.5.3")
-  expected <- c("~=3.0", "~=3.8.0", "~=3.8.0", "~=3.25.0", "~=4.0.0", "~=10.5.0")
+  expected <- c(
+    "~=3.0",
+    "~=3.8.0",
+    "~=3.8.0",
+    "~=3.25.0",
+    "~=4.0.0",
+    "~=10.5.0"
+  )
 
   for (i in seq_along(versions)) {
     # Create a temporary directory with a renv.lock file
@@ -346,14 +353,23 @@ test_that("versionFromLockfile formats various R versions with patch .0", {
     dir.create(appDir)
     jsonlite::write_json(
       list(R = list(Version = versions[i])),
-      path      = file.path(appDir, "renv.lock"),
+      path = file.path(appDir, "renv.lock"),
       auto_unbox = TRUE,
-      pretty     = TRUE
+      pretty = TRUE
     )
 
     res <- versionFromLockfile(appDir)
-    expect_equal(res, expected[i],
-      info = paste("Input:", versions[i], "→ got", res, "but expected", expected[i])
+    expect_equal(
+      res,
+      expected[i],
+      info = paste(
+        "Input:",
+        versions[i],
+        "→ got",
+        res,
+        "but expected",
+        expected[i]
+      )
     )
   }
 })
