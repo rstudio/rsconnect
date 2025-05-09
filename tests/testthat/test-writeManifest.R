@@ -349,8 +349,7 @@ test_that("versionFromLockfile formats various R versions with patch .0", {
   for (i in seq_along(versions)) {
     # Create a temporary directory with a renv.lock file
     # containing the specified R version
-    appDir <- tempfile("app")
-    dir.create(appDir)
+    appDir <- local_temp_app()
     jsonlite::write_json(
       list(R = list(Version = versions[i])),
       path = file.path(appDir, "renv.lock"),
