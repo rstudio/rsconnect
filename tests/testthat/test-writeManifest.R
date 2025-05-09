@@ -325,10 +325,52 @@ test_that("environment.r.requires - renv.lock - Existing R version is added", {
   renv::snapshot(appDir, prompt = FALSE)
 
   manifest <- makeManifest(appDir)
+
+  maj <- R.Version()$major
+  min1 <- strsplit(R.Version()$minor, "\\.")[[1]][1]
+  expected <- sprintf("~=%s.%s.0", maj, min1)
   expect_equal(
     manifest$environment$r$requires,
-    paste("~= ", R.Version()$major, ".", R.Version()$minor, sep = "")
+    expected
   )
+})
+
+test_that("versionFromLockfile formats various R versions with patch .0", {
+  versions <- c("3", "3.8", "3.8.11", "3.25", "4.0.2", "10.5.3")
+  expected <- c(
+    "~=3.0",
+    "~=3.8.0",
+    "~=3.8.0",
+    "~=3.25.0",
+    "~=4.0.0",
+    "~=10.5.0"
+  )
+
+  for (i in seq_along(versions)) {
+    # Create a temporary directory with a renv.lock file
+    # containing the specified R version
+    appDir <- local_temp_app()
+    jsonlite::write_json(
+      list(R = list(Version = versions[i])),
+      path = file.path(appDir, "renv.lock"),
+      auto_unbox = TRUE,
+      pretty = TRUE
+    )
+
+    res <- versionFromLockfile(appDir)
+    expect_equal(
+      res,
+      expected[i],
+      info = paste(
+        "Input:",
+        versions[i],
+        "→ got",
+        res,
+        "but expected",
+        expected[i]
+      )
+    )
+  }
 })
 
 test_that("environment.r.requires - DESCRIPTION file takes precedence over renv.lock", {

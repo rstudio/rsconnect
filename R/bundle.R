@@ -139,7 +139,12 @@ versionFromLockfile <- function(appDir) {
   tryCatch(
     {
       lockfile <- suppressWarnings(renv::lockfile_read(project = appDir))
-      paste("~=", lockfile$R$Version)
+      v <- lockfile$R$Version
+      # only major specified “3” → ~=3.0 → >=3.0,<4.0
+      # major and minor specified “3.8” or “3.8.11” → ~=3.8.0 → >=3.8.0,<3.9.0
+      parts <- strsplit(v, "\\.")[[1]]
+      new_parts <- c(head(parts, 2), "0")
+      paste0("~=", paste(new_parts, collapse = "."))
     },
     error = function(e) {
       return(NULL)
