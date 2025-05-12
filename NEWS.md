@@ -18,7 +18,7 @@
   into the manifest as `environment.r.requires`.
 
 * Introduced detection of required Python interpreter version based on
-  project files ".python-version", "pyproject.toml" and "setup.cfg".
+  project files `.python-version`, `pyproject.toml` and `setup.cfg`.
   This setting is inserted into the manifest as `environment.python.requires`.
 
 # rsconnect 1.3.4
