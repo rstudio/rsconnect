@@ -349,13 +349,12 @@ test_that("versionFromLockfile formats various R versions with patch .0", {
   for (i in seq_along(versions)) {
     # Create a temporary directory with a renv.lock file
     # containing the specified R version
-    appDir <- local_temp_app()
-    jsonlite::write_json(
-      list(R = list(Version = versions[i])),
-      path = file.path(appDir, "renv.lock"),
-      auto_unbox = TRUE,
-      pretty = TRUE
-    )
+    appDir <- local_temp_app(list(
+      renv.lock = jsonlite::toJSON(
+        list(R = list(Version = versions[i])),
+        auto_unbox = TRUE
+      )
+    ))
 
     res <- versionFromLockfile(appDir)
     expect_equal(
@@ -404,6 +403,79 @@ test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {
   appDir <- test_path("packages/windows1251package")
   manifest <- makeManifest(appDir, appPrimaryDoc = "R/hello.R")
   expect_null(manifest$environment)
+})
+
+test_that("environment.python.requires - .python-version file", {
+  skip_if_not_installed("reticulate")
+  skip_if_no_quarto()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  python <- pythonPathOrSkip()
+
+  appDir <- test_path("quarto-website-py")
+  manifest <- makeManifest(appDir, python = python, quarto = TRUE)
+  expect_equal(manifest$environment$python$requires, "~=3.8.0")
+})
+
+test_that("environment.python.requires - pyproject.toml", {
+  skip_if_not_installed("reticulate")
+  skip_if_no_quarto()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  python <- pythonPathOrSkip()
+
+  appDir <- test_path("quarto-website-r-py")
+  manifest <- makeManifest(appDir, python = python, quarto = TRUE)
+  expect_equal(manifest$environment$python$requires, ">=3.11")
+})
+
+test_that("environment.python.requires - setup.cfg", {
+  skip_if_not_installed("reticulate")
+  skip_if_no_quarto()
+
+  withr::local_options(renv.verbose = TRUE)
+
+  python <- pythonPathOrSkip()
+
+  appDir <- test_path("quarto-website-py-setupcfg")
+  manifest <- makeManifest(appDir, python = python, quarto = TRUE)
+  expect_equal(manifest$environment$python$requires, ">=3.9")
+})
+
+test_that("pyVersionFile formats various Python versions with patch .0", {
+  versions <- c("3", "3.8", "3.8.11", "3.25", "4.0.2", "10.5.3")
+  expected <- c(
+    "~=3.0",
+    "~=3.8.0",
+    "~=3.8.0",
+    "~=3.25.0",
+    "~=4.0.0",
+    "~=10.5.0"
+  )
+
+  for (i in seq_along(versions)) {
+    # Create a temporary directory with a .python-version file
+    # containing the specified Python version
+    appDir <- local_temp_app(list(
+      `.python-version` = versions[i]
+    ))
+
+    res <- pyVersionFile(appDir)
+    expect_equal(
+      res,
+      expected[i],
+      info = paste(
+        "Input:",
+        versions[i],
+        "→ got",
+        res,
+        "but expected",
+        expected[i]
+      )
+    )
+  }
 })
 
 # appMode Inference tests

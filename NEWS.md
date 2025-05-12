@@ -13,6 +13,14 @@
 
 * Expand tilde when resolving the `rsconnect.ca.bundle` option. (#1152)
 
+* Introduced detection of required R interpreter version based on
+  `DESCRIPTION` file and `renv.lock` file. This setting is inserted
+  into the manifest as `environment.r.requires`.
+
+* Introduced detection of required Python interpreter version based on
+  project files ".python-version", "pyproject.toml" and "setup.cfg".
+  This setting is inserted into the manifest as `environment.python.requires`.
+
 # rsconnect 1.3.4
 
 * Use base64 encoded test data. Addresses CRAN test failures when run with

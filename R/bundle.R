@@ -120,6 +120,15 @@ isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
 }
 
+
+versionToValidSpecifier <- function(version) {
+  # only major specified “3” → ~=3.0 → >=3.0,<4.0
+  # major and minor specified “3.8” or “3.8.11” → ~=3.8.0 → >=3.8.0,<3.9.0
+  parts <- strsplit(version, "\\.")[[1]]
+  new_parts <- c(head(parts, 2), "0")
+  paste0("~=", paste(new_parts, collapse = "."))
+}
+
 versionFromDescription <- function(appDir) {
   descriptionFilepath <- file.path(appDir, "DESCRIPTION")
   if (!file.exists(descriptionFilepath)) {
@@ -139,12 +148,7 @@ versionFromLockfile <- function(appDir) {
   tryCatch(
     {
       lockfile <- suppressWarnings(renv::lockfile_read(project = appDir))
-      v <- lockfile$R$Version
-      # only major specified “3” → ~=3.0 → >=3.0,<4.0
-      # major and minor specified “3.8” or “3.8.11” → ~=3.8.0 → >=3.8.0,<3.9.0
-      parts <- strsplit(v, "\\.")[[1]]
-      new_parts <- c(head(parts, 2), "0")
-      paste0("~=", paste(new_parts, collapse = "."))
+      versionToValidSpecifier(lockfile$R$Version)
     },
     error = function(e) {
       return(NULL)
@@ -153,13 +157,82 @@ versionFromLockfile <- function(appDir) {
 }
 
 rVersionRequires <- function(appDir) {
-  # Look for requriement at DESCRIPTION file
+  # Look for requirement at DESCRIPTION file
   requires <- versionFromDescription(appDir)
 
   # If DESCRIPTION file does not have R requirement
   # Look it up on renv lockfile
   if (is.null(requires)) {
     requires <- versionFromLockfile(appDir)
+  }
+
+  requires
+}
+
+# Read a .python-version file and return the contents
+pyVersionFile <- function(appDir) {
+  versionFilepath <- file.path(appDir, ".python-version")
+  if (!file.exists(versionFilepath)) {
+    return(NULL)
+  }
+
+  con <- file(versionFilepath)
+  defer(close(con))
+
+  fileContents <- readLines(con)
+  versionToValidSpecifier(fileContents)
+}
+
+# Read a pyproject.toml file and return the version string.
+#
+# [project]
+# requires-python = ">=3.8"
+pyVersionFromProjectToml <- function(appDir) {
+  tomlFilepath <- file.path(appDir, "pyproject.toml")
+  if (!file.exists(tomlFilepath)) {
+    return(NULL)
+  }
+
+  tomlData <- RcppTOML::parseTOML(tomlFilepath, fromFile = TRUE)
+  if (is.null(tomlData$project)) {
+    return(NULL)
+  }
+
+  tomlData$project$`requires-python`
+}
+
+# Read a setup.cfg file and return the version string.
+#
+# [options]
+# python_requires = ">=3.8"
+pyVersionFromSetupCfg <- function(appDir) {
+  cfgFilepath <- file.path(appDir, "setup.cfg")
+  if (!file.exists(cfgFilepath)) {
+    return(NULL)
+  }
+
+  cfgData <- ini::read.ini(cfgFilepath)
+  if (is.null(cfgData$options)) {
+    return(NULL)
+  }
+
+  cfgData$options$python_requires
+}
+
+pyVersionRequires <- function(appDir) {
+  # Look for requirement at .python-version file
+  requires <- pyVersionFile(appDir)
+
+  # If didn't get anything from .python-version
+  # Look for requirement at pyproject.toml file
+  if (is.null(requires)) {
+    requires <- pyVersionFromProjectToml(appDir)
+  }
+
+  # If still nothing,
+  # Look for requirement at setup.cfg file
+  if (is.null(requires)) {
+    requires <- pyVersionFromSetupCfg(appDir)
   }
 
   requires
@@ -209,8 +282,11 @@ createAppManifest <- function(
     packageFile <- file.path(appDir, python$package_manager$package_file)
     writeLines(python$package_manager$contents, packageFile)
     python$package_manager$contents <- NULL
+
+    pyVersionReq <- pyVersionRequires(appDir)
   } else {
     python <- NULL
+    pyVersionReq <- NULL
   }
 
   if (!retainPackratDirectory) {
@@ -303,7 +379,10 @@ createAppManifest <- function(
 
   # emit the environment field
   if (
-    !is.null(image) || length(envManagementInfo) > 0 || !is.null(rVersionReq)
+    !is.null(image) ||
+      length(envManagementInfo) > 0 ||
+      !is.null(rVersionReq) ||
+      !is.null(pyVersionReq)
   ) {
     manifest$environment <- list()
 
@@ -315,6 +394,11 @@ createAppManifest <- function(
     # if there is an R version constraint
     if (!is.null(rVersionReq)) {
       manifest$environment$r <- list(requires = rVersionReq)
+    }
+
+    # if there is a Python version constraint
+    if (!is.null(pyVersionReq)) {
+      manifest$environment$python <- list(requires = pyVersionReq)
     }
 
     # if either environment_management.r or environment_management.python
