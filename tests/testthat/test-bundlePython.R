@@ -40,7 +40,7 @@ test_that("can infer env from existing directory", {
   skip_on_cran()
 
   env <- inferPythonEnv(test_path("test-reticulate-rmds"), pythonPathOrSkip())
-  expect_named(env, c("version", "package_manager"))
+  expect_named(env, c("version", "requires", "package_manager"))
   expect_named(
     env$package_manager,
     c("name", "version", "package_file", "contents")
