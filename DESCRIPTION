@@ -34,8 +34,7 @@ Imports:
     tools,
     yaml (>= 2.1.5),
     RcppTOML,
-    jose,
-    ini
+    jose
 Suggests:
     Biobase,
     BiocManager,
