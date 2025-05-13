@@ -444,27 +444,52 @@ test_that("environment.python.requires - setup.cfg", {
   expect_equal(manifest$environment$python$requires, ">=3.9")
 })
 
-test_that("pyVersionFile formats various Python versions with patch .0", {
-  versions <- c("3", "3.8", "3.8.11", "3.25", "4.0.2", "10.5.3")
+test_that(".python-version contents formats various Python versions with patch .0", {
+  python <- pythonPathOrSkip()
+  versions <- c(
+    "3",
+    "3.8",
+    "3.8.11",
+    "3.25",
+    "4.0.2",
+    "10.5.3",
+    # Existent specifier tokena are respected
+    ">=3.11",
+    "==3.99.0"
+  )
   expected <- c(
     "~=3.0",
     "~=3.8.0",
     "~=3.8.0",
     "~=3.25.0",
     "~=4.0.0",
-    "~=10.5.0"
+    "~=10.5.0",
+    ">=3.11",
+    "==3.99.0"
   )
+
+  indexQmd <- "
+---
+title: \"quarto-website-py\"
+jupyter: python3
+---
+This is a Quarto website.
+```{python}
+1 + 1
+```
+"
 
   for (i in seq_along(versions)) {
     # Create a temporary directory with a .python-version file
     # containing the specified Python version
     appDir <- local_temp_app(list(
+      index.qmd = indexQmd,
       `.python-version` = versions[i]
     ))
 
-    res <- pyVersionFile(appDir)
+    manifest <- makeManifest(appDir, python = python, quarto = TRUE)
     expect_equal(
-      res,
+      manifest$environment$python$requires,
       expected[i],
       info = paste(
         "Input:",

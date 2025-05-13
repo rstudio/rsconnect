@@ -169,75 +169,6 @@ rVersionRequires <- function(appDir) {
   requires
 }
 
-# Read a .python-version file and return the contents
-pyVersionFile <- function(appDir) {
-  versionFilepath <- file.path(appDir, ".python-version")
-  if (!file.exists(versionFilepath)) {
-    return(NULL)
-  }
-
-  con <- file(versionFilepath)
-  defer(close(con))
-
-  fileContents <- readLines(con)
-  versionToValidSpecifier(fileContents)
-}
-
-# Read a pyproject.toml file and return the version string.
-#
-# [project]
-# requires-python = ">=3.8"
-pyVersionFromProjectToml <- function(appDir) {
-  tomlFilepath <- file.path(appDir, "pyproject.toml")
-  if (!file.exists(tomlFilepath)) {
-    return(NULL)
-  }
-
-  tomlData <- RcppTOML::parseTOML(tomlFilepath, fromFile = TRUE)
-  if (is.null(tomlData$project)) {
-    return(NULL)
-  }
-
-  tomlData$project$`requires-python`
-}
-
-# Read a setup.cfg file and return the version string.
-#
-# [options]
-# python_requires = ">=3.8"
-pyVersionFromSetupCfg <- function(appDir) {
-  cfgFilepath <- file.path(appDir, "setup.cfg")
-  if (!file.exists(cfgFilepath)) {
-    return(NULL)
-  }
-
-  cfgData <- ini::read.ini(cfgFilepath)
-  if (is.null(cfgData$options)) {
-    return(NULL)
-  }
-
-  cfgData$options$python_requires
-}
-
-pyVersionRequires <- function(appDir) {
-  # Look for requirement at .python-version file
-  requires <- pyVersionFile(appDir)
-
-  # If didn't get anything from .python-version
-  # Look for requirement at pyproject.toml file
-  if (is.null(requires)) {
-    requires <- pyVersionFromProjectToml(appDir)
-  }
-
-  # If still nothing,
-  # Look for requirement at setup.cfg file
-  if (is.null(requires)) {
-    requires <- pyVersionFromSetupCfg(appDir)
-  }
-
-  requires
-}
-
 createAppManifest <- function(
   appDir,
   appMetadata,
@@ -278,12 +209,11 @@ createAppManifest <- function(
     "reticulate" %in% names(packages)
   if (needsPython && !is.null(pythonConfig)) {
     python <- pythonConfig(appDir)
+    pyVersionReq <- python$requires
 
     packageFile <- file.path(appDir, python$package_manager$package_file)
     writeLines(python$package_manager$contents, packageFile)
     python$package_manager$contents <- NULL
-
-    pyVersionReq <- pyVersionRequires(appDir)
   } else {
     python <- NULL
     pyVersionReq <- NULL

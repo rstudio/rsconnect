@@ -96,6 +96,7 @@ inferPythonEnv <- function(
   if (is.null(environment$error)) {
     list(
       version = environment$python,
+      requires = environment$requires,
       package_manager = list(
         name = environment$package_manager,
         version = environment[[environment$package_manager]],
