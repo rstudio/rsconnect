@@ -178,3 +178,7 @@ truthy <- function(value, default = FALSE) {
     as.logical(value)
   }
 }
+
+sanitizeSystem2json <- function(x) {
+  paste(trimws(x, "right", "[\r\n]"), collapse = "")
+}

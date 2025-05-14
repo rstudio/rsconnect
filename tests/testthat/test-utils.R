@@ -106,3 +106,23 @@ test_that("truthy is truthy", {
   expect_false(truthy(0, default = TRUE))
   expect_false(truthy("nonsense", default = TRUE))
 })
+
+test_that("json sanitizer handles long inputts", {
+  skip_if_no_quarto()
+  skip_on_os(c("mac", "linux", "solaris"))
+
+  document <- test_path("quarto-doc-long-chunk", "index.qmd")
+  qinspect <- system2(
+    "quarto",
+    c("inspect", shQuote(document)),
+    stdout = TRUE,
+    stderr = TRUE
+  )
+
+  expect_error(jsonlite::fromJSON(qinspect))
+  expect_no_error(
+    jsonlite::fromJSON(
+      sanitizeSystem2json(qinspect)
+    )
+  )
+})

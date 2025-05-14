@@ -92,7 +92,7 @@ inferPythonEnv <- function(
     )
   }
 
-  environment <- jsonlite::fromJSON(output)
+  environment <- jsonlite::fromJSON(sanitizeSystem2json(output))
   if (is.null(environment$error)) {
     list(
       version = environment$python,
