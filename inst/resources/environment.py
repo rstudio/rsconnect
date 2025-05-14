@@ -15,6 +15,8 @@ import re
 import subprocess
 import sys
 
+import pyproject
+
 try:
     import typing
     from typing import Optional
@@ -27,7 +29,7 @@ exec_dir = os.path.dirname(sys.executable)
 
 
 Environment = collections.namedtuple(
-    "Environment", ("conda", "contents", "error", "filename", "locale", "package_manager", "pip", "python", "source",),
+    "Environment", ("conda", "contents", "error", "filename", "locale", "package_manager", "pip", "python", "source", "requires"),
 )
 
 
@@ -41,8 +43,9 @@ def MakeEnvironment(
     pip=None,  # type: Optional[str]
     python=None,  # type: Optional[str]
     source=None,  # type: Optional[str]
+    requires=None,  # type: Optional[str]
 ):
-    return Environment(conda, contents, error, filename, locale, package_manager, pip, python, source)
+    return Environment(conda, contents, error, filename, locale, package_manager, pip, python, source, requires)
 
 
 class EnvironmentException(Exception):
@@ -90,6 +93,7 @@ def detect_environment(dirname, force_generate=False, conda_mode=False, conda=No
         if conda:
             result["conda"] = get_conda_version(conda)
         result["locale"] = get_default_locale()
+        result["requires"] = pyproject.detect_python_version_requirement(dirname)
 
     return MakeEnvironment(**result)
 

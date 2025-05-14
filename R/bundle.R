@@ -153,7 +153,7 @@ versionFromLockfile <- function(appDir) {
 }
 
 rVersionRequires <- function(appDir) {
-  # Look for requriement at DESCRIPTION file
+  # Look for requirement at DESCRIPTION file
   requires <- versionFromDescription(appDir)
 
   # If DESCRIPTION file does not have R requirement
@@ -205,12 +205,14 @@ createAppManifest <- function(
     "reticulate" %in% names(packages)
   if (needsPython && !is.null(pythonConfig)) {
     python <- pythonConfig(appDir)
+    pyVersionReq <- python$requires
 
     packageFile <- file.path(appDir, python$package_manager$package_file)
     writeLines(python$package_manager$contents, packageFile)
     python$package_manager$contents <- NULL
   } else {
     python <- NULL
+    pyVersionReq <- NULL
   }
 
   if (!retainPackratDirectory) {
@@ -303,7 +305,10 @@ createAppManifest <- function(
 
   # emit the environment field
   if (
-    !is.null(image) || length(envManagementInfo) > 0 || !is.null(rVersionReq)
+    !is.null(image) ||
+      length(envManagementInfo) > 0 ||
+      !is.null(rVersionReq) ||
+      !is.null(pyVersionReq)
   ) {
     manifest$environment <- list()
 
@@ -315,6 +320,11 @@ createAppManifest <- function(
     # if there is an R version constraint
     if (!is.null(rVersionReq)) {
       manifest$environment$r <- list(requires = rVersionReq)
+    }
+
+    # if there is a Python version constraint
+    if (!is.null(pyVersionReq)) {
+      manifest$environment$python <- list(requires = pyVersionReq)
     }
 
     # if either environment_management.r or environment_management.python

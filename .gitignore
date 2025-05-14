@@ -9,6 +9,8 @@ docs/
 .rscignore
 tags
 inst/doc
+inst/resources/__pycache__/
+tests/**/*.quarto_ipynb
 
 # license files should not be commited to this repository
 *.lic
