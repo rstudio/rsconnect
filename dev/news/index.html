@@ -42,6 +42,8 @@
 <li><p>A <code>_server.yml</code> file indicates that the content is an API. (<a href="https://github.com/rstudio/rsconnect/issues/1144" class="external-link">#1144</a>)</p></li>
 <li><p>Quarto documents which specify a server must include executable code or an engine declaration. (<a href="https://github.com/rstudio/rsconnect/issues/1145" class="external-link">#1145</a>)</p></li>
 <li><p>Expand tilde when resolving the <code>rsconnect.ca.bundle</code> option. (<a href="https://github.com/rstudio/rsconnect/issues/1152" class="external-link">#1152</a>)</p></li>
+<li><p>Introduced detection of required R interpreter version based on <code>DESCRIPTION</code> file and <code>renv.lock</code> file. This setting is inserted into the manifest as <code>environment.r.requires</code>.</p></li>
+<li><p>Introduced detection of required Python interpreter version based on project files <code>.python-version</code>, <code>pyproject.toml</code> and <code>setup.cfg</code>. This setting is inserted into the manifest as <code>environment.python.requires</code>.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.4" id="rsconnect-134">rsconnect 1.3.4<a class="anchor" aria-label="anchor" href="#rsconnect-134"></a></h2><p class="text-muted">CRAN release: 2025-01-22</p>
