@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Fixed deployment errors for Quarto documents containing long chunks. (#1114)
+
 * Added support for interaction with Posit Connect deployments
   hosted in Snowpark Container Services.
 
