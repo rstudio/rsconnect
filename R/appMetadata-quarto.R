@@ -64,7 +64,7 @@ quartoInspect <- function(appDir = NULL, appPrimaryDoc = NULL) {
       )
     )
   }
-  jsonlite::fromJSON(json)
+  jsonlite::fromJSON(sanitizeSystem2json(json))
 }
 
 # inlined from quarto::quarto_path()
