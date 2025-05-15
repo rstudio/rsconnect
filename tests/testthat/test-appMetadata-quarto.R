@@ -8,7 +8,7 @@ fakeQuartoMetadata <- function(version, engines) {
   return(metadata)
 }
 
-test_that("inferQuartoInfo correctly detects info when quarto is provided alone", {
+test_that("inferQuartoInfo correctly detects document info when quarto is provided alone", {
   skip_on_cran()
   skip_if_no_quarto()
 
@@ -19,9 +19,15 @@ test_that("inferQuartoInfo correctly detects info when quarto is provided alone"
   )
   expect_named(quartoInfo, c("version", "engines"))
   expect_equal(quartoInfo$engines, I(c("markdown")))
+})
 
+test_that("inferQuartoInfo correctly detects website info when quarto is provided alone", {
+  skip_on_cran()
+  skip_if_no_quarto()
+
+  appDir <- local_temp_app(quarto_website_r_files)
   quartoInfo <- inferQuartoInfo(
-    appDir = test_path("quarto-website-r"),
+    appDir = appDir,
     appPrimaryDoc = NULL,
     metadata = list()
   )
@@ -35,8 +41,9 @@ test_that("inferQuartoInfo prefers metadata over quarto inspect", {
     engines = c("internal-combustion")
   )
 
+  appDir <- local_temp_app(quarto_website_r_files)
   quartoInfo <- inferQuartoInfo(
-    appDir = test_path("quarto-website-r"),
+    appDir = appDir,
     appPrimaryDoc = NULL,
     metadata = metadata
   )
@@ -56,12 +63,18 @@ test_that("quartoInspect requires quarto", {
   })
 })
 
-test_that("quartoInspect identifies Quarto projects", {
+test_that("quartoInspect identifies Quarto projects (website)", {
   skip_on_cran()
   skip_if_no_quarto()
 
-  inspect <- quartoInspect(test_path("quarto-website-r"))
+  appDir <- local_temp_app(quarto_website_r_files)
+  inspect <- quartoInspect(appDir)
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
+})
+
+test_that("quartoInspect identifies Quarto projects (shiny)", {
+  skip_on_cran()
+  skip_if_no_quarto()
 
   inspect <- quartoInspect(test_path("quarto-proj-r-shiny"))
   expect_true(all(c("quarto", "engines") %in% names(inspect)))
