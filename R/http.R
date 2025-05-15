@@ -147,8 +147,9 @@ handleResponse <- function(
 ) {
   url <- buildHttpUrl(response$req)
   reportError <- function(msg) {
+    # msg may be JSON; wrapping with "{msg}" avoids treating it as a formatting string.
     cli::cli_abort(
-      c("<{url}> failed with HTTP status {response$status}", msg),
+      c("<{url}> failed with HTTP status {response$status}", "{msg}"),
       class = c(paste0("rsconnect_http_", response$status), "rsconnect_http"),
       call = error_call
     )
