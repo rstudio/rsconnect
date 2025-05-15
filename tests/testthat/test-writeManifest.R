@@ -99,7 +99,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
 test_that("Quarto website includes quarto in the manifest", {
   skip_if_no_quarto()
 
-  appDir <- test_path("quarto-website-r")
+  appDir <- local_temp_app(quarto_website_r_files)
   manifest <- makeManifest(appDir, quarto = TRUE)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -169,7 +169,7 @@ test_that("Quarto R + Python website includes quarto and python in the manifest"
   skip_if_no_quarto()
   python <- pythonPathOrSkip()
 
-  appDir <- test_path("quarto-website-r-py")
+  appDir <- local_temp_app(quarto_website_r_py_files)
   manifest <- makeManifest(appDir, python = python, quarto = TRUE)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -186,7 +186,7 @@ test_that("Quarto Python-only website gets correct manifest data", {
 
   python <- pythonPathOrSkip()
 
-  appDir <- test_path("quarto-website-py")
+  appDir <- local_temp_app(quarto_website_py_files)
   manifest <- makeManifest(appDir, python = python, quarto = TRUE)
 
   expect_equal(manifest$metadata$appmode, "quarto-static")
@@ -201,7 +201,7 @@ test_that("Quarto Python-only website gets correct manifest data", {
 test_that("Deploying a Quarto project without Quarto is an error", {
   local_mocked_bindings(quarto_path = function() NULL)
 
-  appDir <- test_path("quarto-website-r")
+  appDir <- local_temp_app(quarto_website_r_files)
   expect_snapshot(makeManifest(appDir), error = TRUE)
 })
 
@@ -413,7 +413,7 @@ test_that("environment.python.requires - .python-version file", {
 
   python <- pythonPathOrSkip()
 
-  appDir <- test_path("quarto-website-py")
+  appDir <- local_temp_app(quarto_website_py_python_version_files)
   manifest <- makeManifest(appDir, python = python, quarto = TRUE)
   expect_equal(manifest$environment$python$requires, "~=3.8.0")
 })
@@ -426,7 +426,7 @@ test_that("environment.python.requires - pyproject.toml", {
 
   python <- pythonPathOrSkip()
 
-  appDir <- test_path("quarto-website-r-py")
+  appDir <- local_temp_app(quarto_website_r_py_files)
   manifest <- makeManifest(appDir, python = python, quarto = TRUE)
   expect_equal(manifest$environment$python$requires, ">=3.11")
 })
@@ -439,7 +439,7 @@ test_that("environment.python.requires - setup.cfg", {
 
   python <- pythonPathOrSkip()
 
-  appDir <- test_path("quarto-website-py-setupcfg")
+  appDir <- local_temp_app(quarto_website_py_setup_cfg_files)
   manifest <- makeManifest(appDir, python = python, quarto = TRUE)
   expect_equal(manifest$environment$python$requires, ">=3.9")
 })
