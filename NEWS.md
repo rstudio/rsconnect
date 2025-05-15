@@ -1,19 +1,19 @@
 # rsconnect (development version)
 
-* Fixed deployment errors for Quarto documents containing long chunks. (#1114)
-
-* Added support for interaction with Posit Connect deployments
-  hosted in Snowpark Container Services.
-
 * Content directories with a period in their name are no longer treated as a
   document path when computing the location for deployment records. (#1138)
-
-* A `_server.yml` file indicates that the content is an API. (#1144)
 
 * Quarto documents which specify a server must include executable code or an
   engine declaration. (#1145)
 
+* Fixed errors when analyzing Quarto documents containing long chunks. (#1114)
+
+* A `_server.yml` file indicates that the content is an API. (#1144)
+
 * Expand tilde when resolving the `rsconnect.ca.bundle` option. (#1152)
+
+* Added support for interaction with Posit Connect deployments
+  hosted in Snowpark Container Services.
 
 * Introduced detection of required R interpreter version based on
   `DESCRIPTION` file and `renv.lock` file. This setting is inserted
