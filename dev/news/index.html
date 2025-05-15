@@ -37,12 +37,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-<ul><li><p>Fixed deployment errors for Quarto documents containing long chunks. (<a href="https://github.com/rstudio/rsconnect/issues/1114" class="external-link">#1114</a>)</p></li>
-<li><p>Added support for interaction with Posit Connect deployments hosted in Snowpark Container Services.</p></li>
-<li><p>Content directories with a period in their name are no longer treated as a document path when computing the location for deployment records. (<a href="https://github.com/rstudio/rsconnect/issues/1138" class="external-link">#1138</a>)</p></li>
-<li><p>A <code>_server.yml</code> file indicates that the content is an API. (<a href="https://github.com/rstudio/rsconnect/issues/1144" class="external-link">#1144</a>)</p></li>
+<ul><li><p>Content directories with a period in their name are no longer treated as a document path when computing the location for deployment records. (<a href="https://github.com/rstudio/rsconnect/issues/1138" class="external-link">#1138</a>)</p></li>
 <li><p>Quarto documents which specify a server must include executable code or an engine declaration. (<a href="https://github.com/rstudio/rsconnect/issues/1145" class="external-link">#1145</a>)</p></li>
+<li><p>Fixed errors when analyzing Quarto documents containing long chunks. (<a href="https://github.com/rstudio/rsconnect/issues/1114" class="external-link">#1114</a>)</p></li>
+<li><p>A <code>_server.yml</code> file indicates that the content is an API. (<a href="https://github.com/rstudio/rsconnect/issues/1144" class="external-link">#1144</a>)</p></li>
 <li><p>Expand tilde when resolving the <code>rsconnect.ca.bundle</code> option. (<a href="https://github.com/rstudio/rsconnect/issues/1152" class="external-link">#1152</a>)</p></li>
+<li><p>Added support for interaction with Posit Connect deployments hosted in Snowpark Container Services.</p></li>
 <li><p>Introduced detection of required R interpreter version based on <code>DESCRIPTION</code> file and <code>renv.lock</code> file. This setting is inserted into the manifest as <code>environment.r.requires</code>.</p></li>
 <li><p>Introduced detection of required Python interpreter version based on project files <code>.python-version</code>, <code>pyproject.toml</code> and <code>setup.cfg</code>. This setting is inserted into the manifest as <code>environment.python.requires</code>.</p></li>
 </ul></div>
