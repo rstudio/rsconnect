@@ -76,10 +76,10 @@ exchange_jwt_for_token <- function(
   scope <- sprintf("scope=session:role:%s %s", role, spcs_endpoint)
   grant_type <- "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer"
   assertion <- sprintf("assertion=%s", jwt)
-  payload <- utils::URLencode(
-    c(scope, grant_type, assertion)
-  ) |>
-    paste0(collapse = "&")
+  payload <- paste0(
+    utils::URLencode(c(scope, grant_type, assertion)),
+    collapse = "&"
+  )
 
   POST(
     service = parseHttpUrl(account_url),
