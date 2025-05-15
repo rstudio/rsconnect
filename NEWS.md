@@ -1,4 +1,4 @@
-# rsconnect (development version)
+# rsconnect 1.4.0
 
 * Content directories with a period in their name are no longer treated as a
   document path when computing the location for deployment records. (#1138)
