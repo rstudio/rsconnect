@@ -231,7 +231,8 @@ waitForAuthedUser <- function(
   apiKey = NULL
 ) {
   # keep trying to authenticate until we're successful; server returns
-  # 500 "Token is unclaimed error" while waiting for interactive auth to complete
+  # 500 "Token is unclaimed error" (Connect before 2024.05.0)
+  # 401 "Unauthorized" occurs before the token has been claimed.
   cli::cli_progress_bar(format = "{cli::pb_spin} Waiting for authentication...")
 
   repeat {
@@ -246,6 +247,7 @@ waitForAuthedUser <- function(
         private_key = private_key,
         apiKey = apiKey
       ),
+      rsconnect_http_401 = function(err) NULL,
       rsconnect_http_500 = function(err) NULL
     )
     if (!is.null(user)) {

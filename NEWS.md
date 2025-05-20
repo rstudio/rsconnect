@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* When waiting for initial Connect account authorization, allow HTTP 401
+  responses. (#1167)
+
 # rsconnect 1.4.0
 
 * Content directories with a period in their name are no longer treated as a
