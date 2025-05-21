@@ -228,15 +228,6 @@ validateConnectUrl <- function(
         url,
         snowflakeConnectionName
       )
-      return(
-        GET(
-          parseHttpUrl(url),
-          auth_info,
-          "/server_settings",
-          timeout = timeout,
-          rawResponse = TRUE
-        )
-      )
     }
     GET(
       parseHttpUrl(url),
