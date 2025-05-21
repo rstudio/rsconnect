@@ -233,8 +233,7 @@ validateConnectUrl <- function(
       parseHttpUrl(url),
       auth_info,
       "/server_settings",
-      timeout = timeout,
-      rawResponse = TRUE
+      timeout = timeout
     )
   }
   response <- NULL
