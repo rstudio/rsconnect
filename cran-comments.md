@@ -1,7 +1,7 @@
 ## Summary
 
-Address test failures seen after a libssl update; failures were caused by test
-data that was not Base64 encoded.
+Address issues caused by the rsconnect 1.4.0 release which prevented
+new account registration.
 
 ## R CMD check results
 
