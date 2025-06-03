@@ -10,17 +10,12 @@
 #' @details Deploy a plumber API definition by either supplying a directory
 #'   containing `plumber.R` (an API definition) or `entrypoint.R` that returns a
 #'   `plumb` object created by `plumber::plumb()`. See the plumber documentation
-#'   for more information.
+#'   for more information. Alternatively, deploy a plumber2 API by supplying a
+#'   directory containing `_server.yml`.
 #'
 #' @family Deployment functions
 #' @export
 deployAPI <- function(api, ...) {
-  check_installed(
-    "plumber",
-    version = "0.3.2",
-    reason = "to deploy plumber APIs"
-  )
-
   check_directory(api)
 
   # Checking for entrypoint.R or plumber.R is done in `lint-framework.R`
