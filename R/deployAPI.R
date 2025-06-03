@@ -4,7 +4,8 @@
 #' must contain a script returning a `plumb` object or a plumber API definition.
 #'
 #' @param api Path to the API project directory. Must contain either
-#'   `entrypoint.R` or `plumber.R`
+#'   `entrypoint.R` or `plumber.R` (for plumber APIs) or `_server.yml` (for
+#'   plumber2 APIs)
 #' @param ... Additional arguments to [deployApp()].
 #'
 #' @details Deploy a plumber API definition by either supplying a directory

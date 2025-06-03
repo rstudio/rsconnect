@@ -8,7 +8,8 @@ deployAPI(api, ...)
 }
 \arguments{
 \item{api}{Path to the API project directory. Must contain either
-\code{entrypoint.R} or \code{plumber.R}}
+\code{entrypoint.R} or \code{plumber.R} (for plumber APIs) or \verb{_server.yml} (for
+plumber2 APIs)}
 
 \item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
 }
