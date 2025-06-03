@@ -370,6 +370,13 @@ test_that("apiIsPlumber2 looks for _server.yaml", {
   expect_true(apiIsPlumber2(tempdir()))
 })
 
+test_that("apiIsPlumber2 ", {
+  local_mocked_bindings(list.files = function(...) {
+    c("test_server.yml", "_server.yml.backup")
+  })
+  expect_false(apiIsPlumber2(tempdir()))
+})
+
 test_that("apiIsPlumber returns FALSE for regular plumber APIs (plumber.R)", {
   local_mocked_bindings(list.files = function(...) {
     c("plumber.R", "anotherfile.R")

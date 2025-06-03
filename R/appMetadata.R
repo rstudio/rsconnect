@@ -387,5 +387,5 @@ documentHasPythonChunk <- function(filename) {
 
 apiIsPlumber2 <- function(appDir) {
   files <- list.files(appDir)
-  any(grepl("_server\\.yml", files))
+  any(grepl("^_server\\.yml$", files))
 }
