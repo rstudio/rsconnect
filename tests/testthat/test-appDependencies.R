@@ -88,7 +88,7 @@ test_that("infers correct packages for each source", {
     hasParameters = FALSE,
     documentsHavePython = FALSE,
     plumberInfo = NULL
-    ) {
+  ) {
     list(
       appMode = appMode,
       hasParameters = hasParameters,
