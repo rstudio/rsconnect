@@ -82,13 +82,24 @@ appMetadata <- function(
     quartoInfo <- NULL
   }
 
+  plumberInfo <- NULL
+  if (appMode == "api") {
+    if (apiIsPlumber2(appDir)) {
+      server_yaml <- yaml::read_yaml(file.path(appDir, "_server.yml"))
+      plumberInfo <- server_yaml$engine
+    } else {
+      plumberInfo <- "plumber"
+    }
+  }
+
   list(
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
     hasParameters = hasParameters,
     contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
-    quartoInfo = quartoInfo
+    quartoInfo = quartoInfo,
+    plumberInfo = plumberInfo
   )
 }
 
@@ -316,7 +327,6 @@ appIsQuartoDocument <- function(appMode) {
     )
 }
 
-
 appHasParameters <- function(
   appDir,
   appPrimaryDoc,
@@ -373,4 +383,9 @@ documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
   return(length(matches) > 0)
+}
+
+apiIsPlumber2 <- function(appDir) {
+  files <- list.files(appDir)
+  any(grepl("_server\\.yml", files))
 }

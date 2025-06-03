@@ -362,3 +362,24 @@ test_that("Rmd or qmd with python chunk has python", {
   dir <- local_temp_app(list("foo.qmd" = c("```{python}", "1+1", "````")))
   expect_true(detectPythonInDocuments(dir))
 })
+
+test_that("apiIsPlumber2 looks for _server.yaml", {
+  local_mocked_bindings(list.files = function(...) {
+    c("_server.yml", ".Rprofile", "plumber.R")
+  })
+  expect_true(apiIsPlumber2(tempdir()))
+})
+
+test_that("apiIsPlumber returns FALSE for regular plumber APIs (plumber.R)", {
+  local_mocked_bindings(list.files = function(...) {
+    c("plumber.R", "anotherfile.R")
+  })
+  expect_false(apiIsPlumber2(tempdir()))
+})
+
+test_that("apiIsPlumber returns FALSE for regular plumber APIs (entrypoint.R)", {
+  local_mocked_bindings(list.files = function(...) {
+    c("entrypoint.R", "anotherfile.R")
+  })
+  expect_false(apiIsPlumber2(tempdir()))
+})
