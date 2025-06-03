@@ -363,6 +363,8 @@ test_that("Rmd or qmd with python chunk has python", {
   expect_true(detectPythonInDocuments(dir))
 })
 
+# apiIsPlumber2 -----------------------------------------------------------
+
 test_that("apiIsPlumber2 looks for _server.yaml", {
   local_mocked_bindings(list.files = function(...) {
     c("_server.yml", ".Rprofile", "plumber.R")
