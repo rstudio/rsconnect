@@ -99,6 +99,23 @@ test_that("Shiny Quarto with the jupyter engine is OK", {
   expect_contains(metadata$quartoInfo$engines, "jupyter")
 })
 
+test_that("correct extra packages for APIs are detected", {
+  dir_plumber <- local_temp_app(list("plumber.R" = ""))
+  files_plumber <- list.files(dir_plumber)
+  metadata_plumber <- appMetadata(dir_plumber, files_plumber)
+  expect_equal(metadata_plumber$plumberInfo, "plumber")
+
+  dir_plumber2 <- local_temp_app(list("_server.yml" = "engine: 'plumber2'"))
+  files_plumber2 <- list.files(dir_plumber2)
+  metadata_plumber2 <- appMetadata(dir_plumber2, files_plumber2)
+  expect_equal(metadata_plumber2$plumberInfo, "plumber2")
+
+  dir_other <- local_temp_app(list("app.R" = ""))
+  files_other <- list.files(dir_other)
+  metadata_other <- appMetadata(dir_other, files_other)
+  expect_null(metadata_other$plumberInfo, "other")
+})
+
 
 # checkLayout -------------------------------------------------------------
 
