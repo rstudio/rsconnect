@@ -382,7 +382,7 @@ test_that("Rmd or qmd with python chunk has python", {
 
 # apiIsPlumber2 -----------------------------------------------------------
 
-test_that("apiIsPlumber2 looks for _server.yaml", {
+test_that("apiIsPlumber2 looks for _server.yml", {
   local_mocked_bindings(list.files = function(...) {
     c("_server.yml", ".Rprofile", "plumber.R")
   })
@@ -390,6 +390,8 @@ test_that("apiIsPlumber2 looks for _server.yaml", {
 })
 
 test_that("apiIsPlumber2 ", {
+
+test_that("apiIsPlumber2 doesn't return TRUE for yaml files with different names", {
   local_mocked_bindings(list.files = function(...) {
     c("test_server.yml", "_server.yml.backup")
   })
