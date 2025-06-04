@@ -44,6 +44,7 @@ test_that("recommended packages are snapshotted", {
 test_that("works with BioC packages", {
   skip_on_cran()
   skip_on_ci()
+  skip_if_not_installed("Biobase")
   app <- local_temp_app(list(
     "index.Rmd" = c(
       "```{r}",
