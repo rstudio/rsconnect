@@ -116,6 +116,17 @@ test_that("correct extra packages for APIs are detected", {
   expect_null(metadata_other$plumberInfo, "other")
 })
 
+test_that("appMetadata errors if both _server.yml and _server.yaml are present", {
+  dir <- local_temp_app(
+    list(
+      "_server.yml" = "engine: 'plumber2'",
+      "_server.yaml" = "engine: 'plumber2'"
+    )
+  )
+  files <- list.files(dir)
+  expect_error(appMetadata(dir, files))
+})
+
 
 # checkLayout -------------------------------------------------------------
 
@@ -389,7 +400,12 @@ test_that("apiIsPlumber2 looks for _server.yml", {
   expect_true(apiIsPlumber2(tempdir()))
 })
 
-test_that("apiIsPlumber2 ", {
+test_that("apiIsPlumber2 looks for _server.yaml", {
+  local_mocked_bindings(list.files = function(...) {
+    c("_server.yaml", ".Rprofile", "plumber.R")
+  })
+  expect_true(apiIsPlumber2(tempdir()))
+})
 
 test_that("apiIsPlumber2 doesn't return TRUE for yaml files with different names", {
   local_mocked_bindings(list.files = function(...) {
