@@ -84,23 +84,7 @@ appMetadata <- function(
 
   plumberInfo <- NULL
   if (appMode == "api") {
-    if (apiIsPlumber2(appDir)) {
-      server_file <- list.files(
-        appDir,
-        pattern = "^_server.ya?ml$",
-        full.names = TRUE
-      )
-      if (length(server_file) > 1) {
-        stop(
-          "Found both _server.yaml and _server.yml, please remove one from your project",
-          call. = FALSE
-        )
-      }
-      server_yaml <- yaml::read_yaml(server_file)
-      plumberInfo <- server_yaml$engine
-    } else {
-      plumberInfo <- "plumber"
-    }
+    plumberInfo <- inferPlumberInfo(appDir)
   }
 
   list(
@@ -396,7 +380,25 @@ documentHasPythonChunk <- function(filename) {
   return(length(matches) > 0)
 }
 
-apiIsPlumber2 <- function(appDir) {
+inferPlumberInfo <- function(appDir) {
   files <- list.files(appDir)
-  any(grepl("^_server\\.ya?ml$", files))
+  is_plumber2 <- any(grepl("^_server\\.ya?ml$", files))
+
+  if (!is_plumber2) {
+    return("plumber")
+  }
+
+  server_file <- list.files(
+    appDir,
+    pattern = "^_server.ya?ml$",
+    full.names = TRUE
+  )
+  if (length(server_file) > 1) {
+    stop(
+      "Found both _server.yaml and _server.yml, please remove one from your project",
+      call. = FALSE
+    )
+  }
+  server_yaml <- yaml::read_yaml(server_file)
+  return(server_yaml$engine)
 }

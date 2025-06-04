@@ -116,18 +116,6 @@ test_that("correct extra packages for APIs are detected", {
   expect_null(metadata_other$plumberInfo, "other")
 })
 
-test_that("appMetadata errors if both _server.yml and _server.yaml are present", {
-  dir <- local_temp_app(
-    list(
-      "_server.yml" = "engine: 'plumber2'",
-      "_server.yaml" = "engine: 'plumber2'"
-    )
-  )
-  files <- list.files(dir)
-  expect_error(appMetadata(dir, files))
-})
-
-
 # checkLayout -------------------------------------------------------------
 
 # inferAppMode ------------------------------------------------------------
@@ -391,39 +379,29 @@ test_that("Rmd or qmd with python chunk has python", {
   expect_true(detectPythonInDocuments(dir))
 })
 
-# apiIsPlumber2 -----------------------------------------------------------
+# inferPlumberInfo --------------------------------------------------------
 
-test_that("apiIsPlumber2 looks for _server.yml", {
-  local_mocked_bindings(list.files = function(...) {
-    c("_server.yml", ".Rprofile", "plumber.R")
-  })
-  expect_true(apiIsPlumber2(tempdir()))
+test_that("inferPlumberInfo returns engine from _server.yml", {
+  dir <- local_temp_app(list("_server.yml" = "engine: 'plumber2'"))
+  expect_equal(inferPlumberInfo(dir), "plumber2")
 })
 
-test_that("apiIsPlumber2 looks for _server.yaml", {
-  local_mocked_bindings(list.files = function(...) {
-    c("_server.yaml", ".Rprofile", "plumber.R")
-  })
-  expect_true(apiIsPlumber2(tempdir()))
+test_that("inferPlumberInfo returns engine from _server.yaml", {
+  dir <- local_temp_app(list("_server.yaml" = "engine: 'plumber2'"))
+  expect_equal(inferPlumberInfo(dir), "plumber2")
 })
 
-test_that("apiIsPlumber2 doesn't return TRUE for yaml files with different names", {
-  local_mocked_bindings(list.files = function(...) {
-    c("test_server.yml", "_server.yml.backup")
-  })
-  expect_false(apiIsPlumber2(tempdir()))
+test_that("inferPlumberInfo returns 'plumber' for plumber APIs", {
+  dir <- local_temp_app(list("plumber.R" = ""))
+  expect_equal(inferPlumberInfo(dir), "plumber")
 })
 
-test_that("apiIsPlumber returns FALSE for regular plumber APIs (plumber.R)", {
-  local_mocked_bindings(list.files = function(...) {
-    c("plumber.R", "anotherfile.R")
-  })
-  expect_false(apiIsPlumber2(tempdir()))
-})
-
-test_that("apiIsPlumber returns FALSE for regular plumber APIs (entrypoint.R)", {
-  local_mocked_bindings(list.files = function(...) {
-    c("entrypoint.R", "anotherfile.R")
-  })
-  expect_false(apiIsPlumber2(tempdir()))
+test_that("inferPlumberInfo errors if both _server.yml and _server.yaml present", {
+  dir <- local_temp_app(
+    list(
+      "_server.yml" = "engine: 'plumber2'",
+      "_server.yaml" = "engine: 'plumber2'"
+    )
+  )
+  expect_error(inferPlumberInfo(dir))
 })
