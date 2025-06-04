@@ -99,6 +99,22 @@ test_that("Shiny Quarto with the jupyter engine is OK", {
   expect_contains(metadata$quartoInfo$engines, "jupyter")
 })
 
+test_that("correct extra packages for APIs are detected", {
+  dir_plumber <- local_temp_app(list("plumber.R" = ""))
+  files_plumber <- list.files(dir_plumber)
+  metadata_plumber <- appMetadata(dir_plumber, files_plumber)
+  expect_equal(metadata_plumber$plumberInfo, "plumber")
+
+  dir_plumber2 <- local_temp_app(list("_server.yml" = "engine: 'plumber2'"))
+  files_plumber2 <- list.files(dir_plumber2)
+  metadata_plumber2 <- appMetadata(dir_plumber2, files_plumber2)
+  expect_equal(metadata_plumber2$plumberInfo, "plumber2")
+
+  dir_other <- local_temp_app(list("app.R" = ""))
+  files_other <- list.files(dir_other)
+  metadata_other <- appMetadata(dir_other, files_other)
+  expect_null(metadata_other$plumberInfo, "other")
+})
 
 # checkLayout -------------------------------------------------------------
 
@@ -361,4 +377,31 @@ test_that("Rmd or qmd with python chunk has python", {
 
   dir <- local_temp_app(list("foo.qmd" = c("```{python}", "1+1", "````")))
   expect_true(detectPythonInDocuments(dir))
+})
+
+# inferPlumberInfo --------------------------------------------------------
+
+test_that("inferPlumberInfo returns engine from _server.yml", {
+  dir <- local_temp_app(list("_server.yml" = "engine: 'plumber2'"))
+  expect_equal(inferPlumberInfo(dir), "plumber2")
+})
+
+test_that("inferPlumberInfo returns engine from _server.yaml", {
+  dir <- local_temp_app(list("_server.yaml" = "engine: 'plumber2'"))
+  expect_equal(inferPlumberInfo(dir), "plumber2")
+})
+
+test_that("inferPlumberInfo returns 'plumber' for plumber APIs", {
+  dir <- local_temp_app(list("plumber.R" = ""))
+  expect_equal(inferPlumberInfo(dir), "plumber")
+})
+
+test_that("inferPlumberInfo errors if both _server.yml and _server.yaml present", {
+  dir <- local_temp_app(
+    list(
+      "_server.yml" = "engine: 'plumber2'",
+      "_server.yaml" = "engine: 'plumber2'"
+    )
+  )
+  expect_error(inferPlumberInfo(dir))
 })

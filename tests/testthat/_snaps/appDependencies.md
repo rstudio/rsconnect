@@ -25,11 +25,16 @@
     Output
       [1] "shiny"
     Code
-      inferRPackageDependencies(simulateMetadata("api"))
+      inferRPackageDependencies(simulateMetadata("api", plumberInfo = "plumber"))
     Output
       [1] "plumber"
     Code
-      inferRPackageDependencies(simulateMetadata("api", documentsHavePython = TRUE))
+      inferRPackageDependencies(simulateMetadata("api", documentsHavePython = TRUE,
+        plumberInfo = "plumber"))
     Output
       [1] "plumber"    "reticulate"
+    Code
+      inferRPackageDependencies(simulateMetadata("api", plumberInfo = "plumber2"))
+    Output
+      [1] "plumber2"
 

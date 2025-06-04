@@ -82,13 +82,19 @@ appMetadata <- function(
     quartoInfo <- NULL
   }
 
+  plumberInfo <- NULL
+  if (appMode == "api") {
+    plumberInfo <- inferPlumberInfo(appDir)
+  }
+
   list(
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
     hasParameters = hasParameters,
     contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
-    quartoInfo = quartoInfo
+    quartoInfo = quartoInfo,
+    plumberInfo = plumberInfo
   )
 }
 
@@ -117,7 +123,7 @@ inferAppMode <- function(
   }
 
   # general API
-  server_yml <- matchingNames(absoluteRootFiles, "^_server.yml$")
+  server_yml <- matchingNames(absoluteRootFiles, "^_server.ya?ml$")
   if (length(server_yml) > 0) {
     return("api")
   }
@@ -316,7 +322,6 @@ appIsQuartoDocument <- function(appMode) {
     )
 }
 
-
 appHasParameters <- function(
   appDir,
   appPrimaryDoc,
@@ -373,4 +378,33 @@ documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
   return(length(matches) > 0)
+}
+
+#' Infer plumber information
+#'
+#' @param appDir directory containing content
+#' @return `"plumber"` for plumber APIs; the contents of the `engine` field in
+#'   `_server.yml`/`_server.yaml` (usually `"plumber2"`) for plumber2 APIs.
+#' @noRd
+inferPlumberInfo <- function(appDir) {
+  files <- list.files(appDir)
+  is_plumber2 <- any(grepl("^_server\\.ya?ml$", files))
+
+  if (!is_plumber2) {
+    return("plumber")
+  }
+
+  server_file <- list.files(
+    appDir,
+    pattern = "^_server.ya?ml$",
+    full.names = TRUE
+  )
+  if (length(server_file) > 1) {
+    stop(
+      "Found both _server.yaml and _server.yml, please remove one from your project",
+      call. = FALSE
+    )
+  }
+  server_yaml <- yaml::read_yaml(server_file)
+  return(server_yaml$engine)
 }

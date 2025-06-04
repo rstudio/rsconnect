@@ -86,12 +86,14 @@ test_that("infers correct packages for each source", {
   simulateMetadata <- function(
     appMode,
     hasParameters = FALSE,
-    documentsHavePython = FALSE
+    documentsHavePython = FALSE,
+    plumberInfo = NULL
   ) {
     list(
       appMode = appMode,
       hasParameters = hasParameters,
-      documentsHavePython = documentsHavePython
+      documentsHavePython = documentsHavePython,
+      plumberInfo = plumberInfo
     )
   }
 
@@ -106,10 +108,12 @@ test_that("infers correct packages for each source", {
     inferRPackageDependencies(simulateMetadata("quarto-shiny"))
     inferRPackageDependencies(simulateMetadata("rmd-shiny"))
     inferRPackageDependencies(simulateMetadata("shiny"))
-    inferRPackageDependencies(simulateMetadata("api"))
+    inferRPackageDependencies(simulateMetadata("api", plumberInfo = "plumber"))
     inferRPackageDependencies(simulateMetadata(
       "api",
-      documentsHavePython = TRUE
+      documentsHavePython = TRUE,
+      plumberInfo = "plumber"
     ))
+    inferRPackageDependencies(simulateMetadata("api", plumberInfo = "plumber2"))
   })
 })

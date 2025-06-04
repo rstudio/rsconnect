@@ -157,7 +157,7 @@ inferRPackageDependencies <- function(appMetadata) {
     "quarto-shiny" = c("rmarkdown", "shiny"),
     "rmd-shiny" = c("rmarkdown", "shiny"),
     "shiny" = "shiny",
-    "api" = "plumber"
+    "api" = appMetadata$plumberInfo
   )
   if (appMetadata$documentsHavePython) {
     deps <- c(deps, "reticulate")

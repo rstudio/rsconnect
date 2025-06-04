@@ -8,7 +8,8 @@ deployAPI(api, ...)
 }
 \arguments{
 \item{api}{Path to the API project directory. Must contain either
-\code{entrypoint.R} or \code{plumber.R}}
+\code{entrypoint.R} or \code{plumber.R} (for plumber APIs) or \verb{_server.yml} (for
+plumber2 APIs)}
 
 \item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
 }
@@ -20,7 +21,8 @@ must contain a script returning a \code{plumb} object or a plumber API definitio
 Deploy a plumber API definition by either supplying a directory
 containing \code{plumber.R} (an API definition) or \code{entrypoint.R} that returns a
 \code{plumb} object created by \code{plumber::plumb()}. See the plumber documentation
-for more information.
+for more information. Alternatively, deploy a plumber2 API by supplying a
+directory containing \verb{_server.yml}.
 }
 \seealso{
 Other Deployment functions: 
