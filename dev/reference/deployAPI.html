@@ -54,7 +54,8 @@ must contain a script returning a <code>plumb</code> object or a plumber API def
 
 <dl><dt id="arg-api">api<a class="anchor" aria-label="anchor" href="#arg-api"></a></dt>
 <dd><p>Path to the API project directory. Must contain either
-<code>entrypoint.R</code> or <code>plumber.R</code></p></dd>
+<code>entrypoint.R</code> or <code>plumber.R</code> (for plumber APIs) or <code>_server.yml</code> (for
+plumber2 APIs)</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -66,7 +67,8 @@ must contain a script returning a <code>plumb</code> object or a plumber API def
     <p>Deploy a plumber API definition by either supplying a directory
 containing <code>plumber.R</code> (an API definition) or <code>entrypoint.R</code> that returns a
 <code>plumb</code> object created by <code><a href="https://www.rplumber.io/reference/plumb.html" class="external-link">plumber::plumb()</a></code>. See the plumber documentation
-for more information.</p>
+for more information. Alternatively, deploy a plumber2 API by supplying a
+directory containing <code>_server.yml</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -89,7 +91,7 @@ for more information.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
   </div></footer></body></html>
