@@ -380,6 +380,12 @@ documentHasPythonChunk <- function(filename) {
   return(length(matches) > 0)
 }
 
+#' Infer plumber information
+#'
+#' @param appDir directory containing content
+#' @return `"plumber"` for plumber APIs; the contents of the `engine` field in
+#'   `_server.yml`/`_server.yaml` (usually `"plumber2"`) for plumber2 APIs.
+#' @noRd
 inferPlumberInfo <- function(appDir) {
   files <- list.files(appDir)
   is_plumber2 <- any(grepl("^_server\\.ya?ml$", files))
