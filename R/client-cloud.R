@@ -431,8 +431,9 @@ cloudClient <- function(service, authInfo) {
 
         # display status to the user if it changed
         if (!identical(lastStatus, status$description)) {
-          if (!quiet)
+          if (!quiet) {
             cat("  ", status$status, ": ", status$description, "\n", sep = "")
+          }
           lastStatus <- status$description
         }
 

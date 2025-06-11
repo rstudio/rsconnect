@@ -103,8 +103,9 @@ quartoSite <- function(path, quiet = FALSE, error_call = caller_env()) {
   config <- quarto::quarto_inspect(path)$config
 
   list(
-    render = function()
-      quarto::quarto_render(path, quiet = quiet, as_job = FALSE),
+    render = function() {
+      quarto::quarto_render(path, quiet = quiet, as_job = FALSE)
+    },
     name = basename(normalizePath(path)),
     title = config$website$title %||% config$book$title %||% config$title,
     # non-site projects build in current directory

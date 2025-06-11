@@ -14,11 +14,14 @@ httpRCurl <- function(
   certificate = NULL,
   timeout = NULL
 ) {
-  if (!is.null(contentFile) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType)) {
     stop("You must specify a contentType for the specified file")
+  }
 
   # add prefix to port if necessary
-  if (!is.null(port) && nzchar(port)) port <- paste(":", port, sep = "")
+  if (!is.null(port) && nzchar(port)) {
+    port <- paste(":", port, sep = "")
+  }
 
   # build url
   url <- paste(protocol, "://", host, port, path, sep = "")

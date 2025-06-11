@@ -13,8 +13,9 @@ httpCurl <- function(
   certificate = NULL,
   timeout = NULL
 ) {
-  if (!is.null(contentFile) && is.null(contentType))
+  if (!is.null(contentFile) && is.null(contentType)) {
     stop("You must specify a contentType for the specified file")
+  }
 
   if (!is.null(contentFile)) {
     fileLength <- file.info(contentFile)$size

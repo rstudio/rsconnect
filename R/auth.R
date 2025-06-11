@@ -100,7 +100,9 @@ removeAuthorizedUser <- function(
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # check and remove password file
@@ -153,7 +155,9 @@ showUsers <- function(
   checkShinyappsServer(accountDetails$server)
 
   # resolve application
-  if (is.null(appName)) appName <- basename(appDir)
+  if (is.null(appName)) {
+    appName <- basename(appDir)
+  }
   application <- resolveApplication(accountDetails, appName)
 
   # fetch authoriztion list
