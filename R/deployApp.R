@@ -540,7 +540,7 @@ deployApp <- function(
     }
   }
 
-  if (!quiet)
+  if (!quiet) {
     openURL(
       client,
       application,
@@ -548,6 +548,7 @@ deployApp <- function(
       on.failure,
       deploymentSucceeded
     )
+  }
 
   # invoke post-deploy hook if we have one
   if (deploymentSucceeded) {
@@ -560,11 +561,15 @@ deployApp <- function(
 }
 
 taskStart <- function(quiet, message, .envir = caller_env()) {
-  if (quiet) return()
+  if (quiet) {
+    return()
+  }
   cli::cli_alert_info(message, .envir = .envir)
 }
 taskComplete <- function(quiet, message, .envir = caller_env()) {
-  if (quiet) return()
+  if (quiet) {
+    return()
+  }
   cli::cli_alert_success(message, .envir = .envir)
 }
 

@@ -6,8 +6,7 @@ verboseLogger <- function(verbose) {
       cat(paste0(timestamp, " ", ..., "\n"))
     }
   } else {
-    function(...) {
-    }
+    function(...) {}
   }
 }
 

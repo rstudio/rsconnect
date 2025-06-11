@@ -1,5 +1,7 @@
 secret <- function(x) {
-  if (is.null(x)) return(NULL)
+  if (is.null(x)) {
+    return(NULL)
+  }
 
   stopifnot(is.character(x) || all(is.na(x)))
   structure(x, class = "rsconnect_secret")

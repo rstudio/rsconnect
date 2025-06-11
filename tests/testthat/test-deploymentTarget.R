@@ -94,13 +94,14 @@ test_that("uses appId without local deployment record; created by local account"
   addTestAccount("leslie", "local")
 
   local_mocked_bindings(
-    getApplication = function(...)
+    getApplication = function(...) {
       data.frame(
         id = "the-appid",
         name = "remote-record",
         owner_username = "leslie",
         stringsAsFactors = FALSE
       )
+    }
   )
 
   app_dir <- withr::local_tempdir()
@@ -125,13 +126,14 @@ test_that("uses appId without local deployment record; created by collaborator",
   app_dir <- withr::local_tempdir()
 
   local_mocked_bindings(
-    getApplication = function(...)
+    getApplication = function(...) {
       data.frame(
         id = "the-appid",
         name = "remote-record",
         owner_username = "ron",
         stringsAsFactors = FALSE
       )
+    }
   )
 
   target <- findDeploymentTarget(app_dir, appId = "the-appid")
@@ -327,12 +329,13 @@ test_that("succeeds if there are no deployments and a single account", {
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...)
+    getAppByName = function(...) {
       data.frame(
         name = "remotename",
         url = "app-url",
         stringsAsFactors = FALSE
       )
+    }
   )
 
   app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
@@ -393,12 +396,13 @@ test_that("default title is the empty string", {
   addTestServer()
   addTestAccount("ron")
   local_mocked_bindings(
-    getAppByName = function(...)
+    getAppByName = function(...) {
       data.frame(
         name = "remotename",
         url = "app-url",
         stringsAsFactors = FALSE
       )
+    }
   )
 
   app_dir <- withr::local_tempdir()
@@ -412,13 +416,14 @@ confirm_existing_app_used <- function(server) {
   addTestServer()
   addTestAccount("ron", server = server)
   local_mocked_bindings(
-    getAppByName = function(...)
+    getAppByName = function(...) {
       data.frame(
         name = "my_app",
         id = 123,
         url = "http://example.com/test",
         stringsAsFactors = FALSE
-      ),
+      )
+    },
     shouldUpdateApp = function(...) TRUE
   )
 
@@ -441,13 +446,14 @@ confirm_existing_app_not_used <- function(server) {
   addTestServer()
   addTestAccount("ron", server = server)
   local_mocked_bindings(
-    getAppByName = function(...)
+    getAppByName = function(...) {
       data.frame(
         name = "my_app",
         id = 123,
         url = "http://example.com/test",
         stringsAsFactors = FALSE
-      ),
+      )
+    },
     shouldUpdateApp = function(...) FALSE
   )
 
