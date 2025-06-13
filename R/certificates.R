@@ -81,25 +81,21 @@ createCertificateFile <- function(certificate) {
     # to be all right to use only that cert.
   }
 
+  # Combine the incoming server certificate with the discovered system
+  # certificate, removing duplicates (#1175).
+  allcerts <- c()
+
+  if (!is.null(certificateFile)) {
+    allcerts <- c(allcerts, openssl::read_cert_bundle(certificateFile))
+  }
+  allcerts <- c(allcerts, openssl::read_cert_bundle(certificate))
+
+  allcerts <- allcerts[!duplicated(allcerts)]
+  txtlines <- sapply(allcerts, openssl::write_pem)
+
   # create a temporary file to house the certificates
   certificateStore <- tempfile(pattern = "cacerts", fileext = ".pem")
-  dirCreate(dirname(certificateStore))
-  file.create(certificateStore)
-
-  # open temporary cert store
-  con <- file(certificateStore, open = "at")
-  defer(close(con))
-
-  # copy the contents of the certificate file into the store, if we found one
-  # (we don't do a straight file copy since we don't want to inherit or
-  # correct permissions)
-  if (!is.null(certificateFile)) {
-    certLines <- readLines(certificateFile, warn = FALSE)
-    writeLines(text = certLines, con = con)
-  }
-
-  # append the server-specific certificate (with a couple of blank lines)
-  writeLines(text = c("", "", certificate), con = con)
+  writeLines(txtlines, certificateStore)
 
   return(certificateStore)
 }
