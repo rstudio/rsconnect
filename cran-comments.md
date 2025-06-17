@@ -1,7 +1,6 @@
 ## Summary
 
-Address issues caused by the rsconnect 1.4.0 release which prevented
-new account registration.
+Address duplicate certificate errors on macOS with newer curl.
 
 ## R CMD check results
 
