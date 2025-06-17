@@ -1,20 +1,41 @@
 test_that("system and server cert stores are concatenated", {
   local_temp_config()
 
-  # use a dummy CA bundle
-  withr::local_options(rsconnect.ca.bundle = test_path("certs/store.crt"))
+  serverCertificateFile <- test_path("certs/localhost.pem")
+  serverCertificate <- paste(
+    c(
+      # this in-memory certificate has duplication, which
+      # is removed in the concatenated result.
+      readLines(con = serverCertificateFile, warn = FALSE),
+      readLines(con = serverCertificateFile, warn = FALSE)
+    ),
+    collapse = "\n"
+  )
+
+  caCertificateFile <- test_path("certs/example.com.pem")
+
+  withr::local_options(rsconnect.ca.bundle = caCertificateFile)
 
   # create and then read the temporary certificate file
-  concatenated <- createCertificateFile(readLines(test_path(
-    "certs/localhost.crt"
-  )))
+  concatenated <- createCertificateFile(serverCertificate)
   withr::defer(unlink(concatenated))
-  store <- paste(readLines(concatenated), collapse = "\n")
 
-  # make sure that the localhost and system stores both exist in the
-  # concatenated store
-  expect_true(grepl("localhost", store, fixed = TRUE))
-  expect_true(grepl("system", store, fixed = TRUE))
+  # the result is the concatenation (ca first) without duplicates.
+  expect_equal(
+    openssl::read_cert_bundle(concatenated),
+    openssl::read_cert_bundle(
+      paste0(
+        sapply(
+          c(
+            openssl::read_cert_bundle(caCertificateFile),
+            openssl::read_cert_bundle(serverCertificateFile)
+          ),
+          openssl::write_pem
+        ),
+        collapse = ""
+      )
+    )
+  )
 })
 
 test_that("invalid certificates cannot be added", {
@@ -38,7 +59,7 @@ test_that("certificates not used when making plain http connections", {
       port = "80",
       path = "apps"
     ),
-    authInfo = list(certificate = test_path("certs/localhost.crt")),
+    authInfo = list(certificate = test_path("certs/localhost.pem")),
     "apps"
   )
   expect_equal(httpLastRequest$certificate, NULL)
@@ -55,7 +76,7 @@ test_that("certificates used when making https connections", {
       port = "443",
       path = "apps"
     ),
-    authInfo = list(certificate = test_path("certs/localhost.crt")),
+    authInfo = list(certificate = test_path("certs/localhost.pem")),
     "apps"
   )
 
