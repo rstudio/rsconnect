@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.4.2
 
 * Address duplicate certificate errors on macOS with newer curl. (#1175)
