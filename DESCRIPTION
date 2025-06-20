@@ -31,10 +31,9 @@ Imports:
     renv (>= 1.0.0),
     rlang (>= 1.0.0),
     rstudioapi (>= 0.5),
+    snowflakeauth,
     tools,
     yaml (>= 2.1.5),
-    RcppTOML,
-    jose,
     utils
 Suggests:
     Biobase,
