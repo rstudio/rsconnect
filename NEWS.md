@@ -1,4 +1,4 @@
-# rsconnect (development version)
+# rsconnect 1.5.0
 
 * Functions for interacting with Posit Connect deployments in
   Snowpark Container Services are now provided by the snowflakeauth package.
