@@ -1,6 +1,6 @@
 ## Summary
 
-Address duplicate certificate errors on macOS with newer curl.
+Use the snowflakeauth package.
 
 ## R CMD check results
 
