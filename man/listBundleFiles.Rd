@@ -4,7 +4,7 @@
 \alias{listBundleFiles}
 \title{List Files to be Bundled}
 \usage{
-listBundleFiles(appDir)
+listBundleFiles(appDir, bundle_root = appDir)
 }
 \arguments{
 \item{appDir}{Directory containing the application.}

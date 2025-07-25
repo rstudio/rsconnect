@@ -41,9 +41,10 @@ from the following:
 version control directories, internal config files, and RStudio state,
 are automatically excluded.
 \item You can exclude additional files by listing them in in a \code{.rscignore}
-file. This file must have one file or directory per line (with path
-relative to the current directory). It doesn't support wildcards, or
-ignoring files in subdirectories.
+file. This file follows .gitignore-style syntax with one pattern per line.
+Patterns support wildcards (*, ?, []), directory patterns (dir/), and
+negation (!pattern). Patterns in parent directories affect subdirectories
+hierarchically.
 }
 
 \code{listDeploymentFiles()} will throw an error if the total file size exceeds

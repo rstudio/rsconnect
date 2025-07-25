@@ -14,9 +14,10 @@
 #'    are automatically excluded.
 #'
 #' *  You can exclude additional files by listing them in in a `.rscignore`
-#'    file. This file must have one file or directory per line (with path
-#'    relative to the current directory). It doesn't support wildcards, or
-#'    ignoring files in subdirectories.
+#'    file. This file follows .gitignore-style syntax with one pattern per line.
+#'    Patterns support wildcards (*, ?, []), directory patterns (dir/), and 
+#'    negation (!pattern). Patterns in parent directories affect subdirectories 
+#'    hierarchically.
 #'
 #' `listDeploymentFiles()` will throw an error if the total file size exceeds
 #' the maximum bundle size (as controlled by option `rsconnect.max.bundle.size`),
@@ -99,12 +100,15 @@ readFileManifest <- function(appFileManifest, error_call = caller_env()) {
 #' * `contents`: Paths to bundle, relative to `appDir`.
 #' @export
 #' @keywords internal
-listBundleFiles <- function(appDir) {
-  recursiveBundleFiles(appDir)
+listBundleFiles <- function(appDir, bundle_root = appDir) {
+  recursiveBundleFiles(appDir, bundle_root = bundle_root)
 }
 
 bundleFiles <- function(appDir) {
-  listBundleFiles(appDir)$contents
+  # Store bundle root for hierarchical processing
+  bundle_root <- normalizePath(appDir)
+  result <- listBundleFiles(appDir, bundle_root)
+  result$contents
 }
 
 explodeFiles <- function(dir, files, error_arg = "appFiles") {
@@ -118,7 +122,7 @@ explodeFiles <- function(dir, files, error_arg = "appFiles") {
     files <- files[!missing]
   }
 
-  recursiveBundleFiles(dir, contents = files, ignoreFiles = FALSE)$contents
+  recursiveBundleFiles(dir, contents = files, ignoreFiles = FALSE, bundle_root = dir)$contents
 }
 
 recursiveBundleFiles <- function(
@@ -127,14 +131,15 @@ recursiveBundleFiles <- function(
   rootDir = dir,
   totalFiles = 0,
   totalSize = 0,
-  ignoreFiles = TRUE
+  ignoreFiles = TRUE,
+  bundle_root = rootDir
 ) {
   # generate a list of files at this level
   if (is.null(contents)) {
     contents <- list.files(dir, all.files = TRUE, no.. = TRUE)
   }
   if (ignoreFiles) {
-    contents <- ignoreBundleFiles(dir, contents)
+    contents <- ignoreBundleFiles(dir, contents, bundle_root)
   }
 
   # Info for each file lets us know to recurse (directories) or aggregate (files).
@@ -149,7 +154,8 @@ recursiveBundleFiles <- function(
         rootDir = rootDir,
         totalFiles = totalFiles,
         totalSize = totalSize,
-        ignoreFiles = ignoreFiles
+        ignoreFiles = ignoreFiles,
+        bundle_root = bundle_root
       )
 
       children <- append(children, file.path(name, out$contents))
@@ -171,7 +177,7 @@ recursiveBundleFiles <- function(
   )
 }
 
-ignoreBundleFiles <- function(dir, contents) {
+ignoreBundleFiles <- function(dir, contents, bundle_root = dir) {
   # entries ignored regardless of type
   ignored <- c(
     # rsconnect packages
@@ -202,7 +208,7 @@ ignoreBundleFiles <- function(dir, contents) {
   contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
 
   # remove any files listed in .rscignore using gitignore-style patterns
-  contents <- applyRscignorePatterns(contents, dir)
+  contents <- applyRscignorePatterns(contents, dir, bundle_root)
 
   contents
 }
@@ -289,19 +295,87 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
 #'
 #' @param contents File list to filter
 #' @param dir Directory containing .rscignore file
+#' @param bundle_root Root directory of the bundle (project root)
 #' @return Filtered file list
-applyRscignorePatterns <- function(contents, dir) {
+applyRscignorePatterns <- function(contents, dir, bundle_root = NULL) {
+  # Check for legacy mode (deprecated behavior)
+  legacy_mode <- getOption("rsconnect.rscignore.legacy", FALSE)
+  
+  # Validate option value
+  if (!is.logical(legacy_mode) && !is.null(legacy_mode)) {
+    # Try to convert to logical
+    converted <- suppressWarnings(as.logical(legacy_mode))
+    if (is.na(converted)) {
+      stop("Option 'rsconnect.rscignore.legacy' must be TRUE, FALSE, or NULL. Got: ", 
+           paste(deparse(getOption("rsconnect.rscignore.legacy")), collapse = ""))
+    }
+    legacy_mode <- converted
+  }
+  
+  # Handle NULL case
+  if (is.null(legacy_mode)) {
+    legacy_mode <- FALSE
+  }
+  
+  if (legacy_mode) {
+    # Issue deprecation warning for legacy behavior
+    lifecycle::deprecate_warn(
+      when = "1.6.0", 
+      what = I("Legacy .rscignore behavior"),
+      details = c(
+        "Directory-scoped .rscignore patterns are deprecated.",
+        "Hierarchical .gitignore-style behavior is now the default.",
+        "Update your .rscignore files to use '!' negation patterns if needed.",
+        "Set `options(rsconnect.rscignore.legacy = FALSE)` to remove this warning."
+      )
+    )
+    # Use directory-scoped behavior
+    return(applyDirectoryScopedPatterns(contents, dir))
+  }
+  
+  # NEW DEFAULT: Use hierarchical behavior
+  if (is.null(bundle_root)) {
+    bundle_root <- dir  # Fallback for backward compatibility
+  }
+  
+  tryCatch({
+    patterns <- collectHierarchicalPatterns(dir, bundle_root)
+    if (length(patterns) > 0) {
+      contents <- applyIgnorePatterns(contents, patterns, dir)
+    }
+    
+    # Always exclude .rscignore files themselves
+    contents <- setdiff(contents, ".rscignore")
+    return(contents)
+    
+  }, error = function(e) {
+    # Fallback to directory-scoped behavior on error
+    warning("Error in hierarchical pattern processing: ", e$message, call. = FALSE)
+    warning("Falling back to directory-scoped patterns", call. = FALSE)
+    return(applyDirectoryScopedPatterns(contents, dir))
+  })
+}
+
+#' Directory-scoped .rscignore pattern application
+#' 
+#' Applies .rscignore patterns only from the current directory,
+#' without hierarchical inheritance from parent directories.
+#' 
+#' @param contents File contents to filter
+#' @param dir Directory to check for .rscignore
+#' @return Filtered contents
+applyDirectoryScopedPatterns <- function(contents, dir) {
   # Check if .rscignore file exists in the directory
   rscignore_path <- file.path(dir, ".rscignore")
   if (!file.exists(rscignore_path)) {
     return(contents)
   }
   
-  # Try new pattern-based processing
+  # Simple, robust directory-scoped pattern application
   tryCatch({
     patterns <- parseIgnoreFile(dir)
     if (length(patterns) > 0) {
-      # Apply new gitignore-style patterns
+      # Apply patterns only from this directory (no hierarchical inheritance)
       contents <- applyIgnorePatterns(contents, patterns, dir)
     }
     
@@ -310,22 +384,86 @@ applyRscignorePatterns <- function(contents, dir) {
     return(contents)
     
   }, error = function(e) {
-    # Fallback to old behavior
-    warning("Error processing .rscignore with new pattern system: ", e$message, call. = FALSE)
-    warning("Falling back to simple pattern matching", call. = FALSE)
+    # Simple fallback: read lines and filter directly
+    warning("Error processing .rscignore patterns: ", e$message, call. = FALSE)
+    warning("Using simple line-based filtering", call. = FALSE)
     
-    if (file.exists(rscignore_path)) {
-      tryCatch({
-        ignoreContents <- readLines(rscignore_path, warn = FALSE)
-        contents <- setdiff(contents, c(ignoreContents, ".rscignore"))
-      }, error = function(e2) {
-        warning("Error reading .rscignore file: ", e2$message, call. = FALSE)
-        # Just remove .rscignore file from contents
-        contents <- setdiff(contents, ".rscignore")
-      })
-    }
-    return(contents)
+    tryCatch({
+      ignoreContents <- readLines(rscignore_path, warn = FALSE)
+      # Remove empty lines and comments
+      ignoreContents <- ignoreContents[nzchar(ignoreContents) & !grepl("^#", ignoreContents)]
+      # Filter contents
+      contents <- setdiff(contents, c(ignoreContents, ".rscignore"))
+      return(contents)
+    }, error = function(e2) {
+      warning("Error reading .rscignore file: ", e2$message, call. = FALSE)
+      # Just remove .rscignore file from contents
+      return(setdiff(contents, ".rscignore"))
+    })
   })
+}
+
+#' Collect hierarchical .rscignore patterns
+#'
+#' Walks up the directory tree from current_dir to bundle_root,
+#' collecting patterns from .rscignore files at each level.
+#'
+#' @param current_dir Current directory being processed
+#' @param bundle_root Root directory of the bundle (project root)
+#' @return List of pattern objects in precedence order (parent first, child last)
+collectHierarchicalPatterns <- function(current_dir, bundle_root) {
+  # Validate inputs
+  if (!dir.exists(current_dir)) {
+    stop("Current directory does not exist: ", current_dir)
+  }
+  
+  if (!dir.exists(bundle_root)) {
+    stop("Bundle root does not exist: ", bundle_root)
+  }
+  
+  # Ensure paths are normalized for comparison
+  current_dir <- normalizePath(current_dir)
+  bundle_root <- normalizePath(bundle_root)
+  
+  # Collect directories from current to root
+  directories <- character()
+  search_dir <- current_dir
+  
+  while (TRUE) {
+    directories <- c(directories, search_dir)
+    
+    # Stop if we've reached the bundle root
+    if (search_dir == bundle_root) {
+      break
+    }
+    
+    # Move up one level
+    parent_dir <- dirname(search_dir)
+    
+    # Stop if we can't go higher (filesystem root)
+    if (parent_dir == search_dir) {
+      break
+    }
+    
+    search_dir <- parent_dir
+  }
+  
+  # Process directories from parent to child (reverse order)
+  # This ensures we get parent patterns first, child patterns last
+  patterns <- list()
+  for (dir in rev(directories)) {
+    dir_patterns <- parseIgnoreFile(dir)
+    if (length(dir_patterns) > 0) {
+      # Add patterns with directory context for debugging
+      for (pattern in dir_patterns) {
+        pattern$source_dir <- dir
+        patterns <- append(patterns, list(pattern))
+      }
+    }
+  }
+  
+  # Return patterns in processing order (parent first, child last)
+  return(patterns)
 }
 
 #' Parse .rscignore file into pattern objects
@@ -504,10 +642,10 @@ matchDoubleAsteriskPattern <- function(file_path, pattern) {
   return(FALSE)
 }
 
-#' Apply ignore patterns to a file list
+#' Apply ignore patterns to a file list with hierarchical precedence
 #'
 #' @param file_list List of file paths relative to current directory
-#' @param patterns List of pattern objects
+#' @param patterns List of pattern objects (parent first, child last)
 #' @param current_dir Current directory path
 #' @return Filtered file list with ignored files removed
 applyIgnorePatterns <- function(file_list, patterns, current_dir) {
@@ -515,28 +653,57 @@ applyIgnorePatterns <- function(file_list, patterns, current_dir) {
     return(file_list)
   }
   
-  ignored_files <- character(0)
+  # Track which files are ignored
+  file_status <- setNames(rep(FALSE, length(file_list)), file_list)
   
-  # Process ignore patterns first
-  ignore_patterns <- Filter(function(p) !p$negation, patterns)
-  for (pattern in ignore_patterns) {
+  # Process patterns in order (parent to child, within-file order preserved)
+  # Later patterns override earlier patterns
+  for (pattern in patterns) {
     for (file in file_list) {
-      if (matchPattern(file, pattern, current_dir)) {
-        ignored_files <- union(ignored_files, file)
+      # Hierarchical pattern matching logic (formerly in matchPatternHierarchical)
+      matches <- FALSE
+      
+      # For relative patterns (starting with /), only match files in the same directory
+      # as the .rscignore file that contains the pattern
+      if (pattern$relative && startsWith(pattern$raw, "/")) {
+        # Get the directory containing this pattern's .rscignore file
+        pattern_dir <- pattern$source_dir
+        
+        # Get the directory containing the current file
+        if (grepl("/", file)) {
+          file_dir <- file.path(current_dir, dirname(file))
+        } else {
+          file_dir <- current_dir
+        }
+        
+        # Normalize paths for comparison
+        pattern_dir <- normalizePath(pattern_dir, mustWork = FALSE)
+        file_dir <- normalizePath(file_dir, mustWork = FALSE)
+        
+        # If directories match, compare just the filename
+        if (pattern_dir == file_dir) {
+          file_basename <- basename(file)
+          matches <- matchPattern(file_basename, pattern, current_dir)
+        }
+      } else {
+        # For non-relative patterns, use normal matching
+        matches <- matchPattern(file, pattern, current_dir)
+      }
+      
+      if (matches) {
+        if (pattern$negation) {
+          # Negation pattern: un-ignore the file
+          file_status[[file]] <- FALSE
+        } else {
+          # Regular pattern: ignore the file
+          file_status[[file]] <- TRUE
+        }
       }
     }
   }
   
-  # Process negation patterns (un-ignore)
-  negation_patterns <- Filter(function(p) p$negation, patterns)
-  for (pattern in negation_patterns) {
-    for (file in ignored_files) {
-      if (matchPattern(file, pattern, current_dir)) {
-        ignored_files <- setdiff(ignored_files, file)
-      }
-    }
-  }
-  
-  # Return files not in ignored set
-  setdiff(file_list, ignored_files)
+  # Return files that are not ignored
+  file_list[!file_status]
 }
+
+

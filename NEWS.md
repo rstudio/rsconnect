@@ -1,5 +1,47 @@
 # rsconnect (development version)
 
+## Breaking changes
+
+* `.rscignore` files now follow hierarchical .gitignore-style behavior by default.
+  Patterns in parent directories now affect subdirectories, making .rscignore
+  files work more intuitively and consistently with .gitignore behavior (#issue).
+  
+  **What changed**: Previously, each .rscignore file only affected files in its
+  own directory. Now, patterns in parent .rscignore files affect all subdirectories,
+  and child .rscignore files can override parent patterns using negation (`!pattern`).
+  
+  **Migration**: Most existing .rscignore files will work the same or better. If you
+  have the same filename in multiple directories and want different ignore behavior,
+  add negation patterns (`!filename`) to subdirectory .rscignore files where needed.
+  
+  **Temporary compatibility**: Use `options(rsconnect.rscignore.legacy = TRUE)` to
+  temporarily restore old behavior, but this will be removed in version 2.0.0.
+
+### Migration examples
+
+**Before (deprecated behavior)**:
+```
+project/
+├── .rscignore        # "temp.log" only ignores project/temp.log
+├── temp.log          # ← ignored
+├── src/
+│   ├── temp.log      # ← NOT ignored (different directory)
+│   └── main.R
+```
+
+**After (new default behavior)**:
+```
+project/
+├── .rscignore        # "temp.log" ignores ALL temp.log files
+├── temp.log          # ← ignored  
+├── src/
+│   ├── temp.log      # ← NOW ignored (hierarchical)
+│   ├── .rscignore    # Add "!temp.log" here to un-ignore if needed
+│   └── main.R
+```
+
+## Minor improvements and bug fixes
+
 # rsconnect 1.5.0
 
 * Functions for interacting with Posit Connect deployments in
