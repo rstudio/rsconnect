@@ -201,11 +201,8 @@ ignoreBundleFiles <- function(dir, contents) {
   contents <- contents[!grepl("^~|~$", contents)]
   contents <- contents[!grepl(glob2rx("*.Rproj"), contents)]
 
-  # remove any files lines listed .rscignore
-  if (".rscignore" %in% contents) {
-    ignoreContents <- readLines(file.path(dir, ".rscignore"))
-    contents <- setdiff(contents, c(ignoreContents, ".rscignore"))
-  }
+  # remove any files listed in .rscignore using gitignore-style patterns
+  contents <- applyRscignorePatterns(contents, dir)
 
   contents
 }
@@ -283,4 +280,263 @@ detectLongNames <- function(bundleDir, lengthLimit = 32) {
     )
   )
   return(invisible(FALSE))
+}
+
+# GitIgnore-style pattern parsing for .rscignore files
+# ============================================================================
+
+#' Apply .rscignore patterns to file list with fallback
+#'
+#' @param contents File list to filter
+#' @param dir Directory containing .rscignore file
+#' @return Filtered file list
+applyRscignorePatterns <- function(contents, dir) {
+  # Check if .rscignore file exists in the directory
+  rscignore_path <- file.path(dir, ".rscignore")
+  if (!file.exists(rscignore_path)) {
+    return(contents)
+  }
+  
+  # Try new pattern-based processing
+  tryCatch({
+    patterns <- parseIgnoreFile(dir)
+    if (length(patterns) > 0) {
+      # Apply new gitignore-style patterns
+      contents <- applyIgnorePatterns(contents, patterns, dir)
+    }
+    
+    # Always exclude the .rscignore file itself
+    contents <- setdiff(contents, ".rscignore")
+    return(contents)
+    
+  }, error = function(e) {
+    # Fallback to old behavior
+    warning("Error processing .rscignore with new pattern system: ", e$message, call. = FALSE)
+    warning("Falling back to simple pattern matching", call. = FALSE)
+    
+    if (file.exists(rscignore_path)) {
+      tryCatch({
+        ignoreContents <- readLines(rscignore_path, warn = FALSE)
+        contents <- setdiff(contents, c(ignoreContents, ".rscignore"))
+      }, error = function(e2) {
+        warning("Error reading .rscignore file: ", e2$message, call. = FALSE)
+        # Just remove .rscignore file from contents
+        contents <- setdiff(contents, ".rscignore")
+      })
+    }
+    return(contents)
+  })
+}
+
+#' Parse .rscignore file into pattern objects
+#'
+#' @param directory_path Path to directory containing .rscignore file
+#' @return List of pattern objects, or empty list if no .rscignore file
+parseIgnoreFile <- function(directory_path) {
+  rscignore_path <- file.path(directory_path, ".rscignore")
+  if (!file.exists(rscignore_path)) {
+    return(list())
+  }
+  
+  tryCatch({
+    lines <- readLines(rscignore_path, warn = FALSE)
+    patterns <- list()
+    
+    for (line in lines) {
+      pattern_obj <- parseSinglePattern(line)
+      if (!is.null(pattern_obj)) {
+        patterns <- append(patterns, list(pattern_obj))
+      }
+    }
+    
+    return(patterns)
+  }, error = function(e) {
+    warning("Error reading .rscignore file: ", e$message)
+    return(list())
+  })
+}
+
+#' Parse a single pattern line
+#'
+#' @param line Raw line from .rscignore file
+#' @return Pattern object or NULL if line should be skipped
+parseSinglePattern <- function(line) {
+  original <- line
+  line <- trimws(line)
+  
+  # Skip empty lines and comments
+  if (nchar(line) == 0 || startsWith(line, "#")) {
+    return(NULL)
+  }
+  
+  # Handle negation
+  negation <- FALSE
+  if (startsWith(line, "!")) {
+    negation <- TRUE
+    line <- substring(line, 2)
+  }
+  
+  # Handle directory-only patterns
+  dir_only <- FALSE
+  if (endsWith(line, "/")) {
+    dir_only <- TRUE
+    line <- substring(line, 1, nchar(line) - 1)
+  }
+  
+  # Handle relative vs anywhere patterns
+  relative <- FALSE
+  if (startsWith(line, "/")) {
+    relative <- TRUE
+    line <- substring(line, 2)  # Remove leading /
+  } else if (grepl("/", line)) {
+    relative <- TRUE
+  }
+  
+  # Validate pattern after processing
+  if (nchar(line) == 0) {
+    return(NULL)
+  }
+  
+  # Handle special double-asterisk edge cases
+  warning_msg <- NULL
+  if (line == "**") {
+    # ** alone matches everything
+    line <- "*"
+  } else if (grepl("\\*{3,}", line)) {
+    # *** or more - matches everything but warn
+    warning_msg <- paste("Pattern with multiple consecutive asterisks:", original)
+    line <- "*"
+  } else if (line == "**/") {
+    # **/ matches all directories
+    dir_only <- TRUE
+    line <- "*"
+  }
+  
+  # Issue warning if needed
+  if (!is.null(warning_msg)) {
+    warning(warning_msg)
+  }
+  
+  pattern_type <- if (negation) "negation" else if (relative) "relative" else "anywhere"
+  
+  list(
+    raw = original,
+    pattern = line,
+    type = pattern_type,
+    dir_only = dir_only,
+    negation = negation,
+    relative = relative
+  )
+}
+
+#' Match a file path against a pattern
+#'
+#' @param file_path File path relative to current directory
+#' @param pattern Pattern object from parseSinglePattern
+#' @param current_dir Current directory path (for file info)
+#' @return TRUE if pattern matches, FALSE otherwise
+matchPattern <- function(file_path, pattern, current_dir) {
+  full_path <- file.path(current_dir, file_path)
+  is_directory <- dir.exists(full_path)
+  
+  # Handle directory-only restriction
+  if (pattern$dir_only && !is_directory) {
+    return(FALSE)
+  }
+  
+  # Handle simple double-asterisk patterns
+  if (grepl("\\*\\*/", pattern$pattern) || grepl("/\\*\\*$", pattern$pattern)) {
+    return(matchDoubleAsteriskPattern(file_path, pattern))
+  }
+  
+  # Regular glob matching
+  return(matchGlobPattern(file_path, pattern))
+}
+
+#' Match glob patterns
+#'
+#' @param file_path File path to match against
+#' @param pattern Pattern object
+#' @return TRUE if pattern matches, FALSE otherwise
+matchGlobPattern <- function(file_path, pattern) {
+  tryCatch({
+    # Convert glob to regex
+    regex_pattern <- glob2rx(pattern$pattern)
+    
+    # Get target string for matching
+    if (pattern$relative) {
+      target <- file_path  # Full relative path
+    } else {
+      target <- basename(file_path)  # Just the filename
+    }
+    
+    # Perform match
+    grepl(regex_pattern, target)
+  }, error = function(e) {
+    warning("Pattern matching error for: ", pattern$raw, " - ", e$message)
+    FALSE
+  })
+}
+
+#' Match simple double-asterisk patterns
+#'
+#' @param file_path File path to match against  
+#' @param pattern Pattern object containing ** 
+#' @return TRUE if pattern matches, FALSE otherwise
+matchDoubleAsteriskPattern <- function(file_path, pattern) {
+  pattern_str <- pattern$pattern
+  
+  if (startsWith(pattern_str, "**/")) {
+    # Case 1: **/foo -> matches foo anywhere (equivalent to just "foo")
+    sub_pattern <- substring(pattern_str, 4)  # Remove "**/""
+    anywhere_pattern <- pattern
+    anywhere_pattern$pattern <- sub_pattern
+    anywhere_pattern$relative <- FALSE
+    return(matchGlobPattern(file_path, anywhere_pattern))
+    
+  } else if (endsWith(pattern_str, "/**")) {
+    # Case 2: abc/** -> everything under abc/ directory
+    prefix <- substring(pattern_str, 1, nchar(pattern_str) - 3)  # Remove "/**"
+    return(startsWith(file_path, paste0(prefix, "/")))
+  }
+  
+  # For more complex ** patterns, fall back to basic matching for now
+  return(FALSE)
+}
+
+#' Apply ignore patterns to a file list
+#'
+#' @param file_list List of file paths relative to current directory
+#' @param patterns List of pattern objects
+#' @param current_dir Current directory path
+#' @return Filtered file list with ignored files removed
+applyIgnorePatterns <- function(file_list, patterns, current_dir) {
+  if (length(patterns) == 0) {
+    return(file_list)
+  }
+  
+  ignored_files <- character(0)
+  
+  # Process ignore patterns first
+  ignore_patterns <- Filter(function(p) !p$negation, patterns)
+  for (pattern in ignore_patterns) {
+    for (file in file_list) {
+      if (matchPattern(file, pattern, current_dir)) {
+        ignored_files <- union(ignored_files, file)
+      }
+    }
+  }
+  
+  # Process negation patterns (un-ignore)
+  negation_patterns <- Filter(function(p) p$negation, patterns)
+  for (pattern in negation_patterns) {
+    for (file in ignored_files) {
+      if (matchPattern(file, pattern, current_dir)) {
+        ignored_files <- setdiff(ignored_files, file)
+      }
+    }
+  }
+  
+  # Return files not in ignored set
+  setdiff(file_list, ignored_files)
 }
