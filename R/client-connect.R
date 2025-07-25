@@ -20,15 +20,6 @@ connectClient <- function(service, authInfo) {
 
     ## User API
 
-    addUser = function(userRecord) {
-      userRecord <- validateUserRecord(userRecord)
-      POST_JSON(service, authInfo, "/users", userRecord)
-    },
-
-    getUser = function(userId) {
-      GET(service, authInfo, file.path("/users", userId))
-    },
-
     currentUser = function() {
       GET(service, authInfo, "/users/current")
     },
@@ -79,11 +70,6 @@ connectClient <- function(service, authInfo) {
         guid = application$guid,
         url = application$url
       )
-    },
-
-    terminateApplication = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/terminate", sep = "")
-      POST_JSON(service, authInfo, path, list())
     },
 
     uploadApplication = function(appId, bundlePath) {
