@@ -40,10 +40,12 @@ from the following:
 \item Certain files and folders that don't need to be bundled, such as
 version control directories, internal config files, and RStudio state,
 are automatically excluded.
-\item You can exclude additional files by listing them in in a \code{.rscignore}
-file. This file must have one file or directory per line (with path
-relative to the current directory). It doesn't support wildcards, or
-ignoring files in subdirectories.
+\item You can exclude additional files by listing them in a \code{.rscignore}
+file. This file follows .gitignore-style syntax with one pattern per line.
+Patterns support wildcards (* and ?), directory patterns (dir/), and
+negation (!pattern). Character classes (\link{abc}, \link{0-9}) and brace expansion
+({a,b,c}, {1..3}) are not currently supported. Patterns in parent
+directories affect subdirectories hierarchically.
 }
 
 \code{listDeploymentFiles()} will throw an error if the total file size exceeds
