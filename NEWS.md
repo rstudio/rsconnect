@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Removed unused internal methods from Connect client. (#1182)
+
 # rsconnect 1.5.0
 
 * Functions for interacting with Posit Connect deployments in
