@@ -73,7 +73,7 @@ writeManifest <- function(
     verbose = verbose,
     quiet = quiet
   )
-  manifest$integrationRequests <- list()
+  manifest$integration_requests <- list()
   manifestJson <- toJSON(manifest)
   manifestPath <- file.path(appDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)
