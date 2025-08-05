@@ -536,5 +536,5 @@ test_that("empty integrations field is added", {
   appDir <- test_path("shinyapp-simple")
 
   manifest <- makeManifest(appDir)
-  expect_equal(manifest$integrations, list())
+  expect_equal(manifest$integration_requests, list())
 })
