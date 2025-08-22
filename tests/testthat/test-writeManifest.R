@@ -530,3 +530,11 @@ test_that("content type (appMode) is inferred and can be overridden", {
   expect_equal(manifest$metadata$appmode, "static")
   expect_named(manifest$files, files)
 })
+
+
+test_that("empty integrations field is added", {
+  appDir <- test_path("shinyapp-simple")
+
+  manifest <- makeManifest(appDir)
+  expect_equal(manifest$integration_requests, list())
+})
