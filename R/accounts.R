@@ -120,10 +120,7 @@ getSPCSAuthedUser <- function(server, snowflakeConnectionName) {
   serverAddress <- serverInfo(server)
   account <- list(
     server = server,
-    snowflakeToken = getSnowflakeAuthToken(
-      serverAddress$url,
-      snowflakeConnectionName
-    )
+    snowflakeConnectionName = snowflakeConnectionName
   )
 
   client <- clientForAccount(account)
