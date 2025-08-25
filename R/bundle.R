@@ -360,7 +360,5 @@ createAppManifest <- function(
     manifest$users <- NA
   }
 
-  manifest$integration_requests <- list()
-
   manifest
 }
