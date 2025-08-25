@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Address user registration for Posit Connect deployments hosted in Snowpark
+  Container Services when there is more than one configured Snowflake
+  connection. (#1189)
 * Removed unused internal methods from Connect client. (#1182)
 
 # rsconnect 1.5.0
