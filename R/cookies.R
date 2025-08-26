@@ -136,7 +136,14 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
     return(NULL)
   }
 
-  # MaxAge
+  # Cookies without max-age= or expires= are session cookies.
+  #
+  # Cookies never survive beyond the current R session, so mark session
+  # cookies as never expiring.
+  expires <- Sys.time() + 10^10
+
+  # Max-Age takes precedence over Expires.
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie
   maxage <- regmatches(
     cookieHeader,
     regexec(
@@ -145,13 +152,27 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
       ignore.case = TRUE
     )
   )[[1]]
-  # If no maxage specified, then this is a session cookie, which means that
-  # (since our cookies only survive for a single session anyways...) we should
-  # keep this cookie around as long as we're alive.
-  expires <- Sys.time() + 10^10
   if (length(maxage) > 0) {
     # Compute time maxage seconds from now
     expires <- Sys.time() + as.numeric(maxage[2])
+  } else {
+    expiration_value <- regmatches(
+      cookieHeader,
+      regexec(
+        "^.*\\sExpires\\s*=\\s*([^;]+)(;|$).*$",
+        cookieHeader,
+        ignore.case = TRUE
+      )
+    )[[1]]
+    if (length(expiration_value) > 0) {
+      # Time format is Wdy, DD-Mon-YYYY HH:MM:SS GMT
+      # could also use curl::parse_date()
+      expires <- strptime(
+        expiration_value[2],
+        "%a, %d %b %Y %H:%M:%S GMT",
+        "GMT"
+      )
+    }
   }
 
   # Secure
