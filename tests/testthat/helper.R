@@ -160,8 +160,16 @@ addTestDeployment <- function(
 # top level field from within writeManifest
 expect_known_manifest_fields <- function(manifest) {
   known_fields <- c(
-    "version", "environment", "platform", "locale", "python",
-    "metadata", "quarto", "packages", "files", "users"
+    "version",
+    "environment",
+    "platform",
+    "locale",
+    "python",
+    "metadata",
+    "quarto",
+    "packages",
+    "files",
+    "users"
   )
   testthat::expect_contains(
     known_fields,
