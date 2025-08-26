@@ -22,6 +22,7 @@ test_that("renv.lock is included for renv projects", {
   # note: we don't see an .Rprofile here because we only renv::snapshot and
   # do not fully create an renv project.
   expect_named(manifest$files, c("app.R", "renv.lock"))
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("renv.lock is not included for non-renv projects", {
@@ -34,6 +35,7 @@ test_that("renv.lock is not included for non-renv projects", {
 
   manifest <- makeManifest(app_dir)
   expect_named(manifest$files, c("app.R"))
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
@@ -52,6 +54,7 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
   expect_true(file.exists(requirements_file))
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Rmd with reticulate as an inferred dependency includes reticulate and python in the manifest", {
@@ -70,6 +73,7 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "implicit.Rmd")
   expect_true(file.exists(requirements_file))
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest", {
@@ -77,6 +81,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_null(manifest$python)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
@@ -92,6 +97,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
   filenames <- names(manifest$files)
   expect_false(any(grepl("^packrat/", filenames, perl = TRUE)), filenames)
   expect_true(any(grepl("simple.Rmd", filenames, fixed = TRUE)), filenames)
+  expect_known_manifest_fields(manifest)
 })
 
 # Quarto Tests
@@ -105,6 +111,7 @@ test_that("Quarto website includes quarto in the manifest", {
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
   expect_equal(manifest$metadata$primary_rmd, "index.qmd")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Quarto document includes quarto in the manifest", {
@@ -117,6 +124,7 @@ test_that("Quarto document includes quarto in the manifest", {
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "markdown")
   expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.qmd)", {
@@ -129,6 +137,7 @@ test_that("Specifying quarto arg includes quarto in the manifest, even with no a
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "markdown")
   expect_equal(manifest$metadata$primary_rmd, "quarto-doc-none.qmd")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Specifying quarto arg includes quarto in the manifest, even with no appPrimaryDoc specified (.Rmd)", {
@@ -141,6 +150,7 @@ test_that("Specifying quarto arg includes quarto in the manifest, even with no a
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
   expect_equal(manifest$quarto$engines, "knitr")
   expect_equal(manifest$metadata$primary_rmd, "non-shiny-rmd.Rmd")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("specifying quarto arg with non-quarto app does not include quarto in the manifest", {
@@ -151,6 +161,7 @@ test_that("specifying quarto arg with non-quarto app does not include quarto in 
   manifest <- makeManifest(appDir, appPrimaryDoc, quarto = TRUE)
 
   expect_null(manifest$quarto)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Quarto shiny project includes quarto in the manifest", {
@@ -162,6 +173,7 @@ test_that("Quarto shiny project includes quarto in the manifest", {
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
   expect_equal(manifest$quarto$engines, "knitr")
   expect_equal(manifest$metadata$primary_rmd, "quarto-proj-r-shiny.qmd")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Quarto R + Python website includes quarto and python in the manifest", {
@@ -178,6 +190,7 @@ test_that("Quarto R + Python website includes quarto and python in the manifest"
 
   expect_true(all(c("quarto", "python") %in% names(manifest)))
   expect_true("reticulate" %in% names(manifest$packages))
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Quarto Python-only website gets correct manifest data", {
@@ -196,6 +209,7 @@ test_that("Quarto Python-only website gets correct manifest data", {
   # We expect Quarto and Python metadata, but no R packages.
   expect_true(all(c("quarto", "python") %in% names(manifest)))
   expect_null(manifest$packages)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Deploying a Quarto project without Quarto is an error", {
@@ -213,12 +227,14 @@ test_that("Deploying R Markdown content with Quarto gives a Quarto app mode", {
   expect_equal(manifest$metadata$appmode, "quarto-static")
   expect_equal(manifest$quarto$engines, "knitr")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Deploying static content with _quarto.yaml succeeds without quartoInfo", {
   manifest <- makeManifest(test_path("static-with-quarto-yaml"))
 
   expect_equal(manifest$metadata$appmode, "static")
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("environment.image is not set when image is not provided", {

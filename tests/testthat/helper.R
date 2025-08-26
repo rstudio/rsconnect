@@ -149,3 +149,22 @@ addTestDeployment <- function(
     addToHistory = FALSE
   )
 }
+
+# adding a top-level manifest field is allowed,
+# but requires coordination with the hosted team
+# to avoid upstream issues. In particular,
+# shinyapps.io enforces a strict manifest schema
+# that will need to be updated to accomodate the change
+#
+# this relates primarily to adding a new always present
+# top level field from within writeManifest
+expect_known_manifest_fields <- function(manifest) {
+  known_fields <- c(
+    "version", "environment", "platform", "locale", "python",
+    "metadata", "quarto", "packages", "files", "users"
+  )
+  testthat::expect_contains(
+    known_fields,
+    names(manifest)
+  )
+}

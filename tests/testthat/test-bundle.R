@@ -47,6 +47,7 @@ test_that("simple Rmd as primary not identified as parameterized when parameteri
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_equal(manifest$metadata$has_parameters, FALSE)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("parameterized Rmd identified as parameterized when other Rmd in bundle", {
@@ -60,6 +61,7 @@ test_that("parameterized Rmd identified as parameterized when other Rmd in bundl
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "parameterized.Rmd")
   expect_equal(manifest$metadata$has_parameters, TRUE)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("primary doc can be inferred (and non-parameterized dispite an included parameterized", {
@@ -73,6 +75,7 @@ test_that("primary doc can be inferred (and non-parameterized dispite an include
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
   expect_equal(manifest$metadata$has_parameters, FALSE)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Rmd with reticulate as a dependency includes python in the manifest", {
@@ -91,6 +94,7 @@ test_that("Rmd with reticulate as a dependency includes python in the manifest",
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "index.Rmd")
   expect_true("reticulate" %in% names(manifest$packages))
+  expect_known_manifest_fields(manifest)
   expect_true(file.exists(file.path(
     bundleTempDir,
     manifest$python$package_manager$package_file
@@ -113,6 +117,7 @@ test_that("Rmd with reticulate as an inferred dependency includes reticulate and
   expect_equal(manifest$metadata$appmode, "rmd-static")
   expect_equal(manifest$metadata$primary_rmd, "implicit.Rmd")
   expect_true("reticulate" %in% names(manifest$packages))
+  expect_known_manifest_fields(manifest)
   expect_true(file.exists(file.path(
     bundleTempDir,
     manifest$python$package_manager$package_file
@@ -134,6 +139,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_false("reticulate" %in% names(manifest$packages))
   expect_equal(manifest$python, NULL)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("Rmd without a python block doesn't include reticulate or python in the manifest even if python specified", {
@@ -153,6 +159,7 @@ test_that("Rmd without a python block doesn't include reticulate or python in th
   expect_equal(manifest$metadata$primary_rmd, "simple.Rmd")
   expect_false("reticulate" %in% names(manifest$packages))
   expect_equal(manifest$python, NULL)
+  expect_known_manifest_fields(manifest)
 })
 
 test_that("tarImplementation: checks environment variable and option before using default", {
