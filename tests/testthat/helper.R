@@ -171,8 +171,5 @@ expect_known_manifest_fields <- function(manifest) {
     "files",
     "users"
   )
-  testthat::expect_contains(
-    known_fields,
-    names(manifest)
-  )
+  expect_in(names(manifest), known_fields)
 }
