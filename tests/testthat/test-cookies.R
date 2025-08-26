@@ -70,6 +70,25 @@ test_that("Parsing cookies works", {
   expect_equal(cookie$path, "/")
 })
 
+test_that("cookie parsing uses expires= when no max-age=", {
+  expect_equal(
+    parseCookie(
+      "mycookie=myvalue; Path=/; Secure; HttpOnly; Expires=Sat, 24 Jun 2017 16:16:05 GMT"
+    ),
+    list(
+      name = "mycookie",
+      value = "myvalue",
+      expires = strptime(
+        "Sat, 24 Jun 2017 16:16:05 GMT",
+        "%a, %d %b %Y %H:%M:%S GMT",
+        "GMT"
+      ),
+      path = "/",
+      secure = TRUE
+    )
+  )
+})
+
 test_that("Invalid cookies fail parsing", {
   # Invalid path, doesn't match request's path
   expect_snapshot(cookie <- parseCookie("x=1; Path=/something/else", "/path"))
