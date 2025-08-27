@@ -167,7 +167,7 @@ test_that("specifying quarto arg with non-quarto app does not include quarto in 
 test_that("Quarto shiny project includes quarto in the manifest", {
   skip_if_no_quarto()
 
-  appDir <- test_path("quarto-proj-r-shiny")
+  appDir <- local_temp_app(quarto_project_r_shiny_files)
   manifest <- makeManifest(appDir, quarto = TRUE)
 
   expect_equal(manifest$metadata$appmode, "quarto-shiny")
