@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.5.1
 
 * Address user registration for Posit Connect deployments hosted in Snowpark
