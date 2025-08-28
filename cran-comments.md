@@ -1,6 +1,6 @@
 ## Summary
 
-Use the snowflakeauth package.
+Minor fixes when Connect is hosted by Snowflake.
 
 ## R CMD check results
 
@@ -12,3 +12,4 @@ We checked 26 reverse dependencies, comparing R CMD check results across CRAN an
 
  * We saw 0 new problems
  * We failed to check 0 packages
+
