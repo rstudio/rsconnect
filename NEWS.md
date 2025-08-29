@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* `addServer()` exposes the underlying reason for failures. (#1197)
+
 # rsconnect 1.5.1
 
 * Address user registration for Posit Connect deployments hosted in Snowpark

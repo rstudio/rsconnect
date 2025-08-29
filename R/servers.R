@@ -186,7 +186,10 @@ addServer <- function(
   if (validate) {
     out <- validateConnectUrl(url, certificate, snowflakeConnectionName)
     if (!out$valid) {
-      cli::cli_abort("{.arg url} does not appear to be a Posit Connect server.")
+      cli::cli_abort(c(
+        "{.arg url} does not appear to be a Posit Connect server.",
+        "x" = "{ out$message }"
+      ))
     }
     url <- out$url
   }

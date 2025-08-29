@@ -84,7 +84,11 @@ test_that("addServer() errors if url not a connect server", {
 
   service <- httpbin_service()
   url <- buildHttpUrl(service)
-  expect_snapshot(addServer(url), error = TRUE)
+  expect_snapshot(
+    addServer(url),
+    transform = strip_port(service),
+    error = TRUE
+  )
 })
 
 test_that("addServer() and addServerCertificate() inform about their actions", {
