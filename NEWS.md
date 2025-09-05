@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Increase the default `rsconnect.max.bundle.size` limit to 5 GiB. (#1200)
+
 # rsconnect 1.5.1
 
 * Address user registration for Posit Connect deployments hosted in Snowpark

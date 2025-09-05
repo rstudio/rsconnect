@@ -86,6 +86,8 @@
       x The maximum number of files is 1.
       x This directory contains at least 2 files.
       i Remove some files or adjust the rsconnect.max.bundle.files option.
+        e.g., options(rsconnect.max.bundle.files = 15000)
+        See `?rsconnect::rsconnectOptions` for additional guidance.
     Code
       explodeFiles(dir, "c")
     Condition
@@ -94,6 +96,8 @@
       x The maximum size is 5 bytes.
       x This directory is at least ?? bytes.
       i Remove some files or adjust the rsconnect.max.bundle.size option.
+        e.g., options(rsconnect.max.bundle.size = 6 * 1024^3)
+        See `?rsconnect::rsconnectOptions` for additional guidance.
 
 # detectLongNames produces informative warning if needed
 
