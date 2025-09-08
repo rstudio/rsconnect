@@ -228,7 +228,7 @@ isPythonEnv <- function(dir, files) {
 }
 
 enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
-  maxSize <- getOption("rsconnect.max.bundle.size", 3000 * 1024^2)
+  maxSize <- getOption("rsconnect.max.bundle.size", 5 * 1024^3)
   maxFiles <- getOption("rsconnect.max.bundle.files", 10000)
 
   if (totalSize > maxSize) {
@@ -236,7 +236,9 @@ enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
       "{.arg appDir} ({.path {appDir}}) is too large to be deployed.",
       x = "The maximum size is {maxSize} bytes.",
       x = "This directory is at least {totalSize} bytes.",
-      i = "Remove some files or adjust the rsconnect.max.bundle.size option."
+      i = "Remove some files or adjust the rsconnect.max.bundle.size option.",
+      " " = "e.g., options(rsconnect.max.bundle.size = 6 * 1024^3)",
+      " " = "See {.topic rsconnect::rsconnectOptions} for additional guidance."
     ))
   }
 
@@ -245,7 +247,9 @@ enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
       "{.arg appDir} ({.path {appDir}}) is too large to be deployed.",
       x = "The maximum number of files is {maxFiles}.",
       x = "This directory contains at least {totalFiles} files.",
-      i = "Remove some files or adjust the rsconnect.max.bundle.files option."
+      i = "Remove some files or adjust the rsconnect.max.bundle.files option.",
+      " " = "e.g., options(rsconnect.max.bundle.files = 15000)",
+      " " = "See {.topic rsconnect::rsconnectOptions} for additional guidance."
     ))
   }
 }
