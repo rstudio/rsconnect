@@ -228,8 +228,8 @@ isPythonEnv <- function(dir, files) {
 }
 
 enforceBundleLimits <- function(appDir, totalFiles, totalSize) {
-  maxSize <- getOption("rsconnect.max.bundle.size", 5 * 1024^3)
-  maxFiles <- getOption("rsconnect.max.bundle.files", 10000)
+  maxSize <- getOption("rsconnect.max.bundle.size", defaultMaxBundleSize)
+  maxFiles <- getOption("rsconnect.max.bundle.files", defaultMaxBundleFiles)
 
   if (totalSize > maxSize) {
     cli::cli_abort(c(
