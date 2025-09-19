@@ -6,6 +6,9 @@
 
 * Increase the default `rsconnect.max.bundle.size` limit to 5 GiB. (#1200)
 
+* The target Python binary is included in Python environment inspection
+  errors. (#1207)
+
 # rsconnect 1.5.1
 
 * Address user registration for Posit Connect deployments hosted in Snowpark

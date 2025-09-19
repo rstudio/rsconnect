@@ -16,7 +16,7 @@ pythonConfigurator <- function(python, forceGenerate = FALSE) {
       ),
       error = function(err) {
         cli::cli_abort(
-          "Failed to detect python environment",
+          "Failed to detect python environment using {.val {python}}",
           parent = err
         )
       }
