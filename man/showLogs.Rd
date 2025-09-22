@@ -2,7 +2,8 @@
 % Please edit documentation in R/applications.R
 \name{showLogs}
 \alias{showLogs}
-\title{Show Application Logs}
+\alias{getLogs}
+\title{Application Logs}
 \usage{
 showLogs(
   appPath = getwd(),
@@ -12,6 +13,15 @@ showLogs(
   server = NULL,
   entries = 50,
   streaming = FALSE
+)
+
+getLogs(
+  appPath = getwd(),
+  appFile = NULL,
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  entries = 50
 )
 }
 \arguments{
@@ -35,10 +45,17 @@ multiple servers.}
 function does not return; instead, log entries are written to the console
 as they are made, until R is interrupted. Defaults to \code{FALSE}.}
 }
+\value{
+\code{getLogs()} returns the logged lines.
+}
 \description{
-Show the logs for a deployed ShinyApps application.
+These functions provide access to the logs for deployed ShinyApps applications:
+\itemize{
+\item \code{showLogs()} displays the logs.
+\item \code{getLogs()} returns the logged lines.
+}
 }
 \note{
-This function only uses the \code{libcurl} transport, and works only for
-ShinyApps servers.
+These functions only use the \code{libcurl} transport, and only work
+for applications deployed to ShinyApps.io.
 }

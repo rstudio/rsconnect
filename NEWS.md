@@ -6,6 +6,8 @@
 
 * Increase the default `rsconnect.max.bundle.size` limit to 5 GiB. (#1200)
 
+* `getLogs()` returns log lines for a shinyapps.io hosted application. (#1209)
+
 * The target Python binary is included in Python environment inspection
   errors. (#1207)
 
