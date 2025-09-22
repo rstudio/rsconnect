@@ -9,6 +9,8 @@
 * The target Python binary is included in Python environment inspection
   errors. (#1207)
 
+* Improved documentation and advice for `deployApp(envVars...)`.
+
 # rsconnect 1.5.1
 
 * Address user registration for Posit Connect deployments hosted in Snowpark
