@@ -344,22 +344,28 @@ getLogs <- function(
   application <- getAppByName(client, accountDetails, deployment$name)
 
   payload <- client$getLogs(application$id, entries, format = "json")
+  payload
+
   # entries in logs$results have unstable field order.
-  df <- as.data.frame(do.call(
-    rbind,
-    lapply(payload$results, function(row) row[order(names(row))])
-  ))
+  ordered <- lapply(payload$results, function(row) row[order(names(row))])
+  combined <- do.call(rbind, ordered)
+
+  # JSON loves wrapped values.
+  unwrapped <- lapply(colnames(combined), function(nm) unlist(combined[, nm]))
+  df <- as.data.frame(unwrapped)
+  names(df) <- colnames(combined)
+
   # shinyapps.io returns ns timestamps.
-  df$timestamp <- lapply(df$timestamp, function(ts) {
-    as.POSIXct(ts / (1000 * 1000))
-  })
-  # Return only some provided fields.
-  df[c(
+  df$timestamp <- as.POSIXct(df$timestamp / (1000 * 1000))
+
+  # Return a subset of the included fields.
+  result <- df[c(
     "timestamp",
     "account_id",
     "application_id",
     "message"
   )]
+  result
 }
 
 #' Update deployment records
