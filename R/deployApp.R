@@ -54,12 +54,18 @@
 #'   encrypted connection and are not stored in the bundle, making this a safe
 #'   way to send private data to Connect.
 #'
+#'   The values of sensitive environment variables should be set in the current
+#'   session via an `.Renviron` file or with the help of a credential store like
+#'   [keyring](https://r-lib.github.io/keyring/index.html). Avoid using
+#'   [Sys.setenv()] for sensitive values, as that results in the value appearing
+#'   in your `.Rhistory`.
+#'
 #'   The names (not values) are stored in the deployment record so that future
 #'   deployments will automatically update their values. Other environment
 #'   variables on the server will not be affected. This means that removing an
 #'   environment variable from `envVars` will leave it unchanged on the server.
 #'   To remove it, either delete it using the Connect UI, or temporarily unset
-#'   it (with `Sys.unsetenv()` or similar) then re-deploy.
+#'   it (with [Sys.unsetenv()] or similar) then re-deploy.
 #'
 #'   Environment variables are set prior to deployment so that your code
 #'   can use them and the first deployment can still succeed. Note that means
@@ -270,6 +276,15 @@ deployApp <- function(
     }
   }
 
+  check_character(envVars, allow_null = TRUE)
+  if (!is.null(envVars) && !is.null(names(envVars))) {
+    cli::cli_abort(c(
+      "{.arg envVars} must be a character vector containing only environment variable {.strong names}.",
+      "i" = "Set environment variables with `Sys.setenv() or an `.Renviron` file.",
+      "i" = "Use {.fn unname} to remove the names from the vector passed to {.arg envVars}."
+    ))
+  }
+
   if (!is.null(appSourceDoc)) {
     # Used by IDE so can't deprecate
     recordDir <- appSourceDoc
@@ -371,11 +386,15 @@ deployApp <- function(
       "Specify upload=TRUE to upload and re-deploy your application."
     )
   }
-  if (!isConnectServer(accountDetails$server) && length(envVars) > 1) {
-    cli::cli_abort("{.arg envVars} only supported for Posit Connect servers")
-  }
 
   client <- clientForAccount(accountDetails)
+
+  if (length(envVars) > 0 && !"setEnvVars" %in% names(client)) {
+    cli::cli_abort(
+      "{accountDetails$server} does not support setting {.arg envVars}"
+    )
+  }
+
   if (verbose) {
     showCookies(serverInfo(accountDetails$server)$url)
   }

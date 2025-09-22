@@ -74,12 +74,18 @@ Connect only). The values of the environment variables are sent over an
 encrypted connection and are not stored in the bundle, making this a safe
 way to send private data to Connect.
 
+The values of sensitive environment variables should be set in the current
+session via an \code{.Renviron} file or with the help of a credential store like
+\href{https://r-lib.github.io/keyring/index.html}{keyring}. Avoid using
+\code{\link[=Sys.setenv]{Sys.setenv()}} for sensitive values, as that results in the value appearing
+in your \code{.Rhistory}.
+
 The names (not values) are stored in the deployment record so that future
 deployments will automatically update their values. Other environment
 variables on the server will not be affected. This means that removing an
 environment variable from \code{envVars} will leave it unchanged on the server.
 To remove it, either delete it using the Connect UI, or temporarily unset
-it (with \code{Sys.unsetenv()} or similar) then re-deploy.
+it (with \code{\link[=Sys.unsetenv]{Sys.unsetenv()}} or similar) then re-deploy.
 
 Environment variables are set prior to deployment so that your code
 can use them and the first deployment can still succeed. Note that means
