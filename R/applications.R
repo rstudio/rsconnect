@@ -344,16 +344,11 @@ getLogs <- function(
   application <- getAppByName(client, accountDetails, deployment$name)
 
   payload <- client$getLogs(application$id, entries, format = "json")
-  payload
 
-  # entries in logs$results have unstable field order.
-  ordered <- lapply(payload$results, function(row) row[order(names(row))])
-  combined <- do.call(rbind, ordered)
-
-  # JSON loves wrapped values.
-  unwrapped <- lapply(colnames(combined), function(nm) unlist(combined[, nm]))
-  df <- as.data.frame(unwrapped)
-  names(df) <- colnames(combined)
+  # Convert to a dataframe before combining because the JSON payload has inconsistent field order
+  # containing nested single-element lists.
+  converted <- lapply(payload$results, as.data.frame)
+  df <- do.call(rbind, converted)
 
   # shinyapps.io returns ns timestamps.
   df$timestamp <- as.POSIXct(df$timestamp / (1000 * 1000))
