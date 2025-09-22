@@ -46,7 +46,7 @@ function does not return; instead, log entries are written to the console
 as they are made, until R is interrupted. Defaults to \code{FALSE}.}
 }
 \value{
-\code{getLogs()} returns the logged lines.
+\code{getLogs()} returns a data frame containing the logged lines.
 }
 \description{
 These functions provide access to the logs for deployed ShinyApps applications:

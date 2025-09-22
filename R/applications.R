@@ -265,7 +265,7 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #' @note These functions only use the \code{libcurl} transport, and only work
 #'   for applications deployed to ShinyApps.io.
 #'
-#' @return `getLogs()` returns the logged lines.
+#' @return `getLogs()` returns a data frame containing the logged lines.
 #'
 #' @export
 showLogs <- function(
