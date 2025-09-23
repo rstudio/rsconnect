@@ -194,6 +194,11 @@ appendCookieHeaders <- function(requestURL, headers) {
 
   cookies <- get(host, envir = .cookieStore)
 
+  if (nrow(cookies) == 0) {
+    # no initial cookies.
+    return(headers)
+  }
+
   # If any cookies are expired, remove them from the cookie store
   if (any(cookies$expires < as.integer(Sys.time()))) {
     cookies <- cookies[cookies$expires >= as.integer(Sys.time()), ]
@@ -202,7 +207,7 @@ appendCookieHeaders <- function(requestURL, headers) {
   }
 
   if (nrow(cookies) == 0) {
-    # Short-circuit, return unmodified headers.
+    # all cookies expired.
     return(headers)
   }
 

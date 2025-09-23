@@ -6,6 +6,8 @@
 
 * Increase the default `rsconnect.max.bundle.size` limit to 5 GiB. (#1200)
 
+* Allow for no incoming cookies when processing expiration. (#1212)
+
 * The target Python binary is included in Python environment inspection
   errors. (#1207)
 
