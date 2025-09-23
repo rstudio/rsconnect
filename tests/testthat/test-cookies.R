@@ -271,6 +271,31 @@ test_that("Expired cookies are removed", {
   expect_equal(nrow(cookies), 1)
 })
 
+test_that("appendCookieHeaders works when cookie expiration is NA", {
+  local_cookie_store()
+
+  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
+
+  # Mock a cookie with an `expires` value of NA
+  local_mocked_bindings(parseCookie = function(...) {
+    list(
+      name = "cookiename",
+      value = "value",
+      expires = NA,
+      path = "/",
+      secure = FALSE
+    )
+  })
+
+  storeCookies(parsedUrl, "cookiename=value")
+  cookies <- get("fakedomain:123", envir = .cookieStore)
+  expect_equal(nrow(cookies), 1)
+  expect_true(is.na(cookies$expires))
+
+  headers <- appendCookieHeaders(parsedUrl, c())
+  expect_equal(headers[["cookie"]], "cookiename=value")
+})
+
 test_that("getCookieHost works", {
   expect_equal(getCookieHost(parseHttpUrl("http://rstudio.com")), "rstudio.com")
   expect_equal(
