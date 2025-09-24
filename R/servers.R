@@ -37,6 +37,8 @@ serverInfo <- function(name = NULL) {
     info <- cloudServerInfo(name, "https://api.posit.cloud/v1")
   } else if (isShinyappsServer(name)) {
     info <- cloudServerInfo(name, "https://api.shinyapps.io/v1")
+  } else if (isPositConnectCloudServer(name)) {
+    info <- cloudServerInfo(name, "https://api.connect.posit.cloud/v1")
   } else {
     configFile <- serverConfigFile(name)
     serverDcf <- read.dcf(serverConfigFile(name), all = TRUE)
@@ -50,7 +52,7 @@ serverInfo <- function(name = NULL) {
 serverNames <- function(local = FALSE) {
   names <- gsub("\\.dcf$", "", basename(serverConfigFiles()))
   if (!local) {
-    names <- c(names, "shinyapps.io", "posit.cloud")
+    names <- c(names, "shinyapps.io", "posit.cloud", "connect.posit.cloud")
 
     if (nrow(accounts(server = "rstudio.cloud")) > 0) {
       names <- c(names, "rstudio.cloud")
@@ -66,6 +68,10 @@ isShinyappsServer <- function(server) {
 
 isPositCloudServer <- function(server) {
   server %in% c("posit.cloud", "rstudio.cloud")
+}
+
+isPositConnectCloudServer <- function(server) {
+  identical(server, "connect.posit.cloud")
 }
 
 isCloudServer <- function(server) {
@@ -101,6 +107,17 @@ cloudServerInfo <- function(name, url) {
   list(
     name = name,
     url = getOption("rsconnect.shinyapps_url", url),
+    certificate = inferCertificateContents(
+      system.file("cert/shinyapps.io.pem", package = "rsconnect")
+    )
+  )
+}
+
+connectCloudServerInfo <- function(name, url) {
+  # TODO: add cert file
+  list(
+    name = name,
+    url = getOption("rsconnect.connect_cloud_url", url),
     certificate = inferCertificateContents(
       system.file("cert/shinyapps.io.pem", package = "rsconnect")
     )
