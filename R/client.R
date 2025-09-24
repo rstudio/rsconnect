@@ -5,8 +5,6 @@ clientForAccount <- function(account) {
 
   if (isShinyappsServer(account$server)) {
     shinyAppsClient(serverUrl, account)
-  } else if (isPositCloudServer(account$server)) {
-    cloudClient(serverUrl, account)
   } else if (isSPCSServer(account$server)) {
     account$snowflakeToken <- getSnowflakeAuthToken(
       serverInfo$url,
@@ -121,36 +119,6 @@ filterQuery <- function(param, value, operator = NULL) {
 
 isContentType <- function(x, contentType) {
   grepl(contentType, x, fixed = TRUE)
-}
-
-uploadCloudBundle <- function(
-  client,
-  application_id,
-  bundlePath,
-  verbose = FALSE
-) {
-  # Step 1. Create presigned URL and register pending bundle.
-  bundleSize <- file.info(bundlePath)$size
-  bundle <- client$createBundle(
-    application_id,
-    content_type = "application/x-tar",
-    content_length = bundleSize,
-    checksum = fileMD5(bundlePath)
-  )
-
-  # Step 2. Upload Bundle to presigned URL
-  logger <- verboseLogger(verbose)
-  logger("Starting upload now")
-  if (!uploadBundle(bundle, bundleSize, bundlePath)) {
-    stop("Could not upload file.")
-  }
-  logger("Upload complete")
-
-  # Step 3. Upload revise bundle status.
-  response <- client$updateBundleStatus(bundle$id, status = "ready")
-
-  # Step 4. Retrieve updated bundle post status change
-  client$getBundle(bundle$id)
 }
 
 uploadBundle <- function(bundle, bundleSize, bundlePath) {

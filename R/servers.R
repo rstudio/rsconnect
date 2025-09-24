@@ -1,8 +1,8 @@
 #' Server metadata
 #'
 #' `servers()` lists all known servers; `serverInfo()` gets metadata about
-#' a specific server. Cloud servers `shinyapps.io` and `posit.cloud` are always
-#' automatically registered and available.
+#' a specific server. Cloud server `shinyapps.io` is always automatically
+#' registered and available.
 #'
 #' @param name Server name. If omitted, you'll be prompted to pick a server.
 #' @param local Return only local servers? (i.e. not automatically registered
@@ -16,7 +16,7 @@
 #' servers()
 #'
 #' # Get information about a server
-#' serverInfo("posit.cloud")
+#' serverInfo("shinyapps.io")
 servers <- function(local = FALSE) {
   servers <- serverNames(local)
 
@@ -33,9 +33,7 @@ servers <- function(local = FALSE) {
 serverInfo <- function(name = NULL) {
   name <- findServer(name, local = FALSE)
 
-  if (isPositCloudServer(name)) {
-    info <- cloudServerInfo(name, "https://api.posit.cloud/v1")
-  } else if (isShinyappsServer(name)) {
+  if (isShinyappsServer(name)) {
     info <- cloudServerInfo(name, "https://api.shinyapps.io/v1")
   } else {
     configFile <- serverConfigFile(name)
@@ -50,11 +48,7 @@ serverInfo <- function(name = NULL) {
 serverNames <- function(local = FALSE) {
   names <- gsub("\\.dcf$", "", basename(serverConfigFiles()))
   if (!local) {
-    names <- c(names, "shinyapps.io", "posit.cloud")
-
-    if (nrow(accounts(server = "rstudio.cloud")) > 0) {
-      names <- c(names, "rstudio.cloud")
-    }
+    names <- c(names, "shinyapps.io")
   }
 
   names
@@ -64,23 +58,9 @@ isShinyappsServer <- function(server) {
   identical(server, "shinyapps.io")
 }
 
-isPositCloudServer <- function(server) {
-  server %in% c("posit.cloud", "rstudio.cloud")
-}
-
-isCloudServer <- function(server) {
-  isPositCloudServer(server) || isShinyappsServer(server)
-}
-
 isSPCSServer <- function(server) {
   info <- serverInfo(server)
   grepl(pattern = "snowflakecomputing.app", x = info$url, fixed = TRUE)
-}
-
-checkCloudServer <- function(server, call = caller_env()) {
-  if (!isCloudServer(server)) {
-    cli::cli_abort("`server` must be shinyapps.io or posit.cloud", call = call)
-  }
 }
 
 checkShinyappsServer <- function(server, call = caller_env()) {
@@ -94,7 +74,7 @@ isRPubs <- function(server) {
 }
 
 isConnectServer <- function(server) {
-  !isCloudServer(server) && !isRPubs(server)
+  !isShinyappsServer(server) && !isRPubs(server)
 }
 
 cloudServerInfo <- function(name, url) {

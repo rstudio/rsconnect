@@ -42,15 +42,6 @@
     Message
       i Running ./.rsconnect_profile
 
-# needsVisibilityChange() errors for cloud
-
-    Code
-      needsVisibilityChange("posit.cloud", appVisibility = "public")
-    Condition
-      Error in `needsVisibilityChange()`:
-      ! Can't change cloud app visiblity from `deployApp()`.
-      i Please change on posit.cloud instead.
-
 # deployHook executes function if set
 
     Code
