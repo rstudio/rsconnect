@@ -512,7 +512,7 @@ deployApp <- function(
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application, bundle$id, space)
+  task <- client$deployApplication(application, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)
