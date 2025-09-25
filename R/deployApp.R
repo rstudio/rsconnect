@@ -494,7 +494,15 @@ deployApp <- function(
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
-    bundle <- client$uploadApplication(application$id, bundlePath)
+    if (isShinyappsServer(accountDetails$server)) {
+      bundle <- uploadShinyappsBundle(
+        client,
+        application$application_id,
+        bundlePath
+      )
+    } else {
+      bundle <- client$uploadApplication(application$id, bundlePath)
+    }
     taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
 
     saveDeployment(
