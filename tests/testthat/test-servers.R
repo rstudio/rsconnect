@@ -21,7 +21,6 @@ test_that("servers() redacts the certificate", {
 
 test_that("serverInfo() redacts the certificate", {
   expect_snapshot({
-    str(serverInfo("posit.cloud"))
     str(serverInfo("shinyapps.io"))
   })
 })
@@ -142,31 +141,13 @@ test_that("certificates can't be attached to plain http servers", {
 
 # cloud servers -----------------------------------------------------------
 
-test_that("All hosted product names are identified as cloud", {
-  expect_true(isCloudServer("shinyapps.io"))
-  expect_true(isCloudServer("rstudio.cloud"))
-  expect_true(isCloudServer("posit.cloud"))
-  expect_false(isCloudServer("connect.internal"))
-})
-
-test_that("All hosted product names are identified as cloud", {
-  checkCloudServer("shinyapps.io")
-  checkCloudServer("rstudio.cloud")
-  checkCloudServer("posit.cloud")
-  expect_error(checkCloudServer("connect.internal"))
-})
-
 test_that("only shinyapps.io is identified as shinyapps.io", {
   expect_true(isShinyappsServer("shinyapps.io"))
-  expect_false(isShinyappsServer("rstudio.cloud"))
-  expect_false(isShinyappsServer("posit.cloud"))
   expect_false(isShinyappsServer("connect.internal"))
 })
 
 test_that("only shinyapps.io is identified as shinyapps.io", {
   checkShinyappsServer("shinyapps.io")
-  expect_error(checkShinyappsServer("rstudio.cloud"))
-  expect_error(checkShinyappsServer("posit.cloud"))
   expect_error(checkShinyappsServer("connect.internal"))
 })
 
@@ -174,23 +155,9 @@ test_that("predefined servers includes cloud and shinyapps", {
   local_temp_config()
 
   out <- servers()
-  expect_equal(nrow(out), 2)
+  expect_equal(nrow(out), 1)
   expect_named(out, c("name", "url", "certificate"))
-  expect_setequal(out$name, c("posit.cloud", "shinyapps.io"))
-})
-
-test_that("predefined servers includes rstudio.cloud if needed", {
-  local_temp_config()
-  addTestAccount("john", "rstudio.cloud")
-  expect_true("rstudio.cloud" %in% servers()$name)
-})
-
-test_that("cloud server info matches name given if valid", {
-  local_temp_config()
-  addTestAccount("john", "rstudio.cloud")
-
-  rstudioServer <- serverInfo("rstudio.cloud")
-  expect_equal(rstudioServer$name, "rstudio.cloud")
+  expect_setequal(out$name, c("shinyapps.io"))
 })
 
 # findServer --------------------------------------------------------------

@@ -6,8 +6,6 @@ clientForAccount <- function(account) {
 
   if (isShinyappsServer(account$server)) {
     shinyAppsClient(serverUrl, account)
-  } else if (isPositCloudServer(account$server)) {
-    cloudClient(serverUrl, account)
   } else if (isPositConnectCloudServer(account$server)) {
     connectCloudClient(serverUrl, account)
   } else if (isSPCSServer(account$server)) {
@@ -126,7 +124,8 @@ isContentType <- function(x, contentType) {
   grepl(contentType, x, fixed = TRUE)
 }
 
-uploadCloudBundle <- function(
+
+uploadShinyappsBundle <- function(
   client,
   application_id,
   bundlePath,
@@ -155,6 +154,7 @@ uploadCloudBundle <- function(
   # Step 4. Retrieve updated bundle post status change
   client$getBundle(bundle$id)
 }
+
 
 uploadBundle <- function(bundle, bundleSize, bundlePath) {
   presigned_service <- parseHttpUrl(bundle$presigned_url)

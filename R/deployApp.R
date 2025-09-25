@@ -175,10 +175,6 @@
 #'   server default if no application default is defined.
 #'
 #'   (This option is ignored when `envManagement` is non-`NULL`.)
-#' @param space Optional. For Posit Cloud, the id of the space where the content
-#'   should be deployed. If none is provided, content will be deployed to the
-#'   deploying user's workspace or deployed to the same space in case of
-#'   redeploy.
 #' @examples
 #' \dontrun{
 #'
@@ -241,8 +237,7 @@ deployApp <- function(
   image = NULL,
   envManagement = NULL,
   envManagementR = NULL,
-  envManagementPy = NULL,
-  space = NULL
+  envManagementPy = NULL
 ) {
   check_string(appDir)
   if (isStaticFile(appDir) && !dirExists(appDir)) {
@@ -377,16 +372,6 @@ deployApp <- function(
     )
   }
 
-  # Run checks prior to first saveDeployment() to avoid errors that will always
-  # prevent a successful upload from generating a partial deployment
-  if (!isCloudServer(accountDetails$server) && identical(upload, FALSE)) {
-    # it is not possible to deploy to Connect without uploading
-    stop(
-      "Posit Connect does not support deploying without uploading. ",
-      "Specify upload=TRUE to upload and re-deploy your application."
-    )
-  }
-
   client <- clientForAccount(accountDetails)
 
   if (length(envVars) > 0 && !"setEnvVars" %in% names(client)) {
@@ -421,8 +406,7 @@ deployApp <- function(
       "shiny",
       accountDetails$accountId,
       appMetadata$appMode,
-      contentCategory,
-      space
+      contentCategory
     )
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
@@ -510,8 +494,8 @@ deployApp <- function(
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
-    if (isCloudServer(accountDetails$server)) {
-      bundle <- uploadCloudBundle(
+    if (isShinyappsServer(accountDetails$server)) {
+      bundle <- uploadShinyappsBundle(
         client,
         application$application_id,
         bundlePath
@@ -536,7 +520,7 @@ deployApp <- function(
   if (!quiet) {
     cli::cli_rule("Deploying to server")
   }
-  task <- client$deployApplication(application, bundle$id, space)
+  task <- client$deployApplication(application, bundle$id)
   taskId <- if (is.null(task$task_id)) task$id else task$task_id
   # wait for the deployment to complete (will raise an error if it can't)
   response <- client$waitForTask(taskId, quiet)
@@ -611,13 +595,6 @@ needsVisibilityChange <- function(server, application, appVisibility = NULL) {
   if (isConnectServer(server)) {
     # Defaults to private visibility
     return(FALSE)
-  }
-
-  if (!isShinyappsServer(server)) {
-    cli::cli_abort(c(
-      "Can't change cloud app visiblity from {.fun deployApp}.",
-      i = "Please change on posit.cloud instead."
-    ))
   }
 
   cur <- application$deployment$properties$application.visibility

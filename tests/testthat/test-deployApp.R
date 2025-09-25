@@ -66,13 +66,6 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
   ))
 })
 
-test_that("needsVisibilityChange() errors for cloud", {
-  expect_snapshot(
-    error = TRUE,
-    needsVisibilityChange("posit.cloud", appVisibility = "public")
-  )
-})
-
 test_that("deployHook executes function if set", {
   withr::local_options(rsconnect.pre.deploy = NULL)
   expect_equal(

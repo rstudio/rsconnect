@@ -27,7 +27,7 @@ Returns a data frame with the following columns:
 List Tasks
 }
 \note{
-This function works only with shinyapps.io and posit.cloud.
+This function works only with shinyapps.io.
 }
 \examples{
 \dontrun{
