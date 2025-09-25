@@ -11,7 +11,9 @@
 * The target Python binary is included in Python environment inspection
   errors. (#1207)
 
-* Improved documentation and advice for `deployApp(envVars...)`.
+* Improve cookie expiration date handling. (#1212)
+
+* Improve documentation and advice for `deployApp(envVars...)`.
 
 # rsconnect 1.5.1
 
