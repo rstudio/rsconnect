@@ -421,14 +421,6 @@ deployApp <- function(
           deployment$version
         )
         taskComplete(quiet, "Found application {.url {application$url}}")
-
-        if (identical(application$type, "static")) {
-          application$application_id <- client$createRevision(
-            application,
-            contentCategory
-          )
-        }
-
         application
       },
       rsconnect_http_404 = function(err) {
