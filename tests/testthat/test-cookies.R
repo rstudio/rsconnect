@@ -78,10 +78,8 @@ test_that("cookie parsing uses expires= when no max-age=", {
     list(
       name = "mycookie",
       value = "myvalue",
-      expires = strptime(
-        "Sat, 24 Jun 2017 16:16:05 GMT",
-        "%a, %d %b %Y %H:%M:%S GMT",
-        "GMT"
+      expires = curl::parse_date(
+        "Sat, 24 Jun 2017 16:16:05 GMT"
       ),
       path = "/",
       secure = TRUE
@@ -238,13 +236,26 @@ test_that("appending cookie headers works", {
   )
 })
 
-test_that("Expired cookies are removed", {
+test_that("expires= format errors treated as session cookies", {
+  local_cookie_store()
+
+  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
+
+  storeCookies(parsedUrl, "mycookie=myvalue; expires=notadate")
+  headers <- appendCookieHeaders(parsedUrl, NULL)
+  expect_equal(
+    headers[["cookie"]],
+    "mycookie=myvalue"
+  )
+})
+
+test_that("max-age= expired cookies are removed", {
   local_cookie_store()
 
   parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
 
   # Expired cookies are removed from the store and not included in the request
-  storeCookies(parsedUrl, "expired=something; Max-Age=-1")
+  storeCookies(parsedUrl, "expiredkey=something; Max-Age=-1")
 
   cookies <- get("fakedomain:123", envir = .cookieStore)
   expect_equal(nrow(cookies), 1)
@@ -257,8 +268,47 @@ test_that("Expired cookies are removed", {
   expect_equal(nrow(cookies), 0)
 
   # And with multiple cookies, it still removes only the expired one
-  storeCookies(parsedUrl, "expired=something; Max-Age=-1")
-  storeCookies(parsedUrl, "notexpired=something")
+  storeCookies(parsedUrl, "expiredkey=something; Max-Age=-1")
+  storeCookies(parsedUrl, "notexpiredkey=something")
+
+  cookies <- get("fakedomain:123", envir = .cookieStore)
+  expect_equal(nrow(cookies), 2)
+
+  # Now it will recognize that it's expired and remove it
+  headers <- appendCookieHeaders(parsedUrl, c())
+  expect_length(headers, 1)
+
+  cookies <- get("fakedomain:123", envir = .cookieStore)
+  expect_equal(nrow(cookies), 1)
+})
+
+test_that("expires= expired cookies are removed", {
+  local_cookie_store()
+
+  parsedUrl <- parseHttpUrl("http://fakedomain:123/test/stuff")
+
+  # Expired cookies are removed from the store and not included in the request
+  storeCookies(
+    parsedUrl,
+    "expiredkey=something; expires=Sat, 24 Jun 2017 16:16:05 GMT"
+  )
+
+  cookies <- get("fakedomain:123", envir = .cookieStore)
+  expect_equal(nrow(cookies), 1)
+
+  # Now it will recognize that it's expired and remove it
+  headers <- appendCookieHeaders(parsedUrl, NULL)
+  expect_null(headers)
+
+  cookies <- get("fakedomain:123", envir = .cookieStore)
+  expect_equal(nrow(cookies), 0)
+
+  # And with multiple cookies, it still removes only the expired one
+  storeCookies(
+    parsedUrl,
+    "expiredkey=something; expires=Sat, 24 Jun 2017 16:16:05 GMT"
+  )
+  storeCookies(parsedUrl, "notexpiredkey=something")
 
   cookies <- get("fakedomain:123", envir = .cookieStore)
   expect_equal(nrow(cookies), 2)
