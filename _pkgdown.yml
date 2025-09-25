@@ -42,6 +42,7 @@ reference:
     contents :
     - matches("[Pp]ropert")
     - matches("show")
+    - getLogs
     - resendInvitation
 
   - title: Applications
