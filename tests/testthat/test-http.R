@@ -16,6 +16,10 @@ test_that("authHeaders() picks correct method based on supplied fields", {
     authHeaders(list(apiKey = "123"), url, "GET"),
     list(Authorization = "Key 123")
   )
+  expect_equal(
+    authHeaders(list(accessToken = "abc123"), url, "GET"),
+    list(Authorization = "Bearer abc123")
+  )
 
   local_mocked_bindings(
     rfc2616Date = function() "Thu, 09 Mar 2023 14:29:00 GMT"

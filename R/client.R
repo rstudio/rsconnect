@@ -1,10 +1,13 @@
 clientForAccount <- function(account) {
+  print("**** clientForAccount")
   serverInfo <- serverInfo(account$server)
   account$certificate <- serverInfo$certificate
   serverUrl <- parseHttpUrl(serverInfo$url)
 
   if (isShinyappsServer(account$server)) {
     shinyAppsClient(serverUrl, account)
+  } else if (isPositConnectCloudServer(account$server)) {
+    connectCloudClient(serverUrl, account)
   } else if (isSPCSServer(account$server)) {
     account$snowflakeToken <- getSnowflakeAuthToken(
       serverInfo$url,
