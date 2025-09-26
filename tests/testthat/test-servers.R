@@ -151,7 +151,7 @@ test_that("only shinyapps.io is identified as shinyapps.io", {
   expect_error(checkShinyappsServer("connect.internal"))
 })
 
-test_that("predefined servers includes cloud and shinyapps", {
+test_that("predefined servers includes shinyapps", {
   local_temp_config()
 
   out <- servers()
