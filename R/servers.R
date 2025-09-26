@@ -34,7 +34,7 @@ serverInfo <- function(name = NULL) {
   name <- findServer(name, local = FALSE)
 
   if (isShinyappsServer(name)) {
-    info <- cloudServerInfo(name, "https://api.shinyapps.io/v1")
+    info <- shinyappsServerInfo(name, "https://api.shinyapps.io/v1")
   } else {
     configFile <- serverConfigFile(name)
     serverDcf <- read.dcf(serverConfigFile(name), all = TRUE)
@@ -77,7 +77,7 @@ isConnectServer <- function(server) {
   !isShinyappsServer(server) && !isRPubs(server)
 }
 
-cloudServerInfo <- function(name, url) {
+shinyappsServerInfo <- function(name, url) {
   list(
     name = name,
     url = getOption("rsconnect.shinyapps_url", url),
