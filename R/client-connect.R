@@ -53,8 +53,7 @@ connectClient <- function(service, authInfo) {
       template,
       accountId,
       appMode,
-      contentCategory = NULL,
-      spaceId = NULL
+      contentCategory = NULL
     ) {
       # add name; inject title if specified
       details <- list(name = name)
@@ -83,7 +82,7 @@ connectClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
+    deployApplication = function(application, bundleId = NULL) {
       path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       json$bundle <- as.numeric(bundleId)

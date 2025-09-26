@@ -52,7 +52,6 @@ test_that("validateServerUrl() when Connect", {
 test_that("validateServerUrl() hosted", {
   skip_on_cran()
 
-  expect_false(validateServerUrl("https://posit.cloud")$valid)
   expect_false(validateServerUrl("https://shinyapps.io")$valid)
 })
 

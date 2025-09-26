@@ -146,8 +146,7 @@ shinyAppsClient <- function(service, authInfo) {
       template,
       accountId,
       appMode,
-      contentCategory = NULL,
-      spaceId = NULL
+      contentCategory = NULL
     ) {
       json <- list()
       json$name <- name
@@ -213,7 +212,7 @@ shinyAppsClient <- function(service, authInfo) {
       )
     },
 
-    deployApplication = function(application, bundleId = NULL, spaceId = NULL) {
+    deployApplication = function(application, bundleId = NULL) {
       path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
       if (length(bundleId) > 0 && nzchar(bundleId)) {

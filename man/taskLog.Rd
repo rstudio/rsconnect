@@ -21,7 +21,7 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 Writes the task log for the given task
 }
 \note{
-This function works only with shinyapps.io and posit.cloud.
+This function works only with shinyapps.io.
 }
 \examples{
 \dontrun{

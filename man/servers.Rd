@@ -21,13 +21,13 @@ cloud servers)}
 }
 \description{
 \code{servers()} lists all known servers; \code{serverInfo()} gets metadata about
-a specific server. Cloud servers \code{shinyapps.io} and \code{posit.cloud} are always
-automatically registered and available.
+a specific server. Cloud server \code{shinyapps.io} is always automatically
+registered and available.
 }
 \examples{
 # List all registered servers
 servers()
 
 # Get information about a server
-serverInfo("posit.cloud")
+serverInfo("shinyapps.io")
 }

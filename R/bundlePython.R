@@ -24,7 +24,7 @@ pythonConfigurator <- function(python, forceGenerate = FALSE) {
   }
 }
 
-# python is enabled on Connect and posit.cloud, but not on Shinyapps
+# python is enabled on Connect, but not on Shinyapps
 getPythonForTarget <- function(path, accountDetails) {
   targetIsShinyapps <- isShinyappsServer(accountDetails$server)
   pythonEnabled <- getOption("rsconnect.python.enabled", !targetIsShinyapps)

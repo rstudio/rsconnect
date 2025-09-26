@@ -249,34 +249,32 @@ findDeploymentTargetByAppName <- function(
   # server. That content is conditionally used. A resolved account is
   # required.
   accountDetails <- findAccountInfo(account, server, error_call = error_call)
-  if (!isPositCloudServer(accountDetails$server)) {
-    client <- clientForAccount(accountDetails)
-    application <- tryCatch(
-      getAppByName(client, accountDetails, appName, error_call = error_call),
-      rsconnect_app_not_found = function(err) NULL
-    )
-    if (!is.null(application)) {
-      uniqueName <- findUnique(appName, application$name)
-      if (
-        shouldUpdateApp(
-          application,
-          uniqueName,
-          forceUpdate,
-          error_call = error_call
-        )
-      ) {
-        deployment <- createDeploymentFromApplication(
-          application,
-          accountDetails
-        )
-        deployment <- updateDeployment(deployment, appTitle, envVars)
-        return(list(
-          accountDetails = accountDetails,
-          deployment = deployment
-        ))
-      } else {
-        appName <- uniqueName
-      }
+  client <- clientForAccount(accountDetails)
+  application <- tryCatch(
+    getAppByName(client, accountDetails, appName, error_call = error_call),
+    rsconnect_app_not_found = function(err) NULL
+  )
+  if (!is.null(application)) {
+    uniqueName <- findUnique(appName, application$name)
+    if (
+      shouldUpdateApp(
+        application,
+        uniqueName,
+        forceUpdate,
+        error_call = error_call
+      )
+    ) {
+      deployment <- createDeploymentFromApplication(
+        application,
+        accountDetails
+      )
+      deployment <- updateDeployment(deployment, appTitle, envVars)
+      return(list(
+        accountDetails = accountDetails,
+        deployment = deployment
+      ))
+    } else {
+      appName <- uniqueName
     }
   }
 
