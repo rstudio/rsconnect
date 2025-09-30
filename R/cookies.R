@@ -138,8 +138,8 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
 
   # Cookies without max-age= or expires= are session cookies.
   #
-  # Cookies never survive beyond the current R session, so mark session
-  # cookies as never expiring.
+  # Mark session cookies as never expiring (far in the future). Cookies
+  # are managed in-memory and never survive beyond the current R session.
   expires <- Sys.time() + 10^10
 
   # Max-Age takes precedence over Expires.
@@ -166,12 +166,10 @@ parseCookie <- function(cookieHeader, requestPath = NULL) {
     )[[1]]
     if (length(expiration_value) > 0) {
       # Time format is Wdy, DD-Mon-YYYY HH:MM:SS GMT
-      # could also use curl::parse_date()
-      expires <- strptime(
-        expiration_value[2],
-        "%a, %d %b %Y %H:%M:%S GMT",
-        "GMT"
-      )
+      parsed <- curl::parse_date(expiration_value[2])
+      if (!is.na(parsed)) {
+        expires <- parsed
+      }
     }
   }
 
@@ -195,14 +193,14 @@ appendCookieHeaders <- function(requestURL, headers) {
   cookies <- get(host, envir = .cookieStore)
 
   # If any cookies are expired, remove them from the cookie store
-  if (any(cookies$expires < as.integer(Sys.time()))) {
+  if (isTRUE(any(cookies$expires < as.integer(Sys.time())))) {
     cookies <- cookies[cookies$expires >= as.integer(Sys.time()), ]
     # Update the store, removing the expired cookies
     assign(host, cookies, envir = .cookieStore)
   }
 
   if (nrow(cookies) == 0) {
-    # Short-circuit, return unmodified headers.
+    # all cookies expired.
     return(headers)
   }
 

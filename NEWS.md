@@ -6,10 +6,14 @@
 
 * Increase the default `rsconnect.max.bundle.size` limit to 5 GiB. (#1200)
 
+* `getLogs()` returns log lines for a shinyapps.io hosted application. (#1209)
+
 * The target Python binary is included in Python environment inspection
   errors. (#1207)
 
-* Improved documentation and advice for `deployApp(envVars...)`.
+* Improve cookie expiration date handling. (#1212)
+
+* Improve documentation and advice for `deployApp(envVars...)`.
 
 * Removed support for publishing to Posit Cloud. (#1215)
   * Existing Posit Cloud account records may be removed by using `rsconnect::removeAccount("yourname", "posit.cloud")`.

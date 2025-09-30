@@ -130,9 +130,13 @@ shinyAppsClient <- function(service, authInfo) {
       GET(service, authInfo, path, paste(m, queryString(query), sep = "&"))
     },
 
-    getLogs = function(applicationId, entries = 50) {
+    getLogs = function(applicationId, entries = 50, format = NULL) {
       path <- paste0("/applications/", applicationId, "/logs")
       query <- paste0("count=", entries, "&tail=0")
+      if (!is.null(format)) {
+        # format=json returns a structured response.
+        query <- paste0(query, "&format=", format)
+      }
       GET(service, authInfo, path, query)
     },
 
