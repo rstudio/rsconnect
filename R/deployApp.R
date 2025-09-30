@@ -372,6 +372,16 @@ deployApp <- function(
     )
   }
 
+  # Run checks prior to first saveDeployment() to avoid errors that will always
+  # prevent a successful upload from generating a partial deployment
+  if (!isShinyappsServer(accountDetails$server) && identical(upload, FALSE)) {
+    # it is not possible to deploy to Connect without uploading
+    stop(
+      "Posit Connect does not support deploying without uploading. ",
+      "Specify upload=TRUE to upload and re-deploy your application."
+    )
+  }
+
   client <- clientForAccount(accountDetails)
 
   if (length(envVars) > 0 && !"setEnvVars" %in% names(client)) {

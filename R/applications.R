@@ -240,9 +240,13 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   )
 }
 
-#' Show Application Logs
+#' Application Logs
 #'
-#' Show the logs for a deployed ShinyApps application.
+#' @description
+#' These functions provide access to the logs for deployed ShinyApps applications:
+#'
+#' * `showLogs()` displays the logs.
+#' * `getLogs()` returns the logged lines.
 #'
 #' @param appPath The path to the directory or file that was deployed.
 #' @param appFile The path to the R source file that contains the application
@@ -258,8 +262,10 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #'   function does not return; instead, log entries are written to the console
 #'   as they are made, until R is interrupted. Defaults to `FALSE`.
 #'
-#' @note This function only uses the \code{libcurl} transport, and works only for
-#'   ShinyApps servers.
+#' @note These functions only use the \code{libcurl} transport, and only work
+#'   for applications deployed to ShinyApps.io.
+#'
+#' @return `getLogs()` returns a data frame containing the logged lines.
 #'
 #' @export
 showLogs <- function(
@@ -314,6 +320,47 @@ showLogs <- function(
     logs <- client$getLogs(application$id, entries)
     cat(logs)
   }
+}
+
+#' @rdname showLogs
+#' @export
+getLogs <- function(
+  appPath = getwd(),
+  appFile = NULL,
+  appName = NULL,
+  account = NULL,
+  server = NULL,
+  entries = 50
+) {
+  # determine the log target and target account info
+  deployment <- findDeployment(
+    appPath = appPath,
+    appName = appName,
+    server = server,
+    account = account
+  )
+  accountDetails <- accountInfo(deployment$account, deployment$server)
+  client <- clientForAccount(accountDetails)
+  application <- getAppByName(client, accountDetails, deployment$name)
+
+  payload <- client$getLogs(application$id, entries, format = "json")
+
+  # Convert to a dataframe before combining because the JSON payload has inconsistent field order
+  # containing nested single-element lists.
+  converted <- lapply(payload$results, as.data.frame)
+  df <- do.call(rbind, converted)
+
+  # shinyapps.io returns ns timestamps.
+  df$timestamp <- as.POSIXct(df$timestamp / (1000 * 1000))
+
+  # Return a subset of the included fields.
+  result <- df[c(
+    "timestamp",
+    "account_id",
+    "application_id",
+    "message"
+  )]
+  result
 }
 
 #' Update deployment records
