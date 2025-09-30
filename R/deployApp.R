@@ -410,43 +410,81 @@ deployApp <- function(
 
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating application on server...")
-    application <- client$createApplication(
-      deployment$name,
-      deployment$title,
-      "shiny",
-      accountDetails$accountId,
-      appMetadata$appMode,
-      contentCategory
-    )
+    if (isPositConnectCloudServer(accountDetails$server)) {
+      print("**** Creating content on PCC")
+      print(deployment)
+      application <- client$createContent(
+        deployment$name,
+        deployment$title,
+        accountDetails$accountId,
+        appMetadata$appMode
+      )
+    } else {
+      application <- client$createApplication(
+        deployment$name,
+        deployment$title,
+        "shiny",
+        accountDetails$accountId,
+        appMetadata$appMode,
+        contentCategory
+      )
+    }
     taskComplete(quiet, "Created application with id {.val {application$id}}")
   } else {
-    taskStart(
-      quiet,
-      "Looking up application with id {.val {deployment$appId}}..."
-    )
-    application <- tryCatch(
-      {
-        application <- client$getApplication(
-          deployment$appId,
-          deployment$version
-        )
-        taskComplete(quiet, "Found application {.url {application$url}}")
-        application
-      },
-      rsconnect_http_404 = function(err) {
-        application <- applicationDeleted(
-          client,
-          deployment,
-          recordPath,
-          appMetadata
-        )
-        taskComplete(
-          quiet,
-          "Created application with id {.val {application$id}}"
-        )
-        application
-      }
-    )
+    if (isPositConnectCloudServer(accountDetails$server)) {
+      taskStart(
+        quiet,
+        "Looking up content with id {.val {deployment$appId}}..."
+      )
+      application <- tryCatch(
+        {
+          application <- client$getContent(deployment$appId)
+          taskComplete(quiet, "Found content")
+          application
+        },
+        rsconnect_http_404 = function(err) {
+          application <- applicationDeleted(
+            client,
+            deployment,
+            recordPath,
+            appMetadata
+          )
+          taskComplete(
+            quiet,
+            "Created content with id {.val {application$id}}"
+          )
+          application
+        }
+      )
+    } else {
+      taskStart(
+        quiet,
+        "Looking up application with id {.val {deployment$appId}}..."
+      )
+      application <- tryCatch(
+        {
+          application <- client$getApplication(
+            deployment$appId,
+            deployment$version
+          )
+          taskComplete(quiet, "Found application {.url {application$url}}")
+          application
+        },
+        rsconnect_http_404 = function(err) {
+          application <- applicationDeleted(
+            client,
+            deployment,
+            recordPath,
+            appMetadata
+          )
+          taskComplete(
+            quiet,
+            "Created application with id {.val {application$id}}"
+          )
+          application
+        }
+      )
+    }
   }
   saveDeployment(
     recordPath,
@@ -456,21 +494,27 @@ deployApp <- function(
   )
 
   # Change _visibility_ & set env vars before uploading contents
-  if (
-    needsVisibilityChange(accountDetails$server, application, appVisibility)
-  ) {
-    taskStart(quiet, "Setting visibility to {appVisibility}...")
-    client$setApplicationProperty(
-      application$id,
-      "application.visibility",
-      appVisibility
-    )
-    taskComplete(quiet, "Visibility updated")
-  }
-  if (length(deployment$envVars) > 0) {
-    taskStart(quiet, "Updating environment variables {envVars}...")
-    client$setEnvVars(application$guid, deployment$envVars)
-    taskComplete(quiet, "Environment variables updated")
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    taskStart(quiet, "Updating content...")
+    updateResponse <- client$updateContent(application$id, deployment$envVars, newBundle = upload)
+    taskComplete(quiet, "Content updated")
+  } else {
+    if (
+      needsVisibilityChange(accountDetails$server, application, appVisibility)
+    ) {
+      taskStart(quiet, "Setting visibility to {appVisibility}...")
+      client$setApplicationProperty(
+        application$id,
+        "application.visibility",
+        appVisibility
+      )
+      taskComplete(quiet, "Visibility updated")
+    }
+    if (length(deployment$envVars) > 0) {
+      taskStart(quiet, "Updating environment variables {envVars}...")
+      client$setEnvVars(application$guid, deployment$envVars)
+      taskComplete(quiet, "Environment variables updated")
+    }
   }
 
   if (upload) {
@@ -496,7 +540,14 @@ deployApp <- function(
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
-    if (isShinyappsServer(accountDetails$server)) {
+    if (isPositConnectCloudServer(accountDetails$server)) {
+      uploadUrl <- updateResponse$next_revision$source_bundle_upload_url
+      success <- client$uploadBundle(bundlePath, uploadUrl)
+      if (!success) {
+        stop("Could not upload bundle.")
+      }
+      bundle <- NULL  # PCC doesn't use bundle objects like other servers
+    } else if (isShinyappsServer(accountDetails$server)) {
       bundle <- uploadShinyappsBundle(
         client,
         application$application_id,
@@ -505,43 +556,66 @@ deployApp <- function(
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
     }
-    taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
+    if (!isPositConnectCloudServer(accountDetails$server)) {
+      taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
+    }
 
-    saveDeployment(
-      recordPath,
-      deployment = deployment,
-      application = application,
-      bundleId = bundle$id,
-      metadata = metadata
-    )
+    if (!isPositConnectCloudServer(accountDetails$server)) {
+      saveDeployment(
+        recordPath,
+        deployment = deployment,
+        application = application,
+        bundleId = bundle$id,
+        metadata = metadata
+      )
+    }
   } else {
     # redeploy current bundle
     bundle <- application$deployment$bundle
   }
 
-  if (!quiet) {
-    cli::cli_rule("Deploying to server")
-  }
-  task <- client$deployApplication(application, bundle$id)
-  taskId <- if (is.null(task$task_id)) task$id else task$task_id
-  # wait for the deployment to complete (will raise an error if it can't)
-  response <- client$waitForTask(taskId, quiet)
-  if (!quiet) {
-    cli::cli_rule("Deployment complete")
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    if (!quiet) {
+      cli::cli_rule("Deploying to server")
+    }
+    client$publish(application$id)
+    revisionId <- updateResponse$next_revision$id
+    cloudDeployResult <- client$awaitCompletion(revisionId)
+    deploymentSucceeded <- cloudDeployResult$success
+    if (!quiet) {
+      cli::cli_rule("Deployment complete")
+    }
+  } else {
+    if (!quiet) {
+      cli::cli_rule("Deploying to server")
+    }
+    task <- client$deployApplication(application, bundle$id)
+    taskId <- if (is.null(task$task_id)) task$id else task$task_id
+    # wait for the deployment to complete (will raise an error if it can't)
+    response <- client$waitForTask(taskId, quiet)
+    if (!quiet) {
+      cli::cli_rule("Deployment complete")
+    }
   }
 
   # wait 1/10th of a second for any queued output get picked by RStudio
   # before emitting the final status, to ensure it's the last line the user sees
   Sys.sleep(0.10)
 
-  deploymentSucceeded <- is.null(response$code) || response$code == 0
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    deploymentSucceeded <- is.null(response$code) || response$code == 0
+  }
   if (!quiet) {
     if (deploymentSucceeded) {
       cli::cli_alert_success(
         "Successfully deployed to {.url {application$url}}"
       )
     } else {
-      cli::cli_alert_danger("Deployment failed with error: {response$error}")
+      if (isPositConnectCloudServer(accountDetails$server)) {
+        cli::cli_alert_danger("Deployment failed with error: {cloudDeployResult$error}")
+      } else {
+        cli::cli_alert_danger("Deployment failed with error: {response$error}")
+      }
     }
   }
 
@@ -642,13 +716,23 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
   unlink(path)
 
   accountDetails <- accountInfo(deployment$account, deployment$server)
-  client$createApplication(
-    deployment$name,
-    deployment$title,
-    "shiny",
-    accountDetails$accountId,
-    appMetadata$appMode
-  )
+  client <- clientForAccount(accountDetails)
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    client$createContent(
+      deployment$name,
+      deployment$title,
+      accountDetails$accountId,
+      appMetadata$appMode
+    )
+  } else {
+    client$createApplication(
+      deployment$name,
+      deployment$title,
+      "shiny",
+      accountDetails$accountId,
+      appMetadata$appMode
+    )
+  }
 }
 
 # Does almost exactly the same work as writeManifest(), but called within

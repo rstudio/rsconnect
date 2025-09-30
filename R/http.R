@@ -545,6 +545,7 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
   } else if (!is.null(authInfo$accessToken)) {
+    print(paste("Bearer", authInfo$accessToken))
     list(`Authorization` = paste("Bearer", authInfo$accessToken))
   } else if (!is.null(authInfo$snowflakeToken)) {
     # snowflakeauth returns a list of named header values

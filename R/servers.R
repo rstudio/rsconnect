@@ -36,7 +36,7 @@ serverInfo <- function(name = NULL) {
   if (isShinyappsServer(name)) {
     info <- shinyappsServerInfo(name, "https://api.shinyapps.io/v1")
   } else if (isPositConnectCloudServer(name)) {
-    info <- cloudServerInfo(name, "https://api.connect.posit.cloud/v1")
+    info <- connectCloudServerInfo(name, "https://api.connect.posit.cloud/v1")
   } else {
     configFile <- serverConfigFile(name)
     serverDcf <- read.dcf(serverConfigFile(name), all = TRUE)

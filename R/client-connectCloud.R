@@ -1,5 +1,24 @@
 # Docs: https://build.posit.it/job/hostedapps/job/lucid-pipeline/job/main/API/
 
+# Map rsconnect appMode to Connect Cloud contentType
+cloudContentTypeFromAppMode <- function(appMode) {
+  switch(appMode,
+    "jupyter-notebook" = "jupyter",
+    "python-bokeh" = "bokeh",
+    "python-dash" = "dash",
+    "python-shiny" = "shiny",
+    "shiny" = "shiny",
+    "python-streamlit" = "streamlit",
+    "quarto" = "quarto",
+    "quarto-static" = "quarto",
+    "quarto-shiny" = "quarto",
+    "rmd-static" = "rmarkdown",
+    "rmd-shiny" = "rmarkdown",
+    "static" = "static",
+    stop("appMode '", appMode, "' is not supported by Connect Cloud")
+  )
+}
+
 getCurrentProjectId <- function(service, authInfo) {
   currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
   if (currentApplicationId != "") {
@@ -10,12 +29,7 @@ getCurrentProjectId <- function(service, authInfo) {
 }
 
 connectCloudClient <- function(service, authInfo) {
-  print("**** connectCloudClient")
   list(
-    # status = function() {
-    #   GET(service, authInfo, "/internal/status")
-    # },
-
     service = function() {
       "posit.cloud"
     },
@@ -29,25 +43,124 @@ connectCloudClient <- function(service, authInfo) {
       return(list())
     },
 
-    createApplication = function(
+    # createApplication = function(
+    #   name,
+    #   title,
+    #   template,
+    #   accountId,
+    #   appMode,
+    #   contentCategory = NULL,
+    #   spaceId = NULL
+    # ) {
+    #   json <- list(
+    #     account_id = accountId,
+    #     title = title,
+    #   )
+    #   content <- POST_JSON(service, authInfo, "/contents/", json)
+    #   list(
+    #     id = application$id,
+    #     application_id = application$id,
+    #     url = application$url
+    #   )
+    # },
+
+    createContent = function(
       name,
       title,
-      template,
       accountId,
-      appMode,
-      contentCategory = NULL,
-      spaceId = NULL
+      appMode
     ) {
+      title <- if (nzchar(title)) title else name
+      contentType <- cloudContentTypeFromAppMode(appMode)
       json <- list(
         account_id = accountId,
         title = title,
+        next_revision = list(
+          source_type = "bundle",
+          content_type = contentType,
+          app_mode = appMode,
+          primary_file = "app.R"
+        )
       )
-      content <- POST_JSON(service, authInfo, "/contents/", json)
-      list(
-        id = application$id,
-        application_id = application$id,
-        url = application$url
+
+      content <- POST_JSON(service, authInfo, "/contents", json)
+      print("called api")
+      ret <- list(
+        id = content$id,
+        application_id = content$id
       )
+      print(paste("Created content:", ret$id))
+      return(ret)
+    },
+
+    getContent = function(contentId) {
+      path <- paste0("/contents/", contentId)
+      GET(service, authInfo, path)
+    },
+
+    updateContent = function(contentId, envVars, newBundle = FALSE) {
+      path <- paste0("/contents/", contentId)
+      if (newBundle) {
+        path <- paste0(path, "?new_bundle=true")
+      }
+
+      secrets <- unname(Map(
+        function(name, value) {
+          list(
+            name = name,
+            value = value
+          )
+        },
+        envVars,
+        Sys.getenv(envVars)
+      ))
+
+      json <- list(secrets = secrets)
+      PATCH_JSON(service, authInfo, path, json)
+    },
+
+    uploadBundle = function(bundlePath, uploadUrl) {
+      print(paste("Uploading bundle to", uploadUrl))
+      uploadService <- parseHttpUrl(uploadUrl)
+      headers <- list()
+      headers$`Content-Type` <- "application/gzip"
+
+      http <- httpFunction()
+      response <- http(
+        uploadService$protocol,
+        uploadService$host,
+        uploadService$port,
+        "POST",
+        uploadService$path,
+        headers,
+        headers$`Content-Type`,
+        bundlePath
+      )
+      print("**** Response from upload ****")
+      print(response)
+
+      response$status <= 299
+    },
+
+    publish = function(contentId) {
+      path <- paste0("/contents/", contentId, "/publish")
+      POST_JSON(service, authInfo, path, list())
+    },
+
+    awaitCompletion = function(revisionId) {
+      repeat {
+        path <- paste0("/revisions/", revisionId)
+        response <- GET(service, authInfo, path)
+
+        if (!is.null(response$publish_result)) {
+          if (response$publish_result == "failure") {
+            return(list(success = FALSE, error = response$publish_error_details))
+          }
+          return(list(success = TRUE, error = NULL))
+        }
+
+        Sys.sleep(1)
+      }
     }
   )
 }

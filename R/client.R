@@ -1,5 +1,4 @@
 clientForAccount <- function(account) {
-  print("**** clientForAccount")
   serverInfo <- serverInfo(account$server)
   account$certificate <- serverInfo$certificate
   serverUrl <- parseHttpUrl(serverInfo$url)
