@@ -411,8 +411,6 @@ deployApp <- function(
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating application on server...")
     if (isPositConnectCloudServer(accountDetails$server)) {
-      print("**** Creating content on PCC")
-      print(deployment)
       application <- client$createContent(
         deployment$name,
         deployment$title,

@@ -84,13 +84,10 @@ connectCloudClient <- function(service, authInfo) {
       )
 
       content <- POST_JSON(service, authInfo, "/contents", json)
-      print("called api")
-      ret <- list(
+      list(
         id = content$id,
         application_id = content$id
       )
-      print(paste("Created content:", ret$id))
-      return(ret)
     },
 
     getContent = function(contentId) {
@@ -120,7 +117,6 @@ connectCloudClient <- function(service, authInfo) {
     },
 
     uploadBundle = function(bundlePath, uploadUrl) {
-      print(paste("Uploading bundle to", uploadUrl))
       uploadService <- parseHttpUrl(uploadUrl)
       headers <- list()
       headers$`Content-Type` <- "application/gzip"
@@ -136,9 +132,7 @@ connectCloudClient <- function(service, authInfo) {
         headers$`Content-Type`,
         bundlePath
       )
-      print("**** Response from upload ****")
-      print(response)
-
+      
       response$status <= 299
     },
 
