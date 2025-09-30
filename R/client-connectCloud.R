@@ -154,9 +154,9 @@ connectCloudClient <- function(service, authInfo) {
 
         if (!is.null(response$publish_result)) {
           if (response$publish_result == "failure") {
-            return(list(success = FALSE, error = response$publish_error_details))
+            return(list(success = FALSE, url = NULL, error = response$publish_error_details))
           }
-          return(list(success = TRUE, error = NULL))
+          return(list(success = TRUE, url = response$url, error = NULL))
         }
 
         Sys.sleep(1)

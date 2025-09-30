@@ -582,6 +582,7 @@ deployApp <- function(
     revisionId <- updateResponse$next_revision$id
     cloudDeployResult <- client$awaitCompletion(revisionId)
     deploymentSucceeded <- cloudDeployResult$success
+    application$url <- cloudDeployResult$url
     if (!quiet) {
       cli::cli_rule("Deployment complete")
     }
