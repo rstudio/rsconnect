@@ -3,9 +3,10 @@
     Code
       servers()
     Output
-                name                         url          certificate
-      1  cert_test_a     https://localhost:4567/ -----B... (redacted)
-      2 shinyapps.io https://api.shinyapps.io/v1 Amazon... (redacted)
+                       name                                url          certificate
+      1         cert_test_a            https://localhost:4567/ -----B... (redacted)
+      2        shinyapps.io        https://api.shinyapps.io/v1 Amazon... (redacted)
+      3 connect.posit.cloud https://api.connect.posit.cloud/v1 -----B... (redacted)
 
 # serverInfo() redacts the certificate
 
@@ -17,6 +18,16 @@
        $ url        : chr "https://api.shinyapps.io/v1"
        $ certificate: Amazon... (redacted)
 
+---
+
+    Code
+      str(serverInfo("connect.posit.cloud"))
+    Output
+      List of 3
+       $ name       : chr "connect.posit.cloud"
+       $ url        : chr "https://api.connect.posit.cloud/v1"
+       $ certificate: -----B... (redacted)
+
 # serverInfo() errors if server not present
 
     Code
@@ -24,7 +35,7 @@
     Condition
       Error in `findServer()`:
       ! Can't find `server` with name "foo".
-      i Known servers are "shinyapps.io".
+      i Known servers are "shinyapps.io" and "connect.posit.cloud".
 
 # addServer() errors if url not a connect server
 
@@ -94,5 +105,5 @@
     Condition
       Error in `findServer()`:
       ! Can't find `server` with name "foo".
-      i Known servers are "shinyapps.io".
+      i Known servers are "shinyapps.io" and "connect.posit.cloud".
 
