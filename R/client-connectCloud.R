@@ -44,27 +44,6 @@ connectCloudClient <- function(service, authInfo) {
       return(list())
     },
 
-    # createApplication = function(
-    #   name,
-    #   title,
-    #   template,
-    #   accountId,
-    #   appMode,
-    #   contentCategory = NULL,
-    #   spaceId = NULL
-    # ) {
-    #   json <- list(
-    #     account_id = accountId,
-    #     title = title,
-    #   )
-    #   content <- POST_JSON(service, authInfo, "/contents/", json)
-    #   list(
-    #     id = application$id,
-    #     application_id = application$id,
-    #     url = application$url
-    #   )
-    # },
-
     createContent = function(
       name,
       title,
