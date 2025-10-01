@@ -494,7 +494,11 @@ deployApp <- function(
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
     taskStart(quiet, "Updating content...")
-    updateResponse <- client$updateContent(application$id, deployment$envVars, newBundle = upload)
+    updateResponse <- client$updateContent(
+      application$id,
+      deployment$envVars,
+      newBundle = upload
+    )
     taskComplete(quiet, "Content updated")
   } else {
     if (
@@ -544,7 +548,7 @@ deployApp <- function(
       if (!success) {
         stop("Could not upload bundle.")
       }
-      bundle <- NULL  # PCC doesn't use bundle objects like other servers
+      bundle <- NULL # PCC doesn't use bundle objects like other servers
     } else if (isShinyappsServer(accountDetails$server)) {
       bundle <- uploadShinyappsBundle(
         client,
@@ -611,7 +615,9 @@ deployApp <- function(
       )
     } else {
       if (isPositConnectCloudServer(accountDetails$server)) {
-        cli::cli_alert_danger("Deployment failed with error: {cloudDeployResult$error}")
+        cli::cli_alert_danger(
+          "Deployment failed with error: {cloudDeployResult$error}"
+        )
       } else {
         cli::cli_alert_danger("Deployment failed with error: {response$error}")
       }

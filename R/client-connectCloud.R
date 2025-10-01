@@ -2,7 +2,8 @@
 
 # Map rsconnect appMode to Connect Cloud contentType
 cloudContentTypeFromAppMode <- function(appMode) {
-  switch(appMode,
+  switch(
+    appMode,
     "jupyter-notebook" = "jupyter",
     "python-bokeh" = "bokeh",
     "python-dash" = "dash",
@@ -132,7 +133,7 @@ connectCloudClient <- function(service, authInfo) {
         headers$`Content-Type`,
         bundlePath
       )
-      
+
       response$status <= 299
     },
 
@@ -148,7 +149,11 @@ connectCloudClient <- function(service, authInfo) {
 
         if (!is.null(response$publish_result)) {
           if (response$publish_result == "failure") {
-            return(list(success = FALSE, url = NULL, error = response$publish_error_details))
+            return(list(
+              success = FALSE,
+              url = NULL,
+              error = response$publish_error_details
+            ))
           }
           return(list(success = TRUE, url = response$url, error = NULL))
         }
