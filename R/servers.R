@@ -95,7 +95,6 @@ shinyappsServerInfo <- function(name, url) {
 }
 
 connectCloudServerInfo <- function(name, url) {
-  # TODO: add cert file
   list(
     name = name,
     url = getOption("rsconnect.connect_cloud_url", url),
