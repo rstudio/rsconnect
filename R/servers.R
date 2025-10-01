@@ -51,10 +51,6 @@ serverNames <- function(local = FALSE) {
   names <- gsub("\\.dcf$", "", basename(serverConfigFiles()))
   if (!local) {
     names <- c(names, "shinyapps.io", "connect.posit.cloud")
-
-    if (nrow(accounts(server = "rstudio.cloud")) > 0) {
-      names <- c(names, "rstudio.cloud")
-    }
   }
 
   names
@@ -104,7 +100,7 @@ connectCloudServerInfo <- function(name, url) {
     name = name,
     url = getOption("rsconnect.connect_cloud_url", url),
     certificate = inferCertificateContents(
-      system.file("cert/shinyapps.io.pem", package = "rsconnect")
+      system.file("cert/api.connect.posit.cloud.pem", package = "rsconnect")
     )
   )
 }
