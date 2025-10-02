@@ -721,7 +721,6 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
   unlink(path)
 
   accountDetails <- accountInfo(deployment$account, deployment$server)
-  client <- clientForAccount(accountDetails)
   if (isPositConnectCloudServer(accountDetails$server)) {
     client$createContent(
       deployment$name,
