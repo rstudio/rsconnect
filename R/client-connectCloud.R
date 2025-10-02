@@ -26,15 +26,6 @@ connectCloudClient <- function(service, authInfo) {
       "connect.posit.cloud"
     },
 
-    currentUser = function() {
-      GET(service, authInfo, "/users/me")
-    },
-
-    listApplications = function(accountId, filters = list()) {
-      # TODO: call the real API when available (api doesn't support filtering by name yet)
-      return(list())
-    },
-
     createContent = function(
       name,
       title,
