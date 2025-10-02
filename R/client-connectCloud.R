@@ -32,7 +32,7 @@ getCurrentProjectId <- function(service, authInfo) {
 connectCloudClient <- function(service, authInfo) {
   list(
     service = function() {
-      "posit.cloud"
+      "connect.posit.cloud"
     },
 
     currentUser = function() {
