@@ -153,6 +153,123 @@ connectUser <- function(
   invisible()
 }
 
+filterPublishableAccounts <- function(accounts) {
+  Filter(
+    function(account) {
+      any(vapply(
+        account$permissions,
+        function(permission) {
+          identical(permission, "content:create")
+        },
+        logical(1)
+      ))
+    },
+    accounts
+  )
+}
+
+connectCloudUser <- function() {
+  authClient <- cloudAuthClient()
+  deviceAuth <- authClient$createDeviceAuth()
+
+  # Alert user and open browser for verification
+  cli::cli_alert_info(
+    "Opening login page. When requested, please enter the code {deviceAuth$user_code}."
+  )
+  utils::browseURL(deviceAuth$verification_uri_complete)
+
+  pollingInterval <- deviceAuth$interval
+  while (TRUE) {
+    Sys.sleep(pollingInterval)
+    tokenResponse <- tryCatch(
+      authClient$exchangeToken(deviceAuth),
+      rsconnect_http_400 = function(err) {
+        errorCode <- err$body
+        if (errorCode == "authorization_pending") {
+          return(NULL)
+        } else if (errorCode == "slow_down") {
+          pollingInterval <<- pollingInterval + 5
+          return(NULL)
+        } else if (errorCode == "expired_token") {
+          cli::cli_abort("Verification code has expired.")
+        } else if (errorCode == "access_denied") {
+          cli::cli_abort("Authorization request was denied.")
+        }
+        cli::cli_abort("Error during authentication: {error_code}")
+      }
+    )
+    if (!is.null(tokenResponse)) {
+      break
+    }
+  }
+
+  accessToken <- tokenResponse$access_token
+  refreshToken <- tokenResponse$refresh_token
+
+  client <- connectCloudClient(
+    parseHttpUrl(connectCloudUrls()$api),
+    list(accessToken = accessToken, refreshToken = refreshToken)
+  )
+
+  accountsResponse <- client$getAccounts()
+  accounts <- accountsResponse$data
+
+  accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
+
+  cloudUiUrl <- connectCloudUrls()$ui
+  if (length(accountsWhereUserCanPublish) == 0) {
+    if (length(accounts) == 0) {
+      cli::cli_alert_info(
+        "To deploy, you must finish creating an account. Opening account creation page..."
+      )
+      utils::browseURL(cloudUiUrl)
+      while (TRUE) {
+        Sys.sleep(2)
+        accountsResponse <- client$getAccounts()
+        if (length(accountsResponse$data) > 0) {
+          accounts <- accountsResponse$data
+          accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
+          if (length(accountsWhereUserCanPublish) > 0) {
+            break
+          }
+        }
+      }
+    } else {
+      cli::cli_abort(
+        "You do not have permission to publish content on any of your accounts. To publish, you may create a new account at {.url cloudUiUrl}."
+      )
+    }
+  }
+
+  # prompt the user to select an account if there's more than one they can publish to
+  if (length(accountsWhereUserCanPublish) > 1) {
+    cli::cli_alert_info("You have permission to publish to multiple accounts.")
+    accountNames <- vapply(
+      accountsWhereUserCanPublish,
+      function(account) account$name,
+      character(1)
+    )
+    selected <- utils::menu(accountNames, title = "Select an account to use:")
+    if (selected == 0) {
+      cli::cli_abort("No account selected.")
+    }
+    account <- accountsWhereUserCanPublish[[selected]]
+  } else {
+    account <- accountsWhereUserCanPublish[[1]]
+  }
+
+  registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = account$name,
+    accountId = account$id,
+    accessToken = accessToken,
+    refreshToken = refreshToken
+  )
+
+  cli::cli_alert_success("Registered account")
+}
+
+
 getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
   token <- getAuthToken(server)
 
@@ -415,7 +532,9 @@ registerAccount <- function(
   secret = NULL,
   private_key = NULL,
   apiKey = NULL,
-  snowflakeConnectionName = NULL
+  snowflakeConnectionName = NULL,
+  accessToken = NULL,
+  refreshToken = NULL
 ) {
   check_string(serverName)
   check_string(accountName)
@@ -431,7 +550,9 @@ registerAccount <- function(
     secret = secret,
     private_key = private_key,
     apiKey = apiKey,
-    snowflakeConnectionName = snowflakeConnectionName
+    snowflakeConnectionName = snowflakeConnectionName,
+    accessToken = accessToken,
+    refreshToken = refreshToken
   )
 
   path <- accountConfigFile(accountName, serverName)

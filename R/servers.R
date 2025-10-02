@@ -94,10 +94,38 @@ shinyappsServerInfo <- function(name, url) {
   )
 }
 
+connectCloudEnvironment <- function() {
+  getOption(
+    "rsconnect.connect_cloud_environment",
+    "production"
+  )
+}
+
+connectCloudUrls <- function() {
+  switch(
+    connectCloudEnvironment(),
+    production = list(
+      api = "https://api.connect.posit.cloud/v1",
+      ui = "https://connect.posit.cloud",
+      auth = "https://login.posit.cloud"
+    ),
+    staging = list(
+      api = "https://api.staging.connect.posit.cloud/v1",
+      ui = "https://staging.connect.posit.cloud",
+      auth = "https://login.staging.posit.cloud"
+    ),
+    development = list(
+      api = "https://api.dev.connect.posit.cloud/v1",
+      ui = "https://dev.connect.posit.cloud",
+      auth = "https://login.staging.posit.cloud"
+    ),
+  )
+}
+
 connectCloudServerInfo <- function(name, url) {
   list(
     name = name,
-    url = getOption("rsconnect.connect_cloud_url", url),
+    url = connectCloudUrls()$api,
     certificate = inferCertificateContents(
       system.file("cert/api.connect.posit.cloud.pem", package = "rsconnect")
     )

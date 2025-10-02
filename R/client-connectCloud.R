@@ -1,4 +1,4 @@
-# Docs: https://build.posit.it/job/hostedapps/job/lucid-pipeline/job/main/API/
+# Docs: https://posit-hosted.github.io/vivid-api
 
 # Map rsconnect appMode to Connect Cloud contentType
 cloudContentTypeFromAppMode <- function(appMode) {
@@ -18,15 +18,6 @@ cloudContentTypeFromAppMode <- function(appMode) {
     "static" = "static",
     stop("appMode '", appMode, "' is not supported by Connect Cloud")
   )
-}
-
-getCurrentProjectId <- function(service, authInfo) {
-  currentApplicationId <- Sys.getenv("LUCID_APPLICATION_ID")
-  if (currentApplicationId != "") {
-    path <- paste0("/applications/", currentApplicationId)
-    current_application <- GET(service, authInfo, path)
-    return(current_application$content_id)
-  }
 }
 
 connectCloudClient <- function(service, authInfo) {
@@ -139,6 +130,10 @@ connectCloudClient <- function(service, authInfo) {
 
         Sys.sleep(1)
       }
+    },
+
+    getAccounts = function(revisionId) {
+      GET(service, authInfo, "/accounts?has_user_role=true")
     }
   )
 }
