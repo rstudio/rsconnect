@@ -182,7 +182,10 @@ connectCloudUser <- function() {
   while (TRUE) {
     Sys.sleep(pollingInterval)
     tokenResponse <- tryCatch(
-      authClient$exchangeToken(deviceAuth),
+      authClient$exchangeToken(list(
+        grant_type = 'urn:ietf:params:oauth:grant-type:device_code',
+        device_code = deviceAuth$device_code
+      )),
       rsconnect_http_400 = function(err) {
         errorCode <- err$body
         if (errorCode == "authorization_pending") {

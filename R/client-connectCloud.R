@@ -1,5 +1,44 @@
 # Docs: https://posit-hosted.github.io/vivid-api
 
+# Generic retry wrapper that handles token refresh on 401 responses
+withTokenRefreshRetry <- function(service, authInfo, request_fn, ...) {
+  tryCatch(
+    {
+      request_fn(service, authInfo, ...)
+    },
+    rsconnect_http_401 = function(e) {
+      tryCatch(
+        {
+          # Exchange refresh token for new access token
+          authClient <- cloudAuthClient()
+          tokenResponse <- authClient$exchangeToken(list(
+            grant_type = "refresh_token",
+            refresh_token = authInfo$refresh_token
+          ))
+
+          # Save updated tokens
+          registerAccount(
+            authInfo$server,
+            authInfo$name,
+            authInfo$accountId,
+            accessToken = authInfo$access_token,
+            refreshToken = authInfo$refresh_token
+          )
+
+          # Retry the original request with refreshed token
+          authInfo$access_token <- tokenResponse$access_token
+          authInfo$refresh_token <- tokenResponse$refresh_token
+          request_fn(service, authInfo, ...)
+        },
+        error = function(refresh_error) {
+          # If token refresh fails, re-throw the original 401 error
+          stop(e)
+        }
+      )
+    }
+  )
+}
+
 # Map rsconnect appMode to Connect Cloud contentType
 cloudContentTypeFromAppMode <- function(appMode) {
   switch(
@@ -45,7 +84,13 @@ connectCloudClient <- function(service, authInfo) {
         )
       )
 
-      content <- POST_JSON(service, authInfo, "/contents", json)
+      content <- withTokenRefreshRetry(
+        service,
+        authInfo,
+        POST_JSON,
+        "/contents",
+        json
+      )
       list(
         id = content$id,
         application_id = content$id
@@ -54,7 +99,7 @@ connectCloudClient <- function(service, authInfo) {
 
     getContent = function(contentId) {
       path <- paste0("/contents/", contentId)
-      GET(service, authInfo, path)
+      withTokenRefreshRetry(service, authInfo, GET, path)
     },
 
     updateContent = function(contentId, envVars, newBundle = FALSE) {
@@ -75,7 +120,7 @@ connectCloudClient <- function(service, authInfo) {
       ))
 
       json <- list(secrets = secrets)
-      PATCH_JSON(service, authInfo, path, json)
+      withTokenRefreshRetry(service, authInfo, PATCH_JSON, path, json)
     },
 
     uploadBundle = function(bundlePath, uploadUrl) {
@@ -100,13 +145,13 @@ connectCloudClient <- function(service, authInfo) {
 
     publish = function(contentId) {
       path <- paste0("/contents/", contentId, "/publish")
-      POST_JSON(service, authInfo, path, list())
+      withTokenRefreshRetry(service, authInfo, POST_JSON, path, list())
     },
 
     awaitCompletion = function(revisionId) {
       repeat {
         path <- paste0("/revisions/", revisionId)
-        response <- GET(service, authInfo, path)
+        response <- withTokenRefreshRetry(service, authInfo, GET, path)
 
         if (!is.null(response$publish_result)) {
           if (response$publish_result == "failure") {

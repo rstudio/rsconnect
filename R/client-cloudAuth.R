@@ -35,7 +35,8 @@ cloudAuthClient <- function() {
       content <- paste0(
         "client_id=",
         urlEncode(client_id),
-        "&grant_type=urn:ietf:params:oauth:grant-type:device_code"
+        "&grant_type=",
+        request$grant_type
       )
 
       if (!is.null(request$device_code)) {
