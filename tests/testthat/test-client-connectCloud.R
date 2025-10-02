@@ -1,4 +1,3 @@
-
 test_that("awaitCompletion", {
   skip_if_not_installed("webfakes")
 
