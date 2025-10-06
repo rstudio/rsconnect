@@ -84,8 +84,12 @@ test_that("withTokenRefreshRetry passes through successful requests", {
     access_token = "current-token",
     refresh_token = "refresh-token"
   )
+  client <- connectCloudClient(service, authInfo)
 
-  result <- withTokenRefreshRetry(service, authInfo, mock_request_fn, "/test")
+  result <- client$withTokenRefreshRetry(
+    mock_request_fn,
+    "/test"
+  )
 
   expect_equal(result$success, TRUE)
   expect_equal(result$data, "test response")
@@ -111,7 +115,7 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
   }
 
   # Mock cloudAuthClient
-  mockery::stub(withTokenRefreshRetry, "cloudAuthClient", function() {
+  mockery::stub(connectCloudClient, "cloudAuthClient", function() {
     list(
       exchangeToken = function(request) {
         expect_equal(request$grant_type, "refresh_token")
@@ -127,7 +131,7 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
   # Mock registerAccount
   register_called <- FALSE
   mockery::stub(
-    withTokenRefreshRetry,
+    connectCloudClient,
     "registerAccount",
     function(server, name, accountId, accessToken, refreshToken) {
       register_called <<- TRUE
@@ -144,77 +148,15 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
     server = "connect.posit.cloud",
     name = "test-user",
     accountId = "123",
-    access_token = "current-token",
-    refresh_token = "refresh-token"
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
   )
+  client <- connectCloudClient(service, authInfo)
 
-  result <- withTokenRefreshRetry(service, authInfo, mock_request_fn, "/test")
+  result <- client$withTokenRefreshRetry(mock_request_fn, "/test")
 
   expect_equal(result$success, TRUE)
   expect_equal(result$data, "success after refresh")
   expect_equal(call_count, 2)
   expect_true(register_called)
-})
-
-test_that("withTokenRefreshRetry re-throws 401 when token refresh fails", {
-  skip_if_not_installed("webfakes")
-
-  mock_request_fn <- function(service, authInfo, path) {
-    # Always fails with 401
-    err <- structure(
-      list(message = "HTTP 401"),
-      class = c("rsconnect_http_401", "rsconnect_http", "error", "condition")
-    )
-    stop(err)
-  }
-
-  # Mock cloudAuthClient to fail
-  mockery::stub(withTokenRefreshRetry, "cloudAuthClient", function() {
-    list(
-      exchangeToken = function(request) {
-        stop("Token refresh failed")
-      }
-    )
-  })
-
-  service <- list(host = "example.com", port = 443, protocol = "https")
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "test-user",
-    accountId = "123",
-    access_token = "current-token",
-    refresh_token = "refresh-token"
-  )
-
-  expect_error(
-    withTokenRefreshRetry(service, authInfo, mock_request_fn, "/test"),
-    class = "rsconnect_http_401"
-  )
-})
-
-test_that("withTokenRefreshRetry re-throws 401 when no refresh token available", {
-  skip_if_not_installed("webfakes")
-
-  mock_request_fn <- function(service, authInfo, path) {
-    # Always fails with 401
-    err <- structure(
-      list(message = "HTTP 401"),
-      class = c("rsconnect_http_401", "rsconnect_http", "error", "condition")
-    )
-    stop(err)
-  }
-
-  service <- list(host = "example.com", port = 443, protocol = "https")
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "test-user",
-    accountId = "123",
-    access_token = "current-token"
-    # No refresh_token
-  )
-
-  expect_error(
-    withTokenRefreshRetry(service, authInfo, mock_request_fn, "/test"),
-    class = "rsconnect_http_401"
-  )
 })

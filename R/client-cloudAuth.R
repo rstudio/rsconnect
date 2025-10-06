@@ -34,9 +34,10 @@ cloudAuthClient <- function() {
       client_id <- getClientId()
       content <- paste0(
         "client_id=",
-        urlEncode(client_id),
+        client_id,
         "&grant_type=",
-        request$grant_type
+        request$grant_type,
+        "&scope=vivid"
       )
 
       if (!is.null(request$device_code)) {
@@ -50,19 +51,17 @@ cloudAuthClient <- function() {
         content <- paste0(
           content,
           "&refresh_token=",
-          urlEncode(request$refresh_token)
+          request$refresh_token
         )
       }
 
-      response <- POST(
+      POST(
         service,
         list(),
         path = "/oauth/token",
         contentType = "application/x-www-form-urlencoded",
         content = content
       )
-
-      response
     }
   )
 }
