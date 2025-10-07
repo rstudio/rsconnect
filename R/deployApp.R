@@ -566,22 +566,24 @@ deployApp <- function(
     } else {
       bundle <- client$uploadApplication(application$id, bundlePath)
     }
-    if (!isPositConnectCloudServer(accountDetails$server)) {
+    if (isPositConnectCloudServer(accountDetails$server)) {
+      taskComplete(quiet, "Uploaded bundle")
+    } else {
       taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
     }
 
-    if (!isPositConnectCloudServer(accountDetails$server)) {
-      saveDeployment(
-        recordPath,
-        deployment = deployment,
-        application = application,
-        bundleId = bundle$id,
-        metadata = metadata
-      )
+    if (isPositConnectCloudServer(accountDetails$server)) {
+      # redeploy current bundle
+      bundle <- application$deployment$bundle
     }
   } else {
-    # redeploy current bundle
-    bundle <- application$deployment$bundle
+    saveDeployment(
+      recordPath,
+      deployment = deployment,
+      application = application,
+      bundleId = bundle$id,
+      metadata = metadata
+    )
   }
 
   if (isPositConnectCloudServer(accountDetails$server)) {
