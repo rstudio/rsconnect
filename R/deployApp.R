@@ -79,8 +79,9 @@
 #'   for re-deploying apps created by someone else.
 #'
 #'   You can find the `appId` in the following places:
-#'   * On shinyapps.io, it's the `id` listed on the applications page.
 #'   * For Posit Connect, it's `guid` from the info tab on the content page.
+#'   * For Posit Connect Cloud, it can be found in the content admin page's URL (https://connect.posit.cloud/{accountName}/content/{appId}).
+#'   * On shinyapps.io, it's the `id` listed on the applications page.
 #' @param appMode Optional; the type of content being deployed.
 #'   Provide this option when the inferred type of content is incorrect. This
 #'   can happen, for example, when static HTML content includes a downloadable
@@ -98,7 +99,7 @@
 #' @param upload If `TRUE` (the default) then the application is uploaded from
 #'   the local system prior to deployment. If `FALSE` then it is re-deployed
 #'   using the last version that was uploaded. `FALSE` is only supported on
-#'   shinyapps.io; `TRUE` is required on Posit Connect.
+#'   Posit Connect Cloud and shinyapps.io; `TRUE` is required on Posit Connect.
 #' @param recordDir Directory where deployment record is written. The default,
 #'   `NULL`, uses `appDir`, since this is usually where you want the deployment
 #'   data to be stored. This argument is typically only needed when deploying
@@ -590,29 +591,23 @@ deployApp <- function(
     }
   }
 
+  if (!quiet) {
+    cli::cli_rule("Deploying to server")
+  }
   if (isPositConnectCloudServer(accountDetails$server)) {
-    if (!quiet) {
-      cli::cli_rule("Deploying to server")
-    }
     client$publish(application$id)
     revisionId <- updateResponse$next_revision$id
     cloudDeployResult <- client$awaitCompletion(revisionId)
     deploymentSucceeded <- cloudDeployResult$success
     application$url <- cloudDeployResult$url
-    if (!quiet) {
-      cli::cli_rule("Deployment complete")
-    }
   } else {
-    if (!quiet) {
-      cli::cli_rule("Deploying to server")
-    }
     task <- client$deployApplication(application, bundle$id)
     taskId <- if (is.null(task$task_id)) task$id else task$task_id
     # wait for the deployment to complete (will raise an error if it can't)
     response <- client$waitForTask(taskId, quiet)
-    if (!quiet) {
-      cli::cli_rule("Deployment complete")
-    }
+  }
+  if (!quiet) {
+    cli::cli_rule("Deployment complete")
   }
 
   # wait 1/10th of a second for any queued output get picked by RStudio

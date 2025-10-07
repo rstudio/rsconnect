@@ -13,9 +13,12 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 <!-- badges: end -->
 
 rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto
-documents, and Plumber APIs to [Posit
-Connect](https://posit.co/products/enterprise/connect/) and
+documents, and Plumber APIs<sup>*</sup> to [Posit
+Connect](https://posit.co/products/enterprise/connect/), [Posit Connect Cloud
+](https://connect.posit.cloud/), and
 [shinyapps.io](https://www.shinyapps.io/) from R.
+
+<sup>* Plumber APIs are only supported on Posit Connect.</sup>
 
 (If you’re looking for the Python equivalent, try
 [rsconnect-python](https://pypi.org/project/rsconnect-python/).)
@@ -46,17 +49,20 @@ is to use the publishing dialog, which you can find by clicking the
 
 You can also connect from any R session by running a little code:
 
-- For shinyapps.io, go to your [tokens
-  page](https://www.shinyapps.io/admin/#/tokens) and click “Add Token”,
-  then follow the instructions to copy and paste the appropriate call to
-  `setAccountInfo()`. Learn more in the [Getting Started
-  Guide](https://shiny.rstudio.com/articles/shinyapps.html).
-
 - For Posit Connect, first use `addServer()` to register your server
   with rsconnect, then call either `connectUser()` or
   `connectApiUser()`. `connectUser()` is a bit simpler if you’re in an
   interactive session; `connectApiUser()` works anywhere but requires a
   you to copy and paste an API key from your user profile.
+
+- For Posit Conect Cloud, call `connectCloudUser()` to authenticate through 
+  the browser.
+
+- For shinyapps.io, go to your [tokens
+  page](https://www.shinyapps.io/admin/#/tokens) and click “Add Token”,
+  then follow the instructions to copy and paste the appropriate call to
+  `setAccountInfo()`. Learn more in the [Getting Started
+  Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
 Now that you’re setup you can use `deployApp()`, `deployDoc()`, and
 friends to publish your apps, documentations, APIs and more.

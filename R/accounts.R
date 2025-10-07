@@ -168,6 +168,16 @@ filterPublishableAccounts <- function(accounts) {
   )
 }
 
+#' Register account on Posit Connect Cloud
+#
+#' @description
+#' `connectCloudUser()` connects your Posit Connect Cloud account to
+#' the rsconnect package so that it can deploy and manage applications on
+#' your behalf. It will open a browser window to authenticate, then prompt
+#' you to create an account or select an account to use if you have multiple.
+#'
+#' @family Account functions
+#' @export
 connectCloudUser <- function() {
   authClient <- cloudAuthClient()
   deviceAuth <- authClient$createDeviceAuth()
