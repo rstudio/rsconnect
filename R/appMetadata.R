@@ -165,11 +165,17 @@ inferAppMode <- function(
   hasShinyQmd <- any(sapply(qmdFiles, isShinyRmd))
 
   if (hasShinyQmd) {
-    return(list(appMode = "quarto-shiny", primaryFile = basename(qmdFiles[sapply(qmdFiles, isShinyRmd)][1])))
+    return(list(
+      appMode = "quarto-shiny",
+      primaryFile = basename(qmdFiles[sapply(qmdFiles, isShinyRmd)][1])
+    ))
   } else if (hasShinyRmd) {
     shinyRmdFile <- rmdFiles[sapply(rmdFiles, isShinyRmd)][1]
     if (usesQuarto) {
-      return(list(appMode = "quarto-shiny", primaryFile = basename(shinyRmdFile)))
+      return(list(
+        appMode = "quarto-shiny",
+        primaryFile = basename(shinyRmdFile)
+      ))
     } else {
       return(list(appMode = "rmd-shiny", primaryFile = basename(shinyRmdFile)))
     }
@@ -189,14 +195,23 @@ inferAppMode <- function(
     # Prefer qmd files over rmd files for primary file selection
     primaryDocFile <- if (length(qmdFiles) > 0) qmdFiles[1] else rmdFiles[1]
     if (usesQuarto) {
-      return(list(appMode = "quarto-static", primaryFile = basename(primaryDocFile)))
+      return(list(
+        appMode = "quarto-static",
+        primaryFile = basename(primaryDocFile)
+      ))
     } else {
       # For shinyapps.io, treat "rmd-static" app mode as "rmd-shiny" so that
       # it can be served from a shiny process in Connect
       if (isShinyappsServer) {
-        return(list(appMode = "rmd-shiny", primaryFile = basename(primaryDocFile)))
+        return(list(
+          appMode = "rmd-shiny",
+          primaryFile = basename(primaryDocFile)
+        ))
       }
-      return(list(appMode = "rmd-static", primaryFile = basename(primaryDocFile)))
+      return(list(
+        appMode = "rmd-static",
+        primaryFile = basename(primaryDocFile)
+      ))
     }
   }
 
@@ -215,7 +230,10 @@ inferAppMode <- function(
     "^(saved_model.pb|saved_model.pbtxt)$"
   )
   if (length(modelFiles) > 0) {
-    return(list(appMode = "tensorflow-saved-model", primaryFile = basename(modelFiles[1])))
+    return(list(
+      appMode = "tensorflow-saved-model",
+      primaryFile = basename(modelFiles[1])
+    ))
   }
 
   # no renderable content
