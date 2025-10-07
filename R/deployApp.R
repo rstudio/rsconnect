@@ -374,7 +374,11 @@ deployApp <- function(
 
   # Run checks prior to first saveDeployment() to avoid errors that will always
   # prevent a successful upload from generating a partial deployment
-  if (!isShinyappsServer(accountDetails$server) && identical(upload, FALSE)) {
+  if (
+    !isShinyappsServer(accountDetails$server) &&
+      !isPositConnectCloudServer(accountDetails$server) &&
+      identical(upload, FALSE)
+  ) {
     # it is not possible to deploy to Connect without uploading
     stop(
       "Posit Connect does not support deploying without uploading. ",
@@ -572,11 +576,6 @@ deployApp <- function(
       taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")
     }
 
-    if (isPositConnectCloudServer(accountDetails$server)) {
-      # redeploy current bundle
-      bundle <- application$deployment$bundle
-    }
-  } else {
     saveDeployment(
       recordPath,
       deployment = deployment,
@@ -584,6 +583,11 @@ deployApp <- function(
       bundleId = bundle$id,
       metadata = metadata
     )
+  } else {
+    # redeploy existing bundle
+    if (isShinyappsServer(accountDetails$server)) {
+      bundle <- application$deployment$bundle
+    }
   }
 
   if (isPositConnectCloudServer(accountDetails$server)) {
