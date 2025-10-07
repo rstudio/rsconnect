@@ -411,11 +411,15 @@ deployApp <- function(
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating application on server...")
     if (isPositConnectCloudServer(accountDetails$server)) {
+      # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
+      primaryFile <- appMetadata$appPrimaryDoc %||%
+        appMetadata$inferredPrimaryFile
       application <- client$createContent(
         deployment$name,
         deployment$title,
         accountDetails$accountId,
-        appMetadata$appMode
+        appMetadata$appMode,
+        primaryFile
       )
     } else {
       application <- client$createApplication(
@@ -494,10 +498,14 @@ deployApp <- function(
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
     taskStart(quiet, "Updating content...")
+    # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
+    primaryFile <- appMetadata$appPrimaryDoc %||%
+      appMetadata$inferredPrimaryFile
     updateResponse <- client$updateContent(
       application$id,
       deployment$envVars,
-      newBundle = upload
+      newBundle = upload,
+      primaryFile
     )
     taskComplete(quiet, "Content updated")
   } else {
@@ -722,11 +730,15 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
 
   accountDetails <- accountInfo(deployment$account, deployment$server)
   if (isPositConnectCloudServer(accountDetails$server)) {
+    # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
+    primaryFile <- appMetadata$appPrimaryDoc %||%
+      appMetadata$inferredPrimaryFile
     client$createContent(
       deployment$name,
       deployment$title,
       accountDetails$accountId,
-      appMetadata$appMode
+      appMetadata$appMode,
+      primaryFile
     )
   } else {
     client$createApplication(

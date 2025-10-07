@@ -72,19 +72,24 @@ connectCloudClient <- function(service, authInfo) {
       name,
       title,
       accountId,
-      appMode
+      appMode,
+      primaryFile
     ) {
       title <- if (nzchar(title)) title else name
       contentType <- cloudContentTypeFromAppMode(appMode)
+
+      # Build revision object, conditionally including primary_file
+      revision <- list(
+        source_type = "bundle",
+        content_type = contentType,
+        app_mode = appMode,
+        primary_file = primaryFile
+      )
+
       json <- list(
         account_id = accountId,
         title = title,
-        next_revision = list(
-          source_type = "bundle",
-          content_type = contentType,
-          app_mode = appMode,
-          primary_file = "app.R"
-        )
+        next_revision = revision
       )
 
       content <- withTokenRefreshRetry(
@@ -103,7 +108,12 @@ connectCloudClient <- function(service, authInfo) {
       withTokenRefreshRetry(GET, path)
     },
 
-    updateContent = function(contentId, envVars, newBundle = FALSE) {
+    updateContent = function(
+      contentId,
+      envVars,
+      newBundle = FALSE,
+      primaryFile
+    ) {
       path <- paste0("/contents/", contentId)
       if (newBundle) {
         path <- paste0(path, "?new_bundle=true")
@@ -120,7 +130,13 @@ connectCloudClient <- function(service, authInfo) {
         Sys.getenv(envVars)
       ))
 
-      json <- list(secrets = secrets)
+      json <- list(
+        secrets = secrets,
+        revision_overrides = list(
+          primary_file = primaryFile
+        )
+      )
+
       withTokenRefreshRetry(PATCH_JSON, path, json)
     },
 
