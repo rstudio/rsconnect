@@ -178,7 +178,16 @@ connectCloudClient <- function(service, authInfo) {
               error = response$publish_error_details
             ))
           }
-          return(list(success = TRUE, url = response$url, error = NULL))
+
+          contentUrl <- paste0(
+            connectCloudUrls()$ui,
+            '/',
+            authInfo$username,
+            '/content/',
+            response$content_id
+          )
+
+          return(list(success = TRUE, url = contentUrl, error = NULL))
         }
 
         Sys.sleep(1)

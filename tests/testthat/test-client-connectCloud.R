@@ -7,6 +7,7 @@ test_that("awaitCompletion", {
     res$set_status(200L)$send_json(
       list(
         id = I(req$params$id),
+        content_id = "content789",
         publish_result = "success",
         url = "https://example.posit.cloud/content/123",
         publish_error_details = NULL
@@ -22,14 +23,18 @@ test_that("awaitCompletion", {
     private_key = NULL,
     apiKey = "the-api-key",
     protocol = "https",
-    certificate = NULL
+    certificate = NULL,
+    username = "some-user"
   )
   client <- connectCloudClient(service, authInfo)
 
   # test successful completion
   result <- client$awaitCompletion("rev123")
   expect_true(result$success)
-  expect_equal(result$url, "https://example.posit.cloud/content/123")
+  expect_equal(
+    result$url,
+    "https://staging.connect.posit.cloud/some-user/content/content789"
+  )
   expect_null(result$error)
 })
 
@@ -42,6 +47,7 @@ test_that("awaitCompletion handles failure", {
     res$set_status(200L)$send_json(
       list(
         id = I(req$params$id),
+        content_id = "content789",
         publish_result = "failure",
         url = NULL,
         publish_error_details = "Deployment failed due to missing dependencies"
