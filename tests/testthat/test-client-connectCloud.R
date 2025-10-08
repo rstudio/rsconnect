@@ -33,7 +33,7 @@ test_that("awaitCompletion", {
   expect_true(result$success)
   expect_equal(
     result$url,
-    "https://staging.connect.posit.cloud/some-user/content/content789"
+    "https://connect.posit.cloud/some-user/content/content789"
   )
   expect_null(result$error)
 })
