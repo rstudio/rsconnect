@@ -17,9 +17,11 @@
 
 * Removed support for publishing to Posit Cloud. (#1215)
 
-  Existing Posit Cloud account records may be removed by using `rsconnect::removeAccount("yourname", "posit.cloud")`.
+  Existing Posit Cloud account records may be removed by using `removeAccount("yourname", "posit.cloud")`.
 
 * Removed the Posit Cloud-exclusive `space` argument from `deployApp()`. (#1215)
+
+* Added support for deploying to Posit Connect Cloud. Connect Cloud credentials may be added using `connectCloudUser()`.
 
 # rsconnect 1.5.1
 
