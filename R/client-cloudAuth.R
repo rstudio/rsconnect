@@ -1,5 +1,3 @@
-# Map rsconnect appMode to Connect Cloud contentType
-
 getClientId <- function() {
   switch(
     connectCloudEnvironment(),
