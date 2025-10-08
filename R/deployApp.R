@@ -558,7 +558,7 @@ deployApp <- function(
       uploadUrl <- updateResponse$next_revision$source_bundle_upload_url
       success <- client$uploadBundle(bundlePath, uploadUrl)
       if (!success) {
-        stop("Could not upload bundle.")
+        cli::cli_abort("Could not upload bundle.")
       }
       bundle <- NULL # PCC doesn't use bundle objects like other servers
     } else if (isShinyappsServer(accountDetails$server)) {
