@@ -176,17 +176,33 @@ filterPublishableAccounts <- function(accounts) {
 #' your behalf. It will open a browser window to authenticate, then prompt
 #' you to create an account or select an account to use if you have multiple.
 #'
+#' @param launch.browser If true, the system's default web browser will be
+#'   launched automatically after the app is started. Defaults to `TRUE` in
+#'   interactive sessions only. If a function is passed, it will be called
+#'   after the app is started, with the app URL as a parameter.
+#'
 #' @family Account functions
 #' @export
-connectCloudUser <- function() {
+connectCloudUser <- function(launch.browser = TRUE) {
   authClient <- cloudAuthClient()
   deviceAuth <- authClient$createDeviceAuth()
 
   # Alert user and open browser for verification
-  cli::cli_alert_info(
-    "Opening login page. When requested, please enter the code {deviceAuth$user_code}."
-  )
-  utils::browseURL(deviceAuth$verification_uri_complete)
+  if (isTRUE(launch.browser)) {
+    cli::cli_alert_info(
+      "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
+    )
+    utils::browseURL(deviceAuth$verification_uri_complete)
+  } else if (is.function(launch.browser)) {
+    cli::cli_alert_info(
+      "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
+    )
+    launch.browser(deviceAuth$verification_uri_complete)
+  } else {
+    cli::cli_alert_info(
+      "Open {.url {deviceAuth$verification_uri_complete}} to authenticate and confirm the code entered matches the code: {deviceAuth$user_code}."
+    )
+  }
 
   pollingInterval <- deviceAuth$interval
   while (TRUE) {
@@ -244,10 +260,22 @@ connectCloudUser <- function() {
   cloudUiUrl <- connectCloudUrls()$ui
   if (length(accountsWhereUserCanPublish) == 0) {
     if (length(accounts) == 0) {
-      cli::cli_alert_info(
-        "To deploy, you must finish creating an account. Opening account creation page..."
-      )
-      utils::browseURL(paste0(cloudUiUrl, "/account/done"))
+      accountCreationPage <- paste0(cloudUiUrl, "/account/done")
+      if (isTRUE(launch.browser)) {
+        cli::cli_alert_info(
+          "To deploy, you must first create an account. Opening account creation page..."
+        )
+        utils::browseURL(accountCreationPage)
+      } else if (is.function(launch.browser)) {
+        cli::cli_alert_info(
+          "To deploy, you must first create an account. Opening account creation page..."
+        )
+        launch.browser(accountCreationPage)
+      } else {
+        cli::cli_alert_info(
+          "To deploy, you must first create an account. Please go to {.url accountCreationPage} to create one."
+        )
+      }
       tries <- 0
       # poll for account for up to 10 minutes
       while (tries < 300) {
