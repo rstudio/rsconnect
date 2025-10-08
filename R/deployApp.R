@@ -376,8 +376,7 @@ deployApp <- function(
   # Run checks prior to first saveDeployment() to avoid errors that will always
   # prevent a successful upload from generating a partial deployment
   if (
-    !isShinyappsServer(accountDetails$server) &&
-      !isPositConnectCloudServer(accountDetails$server) &&
+    isConnectServer(accountDetails$server) &&
       identical(upload, FALSE)
   ) {
     # it is not possible to deploy to Connect without uploading
