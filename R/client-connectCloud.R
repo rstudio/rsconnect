@@ -181,9 +181,9 @@ connectCloudClient <- function(service, authInfo) {
 
           contentUrl <- paste0(
             connectCloudUrls()$ui,
-            '/',
+            "/",
             authInfo$username,
-            '/content/',
+            "/content/",
             response$content_id
           )
 
