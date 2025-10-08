@@ -224,23 +224,36 @@ connectCloudUser <- function() {
     list(accessToken = accessToken, refreshToken = refreshToken)
   )
 
-  accountsResponse <- client$getAccounts()
-  accounts <- accountsResponse$data
+  getAccounts <- function() {
+    accountsResponse <- tryCatch(
+      {
+        response <- client$getAccounts()
+        response$data
+      },
+      rsconnect_http_401 = function(err) {
+        if (err$errorType == "no_user_for_lucid_user") {
+          return(list())
+        }
+        stop(err)
+      }
+    )
+  }
 
+  accounts <- getAccounts()
   accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
-
   cloudUiUrl <- connectCloudUrls()$ui
   if (length(accountsWhereUserCanPublish) == 0) {
     if (length(accounts) == 0) {
       cli::cli_alert_info(
         "To deploy, you must finish creating an account. Opening account creation page..."
       )
-      utils::browseURL(cloudUiUrl)
-      while (TRUE) {
+      utils::browseURL(paste0(cloudUiUrl, "/account/done"))
+      tries <- 0
+      # poll for account for up to 10 minutes
+      while (tries < 300) {
         Sys.sleep(2)
-        accountsResponse <- client$getAccounts()
-        if (length(accountsResponse$data) > 0) {
-          accounts <- accountsResponse$data
+        accounts <- getAccounts()
+        if (length(accounts) > 0) {
           accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
           if (length(accountsWhereUserCanPublish) > 0) {
             break
