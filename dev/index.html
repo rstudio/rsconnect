@@ -70,7 +70,7 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto documents, and Plumber APIs to <a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a>, <a href="https://www.shinyapps.io/" class="external-link">ShinyApps.io</a>, and <a href="https://posit.cloud/" class="external-link">Posit Cloud</a> from R.</p>
+<p>rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto documents, and Plumber APIs to <a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a> and <a href="https://www.shinyapps.io/" class="external-link">shinyapps.io</a> from R.</p>
 <p>(If you’re looking for the Python equivalent, try <a href="https://pypi.org/project/rsconnect-python/" class="external-link">rsconnect-python</a>.)</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -91,7 +91,6 @@
 <ul>
 <li><p>For shinyapps.io, go to your <a href="https://www.shinyapps.io/admin/#/tokens" class="external-link">tokens page</a> and click “Add Token”, then follow the instructions to copy and paste the appropriate call to <code><a href="reference/setAccountInfo.html">setAccountInfo()</a></code>. Learn more in the <a href="https://shiny.rstudio.com/articles/shinyapps.html" class="external-link">Getting Started Guide</a>.</p></li>
 <li><p>For Posit Connect, first use <code><a href="reference/addServer.html">addServer()</a></code> to register your server with rsconnect, then call either <code><a href="reference/connectApiUser.html">connectUser()</a></code> or <code><a href="reference/connectApiUser.html">connectApiUser()</a></code>. <code><a href="reference/connectApiUser.html">connectUser()</a></code> is a bit simpler if you’re in an interactive session; <code><a href="reference/connectApiUser.html">connectApiUser()</a></code> works anywhere but requires a you to copy and paste an API key from your user profile.</p></li>
-<li><p>For Posit Cloud, login, then click your name in the top-right corner, click “Account”, then click “Tokens” in the navbar at the top of the page. Click “New Token”, then “Copy” next to the token you just created, and then follow the instructions to copy and paste the appropriate call to <code><a href="reference/setAccountInfo.html">setAccountInfo()</a></code>.</p></li>
 </ul>
 <p>Now that you’re setup you can use <code><a href="reference/deployApp.html">deployApp()</a></code>, <code><a href="reference/deployDoc.html">deployDoc()</a></code>, and friends to publish your apps, documentations, APIs and more.</p>
 </div>

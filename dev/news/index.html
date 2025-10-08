@@ -43,6 +43,11 @@
 <li><p>The target Python binary is included in Python environment inspection errors. (<a href="https://github.com/rstudio/rsconnect/issues/1207" class="external-link">#1207</a>)</p></li>
 <li><p>Improve cookie expiration date handling. (<a href="https://github.com/rstudio/rsconnect/issues/1212" class="external-link">#1212</a>)</p></li>
 <li><p>Improve documentation and advice for <code>deployApp(envVars...)</code>.</p></li>
+<li>
+<p>Removed support for publishing to Posit Cloud. (<a href="https://github.com/rstudio/rsconnect/issues/1215" class="external-link">#1215</a>)</p>
+<p>Existing Posit Cloud account records may be removed by using <code>rsconnect::removeAccount("yourname", "posit.cloud")</code>.</p>
+</li>
+<li><p>Removed the Posit Cloud-exclusive <code>space</code> argument from <code><a href="../reference/deployApp.html">deployApp()</a></code>. (<a href="https://github.com/rstudio/rsconnect/issues/1215" class="external-link">#1215</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.1" id="rsconnect-151">rsconnect 1.5.1<a class="anchor" aria-label="anchor" href="#rsconnect-151"></a></h2><p class="text-muted">CRAN release: 2025-08-28</p>
