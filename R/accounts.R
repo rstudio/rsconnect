@@ -303,10 +303,12 @@ connectCloudUser <- function(launch.browser = TRUE) {
       function(account) account$name,
       character(1)
     )
-    selected <- utils::menu(accountNames, title = "Select an account to use:")
-    if (selected == 0) {
-      cli::cli_abort("No account selected.")
-    }
+    # selected <- utils::menu(accountNames, title = "Select an account to use:")
+    selected <- cli_menu(
+      "Multiple accounts found.",
+      "Which account do you want to use?",
+      accountNames
+    )
     account <- accountsWhereUserCanPublish[[selected]]
   } else {
     account <- accountsWhereUserCanPublish[[1]]
@@ -320,7 +322,7 @@ connectCloudUser <- function(launch.browser = TRUE) {
     refreshToken = refreshToken
   )
 
-  cli::cli_alert_success("Registered account")
+  cli::cli_alert_success("Registered account.")
 }
 
 
