@@ -205,34 +205,7 @@ connectCloudUser <- function(launch.browser = TRUE) {
     )
   }
 
-  pollingInterval <- deviceAuth$interval
-  while (TRUE) {
-    Sys.sleep(pollingInterval)
-    tokenResponse <- tryCatch(
-      authClient$exchangeToken(list(
-        grant_type = 'urn:ietf:params:oauth:grant-type:device_code',
-        device_code = deviceAuth$device_code
-      )),
-      rsconnect_http_400 = function(err) {
-        errorCode <- err$body
-        if (errorCode == "authorization_pending") {
-          return(NULL)
-        } else if (errorCode == "slow_down") {
-          pollingInterval <<- pollingInterval + 5
-          return(NULL)
-        } else if (errorCode == "expired_token") {
-          cli::cli_abort("Verification code has expired.")
-        } else if (errorCode == "access_denied") {
-          cli::cli_abort("Authorization request was denied.")
-        }
-        cli::cli_abort("Error during authentication: {error_code}")
-      }
-    )
-    if (!is.null(tokenResponse)) {
-      break
-    }
-  }
-
+  tokenResponse <- waitForDeviceAuth(authClient, deviceAuth)
   accessToken <- tokenResponse$access_token
   refreshToken <- tokenResponse$refresh_token
 
@@ -324,6 +297,38 @@ connectCloudUser <- function(launch.browser = TRUE) {
   )
 
   cli::cli_alert_success("Registered account.")
+}
+
+# Poll the server until the user has completed device authentication, returning
+# the token response once finished.
+waitForDeviceAuth <- function(authClient, deviceAuth) {
+  pollingInterval <- deviceAuth$interval
+  while (TRUE) {
+    Sys.sleep(pollingInterval)
+    tokenResponse <- tryCatch(
+      authClient$exchangeToken(list(
+        grant_type = 'urn:ietf:params:oauth:grant-type:device_code',
+        device_code = deviceAuth$device_code
+      )),
+      rsconnect_http_400 = function(err) {
+        errorCode <- err$body
+        if (errorCode == "authorization_pending") {
+          return(NULL)
+        } else if (errorCode == "slow_down") {
+          pollingInterval <<- pollingInterval + 5
+          return(NULL)
+        } else if (errorCode == "expired_token") {
+          cli::cli_abort("Verification code has expired.")
+        } else if (errorCode == "access_denied") {
+          cli::cli_abort("Authorization request was denied.")
+        }
+        cli::cli_abort("Error during authentication: {error_code}")
+      }
+    )
+    if (!is.null(tokenResponse)) {
+      return(tokenResponse)
+    }
+  }
 }
 
 
