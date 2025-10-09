@@ -190,7 +190,7 @@ connectCloudClient <- function(service, authInfo) {
         building = "Installing dependencies...",
         rendering = "Rendering...",
         publishing = "Publishing content...",
-        published = "Published."
+        published = "Finished."
       )
 
       lastStatus <- NULL
@@ -213,6 +213,75 @@ connectCloudClient <- function(service, authInfo) {
 
         if (!is.null(revision$publish_result)) {
           if (revision$publish_result == "failure") {
+            # Try to retrieve logs if log channel is available
+            if (!is.null(revision$publish_log_channel)) {
+              tryCatch(
+                {
+                  # Get authorization token for the log channel
+                  authToken <- withTokenRefreshRetry(
+                    function(service, authInfo, path, json) {
+                      response <- POST_JSON(service, authInfo, path, json)
+                      response$token
+                    },
+                    "/authorization",
+                    list(
+                      resource_type = "log_channel",
+                      resource_id = revision$publish_log_channel,
+                      permission = "revision.logs:read"
+                    )
+                  )
+
+                  # Create logs client and fetch logs
+                  logsClient <- connectCloudLogsClient()
+                  logs <- logsClient$getLogs(
+                    revision$publish_log_channel,
+                    authToken
+                  )
+
+                  # Print logs to stderr
+                  if (!is.null(logs) && !is.null(logs$data)) {
+                    cli::cat_rule(
+                      "Begin Publishing Log",
+                      line = "#",
+                      file = stderr()
+                    )
+                    for (log_entry in logs$data) {
+                      local_timestamp <- as.POSIXct(
+                        # Convert to seconds
+                        log_entry$timestamp / 1e6
+                      )
+                      # Format with millisecond precision
+                      formatted_timestamp <- format(
+                        local_timestamp,
+                        "%Y-%m-%d %H:%M:%OS3"
+                      )
+                      cat(
+                        sprintf(
+                          "[%s] %s: %s\n",
+                          formatted_timestamp,
+                          toupper(log_entry$level),
+                          log_entry$message
+                        ),
+                        file = stderr()
+                      )
+                    }
+                    cli::cat_rule(
+                      "End Publishing Log",
+                      line = "#",
+                      file = stderr()
+                    )
+                  }
+                },
+                error = function(e) {
+                  # If log retrieval fails, continue without logs
+                  # Don't fail the entire operation just because logs couldn't be retrieved
+                  cli::cli_alert_warning(
+                    "Failed to retrieve logs: {e$message}"
+                  )
+                }
+              )
+            }
+
             return(list(
               success = FALSE,
               url = NULL,
@@ -233,6 +302,23 @@ connectCloudClient <- function(service, authInfo) {
 
         Sys.sleep(1)
       }
+    },
+
+    getAuthorization = function(logChannel) {
+      json <- list(
+        resource_type = "log_channel",
+        resource_id = logChannel,
+        permission = "revision.logs:read"
+      )
+
+      response <- withTokenRefreshRetry(
+        POST_JSON,
+        "/authorization",
+        json
+      )
+
+      # Return the token from the response
+      response$token
     },
 
     getAccounts = function(revisionId) {

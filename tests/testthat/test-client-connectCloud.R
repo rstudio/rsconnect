@@ -76,6 +76,127 @@ test_that("awaitCompletion handles failure", {
   expect_equal(result$error, "Deployment failed due to missing dependencies")
 })
 
+test_that("awaitCompletion handles failure with logs", {
+  skip_if_not_installed("webfakes")
+
+  # Mock revision API that returns failure with log channel
+  cloudApiApp <- webfakes::new_app()
+  cloudApiApp$use(webfakes::mw_json())
+  cloudApiApp$get("/revisions/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = I(req$params$id),
+        content_id = "content789",
+        publish_result = "failure",
+        status = "published",
+        url = NULL,
+        publish_error_details = "Deployment failed due to missing dependencies",
+        publish_log_channel = "log-channel-123"
+      ),
+      auto_unbox = TRUE
+    )
+  })
+
+  # Mock authorization API
+  cloudApiApp$post("/authorization", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        authorized = TRUE,
+        token = "auth-token-xyz"
+      ),
+      auto_unbox = TRUE
+    )
+  })
+
+  # Mock logs API
+  logs_app <- webfakes::new_app()
+  logs_app$use(webfakes::mw_json())
+  logs_app$get("/v1/logs/:channel", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        data = list(
+          list(
+            timestamp = 1234567890 * 1000000,
+            message = "Starting deployment...",
+            level = "info"
+          ),
+          list(
+            timestamp = 1234567891 * 1000000,
+            message = "Your app is busted!!",
+            level = "error"
+          )
+        )
+      ),
+      auto_unbox = TRUE
+    )
+  })
+
+  # Start the main app and logs app
+  app <- webfakes::new_app_process(cloudApiApp)
+  logs_app_process <- webfakes::new_app_process(logs_app)
+
+  service <- parseHttpUrl(app$url())
+  authInfo <- list(
+    secret = NULL,
+    private_key = NULL,
+    apiKey = "the-api-key",
+    protocol = "https",
+    certificate = NULL
+  )
+
+  # Mock connectCloudUrls to point to our test logs server
+  mockery::stub(connectCloudClient, "connectCloudUrls", function() {
+    list(logs = logs_app_process$url())
+  })
+
+  # Mock connectCloudLogsClient to match the actual implementation
+  mockery::stub(connectCloudClient, "connectCloudLogsClient", function() {
+    list(
+      getLogs = function(logChannel, authToken) {
+        logsUrl <- logs_app_process$url()
+        service <- parseHttpUrl(paste0(logsUrl, "/v1"))
+
+        authInfo <- list(
+          accessToken = authToken
+        )
+
+        path <- paste0(
+          "/logs/",
+          logChannel,
+          "?traversal_direction=backward&limit=1500"
+        )
+        response <- GET(service, authInfo, path)
+        response
+      }
+    )
+  })
+
+  client <- connectCloudClient(service, authInfo)
+
+  # Test failure case with logs - capture stderr output
+  stderr_output <- capture.output(
+    {
+      result <- client$awaitCompletion("rev456")
+    },
+    type = "message"
+  )
+
+  # Check the result object
+  expect_false(result$success)
+  expect_null(result$url)
+  expect_equal(result$error, "Deployment failed due to missing dependencies")
+
+  # Check that logs were printed to stderr
+  stderr_text <- paste(stderr_output, collapse = "\n")
+
+  expect_true(grepl("Begin Publishing Log", stderr_text))
+  expect_true(grepl("End Publishing Log", stderr_text))
+  expect_true(grepl("Starting deployment...", stderr_text))
+  expect_true(grepl("Your app is busted!!", stderr_text))
+  expect_true(grepl("INFO:", stderr_text))
+  expect_true(grepl("ERROR:", stderr_text))
+})
+
 test_that("withTokenRefreshRetry passes through successful requests", {
   skip_if_not_installed("webfakes")
 
