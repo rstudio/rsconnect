@@ -101,7 +101,7 @@ for re-deploying apps created by someone else.
 You can find the \code{appId} in the following places:
 \itemize{
 \item For Posit Connect, it's \code{guid} from the info tab on the content page.
-\item For Posit Connect Cloud, it can be found in the content admin page's URL (https://connect.posit.cloud/{accountName}/content/{appId}).
+\item For Posit Connect Cloud, it can be found in the content admin page's URL \verb{https://connect.posit.cloud/\{accountName\}/content/\{appId\}}).
 \item On shinyapps.io, it's the \code{id} listed on the applications page.
 }}
 

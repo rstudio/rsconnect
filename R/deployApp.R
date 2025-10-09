@@ -80,7 +80,7 @@
 #'
 #'   You can find the `appId` in the following places:
 #'   * For Posit Connect, it's `guid` from the info tab on the content page.
-#'   * For Posit Connect Cloud, it can be found in the content admin page's URL (https://connect.posit.cloud/{accountName}/content/{appId}).
+#'   * For Posit Connect Cloud, it can be found in the content admin page's URL `https://connect.posit.cloud/{accountName}/content/{appId}`).
 #'   * On shinyapps.io, it's the `id` listed on the applications page.
 #' @param appMode Optional; the type of content being deployed.
 #'   Provide this option when the inferred type of content is incorrect. This
