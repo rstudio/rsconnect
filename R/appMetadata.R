@@ -174,8 +174,6 @@ inferAppMode <- function(
 
   hasShinyRmd <- length(shinyRmdFiles) > 0
   hasShinyQmd <- length(shinyQmdFiles) > 0
-  print(shinyRmdFiles)
-  print(shinyQmdFiles)
 
   if (hasShinyQmd) {
     return(list(
