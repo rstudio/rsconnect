@@ -171,16 +171,52 @@ connectCloudClient <- function(service, authInfo) {
     # Polls the revision until the publish process completes, returning whether
     # the publish request succeeded and the error message if it failed.
     awaitCompletion = function(revisionId) {
+      possibleStates <- c(
+        "publish_deferred",
+        "publish_requested",
+        "publish_started",
+        "fetching",
+        "building",
+        "rendering",
+        "publishing",
+        "published"
+      )
+
+      stateMessages <- list(
+        publish_deferred = "Content is currently publishing; your request will start soon.",
+        publish_requested = "Publish requested; waiting to start...",
+        publish_started = "Publish started.",
+        fetching = "Retrieving code...",
+        building = "Installing dependencies...",
+        rendering = "Rendering...",
+        publishing = "Publishing content...",
+        published = "Published."
+      )
+
+      lastStatus <- NULL
       repeat {
         path <- paste0("/revisions/", revisionId)
-        response <- withTokenRefreshRetry(GET, path)
+        revision <- withTokenRefreshRetry(GET, path)
 
-        if (!is.null(response$publish_result)) {
-          if (response$publish_result == "failure") {
+        newStatus <- revision$status
+        lastStatusIndex <- if (is.null(lastStatus)) {
+          -1
+        } else {
+          match(lastStatus, possibleStates)
+        }
+        newStatusIndex <- match(newStatus, possibleStates)
+
+        if (newStatusIndex > lastStatusIndex) {
+          cli::cli_alert_info(stateMessages[[newStatus]])
+          lastStatus <- newStatus
+        }
+
+        if (!is.null(revision$publish_result)) {
+          if (revision$publish_result == "failure") {
             return(list(
               success = FALSE,
               url = NULL,
-              error = response$publish_error_details
+              error = revision$publish_error_details
             ))
           }
 
@@ -189,7 +225,7 @@ connectCloudClient <- function(service, authInfo) {
             "/",
             authInfo$username,
             "/content/",
-            response$content_id
+            revision$content_id
           )
 
           return(list(success = TRUE, url = contentUrl, error = NULL))

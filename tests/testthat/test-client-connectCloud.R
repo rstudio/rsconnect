@@ -9,6 +9,7 @@ test_that("awaitCompletion", {
         id = I(req$params$id),
         content_id = "content789",
         publish_result = "success",
+        status = "published",
         url = "https://example.posit.cloud/content/123",
         publish_error_details = NULL
       ),
@@ -49,6 +50,7 @@ test_that("awaitCompletion handles failure", {
         id = I(req$params$id),
         content_id = "content789",
         publish_result = "failure",
+        status = "published",
         url = NULL,
         publish_error_details = "Deployment failed due to missing dependencies"
       ),
