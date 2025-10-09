@@ -243,7 +243,10 @@ inferAppMode <- function(
   if (length(modelFiles) > 0) {
     return(list(
       appMode = "tensorflow-saved-model",
-      primaryFile = basename(modelFiles[1])
+      # TODO: primaryFile is only required for Connect Cloud, but Connect Cloud
+      # doesn't support TensorFlow yet. More work needed here to be able to
+      #  support this.
+      NULL
     ))
   }
 
