@@ -153,6 +153,7 @@ connectUser <- function(
   invisible()
 }
 
+# Filter accounts to those where the user has permission to create (i.e. publish) content.
 filterPublishableAccounts <- function(accounts) {
   Filter(
     function(account) {

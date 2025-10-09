@@ -94,6 +94,8 @@ shinyappsServerInfo <- function(name, url) {
   )
 }
 
+# Determine which Posit Connect Cloud environment to use. Valid values are
+# development, staging, and production.
 connectCloudEnvironment <- function() {
   getOption(
     "rsconnect.connect_cloud_environment",
@@ -101,6 +103,7 @@ connectCloudEnvironment <- function() {
   )
 }
 
+# Returns various base URLs based on the configured Connect Cloud environment.
 connectCloudUrls <- function() {
   switch(
     connectCloudEnvironment(),
@@ -122,6 +125,7 @@ connectCloudUrls <- function() {
   )
 }
 
+# Returns metadata about the Posit Connect Cloud API server.
 connectCloudServerInfo <- function(name, url) {
   list(
     name = name,

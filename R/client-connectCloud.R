@@ -20,8 +20,11 @@ cloudContentTypeFromAppMode <- function(appMode) {
   )
 }
 
+# Creates a client for interacting with the Connect Cloud API.
 connectCloudClient <- function(service, authInfo) {
-  # Generic retry wrapper that handles token refresh on 401 responses
+  # Generic retry wrapper. If a request fails with 401 Unauthorized, it will
+  # exchange the refresh token for a new access token and retry the request
+  # once.
   withTokenRefreshRetry <- function(request_fn, ...) {
     tryCatch(
       {
@@ -165,6 +168,8 @@ connectCloudClient <- function(service, authInfo) {
       withTokenRefreshRetry(POST_JSON, path, list())
     },
 
+    # Polls the revision until the publish process completes, returning whether
+    # the publish request succeeded and the error message if it failed.
     awaitCompletion = function(revisionId) {
       repeat {
         path <- paste0("/revisions/", revisionId)

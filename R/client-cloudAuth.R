@@ -1,3 +1,4 @@
+# Returns the OAuth client ID to use for the configured Connect Cloud environment.
 getClientId <- function() {
   switch(
     connectCloudEnvironment(),
@@ -7,6 +8,7 @@ getClientId <- function() {
   )
 }
 
+# Creates a client for interacting with the Cloud Auth API.
 cloudAuthClient <- function() {
   service <- parseHttpUrl(connectCloudUrls()$auth)
   authInfo <- list()
