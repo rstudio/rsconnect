@@ -61,8 +61,8 @@ registerUserToken <- function(
     accountId = userId,
     token = token,
     private_key = privateKey,
-    access_token = accessToken,
-    refresh_token = refreshToken
+    accessToken = accessToken,
+    refreshToken = refreshToken
   )
 }
 
