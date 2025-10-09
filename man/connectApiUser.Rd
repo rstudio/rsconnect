@@ -42,6 +42,7 @@ API key from your account settings.
 \seealso{
 Other Account functions: 
 \code{\link{accounts}()},
+\code{\link{connectCloudUser}()},
 \code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

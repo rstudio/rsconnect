@@ -100,8 +100,9 @@ for re-deploying apps created by someone else.
 
 You can find the \code{appId} in the following places:
 \itemize{
-\item On shinyapps.io, it's the \code{id} listed on the applications page.
 \item For Posit Connect, it's \code{guid} from the info tab on the content page.
+\item For Posit Connect Cloud, it can be found in the content admin page's URL (https://connect.posit.cloud/{accountName}/content/{appId}).
+\item On shinyapps.io, it's the \code{id} listed on the applications page.
 }}
 
 \item{appMode}{Optional; the type of content being deployed.
@@ -124,7 +125,7 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 \item{upload}{If \code{TRUE} (the default) then the application is uploaded from
 the local system prior to deployment. If \code{FALSE} then it is re-deployed
 using the last version that was uploaded. \code{FALSE} is only supported on
-shinyapps.io; \code{TRUE} is required on Posit Connect.}
+Posit Connect Cloud and shinyapps.io; \code{TRUE} is required on Posit Connect.}
 
 \item{recordDir}{Directory where deployment record is written. The default,
 \code{NULL}, uses \code{appDir}, since this is usually where you want the deployment

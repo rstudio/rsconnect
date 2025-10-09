@@ -38,6 +38,7 @@ previously registered accounts.
 \seealso{
 Other Account functions: 
 \code{\link{connectApiUser}()},
+\code{\link{connectCloudUser}()},
 \code{\link{setAccountInfo}()}
 }
 \concept{Account functions}
