@@ -195,7 +195,7 @@ connectCloudClient <- function(service, authInfo) {
         building = "Installing dependencies...",
         rendering = "Rendering...",
         publishing = "Publishing content...",
-        published = "Finished."
+        published = "Done."
       )
 
       lastStatus <- NULL
