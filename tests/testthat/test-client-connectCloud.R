@@ -120,26 +120,28 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
     }
   }
 
-  # Mock cloudAuthClient
-  mockery::stub(connectCloudClient, "cloudAuthClient", function() {
-    list(
-      exchangeToken = function(request) {
-        expect_equal(request$grant_type, "refresh_token")
-        expect_equal(request$refresh_token, "refresh-token")
-        list(
-          access_token = "new-access-token",
-          refresh_token = "new-refresh-token"
-        )
-      }
-    )
-  })
-
-  # Mock registerAccount
+  # Mock cloudAuthClient and registerAccount
   register_called <- FALSE
-  mockery::stub(
-    connectCloudClient,
-    "registerAccount",
-    function(server, name, accountId, accessToken, refreshToken) {
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        exchangeToken = function(request) {
+          expect_equal(request$grant_type, "refresh_token")
+          expect_equal(request$refresh_token, "refresh-token")
+          list(
+            access_token = "new-access-token",
+            refresh_token = "new-refresh-token"
+          )
+        }
+      )
+    },
+    registerAccount = function(
+      server,
+      name,
+      accountId,
+      accessToken,
+      refreshToken
+    ) {
       register_called <<- TRUE
       expect_equal(server, "connect.posit.cloud")
       expect_equal(name, "test-user")
