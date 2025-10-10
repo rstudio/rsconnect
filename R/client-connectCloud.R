@@ -212,6 +212,8 @@ connectCloudClient <- function(service, authInfo) {
         newStatusIndex <- match(newStatus, possibleStates)
 
         if (newStatusIndex > lastStatusIndex) {
+          # Note: since we poll every second, it's possible to skip states in
+          # the output here
           cli::cli_alert_info(stateMessages[[newStatus]])
           lastStatus <- newStatus
         }
