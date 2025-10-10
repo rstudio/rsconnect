@@ -164,11 +164,11 @@ inferAppMode <- function(
   shinyRmdFiles <- NULL
   if (length(rmdFiles) > 0) {
     shinyRmdFiles <- rmdFiles[sapply(rmdFiles, isShinyRmd)]
-  } 
+  }
   shinyQmdFiles <- NULL
   if (length(qmdFiles) > 0) {
     shinyQmdFiles <- qmdFiles[sapply(qmdFiles, isShinyRmd)]
-  } 
+  }
 
   hasShinyRmd <- length(shinyRmdFiles) > 0
   hasShinyQmd <- length(shinyQmdFiles) > 0
