@@ -596,9 +596,9 @@ deployApp <- function(
   if (isPositConnectCloudServer(accountDetails$server)) {
     client$publish(application$id)
     revisionId <- updateResponse$next_revision$id
-    cloudDeployResult <- client$awaitCompletion(revisionId)
-    deploymentSucceeded <- cloudDeployResult$success
-    application$url <- cloudDeployResult$url
+    response <- client$awaitCompletion(revisionId)
+    deploymentSucceeded <- response$success
+    application$url <- response$url
   } else {
     task <- client$deployApplication(application, bundle$id)
     taskId <- if (is.null(task$task_id)) task$id else task$task_id
@@ -622,13 +622,7 @@ deployApp <- function(
         "Successfully deployed to {.url {application$url}}"
       )
     } else {
-      if (isPositConnectCloudServer(accountDetails$server)) {
-        cli::cli_alert_danger(
-          "Deployment failed with error: {cloudDeployResult$error}"
-        )
-      } else {
-        cli::cli_alert_danger("Deployment failed with error: {response$error}")
-      }
+      cli::cli_alert_danger("Deployment failed with error: {response$error}")
     }
   }
 
