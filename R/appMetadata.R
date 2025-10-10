@@ -161,15 +161,13 @@ inferAppMode <- function(
   }
 
   # Documents with "server: shiny" in their YAML front matter need shiny too
-  shinyRmdFiles <- if (length(rmdFiles) > 0) {
-    rmdFiles[sapply(rmdFiles, isShinyRmd)]
-  } else {
-    NULL
+  shinyRmdFiles <- NULL
+  if (length(rmdFiles) > 0) {
+    shinyRmdFiles <- rmdFiles[sapply(rmdFiles, isShinyRmd)]
   }
-  shinyQmdFiles <- if (length(qmdFiles) > 0) {
-    qmdFiles[sapply(qmdFiles, isShinyRmd)]
-  } else {
-    NULL
+  shinyQmdFiles <- NULL
+  if (length(qmdFiles) > 0) {
+    shinyQmdFiles <- qmdFiles[sapply(qmdFiles, isShinyRmd)]
   }
 
   hasShinyRmd <- length(shinyRmdFiles) > 0

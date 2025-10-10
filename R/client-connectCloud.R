@@ -16,7 +16,12 @@ cloudContentTypeFromAppMode <- function(appMode) {
     "rmd-static" = "rmarkdown",
     "rmd-shiny" = "rmarkdown",
     "static" = "static",
-    stop("appMode '", appMode, "' is not supported by Connect Cloud")
+    stop(
+      "appMode '",
+      appMode,
+      "' is not supported by Connect Cloud",
+      call. = FALSE
+    )
   )
 }
 
