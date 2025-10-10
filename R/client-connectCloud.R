@@ -225,17 +225,8 @@ connectCloudClient <- function(service, authInfo) {
               tryCatch(
                 {
                   # Get authorization token for the log channel
-                  authToken <- withTokenRefreshRetry(
-                    function(service, authInfo, path, json) {
-                      response <- POST_JSON(service, authInfo, path, json)
-                      response$token
-                    },
-                    "/authorization",
-                    list(
-                      resource_type = "log_channel",
-                      resource_id = revision$publish_log_channel,
-                      permission = "revision.logs:read"
-                    )
+                  authToken <- self$getAuthorization(
+                    revision$publish_log_channel
                   )
 
                   # Create logs client and fetch logs
