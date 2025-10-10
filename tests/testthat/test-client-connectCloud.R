@@ -144,32 +144,32 @@ test_that("awaitCompletion handles failure with logs", {
     certificate = NULL
   )
 
-  # Mock connectCloudUrls to point to our test logs server
-  mockery::stub(connectCloudClient, "connectCloudUrls", function() {
-    list(logs = logs_app_process$url())
-  })
+  # Mock connectCloudUrls and connectCloudLogsClient
+  local_mocked_bindings(
+    connectCloudUrls = function() {
+      list(logs = logs_app_process$url())
+    },
+    connectCloudLogsClient = function() {
+      list(
+        getLogs = function(logChannel, authToken) {
+          logsUrl <- logs_app_process$url()
+          service <- parseHttpUrl(paste0(logsUrl, "/v1"))
 
-  # Mock connectCloudLogsClient to match the actual implementation
-  mockery::stub(connectCloudClient, "connectCloudLogsClient", function() {
-    list(
-      getLogs = function(logChannel, authToken) {
-        logsUrl <- logs_app_process$url()
-        service <- parseHttpUrl(paste0(logsUrl, "/v1"))
+          authInfo <- list(
+            accessToken = authToken
+          )
 
-        authInfo <- list(
-          accessToken = authToken
-        )
-
-        path <- paste0(
-          "/logs/",
-          logChannel,
-          "?traversal_direction=backward&limit=1500"
-        )
-        response <- GET(service, authInfo, path)
-        response
-      }
-    )
-  })
+          path <- paste0(
+            "/logs/",
+            logChannel,
+            "?traversal_direction=backward&limit=1500"
+          )
+          response <- GET(service, authInfo, path)
+          response
+        }
+      )
+    }
+  )
 
   client <- connectCloudClient(service, authInfo)
 
