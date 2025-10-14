@@ -18,7 +18,7 @@
     Condition
       Error:
       ! No accounts registered.
-      i Call `rsconnect::setAccountInfo()` to register an account.
+      i To register an account, call `rsconnect::connectCloudUser()` (Posit Connect Cloud), `rsconnect::connectUser()` (Posit Connect), or `rsconnect::setAccountInfo()` (shinyapps.io).
 
 # error if no matching account
 
