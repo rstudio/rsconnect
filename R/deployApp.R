@@ -599,6 +599,15 @@ deployApp <- function(
     response <- client$awaitCompletion(revisionId)
     deploymentSucceeded <- response$success
     application$url <- response$url
+
+    # save the deployment record one more time now that we have a URL
+    saveDeployment(
+      recordPath,
+      deployment = deployment,
+      application = application,
+      bundleId = bundle$id,
+      metadata = metadata
+    )
   } else {
     task <- client$deployApplication(application, bundle$id)
     taskId <- if (is.null(task$task_id)) task$id else task$task_id
