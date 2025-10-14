@@ -215,6 +215,14 @@ connectCloudClient <- function(service, authInfo) {
           lastStatus <- newStatus
         }
 
+        contentUrl <- paste0(
+          connectCloudUrls()$ui,
+          "/",
+          authInfo$username,
+          "/content/",
+          revision$content_id
+        )
+
         if (!is.null(revision$publish_result)) {
           if (revision$publish_result == "failure") {
             # Try to retrieve logs if log channel is available
@@ -279,18 +287,10 @@ connectCloudClient <- function(service, authInfo) {
 
             return(list(
               success = FALSE,
-              url = NULL,
+              url = contentUrl,
               error = revision$publish_error_details
             ))
           }
-
-          contentUrl <- paste0(
-            connectCloudUrls()$ui,
-            "/",
-            authInfo$username,
-            "/content/",
-            revision$content_id
-          )
 
           return(list(success = TRUE, url = contentUrl, error = NULL))
         }
