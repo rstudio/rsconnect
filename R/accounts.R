@@ -257,8 +257,8 @@ connectCloudUser <- function(launch.browser = TRUE) {
           "To deploy, you must first create an account. Please go to {.url accountCreationPage} to create one."
         )
       }
-      # poll for account for up to 15 minutes
-      for (i in 1:450) {
+      # poll for account for up to 10 minutes
+      for (i in 1:300) {
         Sys.sleep(2)
         accounts <- getAccounts()
         if (length(accounts) > 0) {
@@ -270,7 +270,7 @@ connectCloudUser <- function(launch.browser = TRUE) {
       }
       if (length(accountsWhereUserCanPublish) == 0) {
         cli::cli_abort(
-          "Timed out waiting for an account to be created."
+          "Timed out waiting for an account to be created. Try again after creating a new account."
         )
       }
     } else {
