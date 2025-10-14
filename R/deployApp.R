@@ -639,6 +639,7 @@ deployApp <- function(
     openURL(
       client,
       application,
+      accountDetails$server,
       launch.browser,
       on.failure,
       deploymentSucceeded
@@ -822,12 +823,16 @@ validURL <- function(url) {
 openURL <- function(
   client,
   application,
+  server,
   launch.browser,
   on.failure,
   deploymentSucceeded
 ) {
   # function to browse to a URL using user-supplied browser (config or final)
   showURL <- function(url) {
+    if (isPositConnectCloudServer(server)) {
+      url <- addUtmParameters(url)
+    }
     if (isTRUE(launch.browser)) {
       utils::browseURL(url)
     } else if (is.function(launch.browser)) {
