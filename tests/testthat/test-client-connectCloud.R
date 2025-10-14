@@ -195,7 +195,6 @@ test_that("awaitCompletion handles failure with logs", {
   expect_true(grepl("Your app is busted!!", stderr_text))
   expect_true(grepl("INFO:", stderr_text))
   expect_true(grepl("ERROR:", stderr_text))
-  expect_equal(stderr_text, "ffoffofofo")
 })
 
 test_that("withTokenRefreshRetry passes through successful requests", {
