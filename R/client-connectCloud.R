@@ -176,17 +176,6 @@ connectCloudClient <- function(service, authInfo) {
     # Polls the revision until the publish process completes, returning whether
     # the publish request succeeded and the error message if it failed.
     awaitCompletion = function(revisionId) {
-      possibleStates <- c(
-        "publish_deferred",
-        "publish_requested",
-        "publish_started",
-        "fetching",
-        "building",
-        "rendering",
-        "publishing",
-        "published"
-      )
-
       stateMessages <- list(
         publish_deferred = "Content is currently publishing; your request will start soon.",
         publish_requested = "Publish requested; waiting to start...",
@@ -197,21 +186,12 @@ connectCloudClient <- function(service, authInfo) {
         publishing = "Publishing content...",
         published = "Done."
       )
-
       lastStatus <- NULL
       repeat {
         path <- paste0("/revisions/", revisionId)
         revision <- withTokenRefreshRetry(GET, path)
-
         newStatus <- revision$status
-        lastStatusIndex <- if (is.null(lastStatus)) {
-          -1
-        } else {
-          match(lastStatus, possibleStates)
-        }
-        newStatusIndex <- match(newStatus, possibleStates)
-
-        if (newStatusIndex > lastStatusIndex) {
+        if (!isTRUE(newStatus == lastStatus)) {
           # Note: since we poll every second, it's possible to skip states in
           # the output here
           cli::cli_alert_info(stateMessages[[newStatus]])
