@@ -60,6 +60,23 @@ connectCloudClient <- function(service, authInfo) {
     )
   }
 
+  getAuthorization <- function(logChannel) {
+    json <- list(
+      resource_type = "log_channel",
+      resource_id = logChannel,
+      permission = "revision.logs:read"
+    )
+
+    response <- withTokenRefreshRetry(
+      POST_JSON,
+      "/authorization",
+      json
+    )
+
+    # Return the token from the response
+    response$token
+  }
+
   list(
     service = function() {
       "connect.posit.cloud"
@@ -205,7 +222,7 @@ connectCloudClient <- function(service, authInfo) {
               tryCatch(
                 {
                   # Get authorization token for the log channel
-                  authToken <- self$getAuthorization(
+                  authToken <- getAuthorization(
                     revision$publish_log_channel
                   )
 
@@ -282,22 +299,7 @@ connectCloudClient <- function(service, authInfo) {
       }
     },
 
-    getAuthorization = function(logChannel) {
-      json <- list(
-        resource_type = "log_channel",
-        resource_id = logChannel,
-        permission = "revision.logs:read"
-      )
-
-      response <- withTokenRefreshRetry(
-        POST_JSON,
-        "/authorization",
-        json
-      )
-
-      # Return the token from the response
-      response$token
-    },
+    getAuthorization = getAuthorization,
 
     getAccounts = function(revisionId) {
       GET(service, authInfo, "/accounts?has_user_role=true")
