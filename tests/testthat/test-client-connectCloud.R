@@ -20,12 +20,12 @@ test_that("awaitCompletion", {
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
-    secret = NULL,
-    private_key = NULL,
-    apiKey = "the-api-key",
-    protocol = "https",
-    certificate = NULL,
-    username = "some-user"
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
   )
   client <- connectCloudClient(service, authInfo)
 
@@ -61,18 +61,22 @@ test_that("awaitCompletion handles failure", {
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
-    secret = NULL,
-    private_key = NULL,
-    apiKey = "the-api-key",
-    protocol = "https",
-    certificate = NULL
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
   )
   client <- connectCloudClient(service, authInfo)
 
   # test failure case
   result <- client$awaitCompletion("rev456")
   expect_false(result$success)
-  expect_null(result$url)
+  expect_equal(
+    result$url,
+    "https://connect.posit.cloud/some-user/content/content789"
+  )
   expect_equal(result$error, "Deployment failed due to missing dependencies")
 })
 
@@ -137,17 +141,18 @@ test_that("awaitCompletion handles failure with logs", {
 
   service <- parseHttpUrl(app$url())
   authInfo <- list(
-    secret = NULL,
-    private_key = NULL,
-    apiKey = "the-api-key",
-    protocol = "https",
-    certificate = NULL
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
   )
 
   # Mock connectCloudUrls and connectCloudLogsClient
   local_mocked_bindings(
     connectCloudUrls = function() {
-      list(logs = logs_app_process$url())
+      list(logs = logs_app_process$url(), ui = "https://connect.posit.cloud")
     },
     connectCloudLogsClient = function() {
       list(
@@ -183,7 +188,10 @@ test_that("awaitCompletion handles failure with logs", {
 
   # Check the result object
   expect_false(result$success)
-  expect_null(result$url)
+  expect_equal(
+    result$url,
+    "https://connect.posit.cloud/some-user/content/content789"
+  )
   expect_equal(result$error, "Deployment failed due to missing dependencies")
 
   # Check that logs were printed to stderr
@@ -208,10 +216,11 @@ test_that("withTokenRefreshRetry passes through successful requests", {
   service <- list(host = "example.com", port = 443, protocol = "https")
   authInfo <- list(
     server = "connect.posit.cloud",
-    name = "test-user",
+    name = "some-user",
+    username = "some-user",
     accountId = "123",
-    access_token = "current-token",
-    refresh_token = "refresh-token"
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
   )
   client <- connectCloudClient(service, authInfo)
 
