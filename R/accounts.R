@@ -188,20 +188,24 @@ connectCloudUser <- function(launch.browser = TRUE) {
   authClient <- cloudAuthClient()
   deviceAuth <- authClient$createDeviceAuth()
 
+  verificationUriComplete <- addUtmParameters(
+    deviceAuth$verification_uri_complete
+  )
+
   # Alert user and open browser for verification
   if (isTRUE(launch.browser)) {
     cli::cli_alert_info(
       "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
     )
-    utils::browseURL(deviceAuth$verification_uri_complete)
+    utils::browseURL(verificationUriComplete)
   } else if (is.function(launch.browser)) {
     cli::cli_alert_info(
       "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
     )
-    launch.browser(deviceAuth$verification_uri_complete)
+    launch.browser(verificationUriComplete)
   } else {
     cli::cli_alert_info(
-      "Open {.url {deviceAuth$verification_uri_complete}} to authenticate and confirm the code entered matches the code: {deviceAuth$user_code}."
+      "Open {.url {verificationUriComplete}} to authenticate and confirm the code entered matches the code: {deviceAuth$user_code}."
     )
   }
 
@@ -234,7 +238,10 @@ connectCloudUser <- function(launch.browser = TRUE) {
   cloudUiUrl <- connectCloudUrls()$ui
   if (length(accountsWhereUserCanPublish) == 0) {
     if (length(accounts) == 0) {
-      accountCreationPage <- paste0(cloudUiUrl, "/account/done")
+      accountCreationPage <- addUtmParameters(paste0(
+        cloudUiUrl,
+        "/account/done"
+      ))
       if (isTRUE(launch.browser)) {
         cli::cli_alert_info(
           "To deploy, you must first create an account. Opening account creation page..."
