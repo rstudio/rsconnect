@@ -72,6 +72,6 @@ checkServerHasEnvVars <- function(server, error_call = caller_env()) {
   }
 
   cli::cli_abort(
-    "The {.arg server} {.str server} does not support environment variables"
+    "The {.arg server} {.str {server}} does not support environment variables"
   )
 }

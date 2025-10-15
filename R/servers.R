@@ -81,7 +81,9 @@ isRPubs <- function(server) {
 }
 
 isConnectServer <- function(server) {
-  !isShinyappsServer(server) && !isRPubs(server)
+  !isShinyappsServer(server) &&
+    !isRPubs(server) &&
+    !isPositConnectCloudServer(server)
 }
 
 shinyappsServerInfo <- function(name, url) {
