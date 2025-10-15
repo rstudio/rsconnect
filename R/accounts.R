@@ -188,7 +188,7 @@ connectCloudUser <- function(launch.browser = TRUE) {
   authClient <- cloudAuthClient()
   deviceAuth <- authClient$createDeviceAuth()
 
-  verififcationUriComplete <- addUtmParameters(
+  verificationUriComplete <- addUtmParameters(
     deviceAuth$verification_uri_complete
   )
 
@@ -197,15 +197,15 @@ connectCloudUser <- function(launch.browser = TRUE) {
     cli::cli_alert_info(
       "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
     )
-    utils::browseURL(verififcationUriComplete)
+    utils::browseURL(verificationUriComplete)
   } else if (is.function(launch.browser)) {
     cli::cli_alert_info(
       "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
     )
-    launch.browser(verififcationUriComplete)
+    launch.browser(verificationUriComplete)
   } else {
     cli::cli_alert_info(
-      "Open {.url {verififcationUriComplete}} to authenticate and confirm the code entered matches the code: {deviceAuth$user_code}."
+      "Open {.url {verificationUriComplete}} to authenticate and confirm the code entered matches the code: {deviceAuth$user_code}."
     )
   }
 
