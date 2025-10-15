@@ -41,7 +41,6 @@ Suggests:
     foreign,
     knitr,
     MASS,
-    mockery,
     plumber (>= 0.3.2),
     quarto,
     RCurl,
