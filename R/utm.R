@@ -1,5 +1,5 @@
 getUtmValue <- function() {
-  if (Sys.getenv("RSTUDIO") == 1) {
+  if (Sys.getenv("RSTUDIO") == "1") {
     return("rsconnect-rstudio")
   } else {
     return("rsconnect")
