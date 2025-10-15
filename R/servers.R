@@ -110,17 +110,20 @@ connectCloudUrls <- function() {
     production = list(
       api = "https://api.connect.posit.cloud/v1",
       ui = "https://connect.posit.cloud",
-      auth = "https://login.posit.cloud"
+      auth = "https://login.posit.cloud",
+      logs = "https://logs.connect.posit.cloud"
     ),
     staging = list(
       api = "https://api.staging.connect.posit.cloud/v1",
       ui = "https://staging.connect.posit.cloud",
-      auth = "https://login.staging.posit.cloud"
+      auth = "https://login.staging.posit.cloud",
+      logs = "https://logs.staging.connect.posit.cloud"
     ),
     development = list(
       api = "https://api.dev.connect.posit.cloud/v1",
       ui = "https://dev.connect.posit.cloud",
-      auth = "https://login.staging.posit.cloud"
+      auth = "https://login.staging.posit.cloud",
+      logs = "https://logs.dev.connect.posit.cloud"
     ),
   )
 }

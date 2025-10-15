@@ -60,6 +60,23 @@ connectCloudClient <- function(service, authInfo) {
     )
   }
 
+  getAuthorization <- function(logChannel) {
+    json <- list(
+      resource_type = "log_channel",
+      resource_id = logChannel,
+      permission = "revision.logs:read"
+    )
+
+    response <- withTokenRefreshRetry(
+      POST_JSON,
+      "/authorization",
+      json
+    )
+
+    # Return the token from the response
+    response$token
+  }
+
   list(
     service = function() {
       "connect.posit.cloud"
@@ -176,26 +193,104 @@ connectCloudClient <- function(service, authInfo) {
     # Polls the revision until the publish process completes, returning whether
     # the publish request succeeded and the error message if it failed.
     awaitCompletion = function(revisionId) {
+      stateMessages <- list(
+        publish_deferred = "Content is currently publishing; your request will start soon.",
+        publish_requested = "Publish requested; waiting to start...",
+        publish_started = "Publish started.",
+        fetching = "Retrieving code...",
+        building = "Installing dependencies...",
+        rendering = "Rendering...",
+        publishing = "Publishing content...",
+        published = "Done."
+      )
+      lastStatus <- NULL
       repeat {
         path <- paste0("/revisions/", revisionId)
-        response <- withTokenRefreshRetry(GET, path)
+        revision <- withTokenRefreshRetry(GET, path)
+        newStatus <- revision$status
+        if (!isTRUE(newStatus == lastStatus)) {
+          # Note: since we poll every second, it's possible to skip states in
+          # the output here
+          cli::cli_alert_info(stateMessages[[newStatus]])
+          lastStatus <- newStatus
+        }
 
-        if (!is.null(response$publish_result)) {
-          if (response$publish_result == "failure") {
+        contentUrl <- paste0(
+          connectCloudUrls()$ui,
+          "/",
+          authInfo$username,
+          "/content/",
+          revision$content_id
+        )
+
+        if (!is.null(revision$publish_result)) {
+          if (revision$publish_result == "failure") {
+            # Try to retrieve logs if log channel is available
+            if (!is.null(revision$publish_log_channel)) {
+              tryCatch(
+                {
+                  # Get authorization token for the log channel
+                  authToken <- getAuthorization(
+                    revision$publish_log_channel
+                  )
+
+                  # Create logs client and fetch logs
+                  logsClient <- connectCloudLogsClient()
+                  logs <- logsClient$getLogs(
+                    revision$publish_log_channel,
+                    authToken
+                  )
+
+                  # Print logs to stderr
+                  if (!is.null(logs) && !is.null(logs$data)) {
+                    cli::cat_rule(
+                      "Begin Publishing Log",
+                      line = "#",
+                      file = stderr()
+                    )
+                    for (log_entry in logs$data) {
+                      local_timestamp <- as.POSIXct(
+                        # Convert to seconds
+                        log_entry$timestamp / 1e6
+                      )
+                      # Format with millisecond precision
+                      formatted_timestamp <- format(
+                        local_timestamp,
+                        "%Y-%m-%d %H:%M:%OS3"
+                      )
+                      cat(
+                        sprintf(
+                          "[%s] %s: %s\n",
+                          formatted_timestamp,
+                          toupper(log_entry$level),
+                          log_entry$message
+                        ),
+                        file = stderr()
+                      )
+                    }
+                    cli::cat_rule(
+                      "End Publishing Log",
+                      line = "#",
+                      file = stderr()
+                    )
+                  }
+                },
+                error = function(e) {
+                  # If log retrieval fails, continue without logs
+                  # Don't fail the entire operation just because logs couldn't be retrieved
+                  cli::cli_alert_warning(
+                    "Failed to retrieve logs: {e$message}"
+                  )
+                }
+              )
+            }
+
             return(list(
               success = FALSE,
-              url = NULL,
-              error = response$publish_error_details
+              url = contentUrl,
+              error = revision$publish_error_details
             ))
           }
-
-          contentUrl <- paste0(
-            connectCloudUrls()$ui,
-            "/",
-            authInfo$username,
-            "/content/",
-            response$content_id
-          )
 
           return(list(success = TRUE, url = contentUrl, error = NULL))
         }
@@ -203,6 +298,8 @@ connectCloudClient <- function(service, authInfo) {
         Sys.sleep(1)
       }
     },
+
+    getAuthorization = getAuthorization,
 
     getAccounts = function(revisionId) {
       GET(service, authInfo, "/accounts?has_user_role=true")
