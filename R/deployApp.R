@@ -388,7 +388,13 @@ deployApp <- function(
 
   client <- clientForAccount(accountDetails)
 
-  if (length(envVars) > 0 && !"setEnvVars" %in% names(client)) {
+  if (
+    # Connect Cloud supports setting environment variables, but not through a
+    # setEnvVars client method
+    !isPositConnectCloudServer(accountDetails$server) &&
+      length(envVars) > 0 &&
+      !"setEnvVars" %in% names(client)
+  ) {
     cli::cli_abort(
       "{accountDetails$server} does not support setting {.arg envVars}"
     )
