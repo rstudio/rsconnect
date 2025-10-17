@@ -389,11 +389,8 @@ deployApp <- function(
   client <- clientForAccount(accountDetails)
 
   if (
-    # Connect Cloud supports setting environment variables, but not through a
-    # setEnvVars client method
-    !isPositConnectCloudServer(accountDetails$server) &&
-      length(envVars) > 0 &&
-      !"setEnvVars" %in% names(client)
+    !serverSupportsEnvVars(accountDetails$server, client) &&
+      length(envVars) > 0
   ) {
     cli::cli_abort(
       "{accountDetails$server} does not support setting {.arg envVars}"
@@ -660,6 +657,15 @@ deployApp <- function(
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+serverSupportsEnvVars <- function(server, client) {
+  return(
+    # Connect Cloud supports setting environment variables, but not through a
+    # setEnvVars client method
+    isPositConnectCloudServer(server) ||
+      (isConnectServer(server) && "setEnvVars" %in% names(client))
+  )
 }
 
 taskStart <- function(quiet, message, .envir = caller_env()) {
