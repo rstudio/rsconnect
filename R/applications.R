@@ -39,6 +39,12 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    cli::cli_abort(
+      "The applications() function is not supported for Posit Connect Cloud accounts."
+    )
+  }
+
   isConnect <- isConnectServer(accountDetails$server)
 
   # retrieve applications
@@ -378,8 +384,10 @@ syncAppMetadata <- function(appPath = ".") {
   for (i in seq_len(nrow(deploys))) {
     curDeploy <- deploys[i, ]
 
-    # don't sync if published to RPubs
+    # don't sync if published to RPubs or Connect Cloud
     if (isRPubs(curDeploy$server)) {
+      next
+    } else if (isPositConnectCloudServer(curDeploy$server)) {
       next
     }
 

@@ -701,6 +701,9 @@ needsVisibilityChange <- function(server, application, appVisibility = NULL) {
     # Defaults to private visibility
     return(FALSE)
   }
+  if (isPositConnectCloudServer(server)) {
+    return(FALSE)
+  }
 
   cur <- application$deployment$properties$application.visibility
   if (is.null(cur)) {

@@ -76,12 +76,20 @@ checkShinyappsServer <- function(server, call = caller_env()) {
   }
 }
 
+checkConnectServer <- function(server, call = caller_env()) {
+  if (!isConnectServer(server)) {
+    cli::cli_abort("`server` must be a Posit Connect server", call = call)
+  }
+}
+
 isRPubs <- function(server) {
   identical(server, "rpubs.com")
 }
 
 isConnectServer <- function(server) {
-  !isShinyappsServer(server) && !isRPubs(server)
+  !isShinyappsServer(server) &&
+    !isRPubs(server) &&
+    !isPositConnectCloudServer(server)
 }
 
 shinyappsServerInfo <- function(name, url) {
@@ -332,6 +340,7 @@ registerServer <- function(
 #' @rdname addServer
 #' @export
 removeServer <- function(name = NULL) {
+  checkConnectServer(name)
   name <- findServer(name)
 
   configFile <- serverConfigFile(name)
@@ -341,6 +350,7 @@ removeServer <- function(name = NULL) {
 #' @rdname addServer
 #' @export
 addServerCertificate <- function(name, certificate, quiet = FALSE) {
+  checkConnectServer(name)
   info <- serverInfo(name)
   registerServer(name, info$url, certificate)
 
