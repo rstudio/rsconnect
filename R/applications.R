@@ -385,9 +385,9 @@ syncAppMetadata <- function(appPath = ".") {
     curDeploy <- deploys[i, ]
 
     # don't sync if published to RPubs or Connect Cloud
-    if (
-      isRPubs(curDeploy$server) || isPositConnectCloudServer(curDeploy$server)
-    ) {
+    if (isRPubs(curDeploy$server)) {
+      next
+    } else if (isPositConnectCloudServer(curDeploy$server)) {
       next
     }
 
