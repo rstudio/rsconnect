@@ -501,12 +501,6 @@ deployApp <- function(
 
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
-    if (!is.null(appVisibility)) {
-      cli::cli_abort(
-        "Setting {.arg appVisibility} is not supported when deploying to Posit Connect Cloud."
-      )
-    }
-
     taskStart(quiet, "Updating content...")
     # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
     primaryFile <- appMetadata$appPrimaryDoc %||%
@@ -693,6 +687,9 @@ needsVisibilityChange <- function(server, application, appVisibility = NULL) {
 
   if (isConnectServer(server)) {
     # Defaults to private visibility
+    return(FALSE)
+  }
+  if (isPositConnectCloudServer(server)) {
     return(FALSE)
   }
 
