@@ -350,6 +350,7 @@ removeServer <- function(name = NULL) {
 #' @rdname addServer
 #' @export
 addServerCertificate <- function(name, certificate, quiet = FALSE) {
+  checkConnectServer(name)
   info <- serverInfo(name)
   registerServer(name, info$url, certificate)
 
