@@ -340,6 +340,7 @@ registerServer <- function(
 #' @rdname addServer
 #' @export
 removeServer <- function(name = NULL) {
+  checkConnectServer(name)
   name <- findServer(name)
 
   configFile <- serverConfigFile(name)
