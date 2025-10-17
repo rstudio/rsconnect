@@ -61,6 +61,8 @@ connectApiUser <- function(
   quiet = FALSE
 ) {
   server <- findServer(server)
+  checkConnectServer(server)
+
   user <- getAuthedUser(server, apiKey = apiKey)
 
   registerAccount(
@@ -99,6 +101,8 @@ connectSPCSUser <- function(
   quiet = FALSE
 ) {
   server <- findServer(server)
+  checkConnectServer(server)
+
   user <- getSPCSAuthedUser(server, snowflakeConnectionName)
 
   registerAccount(
@@ -136,6 +140,8 @@ connectUser <- function(
   launch.browser = getOption("rsconnect.launch.browser", interactive())
 ) {
   server <- findServer(server)
+  checkConnectServer(server)
+
   resp <- getAuthTokenAndUser(server, launch.browser)
 
   registerAccount(

@@ -76,6 +76,12 @@ checkShinyappsServer <- function(server, call = caller_env()) {
   }
 }
 
+checkConnectServer <- function(server, call = caller_env()) {
+  if (!isConnectServer(server)) {
+    cli::cli_abort("`server` must be a Posit Connect server", call = call)
+  }
+}
+
 isRPubs <- function(server) {
   identical(server, "rpubs.com")
 }
