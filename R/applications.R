@@ -39,6 +39,12 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    cli::cli_abort(
+      "The applications() function is not supported for Posit Connect Cloud accounts."
+    )
+  }
+
   isConnect <- isConnectServer(accountDetails$server)
 
   # retrieve applications
