@@ -219,6 +219,8 @@ server default if no application default is defined.
 (This option is ignored when \code{envManagement} is non-\code{NULL}.)}
 }
 \description{
+Supported servers: All servers
+
 Deploy a \link[shiny:shiny-package]{shiny} application, an
 \link[rmarkdown:rmarkdown-package]{RMarkdown} document, a plumber API, or HTML
 content to a server.

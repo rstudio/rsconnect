@@ -1,5 +1,8 @@
 #' Server metadata
 #'
+#' @description
+#' Supported servers: All servers
+#' 
 #' `servers()` lists all known servers; `serverInfo()` gets metadata about
 #' a specific server. Cloud server `shinyapps.io` is always automatically
 #' registered and available.

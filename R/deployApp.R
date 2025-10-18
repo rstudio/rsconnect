@@ -1,9 +1,13 @@
 #' Deploy an Application
 #'
+#' @description
+#' Supported servers: All servers
+#' 
 #' Deploy a [shiny][shiny::shiny-package] application, an
 #' [RMarkdown][rmarkdown::rmarkdown-package] document, a plumber API, or HTML
 #' content to a server.
 #'
+#' @details
 #' ## Deployment records
 #'
 #' When deploying an app, `deployApp()` will save a deployment record that

@@ -1,6 +1,8 @@
 #' Detect application dependencies
 #'
 #' @description
+#' Supported servers: All servers
+#' 
 #' `appDependencies()` recursively detects all R package dependencies for an
 #' application by parsing all `.R` and `.Rmd` files and looking for calls
 #' to `library()`, `require()`, `requireNamespace()`, `::`, and so on.

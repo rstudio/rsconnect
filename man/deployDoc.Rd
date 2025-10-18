@@ -18,6 +18,8 @@ much logging to the console is to be performed. At \code{"quiet"} reports no
 information; at \code{"verbose"}, a full diagnostic log is captured.}
 }
 \description{
+Supported servers: All servers
+
 Deploys a single R Markdown, Quarto document, or other file (e.g. \code{.html} or
 \code{.pdf}).
 

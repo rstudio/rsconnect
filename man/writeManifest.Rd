@@ -104,6 +104,8 @@ server default if no application default is defined.
 \item{quiet}{If \code{FALSE}, prints progress messages.}
 }
 \description{
+Supported servers: All servers
+
 Use \code{writeManifest()} to generate a \code{manifest.json}. Among other things,
 you can commit this file to git to activate
 \href{https://docs.posit.co/connect/user/git-backed/}{Git-Backed content}

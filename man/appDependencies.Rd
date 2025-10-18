@@ -44,6 +44,8 @@ with its own repository name -> repository URL mapping.
 }
 }
 \description{
+Supported servers: All servers
+
 \code{appDependencies()} recursively detects all R package dependencies for an
 application by parsing all \code{.R} and \code{.Rmd} files and looking for calls
 to \code{library()}, \code{require()}, \code{requireNamespace()}, \code{::}, and so on.

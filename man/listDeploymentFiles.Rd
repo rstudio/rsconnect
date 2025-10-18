@@ -29,6 +29,8 @@ use only.}
 Character of paths to bundle, relative to \code{appDir}.
 }
 \description{
+Supported servers: All servers
+
 Given an app directory, and optional \code{appFiles} and \code{appFileManifest}
 arguments, returns vector of paths to bundle in the app. (Note that
 documents follow a different strategy; see \code{\link[=deployDoc]{deployDoc()}} for details.)

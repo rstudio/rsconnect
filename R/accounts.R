@@ -1,8 +1,12 @@
 #' Account Management Functions
 #'
+#' @description
+#' Supported servers: All servers
+#' 
 #' Functions to enumerate and remove accounts on the local system. Prior to
 #' deploying applications you need to register your account on the local system.
 #'
+#' @details
 #' You register an account using the [setAccountInfo()] function (for
 #' ShinyApps) or [connectUser()] function (for other servers). You can
 #' subsequently remove the account using the `removeAccount` function.

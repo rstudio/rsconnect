@@ -1,6 +1,8 @@
 #' Create a `manifest.json`
 #'
 #' @description
+#' Supported servers: All servers
+#' 
 #' Use `writeManifest()` to generate a `manifest.json`. Among other things,
 #' you can commit this file to git to activate
 #' [Git-Backed content](https://docs.posit.co/connect/user/git-backed/)

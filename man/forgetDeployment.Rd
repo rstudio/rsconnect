@@ -35,6 +35,8 @@ Defaults to FALSE in interactive sessions.}
 NULL, invisibly.
 }
 \description{
+Supported servers: All servers
+
 Forgets about an application deployment. This is useful if the application
 has been deleted on the server, or the local deployment information needs to
 be reset.
