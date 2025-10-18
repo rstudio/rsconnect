@@ -13,6 +13,8 @@ interactive sessions only. If a function is passed, it will be called
 after the app is started, with the app URL as a parameter.}
 }
 \description{
+Supported servers: Posit Connect Cloud servers
+
 \code{connectCloudUser()} connects your Posit Connect Cloud account to
 the rsconnect package so that it can deploy and manage applications on
 your behalf. It will open a browser window to authenticate, then prompt

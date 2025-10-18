@@ -186,6 +186,8 @@ filterPublishableAccounts <- function(accounts) {
 #' Register account on Posit Connect Cloud
 #
 #' @description
+#' Supported servers: Posit Connect Cloud servers
+#' 
 #' `connectCloudUser()` connects your Posit Connect Cloud account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf. It will open a browser window to authenticate, then prompt
