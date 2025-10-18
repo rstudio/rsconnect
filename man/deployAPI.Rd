@@ -14,6 +14,8 @@ plumber2 APIs)}
 \item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
 }
 \description{
+Supported servers: Posit Connect, ShinyApps, and RPubs servers
+
 Deploys an application consisting of plumber API routes. The given directory
 must contain a script returning a \code{plumb} object or a plumber API definition.
 }

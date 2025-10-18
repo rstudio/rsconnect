@@ -10,6 +10,8 @@ deployTFModel(...)
 \item{...}{Additional arguments to \code{\link[=deployApp]{deployApp()}}.}
 }
 \description{
+Supported servers: Posit Connect, ShinyApps, and RPubs servers
+
 Deploys a directory containing a TensorFlow saved model.
 }
 \seealso{
