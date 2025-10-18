@@ -24,6 +24,7 @@ Returns a data frame with the following columns:
 }
 }
 \description{
+Supported servers: ShinyApps servers.
 List Tasks
 }
 \note{

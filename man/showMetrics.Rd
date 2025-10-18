@@ -52,6 +52,6 @@ delta such as "2d" or "3w").}
 will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").}
 }
 \description{
+Supported servers: ShinyApps servers.
 Show application metrics of a currently deployed application.
-This function only works for ShinyApps servers.
 }

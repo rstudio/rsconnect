@@ -19,6 +19,7 @@ multiple servers (see \code{\link[=servers]{servers()}})}
 during the operation.}
 }
 \description{
+Supported servers: ShinyApps servers.
 Restart an application currently running on a remote server.
 }
 \note{

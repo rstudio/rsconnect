@@ -33,6 +33,7 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 \item{force}{Forcibly set the property}
 }
 \description{
+Supported servers: ShinyApps servers.
 Set a property on currently deployed ShinyApps application.
 }
 \note{

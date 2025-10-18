@@ -1,5 +1,6 @@
 #' Restart an Application
 #'
+#' Supported servers: ShinyApps servers.
 #' Restart an application currently running on a remote server.
 #'
 #' @param appName Name of application to restart
