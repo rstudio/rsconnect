@@ -1,5 +1,8 @@
 #' Upload a file to RPubs
 #'
+#' @description
+#' Supported servers: RPubs servers
+#' 
 #' This function publishes a file to rpubs.com. If the upload succeeds a
 #' list that includes an `id` and `continueUrl` is returned. A browser
 #' should be opened to the `continueUrl` to complete publishing of the

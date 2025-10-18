@@ -32,6 +32,8 @@ upload fails then the list contains an \code{error} element which contains
 an explanation of the error that occurred.
 }
 \description{
+Supported servers: RPubs servers
+
 This function publishes a file to rpubs.com. If the upload succeeds a
 list that includes an \code{id} and \code{continueUrl} is returned. A browser
 should be opened to the \code{continueUrl} to complete publishing of the
