@@ -1,6 +1,10 @@
 #' List Deployed Applications
 #'
+#' @description
+#' Supported servers: All servers
+#'
 #' List all applications currently deployed for a given account.
+#'
 #' @inheritParams deployApp
 #' @return
 #' Returns a data frame with the following columns:

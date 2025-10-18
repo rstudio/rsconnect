@@ -30,6 +30,8 @@ ShinyApps.io) \cr
 }
 }
 \description{
+Supported servers: All servers
+
 List all applications currently deployed for a given account.
 }
 \note{
