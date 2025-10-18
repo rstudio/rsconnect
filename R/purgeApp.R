@@ -1,6 +1,8 @@
 #' Purge an Application
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Purge a currently archived ShinyApps application.
 #'
 #' @param appName Name of application to purge

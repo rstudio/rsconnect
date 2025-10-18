@@ -476,7 +476,9 @@ getAuthedUser <- function(
 
 #' Register account on shinyapps.io
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Configure a ShinyApps account for publishing from this system.
 #'
 #' @param name Name of account to save or remove

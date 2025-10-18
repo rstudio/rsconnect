@@ -19,7 +19,8 @@ there are multiple options, you'll be prompted to pick one.
 Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 }
 \description{
-Supported servers: ShinyApps servers.
+Supported servers: ShinyApps servers
+
 List authorized users for an application
 }
 \note{

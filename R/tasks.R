@@ -1,6 +1,8 @@
 #' List Tasks
 #' 
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' List Tasks
 #'
 #' @inheritParams deployApp
@@ -45,7 +47,9 @@ tasks <- function(account = NULL, server = NULL) {
 
 #' Show task log
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Writes the task log for the given task
 #' 
 #' @param taskId Task Id

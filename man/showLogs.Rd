@@ -49,7 +49,8 @@ as they are made, until R is interrupted. Defaults to \code{FALSE}.}
 \code{getLogs()} returns a data frame containing the logged lines.
 }
 \description{
-Supported servers: ShinyApps servers.
+Supported servers: ShinyApps servers
+
 These functions provide access to the logs for deployed ShinyApps applications:
 \itemize{
 \item \code{showLogs()} displays the logs.

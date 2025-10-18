@@ -36,7 +36,8 @@ custom message to send in email invitation. Defaults to NULL, which
 will use default invitation message.}
 }
 \description{
-Supported servers: ShinyApps servers.
+Supported servers: ShinyApps servers
+
 Add authorized user to application
 }
 \note{

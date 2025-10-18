@@ -1,6 +1,8 @@
 #' Configure an Application
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Configure an application running on a remote server.
 #'
 #' @inheritParams deployApp
@@ -99,7 +101,9 @@ configureApp <- function(
 
 #' Set Application property
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Set a property on currently deployed ShinyApps application.
 #'
 #' @param propertyName Name of property
@@ -154,7 +158,9 @@ setProperty <- function(
 
 #' Unset Application property
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Unset a property on currently deployed ShinyApps application (restoring to
 #' its default value)
 #'
@@ -201,7 +207,9 @@ unsetProperty <- function(
 
 #' Show Application property
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Show properties of an application deployed to ShinyApps.
 #'
 #' @param appName Name of application

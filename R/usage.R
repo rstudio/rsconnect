@@ -1,6 +1,8 @@
 #' Show Application Usage
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Show application usage of a currently deployed application
 #' 
 #' @param appName Name of application
@@ -69,7 +71,9 @@ showUsage <- function(
 
 #' Show Application Metrics
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Show application metrics of a currently deployed application.
 #'
 #' @param metricSeries Metric series to query. Refer to the
@@ -128,7 +132,9 @@ showMetrics <- function(
 
 #' Show Account Usage
 #'
-#' Supported servers: ShinyApps servers.
+#' @description
+#' Supported servers: ShinyApps servers
+#' 
 #' Show account usage
 #' @inheritParams deployApp
 #' @param usageType Use metric to retreive (for example: "hours")

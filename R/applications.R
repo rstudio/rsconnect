@@ -249,7 +249,8 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #' Application Logs
 #'
 #' @description
-#' Supported servers: ShinyApps servers.
+#' Supported servers: ShinyApps servers
+#' 
 #' These functions provide access to the logs for deployed ShinyApps applications:
 #'
 #' * `showLogs()` displays the logs.

@@ -30,7 +30,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 \item{force}{Forcibly unset the property}
 }
 \description{
-Supported servers: ShinyApps servers.
+Supported servers: ShinyApps servers
+
 Unset a property on currently deployed ShinyApps application (restoring to
 its default value)
 }

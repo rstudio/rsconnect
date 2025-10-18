@@ -19,7 +19,8 @@ multiple servers (see \code{\link[=servers]{servers()}})}
 during the termination.}
 }
 \description{
-Supported servers: ShinyApps servers.
+Supported servers: ShinyApps servers
+
 Terminate and archive a currently deployed ShinyApps application.
 }
 \note{
