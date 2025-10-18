@@ -1,5 +1,5 @@
 #' List Tasks
-#' 
+#'
 #' @description
 #' Supported servers: ShinyApps servers
 #'
@@ -51,7 +51,7 @@ tasks <- function(account = NULL, server = NULL) {
 #' Supported servers: ShinyApps servers
 #'
 #' Writes the task log for the given task
-#' 
+#'
 #' @param taskId Task Id
 #' @inheritParams deployApp
 #' @param output Where to write output. Valid values are `NULL` or `stderr`

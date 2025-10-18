@@ -1,5 +1,5 @@
 #' Maintain environment variables across multiple applications
-#' 
+#'
 #' @description
 #' Supported servers: Posit Connect servers
 #'

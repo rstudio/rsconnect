@@ -4,7 +4,7 @@
 #' Supported servers: ShinyApps servers
 #'
 #' Show application usage of a currently deployed application
-#' 
+#'
 #' @param appName Name of application
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.

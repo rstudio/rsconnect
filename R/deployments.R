@@ -4,7 +4,7 @@
 #' Supported servers: All servers
 #'
 #' List deployment records for a given application.
-#' 
+#'
 #' @param appPath The path to the content that was deployed, either a directory
 #'   or an individual document.
 #' @param nameFilter Return only deployments matching the given name (optional)

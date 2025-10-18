@@ -152,7 +152,7 @@ removeAuthorizedUser <- function(
 #' Supported servers: ShinyApps servers
 #'
 #' List authorized users for an application
-#' 
+#'
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
