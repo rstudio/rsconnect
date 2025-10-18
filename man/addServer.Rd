@@ -37,6 +37,8 @@ stored in \code{connections.toml}.}
 \item{quiet}{Suppress output and prompts where possible.}
 }
 \description{
+Supported servers: Posit Connect servers
+
 These functions manage the list of known servers:
 \itemize{
 \item \code{addServer()} registers a Posit connect server. Once it has been

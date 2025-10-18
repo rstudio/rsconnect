@@ -23,6 +23,8 @@ stored in \code{connections.toml}.}
 account.}
 }
 \description{
+Supported servers: Posit Connect servers
+
 \code{connectSPCSUser()} connects your Posit Connect account to the rsconnect
 package so it can deploy and manage applications on your behalf.
 Configure a

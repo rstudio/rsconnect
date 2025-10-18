@@ -28,6 +28,7 @@ for each data frame. It has variables \code{id}, \code{guid}, \code{name}, and
 \code{envVars}. \code{envVars} is a list-column.
 }
 \description{
+Supported servers: Posit Connect servers
 \itemize{
 \item \code{listAccountEnvVars()} lists the environment variables used by
 every application published to the specified account.

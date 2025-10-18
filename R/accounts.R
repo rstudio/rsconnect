@@ -34,6 +34,8 @@ accounts <- function(server = NULL) {
 #' Register account on Posit Connect
 #
 #' @description
+#' Supported servers: Posit Connect servers
+#' 
 #' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf.
@@ -83,6 +85,8 @@ connectApiUser <- function(
 #' Register account on Posit Connect in Snowpark Container Services
 #'
 #' @description
+#' Supported servers: Posit Connect servers
+#' 
 #' `connectSPCSUser()` connects your Posit Connect account to the rsconnect
 #' package so it can deploy and manage applications on your behalf.
 #' Configure a

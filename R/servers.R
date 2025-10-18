@@ -181,6 +181,8 @@ findServer <- function(server = NULL, local = TRUE, error_call = caller_env()) {
 #' Server management
 #'
 #' @description
+#' Supported servers: Posit Connect servers
+#' 
 #' These functions manage the list of known servers:
 #'
 #' * `addServer()` registers a Posit connect server. Once it has been
