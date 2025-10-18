@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Supported servers: All servers
-#' 
+#'
 #' List deployment records for a given application.
 #' 
 #' @param appPath The path to the content that was deployed, either a directory
@@ -212,7 +212,7 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 #'
 #' @description
 #' Supported servers: All servers
-#' 
+#'
 #' Forgets about an application deployment. This is useful if the application
 #' has been deleted on the server, or the local deployment information needs to
 #' be reset.

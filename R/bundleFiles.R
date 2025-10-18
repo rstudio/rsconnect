@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Supported servers: All servers
-#' 
+#'
 #' Given an app directory, and optional `appFiles` and `appFileManifest`
 #' arguments, returns vector of paths to bundle in the app. (Note that
 #' documents follow a different strategy; see [deployDoc()] for details.)

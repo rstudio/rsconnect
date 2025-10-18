@@ -2,7 +2,7 @@
 #' 
 #' @description
 #' Supported servers: Posit Connect servers
-#' 
+#'
 #' * `listAccountEnvVars()` lists the environment variables used by
 #'   every application published to the specified account.
 #' * `updateAccountEnvVars()` updates the specified environment variables with

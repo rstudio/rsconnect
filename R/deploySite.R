@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Supported servers: All servers
-#' 
+#'
 #' Deploy an R Markdown or quarto website to a server.
 #'
 #' @inheritParams deployApp

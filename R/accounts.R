@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Supported servers: All servers
-#' 
+#'
 #' Functions to enumerate and remove accounts on the local system. Prior to
 #' deploying applications you need to register your account on the local system.
 #'
@@ -39,7 +39,7 @@ accounts <- function(server = NULL) {
 #
 #' @description
 #' Supported servers: Posit Connect servers
-#' 
+#'
 #' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf.
@@ -90,7 +90,7 @@ connectApiUser <- function(
 #'
 #' @description
 #' Supported servers: Posit Connect servers
-#' 
+#'
 #' `connectSPCSUser()` connects your Posit Connect account to the rsconnect
 #' package so it can deploy and manage applications on your behalf.
 #' Configure a
@@ -187,7 +187,7 @@ filterPublishableAccounts <- function(accounts) {
 #
 #' @description
 #' Supported servers: Posit Connect Cloud servers
-#' 
+#'
 #' `connectCloudUser()` connects your Posit Connect Cloud account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf. It will open a browser window to authenticate, then prompt
@@ -488,7 +488,7 @@ getAuthedUser <- function(
 #'
 #' @description
 #' Supported servers: ShinyApps servers
-#' 
+#'
 #' Configure a ShinyApps account for publishing from this system.
 #'
 #' @param name Name of account to save or remove

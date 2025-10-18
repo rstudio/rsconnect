@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Supported servers: ShinyApps servers
-#' 
+#'
 #' Purge a currently archived ShinyApps application.
 #'
 #' @param appName Name of application to purge

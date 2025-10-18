@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Supported servers: All servers
-#' 
+#'
 #' Deploys a single R Markdown, Quarto document, or other file (e.g. `.html` or
 #' `.pdf`).
 #'

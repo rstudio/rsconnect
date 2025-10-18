@@ -250,7 +250,7 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #'
 #' @description
 #' Supported servers: ShinyApps servers
-#' 
+#'
 #' These functions provide access to the logs for deployed ShinyApps applications:
 #'
 #' * `showLogs()` displays the logs.
@@ -375,7 +375,7 @@ getLogs <- function(
 #'
 #' @description
 #' Supported servers: Posit Connect servers
-#' 
+#'
 #' Update the deployment records for applications published to Posit Connect.
 #' This updates application title and URL, and deletes records for deployments
 #' where the application has been deleted on the server.
