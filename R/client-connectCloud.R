@@ -251,7 +251,8 @@ connectCloudClient <- function(service, authInfo) {
                     for (log_entry in logs$data) {
                       local_timestamp <- as.POSIXct(
                         # Convert to seconds
-                        log_entry$timestamp / 1e6
+                        log_entry$timestamp / 1e6,
+                        origin = "1970-01-01",
                       )
                       # Format with millisecond precision
                       formatted_timestamp <- format(
