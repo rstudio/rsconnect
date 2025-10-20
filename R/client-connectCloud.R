@@ -280,8 +280,7 @@ connectCloudClient <- function(service, authInfo) {
                   # If log retrieval fails, continue without logs
                   # Don't fail the entire operation just because logs couldn't be retrieved
                   cli::cli_alert_warning(
-                    "Failed to retrieve logs: {e$message}",
-                    call = caller_env()
+                    "Failed to retrieve logs: {e$message}"
                   )
                 }
               )
