@@ -1,7 +1,7 @@
 #' Deploy a TensorFlow saved model
 #'
 #' @description
-#' Supported servers: Posit Connect, ShinyApps, and RPubs servers
+#' Supported servers: Posit Connect and ShinyApps servers
 #'
 #' Deploys a directory containing a TensorFlow saved model.
 #'

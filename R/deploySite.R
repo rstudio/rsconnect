@@ -1,7 +1,7 @@
 #' Deploy a website
 #'
 #' @description
-#' Supported servers: All servers
+#' Supported servers: Posit Connect, Posit Connect Cloud and ShinyApps servers
 #'
 #' Deploy an R Markdown or quarto website to a server.
 #'
