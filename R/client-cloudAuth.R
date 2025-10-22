@@ -2,9 +2,9 @@
 getClientId <- function() {
   switch(
     connectCloudEnvironment(),
-    production = "posit-publisher",
-    staging = "posit-publisher-staging",
-    development = "posit-publisher-development",
+    production = "rsconnect",
+    staging = "rsconnect-staging",
+    development = "rsconnect-development",
   )
 }
 

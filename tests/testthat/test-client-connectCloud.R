@@ -196,13 +196,14 @@ test_that("awaitCompletion handles failure with logs", {
 
   # Check that logs were printed to stderr
   stderr_text <- paste(stderr_output, collapse = "\n")
+  info <- paste0("stderr_text was:\n", stderr_text)
 
-  expect_true(grepl("Begin Publishing Log", stderr_text))
-  expect_true(grepl("End Publishing Log", stderr_text))
-  expect_true(grepl("Starting deployment...", stderr_text))
-  expect_true(grepl("Your app is busted!!", stderr_text))
-  expect_true(grepl("INFO:", stderr_text))
-  expect_true(grepl("ERROR:", stderr_text))
+  expect_match(stderr_text, "Begin Publishing Log")
+  expect_match(stderr_text, "End Publishing Log")
+  expect_match(stderr_text, "Starting deployment...")
+  expect_match(stderr_text, "Your app is busted!!")
+  expect_match(stderr_text, "INFO:")
+  expect_match(stderr_text, "ERROR:")
 })
 
 test_that("withTokenRefreshRetry passes through successful requests", {
