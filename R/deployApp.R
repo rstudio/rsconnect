@@ -426,7 +426,8 @@ deployApp <- function(
         deployment$title,
         accountDetails$accountId,
         appMetadata$appMode,
-        primaryFile
+        primaryFile,
+        deployment$envVars
       )
     } else {
       application <- client$createApplication(
@@ -503,12 +504,16 @@ deployApp <- function(
   )
 
   # Change _visibility_ & set env vars before uploading contents
-  if (isPositConnectCloudServer(accountDetails$server)) {
+  if (
+    isPositConnectCloudServer(accountDetails$server) &&
+      # no update needed if we just created the content
+      !is.null(deployment$appId)
+  ) {
     taskStart(quiet, "Updating content...")
     # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
     primaryFile <- appMetadata$appPrimaryDoc %||%
       appMetadata$inferredPrimaryFile
-    updateResponse <- client$updateContent(
+    application <- client$updateContent(
       application$id,
       deployment$envVars,
       newBundle = upload,
@@ -558,7 +563,7 @@ deployApp <- function(
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
     if (isPositConnectCloudServer(accountDetails$server)) {
-      uploadUrl <- updateResponse$next_revision$source_bundle_upload_url
+      uploadUrl <- application$next_revision$source_bundle_upload_url
       success <- client$uploadBundle(bundlePath, uploadUrl)
       if (!success) {
         cli::cli_abort("Could not upload bundle.")
@@ -598,7 +603,7 @@ deployApp <- function(
   }
   if (isPositConnectCloudServer(accountDetails$server)) {
     client$publish(application$id)
-    revisionId <- updateResponse$next_revision$id
+    revisionId <- application$next_revision$id
     response <- client$awaitCompletion(revisionId)
     deploymentSucceeded <- response$success
     application$url <- response$url
@@ -757,7 +762,8 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
       deployment$title,
       accountDetails$accountId,
       appMetadata$appMode,
-      primaryFile
+      primaryFile,
+      deployment$envVars
     )
   } else {
     client$createApplication(

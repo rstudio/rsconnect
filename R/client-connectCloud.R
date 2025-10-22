@@ -98,7 +98,8 @@ connectCloudClient <- function(service, authInfo) {
       title,
       accountId,
       appMode,
-      primaryFile
+      primaryFile,
+      envVars
     ) {
       title <- if (nzchar(title)) title else name
       contentType <- cloudContentTypeFromAppMode(appMode)
@@ -111,10 +112,22 @@ connectCloudClient <- function(service, authInfo) {
         primary_file = primaryFile
       )
 
+      secrets <- unname(Map(
+        function(name, value) {
+          list(
+            name = name,
+            value = value
+          )
+        },
+        envVars,
+        Sys.getenv(envVars)
+      ))
+
       json <- list(
         account_id = accountId,
         title = title,
-        next_revision = revision
+        next_revision = revision,
+        secrets = secrets
       )
 
       content <- withTokenRefreshRetry(
@@ -122,10 +135,8 @@ connectCloudClient <- function(service, authInfo) {
         "/contents",
         json
       )
-      list(
-        id = content$id,
-        application_id = content$id
-      )
+      content$application_id <- content$id
+      content
     },
 
     getContent = function(contentId) {
@@ -162,7 +173,9 @@ connectCloudClient <- function(service, authInfo) {
         )
       )
 
-      withTokenRefreshRetry(PATCH_JSON, path, json)
+      content <- withTokenRefreshRetry(PATCH_JSON, path, json)
+      content$application_id <- content$id
+      content
     },
 
     uploadBundle = function(bundlePath, uploadUrl) {
