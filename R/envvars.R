@@ -1,8 +1,6 @@
 #' Maintain environment variables across multiple applications
 #'
 #' @description
-#' Supported servers: Posit Connect servers
-#'
 #' * `listAccountEnvVars()` lists the environment variables used by
 #'   every application published to the specified account.
 #' * `updateAccountEnvVars()` updates the specified environment variables with
@@ -10,6 +8,8 @@
 #'
 #' Secure environment variable are currently only supported by Posit Connect
 #' so other server types will generate an error.
+#'
+#' Supported servers: Posit Connect servers
 #'
 #' @inheritParams deployApp
 #' @export

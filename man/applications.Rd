@@ -30,9 +30,9 @@ ShinyApps.io) \cr
 }
 }
 \description{
-Supported servers: All servers
-
 List all applications currently deployed for a given account.
+
+Supported servers: All servers
 }
 \note{
 To register an account you call the \code{\link[=setAccountInfo]{setAccountInfo()}} function.

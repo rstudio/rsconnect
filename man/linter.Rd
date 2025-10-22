@@ -22,10 +22,10 @@ informative message for the user. Typically generated with
 \item{suggestion}{String giving a prescribed fix for the linted problem.}
 }
 \description{
-Supported servers: All servers
-
 Generate a linter, which can identify errors or problematic regions in a
 project.
+
+Supported servers: All servers
 
 Generate a linter, which can identify errors or problematic regions in a
 project.

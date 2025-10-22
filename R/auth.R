@@ -32,9 +32,9 @@ cleanupPasswordFile <- function(appDir) {
 #' Add authorized user to application
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' Add authorized user to application
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param email Email address of user to add.
 #' @param appDir Directory containing application. Defaults to
@@ -87,9 +87,9 @@ addAuthorizedUser <- function(
 #' Remove authorized user from an application
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' Remove authorized user from an application
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param user The user to remove. Can be id or email address.
 #' @param appDir Directory containing application. Defaults to
@@ -149,9 +149,9 @@ removeAuthorizedUser <- function(
 #' List authorized users for an application
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' List authorized users for an application
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
@@ -201,9 +201,9 @@ showUsers <- function(
 #' List invited users for an application
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' List invited users for an application
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
@@ -250,9 +250,9 @@ showInvited <- function(
 #' Resend invitation for invited users of an application
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' Resend invitation for invited users of an application
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param invite The invitation to resend. Can be id or email address.
 #' @param regenerate Regenerate the invite code. Can be helpful is the

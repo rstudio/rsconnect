@@ -28,7 +28,6 @@ for each data frame. It has variables \code{id}, \code{guid}, \code{name}, and
 \code{envVars}. \code{envVars} is a list-column.
 }
 \description{
-Supported servers: Posit Connect servers
 \itemize{
 \item \code{listAccountEnvVars()} lists the environment variables used by
 every application published to the specified account.
@@ -38,4 +37,6 @@ their current values for every app that uses them.
 
 Secure environment variable are currently only supported by Posit Connect
 so other server types will generate an error.
+
+Supported servers: Posit Connect servers
 }

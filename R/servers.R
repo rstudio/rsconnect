@@ -1,11 +1,11 @@
 #' Server metadata
 #'
 #' @description
-#' Supported servers: All servers
-#'
 #' `servers()` lists all known servers; `serverInfo()` gets metadata about
 #' a specific server. Cloud server `shinyapps.io` is always automatically
 #' registered and available.
+#'
+#' Supported servers: All servers
 #'
 #' @param name Server name. If omitted, you'll be prompted to pick a server.
 #' @param local Return only local servers? (i.e. not automatically registered
@@ -184,8 +184,6 @@ findServer <- function(server = NULL, local = TRUE, error_call = caller_env()) {
 #' Server management
 #'
 #' @description
-#' Supported servers: Posit Connect servers
-#'
 #' These functions manage the list of known servers:
 #'
 #' * `addServer()` registers a Posit connect server. Once it has been
@@ -193,6 +191,8 @@ findServer <- function(server = NULL, local = TRUE, error_call = caller_env()) {
 #'   [connectUser()].
 #' * `removeServer()` removes a server from the registry.
 #' * `addServerCertificate()` adds a certificate to a server.
+#'
+#' Supported servers: Posit Connect servers
 #'
 #' @param url URL for the server. Can be a bare hostname like
 #'   `connect.mycompany.com` or a url like `http://posit.mycompany.com/connect`.

@@ -44,9 +44,9 @@ If additional metadata has been saved with the deployment record using the
 additional columns.
 }
 \description{
-Supported servers: All servers
-
 List deployment records for a given application.
+
+Supported servers: All servers
 }
 \examples{
 \dontrun{

@@ -19,9 +19,9 @@ multiple servers (see \code{\link[=servers]{servers()}})}
 during the termination.}
 }
 \description{
-Supported servers: ShinyApps servers
-
 Purge a currently archived ShinyApps application.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function only works for ShinyApps servers.

@@ -1,10 +1,10 @@
 #' Account Management Functions
 #'
 #' @description
-#' Supported servers: All servers
-#'
 #' Functions to enumerate and remove accounts on the local system. Prior to
 #' deploying applications you need to register your account on the local system.
+#'
+#' Supported servers: All servers
 #'
 #' @details
 #' You register an account using the [setAccountInfo()] function (for
@@ -89,14 +89,13 @@ connectApiUser <- function(
 #' Register account on Posit Connect in Snowpark Container Services
 #'
 #' @description
-#' Supported servers: Posit Connect servers
-#'
 #' `connectSPCSUser()` connects your Posit Connect account to the rsconnect
 #' package so it can deploy and manage applications on your behalf.
 #' Configure a
 #' [`connections.toml` file](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil)
 #' in the appropriate location.
 #'
+#' Supported servers: Posit Connect servers
 #'
 #' @inheritParams connectApiUser
 #' @param snowflakeConnectionName Name for the Snowflake connection parameters
@@ -186,12 +185,12 @@ filterPublishableAccounts <- function(accounts) {
 #' Register account on Posit Connect Cloud
 #
 #' @description
-#' Supported servers: Posit Connect Cloud servers
-#'
 #' `connectCloudUser()` connects your Posit Connect Cloud account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf. It will open a browser window to authenticate, then prompt
 #' you to create an account or select an account to use if you have multiple.
+#'
+#' Supported servers: Posit Connect Cloud servers
 #'
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
@@ -487,9 +486,9 @@ getAuthedUser <- function(
 #' Register account on shinyapps.io
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' Configure a ShinyApps account for publishing from this system.
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param name Name of account to save or remove
 #' @param token User token for the account

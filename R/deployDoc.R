@@ -1,8 +1,6 @@
 #' Deploy a single document
 #'
 #' @description
-#' Supported servers: All servers
-#'
 #' Deploys a single R Markdown, Quarto document, or other file (e.g. `.html` or
 #' `.pdf`).
 #'
@@ -12,6 +10,8 @@
 #' missing dependencies, either specify the dependencies explicitly in the
 #' document (see [rmarkdown::find_external_resources()] for details), or call
 #' [deployApp()] directly and specify your own file list in `appFiles`.
+#'
+#' Supported servers: All servers
 #'
 #' @param doc Path to the document to deploy.
 #' @param ... Additional arguments to [deployApp()]. Do not supply `appDir`,

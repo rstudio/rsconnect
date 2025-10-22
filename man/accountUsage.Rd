@@ -32,9 +32,9 @@ delta such as "2d" or "3w").}
 will be grouped. (Number of seconds or relative time delta e.g. "1h").}
 }
 \description{
-Supported servers: ShinyApps servers
-
 Show account usage
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function only works for ShinyApps servers.

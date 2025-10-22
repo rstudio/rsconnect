@@ -1,9 +1,9 @@
 #' Deploy a website
 #'
 #' @description
-#' Supported servers: Posit Connect, Posit Connect Cloud and ShinyApps servers
-#'
 #' Deploy an R Markdown or quarto website to a server.
+#'
+#' Supported servers: Posit Connect, Posit Connect Cloud and ShinyApps servers
 #'
 #' @inheritParams deployApp
 #' @param siteDir Directory containing website. Defaults to current directory.

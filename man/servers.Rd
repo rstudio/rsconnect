@@ -20,11 +20,11 @@ cloud servers)}
 \code{serverInfo()} returns a list with details for a particular server.
 }
 \description{
-Supported servers: All servers
-
 \code{servers()} lists all known servers; \code{serverInfo()} gets metadata about
 a specific server. Cloud server \code{shinyapps.io} is always automatically
 registered and available.
+
+Supported servers: All servers
 }
 \examples{
 # List all registered servers

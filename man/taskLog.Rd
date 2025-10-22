@@ -18,9 +18,9 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 \item{output}{Where to write output. Valid values are \code{NULL} or \code{stderr}}
 }
 \description{
-Supported servers: ShinyApps servers
-
 Writes the task log for the given task
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only with shinyapps.io.

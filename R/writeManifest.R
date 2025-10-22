@@ -1,8 +1,6 @@
 #' Create a `manifest.json`
 #'
 #' @description
-#' Supported servers: All servers
-#'
 #' Use `writeManifest()` to generate a `manifest.json`. Among other things,
 #' you can commit this file to git to activate
 #' [Git-Backed content](https://docs.posit.co/connect/user/git-backed/)
@@ -11,6 +9,8 @@
 #' `manifest.json` contains a list of all files in the app along with their
 #' dependencies, so you will need to re-run `writeManifest()` when either of
 #' these change.
+#'
+#' Supported servers: All servers
 #'
 #' @inheritParams deployApp
 #' @param contentCategory Set this to `"site"` if you'd deploy with

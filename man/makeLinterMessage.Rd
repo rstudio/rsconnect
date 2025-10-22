@@ -14,8 +14,8 @@ makeLinterMessage(header, content, lines)
 \item{lines}{The line numbers from \code{content} that contain lint.}
 }
 \description{
-Supported servers: All servers
-
 Pretty-prints a linter message. Primarily used as a helper
 for constructing linter messages with \code{\link[=linter]{linter()}}.
+
+Supported servers: All servers
 }

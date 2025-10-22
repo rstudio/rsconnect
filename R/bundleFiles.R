@@ -1,8 +1,6 @@
 #' Gather files to be bundled with an app
 #'
 #' @description
-#' Supported servers: All servers
-#'
 #' Given an app directory, and optional `appFiles` and `appFileManifest`
 #' arguments, returns vector of paths to bundle in the app. (Note that
 #' documents follow a different strategy; see [deployDoc()] for details.)
@@ -25,6 +23,8 @@
 #' or the number of files exceeds the maximum file limit (as controlled by
 #' option `rsconnect.max.bundle.files`). This prevents you from accidentally
 #' bundling a very large direcfory (i.e. you home directory).
+#'
+#' Supported servers: All servers
 #'
 #' @inheritParams deployApp
 #' @param error_call The call or environment for error reporting; expert

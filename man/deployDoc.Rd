@@ -18,8 +18,6 @@ much logging to the console is to be performed. At \code{"quiet"} reports no
 information; at \code{"verbose"}, a full diagnostic log is captured.}
 }
 \description{
-Supported servers: All servers
-
 Deploys a single R Markdown, Quarto document, or other file (e.g. \code{.html} or
 \code{.pdf}).
 
@@ -29,6 +27,8 @@ and include an \code{.Rprofile} if present. If you find that the document is
 missing dependencies, either specify the dependencies explicitly in the
 document (see \code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}} for details), or call
 \code{\link[=deployApp]{deployApp()}} directly and specify your own file list in \code{appFiles}.
+
+Supported servers: All servers
 }
 \examples{
 \dontrun{

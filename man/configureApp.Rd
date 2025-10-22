@@ -38,9 +38,9 @@ much logging to the console is to be performed. At \code{"quiet"} reports no
 information; at \code{"verbose"}, a full diagnostic log is captured.}
 }
 \description{
-Supported servers: ShinyApps servers
-
 Configure an application running on a remote server.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

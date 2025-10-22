@@ -24,9 +24,9 @@ Returns a data frame with the following columns:
 }
 }
 \description{
-Supported servers: ShinyApps servers
-
 List Tasks
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only with shinyapps.io.

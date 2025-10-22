@@ -24,10 +24,10 @@ registered on the system and the servers on which they reside.
 \code{accountInfo} returns a list with account details.
 }
 \description{
-Supported servers: All servers
-
 Functions to enumerate and remove accounts on the local system. Prior to
 deploying applications you need to register your account on the local system.
+
+Supported servers: All servers
 }
 \details{
 You register an account using the \code{\link[=setAccountInfo]{setAccountInfo()}} function (for

@@ -1,9 +1,9 @@
 #' Terminate an Application
 #'
 #' @description
-#' Supported servers: ShinyApps servers
-#'
 #' Terminate and archive a currently deployed ShinyApps application.
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param appName Name of application to terminate
 #' @param account Account name. If a single account is registered on the system

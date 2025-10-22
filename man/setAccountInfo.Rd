@@ -16,9 +16,9 @@ setAccountInfo(name, token, secret, server = "shinyapps.io")
 \item{server}{Server to associate account with.}
 }
 \description{
-Supported servers: ShinyApps servers
-
 Configure a ShinyApps account for publishing from this system.
+
+Supported servers: ShinyApps servers
 }
 \examples{
 \dontrun{
