@@ -173,7 +173,23 @@ connectCloudClient <- function(service, authInfo) {
         )
       )
 
-      content <- withTokenRefreshRetry(PATCH_JSON, path, json)
+      content <- tryCatch(
+        withTokenRefreshRetry(PATCH_JSON, path, json),
+        rsconnect_http_409 = function(e) {
+          if (err$errorType == "resource_pending_deletion") {
+            # pending deletion should be treated the same as a 404
+            cli::cli_abort(
+              "Content is pending deletion.",
+              class = c(
+                "rsconnect_http_404",
+                "rsconnect_http"
+              )
+            )
+          } else {
+            stop(e)
+          }
+        }
+      )
       content$application_id <- content$id
       content
     },
