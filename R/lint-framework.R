@@ -2,7 +2,10 @@
 
 ##' Add a Linter
 ##'
+##' @description
 ##' Add a linter, to be used in subsequent calls to [lint()].
+##'
+##' Supported servers: All servers
 ##'
 ##' @param name The name of the linter, as a string.
 ##' @param linter A [linter()].
@@ -15,8 +18,11 @@ addLinter <- function(name, linter) {
 
 ##' Create a Linter
 ##'
+##' @description
 ##' Generate a linter, which can identify errors or problematic regions in a
 ##' project.
+##'
+##' Supported servers: All servers
 ##'
 ##' @param apply Function that, given the content of a file, returns the indices
 ##'   at which problems were found.

@@ -1,6 +1,10 @@
 #' List Deployed Applications
 #'
+#' @description
 #' List all applications currently deployed for a given account.
+#'
+#' Supported servers: All servers
+#'
 #' @inheritParams deployApp
 #' @return
 #' Returns a data frame with the following columns:
@@ -254,6 +258,8 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #' * `showLogs()` displays the logs.
 #' * `getLogs()` returns the logged lines.
 #'
+#' Supported servers: ShinyApps servers
+#'
 #' @param appPath The path to the directory or file that was deployed.
 #' @param appFile The path to the R source file that contains the application
 #'   (for single file applications).
@@ -371,9 +377,12 @@ getLogs <- function(
 
 #' Update deployment records
 #'
+#' @description
 #' Update the deployment records for applications published to Posit Connect.
 #' This updates application title and URL, and deletes records for deployments
 #' where the application has been deleted on the server.
+#'
+#' Supported servers: Posit Connect servers
 #'
 #' @param appPath The path to the directory or file that was deployed.
 #' @export

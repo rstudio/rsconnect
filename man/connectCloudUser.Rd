@@ -17,6 +17,8 @@ after the app is started, with the app URL as a parameter.}
 the rsconnect package so that it can deploy and manage applications on
 your behalf. It will open a browser window to authenticate, then prompt
 you to create an account or select an account to use if you have multiple.
+
+Supported servers: Posit Connect Cloud servers
 }
 \seealso{
 Other Account functions: 

@@ -25,6 +25,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 }
 \description{
 Show properties of an application deployed to ShinyApps.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

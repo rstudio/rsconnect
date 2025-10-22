@@ -16,6 +16,8 @@ addLinter(name, linter)
 \description{
 Add a linter, to be used in subsequent calls to \code{\link[=lint]{lint()}}.
 
+Supported servers: All servers
+
 Add a linter, to be used in subsequent calls to \code{\link[=lint]{lint()}}.
 }
 \examples{

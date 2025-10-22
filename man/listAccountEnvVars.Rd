@@ -37,4 +37,6 @@ their current values for every app that uses them.
 
 Secure environment variable are currently only supported by Posit Connect
 so other server types will generate an error.
+
+Supported servers: Posit Connect servers
 }

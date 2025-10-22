@@ -1,7 +1,10 @@
 #' Deploy a Plumber API
 #'
+#' @description
 #' Deploys an application consisting of plumber API routes. The given directory
 #' must contain a script returning a `plumb` object or a plumber API definition.
+#'
+#' Supported servers: Posit Connect and ShinyApps servers
 #'
 #' @param api Path to the API project directory. Must contain either
 #'   `entrypoint.R` or `plumber.R` (for plumber APIs) or `_server.yml` (for

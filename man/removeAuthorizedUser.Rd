@@ -28,6 +28,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 }
 \description{
 Remove authorized user from an application
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

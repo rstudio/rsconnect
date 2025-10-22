@@ -20,6 +20,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 }
 \description{
 List invited users for an application
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

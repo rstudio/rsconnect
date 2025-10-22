@@ -37,6 +37,8 @@ list that includes an \code{id} and \code{continueUrl} is returned. A browser
 should be opened to the \code{continueUrl} to complete publishing of the
 document. If an error occurs then a diagnostic message is returned in the
 \code{error} element of the list.
+
+Supported servers: RPubs servers
 }
 \examples{
 \dontrun{

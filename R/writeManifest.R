@@ -10,6 +10,8 @@
 #' dependencies, so you will need to re-run `writeManifest()` when either of
 #' these change.
 #'
+#' Supported servers: All servers
+#'
 #' @inheritParams deployApp
 #' @param contentCategory Set this to `"site"` if you'd deploy with
 #'   [deploySite()]; otherwise leave as is.

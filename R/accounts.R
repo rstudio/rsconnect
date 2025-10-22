@@ -1,8 +1,12 @@
 #' Account Management Functions
 #'
+#' @description
 #' Functions to enumerate and remove accounts on the local system. Prior to
 #' deploying applications you need to register your account on the local system.
 #'
+#' Supported servers: All servers
+#'
+#' @details
 #' You register an account using the [setAccountInfo()] function (for
 #' ShinyApps) or [connectUser()] function (for other servers). You can
 #' subsequently remove the account using the `removeAccount` function.
@@ -42,6 +46,8 @@ accounts <- function(server = NULL) {
 #' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
 #' appropriate for non-interactive settings; you'll need to copy-and-paste the
 #' API key from your account settings.
+#'
+#' Supported servers: Posit Connect servers
 #'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.
@@ -89,6 +95,7 @@ connectApiUser <- function(
 #' [`connections.toml` file](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil)
 #' in the appropriate location.
 #'
+#' Supported servers: Posit Connect servers
 #'
 #' @inheritParams connectApiUser
 #' @param snowflakeConnectionName Name for the Snowflake connection parameters
@@ -182,6 +189,8 @@ filterPublishableAccounts <- function(accounts) {
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf. It will open a browser window to authenticate, then prompt
 #' you to create an account or select an account to use if you have multiple.
+#'
+#' Supported servers: Posit Connect Cloud servers
 #'
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
@@ -476,7 +485,10 @@ getAuthedUser <- function(
 
 #' Register account on shinyapps.io
 #'
+#' @description
 #' Configure a ShinyApps account for publishing from this system.
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param name Name of account to save or remove
 #' @param token User token for the account

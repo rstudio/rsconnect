@@ -20,6 +20,8 @@ during the termination.}
 }
 \description{
 Terminate and archive a currently deployed ShinyApps application.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function only works for ShinyApps servers.

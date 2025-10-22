@@ -17,6 +17,8 @@ setAccountInfo(name, token, secret, server = "shinyapps.io")
 }
 \description{
 Configure a ShinyApps account for publishing from this system.
+
+Supported servers: ShinyApps servers
 }
 \examples{
 \dontrun{

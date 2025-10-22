@@ -1,6 +1,10 @@
 #' Show Application Usage
 #'
+#' @description
 #' Show application usage of a currently deployed application
+#'
+#' Supported servers: ShinyApps servers
+#'
 #' @param appName Name of application
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
@@ -67,8 +71,10 @@ showUsage <- function(
 
 #' Show Application Metrics
 #'
+#' @description
 #' Show application metrics of a currently deployed application.
-#' This function only works for ShinyApps servers.
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param metricSeries Metric series to query. Refer to the
 #'   [shinyapps.io documentation](<https://docs.posit.co/shinyapps.io/metrics.html#ApplicationMetrics>)
@@ -126,7 +132,11 @@ showMetrics <- function(
 
 #' Show Account Usage
 #'
+#' @description
 #' Show account usage
+#'
+#' Supported servers: ShinyApps servers
+#'
 #' @inheritParams deployApp
 #' @param usageType Use metric to retreive (for example: "hours")
 #' @param from Date range starting timestamp (Unix timestamp or relative time

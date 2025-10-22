@@ -50,6 +50,8 @@ to \code{library()}, \code{require()}, \code{requireNamespace()}, \code{::}, and
 It then adds implicit dependencies (i.e. an \code{.Rmd} requires Rmarkdown)
 and adds all recursive dependencies to create a complete manifest of
 package packages need to be installed to run the app.
+
+Supported servers: All servers
 }
 \section{Dependency discovery}{
 rsconnect use one of three mechanisms to find which packages your application

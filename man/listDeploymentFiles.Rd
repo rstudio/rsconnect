@@ -51,4 +51,6 @@ the maximum bundle size (as controlled by option \code{rsconnect.max.bundle.size
 or the number of files exceeds the maximum file limit (as controlled by
 option \code{rsconnect.max.bundle.files}). This prevents you from accidentally
 bundling a very large direcfory (i.e. you home directory).
+
+Supported servers: All servers
 }

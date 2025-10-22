@@ -28,4 +28,6 @@ package so it can deploy and manage applications on your behalf.
 Configure a
 \href{https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil}{\code{connections.toml} file}
 in the appropriate location.
+
+Supported servers: Posit Connect servers
 }

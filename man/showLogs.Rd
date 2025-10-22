@@ -54,6 +54,8 @@ These functions provide access to the logs for deployed ShinyApps applications:
 \item \code{showLogs()} displays the logs.
 \item \code{getLogs()} returns the logged lines.
 }
+
+Supported servers: ShinyApps servers
 }
 \note{
 These functions only use the \code{libcurl} transport, and only work

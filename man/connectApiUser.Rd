@@ -38,6 +38,8 @@ your behalf.
 authenticate in-browser to your Posit Connect server. \code{connectApiUser()} is
 appropriate for non-interactive settings; you'll need to copy-and-paste the
 API key from your account settings.
+
+Supported servers: Posit Connect servers
 }
 \seealso{
 Other Account functions: 

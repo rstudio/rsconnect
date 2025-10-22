@@ -11,6 +11,8 @@ deployTFModel(...)
 }
 \description{
 Deploys a directory containing a TensorFlow saved model.
+
+Supported servers: Posit Connect and ShinyApps servers
 }
 \seealso{
 Other Deployment functions: 

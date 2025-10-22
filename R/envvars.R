@@ -9,6 +9,8 @@
 #' Secure environment variable are currently only supported by Posit Connect
 #' so other server types will generate an error.
 #'
+#' Supported servers: Posit Connect servers
+#'
 #' @inheritParams deployApp
 #' @export
 #' @return `listAccountEnvVars()` returns a data frame with one row

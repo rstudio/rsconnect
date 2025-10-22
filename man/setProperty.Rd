@@ -34,6 +34,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 }
 \description{
 Set a property on currently deployed ShinyApps application.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function only works for ShinyApps servers.
