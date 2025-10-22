@@ -38,8 +38,6 @@ accounts <- function(server = NULL) {
 #' Register account on Posit Connect
 #
 #' @description
-#' Supported servers: Posit Connect servers
-#'
 #' `connectUser()` and `connectApiUser()` connect your Posit Connect account to
 #' the rsconnect package so that it can deploy and manage applications on
 #' your behalf.
@@ -48,6 +46,8 @@ accounts <- function(server = NULL) {
 #' authenticate in-browser to your Posit Connect server. `connectApiUser()` is
 #' appropriate for non-interactive settings; you'll need to copy-and-paste the
 #' API key from your account settings.
+#'
+#' Supported servers: Posit Connect servers
 #'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.

@@ -30,8 +30,6 @@ interactive sessions only. If a function is passed, it will be called
 after the app is started, with the app URL as a parameter.}
 }
 \description{
-Supported servers: Posit Connect servers
-
 \code{connectUser()} and \code{connectApiUser()} connect your Posit Connect account to
 the rsconnect package so that it can deploy and manage applications on
 your behalf.
@@ -40,6 +38,8 @@ your behalf.
 authenticate in-browser to your Posit Connect server. \code{connectApiUser()} is
 appropriate for non-interactive settings; you'll need to copy-and-paste the
 API key from your account settings.
+
+Supported servers: Posit Connect servers
 }
 \seealso{
 Other Account functions: 
