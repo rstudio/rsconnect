@@ -504,22 +504,21 @@ deployApp <- function(
   )
 
   # Change _visibility_ & set env vars before uploading contents
-  if (
-    isPositConnectCloudServer(accountDetails$server) &&
-      # no update needed if we just created the content
-      !is.null(deployment$appId)
-  ) {
-    taskStart(quiet, "Updating content...")
-    # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
-    primaryFile <- appMetadata$appPrimaryDoc %||%
-      appMetadata$inferredPrimaryFile
-    application <- client$updateContent(
-      application$id,
-      deployment$envVars,
-      newBundle = upload,
-      primaryFile
-    )
-    taskComplete(quiet, "Content updated")
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    # no update needed if we just created the content
+    if (!is.null(deployment$appId)) {
+      taskStart(quiet, "Updating content...")
+      # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
+      primaryFile <- appMetadata$appPrimaryDoc %||%
+        appMetadata$inferredPrimaryFile
+      application <- client$updateContent(
+        application$id,
+        deployment$envVars,
+        newBundle = upload,
+        primaryFile
+      )
+      taskComplete(quiet, "Content updated")
+    }
   } else {
     if (
       needsVisibilityChange(accountDetails$server, application, appVisibility)
