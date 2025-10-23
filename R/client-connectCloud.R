@@ -141,7 +141,17 @@ connectCloudClient <- function(service, authInfo) {
 
     getContent = function(contentId) {
       path <- paste0("/contents/", contentId)
-      withTokenRefreshRetry(GET, path)
+      content <- withTokenRefreshRetry(GET, path)
+      if (content$state == "deleted") {
+        cli::cli_abort(
+          "Content is pending deletion.",
+          class = c(
+            "rsconnect_http_404",
+            "rsconnect_http"
+          )
+        )
+      }
+      content
     },
 
     updateContent = function(
