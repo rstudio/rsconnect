@@ -420,7 +420,7 @@ deployApp <- function(
   )
 
   if (is.null(deployment$appId)) {
-    taskStart(quiet, "Creating application on server...")
+    taskStart(quiet, "Creating content on server...")
     if (isPositConnectCloudServer(accountDetails$server)) {
       # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
       primaryFile <- appMetadata$appPrimaryDoc %||%
@@ -442,7 +442,7 @@ deployApp <- function(
         contentCategory
       )
     }
-    taskComplete(quiet, "Created application with id {.val {application$id}}")
+    taskComplete(quiet, "Created content with id {.val {application$id}}")
   } else {
     if (isPositConnectCloudServer(accountDetails$server)) {
       taskStart(
@@ -472,7 +472,7 @@ deployApp <- function(
     } else {
       taskStart(
         quiet,
-        "Looking up application with id {.val {deployment$appId}}..."
+        "Looking up content with id {.val {deployment$appId}}..."
       )
       application <- tryCatch(
         {
@@ -480,7 +480,7 @@ deployApp <- function(
             deployment$appId,
             deployment$version
           )
-          taskComplete(quiet, "Found application {.url {application$url}}")
+          taskComplete(quiet, "Found content {.url {application$url}}")
           application
         },
         rsconnect_http_404 = function(err) {
@@ -492,7 +492,7 @@ deployApp <- function(
           )
           taskComplete(
             quiet,
-            "Created application with id {.val {application$id}}"
+            "Created content with id {.val {application$id}}"
           )
           application
         }
@@ -557,7 +557,7 @@ deployApp <- function(
       envManagementPy = envManagementPy
     )
     size <- format(file_size(bundlePath), big.mark = ",")
-    taskComplete(quiet, "Created {size}b bundle")
+    taskComplete(quiet, "Created bundle of size: {size}b")
 
     # create, and upload the bundle
     taskStart(quiet, "Uploading bundle...")
@@ -729,15 +729,15 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
 }
 
 applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
-  header <- "Failed to find existing application on server; it's probably been deleted."
+  header <- "Failed to find existing content on server; it's probably been deleted."
   not_interactive <- c(
     i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
-    i = "Or use {.fn applications} to see other applications you have on the server."
+    i = "Or use {.fn applications} to see other content you have on the server."
   )
   prompt <- "What do you want to do?"
   choices <- c(
     "Give up and try again later",
-    "Delete existing deployment & create a new app"
+    "Delete existing deployment & create a new content"
   )
 
   cli_menu(header, prompt, choices, not_interactive = not_interactive, quit = 1)
