@@ -737,7 +737,7 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
   prompt <- "What do you want to do?"
   choices <- c(
     "Give up and try again later",
-    "Delete existing deployment & create a new content"
+    "Delete existing deployment record & deploy this content as a new item"
   )
 
   cli_menu(header, prompt, choices, not_interactive = not_interactive, quit = 1)
