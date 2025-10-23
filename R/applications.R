@@ -297,11 +297,7 @@ showLogs <- function(
     account = account
   )
 
-  if (isPositConnectCloudServer(deployment$server)) {
-    cli::cli_abort(
-      "The showLogs() function is only supported for shinyapps.io deployments."
-    )
-  }
+  checkShinyappsServer(deployment$server)
 
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
