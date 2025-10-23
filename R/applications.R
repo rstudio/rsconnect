@@ -299,7 +299,7 @@ showLogs <- function(
 
   if (isPositConnectCloudServer(deployment$server)) {
     cli::cli_abort(
-      "The showLogs() function is not supported for Posit Connect Cloud accounts."
+      "The showLogs() function is only supported for shinyapps.io deployments."
     )
   }
 
