@@ -732,7 +732,7 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
   header <- "Failed to find existing content on server; it's probably been deleted."
   not_interactive <- c(
     i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
-    i = "Or use {.fn applications} to see other content you have on the server."
+    i = "Or use {.fn applications} to see other content deployed to the the server."
   )
   prompt <- "What do you want to do?"
   choices <- c(
