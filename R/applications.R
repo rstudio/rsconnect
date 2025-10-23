@@ -296,6 +296,13 @@ showLogs <- function(
     server = server,
     account = account
   )
+
+  if (isPositConnectCloudServer(deployment$server)) {
+    cli::cli_abort(
+      "The showLogs() function is not supported for Posit Connect Cloud accounts."
+    )
+  }
+
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
