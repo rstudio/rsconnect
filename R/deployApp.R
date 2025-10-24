@@ -510,7 +510,8 @@ deployApp <- function(
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
     # no update needed if we just created the content
-    if (!is.null(deployment$appId)) {
+    # current revision will be null only when creating new content
+    if (!is.null(application$current_revision)) {
       taskStart(quiet, "Updating content...")
       # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
       primaryFile <- appMetadata$appPrimaryDoc %||%
