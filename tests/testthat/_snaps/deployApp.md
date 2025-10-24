@@ -55,19 +55,19 @@
       applicationDeleted(client, target, app)
     Condition
       Error in `applicationDeleted()`:
-      ! Failed to find existing application on server; it's probably been deleted.
+      ! Failed to find existing content on server; it's probably been deleted.
       i Use `forgetDeployment()` to remove outdated record and try again.
-      i Or use `applications()` to see other applications you have on the server.
+      i Or use `applications()` to see other content deployed to the the server.
 
 ---
 
     Code
       . <- applicationDeleted(client, target, app)
     Message
-      Failed to find existing application on server; it's probably been deleted.
+      Failed to find existing content on server; it's probably been deleted.
       What do you want to do?
       1: Give up and try again later
-      2: Delete existing deployment & create a new app
+      2: Delete existing deployment record & deploy this content as a new item
       Selection: 2
 
 # deployApp() errors if envVars is given a named vector
