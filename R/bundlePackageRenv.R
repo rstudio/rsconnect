@@ -37,7 +37,6 @@ snapshotRenvDependencies <- function(
 
 parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
   renvLock <- jsonlite::read_json(renvLockFile(bundleDir))
-
   repos <- setNames(
     vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
     vapply(renvLock$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
@@ -50,9 +49,7 @@ parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
   if (nrow(deps) == 0) {
     return(data.frame())
   }
-
   deps$description <- lapply(deps$Package, package_record)
-
   if (!snapshot) {
     lib_versions <- unlist(lapply(deps$description, "[[", "Version"))
 

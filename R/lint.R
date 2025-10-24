@@ -1,7 +1,10 @@
 ##' Lint a Project
 ##'
+##' @description
 ##' Takes the set of active linters (see [addLinter()]), and applies
 ##' them to all files within a project.
+##'
+##' Supported servers: All servers
 ##'
 ##' @param project Path to a project directory.
 ##' @param files Specific files to lint. Can be NULL, in which case all
@@ -216,8 +219,11 @@ showLintResults <- function(appDir, lintResults) {
 
 #' Construct a Linter Message
 #'
+#' @description
 #' Pretty-prints a linter message. Primarily used as a helper
 #' for constructing linter messages with [linter()].
+#'
+#' Supported servers: All servers
 #'
 #' @param header A header message describing the linter.
 #' @param content The content of the file that was linted.

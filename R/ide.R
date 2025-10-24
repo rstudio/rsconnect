@@ -51,14 +51,18 @@ registerUserToken <- function(
   accountName,
   userId,
   token,
-  privateKey
+  privateKey,
+  accessToken,
+  refreshToken
 ) {
   registerAccount(
     serverName = serverName,
     accountName = accountName,
     accountId = userId,
     token = token,
-    private_key = privateKey
+    private_key = privateKey,
+    accessToken = accessToken,
+    refreshToken = refreshToken
   )
 }
 

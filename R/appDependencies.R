@@ -8,6 +8,8 @@
 #' and adds all recursive dependencies to create a complete manifest of
 #' package packages need to be installed to run the app.
 #'
+#' Supported servers: All servers
+#'
 #' # Dependency discovery
 #'
 #' rsconnect use one of three mechanisms to find which packages your application

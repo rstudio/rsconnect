@@ -24,6 +24,8 @@
 #' option `rsconnect.max.bundle.files`). This prevents you from accidentally
 #' bundling a very large direcfory (i.e. you home directory).
 #'
+#' Supported servers: All servers
+#'
 #' @inheritParams deployApp
 #' @param error_call The call or environment for error reporting; expert
 #'   use only.

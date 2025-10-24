@@ -38,6 +38,8 @@ NULL, invisibly.
 Forgets about an application deployment. This is useful if the application
 has been deleted on the server, or the local deployment information needs to
 be reset.
+
+Supported servers: All servers
 }
 \details{
 This method removes from disk the file containing deployment

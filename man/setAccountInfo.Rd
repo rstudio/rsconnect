@@ -17,6 +17,8 @@ setAccountInfo(name, token, secret, server = "shinyapps.io")
 }
 \description{
 Configure a ShinyApps account for publishing from this system.
+
+Supported servers: ShinyApps servers
 }
 \examples{
 \dontrun{
@@ -32,6 +34,7 @@ removeAccount("user")
 \seealso{
 Other Account functions: 
 \code{\link{accounts}()},
-\code{\link{connectApiUser}()}
+\code{\link{connectApiUser}()},
+\code{\link{connectCloudUser}()}
 }
 \concept{Account functions}

@@ -19,6 +19,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 }
 \description{
 Writes the task log for the given task
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only with shinyapps.io.

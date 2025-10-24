@@ -1,6 +1,10 @@
 #' List Application Deployments
 #'
+#' @description
 #' List deployment records for a given application.
+#'
+#' Supported servers: All servers
+#'
 #' @param appPath The path to the content that was deployed, either a directory
 #'   or an individual document.
 #' @param nameFilter Return only deployments matching the given name (optional)
@@ -206,9 +210,12 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 
 #' Forget Application Deployment
 #'
+#' @description
 #' Forgets about an application deployment. This is useful if the application
 #' has been deleted on the server, or the local deployment information needs to
 #' be reset.
+#'
+#' Supported servers: All servers
 #'
 #' @param appPath The path to the content that was deployed, either a directory
 #'   or an individual document.

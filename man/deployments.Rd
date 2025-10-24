@@ -45,6 +45,8 @@ additional columns.
 }
 \description{
 List deployment records for a given application.
+
+Supported servers: All servers
 }
 \examples{
 \dontrun{

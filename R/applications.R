@@ -1,6 +1,10 @@
 #' List Deployed Applications
 #'
+#' @description
 #' List all applications currently deployed for a given account.
+#'
+#' Supported servers: All servers
+#'
 #' @inheritParams deployApp
 #' @return
 #' Returns a data frame with the following columns:
@@ -38,6 +42,12 @@ applications <- function(account = NULL, server = NULL) {
   accountDetails <- accountInfo(account, server)
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
+
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    cli::cli_abort(
+      "The applications() function is not supported for Posit Connect Cloud accounts."
+    )
+  }
 
   isConnect <- isConnectServer(accountDetails$server)
 
@@ -248,6 +258,8 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #' * `showLogs()` displays the logs.
 #' * `getLogs()` returns the logged lines.
 #'
+#' Supported servers: ShinyApps servers
+#'
 #' @param appPath The path to the directory or file that was deployed.
 #' @param appFile The path to the R source file that contains the application
 #'   (for single file applications).
@@ -284,6 +296,9 @@ showLogs <- function(
     server = server,
     account = account
   )
+
+  checkShinyappsServer(deployment$server)
+
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
@@ -365,9 +380,12 @@ getLogs <- function(
 
 #' Update deployment records
 #'
+#' @description
 #' Update the deployment records for applications published to Posit Connect.
 #' This updates application title and URL, and deletes records for deployments
 #' where the application has been deleted on the server.
+#'
+#' Supported servers: Posit Connect servers
 #'
 #' @param appPath The path to the directory or file that was deployed.
 #' @export
@@ -378,8 +396,10 @@ syncAppMetadata <- function(appPath = ".") {
   for (i in seq_len(nrow(deploys))) {
     curDeploy <- deploys[i, ]
 
-    # don't sync if published to RPubs
+    # don't sync if published to RPubs or Connect Cloud
     if (isRPubs(curDeploy$server)) {
+      next
+    } else if (isPositConnectCloudServer(curDeploy$server)) {
       next
     }
 

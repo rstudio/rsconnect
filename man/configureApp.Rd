@@ -39,6 +39,8 @@ information; at \code{"verbose"}, a full diagnostic log is captured.}
 }
 \description{
 Configure an application running on a remote server.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

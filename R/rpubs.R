@@ -1,10 +1,13 @@
 #' Upload a file to RPubs
 #'
+#' @description
 #' This function publishes a file to rpubs.com. If the upload succeeds a
 #' list that includes an `id` and `continueUrl` is returned. A browser
 #' should be opened to the `continueUrl` to complete publishing of the
 #' document. If an error occurs then a diagnostic message is returned in the
 #' `error` element of the list.
+#'
+#' Supported servers: RPubs servers
 #'
 #' @param title The title of the document.
 #' @param contentFile The path to the content file to upload.

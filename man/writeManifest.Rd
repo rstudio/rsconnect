@@ -112,4 +112,6 @@ for Posit Connect.
 \code{manifest.json} contains a list of all files in the app along with their
 dependencies, so you will need to re-run \code{writeManifest()} when either of
 these change.
+
+Supported servers: All servers
 }

@@ -123,72 +123,111 @@ test_that("correct extra packages for APIs are detected", {
 test_that("can infer mode for API with plumber.R", {
   dir <- local_temp_app(list("plumber.R" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "api")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "api", primaryFile = "plumber.R")
+  )
 })
 
 test_that("can infer mode for API with entrypoint.R", {
   dir <- local_temp_app(list("entrypoint.R" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "api")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "api", primaryFile = "entrypoint.R")
+  )
 })
 
 test_that("can infer mode for API with _server.yml", {
   dir <- local_temp_app(list("_server.yml" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "api")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "api", primaryFile = "_server.yml")
+  )
 })
 
 test_that("can infer mode for shiny apps with app.R", {
   dir <- local_temp_app(list("app.R" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "shiny", primaryFile = "app.R")
+  )
 })
 
 test_that("can infer mode for shiny apps with server.R", {
   dir <- local_temp_app(list("server.R" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "shiny", primaryFile = "server.R")
+  )
 })
 
 test_that("can infer mode for static rmd", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "rmd-static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "rmd-static", primaryFile = "foo.Rmd")
+  )
 })
 
 test_that("can infer mode for rmd as static quarto with guidance", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths, usesQuarto = TRUE), "quarto-static")
+  expect_equal(
+    inferAppMode(dir, paths, usesQuarto = TRUE),
+    list(appMode = "quarto-static", primaryFile = "foo.Rmd")
+  )
 })
 
 test_that("can infer mode for rmd as shiny quarto with guidance", {
   # Static R Markdown treated as rmd-shiny for shinyapps targets
   dir <- local_temp_app(list("foo.Rmd" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths, isShinyappsServer = TRUE), "rmd-shiny")
+  expect_equal(
+    inferAppMode(dir, paths, isShinyappsServer = TRUE),
+    list(appMode = "rmd-shiny", primaryFile = "foo.Rmd")
+  )
 })
 
 test_that("can infer mode for static quarto", {
   dir <- local_temp_app(list("foo.qmd" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-static", primaryFile = "foo.qmd")
+  )
 
   dir <- local_temp_app(list("_quarto.yml" = "", "foo.qmd" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-static", primaryFile = "foo.qmd")
+  )
 
   dir <- local_temp_app(list("_quarto.yml" = "", "foo.rmd" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-static", primaryFile = "foo.rmd")
+  )
 
   dir <- local_temp_app(list("_quarto.yml" = "", "foo.r" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-static", primaryFile = "foo.r")
+  )
 
   dir <- local_temp_app(list("foo.r" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-static", primaryFile = "foo.r")
+  )
 })
 
 test_that("can infer mode for shiny rmd docs", {
@@ -198,15 +237,24 @@ test_that("can infer mode for shiny rmd docs", {
 
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "rmd-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "rmd-shiny", primaryFile = "index.Rmd")
+  )
 
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shinyrmd")))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "rmd-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "rmd-shiny", primaryFile = "index.Rmd")
+  )
 
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny_prerendered")))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "rmd-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "rmd-shiny", primaryFile = "index.Rmd")
+  )
 
   # can pair server.R with shiny runtime
   dir <- local_temp_app(list(
@@ -214,7 +262,10 @@ test_that("can infer mode for shiny rmd docs", {
     "server.R" = ""
   ))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "rmd-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "rmd-shiny", primaryFile = "index.Rmd")
+  )
 
   # Beats static rmarkdowns
   dir <- local_temp_app(list(
@@ -222,7 +273,10 @@ test_that("can infer mode for shiny rmd docs", {
     "foo.Rmd" = ""
   ))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "rmd-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "rmd-shiny", primaryFile = "index.Rmd")
+  )
 })
 
 test_that("can infer mode for shiny qmd docs", {
@@ -237,12 +291,18 @@ test_that("can infer mode for shiny qmd docs", {
 
   dir <- local_temp_app(list("index.Qmd" = yaml_runtime("shiny")))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-shiny", primaryFile = "index.Qmd")
+  )
 
   # Can force Rmd to use quarto
   dir <- local_temp_app(list("index.Rmd" = yaml_runtime("shiny")))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths, usesQuarto = TRUE), "quarto-shiny")
+  expect_equal(
+    inferAppMode(dir, paths, usesQuarto = TRUE),
+    list(appMode = "quarto-shiny", primaryFile = "index.Rmd")
+  )
 
   # Prefers quarto if both present
   dir <- local_temp_app(list(
@@ -250,7 +310,10 @@ test_that("can infer mode for shiny qmd docs", {
     "index.Rmd" = yaml_runtime("shiny")
   ))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "quarto-shiny")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "quarto-shiny", primaryFile = "index.Qmd")
+  )
 })
 
 test_that("Shiny R Markdown files are detected correctly", {
@@ -270,7 +333,10 @@ test_that("shiny metadata process correctly", {
 test_that("otherwise, fallsback to static deploy", {
   dir <- local_temp_app(list("a.html" = "", "b.html" = ""))
   paths <- list.files(dir)
-  expect_equal(inferAppMode(dir, paths), "static")
+  expect_equal(
+    inferAppMode(dir, paths),
+    list(appMode = "static", primaryFile = NULL)
+  )
 })
 
 # inferAppPrimaryDoc ------------------------------------------------------

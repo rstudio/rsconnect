@@ -32,6 +32,8 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 }
 \description{
 Resend invitation for invited users of an application
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

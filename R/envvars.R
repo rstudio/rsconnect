@@ -9,6 +9,8 @@
 #' Secure environment variable are currently only supported by Posit Connect
 #' so other server types will generate an error.
 #'
+#' Supported servers: Posit Connect servers
+#'
 #' @inheritParams deployApp
 #' @export
 #' @return `listAccountEnvVars()` returns a data frame with one row
@@ -72,6 +74,6 @@ checkServerHasEnvVars <- function(server, error_call = caller_env()) {
   }
 
   cli::cli_abort(
-    "The {.arg server} {.str server} does not support environment variables"
+    "The {.arg server} {.str {server}} does not support environment variables"
   )
 }

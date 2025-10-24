@@ -5,6 +5,8 @@ clientForAccount <- function(account) {
 
   if (isShinyappsServer(account$server)) {
     shinyAppsClient(serverUrl, account)
+  } else if (isPositConnectCloudServer(account$server)) {
+    connectCloudClient(serverUrl, account)
   } else if (isSPCSServer(account$server)) {
     account$snowflakeToken <- getSnowflakeAuthToken(
       serverInfo$url,

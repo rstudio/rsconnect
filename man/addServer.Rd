@@ -45,6 +45,8 @@ registered, you can connect to an account on the server using
 \item \code{removeServer()} removes a server from the registry.
 \item \code{addServerCertificate()} adds a certificate to a server.
 }
+
+Supported servers: Posit Connect servers
 }
 \examples{
 \dontrun{

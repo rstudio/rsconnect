@@ -20,6 +20,8 @@ during the operation.}
 }
 \description{
 Restart an application currently running on a remote server.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

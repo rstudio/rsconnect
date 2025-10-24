@@ -16,6 +16,8 @@ plumber2 APIs)}
 \description{
 Deploys an application consisting of plumber API routes. The given directory
 must contain a script returning a \code{plumb} object or a plumber API definition.
+
+Supported servers: Posit Connect and ShinyApps servers
 }
 \details{
 Deploy a plumber API definition by either supplying a directory

@@ -26,6 +26,8 @@ registered on the system and the servers on which they reside.
 \description{
 Functions to enumerate and remove accounts on the local system. Prior to
 deploying applications you need to register your account on the local system.
+
+Supported servers: All servers
 }
 \details{
 You register an account using the \code{\link[=setAccountInfo]{setAccountInfo()}} function (for
@@ -38,6 +40,7 @@ previously registered accounts.
 \seealso{
 Other Account functions: 
 \code{\link{connectApiUser}()},
+\code{\link{connectCloudUser}()},
 \code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

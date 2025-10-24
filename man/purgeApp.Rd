@@ -20,6 +20,8 @@ during the termination.}
 }
 \description{
 Purge a currently archived ShinyApps application.
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function only works for ShinyApps servers.

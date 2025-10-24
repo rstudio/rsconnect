@@ -1,8 +1,12 @@
 #' Account Management Functions
 #'
+#' @description
 #' Functions to enumerate and remove accounts on the local system. Prior to
 #' deploying applications you need to register your account on the local system.
 #'
+#' Supported servers: All servers
+#'
+#' @details
 #' You register an account using the [setAccountInfo()] function (for
 #' ShinyApps) or [connectUser()] function (for other servers). You can
 #' subsequently remove the account using the `removeAccount` function.
@@ -43,6 +47,8 @@ accounts <- function(server = NULL) {
 #' appropriate for non-interactive settings; you'll need to copy-and-paste the
 #' API key from your account settings.
 #'
+#' Supported servers: Posit Connect servers
+#'
 #' @param account A name for the account to connect.
 #' @param server The server to connect to.
 #' @param launch.browser If true, the system's default web browser will be
@@ -61,6 +67,8 @@ connectApiUser <- function(
   quiet = FALSE
 ) {
   server <- findServer(server)
+  checkConnectServer(server)
+
   user <- getAuthedUser(server, apiKey = apiKey)
 
   registerAccount(
@@ -87,6 +95,7 @@ connectApiUser <- function(
 #' [`connections.toml` file](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil)
 #' in the appropriate location.
 #'
+#' Supported servers: Posit Connect servers
 #'
 #' @inheritParams connectApiUser
 #' @param snowflakeConnectionName Name for the Snowflake connection parameters
@@ -99,6 +108,8 @@ connectSPCSUser <- function(
   quiet = FALSE
 ) {
   server <- findServer(server)
+  checkConnectServer(server)
+
   user <- getSPCSAuthedUser(server, snowflakeConnectionName)
 
   registerAccount(
@@ -136,6 +147,8 @@ connectUser <- function(
   launch.browser = getOption("rsconnect.launch.browser", interactive())
 ) {
   server <- findServer(server)
+  checkConnectServer(server)
+
   resp <- getAuthTokenAndUser(server, launch.browser)
 
   registerAccount(
@@ -152,6 +165,198 @@ connectUser <- function(
   }
   invisible()
 }
+
+# Filter accounts to those where the user has permission to create (i.e. publish) content.
+filterPublishableAccounts <- function(accounts) {
+  Filter(
+    function(account) {
+      any(vapply(
+        account$permissions,
+        function(permission) {
+          identical(permission, "content:create")
+        },
+        logical(1)
+      ))
+    },
+    accounts
+  )
+}
+
+#' Register account on Posit Connect Cloud
+#
+#' @description
+#' `connectCloudUser()` connects your Posit Connect Cloud account to
+#' the rsconnect package so that it can deploy and manage applications on
+#' your behalf. It will open a browser window to authenticate, then prompt
+#' you to create an account or select an account to use if you have multiple.
+#'
+#' Supported servers: Posit Connect Cloud servers
+#'
+#' @param launch.browser If true, the system's default web browser will be
+#'   launched automatically after the app is started. Defaults to `TRUE` in
+#'   interactive sessions only. If a function is passed, it will be called
+#'   after the app is started, with the app URL as a parameter.
+#'
+#' @family Account functions
+#' @export
+connectCloudUser <- function(launch.browser = TRUE) {
+  authClient <- cloudAuthClient()
+  deviceAuth <- authClient$createDeviceAuth()
+
+  verificationUriComplete <- addUtmParameters(
+    deviceAuth$verification_uri_complete
+  )
+
+  # Alert user and open browser for verification
+  if (isTRUE(launch.browser)) {
+    cli::cli_alert_info(
+      "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
+    )
+    utils::browseURL(verificationUriComplete)
+  } else if (is.function(launch.browser)) {
+    cli::cli_alert_info(
+      "Opening login page - confirm the code entered matches the code: {deviceAuth$user_code}."
+    )
+    launch.browser(verificationUriComplete)
+  } else {
+    cli::cli_alert_info(
+      "Open {.url {verificationUriComplete}} to authenticate and confirm the code entered matches the code: {deviceAuth$user_code}."
+    )
+  }
+
+  tokenResponse <- waitForDeviceAuth(authClient, deviceAuth)
+  accessToken <- tokenResponse$access_token
+  refreshToken <- tokenResponse$refresh_token
+
+  client <- connectCloudClient(
+    parseHttpUrl(connectCloudUrls()$api),
+    list(accessToken = accessToken, refreshToken = refreshToken)
+  )
+
+  getAccounts <- function() {
+    accountsResponse <- tryCatch(
+      {
+        response <- client$getAccounts()
+        response$data
+      },
+      rsconnect_http_401 = function(err) {
+        if (err$errorType == "no_user_for_lucid_user") {
+          return(list())
+        }
+        stop(err)
+      }
+    )
+  }
+
+  accounts <- getAccounts()
+  accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
+  cloudUiUrl <- connectCloudUrls()$ui
+  if (length(accountsWhereUserCanPublish) == 0) {
+    if (length(accounts) == 0) {
+      accountCreationPage <- addUtmParameters(paste0(
+        cloudUiUrl,
+        "/account/done"
+      ))
+      if (isTRUE(launch.browser)) {
+        cli::cli_alert_info(
+          "To deploy, you must first create an account. Opening account creation page..."
+        )
+        utils::browseURL(accountCreationPage)
+      } else if (is.function(launch.browser)) {
+        cli::cli_alert_info(
+          "To deploy, you must first create an account. Opening account creation page..."
+        )
+        launch.browser(accountCreationPage)
+      } else {
+        cli::cli_alert_info(
+          "To deploy, you must first create an account. Please go to {.url accountCreationPage} to create one."
+        )
+      }
+      # poll for account for up to 10 minutes
+      for (i in 1:300) {
+        Sys.sleep(2)
+        accounts <- getAccounts()
+        if (length(accounts) > 0) {
+          accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
+          if (length(accountsWhereUserCanPublish) > 0) {
+            break
+          }
+        }
+      }
+      if (length(accountsWhereUserCanPublish) == 0) {
+        cli::cli_abort(
+          "Timed out waiting for an account to be created. Try again after creating a new account."
+        )
+      }
+    } else {
+      cli::cli_abort(
+        "You do not have permission to publish content on any of your accounts. To publish, you may create a new account at {.url cloudUiUrl}."
+      )
+    }
+  }
+
+  # prompt the user to select an account if there's more than one they can publish to
+  if (length(accountsWhereUserCanPublish) > 1) {
+    cli::cli_alert_info("You have permission to publish to multiple accounts.")
+    accountNames <- vapply(
+      accountsWhereUserCanPublish,
+      function(account) account$name,
+      character(1)
+    )
+    # selected <- utils::menu(accountNames, title = "Select an account to use:")
+    selected <- cli_menu(
+      "Multiple accounts found.",
+      "Which account do you want to use?",
+      accountNames
+    )
+    account <- accountsWhereUserCanPublish[[selected]]
+  } else {
+    account <- accountsWhereUserCanPublish[[1]]
+  }
+
+  registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = account$name,
+    accountId = account$id,
+    accessToken = accessToken,
+    refreshToken = refreshToken
+  )
+
+  cli::cli_alert_success("Registered account.")
+}
+
+# Poll the server until the user has completed device authentication, returning
+# the token response once finished.
+waitForDeviceAuth <- function(authClient, deviceAuth) {
+  pollingInterval <- deviceAuth$interval
+  while (TRUE) {
+    Sys.sleep(pollingInterval)
+    tokenResponse <- tryCatch(
+      authClient$exchangeToken(list(
+        grant_type = "urn:ietf:params:oauth:grant-type:device_code",
+        device_code = deviceAuth$device_code
+      )),
+      rsconnect_http_400 = function(err) {
+        errorCode <- err$body
+        if (errorCode == "authorization_pending") {
+          return(NULL)
+        } else if (errorCode == "slow_down") {
+          pollingInterval <<- pollingInterval + 5
+          return(NULL)
+        } else if (errorCode == "expired_token") {
+          cli::cli_abort("Verification code has expired.")
+        } else if (errorCode == "access_denied") {
+          cli::cli_abort("Authorization request was denied.")
+        }
+        cli::cli_abort("Error during authentication: {error_code}")
+      }
+    )
+    if (!is.null(tokenResponse)) {
+      return(tokenResponse)
+    }
+  }
+}
+
 
 getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
   token <- getAuthToken(server)
@@ -280,7 +485,10 @@ getAuthedUser <- function(
 
 #' Register account on shinyapps.io
 #'
+#' @description
 #' Configure a ShinyApps account for publishing from this system.
+#'
+#' Supported servers: ShinyApps servers
 #'
 #' @param name Name of account to save or remove
 #' @param token User token for the account
@@ -415,7 +623,9 @@ registerAccount <- function(
   secret = NULL,
   private_key = NULL,
   apiKey = NULL,
-  snowflakeConnectionName = NULL
+  snowflakeConnectionName = NULL,
+  accessToken = NULL,
+  refreshToken = NULL
 ) {
   check_string(serverName)
   check_string(accountName)
@@ -431,7 +641,9 @@ registerAccount <- function(
     secret = secret,
     private_key = private_key,
     apiKey = apiKey,
-    snowflakeConnectionName = snowflakeConnectionName
+    snowflakeConnectionName = snowflakeConnectionName,
+    accessToken = accessToken,
+    refreshToken = refreshToken
   )
 
   path <- accountConfigFile(accountName, serverName)

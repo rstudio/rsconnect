@@ -19,7 +19,9 @@ findAccount <- function(
     cli::cli_abort(
       c(
         "No accounts registered.",
-        i = "Call {.fun rsconnect::setAccountInfo} to register an account."
+        i = "To register an account, call {.fun rsconnect::connectCloudUser} (Posit Connect Cloud), 
+        {.fun rsconnect::connectUser} (Posit Connect), 
+        or {.fun rsconnect::setAccountInfo} (shinyapps.io)."
       ),
       call = error_call
     )

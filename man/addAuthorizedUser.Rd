@@ -37,6 +37,8 @@ will use default invitation message.}
 }
 \description{
 Add authorized user to application
+
+Supported servers: ShinyApps servers
 }
 \note{
 This function works only for ShinyApps servers.

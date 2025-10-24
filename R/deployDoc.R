@@ -11,6 +11,8 @@
 #' document (see [rmarkdown::find_external_resources()] for details), or call
 #' [deployApp()] directly and specify your own file list in `appFiles`.
 #'
+#' Supported servers: All servers
+#'
 #' @param doc Path to the document to deploy.
 #' @param ... Additional arguments to [deployApp()]. Do not supply `appDir`,
 #'   `appFiles`, or `appPrimaryDoc`; these three parameters are automatically

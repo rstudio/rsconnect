@@ -1,5 +1,10 @@
 #' List Tasks
 #'
+#' @description
+#' List Tasks
+#'
+#' Supported servers: ShinyApps servers
+#'
 #' @inheritParams deployApp
 #' @return
 #' Returns a data frame with the following columns:
@@ -42,7 +47,11 @@ tasks <- function(account = NULL, server = NULL) {
 
 #' Show task log
 #'
+#' @description
 #' Writes the task log for the given task
+#'
+#' Supported servers: ShinyApps servers
+#'
 #' @param taskId Task Id
 #' @inheritParams deployApp
 #' @param output Where to write output. Valid values are `NULL` or `stderr`

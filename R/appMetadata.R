@@ -26,6 +26,7 @@ appMetadata <- function(
     quarto <- TRUE
   }
 
+  inferredPrimaryFile <- NULL
   if (is.null(appMode)) {
     # Generally we want to infer appPrimaryDoc from appMode, but there's one
     # special case: RStudio provides appPrimaryDoc when deploying Shiny
@@ -39,12 +40,14 @@ appMetadata <- function(
       appMode <- "shiny"
     } else {
       # Inference only uses top-level files
-      appMode <- inferAppMode(
+      appModeResult <- inferAppMode(
         appDir,
         appFiles,
         usesQuarto = quarto,
         isShinyappsServer = isShinyappsServer
       )
+      appMode <- appModeResult$appMode
+      inferredPrimaryFile <- appModeResult$primaryFile
     }
   }
 
@@ -90,6 +93,7 @@ appMetadata <- function(
   list(
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
+    inferredPrimaryFile = inferredPrimaryFile,
     hasParameters = hasParameters,
     contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
@@ -119,19 +123,19 @@ inferAppMode <- function(
   # plumber API
   plumberFiles <- matchingNames(absoluteRootFiles, "^(plumber|entrypoint).r$")
   if (length(plumberFiles) > 0) {
-    return("api")
+    return(list(appMode = "api", primaryFile = basename(plumberFiles[1])))
   }
 
   # general API
   server_yml <- matchingNames(absoluteRootFiles, "^_server.ya?ml$")
   if (length(server_yml) > 0) {
-    return("api")
+    return(list(appMode = "api", primaryFile = basename(server_yml[1])))
   }
 
   # Shiny application using single-file app.R style.
   appR <- matchingNames(absoluteRootFiles, "^app.r$")
   if (length(appR) > 0) {
-    return("shiny")
+    return(list(appMode = "shiny", primaryFile = basename(appR[1])))
   }
 
   rmdFiles <- matchingNames(absoluteRootFiles, "\\.rmd$")
@@ -157,16 +161,32 @@ inferAppMode <- function(
   }
 
   # Documents with "server: shiny" in their YAML front matter need shiny too
-  hasShinyRmd <- any(sapply(rmdFiles, isShinyRmd))
-  hasShinyQmd <- any(sapply(qmdFiles, isShinyRmd))
+  shinyRmdFiles <- NULL
+  if (length(rmdFiles) > 0) {
+    shinyRmdFiles <- rmdFiles[sapply(rmdFiles, isShinyRmd)]
+  }
+  shinyQmdFiles <- NULL
+  if (length(qmdFiles) > 0) {
+    shinyQmdFiles <- qmdFiles[sapply(qmdFiles, isShinyRmd)]
+  }
+
+  hasShinyRmd <- length(shinyRmdFiles) > 0
+  hasShinyQmd <- length(shinyQmdFiles) > 0
 
   if (hasShinyQmd) {
-    return("quarto-shiny")
+    return(list(
+      appMode = "quarto-shiny",
+      primaryFile = basename(shinyQmdFiles[1])
+    ))
   } else if (hasShinyRmd) {
+    shinyRmdFile <- shinyRmdFiles[1]
     if (usesQuarto) {
-      return("quarto-shiny")
+      return(list(
+        appMode = "quarto-shiny",
+        primaryFile = basename(shinyRmdFile)
+      ))
     } else {
-      return("rmd-shiny")
+      return(list(appMode = "rmd-shiny", primaryFile = basename(shinyRmdFile)))
     }
   }
 
@@ -175,21 +195,32 @@ inferAppMode <- function(
   # needs to be run by rmarkdown::run (rmd-shiny).
   serverR <- matchingNames(absoluteRootFiles, "^server.r$")
   if (length(serverR) > 0) {
-    return("shiny")
+    return(list(appMode = "shiny", primaryFile = basename(serverR[1])))
   }
 
   # Any non-Shiny R Markdown or Quarto documents are rendered content and get
   # rmd-static or quarto-static.
   if (length(rmdFiles) > 0 || length(qmdFiles) > 0) {
+    # Prefer qmd files over rmd files for primary file selection
+    primaryDocFile <- if (length(qmdFiles) > 0) qmdFiles[1] else rmdFiles[1]
     if (usesQuarto) {
-      return("quarto-static")
+      return(list(
+        appMode = "quarto-static",
+        primaryFile = basename(primaryDocFile)
+      ))
     } else {
       # For shinyapps.io, treat "rmd-static" app mode as "rmd-shiny" so that
       # it can be served from a shiny process in Connect
       if (isShinyappsServer) {
-        return("rmd-shiny")
+        return(list(
+          appMode = "rmd-shiny",
+          primaryFile = basename(primaryDocFile)
+        ))
       }
-      return("rmd-static")
+      return(list(
+        appMode = "rmd-static",
+        primaryFile = basename(primaryDocFile)
+      ))
     }
   }
 
@@ -199,7 +230,7 @@ inferAppMode <- function(
     #
     # Assume that this is a rendered script, as this is a better fall-back than
     # "static".
-    return("quarto-static")
+    return(list(appMode = "quarto-static", primaryFile = basename(rFiles[1])))
   }
 
   # TensorFlow model files are lower in the hierarchy, not at the root.
@@ -208,11 +239,17 @@ inferAppMode <- function(
     "^(saved_model.pb|saved_model.pbtxt)$"
   )
   if (length(modelFiles) > 0) {
-    return("tensorflow-saved-model")
+    return(list(
+      appMode = "tensorflow-saved-model",
+      # TODO: primaryFile is only required for Connect Cloud, but Connect Cloud
+      # doesn't support TensorFlow yet. More work needed here to be able to
+      #  support this.
+      NULL
+    ))
   }
 
   # no renderable content
-  "static"
+  list(appMode = "static", primaryFile = NULL)
 }
 
 isShinyRmd <- function(filename) {

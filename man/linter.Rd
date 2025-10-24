@@ -25,6 +25,8 @@ informative message for the user. Typically generated with
 Generate a linter, which can identify errors or problematic regions in a
 project.
 
+Supported servers: All servers
+
 Generate a linter, which can identify errors or problematic regions in a
 project.
 }

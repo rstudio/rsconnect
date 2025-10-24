@@ -146,11 +146,12 @@ handleResponse <- function(
   error_call = caller_env()
 ) {
   url <- buildHttpUrl(response$req)
-  reportError <- function(msg) {
+  reportError <- function(msg, errorType = NULL) {
     # msg may be JSON; wrapping with "{msg}" avoids treating it as a formatting string.
     cli::cli_abort(
       c("<{url}> failed with HTTP status {response$status}", "{msg}"),
       class = c(paste0("rsconnect_http_", response$status), "rsconnect_http"),
+      errorType = errorType,
       call = error_call
     )
   }
@@ -172,7 +173,7 @@ handleResponse <- function(
     if (response$status %in% 200:399) {
       out <- json
     } else if (!is.null(json$error)) {
-      reportError(unlist(json$error))
+      reportError(unlist(json$error), errorType = unlist(json$error_type))
     } else {
       reportError(paste("Unexpected json response:", response$content))
     }
@@ -544,6 +545,8 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
     signatureHeaders(authInfo, method, path, file)
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
+  } else if (!is.null(authInfo$accessToken)) {
+    list(`Authorization` = paste("Bearer", authInfo$accessToken))
   } else if (!is.null(authInfo$snowflakeToken)) {
     # snowflakeauth returns a list of named header values
     authInfo$snowflakeToken

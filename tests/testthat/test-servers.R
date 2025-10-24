@@ -25,6 +25,12 @@ test_that("serverInfo() redacts the certificate", {
   })
 })
 
+test_that("serverInfo() redacts the certificate", {
+  expect_snapshot({
+    str(serverInfo("connect.posit.cloud"))
+  })
+})
+
 test_that("serverInfo() errors if server not present", {
   local_temp_config()
 
@@ -151,13 +157,13 @@ test_that("only shinyapps.io is identified as shinyapps.io", {
   expect_error(checkShinyappsServer("connect.internal"))
 })
 
-test_that("predefined servers includes shinyapps", {
+test_that("predefined servers includes shinyapps and connect cloud", {
   local_temp_config()
 
   out <- servers()
-  expect_equal(nrow(out), 1)
+  expect_equal(nrow(out), 2)
   expect_named(out, c("name", "url", "certificate"))
-  expect_setequal(out$name, c("shinyapps.io"))
+  expect_setequal(out$name, c("shinyapps.io", "connect.posit.cloud"))
 })
 
 # findServer --------------------------------------------------------------
