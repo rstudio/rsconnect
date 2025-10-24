@@ -158,7 +158,8 @@ connectCloudClient <- function(service, authInfo) {
       contentId,
       envVars,
       newBundle = FALSE,
-      primaryFile
+      primaryFile,
+      appMode
     ) {
       path <- paste0("/contents/", contentId)
       if (newBundle) {
@@ -179,7 +180,8 @@ connectCloudClient <- function(service, authInfo) {
       json <- list(
         secrets = secrets,
         revision_overrides = list(
-          primary_file = primaryFile
+          primary_file = primaryFile,
+          app_mode = appMode
         )
       )
 

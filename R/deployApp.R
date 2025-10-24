@@ -520,7 +520,8 @@ deployApp <- function(
         application$id,
         deployment$envVars,
         newBundle = upload,
-        primaryFile
+        primaryFile,
+        appMetadata$appMode
       )
       taskComplete(quiet, "Content updated")
     }
