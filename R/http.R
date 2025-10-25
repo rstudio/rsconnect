@@ -549,7 +549,13 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
     list(`Authorization` = paste("Bearer", authInfo$accessToken))
   } else if (!is.null(authInfo$snowflakeToken)) {
     # snowflakeauth returns a list of named header values
-    authInfo$snowflakeToken
+    headers <- authInfo$snowflakeToken
+    # SPCS/Snowflake authentication requires the API key to be passed
+    # in the X-RSC-Authorization header in addition to the Snowflake token
+    if (!is.null(authInfo$apiKey)) {
+      headers$`X-RSC-Authorization` <- authInfo$apiKey
+    }
+    headers
   } else {
     # The value doesn't actually matter here, but the header needs to be set.
     list(`X-Auth-Token` = "anonymous-access")
