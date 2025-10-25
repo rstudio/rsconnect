@@ -1,5 +1,12 @@
 # rsconnect (development version)
 
+* SPCS/Snowflake authentication now properly supports API keys for user
+  identification. The `connectSPCSUser()` function now requires an `apiKey`
+  parameter, and the API key is included in the `X-RSC-Authorization` header
+  alongside Snowflake token authentication. This aligns with updated Connect
+  server requirements where Snowflake tokens provide proxied authentication
+  while API keys identify users to the Connect server itself.
+
 * `rsconnect` now sets the `rsconnect.max.bundle.size` and
   `rsconnect.max.bundle.files` options to their default values on startup
   if they have not yet been set. (#1204)
