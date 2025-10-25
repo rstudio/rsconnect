@@ -95,6 +95,11 @@ connectApiUser <- function(
 #' [`connections.toml` file](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil)
 #' in the appropriate location.
 #'
+#' SPCS deployments require both Snowflake authentication (via the connection
+#' name) and a Posit Connect API key. The Snowflake token provides proxied
+#' authentication to reach the Connect server, while the API key identifies
+#' the user to Connect itself.
+#'
 #' Supported servers: Posit Connect servers
 #'
 #' @inheritParams connectApiUser
@@ -104,18 +109,20 @@ connectApiUser <- function(
 connectSPCSUser <- function(
   account = NULL,
   server = NULL,
+  apiKey,
   snowflakeConnectionName,
   quiet = FALSE
 ) {
   server <- findServer(server)
   checkConnectServer(server)
 
-  user <- getSPCSAuthedUser(server, snowflakeConnectionName)
+  user <- getSPCSAuthedUser(server, apiKey, snowflakeConnectionName)
 
   registerAccount(
     serverName = server,
     accountName = account %||% user$username,
     accountId = user$id,
+    apiKey = apiKey,
     snowflakeConnectionName = snowflakeConnectionName
   )
 
@@ -127,10 +134,11 @@ connectSPCSUser <- function(
   invisible()
 }
 
-getSPCSAuthedUser <- function(server, snowflakeConnectionName) {
+getSPCSAuthedUser <- function(server, apiKey, snowflakeConnectionName) {
   serverAddress <- serverInfo(server)
   account <- list(
     server = server,
+    apiKey = apiKey,
     snowflakeConnectionName = snowflakeConnectionName
   )
 

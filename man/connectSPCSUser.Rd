@@ -7,6 +7,7 @@
 connectSPCSUser(
   account = NULL,
   server = NULL,
+  apiKey,
   snowflakeConnectionName,
   quiet = FALSE
 )
@@ -15,6 +16,8 @@ connectSPCSUser(
 \item{account}{A name for the account to connect.}
 
 \item{server}{The server to connect to.}
+
+\item{apiKey}{The API key used to authenticate the user}
 
 \item{snowflakeConnectionName}{Name for the Snowflake connection parameters
 stored in \code{connections.toml}.}
@@ -28,6 +31,11 @@ package so it can deploy and manage applications on your behalf.
 Configure a
 \href{https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil}{\code{connections.toml} file}
 in the appropriate location.
+
+SPCS deployments require both Snowflake authentication (via the connection
+name) and a Posit Connect API key. The Snowflake token provides proxied
+authentication to reach the Connect server, while the API key identifies
+the user to Connect itself.
 
 Supported servers: Posit Connect servers
 }
