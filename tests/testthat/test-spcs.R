@@ -37,6 +37,25 @@ test_that("authHeaders handles snowflakeToken", {
   expect_equal(headers$`X-Custom-Header`, "custom-value")
 })
 
+test_that("authHeaders includes X-RSC-Authorization when both snowflakeToken and apiKey are present", {
+  # mock authInfo with both snowflakeToken and apiKey
+  authInfo <- list(
+    snowflakeToken = list(
+      Authorization = "Snowflake Token=\"mock_token\"",
+      `X-Custom-Header` = "custom-value"
+    ),
+    apiKey = "test-api-key-12345"
+  )
+
+  headers <- authHeaders(authInfo, "GET", "/path")
+
+  # Verify snowflakeToken headers were used
+  expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
+  expect_equal(headers$`X-Custom-Header`, "custom-value")
+  # Verify API key was added to X-RSC-Authorization header
+  expect_equal(headers$`X-RSC-Authorization`, "test-api-key-12345")
+})
+
 test_that("registerAccount stores snowflakeConnectionName", {
   local_temp_config()
 
@@ -51,4 +70,22 @@ test_that("registerAccount stores snowflakeConnectionName", {
   # Check the account info has the snowflakeConnectionName
   info <- accountInfo("testuser", "example.com")
   expect_equal(info$snowflakeConnectionName, "test_connection")
+})
+
+test_that("registerAccount stores both apiKey and snowflakeConnectionName for SPCS accounts", {
+  local_temp_config()
+
+  # Register an SPCS account with both apiKey and snowflakeConnectionName
+  registerAccount(
+    serverName = "spcs.example.com",
+    accountName = "spcsuser",
+    accountId = "user456",
+    apiKey = "test-api-key-789",
+    snowflakeConnectionName = "spcs_connection"
+  )
+
+  # Check the account info has both fields
+  info <- accountInfo("spcsuser", "spcs.example.com")
+  expect_equal(info$snowflakeConnectionName, "spcs_connection")
+  expect_equal(info$apiKey, "test-api-key-789")
 })
