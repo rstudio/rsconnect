@@ -24,7 +24,7 @@
   `removeAccount("yourname", "posit.cloud")`.
   
   Existing Posit Cloud deployment records may be removed by using
-  `forgetDeployment("yourname", "posit.cloud")`.
+  `forgetDeployment(name="deployment", account="yourname", server="posit.cloud")`.
 
 * Removed the Posit Cloud-exclusive `space` argument from `deployApp()`. (#1215)
 
