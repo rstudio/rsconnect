@@ -75,7 +75,7 @@ way to send private data to Connect.
 
 The values of sensitive environment variables should be set in the current
 session via an \code{.Renviron} file or with the help of a credential store like
-\href{https://r-lib.github.io/keyring/index.html}{keyring}. Avoid using
+\href{https://keyring.r-lib.org/}{keyring}. Avoid using
 \code{\link[=Sys.setenv]{Sys.setenv()}} for sensitive values, as that results in the value appearing
 in your \code{.Rhistory}.
 
