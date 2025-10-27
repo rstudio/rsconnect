@@ -1,15 +1,18 @@
 # rsconnect (development version)
 
+* Support deploying to Posit Connect Cloud. Use `connectCloudUser()` to add
+  Connect Cloud credentials.
+
 * `rsconnect` now sets the `rsconnect.max.bundle.size` and
   `rsconnect.max.bundle.files` options to their default values on startup
   if they have not yet been set. (#1204)
 
-* Increase the default `rsconnect.max.bundle.size` limit to 5 GiB. (#1200)
+* The default `rsconnect.max.bundle.size` limit has increased to 5 GiB. (#1200)
 
 * `getLogs()` returns log lines for a shinyapps.io hosted application. (#1209)
 
-* The target Python binary is included in Python environment inspection
-  errors. (#1207)
+* Python environment inspection errors include the path to the target Python
+  binary. (#1207)
 
 * Improve cookie expiration date handling. (#1212)
 
@@ -17,11 +20,13 @@
 
 * Removed support for publishing to Posit Cloud. (#1215)
 
-  Existing Posit Cloud account records may be removed by using `removeAccount("yourname", "posit.cloud")`.
+  Existing Posit Cloud account records may be removed by using
+  `removeAccount("yourname", "posit.cloud")`.
+  
+  Existing Posit Cloud deployment records may be removed by using
+  `forgetDeployment(name="deployment", account="yourname", server="posit.cloud")`.
 
 * Removed the Posit Cloud-exclusive `space` argument from `deployApp()`. (#1215)
-
-* Added support for deploying to Posit Connect Cloud. Connect Cloud credentials may be added using `connectCloudUser()`.
 
 # rsconnect 1.5.1
 
