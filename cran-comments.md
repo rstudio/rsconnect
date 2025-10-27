@@ -1,6 +1,7 @@
 ## Summary
 
-Minor fixes when Connect is hosted by Snowflake.
+Support publishing to Posit Connect Cloud, remove support for Posit Cloud, and
+a number of minor fixes.
 
 ## R CMD check results
 
@@ -8,8 +9,7 @@ Minor fixes when Connect is hosted by Snowflake.
 
 ## revdepcheck results
 
-We checked 26 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 25 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
  * We failed to check 0 packages
-
