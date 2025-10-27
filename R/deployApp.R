@@ -60,7 +60,7 @@
 #'
 #'   The values of sensitive environment variables should be set in the current
 #'   session via an `.Renviron` file or with the help of a credential store like
-#'   [keyring](https://r-lib.github.io/keyring/index.html). Avoid using
+#'   [keyring](https://keyring.r-lib.org/). Avoid using
 #'   [Sys.setenv()] for sensitive values, as that results in the value appearing
 #'   in your `.Rhistory`.
 #'
