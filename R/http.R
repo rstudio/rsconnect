@@ -541,15 +541,21 @@ requestCertificate <- function(protocol, certificate = NULL) {
 }
 
 authHeaders <- function(authInfo, method, path, file = NULL) {
-  if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
+  if (!is.null(authInfo$snowflakeToken)) {
+    # snowflakeauth returns a list of named header values
+    headers <- authInfo$snowflakeToken
+    # The SPCS/Snowflake token is in the Authorization header and the Connect API key is passed
+    # using X-RSC-Authorization.
+    if (!is.null(authInfo$apiKey)) {
+      headers$`X-RSC-Authorization` <- paste("Key", authInfo$apiKey)
+    }
+    headers
+  } else if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     signatureHeaders(authInfo, method, path, file)
   } else if (!is.null(authInfo$apiKey)) {
     list(`Authorization` = paste("Key", authInfo$apiKey))
   } else if (!is.null(authInfo$accessToken)) {
     list(`Authorization` = paste("Bearer", authInfo$accessToken))
-  } else if (!is.null(authInfo$snowflakeToken)) {
-    # snowflakeauth returns a list of named header values
-    authInfo$snowflakeToken
   } else {
     # The value doesn't actually matter here, but the header needs to be set.
     list(`X-Auth-Token` = "anonymous-access")

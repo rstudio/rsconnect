@@ -255,20 +255,3 @@ test_that("rcf2616 returns an ASCII date and undoes changes to the locale", {
   expect_equal(date, "Mon, 01 Jan 2024 06:02:03 GMT")
   expect_equal(Sys.getlocale("LC_TIME"), old)
 })
-
-test_that("authHeaders handles snowflakeToken", {
-  # Create mock authInfo with snowflakeToken
-  authInfo <- list(
-    snowflakeToken = list(
-      Authorization = "Snowflake Token=\"mock_token\"",
-      `X-Custom-Header` = "custom-value"
-    )
-  )
-
-  # Test authHeaders
-  headers <- authHeaders(authInfo, "GET", "/path")
-
-  # Verify snowflakeToken headers were used
-  expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
-  expect_equal(headers$`X-Custom-Header`, "custom-value")
-})

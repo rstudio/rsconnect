@@ -22,7 +22,6 @@ test_that("isSPCSServer correctly identifies Snowpark Container Services servers
 })
 
 test_that("authHeaders handles snowflakeToken", {
-  # mock authInfo with snowflakeToken
   authInfo <- list(
     snowflakeToken = list(
       Authorization = "Snowflake Token=\"mock_token\"",
@@ -32,8 +31,25 @@ test_that("authHeaders handles snowflakeToken", {
 
   headers <- authHeaders(authInfo, "GET", "/path")
 
+  expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
+  expect_equal(headers$`X-Custom-Header`, "custom-value")
+})
+
+test_that("authHeaders handles snowflakeToken with API key", {
+  authInfo <- list(
+    apiKey = secret("the-api-key"),
+    snowflakeToken = list(
+      Authorization = "Snowflake Token=\"mock_token\"",
+      `X-Custom-Header` = "custom-value"
+    )
+  )
+
+  # Test authHeaders
+  headers <- authHeaders(authInfo, "GET", "/path")
+
   # Verify snowflakeToken headers were used
   expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
+  expect_equal(headers$`X-RSC-Authorization`, "Key the-api-key")
   expect_equal(headers$`X-Custom-Header`, "custom-value")
 })
 
@@ -51,4 +67,22 @@ test_that("registerAccount stores snowflakeConnectionName", {
   # Check the account info has the snowflakeConnectionName
   info <- accountInfo("testuser", "example.com")
   expect_equal(info$snowflakeConnectionName, "test_connection")
+})
+
+test_that("registerAccount stores both apiKey and snowflakeConnectionName for SPCS accounts", {
+  local_temp_config()
+
+  # Register an SPCS account with both apiKey and snowflakeConnectionName
+  registerAccount(
+    serverName = "spcs.example.com",
+    accountName = "spcsuser",
+    accountId = "user456",
+    apiKey = "test-api-key-789",
+    snowflakeConnectionName = "spcs_connection"
+  )
+
+  # Check the account info has both fields
+  info <- accountInfo("spcsuser", "spcs.example.com")
+  expect_equal(info$snowflakeConnectionName, "spcs_connection")
+  expect_equal(as.character(info$apiKey), "test-api-key-789")
 })
