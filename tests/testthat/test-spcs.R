@@ -22,7 +22,6 @@ test_that("isSPCSServer correctly identifies Snowpark Container Services servers
 })
 
 test_that("authHeaders handles snowflakeToken", {
-  # mock authInfo with snowflakeToken
   authInfo <- list(
     snowflakeToken = list(
       Authorization = "Snowflake Token=\"mock_token\"",
@@ -32,28 +31,26 @@ test_that("authHeaders handles snowflakeToken", {
 
   headers <- authHeaders(authInfo, "GET", "/path")
 
-  # Verify snowflakeToken headers were used
   expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
   expect_equal(headers$`X-Custom-Header`, "custom-value")
 })
 
-test_that("authHeaders includes X-RSC-Authorization when both snowflakeToken and apiKey are present", {
-  # mock authInfo with both snowflakeToken and apiKey
+test_that("authHeaders handles snowflakeToken with API key", {
   authInfo <- list(
+    apiKey = secret("the-api-key"),
     snowflakeToken = list(
       Authorization = "Snowflake Token=\"mock_token\"",
       `X-Custom-Header` = "custom-value"
-    ),
-    apiKey = "test-api-key-12345"
+    )
   )
 
+  # Test authHeaders
   headers <- authHeaders(authInfo, "GET", "/path")
 
   # Verify snowflakeToken headers were used
   expect_equal(headers$Authorization, "Snowflake Token=\"mock_token\"")
+  expect_equal(headers$`X-RSC-Authorization`, "Key the-api-key")
   expect_equal(headers$`X-Custom-Header`, "custom-value")
-  # Verify API key was added to X-RSC-Authorization header
-  expect_equal(headers$`X-RSC-Authorization`, "test-api-key-12345")
 })
 
 test_that("registerAccount stores snowflakeConnectionName", {
