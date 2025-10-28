@@ -87,5 +87,5 @@ test_that("registerAccount stores both apiKey and snowflakeConnectionName for SP
   # Check the account info has both fields
   info <- accountInfo("spcsuser", "spcs.example.com")
   expect_equal(info$snowflakeConnectionName, "spcs_connection")
-  expect_equal(info$apiKey, "test-api-key-789")
+  expect_equal(as.character(info$apiKey), "test-api-key-789")
 })
