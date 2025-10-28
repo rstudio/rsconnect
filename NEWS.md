@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.6.0
 
 * Support deploying to Posit Connect Cloud. Use `connectCloudUser()` to add
