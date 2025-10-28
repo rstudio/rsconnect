@@ -37,7 +37,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>SPCS/Snowflake authentication supports Connect API keys for user identification. The <code><a href="../reference/connectSPCSUser.html">connectSPCSUser()</a></code> function now requires an <code>apiKey</code> parameter, and the API key is included in the <code>X-RSC-Authorization</code> header alongside Snowflake token authentication. This aligns with updated Connect server requirements where Snowflake tokens provide proxied authentication while API keys identify users to the Connect server itself.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.6.0" id="rsconnect-160">rsconnect 1.6.0<a class="anchor" aria-label="anchor" href="#rsconnect-160"></a></h2><p class="text-muted">CRAN release: 2025-10-28</p>
 <ul><li><p>Support deploying to Posit Connect Cloud. Use <code><a href="../reference/connectCloudUser.html">connectCloudUser()</a></code> to add Connect Cloud credentials.</p></li>
