@@ -46,14 +46,16 @@ findAndRegisterLocalServer <- function(url) {
   }
 }
 
+# Called directly by RStudio.
+# See https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R
 registerUserToken <- function(
   serverName,
   accountName,
   userId,
   token,
   privateKey,
-  accessToken,
-  refreshToken
+  accessToken = NULL,
+  refreshToken = NULL
 ) {
   registerAccount(
     serverName = serverName,
