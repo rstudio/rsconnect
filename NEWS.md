@@ -7,6 +7,11 @@
   server requirements where Snowflake tokens provide proxied authentication
   while API keys identify users to the Connect server itself.
 
+# unreleased
+
+* Fix an accidental breaking change to `registerUserToken` that added two 
+  required parameters. (#1249)
+
 # rsconnect 1.6.0
 
 * Support deploying to Posit Connect Cloud. Use `connectCloudUser()` to add
