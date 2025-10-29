@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Fix account registration from RStudio. (#1250)
+
 * SPCS/Snowflake authentication supports Connect API keys for user
   identification. The `connectSPCSUser()` function now requires an `apiKey`
   parameter, and the API key is included in the `X-RSC-Authorization` header

@@ -118,3 +118,21 @@ test_that("getUserFromRawToken having multiple matching servers", {
   user <- getUserFromRawToken(claimUrl, token$token, token$private_key)
   expect_equal(user$username, "susan")
 })
+
+test_that("registerUserToken registers a user token", {
+  # Checks the arguments as supplied by RStudio as of
+  # https://github.com/rstudio/rstudio/blob/320fff61d4205104d7c42219e0449d1ae35a78b0/src/cpp/session/modules/SessionRSConnect.R#L302-L303
+  local_temp_config()
+
+  registerUserToken(
+    serverName = "the-server",
+    accountName = "the-account",
+    userId = 42,
+    token = "the-token",
+    privateKey = "the-private-key"
+  )
+
+  expect_snapshot({
+    accountInfo("the-account")
+  })
+})
