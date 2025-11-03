@@ -1,7 +1,7 @@
 ## Summary
 
-Support publishing to Posit Connect Cloud, remove support for Posit Cloud, and
-a number of minor fixes.
+Address a publishing regression introduced in the rsconnect 1.6.0 release and
+improve support for authentication with products hosted in Snowflake.
 
 ## R CMD check results
 
