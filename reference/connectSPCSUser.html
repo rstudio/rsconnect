@@ -4,11 +4,19 @@ package so it can deploy and manage applications on your behalf.
 Configure a
 connections.toml file
 in the appropriate location.
+SPCS deployments require both Snowflake authentication (via the connection
+name) and a Posit Connect API key. The Snowflake token provides proxied
+authentication to reach the Connect server, while the API key identifies
+the user to Connect itself.
 Supported servers: Posit Connect servers"><meta property="og:description" content="connectSPCSUser() connects your Posit Connect account to the rsconnect
 package so it can deploy and manage applications on your behalf.
 Configure a
 connections.toml file
 in the appropriate location.
+SPCS deployments require both Snowflake authentication (via the connection
+name) and a Posit Connect API key. The Snowflake token provides proxied
+authentication to reach the Connect server, while the API key identifies
+the user to Connect itself.
 Supported servers: Posit Connect servers"><meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg"></head><body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
 
@@ -17,7 +25,7 @@ Supported servers: Posit Connect servers"><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +60,10 @@ package so it can deploy and manage applications on your behalf.
 Configure a
 <a href="https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil" class="external-link"><code>connections.toml</code> file</a>
 in the appropriate location.</p>
+<p>SPCS deployments require both Snowflake authentication (via the connection
+name) and a Posit Connect API key. The Snowflake token provides proxied
+authentication to reach the Connect server, while the API key identifies
+the user to Connect itself.</p>
 <p>Supported servers: Posit Connect servers</p>
     </div>
 
@@ -60,6 +72,7 @@ in the appropriate location.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">connectSPCSUser</span><span class="op">(</span></span>
 <span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">apiKey</span>,</span>
 <span>  <span class="va">snowflakeConnectionName</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -75,6 +88,10 @@ in the appropriate location.</p>
 
 <dt id="arg-server">server<a class="anchor" aria-label="anchor" href="#arg-server"></a></dt>
 <dd><p>The server to connect to.</p></dd>
+
+
+<dt id="arg-apikey">apiKey<a class="anchor" aria-label="anchor" href="#arg-apikey"></a></dt>
+<dd><p>The API key used to authenticate the user</p></dd>
 
 
 <dt id="arg-snowflakeconnectionname">snowflakeConnectionName<a class="anchor" aria-label="anchor" href="#arg-snowflakeconnectionname"></a></dt>
