@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.6.1
 
 * Fix account registration from RStudio. (#1250)
