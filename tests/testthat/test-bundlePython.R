@@ -69,3 +69,16 @@ test_that("throws error if environment.py fails", {
   withr::local_dir(dir)
   expect_snapshot(inferPythonEnv(".", pythonPathOrSkip()), error = TRUE)
 })
+
+test_that("warning is shown for environment.py errors discovering python version requirements", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  dir <- local_temp_app(list(
+    requirements.txt = "pip",
+    ".python-version" = "broken$syntax=]"
+  ))
+  Sys.chmod(file.path(dir, ".python-version"), "000")
+
+  expect_warning(inferPythonEnv(dir, pythonPathOrSkip()), "Permission denied")
+})
