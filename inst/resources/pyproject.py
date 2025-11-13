@@ -89,17 +89,17 @@ def parse_pyproject_python_requires(pyproject_file):
     """
 
     try:
-        import tomllib
+        # Python 3.11+ has toml in the standard library
+        import toml
     except ImportError:
-        pyver = sys.version_info
-        # If Python <= 3.10 tomllib is required to handle requirements
-        if pyver[0] == 3 and pyver[1] <= 10:
+        try:
+            # If Python <= 3.10 tomllib is required to handle requirements
+            import tomllib as toml
+        except ImportError:
             raise Exception("pyproject.toml found, tomllib package is required for Python <= 3.10 for parsing python version requirements, skipping")
-        # Python 3.11+ has tomllib in the standard library
-        import toml as tomllib  # type: ignore[no-redef]
 
     content = pyproject_file.read_text()
-    pyproject = tomllib.loads(content)
+    pyproject = toml.loads(content)
 
     return pyproject.get("project", {}).get("requires-python", None)
 
