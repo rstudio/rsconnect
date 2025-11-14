@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Address CRAN test failures with some versions seen with some openssl
+  configurations. (#1255)
+
 # rsconnect 1.6.1
 
 * Fix account registration from RStudio. (#1250)
