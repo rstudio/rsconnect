@@ -11,6 +11,10 @@
   server requirements where Snowflake tokens provide proxied authentication
   while API keys identify users to the Connect server itself.
 
+* Fix an opaque error when creating a manifest in a project using Python <= 3.10 with
+  a version requirement in a `pyproject.toml` file. A warning is shown rather than an error
+  when the tomllib package is not present.
+
 # rsconnect 1.6.0
 
 * Support deploying to Posit Connect Cloud. Use `connectCloudUser()` to add
