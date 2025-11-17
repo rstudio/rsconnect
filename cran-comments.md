@@ -1,7 +1,7 @@
 ## Summary
 
-Address a publishing regression introduced in the rsconnect 1.6.0 release and
-improve support for authentication with products hosted in Snowflake.
+Address CRAN test failures caused by some openssl configurations.
+Address a publishing error seen with some Python versions and project configurations.
 
 ## R CMD check results
 
