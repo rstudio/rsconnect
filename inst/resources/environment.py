@@ -29,7 +29,7 @@ exec_dir = os.path.dirname(sys.executable)
 
 
 Environment = collections.namedtuple(
-    "Environment", ("conda", "contents", "error", "filename", "locale", "package_manager", "pip", "python", "source", "requires"),
+    "Environment", ("conda", "contents", "error", "warning", "filename", "locale", "package_manager", "pip", "python", "source", "requires"),
 )
 
 
@@ -37,6 +37,7 @@ def MakeEnvironment(
     conda=None,  # type: Optional[str]
     contents="",  # type: Optional[str]
     error=None,  # type: Optional[str]
+    warning=None,  # type: Optional[str]
     filename="",  # type: Optional[str]
     locale="",  # type: Optional[str]
     package_manager="",  # type: Optional[str]
@@ -45,7 +46,7 @@ def MakeEnvironment(
     source=None,  # type: Optional[str]
     requires=None,  # type: Optional[str]
 ):
-    return Environment(conda, contents, error, filename, locale, package_manager, pip, python, source, requires)
+    return Environment(conda, contents, error, warning, filename, locale, package_manager, pip, python, source, requires)
 
 
 class EnvironmentException(Exception):
@@ -93,7 +94,13 @@ def detect_environment(dirname, force_generate=False, conda_mode=False, conda=No
         if conda:
             result["conda"] = get_conda_version(conda)
         result["locale"] = get_default_locale()
-        result["requires"] = pyproject.detect_python_version_requirement(dirname)
+
+        try:
+            result["requires"] = pyproject.detect_python_version_requirement(dirname)
+        except Exception as exception:
+            # Any error coming from detecting python version requirement, should not halt the operation
+            # and provide a warning in case a version requirement is desired by the user.
+            result["warning"] = str(exception)
 
     return MakeEnvironment(**result)
 

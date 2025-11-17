@@ -93,6 +93,9 @@ inferPythonEnv <- function(
   }
 
   environment <- jsonlite::fromJSON(sanitizeSystem2json(output))
+  if (!is.null(environment$warning)) {
+    warning(environment$warning)
+  }
   if (is.null(environment$error)) {
     list(
       version = environment$python,

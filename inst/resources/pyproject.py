@@ -8,17 +8,12 @@ but not from setup.py due to its dynamic nature.
 import configparser
 import pathlib
 import re
+import sys
 
 try:
     import typing
 except ImportError:
     typing = None
-
-try:
-    import tomllib
-except ImportError:
-    # Python 3.11+ has tomllib in the standard library
-    import toml as tomllib  # type: ignore[no-redef]
 
 PEP440_OPERATORS_REGEX = r"(===|==|!=|<=|>=|<|>|~=)"
 VALID_VERSION_REQ_REGEX = rf"^({PEP440_OPERATORS_REGEX}?\d+(\.[\d\*]+)*)+$"
@@ -92,8 +87,19 @@ def parse_pyproject_python_requires(pyproject_file):
 
     Returns None if the field is not found.
     """
+
+    try:
+        # Python 3.11+ has toml in the standard library
+        import toml
+    except ImportError:
+        try:
+            # If Python <= 3.10 tomllib is required to handle requirements
+            import tomllib as toml
+        except ImportError:
+            raise Exception("pyproject.toml found, tomllib package is required for Python <= 3.10 for parsing python version requirements, skipping")
+
     content = pyproject_file.read_text()
-    pyproject = tomllib.loads(content)
+    pyproject = toml.loads(content)
 
     return pyproject.get("project", {}).get("requires-python", None)
 
