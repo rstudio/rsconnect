@@ -7,8 +7,7 @@
   shown rather than an error when the tomllib package is not present.
   ([\#1226](https://github.com/rstudio/rsconnect/issues/1226))
 
-- Address CRAN test failures with some versions seen with some openssl
-  configurations.
+- Address CRAN test failures caused by some openssl configurations.
   ([\#1255](https://github.com/rstudio/rsconnect/issues/1255))
 
 ## rsconnect 1.6.1
