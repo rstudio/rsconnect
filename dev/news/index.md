@@ -2,6 +2,10 @@
 
 ## rsconnect (development version)
 
+- Address CRAN test failures with some versions seen with some openssl
+  configurations.
+  ([\#1255](https://github.com/rstudio/rsconnect/issues/1255))
+
 ## rsconnect 1.6.1
 
 CRAN release: 2025-11-04
