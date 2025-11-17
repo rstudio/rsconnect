@@ -6,6 +6,8 @@ test_that("non-libCurl methods are deprecated", {
 # headers -----------------------------------------------------------------
 
 test_that("authHeaders() picks correct method based on supplied fields", {
+  skip_on_cran() # CRAN may not have an openssl that permits SHA-1 signatures.
+
   url <- "https://example.com"
 
   expect_equal(
