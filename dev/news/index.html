@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.6.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.6.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,16 +37,19 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.2" id="rsconnect-162">rsconnect 1.6.2<a class="anchor" aria-label="anchor" href="#rsconnect-162"></a></h2>
 <ul><li><p>Fix an opaque error when creating a manifest using Python &lt;= 3.10 with a version requirement in a <code>pyproject.toml</code> file. A warning is shown rather than an error when the tomllib package is not present. (<a href="https://github.com/rstudio/rsconnect/issues/1226" class="external-link">#1226</a>)</p></li>
 <li><p>Address CRAN test failures caused by some openssl configurations. (<a href="https://github.com/rstudio/rsconnect/issues/1255" class="external-link">#1255</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.6.1" id="rsconnect-161">rsconnect 1.6.1<a class="anchor" aria-label="anchor" href="#rsconnect-161"></a></h2><p class="text-muted">CRAN release: 2025-11-04</p>
+<h2 class="pkg-version" data-toc-text="1.6.1" id="rsconnect-161">rsconnect 1.6.1<a class="anchor" aria-label="anchor" href="#rsconnect-161"></a></h2>
 <ul><li><p>Fix account registration from RStudio. (<a href="https://github.com/rstudio/rsconnect/issues/1250" class="external-link">#1250</a>)</p></li>
 <li><p>SPCS/Snowflake authentication supports Connect API keys for user identification. The <code><a href="../reference/connectSPCSUser.html">connectSPCSUser()</a></code> function now requires an <code>apiKey</code> parameter, and the API key is included in the <code>X-RSC-Authorization</code> header alongside Snowflake token authentication. This aligns with updated Connect server requirements where Snowflake tokens provide proxied authentication while API keys identify users to the Connect server itself.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.6.0" id="rsconnect-160">rsconnect 1.6.0<a class="anchor" aria-label="anchor" href="#rsconnect-160"></a></h2><p class="text-muted">CRAN release: 2025-10-28</p>
+<h2 class="pkg-version" data-toc-text="1.6.0" id="rsconnect-160">rsconnect 1.6.0<a class="anchor" aria-label="anchor" href="#rsconnect-160"></a></h2>
 <ul><li><p>Support deploying to Posit Connect Cloud. Use <code><a href="../reference/connectCloudUser.html">connectCloudUser()</a></code> to add Connect Cloud credentials.</p></li>
 <li><p><code>rsconnect</code> now sets the <code>rsconnect.max.bundle.size</code> and <code>rsconnect.max.bundle.files</code> options to their default values on startup if they have not yet been set. (<a href="https://github.com/rstudio/rsconnect/issues/1204" class="external-link">#1204</a>)</p></li>
 <li><p>The default <code>rsconnect.max.bundle.size</code> limit has increased to 5 GiB. (<a href="https://github.com/rstudio/rsconnect/issues/1200" class="external-link">#1200</a>)</p></li>
@@ -62,26 +65,26 @@
 <li><p>Removed the Posit Cloud-exclusive <code>space</code> argument from <code><a href="../reference/deployApp.html">deployApp()</a></code>. (<a href="https://github.com/rstudio/rsconnect/issues/1215" class="external-link">#1215</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.5.1" id="rsconnect-151">rsconnect 1.5.1<a class="anchor" aria-label="anchor" href="#rsconnect-151"></a></h2><p class="text-muted">CRAN release: 2025-08-28</p>
+<h2 class="pkg-version" data-toc-text="1.5.1" id="rsconnect-151">rsconnect 1.5.1<a class="anchor" aria-label="anchor" href="#rsconnect-151"></a></h2>
 <ul><li><p>Address user registration for Posit Connect deployments hosted in Snowpark Container Services when there is more than one configured Snowflake connection. (<a href="https://github.com/rstudio/rsconnect/issues/1189" class="external-link">#1189</a>)</p></li>
 <li><p>Process cookie expiration dates in addition to the cookie max-age. Some servers return already-expired cookies. (1187)</p></li>
 <li><p>Removed unused internal methods from Connect client. (<a href="https://github.com/rstudio/rsconnect/issues/1182" class="external-link">#1182</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.5.0" id="rsconnect-150">rsconnect 1.5.0<a class="anchor" aria-label="anchor" href="#rsconnect-150"></a></h2><p class="text-muted">CRAN release: 2025-06-26</p>
+<h2 class="pkg-version" data-toc-text="1.5.0" id="rsconnect-150">rsconnect 1.5.0<a class="anchor" aria-label="anchor" href="#rsconnect-150"></a></h2>
 <ul><li>Functions for interacting with Posit Connect deployments in Snowpark Container Services are now provided by the snowflakeauth package.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.4.2" id="rsconnect-142">rsconnect 1.4.2<a class="anchor" aria-label="anchor" href="#rsconnect-142"></a></h2><p class="text-muted">CRAN release: 2025-06-18</p>
+<h2 class="pkg-version" data-toc-text="1.4.2" id="rsconnect-142">rsconnect 1.4.2<a class="anchor" aria-label="anchor" href="#rsconnect-142"></a></h2>
 <ul><li>Address duplicate certificate errors on macOS with newer curl. (<a href="https://github.com/rstudio/rsconnect/issues/1175" class="external-link">#1175</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.4.1" id="rsconnect-141">rsconnect 1.4.1<a class="anchor" aria-label="anchor" href="#rsconnect-141"></a></h2><p class="text-muted">CRAN release: 2025-05-22</p>
+<h2 class="pkg-version" data-toc-text="1.4.1" id="rsconnect-141">rsconnect 1.4.1<a class="anchor" aria-label="anchor" href="#rsconnect-141"></a></h2>
 <ul><li><p>Fixed processing error during server validation, which prevented registration of new Connect accounts. (<a href="https://github.com/rstudio/rsconnect/issues/1166" class="external-link">#1166</a>)</p></li>
 <li><p>When waiting for initial Connect account authorization, allow HTTP 401 responses. (<a href="https://github.com/rstudio/rsconnect/issues/1167" class="external-link">#1167</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.4.0" id="rsconnect-140">rsconnect 1.4.0<a class="anchor" aria-label="anchor" href="#rsconnect-140"></a></h2><p class="text-muted">CRAN release: 2025-05-15</p>
+<h2 class="pkg-version" data-toc-text="1.4.0" id="rsconnect-140">rsconnect 1.4.0<a class="anchor" aria-label="anchor" href="#rsconnect-140"></a></h2>
 <ul><li><p>Content directories with a period in their name are no longer treated as a document path when computing the location for deployment records. (<a href="https://github.com/rstudio/rsconnect/issues/1138" class="external-link">#1138</a>)</p></li>
 <li><p>Quarto documents which specify a server must include executable code or an engine declaration. (<a href="https://github.com/rstudio/rsconnect/issues/1145" class="external-link">#1145</a>)</p></li>
 <li><p>Fixed errors when analyzing Quarto documents containing long chunks. (<a href="https://github.com/rstudio/rsconnect/issues/1114" class="external-link">#1114</a>)</p></li>
@@ -92,26 +95,26 @@
 <li><p>Introduced detection of required Python interpreter version based on project files <code>.python-version</code>, <code>pyproject.toml</code> and <code>setup.cfg</code>. This setting is inserted into the manifest as <code>environment.python.requires</code>.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.4" id="rsconnect-134">rsconnect 1.3.4<a class="anchor" aria-label="anchor" href="#rsconnect-134"></a></h2><p class="text-muted">CRAN release: 2025-01-22</p>
+<h2 class="pkg-version" data-toc-text="1.3.4" id="rsconnect-134">rsconnect 1.3.4<a class="anchor" aria-label="anchor" href="#rsconnect-134"></a></h2>
 <ul><li>Use base64 encoded test data. Addresses CRAN test failures when run with newer libssl. (<a href="https://github.com/rstudio/rsconnect/issues/1130" class="external-link">#1130</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.3" id="rsconnect-133">rsconnect 1.3.3<a class="anchor" aria-label="anchor" href="#rsconnect-133"></a></h2><p class="text-muted">CRAN release: 2024-11-19</p>
+<h2 class="pkg-version" data-toc-text="1.3.3" id="rsconnect-133">rsconnect 1.3.3<a class="anchor" aria-label="anchor" href="#rsconnect-133"></a></h2>
 <ul><li>Avoid “legacy” time zone names in tests, as they are not available by default in all environments. Addresses CRAN test failures. (<a href="https://github.com/rstudio/rsconnect/issues/1115" class="external-link">#1115</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.2" id="rsconnect-132">rsconnect 1.3.2<a class="anchor" aria-label="anchor" href="#rsconnect-132"></a></h2><p class="text-muted">CRAN release: 2024-10-28</p>
+<h2 class="pkg-version" data-toc-text="1.3.2" id="rsconnect-132">rsconnect 1.3.2<a class="anchor" aria-label="anchor" href="#rsconnect-132"></a></h2>
 <ul><li><p>Primary Quarto document detection only considers <code>.R</code>, <code>.Rmd</code>, and <code>.qmd</code> as end-of-file extensions. Previously, a file with <code>.R</code> elsewhere in its name, such as <code>.Rprofile</code>, was incorrectly considered. (<a href="https://github.com/rstudio/rsconnect/issues/1106" class="external-link">#1106</a>)</p></li>
 <li><p>Use the repository name identified by renv when <code><a href="https://rdrr.io/r/utils/available.packages.html" class="external-link">available.packages()</a></code> does not enumerate the package, which occurs for archived packages. (<a href="https://github.com/rstudio/rsconnect/issues/1110" class="external-link">#1110</a>)</p></li>
 <li><p>Remove remaining directory layout validation check. (<a href="https://github.com/rstudio/rsconnect/issues/1102" class="external-link">#1102</a>)</p></li>
 <li><p>Use the public Connect server API endpoint <code>/v1/tasks/{id}</code> to poll task progress. (<a href="https://github.com/rstudio/rsconnect/issues/1088" class="external-link">#1088</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.1" id="rsconnect-131">rsconnect 1.3.1<a class="anchor" aria-label="anchor" href="#rsconnect-131"></a></h2><p class="text-muted">CRAN release: 2024-06-04</p>
+<h2 class="pkg-version" data-toc-text="1.3.1" id="rsconnect-131">rsconnect 1.3.1<a class="anchor" aria-label="anchor" href="#rsconnect-131"></a></h2>
 <ul><li>Skip tests when packages “foreign” and “MASS” are not available. (<a href="https://github.com/rstudio/rsconnect/issues/1081" class="external-link">#1081</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.0" id="rsconnect-130">rsconnect 1.3.0<a class="anchor" aria-label="anchor" href="#rsconnect-130"></a></h2><p class="text-muted">CRAN release: 2024-05-24</p>
+<h2 class="pkg-version" data-toc-text="1.3.0" id="rsconnect-130">rsconnect 1.3.0<a class="anchor" aria-label="anchor" href="#rsconnect-130"></a></h2>
 <ul><li><p><code>deployApp(logLevel = "quiet")</code> suppresses Posit Connect deployment task output. (<a href="https://github.com/rstudio/rsconnect/issues/1051" class="external-link">#1051</a>)</p></li>
 <li><p><code>deployApp(logLevel = "quiet")</code> and <code>writeManifest(quiet=TRUE)</code> suppress output when using renv to analyze dependencies. (<a href="https://github.com/rstudio/rsconnect/issues/1051" class="external-link">#1051</a>)</p></li>
 <li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> receive the default value for the <code>image</code> argument from the <code>RSCONNECT_IMAGE</code> environment variable. (<a href="https://github.com/rstudio/rsconnect/issues/1063" class="external-link">#1063</a>)</p></li>
@@ -119,18 +122,18 @@
 <li><p>Skip tests when suggested packages are not available. Skip Quarto tests when run by CRAN. (<a href="https://github.com/rstudio/rsconnect/issues/1074" class="external-link">#1074</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.2" id="rsconnect-122">rsconnect 1.2.2<a class="anchor" aria-label="anchor" href="#rsconnect-122"></a></h2><p class="text-muted">CRAN release: 2024-04-04</p>
+<h2 class="pkg-version" data-toc-text="1.2.2" id="rsconnect-122">rsconnect 1.2.2<a class="anchor" aria-label="anchor" href="#rsconnect-122"></a></h2>
 <ul><li><p>Use internally computed SHA1 sums and PKI signing when SHA1 is disabled in FIPS mode. (<a href="https://github.com/rstudio/rsconnect/issues/768" class="external-link">#768</a>, <a href="https://github.com/rstudio/rsconnect/issues/1054" class="external-link">#1054</a>)</p></li>
 <li><p>Allow Quarto content with a rendered script as its primary target. (<a href="https://github.com/rstudio/rsconnect/issues/1055" class="external-link">#1055</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.1" id="rsconnect-121">rsconnect 1.2.1<a class="anchor" aria-label="anchor" href="#rsconnect-121"></a></h2><p class="text-muted">CRAN release: 2024-01-31</p>
+<h2 class="pkg-version" data-toc-text="1.2.1" id="rsconnect-121">rsconnect 1.2.1<a class="anchor" aria-label="anchor" href="#rsconnect-121"></a></h2>
 <ul><li>Restore the <code>LC_TIME</code> locale after computing an RFC-2616 date. (<a href="https://github.com/rstudio/rsconnect/issues/1035" class="external-link">#1035</a>)</li>
 <li>Address a problem inspecting Quarto content when the file names and paths needed to be quoted. The resulting manifest lacked information about the Quarto runtime, which caused difficult-to-understand deployment errors. (<a href="https://github.com/rstudio/rsconnect/issues/1037" class="external-link">#1037</a>)</li>
 <li>Produce an error when Quarto content cannot be inspected. (<a href="https://github.com/rstudio/rsconnect/issues/1032" class="external-link">#1032</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.0" id="rsconnect-120">rsconnect 1.2.0<a class="anchor" aria-label="anchor" href="#rsconnect-120"></a></h2><p class="text-muted">CRAN release: 2023-12-15</p>
+<h2 class="pkg-version" data-toc-text="1.2.0" id="rsconnect-120">rsconnect 1.2.0<a class="anchor" aria-label="anchor" href="#rsconnect-120"></a></h2>
 <ul><li><p>Addressed a number of republishing and collaboration issues where the content was incorrectly published to a new location rather than reusing an existing deployment. (<a href="https://github.com/rstudio/rsconnect/issues/981" class="external-link">#981</a>, <a href="https://github.com/rstudio/rsconnect/issues/1007" class="external-link">#1007</a>, <a href="https://github.com/rstudio/rsconnect/issues/1013" class="external-link">#1013</a>, <a href="https://github.com/rstudio/rsconnect/issues/1019" class="external-link">#1019</a>)</p></li>
 <li><p><code><a href="../reference/showLogs.html">showLogs()</a></code>, <code><a href="../reference/configureApp.html">configureApp()</a></code>, <code><a href="../reference/setProperty.html">setProperty()</a></code>, and <code><a href="../reference/unsetProperty.html">unsetProperty()</a></code> search for the application by name when there are no matching deployment records. (<a href="https://github.com/rstudio/rsconnect/issues/985" class="external-link">#985</a>, <a href="https://github.com/rstudio/rsconnect/issues/989" class="external-link">#989</a>)</p></li>
 <li><p><code><a href="../reference/rpubsUpload.html">rpubsUpload()</a></code> correctly records the initial RPubs destination, allowing republishing. (<a href="https://github.com/rstudio/rsconnect/issues/976" class="external-link">#976</a>)</p></li>
@@ -138,7 +141,7 @@
 <li><p><code><a href="../reference/accounts.html">accountInfo()</a></code> includes <code>name</code> and <code>username</code> fields. Older versions of rsconnect store account records with a <code>username</code> field. Recent rsconnect versions record <code>name</code>. Both <code>name</code> and <code>username</code> should contain the same value. (<a href="https://github.com/rstudio/rsconnect/issues/1024" class="external-link">#1024</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.1" id="rsconnect-111">rsconnect 1.1.1<a class="anchor" aria-label="anchor" href="#rsconnect-111"></a></h2><p class="text-muted">CRAN release: 2023-10-04</p>
+<h2 class="pkg-version" data-toc-text="1.1.1" id="rsconnect-111">rsconnect 1.1.1<a class="anchor" aria-label="anchor" href="#rsconnect-111"></a></h2>
 <ul><li><p>Added <code>space</code> parameter to deploy directly to a space in Posit Cloud.</p></li>
 <li><p>Improve reporting of errors returned by shinyapps.io. (<a href="https://github.com/rstudio/rsconnect/issues/997" class="external-link">#997</a>)</p></li>
 <li><p>Remove most directory layout validation checks. (<a href="https://github.com/rstudio/rsconnect/issues/998" class="external-link">#998</a>)</p></li>
@@ -146,14 +149,14 @@
 <li><p>Packages installed from source within an renv project are not associated with repositories. (<a href="https://github.com/rstudio/rsconnect/issues/1004" class="external-link">#1004</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="rsconnect-110">rsconnect 1.1.0<a class="anchor" aria-label="anchor" href="#rsconnect-110"></a></h2><p class="text-muted">CRAN release: 2023-09-05</p>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="rsconnect-110">rsconnect 1.1.0<a class="anchor" aria-label="anchor" href="#rsconnect-110"></a></h2>
 <ul><li><p>Fixed analysis of directories that were smaller than the <code>rsconnect.max.bundle.files=10000</code> limit but larger than the <code>renv.config.dependencies.limit=1000</code> limit. (<a href="https://github.com/rstudio/rsconnect/issues/968" class="external-link">#968</a>)</p></li>
 <li><p>Ignore <code>.env</code>, <code>.venv</code>, and <code>venv</code> files only when they reference Python virtual environments. (<a href="https://github.com/rstudio/rsconnect/issues/972" class="external-link">#972</a>)</p></li>
 <li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> accept optional <code>envManagement</code>, <code>envManagementR</code>, and <code>envManagementPy</code> arguments. These args specify whether Posit Connect should install packages in the package cache. If <code>envManagement</code> is <code>FALSE</code> then Connect will not perform any package installation and it is the administrator’s responsibility to ensure the required R/Python packages are available in the runtime environment. This is especially useful if off-host execution is enabled, when the execution environment (specified by the <code>image</code> argument) already contains the required packages. These values are ignored when <code>Applications.ManifestEnvironmentManagementSelection = false</code>. Requires Posit Connect <code>&gt;=2023.07.0</code>. (<a href="https://github.com/rstudio/rsconnect/issues/977" class="external-link">#977</a>)</p></li>
 <li><p>Fix account discovery by <code><a href="../reference/showProperties.html">showProperties()</a></code>. (<a href="https://github.com/rstudio/rsconnect/issues/980" class="external-link">#980</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.2" id="rsconnect-102">rsconnect 1.0.2<a class="anchor" aria-label="anchor" href="#rsconnect-102"></a></h2><p class="text-muted">CRAN release: 2023-08-17</p>
+<h2 class="pkg-version" data-toc-text="1.0.2" id="rsconnect-102">rsconnect 1.0.2<a class="anchor" aria-label="anchor" href="#rsconnect-102"></a></h2>
 <ul><li><p>Fixed redeployments to shinyapps.io where <code>appName</code> is provided, but no local record of the deployment exists. (<a href="https://github.com/rstudio/rsconnect/issues/932" class="external-link">#932</a>)</p></li>
 <li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> now error if your library and <code>renv.lock</code> are out-of-sync. Previously it always used what was defined in the <code>renv.lock</code> but that was (a) slow and (b) could lead to different results than what you see when running locally (<a href="https://github.com/rstudio/rsconnect/issues/930" class="external-link">#930</a>).</p></li>
 <li><p>Deploying from an renv project includes the <code>renv.lock</code> in the bundle. A manifest created for an renv project references the <code>renv.lock</code> in the <code>manifest.json</code>. (<a href="https://github.com/rstudio/rsconnect/issues/926" class="external-link">#926</a>)</p></li>
@@ -164,12 +167,12 @@
 <li><p><code><a href="../reference/appDependencies.html">appDependencies()</a></code> accepts an <code>appFileManifest</code> argument as an alternate way of providing the target set of files.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.1" id="rsconnect-101">rsconnect 1.0.1<a class="anchor" aria-label="anchor" href="#rsconnect-101"></a></h2><p class="text-muted">CRAN release: 2023-07-20</p>
+<h2 class="pkg-version" data-toc-text="1.0.1" id="rsconnect-101">rsconnect 1.0.1<a class="anchor" aria-label="anchor" href="#rsconnect-101"></a></h2>
 <ul><li><p><code><a href="../reference/deployDoc.html">deployDoc()</a></code> includes <code>.Rprofile</code>, <code>requirements.txt</code> and <code>renv.lock</code> when deploying <code>.Rmd</code> or <code>.qmd</code>. These additional files are not included with rendered HTML documents. (<a href="https://github.com/rstudio/rsconnect/issues/919" class="external-link">#919</a>)</p></li>
 <li><p>Explicit renv dependencies are preserved. (<a href="https://github.com/rstudio/rsconnect/issues/916" class="external-link">#916</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="rsconnect-100">rsconnect 1.0.0<a class="anchor" aria-label="anchor" href="#rsconnect-100"></a></h2><p class="text-muted">CRAN release: 2023-07-17</p>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="rsconnect-100">rsconnect 1.0.0<a class="anchor" aria-label="anchor" href="#rsconnect-100"></a></h2>
 <div class="section level3">
 <h3 id="new-features-1-0-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-0-0"></a></h3>
 <ul><li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/deployDoc.html">deployDoc()</a></code> now support deploying static content to Posit Cloud. Static RMarkdown and Quarto content can be rendered server-side.</p></li>
@@ -232,12 +235,12 @@
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.29" id="rsconnect-0829">rsconnect 0.8.29<a class="anchor" aria-label="anchor" href="#rsconnect-0829"></a></h2><p class="text-muted">CRAN release: 2023-01-09</p>
+<h2 class="pkg-version" data-toc-text="0.8.29" id="rsconnect-0829">rsconnect 0.8.29<a class="anchor" aria-label="anchor" href="#rsconnect-0829"></a></h2>
 <ul><li><p>Introduced support for publishing to Posit Cloud. This feature is currently in closed beta and requires access to an enabled account on Posit Cloud. See <a href="https://posit.cloud/learn/whats-new#publishing" class="external-link">Posit Cloud’s Announcement</a> for more information and to request access.</p></li>
 <li><p>Update company and product names for rebranding to Posit.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.28" id="rsconnect-0828">rsconnect 0.8.28<a class="anchor" aria-label="anchor" href="#rsconnect-0828"></a></h2><p class="text-muted">CRAN release: 2022-10-24</p>
+<h2 class="pkg-version" data-toc-text="0.8.28" id="rsconnect-0828">rsconnect 0.8.28<a class="anchor" aria-label="anchor" href="#rsconnect-0828"></a></h2>
 <ul><li>
 <p>Shiny applications and Shiny documents no longer include an implicit dependency on <a href="https://ragg.r-lib.org" class="external-link"><code>ragg</code></a> when that package is present in the local environment. This reverts a change introduced in 0.8.27.</p>
 <p>Shiny applications should add an explicit dependency on <code>ragg</code> (usually with a <code><a href="https://ragg.r-lib.org" class="external-link">library("ragg")</a></code> statement) to see it used by <code><a href="https://rdrr.io/pkg/shiny/man/renderPlot.html" class="external-link">shiny::renderPlot</a></code> (via <code><a href="https://rdrr.io/pkg/shiny/man/plotPNG.html" class="external-link">shiny::plotPNG</a></code>).</p>
@@ -247,14 +250,14 @@
 <li><p>Escape account names when performing a directory search to determine an appropriate server. (<a href="https://github.com/rstudio/rsconnect/issues/620" class="external-link">#620</a>)</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.27" id="rsconnect-0827">rsconnect 0.8.27<a class="anchor" aria-label="anchor" href="#rsconnect-0827"></a></h2><p class="text-muted">CRAN release: 2022-07-12</p>
+<h2 class="pkg-version" data-toc-text="0.8.27" id="rsconnect-0827">rsconnect 0.8.27<a class="anchor" aria-label="anchor" href="#rsconnect-0827"></a></h2>
 <ul><li>Quarto content will no longer silently deploy as R Markdown content when Quarto metadata is missing or cannot be gathered. Functions will error, requesting the path to a Quarto binary in the <code>quarto</code> argument. (<a href="https://github.com/rstudio/rsconnect/issues/594" class="external-link">#594</a>)</li>
 <li>Fix typo for <code>.rscignore</code>. (<a href="https://github.com/rstudio/rsconnect/issues/599" class="external-link">#599</a>)</li>
 <li>Quarto deployments specifying only an <code>appDir</code> and <code>quarto</code> binary but not an <code>appPrimaryDoc</code> work more consistently. A directory containing a <code>.qmd</code> file will deploy as Quarto content instead of failing, and a directory containing an <code>.Rmd</code> file will successfully deploy as Quarto content instead of falling back to R Markdown. (<a href="https://github.com/rstudio/rsconnect/issues/601" class="external-link">#601</a>)</li>
 <li>If the <code>ragg</code> package is installed locally, it is now added as an implicit dependency to <code>shiny</code> apps since <code><a href="https://rdrr.io/pkg/shiny/man/renderPlot.html" class="external-link">shiny::renderPlot()</a></code> now uses it by default (when available). This way, <code>shiny</code> apps won’t have to add <code><a href="https://ragg.r-lib.org" class="external-link">library(ragg)</a></code> to get consistent (higher-quality) PNG images when deployed. (<a href="https://github.com/rstudio/rsconnect/issues/598" class="external-link">#598</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.26" id="rsconnect-0826">rsconnect 0.8.26<a class="anchor" aria-label="anchor" href="#rsconnect-0826"></a></h2><p class="text-muted">CRAN release: 2022-05-31</p>
+<h2 class="pkg-version" data-toc-text="0.8.26" id="rsconnect-0826">rsconnect 0.8.26<a class="anchor" aria-label="anchor" href="#rsconnect-0826"></a></h2>
 <ul><li>Add ability to resend shinyapps.io application invitations (<a href="https://github.com/rstudio/rsconnect/issues/543" class="external-link">#543</a>)</li>
 <li>Show expiration status in shinyapps.io for invitations (<a href="https://github.com/rstudio/rsconnect/issues/543" class="external-link">#543</a>)</li>
 <li>Allow shinyapps.io deployments to be private at creation time (<a href="https://github.com/rstudio/rsconnect/issues/403" class="external-link">#403</a>)</li>
@@ -267,21 +270,21 @@
 <li>Added the <code>rsconnect.tar</code> option, which can be used to specify the path to a <code>tar</code> implementation instead of R’s internal implementation. The previous method, using the <code>RSCONNECT_TAR</code> environment variable, still works, but the new option will take precedence if both are set.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.25" id="rsconnect-0825">rsconnect 0.8.25<a class="anchor" aria-label="anchor" href="#rsconnect-0825"></a></h2><p class="text-muted">CRAN release: 2021-11-19</p>
+<h2 class="pkg-version" data-toc-text="0.8.25" id="rsconnect-0825">rsconnect 0.8.25<a class="anchor" aria-label="anchor" href="#rsconnect-0825"></a></h2>
 <ul><li>Use the <code>curl</code> option <code>-T</code> when uploading files to avoid out of memory errors with large files. (<a href="https://github.com/rstudio/rsconnect/issues/544" class="external-link">#544</a>)</li>
 <li>The <code>rsconnect.max.bundle.size</code> and <code>rsconnect.max.bundle.files</code> options are enforced when processing an enumerated set of files. Previously, these limits were enforced only when bundling an entire content directory. (<a href="https://github.com/rstudio/rsconnect/issues/542" class="external-link">#542</a>)</li>
 <li>Preserve file time stamps when copying files into the bundle staging directory, which then propagates into the created tar file. (<a href="https://github.com/rstudio/rsconnect/issues/540" class="external-link">#540</a>)</li>
 <li>Configuration directories align with CRAN policy and use the location named by <code><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">tools::R_user_dir</a></code>. Configuration created by earlier versions of this package is automatically migrated to the new location. (<a href="https://github.com/rstudio/rsconnect/issues/550" class="external-link">#550</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.24" id="rsconnect-0824">rsconnect 0.8.24<a class="anchor" aria-label="anchor" href="#rsconnect-0824"></a></h2><p class="text-muted">CRAN release: 2021-08-05</p>
+<h2 class="pkg-version" data-toc-text="0.8.24" id="rsconnect-0824">rsconnect 0.8.24<a class="anchor" aria-label="anchor" href="#rsconnect-0824"></a></h2>
 <ul><li>Added support for publishing Quarto documents and websites</li>
 <li>Added support for <code>.rscignore</code> file to exclude files or directories from publishing (<a href="https://github.com/rstudio/rsconnect/issues/368" class="external-link">#368</a>)</li>
 <li>Fixed issue causing missing value errors when publishing content containing filenames with extended characters (<a href="https://github.com/rstudio/rsconnect/issues/514" class="external-link">#514</a>)</li>
 <li>Fixed issue preventing error tracebacks from displaying (<a href="https://github.com/rstudio/rsconnect/issues/518" class="external-link">#518</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.18" id="rsconnect-0818">rsconnect 0.8.18<a class="anchor" aria-label="anchor" href="#rsconnect-0818"></a></h2><p class="text-muted">CRAN release: 2021-05-24</p>
+<h2 class="pkg-version" data-toc-text="0.8.18" id="rsconnect-0818">rsconnect 0.8.18<a class="anchor" aria-label="anchor" href="#rsconnect-0818"></a></h2>
 <ul><li>Fixed issue causing configuration directory to be left behind after <code>R CMD CHECK</code>
 </li>
 <li>Fixed incorrect subdirectory nesting when storing configuration in <code>R_USER_CONFIG_DIR</code>
@@ -294,7 +297,7 @@
 <li>Add <code>verbose</code> option to <code>writeManifest</code> utility (<a href="https://github.com/rstudio/rsconnect/issues/468" class="external-link">#468</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.17" id="rsconnect-0817">rsconnect 0.8.17<a class="anchor" aria-label="anchor" href="#rsconnect-0817"></a></h2><p class="text-muted">CRAN release: 2021-04-09</p>
+<h2 class="pkg-version" data-toc-text="0.8.17" id="rsconnect-0817">rsconnect 0.8.17<a class="anchor" aria-label="anchor" href="#rsconnect-0817"></a></h2>
 <ul><li>Fixed issue where setting <code>options(rsconnect.http.trace.json = TRUE)</code> could cause deployment errors with some HTTP transports (<a href="https://github.com/rstudio/rsconnect/issues/490" class="external-link">#490</a>)</li>
 <li>Improve how large bundles (file size and count) are detected (<a href="https://github.com/rstudio/rsconnect/issues/464" class="external-link">#464</a>)</li>
 <li>The <code>RSCONNECT_TAR</code> environment variable can be used to select the tar implementation used to create bundles (<a href="https://github.com/rstudio/rsconnect/issues/446" class="external-link">#446</a>)</li>
@@ -317,7 +320,7 @@
 <li>GitLab is seen as a valid SCM source (<a href="https://github.com/rstudio/rsconnect/issues/491" class="external-link">#491</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.16" id="rsconnect-0816">rsconnect 0.8.16<a class="anchor" aria-label="anchor" href="#rsconnect-0816"></a></h2><p class="text-muted">CRAN release: 2019-12-13</p>
+<h2 class="pkg-version" data-toc-text="0.8.16" id="rsconnect-0816">rsconnect 0.8.16<a class="anchor" aria-label="anchor" href="#rsconnect-0816"></a></h2>
 <ul><li>Prevent attempts to deploy Connect applications without uploading (<a href="https://github.com/rstudio/rsconnect/issues/145" class="external-link">#145</a>)</li>
 <li>Flag usage of <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> debugging calls when deploying (<a href="https://github.com/rstudio/rsconnect/issues/196" class="external-link">#196</a>)</li>
 <li>Prevent accidental deployment of Plumber APIs to shinyapps.io (<a href="https://github.com/rstudio/rsconnect/issues/204" class="external-link">#204</a>)</li>
@@ -336,7 +339,7 @@
 <li>Add support for authenticating with Connect via an API key rather than a token (<a href="https://github.com/rstudio/rsconnect/issues/393" class="external-link">#393</a>)</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.8.15" id="rsconnect-0815">rsconnect 0.8.15<a class="anchor" aria-label="anchor" href="#rsconnect-0815"></a></h2><p class="text-muted">CRAN release: 2019-07-22</p>
+<h2 class="pkg-version" data-toc-text="0.8.15" id="rsconnect-0815">rsconnect 0.8.15<a class="anchor" aria-label="anchor" href="#rsconnect-0815"></a></h2>
 <ul><li>Switch from <strong>RCurl</strong> to <strong>curl</strong> as the default HTTP backend (<a href="https://github.com/rstudio/rsconnect/issues/325" class="external-link">#325</a>)</li>
 <li>Add <code><a href="../reference/purgeApp.html">purgeApp()</a></code> function to purge previously deployed shinyapps.io applications (<a href="https://github.com/rstudio/rsconnect/issues/352" class="external-link">#352</a>)</li>
 </ul></div>
