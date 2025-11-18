@@ -1,0 +1,84 @@
+# Create a Linter
+
+Generate a linter, which can identify errors or problematic regions in a
+project.
+
+Supported servers: All servers
+
+Generate a linter, which can identify errors or problematic regions in a
+project.
+
+## Usage
+
+``` r
+linter(apply, takes, message, suggestion)
+
+linter(apply, takes, message, suggestion)
+```
+
+## Arguments
+
+- apply:
+
+  Function that, given the content of a file, returns the indices at
+  which problems were found.
+
+- takes:
+
+  Function that, given a set of paths, returns the subset of paths that
+  this linter uses.
+
+- message:
+
+  Function that, given content and lines, returns an informative message
+  for the user. Typically generated with
+  [`makeLinterMessage()`](https://rstudio.github.io/rsconnect/reference/makeLinterMessage.md).
+
+- suggestion:
+
+  String giving a prescribed fix for the linted problem.
+
+## Examples
+
+``` r
+addLinter("no.capitals", linter(
+
+  ## Identify lines containing capital letters -- either by name or by index
+  apply = function(content, ...) {
+    grep("[A-Z]", content)
+  },
+
+  ## Only use this linter on R files (paths ending with .r or .R)
+  takes = function(paths) {
+    grep("[rR]$", paths)
+  },
+
+  # Use the default message constructor
+  message = function(content, lines, ...) {
+    makeLinterMessage("Capital letters found on the following lines", content, lines)
+  },
+
+  # Give a suggested prescription
+  suggest = "Do not use capital letters in these documents."
+))
+addLinter("no.capitals", linter(
+
+  ## Identify lines containing capital letters -- either by name or by index
+  apply = function(content, ...) {
+    grep("[A-Z]", content)
+  },
+
+  ## Only use this linter on R files (paths ending with .r or .R)
+  takes = function(paths) {
+    grep("[rR]$", paths)
+  },
+
+  # Use the default message constructor
+  message = function(content, lines, ...) {
+    makeLinterMessage("Capital letters found on the following lines", content, lines)
+  },
+
+  # Give a suggested prescription
+  suggest = "Do not use capital letters in these documents."
+))
+```
