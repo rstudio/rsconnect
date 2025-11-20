@@ -1,0 +1,29 @@
+name: Bug report
+description: Report an error or unexpected behavior
+labels: [bug]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to share feedback on rsconnect. Please
+        read the following to help your question find the right answer:
+
+        - If you're reporting an issue with *shinyapps.io*, please visit https://forum.posit.co/c/posit-professional-hosted/shinyappsio/24
+        - If you're reporting an issue with *Connect Cloud*, please visit https://forum.posit.co/c/posit-professional-hosted/posit-connect-cloud/67
+        - If you're reporting an issue with *Posit Connect*, please visit https://forum.posit.co/c/posit-professional-hosted/posit-connect/27 or contact your support rep
+
+        To report a bug with rsconnect, please provide details about the issue
+        and, if possible, a reproducible example.
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        Description of the bug, and how to reproduce it
+  - type: textarea
+    attributes:
+      label: Your environment
+      description: |
+        Please document the version of rsconnect you are using
+      placeholder: |
+        - rsconnect: 1.6.2
