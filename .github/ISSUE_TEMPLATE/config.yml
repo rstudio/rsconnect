@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Help with shinyapps.io
+    url: https://forum.posit.co/c/posit-professional-hosted/shinyappsio/24
+    about: For questions about shinyapps.io, visit Posit Community
+  - name: Help with Connect Cloud
+    url: https://forum.posit.co/c/posit-professional-hosted/posit-connect-cloud/67
+    about: For questions about Connect Cloud, visit Posit Community
+  - name: Help with Posit Connect
+    url: https://support.posit.co/hc/en-us
+    about: For questions about Posit Connect, visit the support forum or contact your Posit representative
