@@ -6,15 +6,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for taking the time to share feedback on rsconnect. Please
-        read the following to help your question find the right answer:
+        Thank you for taking the time to share feedback on rsconnect. Please read the following to help your question find the right answer:
 
         - If you're reporting an issue with *shinyapps.io*, please visit https://forum.posit.co/c/posit-professional-hosted/shinyappsio/24
         - If you're reporting an issue with *Connect Cloud*, please visit https://forum.posit.co/c/posit-professional-hosted/posit-connect-cloud/67
         - If you're reporting an issue with *Posit Connect*, please visit https://support.posit.co/hc/en-us/requests/new or contact your Posit representative
 
-        To report a bug with rsconnect, please provide details about the issue
-        and, if possible, a reproducible example.
+        To report a bug with rsconnect, please provide details about the issue and, if possible, a reproducible example.
   - type: textarea
     attributes:
       label: Description
