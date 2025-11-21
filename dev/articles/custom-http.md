@@ -88,7 +88,7 @@ returned by the server.
 ## Other custom options
 
 Finally, you can supply any additional options supported by
-[`curl::curl_options()`](https://rdrr.io/pkg/curl/man/curl_options.html)
+[`curl::curl_options()`](https://jeroen.r-universe.dev/curl/reference/curl_options.html)
 with `rsconnect.libcurl.options`, e.g.
 
 ``` r
@@ -96,5 +96,5 @@ options(rsconnect.libcurl.options = list(proxy = "http://proxy.example.com")
 ```
 
 Run
-[`curl::curl_options()`](https://rdrr.io/pkg/curl/man/curl_options.html)
+[`curl::curl_options()`](https://jeroen.r-universe.dev/curl/reference/curl_options.html)
 to see a list of options.

@@ -4,6 +4,8 @@
 
 ## rsconnect 1.6.2
 
+CRAN release: 2025-11-18
+
 - Fix an opaque error when creating a manifest using Python \<= 3.10
   with a version requirement in a `pyproject.toml` file. A warning is
   shown rather than an error when the tomllib package is not present.
@@ -13,6 +15,8 @@
   ([\#1255](https://github.com/rstudio/rsconnect/issues/1255))
 
 ## rsconnect 1.6.1
+
+CRAN release: 2025-11-04
 
 - Fix account registration from RStudio.
   ([\#1250](https://github.com/rstudio/rsconnect/issues/1250))
@@ -27,6 +31,8 @@
   identify users to the Connect server itself.
 
 ## rsconnect 1.6.0
+
+CRAN release: 2025-10-28
 
 - Support deploying to Posit Connect Cloud. Use
   [`connectCloudUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudUser.md)
@@ -68,6 +74,8 @@
 
 ## rsconnect 1.5.1
 
+CRAN release: 2025-08-28
+
 - Address user registration for Posit Connect deployments hosted in
   Snowpark Container Services when there is more than one configured
   Snowflake connection.
@@ -81,15 +89,21 @@
 
 ## rsconnect 1.5.0
 
+CRAN release: 2025-06-26
+
 - Functions for interacting with Posit Connect deployments in Snowpark
   Container Services are now provided by the snowflakeauth package.
 
 ## rsconnect 1.4.2
 
+CRAN release: 2025-06-18
+
 - Address duplicate certificate errors on macOS with newer curl.
   ([\#1175](https://github.com/rstudio/rsconnect/issues/1175))
 
 ## rsconnect 1.4.1
+
+CRAN release: 2025-05-22
 
 - Fixed processing error during server validation, which prevented
   registration of new Connect accounts.
@@ -100,6 +114,8 @@
   ([\#1167](https://github.com/rstudio/rsconnect/issues/1167))
 
 ## rsconnect 1.4.0
+
+CRAN release: 2025-05-15
 
 - Content directories with a period in their name are no longer treated
   as a document path when computing the location for deployment records.
@@ -132,17 +148,23 @@
 
 ## rsconnect 1.3.4
 
+CRAN release: 2025-01-22
+
 - Use base64 encoded test data. Addresses CRAN test failures when run
   with newer libssl.
   ([\#1130](https://github.com/rstudio/rsconnect/issues/1130))
 
 ## rsconnect 1.3.3
 
+CRAN release: 2024-11-19
+
 - Avoid “legacy” time zone names in tests, as they are not available by
   default in all environments. Addresses CRAN test failures.
   ([\#1115](https://github.com/rstudio/rsconnect/issues/1115))
 
 ## rsconnect 1.3.2
+
+CRAN release: 2024-10-28
 
 - Primary Quarto document detection only considers `.R`, `.Rmd`, and
   `.qmd` as end-of-file extensions. Previously, a file with `.R`
@@ -164,10 +186,14 @@
 
 ## rsconnect 1.3.1
 
+CRAN release: 2024-06-04
+
 - Skip tests when packages “foreign” and “MASS” are not available.
   ([\#1081](https://github.com/rstudio/rsconnect/issues/1081))
 
 ## rsconnect 1.3.0
+
+CRAN release: 2024-05-24
 
 - `deployApp(logLevel = "quiet")` suppresses Posit Connect deployment
   task output.
@@ -193,6 +219,8 @@
 
 ## rsconnect 1.2.2
 
+CRAN release: 2024-04-04
+
 - Use internally computed SHA1 sums and PKI signing when SHA1 is
   disabled in FIPS mode.
   ([\#768](https://github.com/rstudio/rsconnect/issues/768),
@@ -202,6 +230,8 @@
   ([\#1055](https://github.com/rstudio/rsconnect/issues/1055))
 
 ## rsconnect 1.2.1
+
+CRAN release: 2024-01-31
 
 - Restore the `LC_TIME` locale after computing an RFC-2616 date.
   ([\#1035](https://github.com/rstudio/rsconnect/issues/1035))
@@ -214,6 +244,8 @@
   ([\#1032](https://github.com/rstudio/rsconnect/issues/1032))
 
 ## rsconnect 1.2.0
+
+CRAN release: 2023-12-15
 
 - Addressed a number of republishing and collaboration issues where the
   content was incorrectly published to a new location rather than
@@ -251,6 +283,8 @@
 
 ## rsconnect 1.1.1
 
+CRAN release: 2023-10-04
+
 - Added `space` parameter to deploy directly to a space in Posit Cloud.
 
 - Improve reporting of errors returned by shinyapps.io.
@@ -269,6 +303,8 @@
   ([\#1004](https://github.com/rstudio/rsconnect/issues/1004))
 
 ## rsconnect 1.1.0
+
+CRAN release: 2023-09-05
 
 - Fixed analysis of directories that were smaller than the
   `rsconnect.max.bundle.files=10000` limit but larger than the
@@ -300,6 +336,8 @@
   ([\#980](https://github.com/rstudio/rsconnect/issues/980))
 
 ## rsconnect 1.0.2
+
+CRAN release: 2023-08-17
 
 - Fixed redeployments to shinyapps.io where `appName` is provided, but
   no local record of the deployment exists.
@@ -348,6 +386,8 @@
 
 ## rsconnect 1.0.1
 
+CRAN release: 2023-07-20
+
 - [`deployDoc()`](https://rstudio.github.io/rsconnect/dev/reference/deployDoc.md)
   includes `.Rprofile`, `requirements.txt` and `renv.lock` when
   deploying `.Rmd` or `.qmd`. These additional files are not included
@@ -358,6 +398,8 @@
   ([\#916](https://github.com/rstudio/rsconnect/issues/916))
 
 ## rsconnect 1.0.0
+
+CRAN release: 2023-07-17
 
 ### New features
 
@@ -673,6 +715,8 @@
 
 ## rsconnect 0.8.29
 
+CRAN release: 2023-01-09
+
 - Introduced support for publishing to Posit Cloud. This feature is
   currently in closed beta and requires access to an enabled account on
   Posit Cloud. See [Posit Cloud’s
@@ -682,6 +726,8 @@
 - Update company and product names for rebranding to Posit.
 
 ## rsconnect 0.8.28
+
+CRAN release: 2022-10-24
 
 - Shiny applications and Shiny documents no longer include an implicit
   dependency on [`ragg`](https://ragg.r-lib.org) when that package is
@@ -711,6 +757,8 @@
 
 ## rsconnect 0.8.27
 
+CRAN release: 2022-07-12
+
 - Quarto content will no longer silently deploy as R Markdown content
   when Quarto metadata is missing or cannot be gathered. Functions will
   error, requesting the path to a Quarto binary in the `quarto`
@@ -732,6 +780,8 @@
   ([\#598](https://github.com/rstudio/rsconnect/issues/598))
 
 ## rsconnect 0.8.26
+
+CRAN release: 2022-05-31
 
 - Add ability to resend shinyapps.io application invitations
   ([\#543](https://github.com/rstudio/rsconnect/issues/543))
@@ -758,6 +808,8 @@
 
 ## rsconnect 0.8.25
 
+CRAN release: 2021-11-19
+
 - Use the `curl` option `-T` when uploading files to avoid out of memory
   errors with large files.
   ([\#544](https://github.com/rstudio/rsconnect/issues/544))
@@ -777,6 +829,8 @@
 
 ## rsconnect 0.8.24
 
+CRAN release: 2021-08-05
+
 - Added support for publishing Quarto documents and websites
 - Added support for `.rscignore` file to exclude files or directories
   from publishing
@@ -788,6 +842,8 @@
   ([\#518](https://github.com/rstudio/rsconnect/issues/518))
 
 ## rsconnect 0.8.18
+
+CRAN release: 2021-05-24
 
 - Fixed issue causing configuration directory to be left behind after
   `R CMD CHECK`
@@ -811,6 +867,8 @@
   ([\#468](https://github.com/rstudio/rsconnect/issues/468))
 
 ## rsconnect 0.8.17
+
+CRAN release: 2021-04-09
 
 - Fixed issue where setting `options(rsconnect.http.trace.json = TRUE)`
   could cause deployment errors with some HTTP transports
@@ -872,6 +930,8 @@
 
 ## rsconnect 0.8.16
 
+CRAN release: 2019-12-13
+
 - Prevent attempts to deploy Connect applications without uploading
   ([\#145](https://github.com/rstudio/rsconnect/issues/145))
 - Flag usage of [`browser()`](https://rdrr.io/r/base/browser.html)
@@ -911,6 +971,8 @@
   a token ([\#393](https://github.com/rstudio/rsconnect/issues/393))
 
 ## rsconnect 0.8.15
+
+CRAN release: 2019-07-22
 
 - Switch from **RCurl** to **curl** as the default HTTP backend
   ([\#325](https://github.com/rstudio/rsconnect/issues/325))
