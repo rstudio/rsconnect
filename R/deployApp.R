@@ -911,12 +911,6 @@ bundleApp <- function(
   if (!is.null(existingManifest)) {
     logger("Using existing manifest: ", existingManifest)
     manifest <- existingManifest
-
-    # Apply envManagement overrides if provided
-    if (!is.null(envManagement)) {
-      envManagementR <- envManagement
-      envManagementPy <- envManagement
-    }
   } else {
     # generate the manifest
     logger("Generate manifest.json")
