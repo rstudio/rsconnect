@@ -43,7 +43,7 @@
 #'   it into version control, and deploy from that exact manifest. If `NULL`
 #'   (the default), a new manifest will be generated. When using `manifestPath`,
 #'   `appFiles`, `appFileManifest`, `appMode`, `appPrimaryDoc`, `contentCategory`,
-#'   `envManagement(R|Py)`, and `image` are ignored since their values are taken 
+#'   `envManagement(R|Py)`, and `image` are ignored since their values are taken
 #'   from the manifest.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be

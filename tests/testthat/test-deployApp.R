@@ -112,12 +112,14 @@ test_that("deployApp() errors if envVars is given a named vector", {
 
 # with manifestPath arg ---------------------------------------------------
 
-
 test_that("manifestPath must exist", {
   skip_on_cran()
   appDir <- local_temp_app(list(app.R = "# shiny app"))
 
-  expect_error(deployApp(appDir, manifestPath = "manifest.json"), "Manifest file not found")
+  expect_error(
+    deployApp(appDir, manifestPath = "manifest.json"),
+    "Manifest file not found"
+  )
 })
 
 test_that("manifest file must be valid JSON", {
@@ -125,8 +127,10 @@ test_that("manifest file must be valid JSON", {
   appDir <- local_temp_app(list(app.R = "# shiny app"))
   writeLines("not valid json {", file.path(appDir, "manifest.json"))
 
-
-  expect_error(deployApp(appDir, manifestPath = "manifest.json"), "invalid string in json text")
+  expect_error(
+    deployApp(appDir, manifestPath = "manifest.json"),
+    "invalid string in json text"
+  )
 })
 
 test_that("manifest must contain required fields", {
@@ -140,7 +144,10 @@ test_that("manifest must contain required fields", {
   })
 
   # Manifest without appmode
-  writeLines('{"metadata": {}, "files": {}}', file.path(appDir, "manifest.json"))
+  writeLines(
+    '{"metadata": {}, "files": {}}',
+    file.path(appDir, "manifest.json")
+  )
   expect_snapshot(error = TRUE, {
     deployApp(appDir, manifestPath = "manifest.json")
   })
