@@ -36,6 +36,15 @@
 #'   are supplied, will bundle all files in `appDir`, apart from standard
 #'   exclusions and files listed in a `.rscignore` file. See
 #'   [listDeploymentFiles()] for more details.
+#' @param manifestPath Path to an existing `manifest.json` file to use for
+#'   deployment. When provided, `deployApp()` will use the file list and
+#'   metadata from this manifest instead of generating a new one. This allows
+#'   you to pre-generate a manifest with [writeManifest()], customize it, check
+#'   it into version control, and deploy from that exact manifest. If `NULL`
+#'   (the default), a new manifest will be generated. When using `manifestPath`,
+#'   `appFiles`, `appFileManifest`, `appMode`, `appPrimaryDoc`, `contentCategory`,
+#'   `envManagement(R|Py)`, and `image` are ignored since their values are taken 
+#'   from the manifest.
 #' @param appPrimaryDoc If the application contains more than one document, this
 #'   parameter indicates the primary one, as a path relative to `appDir`. Can be
 #'   `NULL`, in which case the primary document is inferred from the contents
@@ -209,6 +218,11 @@
 #' # deploy application with environment variables
 #' # (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)
 #' rsconnect::deployApp(envVars = c("SECRET_PASSWORD"))
+#'
+#' # deploy from a pre-generated manifest
+#' writeManifest("~/projects/shiny/app1")
+#' # ...optionally customize manifest.json here...
+#' deployApp("~/projects/shiny/app1", manifestPath = "manifest.json")
 #' }
 #' @seealso [applications()], [terminateApp()], and [restartApp()]
 #' @family Deployment functions
@@ -217,6 +231,7 @@ deployApp <- function(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
+  manifestPath = NULL,
   appPrimaryDoc = NULL,
   appSourceDoc = NULL,
   appName = NULL,
@@ -333,7 +348,81 @@ deployApp <- function(
   # invoke pre-deploy hook if we have one
   runDeploymentHook(appDir, "rsconnect.pre.deploy", verbose = verbose)
 
-  appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
+  # Handle manifest-based deployment
+  if (!is.null(manifestPath)) {
+    # Validate and read manifest
+    if (!file.exists(manifestPath)) {
+      # Try relative to appDir
+      manifestPath <- file.path(appDir, manifestPath)
+    }
+    if (!file.exists(manifestPath)) {
+      cli::cli_abort(c(
+        "Manifest file not found.",
+        "x" = "Could not find {.file {manifestPath}}.",
+        "i" = "Create a manifest with {.fn writeManifest} first."
+      ))
+    }
+
+    manifestJson <- readLines(manifestPath, warn = FALSE, encoding = "UTF-8")
+    manifest <- tryCatch(
+      jsonlite::fromJSON(manifestJson, simplifyVector = FALSE),
+      error = function(e) {
+        cli::cli_abort(c(
+          "Failed to parse manifest file.",
+          "x" = "Error reading {.file {manifestPath}}: {e$message}"
+        ))
+      }
+    )
+
+    # Validate manifest structure
+    if (is.null(manifest$metadata$appmode)) {
+      cli::cli_abort(c(
+        "Invalid manifest file.",
+        "x" = "Manifest must contain {.field metadata$appmode}."
+      ))
+    }
+
+    # Extract file list from manifest
+    appFiles <- names(manifest$files)
+    if (length(appFiles) == 0) {
+      cli::cli_abort(c(
+        "Invalid manifest file.",
+        "x" = "Manifest contains no files."
+      ))
+    }
+
+    # Verify all files exist
+    missingFiles <- c()
+    for (file in appFiles) {
+      if (!file.exists(file.path(appDir, file))) {
+        missingFiles <- c(missingFiles, file)
+      }
+    }
+    if (length(missingFiles) > 0) {
+      cli::cli_abort(c(
+        "Files listed in manifest are missing from {.arg appDir}.",
+        "x" = "Missing files: {.file {missingFiles}}"
+      ))
+    }
+
+    # Extract metadata
+    appMode <- manifest$metadata$appmode
+
+    appPrimaryDoc <- manifest$metadata$primary_rmd
+    if (identical(appPrimaryDoc, NA) || is.null(appPrimaryDoc)) {
+      appPrimaryDoc <- manifest$metadata$primary_html
+    }
+    if (identical(appPrimaryDoc, NA)) {
+      appPrimaryDoc <- NULL
+    }
+    manifestCategory <- manifest$metadata$content_category
+    if (!identical(manifestCategory, NA) && !is.null(manifestCategory)) {
+      contentCategory <- manifestCategory
+    }
+  } else {
+    appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
+    manifest <- NULL
+  }
 
   if (isTRUE(lint)) {
     lintResults <- lint(appDir, appFiles, appPrimaryDoc)
@@ -560,7 +649,8 @@ deployApp <- function(
       image = image,
       envManagement = envManagement,
       envManagementR = envManagementR,
-      envManagementPy = envManagementPy
+      envManagementPy = envManagementPy,
+      existingManifest = manifest
     )
     size <- format(file_size(bundlePath), big.mark = ",")
     taskComplete(quiet, "Created bundle of size: {size}b")
@@ -796,7 +886,8 @@ bundleApp <- function(
   image = NULL,
   envManagement = NULL,
   envManagementR = NULL,
-  envManagementPy = NULL
+  envManagementPy = NULL,
+  existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)
 
@@ -816,21 +907,35 @@ bundleApp <- function(
   )
   defer(unlink(bundleDir, recursive = TRUE))
 
-  # generate the manifest and write it into the bundle dir
-  logger("Generate manifest.json")
-  manifest <- createAppManifest(
-    appDir = bundleDir,
-    appMetadata = appMetadata,
-    users = users,
-    pythonConfig = pythonConfig,
-    retainPackratDirectory = TRUE,
-    image = image,
-    envManagement = envManagement,
-    envManagementR = envManagementR,
-    envManagementPy = envManagementPy,
-    verbose = verbose,
-    quiet = quiet
-  )
+  # generate or use existing manifest
+  if (!is.null(existingManifest)) {
+    logger("Using existing manifest: ", existingManifest)
+    manifest <- existingManifest
+
+    # Apply envManagement overrides if provided
+    if (!is.null(envManagement)) {
+      envManagementR <- envManagement
+      envManagementPy <- envManagement
+    }
+  } else {
+    # generate the manifest
+    logger("Generate manifest.json")
+    manifest <- createAppManifest(
+      appDir = bundleDir,
+      appMetadata = appMetadata,
+      users = users,
+      pythonConfig = pythonConfig,
+      retainPackratDirectory = TRUE,
+      image = image,
+      envManagement = envManagement,
+      envManagementR = envManagementR,
+      envManagementPy = envManagementPy,
+      verbose = verbose,
+      quiet = quiet
+    )
+  }
+
+  # Write manifest into the bundle dir
   manifestJson <- toJSON(manifest)
   manifestPath <- file.path(bundleDir, "manifest.json")
   writeLines(manifestJson, manifestPath, useBytes = TRUE)

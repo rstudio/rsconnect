@@ -8,6 +8,7 @@ deployApp(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
+  manifestPath = NULL,
   appPrimaryDoc = NULL,
   appSourceDoc = NULL,
   appName = NULL,
@@ -46,6 +47,16 @@ to provide a path to a file containing a list of such files. If neither
 are supplied, will bundle all files in \code{appDir}, apart from standard
 exclusions and files listed in a \code{.rscignore} file. See
 \code{\link[=listDeploymentFiles]{listDeploymentFiles()}} for more details.}
+
+\item{manifestPath}{Path to an existing \code{manifest.json} file to use for
+deployment. When provided, \code{deployApp()} will use the file list and
+metadata from this manifest instead of generating a new one. This allows
+you to pre-generate a manifest with \code{\link[=writeManifest]{writeManifest()}}, customize it, check
+it into version control, and deploy from that exact manifest. If \code{NULL}
+(the default), a new manifest will be generated. When using \code{manifestPath},
+\code{appFiles}, \code{appFileManifest}, \code{appMode}, \code{appPrimaryDoc}, \code{contentCategory},
+\code{envManagement(R|Py)}, and \code{image} are ignored since their values are taken
+from the manifest.}
 
 \item{appPrimaryDoc}{If the application contains more than one document, this
 parameter indicates the primary one, as a path relative to \code{appDir}. Can be
@@ -276,6 +287,11 @@ deployApp("~/projects/quarto/site1")
 # deploy application with environment variables
 # (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)
 rsconnect::deployApp(envVars = c("SECRET_PASSWORD"))
+
+# deploy from a pre-generated manifest
+writeManifest("~/projects/shiny/app1")
+# ...optionally customize manifest.json here...
+deployApp("~/projects/shiny/app1", manifestPath = "manifest.json")
 }
 }
 \seealso{

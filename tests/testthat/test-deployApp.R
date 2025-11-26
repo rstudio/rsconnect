@@ -109,3 +109,89 @@ test_that("deployApp() errors if envVars is given a named vector", {
     deployApp(local_temp_app(), envVars = c("FLAG" = "true"))
   })
 })
+
+# with manifestPath arg ---------------------------------------------------
+
+
+test_that("manifestPath must exist", {
+  skip_on_cran()
+  appDir <- local_temp_app(list(app.R = "# shiny app"))
+
+  expect_error(deployApp(appDir, manifestPath = "manifest.json"), "Manifest file not found")
+})
+
+test_that("manifest file must be valid JSON", {
+  skip_on_cran()
+  appDir <- local_temp_app(list(app.R = "# shiny app"))
+  writeLines("not valid json {", file.path(appDir, "manifest.json"))
+
+
+  expect_error(deployApp(appDir, manifestPath = "manifest.json"), "invalid string in json text")
+})
+
+test_that("manifest must contain required fields", {
+  skip_on_cran()
+  appDir <- local_temp_app(list(app.R = "# shiny app"))
+
+  # Empty manifest
+  writeLines("{}", file.path(appDir, "manifest.json"))
+  expect_snapshot(error = TRUE, {
+    deployApp(appDir, manifestPath = "manifest.json")
+  })
+
+  # Manifest without appmode
+  writeLines('{"metadata": {}, "files": {}}', file.path(appDir, "manifest.json"))
+  expect_snapshot(error = TRUE, {
+    deployApp(appDir, manifestPath = "manifest.json")
+  })
+})
+
+test_that("manifest must contain files", {
+  skip_on_cran()
+  appDir <- local_temp_app(list(app.R = "# shiny app"))
+  writeLines(
+    '{"metadata": {"appmode": "shiny"}, "files": {}}',
+    file.path(appDir, "manifest.json")
+  )
+
+  expect_snapshot(error = TRUE, {
+    deployApp(appDir, manifestPath = "manifest.json")
+  })
+})
+
+test_that("all files in manifest must exist in appDir", {
+  skip_on_cran()
+  appDir <- local_temp_app(list(app.R = "# shiny app"))
+  writeManifest(appDir, quiet = TRUE)
+
+  # Add a non-existent file to the manifest
+  manifestPath <- file.path(appDir, "manifest.json")
+  manifest <- jsonlite::fromJSON(manifestPath)
+  manifest$files$missing.R <- list(checksum = "abc123")
+  writeLines(
+    jsonlite::toJSON(manifest, auto_unbox = TRUE),
+    manifestPath
+  )
+
+  expect_snapshot(error = TRUE, {
+    deployApp(appDir, manifestPath = "manifest.json")
+  })
+})
+
+test_that("manifestPath ignored when NULL", {
+  skip_on_cran()
+  appDir <- local_temp_app(list(app.R = "# shiny app"))
+
+  # Should work without manifest
+  expect_no_error({
+    # Will error later in deployment, but not due to missing manifest
+    tryCatch(
+      deployApp(appDir, manifestPath = NULL, server = "fake-server"),
+      error = function(e) {
+        # Expected to fail on server lookup, not manifest
+        print(e)
+        expect_false(grepl("manifest", e$message, ignore.case = TRUE))
+      }
+    )
+  })
+})
