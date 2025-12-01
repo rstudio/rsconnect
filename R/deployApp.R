@@ -363,9 +363,8 @@ deployApp <- function(
       ))
     }
 
-    manifestJson <- readLines(manifestPath, warn = FALSE, encoding = "UTF-8")
     manifest <- tryCatch(
-      jsonlite::fromJSON(manifestJson, simplifyVector = FALSE),
+      jsonlite::read_json(manifestPath, simplifyVector = FALSE),
       error = function(e) {
         cli::cli_abort(c(
           "Failed to parse manifest file.",
