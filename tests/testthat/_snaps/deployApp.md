@@ -80,3 +80,39 @@
       i Set environment variables with `Sys.setenv() or an `.Renviron` file.
       i Use `unname()` to remove the names from the vector passed to `envVars`.
 
+# manifest must contain required fields
+
+    Code
+      deployApp(appDir, manifestPath = "manifest.json")
+    Condition
+      Error in `deployApp()`:
+      ! Invalid manifest file.
+      x Manifest must contain metadata$appmode.
+
+---
+
+    Code
+      deployApp(appDir, manifestPath = "manifest.json")
+    Condition
+      Error in `deployApp()`:
+      ! Invalid manifest file.
+      x Manifest must contain metadata$appmode.
+
+# manifest must contain files
+
+    Code
+      deployApp(appDir, manifestPath = "manifest.json")
+    Condition
+      Error in `deployApp()`:
+      ! Invalid manifest file.
+      x Manifest contains no files.
+
+# all files in manifest must exist in appDir
+
+    Code
+      deployApp(appDir, manifestPath = "manifest.json")
+    Condition
+      Error in `deployApp()`:
+      ! Files listed in manifest are missing from `appDir`.
+      x Missing files: 'missing.R'
+

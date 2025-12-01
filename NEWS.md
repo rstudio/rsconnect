@@ -1,5 +1,9 @@
 # rsconnect (development version)
 
+* Added support for deploying from `manifest.json` files created by
+  `writeManifest()`: use the `manifestPath` argument of `deployApp()` and related
+  functions to specify the path to an existing manifest file. (#1259)
+
 # rsconnect 1.6.2
 
 * Fix an opaque error when creating a manifest using Python <= 3.10 with a
