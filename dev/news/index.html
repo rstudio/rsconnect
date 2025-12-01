@@ -37,7 +37,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>Added support for deploying from <code>manifest.json</code> files created by <code><a href="../reference/writeManifest.html">writeManifest()</a></code>: use the <code>manifestPath</code> argument of <code><a href="../reference/deployApp.html">deployApp()</a></code> and related functions to specify the path to an existing manifest file. (<a href="https://github.com/rstudio/rsconnect/issues/1259" class="external-link">#1259</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.6.2" id="rsconnect-162">rsconnect 1.6.2<a class="anchor" aria-label="anchor" href="#rsconnect-162"></a></h2><p class="text-muted">CRAN release: 2025-11-18</p>
 <ul><li><p>Fix an opaque error when creating a manifest using Python &lt;= 3.10 with a version requirement in a <code>pyproject.toml</code> file. A warning is shown rather than an error when the tomllib package is not present. (<a href="https://github.com/rstudio/rsconnect/issues/1226" class="external-link">#1226</a>)</p></li>

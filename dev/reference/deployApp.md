@@ -14,6 +14,7 @@ deployApp(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
+  manifestPath = NULL,
   appPrimaryDoc = NULL,
   appSourceDoc = NULL,
   appName = NULL,
@@ -59,6 +60,20 @@ deployApp(
   `.rscignore` file. See
   [`listDeploymentFiles()`](https://rstudio.github.io/rsconnect/dev/reference/listDeploymentFiles.md)
   for more details.
+
+- manifestPath:
+
+  Path to an existing `manifest.json` file to use for deployment. When
+  provided, `deployApp()` will use the file list and metadata from this
+  manifest instead of generating a new one. This allows you to
+  pre-generate a manifest with
+  [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md),
+  customize it, check it into version control, and deploy from that
+  exact manifest. If `NULL` (the default), a new manifest will be
+  generated. When using `manifestPath`, `appFiles`, `appFileManifest`,
+  `appMode`, `appPrimaryDoc`, `contentCategory`, `envManagement(R|Py)`,
+  and `image` are ignored since their values are taken from the
+  manifest.
 
 - appPrimaryDoc:
 
@@ -358,5 +373,10 @@ deployApp("~/projects/quarto/site1")
 # deploy application with environment variables
 # (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)
 rsconnect::deployApp(envVars = c("SECRET_PASSWORD"))
+
+# deploy from a pre-generated manifest
+writeManifest("~/projects/shiny/app1")
+# ...optionally customize manifest.json here...
+deployApp("~/projects/shiny/app1", manifestPath = "manifest.json")
 } # }
 ```

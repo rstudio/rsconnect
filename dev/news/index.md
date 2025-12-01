@@ -2,6 +2,13 @@
 
 ## rsconnect (development version)
 
+- Added support for deploying from `manifest.json` files created by
+  [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md):
+  use the `manifestPath` argument of
+  [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
+  and related functions to specify the path to an existing manifest
+  file. ([\#1259](https://github.com/rstudio/rsconnect/issues/1259))
+
 ## rsconnect 1.6.2
 
 CRAN release: 2025-11-18
