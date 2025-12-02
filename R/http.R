@@ -499,7 +499,7 @@ urlEncode <- function(x) {
   if (inherits(x, "AsIs")) {
     return(x)
   }
-  RCurl::curlEscape(x)
+  curl::curl_escape(x)
 }
 
 buildPath <- function(apiPath, path, query = NULL) {
