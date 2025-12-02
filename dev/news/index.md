@@ -9,6 +9,13 @@
   and related functions to specify the path to an existing manifest
   file. ([\#1259](https://github.com/rstudio/rsconnect/issues/1259))
 
+- `urlEncode()` now uses
+  [`curl::curl_escape()`](https://jeroen.r-universe.dev/curl/reference/curl_escape.html)
+  instead of
+  [`RCurl::curlEscape()`](https://rdrr.io/pkg/RCurl/man/curlEscape.html),
+  as RCurl is a Suggests dependency.
+  ([\#1265](https://github.com/rstudio/rsconnect/issues/1265))
+
 ## rsconnect 1.6.2
 
 CRAN release: 2025-11-18
