@@ -6,6 +6,10 @@
 
 * `urlEncode()` now uses `curl::curl_escape()` instead of `RCurl::curlEscape()`, 
   as RCurl is a Suggests dependency. (#1265)
+  
+* The `User-Agent` header in requests made from rsconnect will now be of the
+  format `RSConnect/x.y.z` instead of `rsconnect/x.y.z` in order to satisfy web
+  application firewalls that enforce Pascal case.
 
 # rsconnect 1.6.2
 
