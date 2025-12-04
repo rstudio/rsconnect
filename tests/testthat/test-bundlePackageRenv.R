@@ -218,10 +218,26 @@ test_that("packages available in multiple repos use the one from renv.lock", {
   # Simulate availablePackages with both packages available from both repos
   # Note: available.packages() returns first match with "duplicates" filter
   packages <- rbind(
-    c(Package = "pkg1", Version = "1.0.0", Repository = "https://cran.com/src/contrib"),
-    c(Package = "pkg2", Version = "2.0.0", Repository = "https://cran.com/src/contrib"),
-    c(Package = "pkg1", Version = "1.0.0", Repository = "https://og-cran.com/src/contrib"),
-    c(Package = "pkg2", Version = "2.0.0", Repository = "https://og-cran.com/src/contrib")
+    c(
+      Package = "pkg1",
+      Version = "1.0.0",
+      Repository = "https://cran.com/src/contrib"
+    ),
+    c(
+      Package = "pkg2",
+      Version = "2.0.0",
+      Repository = "https://cran.com/src/contrib"
+    ),
+    c(
+      Package = "pkg1",
+      Version = "1.0.0",
+      Repository = "https://og-cran.com/src/contrib"
+    ),
+    c(
+      Package = "pkg2",
+      Version = "2.0.0",
+      Repository = "https://og-cran.com/src/contrib"
+    )
   )
 
   repos <- c(CRAN = "https://cran.com", OG_CRAN = "https://og-cran.com")
@@ -244,12 +260,22 @@ test_that("packages available in multiple repos use the one from renv.lock", {
 
   expect_equal(
     standardizeRenvPackage(pkg1, packages, repos = repos),
-    list(Package = "pkg1", Version = "1.0.0", Source = "OG_CRAN", Repository = "https://og-cran.com")
+    list(
+      Package = "pkg1",
+      Version = "1.0.0",
+      Source = "OG_CRAN",
+      Repository = "https://og-cran.com"
+    )
   )
 
   expect_equal(
     standardizeRenvPackage(pkg2, packages, repos = repos),
-    list(Package = "pkg2", Version = "2.0.0", Source = "CRAN", Repository = "https://cran.com")
+    list(
+      Package = "pkg2",
+      Version = "2.0.0",
+      Source = "CRAN",
+      Repository = "https://cran.com"
+    )
   )
 })
 
