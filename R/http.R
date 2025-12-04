@@ -641,7 +641,7 @@ rfc2616Date <- function(time = Sys.time()) {
 # Helpers -----------------------------------------------------------------
 
 userAgent <- function() {
-  paste("rsconnect", packageVersion("rsconnect"), sep = "/")
+  paste("RSConnect", packageVersion("rsconnect"), sep = "/")
 }
 
 parseHttpHeader <- function(header) {
