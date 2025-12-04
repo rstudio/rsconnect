@@ -117,7 +117,9 @@ standardizeRenvPackage <- function(
       # otherwise look up from the package name in availablePackages
       originalRepository <- pkg$Repository
 
-      if (!is.null(originalRepository) && originalRepository %in% names(repos)) {
+      if (
+        !is.null(originalRepository) && originalRepository %in% names(repos)
+      ) {
         # Use the repository specified in renv.lock
         pkg$Repository <- repos[[originalRepository]]
         pkg$Source <- originalRepository
