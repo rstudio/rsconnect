@@ -1,7 +1,7 @@
 ## Summary
 
-Address CRAN test failures caused by some openssl configurations.
-Address a publishing error seen with some Python versions and project configurations.
+Minor feature release and avoid some use of RCurl.
+
 
 ## R CMD check results
 
