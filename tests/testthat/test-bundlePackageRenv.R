@@ -210,6 +210,75 @@ test_that("packages installed from other repos get correctly named", {
   )
 })
 
+test_that("packages available in multiple repos use the one from renv.lock", {
+  # When a package is available in multiple repositories,
+  # standardizeRenvPackage should respect the Repository field from renv.lock
+  # rather than just using the first match from availablePackages
+
+  # Simulate availablePackages with both packages available from both repos
+  # Note: available.packages() returns first match with "duplicates" filter
+  packages <- rbind(
+    c(
+      Package = "pkg1",
+      Version = "1.0.0",
+      Repository = "https://cran.com/src/contrib"
+    ),
+    c(
+      Package = "pkg2",
+      Version = "2.0.0",
+      Repository = "https://cran.com/src/contrib"
+    ),
+    c(
+      Package = "pkg1",
+      Version = "1.0.0",
+      Repository = "https://og-cran.com/src/contrib"
+    ),
+    c(
+      Package = "pkg2",
+      Version = "2.0.0",
+      Repository = "https://og-cran.com/src/contrib"
+    )
+  )
+
+  repos <- c(CRAN = "https://cran.com", OG_CRAN = "https://og-cran.com")
+
+  # pkg1 should come from OG_CRAN (as specified in renv.lock)
+  pkg1 <- list(
+    Package = "pkg1",
+    Version = "1.0.0",
+    Source = "Repository",
+    Repository = "OG_CRAN"
+  )
+
+  # pkg2 should come from CRAN (as specified in renv.lock)
+  pkg2 <- list(
+    Package = "pkg2",
+    Version = "2.0.0",
+    Source = "Repository",
+    Repository = "CRAN"
+  )
+
+  expect_equal(
+    standardizeRenvPackage(pkg1, packages, repos = repos),
+    list(
+      Package = "pkg1",
+      Version = "1.0.0",
+      Source = "OG_CRAN",
+      Repository = "https://og-cran.com"
+    )
+  )
+
+  expect_equal(
+    standardizeRenvPackage(pkg2, packages, repos = repos),
+    list(
+      Package = "pkg2",
+      Version = "2.0.0",
+      Source = "CRAN",
+      Repository = "https://cran.com"
+    )
+  )
+})
+
 test_that("source packages get NA source + repository", {
   source <- list(Package = "pkg", Source = "unknown", Repository = "useless")
   expect_equal(
