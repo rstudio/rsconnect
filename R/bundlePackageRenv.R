@@ -115,6 +115,9 @@ standardizeRenvPackage <- function(
       # $Repository comes from DESCRIPTION and is set by repo, so can be
       # anything. First check if it matches a known repository name,
       # otherwise look up from the package name in availablePackages
+      # Note: our terminology is confusing: the name of the repsoitory is
+      # we call "Source" even though renv uses "Repository" and the URL of
+      # the repository we call "Repository"
       originalRepository <- pkg$Repository
 
       if (
