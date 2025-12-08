@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.6.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.7.0" id="rsconnect-170">rsconnect 1.7.0<a class="anchor" aria-label="anchor" href="#rsconnect-170"></a></h2>
 <ul><li><p>Added support for deploying from <code>manifest.json</code> files created by <code><a href="../reference/writeManifest.html">writeManifest()</a></code>: use the <code>manifestPath</code> argument of <code><a href="../reference/deployApp.html">deployApp()</a></code> and related functions to specify the path to an existing manifest file. (<a href="https://github.com/rstudio/rsconnect/issues/1259" class="external-link">#1259</a>)</p></li>
 <li><p><code>urlEncode()</code> now uses <code><a href="https://jeroen.r-universe.dev/curl/reference/curl_escape.html" class="external-link">curl::curl_escape()</a></code> instead of <code><a href="https://rdrr.io/pkg/RCurl/man/curlEscape.html" class="external-link">RCurl::curlEscape()</a></code>, as RCurl is a Suggests dependency. (<a href="https://github.com/rstudio/rsconnect/issues/1265" class="external-link">#1265</a>)</p></li>
 <li><p>The <code>User-Agent</code> header in requests made from rsconnect will now be of the format <code>RSConnect/x.y.z</code> instead of <code>rsconnect/x.y.z</code> in order to satisfy web application firewalls that enforce Pascal case.</p></li>

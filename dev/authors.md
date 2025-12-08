@@ -22,13 +22,13 @@ Source:
 
 Atkins A, Allen T, Wickham H, McPherson J, Allaire J (2025). *rsconnect:
 Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and
-'RPubs'*. R package version 1.6.2.9000,
+'RPubs'*. R package version 1.7.0.9000,
 <https://rstudio.github.io/rsconnect/>.
 
     @Manual{,
       title = {rsconnect: Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'},
       author = {Aron Atkins and Toph Allen and Hadley Wickham and Jonathan McPherson and JJ Allaire},
       year = {2025},
-      note = {R package version 1.6.2.9000},
+      note = {R package version 1.7.0.9000},
       url = {https://rstudio.github.io/rsconnect/},
     }
