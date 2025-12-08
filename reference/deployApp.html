@@ -13,7 +13,7 @@ Supported servers: All servers"><meta property="og:image" content="https://rstud
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ Supported servers: All servers"><meta property="og:image" content="https://rstud
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Deploy an Application</h1>
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/rsconnect/blob/main/R/deployApp.R" class="external-link"><code>R/deployApp.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/rsconnect/blob/v1.7.0/R/deployApp.R" class="external-link"><code>R/deployApp.R</code></a></small>
       <div class="d-none name"><code>deployApp.Rd</code></div>
     </div>
 
@@ -55,6 +55,7 @@ content to a server.</p>
 <span>  appDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  appFiles <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appFileManifest <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  manifestPath <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appPrimaryDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appSourceDoc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  appName <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -100,6 +101,18 @@ to provide a path to a file containing a list of such files. If neither
 are supplied, will bundle all files in <code>appDir</code>, apart from standard
 exclusions and files listed in a <code>.rscignore</code> file. See
 <code><a href="listDeploymentFiles.html">listDeploymentFiles()</a></code> for more details.</p></dd>
+
+
+<dt id="arg-manifestpath">manifestPath<a class="anchor" aria-label="anchor" href="#arg-manifestpath"></a></dt>
+<dd><p>Path to an existing <code>manifest.json</code> file to use for
+deployment. When provided, <code>deployApp()</code> will use the file list and
+metadata from this manifest instead of generating a new one. This allows
+you to pre-generate a manifest with <code><a href="writeManifest.html">writeManifest()</a></code>, customize it, check
+it into version control, and deploy from that exact manifest. If <code>NULL</code>
+(the default), a new manifest will be generated. When using <code>manifestPath</code>,
+<code>appFiles</code>, <code>appFileManifest</code>, <code>appMode</code>, <code>appPrimaryDoc</code>, <code>contentCategory</code>,
+<code>envManagement(R|Py)</code>, and <code>image</code> are ignored since their values are taken
+from the manifest.</p></dd>
 
 
 <dt id="arg-appprimarydoc">appPrimaryDoc<a class="anchor" aria-label="anchor" href="#arg-appprimarydoc"></a></dt>
@@ -374,6 +387,11 @@ instead need to supply the <code>appId</code>.</p>
 <span class="r-in"><span><span class="co"># deploy application with environment variables</span></span></span>
 <span class="r-in"><span><span class="co"># (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)</span></span></span>
 <span class="r-in"><span><span class="fu">rsconnect</span><span class="fu">::</span><span class="fu">deployApp</span><span class="op">(</span>envVars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SECRET_PASSWORD"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># deploy from a pre-generated manifest</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="writeManifest.html">writeManifest</a></span><span class="op">(</span><span class="st">"~/projects/shiny/app1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># ...optionally customize manifest.json here...</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/shiny/app1"</span>, manifestPath <span class="op">=</span> <span class="st">"manifest.json"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
