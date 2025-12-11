@@ -191,8 +191,11 @@ createAppManifest <- function(
     validValues <- c("lax", "strict", "legacy", "lockfile")
     if (!packageRepositoryResolutionR %in% validValues) {
       stop(
-        "Invalid packageRepositoryResolutionR value: '", packageRepositoryResolutionR, "'. ",
-        "Must be one of: ", paste(validValues, collapse = ", ")
+        "Invalid packageRepositoryResolutionR value: '",
+        packageRepositoryResolutionR,
+        "'. ",
+        "Must be one of: ",
+        paste(validValues, collapse = ", ")
       )
     }
   }
