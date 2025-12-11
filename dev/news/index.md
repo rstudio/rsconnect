@@ -2,7 +2,13 @@
 
 ## rsconnect (development version)
 
+- Resolved a bug where `renv.lock` files that had multiple repositories
+  were not being translated faithfully when creating the manifest file.
+  ([\#1268](https://github.com/rstudio/rsconnect/issues/1268))
+
 ## rsconnect 1.7.0
+
+CRAN release: 2025-12-06
 
 - Added support for deploying from `manifest.json` files created by
   [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md):
