@@ -591,7 +591,7 @@ test_that("environment.r.package_repository_resolution - invalid value throws er
   appDir <- test_path("shinyapp-simple")
   expect_error(
     makeManifest(appDir, packageRepositoryResolutionR = "invalid"),
-    "Invalid packageRepositoryResolutionR value: 'invalid'"
+    "should be one of \"lax\", \"strict\", \"legacy\", \"lockfile\""
   )
 })
 
