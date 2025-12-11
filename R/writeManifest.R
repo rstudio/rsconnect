@@ -32,6 +32,7 @@ writeManifest <- function(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  packageRepositoryResolutionR = NULL,
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -72,6 +73,7 @@ writeManifest <- function(
     envManagement = envManagement,
     envManagementR = envManagementR,
     envManagementPy = envManagementPy,
+    packageRepositoryResolutionR = packageRepositoryResolutionR,
     verbose = verbose,
     quiet = quiet
   )

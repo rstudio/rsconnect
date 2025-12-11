@@ -189,6 +189,11 @@
 #'   server default if no application default is defined.
 #'
 #'   (This option is ignored when `envManagement` is non-`NULL`.)
+#' @param packageRepositoryResolutionR Optional. Specifies the package repository
+#'   resolution strategy for R packages. Must be one of `"lax"`, `"strict"`,
+#'   `"legacy"`, `"lockfile"`, or `NULL`. The default, `NULL`, will not write
+#'   any values to the bundle manifest and Connect will fall back to the
+#'   server's package repository resolution strategy.
 #' @examples
 #' \dontrun{
 #'
@@ -257,7 +262,8 @@ deployApp <- function(
   image = NULL,
   envManagement = NULL,
   envManagementR = NULL,
-  envManagementPy = NULL
+  envManagementPy = NULL,
+  packageRepositoryResolutionR = NULL
 ) {
   check_string(appDir)
   if (isStaticFile(appDir) && !dirExists(appDir)) {
@@ -649,6 +655,7 @@ deployApp <- function(
       envManagement = envManagement,
       envManagementR = envManagementR,
       envManagementPy = envManagementPy,
+      packageRepositoryResolutionR = packageRepositoryResolutionR,
       existingManifest = manifest
     )
     size <- format(file_size(bundlePath), big.mark = ",")
@@ -886,6 +893,7 @@ bundleApp <- function(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  packageRepositoryResolutionR = NULL,
   existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)
@@ -923,6 +931,7 @@ bundleApp <- function(
       envManagement = envManagement,
       envManagementR = envManagementR,
       envManagementPy = envManagementPy,
+      packageRepositoryResolutionR = packageRepositoryResolutionR,
       verbose = verbose,
       quiet = quiet
     )
