@@ -188,7 +188,10 @@ createAppManifest <- function(
 
   # Validate packageRepositoryResolutionR
   if (!is.null(packageRepositoryResolutionR)) {
-    match.arg(packageRepositoryResolutionR, c("lax", "strict", "legacy", "lockfile"))
+    match.arg(
+      packageRepositoryResolutionR,
+      c("lax", "strict", "legacy", "lockfile")
+    )
   }
 
   if (needsR(appMetadata)) {
