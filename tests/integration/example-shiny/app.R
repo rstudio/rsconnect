@@ -1,4 +1,4 @@
 shinyApp(
-  ui = fluidPage('Hello'),
+  ui = fluidPage("Hello"),
   server = function(input, output) {}
 )

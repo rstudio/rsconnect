@@ -8,6 +8,7 @@ on:
 jobs:
   connect-integration:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     strategy:
       fail-fast: false
@@ -18,8 +19,10 @@ jobs:
           - "2025.09.0" # jammy
           - "2025.03.0" # jammy (every 6 months, just bc every release would be overkill)
           - "2024.09.0" # jammy
-          - "2024.03.0" # jammy
-          - "2023.09.0" # jammy
+          # These versions use R 4.2 and seem to take forever to install R dependencies
+          # - "2024.03.0" # jammy
+          # - "2023.09.0" # jammy
+          # These also use R 4.2 but seem fine, maybe because they are bionic?
           - "2023.03.0" # bionic
           - "2022.10.0" # bionic (the oldest we can test using with-connect)
     name: Connect ${{ matrix.version }}
