@@ -1,0 +1,54 @@
+name: Connect Integration Tests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  connect-integration:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "preview"   # Nightly builds of Connect
+          - "release"   # special value that always points to the latest Connect release
+          - "2025.09.0" # jammy
+          - "2025.03.0" # jammy (every 6 months, just bc every release would be overkill)
+          - "2024.09.0" # jammy
+          - "2024.03.0" # jammy
+          - "2023.09.0" # jammy
+          - "2023.03.0" # bionic
+          - "2022.10.0" # bionic (the oldest we can test using with-connect)
+    name: Connect ${{ matrix.version }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.4'
+          use-public-rspm: true
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: Biobase=?ignore, BiocManager=?ignore
+          needs: check
+
+      - name: Run integration tests
+        uses: posit-dev/with-connect@main
+        with:
+          version: ${{ matrix.version }}
+          license: ${{ secrets.CONNECT_LICENSE_FILE }}
+          command: |
+            Rscript -e 'testthat::test_dir("tests/integration", package="rsconnect", load_package="installed")'
