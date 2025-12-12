@@ -42,7 +42,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: Biobase=?ignore, BiocManager=?ignore
+          extra-packages: local::., Biobase=?ignore, BiocManager=?ignore
           needs: check
 
       - name: Run integration tests
