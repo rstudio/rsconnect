@@ -3,6 +3,8 @@
 * Resolved a bug where `renv.lock` files that had multiple repositories were not
   being translated faithfully when creating the manifest file. (#1268)
 
+* Added support for overriding R package repository resolution behavior. 
+
 # rsconnect 1.7.0
 
 * Added support for deploying from `manifest.json` files created by
