@@ -34,19 +34,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: r-lib/actions/setup-pandoc@v2
-
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: '4.4'
           use-public-rspm: true
-
-      - uses: quarto-dev/quarto-actions/setup@v2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: local::., Biobase=?ignore, BiocManager=?ignore
-          needs: check
+          # Only install what we need for this test, which is not all of Suggests
+          dependencies: '"hard"'
+          extra-packages: |
+            local::.
+            any::testthat
+            any::shiny
 
       - name: Run integration tests
         uses: posit-dev/with-connect@main
