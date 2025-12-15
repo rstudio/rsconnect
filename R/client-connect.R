@@ -165,62 +165,6 @@ connectClient <- function(service, authInfo) {
   )
 }
 
-# userRecord --------------------------------------------------------------
-
-userRecord <- function(email, username, first_name, last_name, password) {
-  list(
-    email = email,
-    username = username,
-    first_name = first_name,
-    last_name = last_name,
-    password = password
-  )
-}
-
-prettyPasteFields <- function(message, fields) {
-  header <- paste(message, ":\n- ", sep = "")
-  body <- paste(
-    strwrap(paste(shQuote(fields), collapse = ", ")),
-    collapse = "\n"
-  )
-  paste(header, body, sep = "")
-}
-
-validateUserRecord <- function(record) {
-  requiredFields <- c(
-    "email",
-    "username",
-    "first_name",
-    "last_name",
-    "password"
-  )
-  missingFields <- setdiff(requiredFields, names(record))
-  extraFields <- setdiff(names(record), requiredFields)
-
-  ## Construct error message if necessary
-  msg <- NULL
-  if (length(missingFields)) {
-    msg <- prettyPasteFields(
-      "The following required fields are missing",
-      missingFields
-    )
-  }
-  if (length(extraFields)) {
-    msg <- paste(
-      msg,
-      prettyPasteFields(
-        "The following extraneous fields were found",
-        extraFields
-      )
-    )
-  }
-
-  if (!is.null(msg)) {
-    stop(msg)
-  }
-  record
-}
-
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
   parsedURL <- parseHttpUrl(url)
   ingressURL <- parsedURL$host
