@@ -546,3 +546,64 @@ test_that("content type (appMode) is inferred and can be overridden", {
   expect_equal(manifest$metadata$appmode, "static")
   expect_named(manifest$files, files)
 })
+
+test_that("environment.r.package_repository_resolution - lockfile mode", {
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-simple")
+  manifest <- makeManifest(appDir, packageRepositoryResolutionR = "lockfile")
+  expect_equal(manifest$environment$r$package_repository_resolution, "lockfile")
+})
+
+test_that("environment.r.package_repository_resolution - all valid modes", {
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-simple")
+
+  # Test lax mode
+  manifest <- makeManifest(appDir, packageRepositoryResolutionR = "lax")
+  expect_equal(manifest$environment$r$package_repository_resolution, "lax")
+
+  # Test strict mode
+  manifest <- makeManifest(appDir, packageRepositoryResolutionR = "strict")
+  expect_equal(manifest$environment$r$package_repository_resolution, "strict")
+
+  # Test legacy mode
+  manifest <- makeManifest(appDir, packageRepositoryResolutionR = "legacy")
+  expect_equal(manifest$environment$r$package_repository_resolution, "legacy")
+
+  # Test lockfile mode
+  manifest <- makeManifest(appDir, packageRepositoryResolutionR = "lockfile")
+  expect_equal(manifest$environment$r$package_repository_resolution, "lockfile")
+})
+
+test_that("environment.r.package_repository_resolution - NULL does not add field", {
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-simple")
+  manifest <- makeManifest(appDir, packageRepositoryResolutionR = NULL)
+  expect_null(manifest$environment$r$package_repository_resolution)
+})
+
+test_that("environment.r.package_repository_resolution - invalid value throws error", {
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("shinyapp-simple")
+  expect_error(
+    makeManifest(appDir, packageRepositoryResolutionR = "invalid"),
+    "should be one of \"lax\", \"strict\", \"legacy\", \"lockfile\""
+  )
+})
+
+test_that("environment.r.package_repository_resolution - combined with requires", {
+  withr::local_options(renv.verbose = TRUE)
+
+  appDir <- test_path("packages/utf8package")
+  manifest <- makeManifest(
+    appDir,
+    appPrimaryDoc = "R/hello.R",
+    packageRepositoryResolutionR = "lockfile"
+  )
+  expect_equal(manifest$environment$r$requires, ">= 3.5.0")
+  expect_equal(manifest$environment$r$package_repository_resolution, "lockfile")
+})

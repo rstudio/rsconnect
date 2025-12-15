@@ -34,7 +34,8 @@ deployApp(
   image = NULL,
   envManagement = NULL,
   envManagementR = NULL,
-  envManagementPy = NULL
+  envManagementPy = NULL,
+  packageRepositoryResolutionR = NULL
 )
 }
 \arguments{
@@ -228,6 +229,12 @@ the application default Python environment management strategy, or the
 server default if no application default is defined.
 
 (This option is ignored when \code{envManagement} is non-\code{NULL}.)}
+
+\item{packageRepositoryResolutionR}{Optional. Specifies the package repository
+resolution strategy for R packages. Must be one of \code{"lax"}, \code{"strict"},
+\code{"legacy"}, \code{"lockfile"}, or \code{NULL}. The default, \code{NULL}, will not write
+any values to the bundle manifest and Connect will fall back to the
+server's package repository resolution strategy.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an
