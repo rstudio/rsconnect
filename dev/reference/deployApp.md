@@ -40,7 +40,8 @@ deployApp(
   image = NULL,
   envManagement = NULL,
   envManagementR = NULL,
-  envManagementPy = NULL
+  envManagementPy = NULL,
+  packageRepositoryResolutionR = NULL
 )
 ```
 
@@ -303,6 +304,14 @@ deployApp(
   server default if no application default is defined.
 
   (This option is ignored when `envManagement` is non-`NULL`.)
+
+- packageRepositoryResolutionR:
+
+  Optional. Specifies the package repository resolution strategy for R
+  packages. Must be one of `"lax"`, `"strict"`, `"legacy"`,
+  `"lockfile"`, or `NULL`. The default, `NULL`, will not write any
+  values to the bundle manifest and Connect will fall back to the
+  server's package repository resolution strategy.
 
 ## Details
 

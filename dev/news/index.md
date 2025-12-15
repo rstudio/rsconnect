@@ -6,6 +6,8 @@
   were not being translated faithfully when creating the manifest file.
   ([\#1268](https://github.com/rstudio/rsconnect/issues/1268))
 
+- Added support for overriding R package repository resolution behavior.
+
 ## rsconnect 1.7.0
 
 CRAN release: 2025-12-06

@@ -81,7 +81,8 @@ content to a server.</p>
 <span>  image <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envManagement <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envManagementR <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  envManagementPy <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  envManagementPy <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  packageRepositoryResolutionR <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -319,6 +320,14 @@ not write any values to the bundle manifest, and Connect will fall back to
 the application default Python environment management strategy, or the
 server default if no application default is defined.</p>
 <p>(This option is ignored when <code>envManagement</code> is non-<code>NULL</code>.)</p></dd>
+
+
+<dt id="arg-packagerepositoryresolutionr">packageRepositoryResolutionR<a class="anchor" aria-label="anchor" href="#arg-packagerepositoryresolutionr"></a></dt>
+<dd><p>Optional. Specifies the package repository
+resolution strategy for R packages. Must be one of <code>"lax"</code>, <code>"strict"</code>,
+<code>"legacy"</code>, <code>"lockfile"</code>, or <code>NULL</code>. The default, <code>NULL</code>, will not write
+any values to the bundle manifest and Connect will fall back to the
+server's package repository resolution strategy.</p></dd>
 
 </dl></div>
     <div class="section level2">
