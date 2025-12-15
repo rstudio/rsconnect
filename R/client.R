@@ -123,7 +123,7 @@ isContentType <- function(x, contentType) {
   grepl(contentType, x, fixed = TRUE)
 }
 
-
+# These functions should move to client-shinyapps.R
 uploadShinyappsBundle <- function(
   client,
   application_id,
