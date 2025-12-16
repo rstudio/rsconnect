@@ -195,8 +195,7 @@ connectCloudClient <- function(service, authInfo) {
       headers <- list()
       headers$`Content-Type` <- "application/gzip"
 
-      http <- httpFunction()
-      response <- http(
+      response <- httpLibCurl(
         uploadService$protocol,
         uploadService$host,
         uploadService$port,

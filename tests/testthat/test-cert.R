@@ -50,39 +50,15 @@ test_that("invalid certificates cannot be added", {
 
 test_that("certificates not used when making plain http connections", {
   local_temp_config()
-  local_http_recorder()
-
-  GET(
-    list(
-      protocol = "http",
-      host = "localhost:4567",
-      port = "80",
-      path = "apps"
-    ),
-    authInfo = list(certificate = test_path("certs/localhost.pem")),
-    "apps"
-  )
-  expect_equal(httpLastRequest$certificate, NULL)
+  expect_null(requestCertificate("http", test_path("certs/localhost.pem")))
 })
 
 test_that("certificates used when making https connections", {
   local_temp_config()
-  local_http_recorder()
-
-  GET(
-    list(
-      protocol = "https",
-      host = "localhost:4567",
-      port = "443",
-      path = "apps"
-    ),
-    authInfo = list(certificate = test_path("certs/localhost.pem")),
-    "apps"
-  )
-
+  cert <- requestCertificate("https", test_path("certs/localhost.pem"))
   # we expect to get a cert file
-  expect_true(file.exists(httpLastRequest$certificate))
+  expect_true(file.exists(cert))
 
   # clean up
-  unlink(httpLastRequest$certificate)
+  unlink(cert)
 })

@@ -24,8 +24,7 @@ httpRequest <- function(
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
-  http <- httpFunction()
-  httpResponse <- http(
+  httpResponse <- httpLibCurl(
     protocol = service$protocol,
     host = service$host,
     port = service$port,
@@ -38,7 +37,7 @@ httpRequest <- function(
 
   while (isRedirect(httpResponse$status)) {
     service <- redirectService(service, httpResponse$location)
-    httpResponse <- http(
+    httpResponse <- httpLibCurl(
       protocol = service$protocol,
       host = service$host,
       port = service$port,
@@ -90,8 +89,7 @@ httpRequestWithBody <- function(
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
   # perform request
-  http <- httpFunction()
-  httpResponse <- http(
+  httpResponse <- httpLibCurl(
     protocol = service$protocol,
     host = service$host,
     port = service$port,
@@ -108,7 +106,7 @@ httpRequestWithBody <- function(
     # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
     service <- redirectService(service, httpResponse$location)
     authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
-    httpResponse <- http(
+    httpResponse <- httpLibCurl(
       protocol = service$protocol,
       host = service$host,
       port = service$port,
@@ -434,39 +432,6 @@ httpCookies <- function() {
 
 httpHeaders <- function() {
   getOption("rsconnect.http.headers", character())
-}
-
-httpFunction <- function() {
-  httpType <- getOption("rsconnect.http", "libcurl")
-
-  if (is_string(httpType) && httpType != "libcurl") {
-    lifecycle::deprecate_warn(
-      "1.0.0",
-      I("The `rsconnect.http` option"),
-      details = c(
-        "It should no longer be necessary to set this option",
-        "If the default http handler doesn't work for you, please file an issue at <https://github.com/rstudio/rsconnect/issues>"
-      )
-    )
-  }
-
-  if (identical("libcurl", httpType)) {
-    httpLibCurl
-  } else if (identical("rcurl", httpType)) {
-    httpRCurl
-  } else if (identical("curl", httpType)) {
-    httpCurl
-  } else if (identical("internal", httpType)) {
-    httpInternal
-  } else if (is.function(httpType)) {
-    httpType
-  } else {
-    stop(paste(
-      "Invalid http option specified:",
-      httpType,
-      ". Valid values are libcurl, rcurl, curl, and internal"
-    ))
-  }
 }
 
 # URL manipulation --------------------------------------------------------

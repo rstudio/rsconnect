@@ -266,25 +266,6 @@ deployApp <- function(
   packageRepositoryResolutionR = NULL
 ) {
   check_string(appDir)
-  if (isStaticFile(appDir) && !dirExists(appDir)) {
-    lifecycle::deprecate_warn(
-      when = "1.0.0",
-      what = "deployApp(appDir = 'takes a directory, not a document,')",
-      with = "deployDoc()"
-    )
-    return(deployDoc(
-      appDir,
-      appName = appName,
-      appTitle = appTitle,
-      account = account,
-      server = server,
-      upload = upload,
-      recordDir = recordDir,
-      launch.browser = launch.browser,
-      logLevel = logLevel,
-      lint = lint
-    ))
-  }
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 

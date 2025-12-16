@@ -16,14 +16,6 @@ test_that("quarto affects mode inference", {
   expect_equal(metadata$appMode, "quarto-static")
 })
 
-test_that("quarto path is deprecated", {
-  skip_on_cran()
-  skip_if_no_quarto()
-
-  dir <- local_temp_app(list("foo.Rmd" = ""))
-  expect_snapshot(. <- appMetadata(dir, c("foo.Rmd"), quarto = "abc"))
-})
-
 test_that("validates quarto argument", {
   skip_on_cran()
 
