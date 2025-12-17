@@ -39,6 +39,7 @@
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
 <ul><li><p>Resolved a bug where <code>renv.lock</code> files that had multiple repositories were not being translated faithfully when creating the manifest file. (<a href="https://github.com/rstudio/rsconnect/issues/1268" class="external-link">#1268</a>)</p></li>
 <li><p>Added support for overriding R package repository resolution behavior.</p></li>
+<li><p>Removed several functions, including <code>addConnectServer()</code> and <code>discoverServer()</code>, as well as HTTP backends other than libcurl, which were deprecated in rsconnect 1.0.0. (<a href="https://github.com/rstudio/rsconnect/issues/1282" class="external-link">#1282</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.7.0" id="rsconnect-170">rsconnect 1.7.0<a class="anchor" aria-label="anchor" href="#rsconnect-170"></a></h2><p class="text-muted">CRAN release: 2025-12-06</p>
@@ -196,7 +197,7 @@
 <div class="section level3">
 <h3 id="lifecycle-changes-1-0-0">Lifecycle changes<a class="anchor" aria-label="anchor" href="#lifecycle-changes-1-0-0"></a></h3>
 <ul><li><p>Non-libcurl <code>rsconnect.http</code> options have been deprecated. This allows us to focus our efforts on a single backend, rather than spreading development efforts across five. The old backends will remain available for at least 2 years, but if you are using them because libcurl doesn’t work for you, please report the problem ASAP so we can fix it.</p></li>
-<li><p><code><a href="../reference/addConnectServer.html">addConnectServer()</a></code> has been deprecated because it does the same thing as <code><a href="../reference/addServer.html">addServer()</a></code> now that <code><a href="../reference/addServer.html">addServer()</a></code> also validates URLs.</p></li>
+<li><p><code>addConnectServer()</code> has been deprecated because it does the same thing as <code><a href="../reference/addServer.html">addServer()</a></code> now that <code><a href="../reference/addServer.html">addServer()</a></code> also validates URLs.</p></li>
 <li><p><code><a href="../reference/deployTFModel.html">deployTFModel()</a></code> is defunct. Posit Connect no longer supports hosting of TensorFlow Model APIs. A TensorFlow model can be deployed as a <a href="https://tensorflow.rstudio.com/guides/deploy/plumber.html" class="external-link">Plumber API</a>, <a href="https://tensorflow.rstudio.com/guides/deploy/shiny" class="external-link">Shiny application</a>, or other supported content type.</p></li>
 <li><p><code>discoverServer()</code> has been deprecated; it never worked.</p></li>
 <li><p><code>deployApp("foo.Rmd")</code> has been deprecated. It was never documented, and it does the same job as <code><a href="../reference/deployDoc.html">deployDoc()</a></code> (<a href="https://github.com/rstudio/rsconnect/issues/698" class="external-link">#698</a>).</p></li>

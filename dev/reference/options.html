@@ -49,9 +49,6 @@
    <dt><code>rsconnect.check.certificate</code></dt>
 <dd><p>Whether to check the SSL certificate when connecting to a remote host; defaults to <code>TRUE</code>. Setting to <code>FALSE</code> is insecure, but will allow you to connect to hosts using invalid certificates as a last resort.</p></dd>
 
-   <dt><code>rsconnect.http</code></dt>
-<dd><p>Http implementation used for connections to the back-end service:</p><table class="table table"><tr><td><code>libcurl</code></td><td>Secure https using the <code>curl</code> R package</td></tr><tr><td><code>rcurl</code></td><td>Secure https using the <code>Rcurl</code> R package (deprecated)</td></tr><tr><td><code>curl</code></td><td>Secure https using the curl system utility</td></tr><tr><td><code>internal</code></td><td>Insecure http using raw sockets</td></tr></table><p>If no option is specified then <code>libcurl</code> is used by default.</p></dd>
-
    <dt><code>rsconnect.http.trace</code></dt>
 <dd><p>When <code>TRUE</code>, trace http calls (prints the method, path, and total milliseconds for each http request)</p></dd>
 
@@ -64,11 +61,8 @@
    <dt><code>rsconnect.tar</code></dt>
 <dd><p>By default, <code>rsconnect</code> uses R's internal <code>tar</code> implementation to compress content bundles. This may cause invalid bundles in some environments. In those cases, use this option to specify a path to an alternate <code>tar</code> executable. This option can also be specified in the environment variable <code>RSCONNECT_TAR</code>. Leave undefined to use the default <code>tar</code> implementation.</p></dd>
 
-   <dt><code>rsconnect.rcurl.options</code></dt>
-<dd><p>A named list of additional cURL options to use when using the RCurl HTTP implementation in R. Run <code><a href="https://rdrr.io/pkg/RCurl/man/curlOptions.html" class="external-link">RCurl::curlOptions()</a></code> to see available options.</p></dd>
-
    <dt><code>rsconnect.libcurl.options</code></dt>
-<dd><p>A named list of additional cURL options to use when using the curl HTTP implementation in R. Run <code><a href="https://jeroen.r-universe.dev/curl/reference/curl_options.html" class="external-link">curl::curl_options()</a></code> to see available options.</p></dd>
+<dd><p>A named list of additional cURL options to use when making HTTP requests. Run <code><a href="https://jeroen.r-universe.dev/curl/reference/curl_options.html" class="external-link">curl::curl_options()</a></code> to see available options.</p></dd>
 
    <dt><code>rsconnect.error.trace</code></dt>
 <dd><p>When <code>TRUE</code>, print detailed stack traces for errors occurring during deployment.</p></dd>
@@ -117,9 +111,6 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># use curl for http connections</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>rsconnect.http <span class="op">=</span> <span class="st">"curl"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># trace http requests</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>rsconnect.http.trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

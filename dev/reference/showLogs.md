@@ -74,5 +74,4 @@ getLogs(
 
 ## Note
 
-These functions only use the `libcurl` transport, and only work for
-applications deployed to ShinyApps.io.
+These functions only work for applications deployed to ShinyApps.io.

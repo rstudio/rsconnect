@@ -8,6 +8,11 @@
 
 - Added support for overriding R package repository resolution behavior.
 
+- Removed several functions, including `addConnectServer()` and
+  `discoverServer()`, as well as HTTP backends other than libcurl, which
+  were deprecated in rsconnect 1.0.0.
+  ([\#1282](https://github.com/rstudio/rsconnect/issues/1282))
+
 ## rsconnect 1.7.0
 
 CRAN release: 2025-12-06
@@ -493,8 +498,8 @@ CRAN release: 2023-07-17
   libcurl doesn’t work for you, please report the problem ASAP so we can
   fix it.
 
-- [`addConnectServer()`](https://rstudio.github.io/rsconnect/dev/reference/addConnectServer.md)
-  has been deprecated because it does the same thing as
+- `addConnectServer()` has been deprecated because it does the same
+  thing as
   [`addServer()`](https://rstudio.github.io/rsconnect/dev/reference/addServer.md)
   now that
   [`addServer()`](https://rstudio.github.io/rsconnect/dev/reference/addServer.md)
