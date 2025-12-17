@@ -3,7 +3,11 @@
 * Resolved a bug where `renv.lock` files that had multiple repositories were not
   being translated faithfully when creating the manifest file. (#1268)
 
-* Added support for overriding R package repository resolution behavior. 
+* Added support for overriding R package repository resolution behavior.
+
+* Removed several functions, including `addConnectServer()` and
+  `discoverServer()`, as well as HTTP backends other than libcurl,
+  which were deprecated in rsconnect 1.0.0. (#1282)
 
 # rsconnect 1.7.0
 
@@ -11,9 +15,9 @@
   `writeManifest()`: use the `manifestPath` argument of `deployApp()` and related
   functions to specify the path to an existing manifest file. (#1259)
 
-* `urlEncode()` now uses `curl::curl_escape()` instead of `RCurl::curlEscape()`, 
+* `urlEncode()` now uses `curl::curl_escape()` instead of `RCurl::curlEscape()`,
   as RCurl is a Suggests dependency. (#1265)
-  
+
 * The `User-Agent` header in requests made from rsconnect will now be of the
   format `RSConnect/x.y.z` instead of `rsconnect/x.y.z` in order to satisfy web
   application firewalls that enforce Pascal case.
@@ -61,7 +65,7 @@
 
   Existing Posit Cloud account records may be removed by using
   `removeAccount("yourname", "posit.cloud")`.
-  
+
   Existing Posit Cloud deployment records may be removed by using
   `forgetDeployment(name="deployment", account="yourname", server="posit.cloud")`.
 
