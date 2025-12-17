@@ -658,7 +658,7 @@ deployApp <- function(
         bundlePath
       )
     } else {
-      bundle <- client$uploadApplication(application$id, bundlePath)
+      bundle <- client$uploadBundle(application$guid, bundlePath)
     }
     if (isPositConnectCloudServer(accountDetails$server)) {
       taskComplete(quiet, "Uploaded bundle")
@@ -955,13 +955,12 @@ openURL <- function(
   }
 
   # Check to see if we should open config url or app url
-  if (!is.null(client$configureApplication)) {
-    config <- client$configureApplication(application$id)
-    url <- config$config_url
-    if (!deploymentSucceeded && validURL(config$logs_url)) {
-      # With 1.5.5+, Connect application configuration includes
-      # a logs URL to be shown on unsuccessful deployment.
-      url <- config$logs_url
+  if (!is.null(application$dashboard_url)) {
+    # Posit Connect should land here because it inserts a dashboard_url
+    if (deploymentSucceeded) {
+      url <- paste(application$dashboard_url, "access", sep = "/")
+    } else {
+      url <- paste(application$dashboard_url, "logs", sep = "/")
     }
     if (validURL(url)) {
       # Connect should always end up here, even on deployment failures

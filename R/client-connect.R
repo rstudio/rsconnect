@@ -15,19 +15,26 @@ connectClient <- function(service, authInfo) {
     ## Server settings API
 
     serverSettings = function() {
-      GET(service, authInfo, file.path("/server_settings"))
+      GET(service, authInfo, unversioned_url("server_settings"))
     },
 
     ## User API
 
     currentUser = function() {
-      GET(service, authInfo, "/users/current")
+      # All callers only need $id and $username,
+      # passed to registerAccount() (where account means user)
+      # and that gets written to a .dcf file
+      # /v1/user/ does not include $id
+      # But it looks like none of the Connect code paths use the account/user id,
+      # username is used to identify the "account", so this should be safe
+      # to upgrade to v1.
+      GET(service, authInfo, unversioned_url("users", "current"))
     },
 
     ## Tokens API
 
     addToken = function(token) {
-      POST_JSON(service, authInfo, "/tokens", token)
+      POST_JSON(service, authInfo, unversioned_url("tokens"), token)
     },
 
     ## Applications API
@@ -36,7 +43,7 @@ connectClient <- function(service, authInfo) {
       if (is.null(filters)) {
         filters <- vector()
       }
-      path <- "/applications"
+      path <- unversioned_url("applications")
       query <- paste(
         filterQuery(
           c("account_id", names(filters)),
@@ -61,18 +68,20 @@ connectClient <- function(service, authInfo) {
         details$title <- title
       }
 
-      # RSC doesn't currently use the template or account ID
+      # Connect doesn't use the template or account ID
       # parameters; they exist for compatibility with lucid.
-      application <- POST_JSON(service, authInfo, "/applications", details)
+      result <- POST_JSON(service, authInfo, v1_url("content"), details)
       list(
-        id = application$id,
-        guid = application$guid,
-        url = application$url
+        id = result$id,
+        guid = result$guid,
+        url = result$content_url,
+        # Include dashboard_url so we can open it or logs path after deploy
+        dashboard_url = result$dashboard_url
       )
     },
 
-    uploadApplication = function(appId, bundlePath) {
-      path <- file.path("/applications", appId, "upload")
+    uploadBundle = function(contentGuid, bundlePath) {
+      path <- v1_url("content", contentGuid, "bundles")
       POST(
         service,
         authInfo,
@@ -83,42 +92,29 @@ connectClient <- function(service, authInfo) {
     },
 
     deployApplication = function(application, bundleId = NULL) {
-      path <- paste("/applications/", application$id, "/deploy", sep = "")
-      json <- list()
-      json$bundle <- as.numeric(bundleId)
-      POST_JSON(service, authInfo, path, json)
-    },
-
-    configureApplication = function(applicationId) {
-      GET(
+      path <- v1_url("content", application$guid, "deploy")
+      POST_JSON(
         service,
         authInfo,
-        paste(
-          "/applications/",
-          applicationId,
-          "/config",
-          sep = ""
-        )
+        path,
+        json = list(bundle_id = bundleId)
       )
     },
 
     getApplication = function(applicationId, deploymentRecordVersion) {
-      GET(service, authInfo, paste0("/applications/", applicationId))
+      GET(service, authInfo, unversioned_url("applications", applicationId))
     },
 
     waitForTask = function(taskId, quiet = FALSE) {
-      first <- 0
-      wait <- 1
+      path <- v1_url("tasks", taskId)
+      query <- list(first = 0, wait = 1)
+
       while (TRUE) {
-        path <- paste0(
-          "/v1/tasks/",
-          taskId,
-          "?first=",
-          first,
-          "&wait=",
-          wait
-        )
-        response <- GET(service, authInfo, path)
+        # ick, manual url construction
+        queryString <- paste(names(query), query, sep = "=", collapse = "&")
+        url <- paste0(path, "?", queryString)
+
+        response <- GET(service, authInfo, url)
 
         if (length(response$output) > 0) {
           if (!quiet) {
@@ -131,7 +127,7 @@ connectClient <- function(service, authInfo) {
             cat(paste0(messages, "\n", collapse = ""))
           }
 
-          first <- response$last
+          query$first <- response$last
         }
 
         if (length(response$finished) > 0 && response$finished) {
@@ -144,12 +140,12 @@ connectClient <- function(service, authInfo) {
     # https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment
 
     getEnvVars = function(guid) {
-      path <- file.path("/v1/content", guid, "environment")
+      path <- v1_url("content", guid, "environment")
       as.character(unlist(GET(service, authInfo, path, list())))
     },
 
     setEnvVars = function(guid, vars) {
-      path <- file.path("/v1/content", guid, "environment")
+      path <- v1_url("content", guid, "environment")
       body <- unname(Map(
         function(name, value) {
           list(
@@ -175,4 +171,15 @@ getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
   )
 
   token
+}
+
+# Utilities for URL construction
+# Also to make it easier to identify where we're calling public APIs and not
+v1_url <- function(...) {
+  # Start with empty string so we get a leading slash
+  paste("", "v1", ..., sep = "/")
+}
+
+unversioned_url <- function(...) {
+  paste("", ..., sep = "/")
 }

@@ -62,13 +62,7 @@ configureApp <- function(
     propertyValue <- properties[[i]]
 
     # dispatch to the appropriate client implementation
-    if (is.function(client$configureApplication)) {
-      client$configureApplication(
-        application$id,
-        propertyName,
-        propertyValue
-      )
-    } else if (is.function(client$setApplicationProperty)) {
+    if (is.function(client$setApplicationProperty)) {
       client$setApplicationProperty(
         application$id,
         propertyName,
