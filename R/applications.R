@@ -227,9 +227,6 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
   )
   parsed <- parseHttpUrl(url)
 
-  # create the curl handle and perform the minimum necessary to create an
-  # authenticated request. we ignore the rsconnect.http option here because only
-  # curl supports the kind of streaming connection that we need.
   handle <- createCurlHandle("GET")
   curl::handle_setheaders(
     handle,
@@ -274,7 +271,7 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #'   function does not return; instead, log entries are written to the console
 #'   as they are made, until R is interrupted. Defaults to `FALSE`.
 #'
-#' @note These functions only use the \code{libcurl} transport, and only work
+#' @note These functions only work
 #'   for applications deployed to ShinyApps.io.
 #'
 #' @return `getLogs()` returns a data frame containing the logged lines.

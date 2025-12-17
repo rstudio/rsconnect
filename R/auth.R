@@ -303,14 +303,8 @@ resendInvitation <- function(
   invisible(TRUE)
 }
 
-#' (Deprecated) List authorized users for an application
-#'
-#' @param appDir Directory containing application. Defaults to current working
-#'  directory.
-#' @export
+# Previously exported, but deprecated since 2015
 authorizedUsers <- function(appDir = getwd()) {
-  .Deprecated("showUsers")
-
   # read password file
   path <- getPasswordFile(appDir)
   if (file.exists(path)) {

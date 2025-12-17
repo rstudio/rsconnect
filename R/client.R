@@ -167,8 +167,7 @@ uploadBundle <- function(bundle, bundleSize, bundlePath) {
 
   # AWS seems very sensitive to additional headers (likely becauseit was not included and signed
   # for when the presigned link was created). So the lower level library is used here.
-  http <- httpFunction()
-  response <- http(
+  response <- httpLibCurl(
     presigned_service$protocol,
     presigned_service$host,
     presigned_service$port,

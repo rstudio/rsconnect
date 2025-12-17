@@ -1,8 +1,6 @@
 test_that("basic HTTP methods work", {
   skip_if_not_installed("webfakes")
 
-  withr::local_options(rsconnect.http = "libcurl")
-
   test_http_GET()
   test_http_POST_JSON()
   test_http_POST_empty()

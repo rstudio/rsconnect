@@ -1,12 +1,3 @@
-# quarto path is deprecated
-
-    Code
-      . <- appMetadata(dir, c("foo.Rmd"), quarto = "abc")
-    Condition
-      Warning:
-      The `quarto` argument of `deployApp()` can no longer be a path as of rsconnect 1.0.0.
-      i Please use quarto = `TRUE` instead instead.
-
 # validates quarto argument
 
     Code

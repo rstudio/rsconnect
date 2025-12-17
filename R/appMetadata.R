@@ -8,16 +8,7 @@ appMetadata <- function(
   isShinyappsServer = FALSE,
   metadata = list()
 ) {
-  if (is_string(quarto)) {
-    lifecycle::deprecate_warn(
-      when = "1.0.0",
-      what = "deployApp(quarto = 'can no longer be a path')",
-      with = I("quarto = `TRUE` instead")
-    )
-    quarto <- TRUE
-  } else {
-    check_bool(quarto, allow_na = TRUE)
-  }
+  check_bool(quarto, allow_na = TRUE)
 
   # If quarto package/IDE has supplied metadata, always use quarto
   # https://github.com/quarto-dev/quarto-r/blob/08caf0f42504e7/R/publish.R#L117-L121

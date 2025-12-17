@@ -58,6 +58,6 @@ These functions provide access to the logs for deployed ShinyApps applications:
 Supported servers: ShinyApps servers
 }
 \note{
-These functions only use the \code{libcurl} transport, and only work
+These functions only work
 for applications deployed to ShinyApps.io.
 }

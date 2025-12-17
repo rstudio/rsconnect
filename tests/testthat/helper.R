@@ -3,44 +3,6 @@ showDcf <- function(df) {
   invisible()
 }
 
-# last HTTP request made
-httpLastRequest <- list()
-
-# HTTP function which just saves the result for analysis
-httpTestRecorder <- function(
-  protocol,
-  host,
-  port,
-  method,
-  path,
-  headers,
-  contentType = NULL,
-  file = NULL,
-  certificate = NULL,
-  writer = NULL,
-  timeout = NULL
-) {
-  httpLastRequest <<- list(
-    protocol = protocol,
-    host = host,
-    port = port,
-    method = method,
-    path = path,
-    headers = headers,
-    contentType = contentType,
-    file = file,
-    certificate = certificate,
-    writer = writer,
-    timeout = timeout
-  )
-
-  list(status = 200, content = "", contentType = "plain/text")
-}
-
-local_http_recorder <- function(env = caller_env()) {
-  withr::local_options(rsconnect.http = httpTestRecorder, .local_envir = env)
-}
-
 # Create and use a directory as temporary replacement for R_USER_CONFIG_DIR to
 # avoid having tests overwrite the "official" configuration locations.
 local_temp_config <- function(env = caller_env()) {
