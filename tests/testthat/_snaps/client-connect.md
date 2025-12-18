@@ -44,3 +44,25 @@
     Code
       invisible(client$waitForTask(42, quiet = TRUE))
 
+# getDefaultSnowflakeConnectionName errors when default connection doesn't match server
+
+    Code
+      getDefaultSnowflakeConnectionName(
+        "https://prefix-org-account.snowflakecomputing.app/__api__")
+    Condition
+      Error in `getDefaultSnowflakeConnectionName()`:
+      ! The default Snowflake connection account "different-xyz789" does not appear to match the Connect server.
+      i Pass `snowflakeConnectionName` to use a different connection.
+
+# getDefaultSnowflakeConnectionName errors when no default connection exists
+
+    Code
+      getDefaultSnowflakeConnectionName(
+        "https://prefix-org-account.snowflakecomputing.app/__api__")
+    Condition
+      Error in `getDefaultSnowflakeConnectionName()`:
+      ! No default `snowflakeConnectionName`.
+      i Provide `snowflakeConnectionName` explicitly.
+      Caused by error in `snowflakeauth::snowflake_connection()`:
+      ! No default connection configured
+

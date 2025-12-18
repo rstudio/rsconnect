@@ -119,3 +119,83 @@ test_that("findAccountInfo redacts snowflakeToken", {
   info <- findAccountInfo("testuser", "example.com")
   expect_s3_class(info$snowflakeToken, "rsconnect_secret")
 })
+
+test_that("connectSPCSUser accepts NULL snowflakeConnectionName and gets default", {
+  local_temp_config()
+
+  local_mocked_bindings(
+    findServer = function(server) "test_server",
+    checkConnectServer = function(server) invisible(),
+    serverInfo = function(server) {
+      list(url = "https://prefix-account.snowflakecomputing.app/__api__")
+    },
+    getDefaultSnowflakeConnectionName = function(url) {
+      "default"
+    },
+    getSPCSAuthedUser = function(server, apiKey, snowflakeConnectionName) {
+      # Verify we have the default connection name.
+      expect_equal(snowflakeConnectionName, "default")
+      list(id = "user123", username = "testuser")
+    }
+  )
+
+  expect_no_error(
+    connectSPCSUser(
+      account = "testuser",
+      server = "test_server",
+      apiKey = "test_api_key",
+      snowflakeConnectionName = NULL,
+      quiet = TRUE
+    )
+  )
+})
+
+test_that("connectSPCSUser works with explicit snowflakeConnectionName", {
+  local_temp_config()
+
+  local_mocked_bindings(
+    findServer = function(server) "test_server",
+    checkConnectServer = function(server) invisible(),
+    serverInfo = function(server) {
+      list(url = "https://prefix-account.snowflakecomputing.app/__api__")
+    },
+    getSPCSAuthedUser = function(server, apiKey, snowflakeConnectionName) {
+      # Verify we have the correct connection name.
+      expect_equal(snowflakeConnectionName, "test_connection")
+      list(id = "user123", username = "testuser")
+    }
+  )
+
+  expect_no_error(
+    connectSPCSUser(
+      account = "testuser",
+      server = "test_server",
+      apiKey = "test_api_key",
+      snowflakeConnectionName = "test_connection",
+      quiet = TRUE
+    )
+  )
+})
+
+test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount", {
+  local_temp_config()
+
+  local_mocked_bindings(
+    serverInfo = function(server) {
+      list(url = "https://prefix-account.snowflakecomputing.app/__api__")
+    },
+    clientForAccount = function(account) {
+      # Check that snowflakeConnectionName is passed through
+      expect_equal(account$snowflakeConnectionName, "test_connection")
+      list(currentUser = function() list(id = "user123", username = "testuser"))
+    }
+  )
+
+  result <- getSPCSAuthedUser(
+    "test_server",
+    "test_api_key",
+    "test_connection"
+  )
+
+  expect_equal(result$username, "testuser")
+})

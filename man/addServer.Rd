@@ -31,8 +31,9 @@ character vector containing the certificate's contents.}
 \item{validate}{Validate that \code{url} actually points to a Posit Connect
 server?}
 
-\item{snowflakeConnectionName}{Name for the Snowflake connection parameters
-stored in \code{connections.toml}.}
+\item{snowflakeConnectionName}{Name for the Snowflake connection in
+\code{connections.toml} to use for authentication or \code{NULL} to use the default
+(when applicable).}
 
 \item{quiet}{Suppress output and prompts where possible.}
 }
