@@ -8,7 +8,7 @@ connectSPCSUser(
   account = NULL,
   server = NULL,
   apiKey,
-  snowflakeConnectionName,
+  snowflakeConnectionName = NULL,
   quiet = FALSE
 )
 }
@@ -19,8 +19,9 @@ connectSPCSUser(
 
 \item{apiKey}{The API key used to authenticate the user}
 
-\item{snowflakeConnectionName}{Name for the Snowflake connection parameters
-stored in \code{connections.toml}.}
+\item{snowflakeConnectionName}{Name of the Snowflake connection in
+\code{connections.toml} to use for authentication or \code{NULL} to use the default
+(when applicable).}
 
 \item{quiet}{Whether or not to show messages and prompts while connecting the
 account.}
@@ -36,6 +37,10 @@ SPCS deployments require both Snowflake authentication (via the connection
 name) and a Posit Connect API key. The Snowflake token provides proxied
 authentication to reach the Connect server, while the API key identifies
 the user to Connect itself.
+
+If \code{snowflakeConnectionName} is not provided, \pkg{rsconnect} will attempt to
+use the default Snowflake connection from the \code{connections.toml} file,
+provided that the account matches the Connect server's URL.
 
 Supported servers: Posit Connect servers
 }

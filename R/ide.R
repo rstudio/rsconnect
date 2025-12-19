@@ -3,7 +3,12 @@
 # This function is poorly named because as well as validating the server
 # url it will also register the server if needed.
 validateServerUrl <- function(url, certificate = NULL) {
-  res <- validateConnectUrl(url, certificate)
+  snowflakeConnectionName <- NULL
+  if (isSPCSUrl(url)) {
+    snowflakeConnectionName <- getDefaultSnowflakeConnectionName(url)
+  }
+
+  res <- validateConnectUrl(url, certificate, snowflakeConnectionName)
 
   if (res$valid) {
     name <- findAndRegisterLocalServer(res$url)

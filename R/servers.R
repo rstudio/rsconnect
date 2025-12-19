@@ -68,9 +68,13 @@ isPositConnectCloudServer <- function(server) {
 }
 
 
+isSPCSUrl <- function(url) {
+  grepl(pattern = "(snowflakecomputing|snowflake)\\.app", x = url)
+}
+
 isSPCSServer <- function(server) {
   info <- serverInfo(server)
-  grepl(pattern = "snowflakecomputing.app", x = info$url, fixed = TRUE)
+  isSPCSUrl(info$url)
 }
 
 checkShinyappsServer <- function(server, call = caller_env()) {
@@ -201,8 +205,9 @@ findServer <- function(server = NULL, local = TRUE, error_call = caller_env()) {
 #'   character vector containing the certificate's contents.
 #' @param validate Validate that `url` actually points to a Posit Connect
 #'   server?
-#' @param snowflakeConnectionName Name for the Snowflake connection parameters
-#'   stored in `connections.toml`.
+#' @param snowflakeConnectionName Name for the Snowflake connection in
+#'   `connections.toml` to use for authentication or `NULL` to use the default
+#'   (when applicable).
 #' @param quiet Suppress output and prompts where possible.
 #' @export
 #' @examples
@@ -229,6 +234,11 @@ addServer <- function(
   check_name(name, allow_null = TRUE)
 
   if (validate) {
+    # Check for SPCS-like URLs.
+    if (isSPCSUrl(url)) {
+      snowflakeConnectionName <- snowflakeConnectionName %||%
+        getDefaultSnowflakeConnectionName(url)
+    }
     out <- validateConnectUrl(url, certificate, snowflakeConnectionName)
     if (!out$valid) {
       cli::cli_abort("{.arg url} does not appear to be a Posit Connect server.")

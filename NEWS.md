@@ -12,6 +12,11 @@
   `discoverServer()`, as well as HTTP backends other than libcurl,
   which were deprecated in rsconnect 1.0.0. (#1282)
 
+* The `snowflakeConnectionName` parameter now respects the default Snowflake
+  connection name in the `connections.toml` file (when it exists), making it
+  optional in many cases. This is only applicable to Connect servers hosted on
+  Snowflake.
+
 # rsconnect 1.7.0
 
 * Added support for deploying from `manifest.json` files created by

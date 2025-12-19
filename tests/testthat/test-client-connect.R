@@ -91,3 +91,91 @@ findConnect <- function() {
     stop("Couldn't find an appropriate 'connect' binary")
   }
 }
+
+# Tests for Snowflake authentication with auto-detection
+
+test_that("getDefaultSnowflakeConnectionName auto-detects matching default connection", {
+  local_mocked_bindings(
+    snowflake_connection = function(name = NULL) {
+      expect_null(name)
+      list(
+        account = "org-account",
+        name = "default"
+      )
+    },
+    .package = "snowflakeauth"
+  )
+
+  result <- getDefaultSnowflakeConnectionName(
+    "https://prefix-org-account.snowflakecomputing.app/__api__"
+  )
+
+  expect_equal(result, "default")
+})
+
+test_that("getDefaultSnowflakeConnectionName normalizes underscores to hyphens", {
+  local_mocked_bindings(
+    snowflake_connection = function(name = NULL) {
+      expect_null(name)
+      list(
+        account = "org_account",
+        name = "default"
+      )
+    },
+    .package = "snowflakeauth"
+  )
+
+  result <- getDefaultSnowflakeConnectionName(
+    "https://prefix-org-account.snowflakecomputing.app/__api__"
+  )
+
+  expect_equal(result, "default")
+})
+
+test_that("getDefaultSnowflakeConnectionName errors when default connection doesn't match server", {
+  local_mocked_bindings(
+    snowflake_connection = function(name = NULL) {
+      list(
+        account = "different-xyz789",
+        name = "default"
+      )
+    },
+    .package = "snowflakeauth"
+  )
+
+  expect_snapshot(
+    getDefaultSnowflakeConnectionName(
+      "https://prefix-org-account.snowflakecomputing.app/__api__"
+    ),
+    error = TRUE
+  )
+})
+
+test_that("getDefaultSnowflakeConnectionName errors when no default connection exists", {
+  local_mocked_bindings(
+    snowflake_connection = function(name = NULL) {
+      stop("No default connection configured")
+    },
+    .package = "snowflakeauth"
+  )
+
+  expect_snapshot(
+    getDefaultSnowflakeConnectionName(
+      "https://prefix-org-account.snowflakecomputing.app/__api__"
+    ),
+    error = TRUE
+  )
+})
+
+test_that("extractSnowflakeAccount handles various hostname formats", {
+  # Non-privatelink SPCS format.
+  expect_equal(
+    extractSnowflakeAccount("prefix-org-account.snowflakecomputing.app"),
+    "org-account"
+  )
+  # Privatelink format. The .privatelink suffix is part of the account name.
+  expect_equal(
+    extractSnowflakeAccount("prefix-org-account.privatelink.snowflake.app"),
+    "org-account.privatelink"
+  )
+})

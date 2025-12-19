@@ -173,6 +173,59 @@ getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
   token
 }
 
+# Gets the default Snowflake connection name if (1) it exists; and (2) it seems
+# to match the server URL.
+getDefaultSnowflakeConnectionName <- function(url) {
+  connection <- tryCatch(
+    snowflakeauth::snowflake_connection(),
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "No default {.arg snowflakeConnectionName}.",
+          i = "Provide {.arg snowflakeConnectionName} explicitly."
+        ),
+        parent = e
+      )
+    }
+  )
+
+  # Validate that the default connection seems to match the account hosting the
+  # Connect server.
+  parsedURL <- parseHttpUrl(url)
+  serverAccount <- extractSnowflakeAccount(parsedURL$host)
+  normalizedAccount <- gsub("_", "-", connection$account, fixed = TRUE)
+  if (!identical(normalizedAccount, serverAccount)) {
+    cli::cli_abort(c(
+      "The default Snowflake connection account {.str {connection$account}} does
+       not appear to match the Connect server.",
+      i = "Pass {.arg snowflakeConnectionName} to use a different connection."
+    ))
+  }
+
+  connectionName <- connection$name
+  if (is.null(connectionName) || !nzchar(connectionName)) {
+    # This should never happen.
+    cli::cli_abort(c(
+      "The Snowflake connection has an empty or missing name field.",
+      i = "Provide {.arg snowflakeConnectionName} explicitly."
+    ))
+  }
+
+  connectionName
+}
+
+# Extract account name from an SPCS hostname.
+extractSnowflakeAccount <- function(hostname) {
+  # For SPCS (including privatelink) URLs, there is some alphanumeric prefix
+  # followed by the hyphenated form of the account, followed by the Snowflake or
+  # Snowflake Computing domain, e.g. "bf2oiajb-testorg-testaccount.snowflakecomputing.app".
+  gsub(
+    "([^-]+)-([^\\.]+)(|\\.privatelink)\\.(snowflakecomputing|snowflake)\\.app$",
+    "\\2\\3",
+    hostname
+  )
+}
+
 # Utilities for URL construction
 # Also to make it easier to identify where we're calling public APIs and not
 v1_url <- function(...) {
