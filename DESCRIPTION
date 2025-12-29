@@ -23,6 +23,7 @@ Imports:
     cli,
     curl,
     digest,
+    httr2,
     jsonlite,
     lifecycle,
     openssl (>= 2.0.0),

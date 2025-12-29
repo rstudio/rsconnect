@@ -23,30 +23,44 @@ httpRequest <- function(
   headers <- c(headers, authHeaders(authInfo, method, path), httpHeaders())
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
-  # perform request
-  httpResponse <- httpLibCurl(
-    protocol = service$protocol,
-    host = service$host,
-    port = service$port,
-    method = method,
-    path = path,
-    headers = headers,
-    timeout = timeout,
-    certificate = certificate
-  )
-
-  while (isRedirect(httpResponse$status)) {
-    service <- redirectService(service, httpResponse$location)
+  if (isTRUE(getOption("rsconnect.httr2", TRUE))) {
+    # httr2 backend - handles cookies and redirects automatically
+    resp <- httr2Request(
+      service,
+      authInfo,
+      method,
+      path,
+      headers,
+      timeout,
+      certificate
+    )
+    httpResponse <- httr2_response_to_list(resp)
+  } else {
+    # Legacy libcurl backend
     httpResponse <- httpLibCurl(
       protocol = service$protocol,
       host = service$host,
       port = service$port,
       method = method,
-      path = service$path,
+      path = path,
       headers = headers,
       timeout = timeout,
       certificate = certificate
     )
+
+    while (isRedirect(httpResponse$status)) {
+      service <- redirectService(service, httpResponse$location)
+      httpResponse <- httpLibCurl(
+        protocol = service$protocol,
+        host = service$host,
+        port = service$port,
+        method = method,
+        path = service$path,
+        headers = headers,
+        timeout = timeout,
+        certificate = certificate
+      )
+    }
   }
 
   handleResponse(
@@ -88,34 +102,49 @@ httpRequestWithBody <- function(
   authed_headers <- c(headers, authHeaders(authInfo, method, path, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
-  # perform request
-  httpResponse <- httpLibCurl(
-    protocol = service$protocol,
-    host = service$host,
-    port = service$port,
-    method = method,
-    path = path,
-    headers = authed_headers,
-    contentType = contentType,
-    contentFile = file,
-    certificate = certificate
-  )
-  while (isRedirect(httpResponse$status)) {
-    # This is a simplification of the spec, since we should preserve
-    # the method for 307 and 308, but that's unlikely to arise for our apps
-    # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
-    service <- redirectService(service, httpResponse$location)
-    authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
+  if (isTRUE(getOption("rsconnect.httr2", TRUE))) {
+    # httr2 backend - handles cookies and redirects automatically
+    resp <- httr2Request(
+      service,
+      authInfo,
+      method,
+      path,
+      authed_headers,
+      certificate = certificate,
+      contentType = contentType,
+      file = file
+    )
+    httpResponse <- httr2_response_to_list(resp)
+  } else {
+    # Legacy libcurl backend
     httpResponse <- httpLibCurl(
       protocol = service$protocol,
       host = service$host,
       port = service$port,
-      method = "GET",
-      path = service$path,
+      method = method,
+      path = path,
       headers = authed_headers,
+      contentType = contentType,
+      contentFile = file,
       certificate = certificate
     )
-    httpResponse
+    while (isRedirect(httpResponse$status)) {
+      # This is a simplification of the spec, since we should preserve
+      # the method for 307 and 308, but that's unlikely to arise for our apps
+      # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
+      service <- redirectService(service, httpResponse$location)
+      authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
+      httpResponse <- httpLibCurl(
+        protocol = service$protocol,
+        host = service$host,
+        port = service$port,
+        method = "GET",
+        path = service$path,
+        headers = authed_headers,
+        certificate = certificate
+      )
+      httpResponse
+    }
   }
 
   handleResponse(
