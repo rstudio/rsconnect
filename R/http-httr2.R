@@ -30,7 +30,7 @@ httr2Request <- function(
   # Apply more options
 
   # SSL certificate handling
-  if (!isTRUE(getOption("rsconnect.check.certificate", TRUE))) {
+  if (isFALSE(getOption("rsconnect.check.certificate", TRUE))) {
     req <- httr2::req_options(req, ssl_verifypeer = FALSE)
   } else if (!is.null(certificate)) {
     req <- httr2::req_options(req, cainfo = certificate)
@@ -63,9 +63,8 @@ httr2Request <- function(
   # Don't error on HTTP failures - we handle that in handleResponse
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
 
-  start <- proc.time()
   resp <- httr2::req_perform(req)
-  httpTrace(method, path, proc.time() - start)
+  httpTrace(method, path, resp_timing(resp)$total)
 
   # Store cookies from response (same as libcurl backend)
   cookieHeaders <- httr2::resp_headers(resp, "set-cookie")
