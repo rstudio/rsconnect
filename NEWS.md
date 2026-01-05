@@ -1,5 +1,10 @@
 # rsconnect (development version)
 
+* `rsconnect` now uses [`httr2`](https://httr2.r-lib.org/) as its HTTP client.
+  There should be no user-visible changes as a result, but if something does
+  not work as expected, please file an issue, and you can set
+  `options(rsconnect.httr2 = FALSE)` as a temporary workaround. (#1284)
+
 * Resolved a bug where `renv.lock` files that had multiple repositories were not
   being translated faithfully when creating the manifest file. (#1268)
 
