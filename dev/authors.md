@@ -20,7 +20,7 @@
 Source:
 [`DESCRIPTION`](https://github.com/rstudio/rsconnect/blob/main/DESCRIPTION)
 
-Atkins A, Allen T, Wickham H, McPherson J, Allaire J (2025). *rsconnect:
+Atkins A, Allen T, Wickham H, McPherson J, Allaire J (2026). *rsconnect:
 Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and
 'RPubs'*. R package version 1.7.0.9000,
 <https://rstudio.github.io/rsconnect/>.
@@ -28,7 +28,7 @@ Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and
     @Manual{,
       title = {rsconnect: Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'},
       author = {Aron Atkins and Toph Allen and Hadley Wickham and Jonathan McPherson and JJ Allaire},
-      year = {2025},
+      year = {2026},
       note = {R package version 1.7.0.9000},
       url = {https://rstudio.github.io/rsconnect/},
     }
