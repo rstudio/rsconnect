@@ -62,6 +62,16 @@ registerUserToken <- function(
   accessToken = NULL,
   refreshToken = NULL
 ) {
+  # If privateKey is empty, we're using identity federation and don't want to
+  # persist credentials.
+  if (!nzchar(privateKey)) {
+    return(registerAccount(
+      serverName = serverName,
+      accountName = accountName,
+      accountId = userId
+    ))
+  }
+
   registerAccount(
     serverName = serverName,
     accountName = accountName,

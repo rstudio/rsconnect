@@ -409,11 +409,38 @@ getAuthTokenAndUser <- function(server, launch.browser = TRUE) {
 
 # Used by the IDE
 getAuthToken <- function(server, userId = 0) {
+  account <- list(server = server)
+  client <- clientForAccount(account)
+
+  # Check if we already have an API key for this server, in which case we can
+  # bypass the token auth flow.
+  serverUrl <- serverInfo(server)$url
+  cachedApiKey <- getCachedApiKey(serverUrl)
+  if (!is.null(cachedApiKey)) {
+    # Verify that the API key actually works.
+    user <- tryCatch(client$currentUser(), error = function(e) NULL)
+    if (!is.null(user)) {
+      # Return the API key as the "token" with a zero-length private key.
+      # waitForAuthedUser will use this to detect federated authentication later
+      # on.
+      #
+      # This in fairly awkward in-band signalling, but reflects the fact that we
+      # can't change what RStudio expects to happen here.
+      return(list(
+        token = cachedApiKey,
+        private_key = secret(""),
+        # Open a special "you're already authenticated" page as the "claim URL".
+        claim_url = sub("/__api__$", "/connect/#/auth-success", serverUrl),
+        # Signal to future RStudio versions that auth is already complete and
+        # there is no need to open a browser window.
+        authenticated = TRUE
+      ))
+    }
+  }
+
   token <- generateToken()
 
   # Send public key to server, and generate URL where the token can be claimed
-  account <- list(server = server)
-  client <- clientForAccount(account)
   response <- client$addToken(list(
     token = token$token,
     public_key = token$public_key,
@@ -449,6 +476,12 @@ waitForAuthedUser <- function(
   private_key = NULL,
   apiKey = NULL
 ) {
+  # Detect when the "token" is actually an API key by looking for an empty
+  # secret.
+  if (!is.null(token) && !nzchar(private_key)) {
+    return(getAuthedUser(server, apiKey = token))
+  }
+
   # keep trying to authenticate until we're successful; server returns
   # 500 "Token is unclaimed error" (Connect before 2024.05.0)
   # 401 "Unauthorized" occurs before the token has been claimed.
@@ -606,6 +639,18 @@ findAccountInfo <- function(
   # remove all whitespace from private key
   if (!is.null(info$private_key)) {
     info$private_key <- gsub("[[:space:]]", "", info$private_key)
+  }
+
+  # For standard Connect servers where there are no persisted credentials, try
+  # identity federation (added in v2026.01.0).
+  if (isConnectServer(fullAccount$server) && hasNoCredentials(info)) {
+    tryCatch(
+      {
+        serverUrl <- serverInfo(fullAccount$server)$url
+        info$apiKey <- attemptIdentityFederation(serverUrl)
+      },
+      error = function(e) NULL
+    )
   }
 
   # Hide credentials

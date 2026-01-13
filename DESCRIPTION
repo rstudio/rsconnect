@@ -31,7 +31,7 @@ Imports:
     packrat (>= 0.6),
     renv (>= 1.0.0),
     rlang (>= 1.0.0),
-    rstudioapi (>= 0.5),
+    rstudioapi (>= 0.18.0),
     snowflakeauth,
     tools,
     yaml (>= 2.1.5),
