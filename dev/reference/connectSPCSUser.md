@@ -11,6 +11,10 @@ connection name) and a Posit Connect API key. The Snowflake token
 provides proxied authentication to reach the Connect server, while the
 API key identifies the user to Connect itself.
 
+If `snowflakeConnectionName` is not provided, rsconnect will attempt to
+use the default Snowflake connection from the `connections.toml` file,
+provided that the account matches the Connect server's URL.
+
 Supported servers: Posit Connect servers
 
 ## Usage
@@ -20,7 +24,7 @@ connectSPCSUser(
   account = NULL,
   server = NULL,
   apiKey,
-  snowflakeConnectionName,
+  snowflakeConnectionName = NULL,
   quiet = FALSE
 )
 ```
@@ -41,8 +45,8 @@ connectSPCSUser(
 
 - snowflakeConnectionName:
 
-  Name for the Snowflake connection parameters stored in
-  `connections.toml`.
+  Name of the Snowflake connection in `connections.toml` to use for
+  authentication or `NULL` to use the default (when applicable).
 
 - quiet:
 

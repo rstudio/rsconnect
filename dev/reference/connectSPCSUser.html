@@ -8,6 +8,9 @@ SPCS deployments require both Snowflake authentication (via the connection
 name) and a Posit Connect API key. The Snowflake token provides proxied
 authentication to reach the Connect server, while the API key identifies
 the user to Connect itself.
+If snowflakeConnectionName is not provided, rsconnect will attempt to
+use the default Snowflake connection from the connections.toml file,
+provided that the account matches the Connect server's URL.
 Supported servers: Posit Connect servers"><meta property="og:description" content="connectSPCSUser() connects your Posit Connect account to the rsconnect
 package so it can deploy and manage applications on your behalf.
 Configure a
@@ -17,6 +20,9 @@ SPCS deployments require both Snowflake authentication (via the connection
 name) and a Posit Connect API key. The Snowflake token provides proxied
 authentication to reach the Connect server, while the API key identifies
 the user to Connect itself.
+If snowflakeConnectionName is not provided, rsconnect will attempt to
+use the default Snowflake connection from the connections.toml file,
+provided that the account matches the Connect server's URL.
 Supported servers: Posit Connect servers"><meta property="og:image" content="https://rstudio.github.io/rsconnect/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
 
@@ -64,6 +70,9 @@ in the appropriate location.</p>
 name) and a Posit Connect API key. The Snowflake token provides proxied
 authentication to reach the Connect server, while the API key identifies
 the user to Connect itself.</p>
+<p>If <code>snowflakeConnectionName</code> is not provided, <span class="pkg">rsconnect</span> will attempt to
+use the default Snowflake connection from the <code>connections.toml</code> file,
+provided that the account matches the Connect server's URL.</p>
 <p>Supported servers: Posit Connect servers</p>
     </div>
 
@@ -73,7 +82,7 @@ the user to Connect itself.</p>
 <span>  account <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">apiKey</span>,</span>
-<span>  <span class="va">snowflakeConnectionName</span>,</span>
+<span>  snowflakeConnectionName <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,8 +104,9 @@ the user to Connect itself.</p>
 
 
 <dt id="arg-snowflakeconnectionname">snowflakeConnectionName<a class="anchor" aria-label="anchor" href="#arg-snowflakeconnectionname"></a></dt>
-<dd><p>Name for the Snowflake connection parameters
-stored in <code>connections.toml</code>.</p></dd>
+<dd><p>Name of the Snowflake connection in
+<code>connections.toml</code> to use for authentication or <code>NULL</code> to use the default
+(when applicable).</p></dd>
 
 
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
