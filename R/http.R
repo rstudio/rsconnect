@@ -543,6 +543,12 @@ authHeaders <- function(authInfo, method, path, file = NULL) {
     if (!is.null(authInfo$apiKey)) {
       headers$`X-RSC-Authorization` <- paste("Key", authInfo$apiKey)
     }
+    # When using the "token" flow rather than an API key, we also need the
+    # signature headers.
+    if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
+      sig_headers <- signatureHeaders(authInfo, method, path, file)
+      headers <- c(headers, sig_headers)
+    }
     headers
   } else if (!is.null(authInfo$secret) || !is.null(authInfo$private_key)) {
     signatureHeaders(authInfo, method, path, file)
