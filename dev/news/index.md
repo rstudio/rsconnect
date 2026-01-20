@@ -28,6 +28,9 @@
   exists), making it optional in many cases. This is only applicable to
   Connect servers hosted on Snowflake.
 
+- Push-button publishing from desktop RStudio is now compatible with
+  Connect servers hosted on Snowflake.
+
 ## rsconnect 1.7.0
 
 CRAN release: 2025-12-06
