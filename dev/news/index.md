@@ -31,6 +31,11 @@
 - Push-button publishing from desktop RStudio is now compatible with
   Connect servers hosted on Snowflake.
 
+- Added support for using identity federation to authenticate against
+  Connect when running in Posit Workbench, when available. This allows
+  deploying to Connect servers without the need to store long-lived
+  credentials.
+
 ## rsconnect 1.7.0
 
 CRAN release: 2025-12-06
