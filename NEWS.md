@@ -29,6 +29,12 @@
   when running in Posit Workbench, when available. This allows deploying to
   Connect servers without the need to store long-lived credentials.
 
+* Removed support for log streaming from shinyapps.io due to loss of support
+  for this feature on the shinyapps.io platform (`showLogs(streaming = TRUE)`).
+  If this feature is important to your workflow, please file an issue and we
+  will consider reintroduction of log streaming via rsconnect in Connect Cloud.
+  (#1292)
+
 # rsconnect 1.7.0
 
 * Added support for deploying from `manifest.json` files created by

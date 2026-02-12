@@ -213,40 +213,6 @@ applicationTask <- function(taskDef, appName, accountDetails, quiet) {
   invisible(NULL)
 }
 
-# streams application logs from ShinyApps
-streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
-  # build the URL
-  url <- paste0(
-    serverInfo("shinyapps.io")$url,
-    "/applications/",
-    applicationId,
-    "/logs?",
-    "count=",
-    entries,
-    "&tail=1"
-  )
-  parsed <- parseHttpUrl(url)
-
-  handle <- createCurlHandle("GET")
-  curl::handle_setheaders(
-    handle,
-    .list = signatureHeaders(authInfo, "GET", parsed$path, NULL)
-  )
-
-  # begin the stream
-  curl::curl_fetch_stream(
-    url = url,
-    fun = function(data) {
-      if (skip > 0) {
-        skip <<- skip - 1
-      } else {
-        cat(rawToChar(data))
-      }
-    },
-    handle = handle
-  )
-}
-
 #' Application Logs
 #'
 #' @description
@@ -267,9 +233,9 @@ streamApplicationLogs <- function(authInfo, applicationId, entries, skip) {
 #' @param server Server name. Required only if you use the same account name on
 #'   multiple servers.
 #' @param entries The number of log entries to show. Defaults to 50 entries.
-#' @param streaming Whether to stream the logs. If `TRUE`, then the
-#'   function does not return; instead, log entries are written to the console
-#'   as they are made, until R is interrupted. Defaults to `FALSE`.
+#' @param streaming Deprecated. Streaming logs is not currently supported
+#'   as the ShinyApps.io backend no longer supports this feature. If `TRUE`,
+#'   an error will be thrown. Defaults to `FALSE`.
 #'
 #' @note These functions only work
 #'   for applications deployed to ShinyApps.io.
@@ -296,42 +262,23 @@ showLogs <- function(
 
   checkShinyappsServer(deployment$server)
 
+  if (streaming) {
+    cli::cli_abort(
+      c(
+        "Streaming logs is not currently supported.",
+        i = "The ShinyApps.io backend no longer supports the streaming API.",
+        i = "Use {.arg streaming = FALSE} (the default) to retrieve recent log entries."
+      )
+    )
+  }
+
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
 
-  if (streaming) {
-    # streaming; poll for the entries directly
-    skip <- 0
-    repeat {
-      tryCatch(
-        {
-          streamApplicationLogs(accountDetails, application$id, entries, skip)
-          # after the first fetch, we've seen all recent entries, so show
-          # only new entries. unfortunately /logs/ doesn't support getting 0
-          # entries, so get one and don't log it.
-          entries <- 1
-          skip <- 1
-        },
-        error = function(e) {
-          # if the server times out, ignore the error; otherwise, let it
-          # bubble through
-          if (
-            !identical(
-              e$message,
-              "transfer closed with outstanding read data remaining"
-            )
-          ) {
-            stop(e)
-          }
-        }
-      )
-    }
-  } else {
-    # if not streaming, poll for the entries directly
-    logs <- client$getLogs(application$id, entries)
-    cat(logs)
-  }
+  # Poll for the entries directly
+  logs <- client$getLogs(application$id, entries)
+  cat(logs)
 }
 
 #' @rdname showLogs
