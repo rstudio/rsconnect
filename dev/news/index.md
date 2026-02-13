@@ -36,6 +36,13 @@
   deploying to Connect servers without the need to store long-lived
   credentials.
 
+- Removed support for log streaming from shinyapps.io due to loss of
+  support for this feature on the shinyapps.io platform
+  (`showLogs(streaming = TRUE)`). If this feature is important to your
+  workflow, please file an issue and we will consider reintroduction of
+  log streaming via rsconnect in Connect Cloud.
+  ([\#1292](https://github.com/rstudio/rsconnect/issues/1292))
+
 ## rsconnect 1.7.0
 
 CRAN release: 2025-12-06

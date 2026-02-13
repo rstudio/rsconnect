@@ -45,6 +45,7 @@
 <li><p>The <code>snowflakeConnectionName</code> parameter now respects the default Snowflake connection name in the <code>connections.toml</code> file (when it exists), making it optional in many cases. This is only applicable to Connect servers hosted on Snowflake.</p></li>
 <li><p>Push-button publishing from desktop RStudio is now compatible with Connect servers hosted on Snowflake.</p></li>
 <li><p>Added support for using identity federation to authenticate against Connect when running in Posit Workbench, when available. This allows deploying to Connect servers without the need to store long-lived credentials.</p></li>
+<li><p>Removed support for log streaming from shinyapps.io due to loss of support for this feature on the shinyapps.io platform (<code>showLogs(streaming = TRUE)</code>). If this feature is important to your workflow, please file an issue and we will consider reintroduction of log streaming via rsconnect in Connect Cloud. (<a href="https://github.com/rstudio/rsconnect/issues/1292" class="external-link">#1292</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.7.0" id="rsconnect-170">rsconnect 1.7.0<a class="anchor" aria-label="anchor" href="#rsconnect-170"></a></h2><p class="text-muted">CRAN release: 2025-12-06</p>
