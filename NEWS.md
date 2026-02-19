@@ -35,6 +35,9 @@
   will consider reintroduction of log streaming via rsconnect in Connect Cloud.
   (#1292)
 
+* Updated non-streaming log retrieval to maintain compatibility with updates to
+  shinyapps.io's API. (#1294)
+
 # rsconnect 1.7.0
 
 * Added support for deploying from `manifest.json` files created by
