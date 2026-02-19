@@ -132,7 +132,7 @@ shinyAppsClient <- function(service, authInfo) {
 
     getLogs = function(applicationId, entries = 50, format = NULL) {
       path <- paste0("/applications/", applicationId, "/logs")
-      query <- paste0("count=", entries, "&tail=0")
+      query <- paste0("count=", entries)
       if (!is.null(format)) {
         # format=json returns a structured response.
         query <- paste0(query, "&format=", format)
