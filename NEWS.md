@@ -23,7 +23,8 @@
   Snowflake.
 
 * Push-button publishing from desktop RStudio is now compatible with Connect
-  servers hosted on Snowflake.
+  servers hosted on Snowflake. This includes support for browser-based
+  authentication during deployment. (#1289)
 
 * Added support for using identity federation to authenticate against Connect
   when running in Posit Workbench, when available. This allows deploying to

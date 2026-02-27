@@ -165,6 +165,13 @@ getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
   parsedURL <- parseHttpUrl(url)
   ingressURL <- parsedURL$host
 
+  # Detect when we're running in the Deploy pane of RStudio and enable
+  # "interactive" temporarily so that external browser authentication is
+  # permitted.
+  if (rstudioapi::isBackgroundJob()) {
+    rlang::local_options(rlang_interactive = TRUE)
+  }
+
   token <- snowflakeauth::snowflake_credentials(
     snowflakeauth::snowflake_connection(snowflakeConnectionName),
     spcs_endpoint = ingressURL
