@@ -71,6 +71,58 @@ test_that("can capture deps from renv lockfile", {
   expect_equal(list.files(app_dir), c("foo.R", "renv.lock"))
 })
 
+test_that("can capture deps from renv lockfile in custom location (RENV_PATHS_LOCKFILE)", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
+
+  # Create renv.lock in the standard location first
+
+  renv::snapshot(app_dir, prompt = FALSE)
+
+  # Move the lockfile to a custom location outside the app dir
+  custom_lock_dir <- withr::local_tempdir()
+  custom_lock_path <- file.path(custom_lock_dir, "renv.lock")
+  file.rename(file.path(app_dir, "renv.lock"), custom_lock_path)
+
+  # Set RENV_PATHS_LOCKFILE to point to the custom location
+  withr::local_envvar(RENV_PATHS_LOCKFILE = custom_lock_path)
+
+  # This should find the lockfile at the custom location and capture deps,
+  # but currently fails because renvLockFile() only looks in the app dir.
+  expect_snapshot(pkgs <- bundlePackages(app_dir))
+
+  # renv is included by the renv.lock
+  expect_named(pkgs, c("foreign", "MASS", "renv"), ignore.order = TRUE)
+  expect_named(pkgs$foreign, c("Source", "Repository", "description"))
+  expect_named(pkgs$MASS, c("Source", "Repository", "description"))
+})
+
+test_that("can capture deps from renv lockfile with renv profile", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
+
+  # Set RENV_PROFILE so renv resolves the lockfile from the profile path
+  withr::local_envvar(RENV_PROFILE = "testing")
+  renv::snapshot(app_dir, prompt = FALSE)
+
+  # This should find the lockfile at the profile location and capture deps,
+  # but currently fails because renvLockFile() only looks in the app root.
+  expect_snapshot(pkgs <- bundlePackages(app_dir))
+
+  # renv is included by the renv.lock
+  expect_named(pkgs, c("foreign", "MASS", "renv"), ignore.order = TRUE)
+  expect_named(pkgs$foreign, c("Source", "Repository", "description"))
+  expect_named(pkgs$MASS, c("Source", "Repository", "description"))
+})
+
 test_that("can capture deps with packrat even when renv lockfile present", {
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
