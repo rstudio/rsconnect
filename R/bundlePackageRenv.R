@@ -188,7 +188,10 @@ ensureRenvLockFile <- function(bundleDir) {
   # copy it to the standard location.
   if (file.exists(resolved)) {
     # Normalize to avoid self-copy (e.g., /var vs /private/var on macOS)
-    if (normalizePath(resolved, mustWork = FALSE) != normalizePath(standard, mustWork = FALSE)) {
+    if (
+      normalizePath(resolved, mustWork = FALSE) !=
+        normalizePath(standard, mustWork = FALSE)
+    ) {
       if (file.exists(standard)) {
         cli::cli_warn(c(
           "Using lockfile at {.path {resolved}} instead of {.path {standard}}.",
@@ -197,7 +200,9 @@ ensureRenvLockFile <- function(bundleDir) {
         ))
       }
       if (!file.copy(resolved, standard, overwrite = TRUE)) {
-        cli::cli_abort("Failed to copy lockfile from {.path {resolved}} to {.path {standard}}.")
+        cli::cli_abort(
+          "Failed to copy lockfile from {.path {resolved}} to {.path {standard}}."
+        )
       }
     }
     return(TRUE)
