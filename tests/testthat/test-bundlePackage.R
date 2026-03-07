@@ -91,14 +91,40 @@ test_that("can capture deps from renv lockfile in custom location (RENV_PATHS_LO
   # Set RENV_PATHS_LOCKFILE to point to the custom location
   withr::local_envvar(RENV_PATHS_LOCKFILE = custom_lock_path)
 
-  # This should find the lockfile at the custom location and capture deps,
-  # but currently fails because renvLockFile() only looks in the app dir.
+  # Should find the lockfile at the custom location and capture deps.
   expect_snapshot(pkgs <- bundlePackages(app_dir))
 
   # renv is included by the renv.lock
   expect_named(pkgs, c("foreign", "MASS", "renv"), ignore.order = TRUE)
   expect_named(pkgs$foreign, c("Source", "Repository", "description"))
   expect_named(pkgs$MASS, c("Source", "Repository", "description"))
+})
+
+test_that("warns when custom lockfile overwrites existing standard lockfile", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
+
+  # Create renv.lock in the standard location
+  renv::snapshot(app_dir, prompt = FALSE)
+
+  # Copy the lockfile to a custom location, leaving the original in place
+  custom_lock_dir <- withr::local_tempdir()
+  custom_lock_path <- file.path(custom_lock_dir, "renv.lock")
+  file.copy(file.path(app_dir, "renv.lock"), custom_lock_path)
+
+  # Set RENV_PATHS_LOCKFILE to point to the custom location
+  withr::local_envvar(RENV_PATHS_LOCKFILE = custom_lock_path)
+
+  # Should warn about overwriting the standard lockfile
+  expect_snapshot(pkgs <- bundlePackages(app_dir), transform = function(x) {
+    gsub("'[^']+'", "'<path>'", x)
+  })
+
+  expect_named(pkgs, c("foreign", "MASS", "renv"), ignore.order = TRUE)
 })
 
 test_that("can capture deps from renv lockfile with renv profile", {
@@ -113,8 +139,7 @@ test_that("can capture deps from renv lockfile with renv profile", {
   withr::local_envvar(RENV_PROFILE = "testing")
   renv::snapshot(app_dir, prompt = FALSE)
 
-  # This should find the lockfile at the profile location and capture deps,
-  # but currently fails because renvLockFile() only looks in the app root.
+  # Should find the lockfile at the profile location and capture deps.
   expect_snapshot(pkgs <- bundlePackages(app_dir))
 
   # renv is included by the renv.lock

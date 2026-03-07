@@ -58,7 +58,7 @@ computePackageDependencies <- function(
       extraPackages,
       verbose = verbose
     )
-  } else if (file.exists(renvLockFile(bundleDir))) {
+  } else if (ensureRenvLockFile(bundleDir)) {
     # This ignores extraPackages; if you're using a lockfile it's your
     # responsibility to install any other packages you need
     taskStart(quiet, "Capturing R dependencies from renv.lock")
