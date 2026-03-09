@@ -145,6 +145,13 @@ uploadShinyappsBundle <- function(
   bundlePath,
   verbose = FALSE
 ) {
+  # Disable httr2 for shinyapps.io bundle uploads. The shinyapps.io API
+  # returns a 303 redirect during updateBundleStatus, and httr2 drops the
+  # request body on redirect while keeping the X-Content-Checksum header,
+  # causing a "bad checksum" error.
+  # See https://github.com/rstudio/rsconnect/issues/1297
+  old <- options(rsconnect.httr2 = FALSE)
+  on.exit(options(old))
   # Step 1. Create presigned URL and register pending bundle.
   bundleSize <- file.info(bundlePath)$size
   bundle <- client$createBundle(
