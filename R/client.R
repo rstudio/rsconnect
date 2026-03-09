@@ -4,6 +4,13 @@ clientForAccount <- function(account) {
   serverUrl <- parseHttpUrl(serverInfo$url)
 
   if (isShinyappsServer(account$server)) {
+    # Disable httr2 for shinyapps.io. The shinyapps.io API returns 303
+    # redirects on several POST endpoints (updateBundleStatus,
+    # deployApplication), and httr2 drops the request body on redirect
+    # while keeping the X-Content-Checksum header, causing "bad checksum"
+    # and "Method Not Allowed" errors.
+    # See https://github.com/rstudio/rsconnect/issues/1297
+    options(rsconnect.httr2 = FALSE)
     shinyAppsClient(serverUrl, account)
   } else if (isPositConnectCloudServer(account$server)) {
     connectCloudClient(serverUrl, account)
@@ -145,13 +152,6 @@ uploadShinyappsBundle <- function(
   bundlePath,
   verbose = FALSE
 ) {
-  # Disable httr2 for shinyapps.io bundle uploads. The shinyapps.io API
-  # returns a 303 redirect during updateBundleStatus, and httr2 drops the
-  # request body on redirect while keeping the X-Content-Checksum header,
-  # causing a "bad checksum" error.
-  # See https://github.com/rstudio/rsconnect/issues/1297
-  old <- options(rsconnect.httr2 = FALSE)
-  on.exit(options(old))
   # Step 1. Create presigned URL and register pending bundle.
   bundleSize <- file.info(bundlePath)$size
   bundle <- client$createBundle(
