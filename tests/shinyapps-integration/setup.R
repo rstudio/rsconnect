@@ -7,7 +7,9 @@ shinyapps_token <- Sys.getenv("SHINYAPPS_TOKEN")
 shinyapps_secret <- Sys.getenv("SHINYAPPS_SECRET")
 
 if (shinyapps_name == "" || shinyapps_token == "" || shinyapps_secret == "") {
-  skip("SHINYAPPS_NAME, SHINYAPPS_TOKEN, and SHINYAPPS_SECRET must be set to run shinyapps.io integration tests.")
+  skip(
+    "SHINYAPPS_NAME, SHINYAPPS_TOKEN, and SHINYAPPS_SECRET must be set to run shinyapps.io integration tests."
+  )
 }
 
 # Register the shinyapps.io account for testing
