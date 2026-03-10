@@ -6,7 +6,7 @@
 # errors if library and project are inconsistent
 
     Code
-      parseRenvDependencies(app_dir)
+      parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir)
     Condition
       Error in `parseRenvDependencies()`:
       ! Library and lockfile are out of sync

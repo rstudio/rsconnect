@@ -100,33 +100,6 @@ test_that("can capture deps from renv lockfile in custom location (RENV_PATHS_LO
   expect_named(pkgs$MASS, c("Source", "Repository", "description"))
 })
 
-test_that("warns when custom lockfile overwrites existing standard lockfile", {
-  skip_if_not_installed("foreign")
-  skip_if_not_installed("MASS")
-
-  withr::local_options(renv.verbose = FALSE)
-
-  app_dir <- local_temp_app(list(foo.R = "library(foreign); library(MASS)"))
-
-  # Create renv.lock in the standard location
-  renv::snapshot(app_dir, prompt = FALSE)
-
-  # Copy the lockfile to a custom location, leaving the original in place
-  custom_lock_dir <- withr::local_tempdir()
-  custom_lock_path <- file.path(custom_lock_dir, "renv.lock")
-  file.copy(file.path(app_dir, "renv.lock"), custom_lock_path)
-
-  # Set RENV_PATHS_LOCKFILE to point to the custom location
-  withr::local_envvar(RENV_PATHS_LOCKFILE = custom_lock_path)
-
-  # Should warn about overwriting the standard lockfile
-  expect_snapshot(pkgs <- bundlePackages(app_dir), transform = function(x) {
-    gsub("'[^']+'", "'<path>'", x)
-  })
-
-  expect_named(pkgs, c("foreign", "MASS", "renv"), ignore.order = TRUE)
-})
-
 test_that("can capture deps from renv lockfile with renv profile", {
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
@@ -146,6 +119,48 @@ test_that("can capture deps from renv lockfile with renv profile", {
   expect_named(pkgs, c("foreign", "MASS", "renv"), ignore.order = TRUE)
   expect_named(pkgs$foreign, c("Source", "Repository", "description"))
   expect_named(pkgs$MASS, c("Source", "Repository", "description"))
+})
+
+test_that("appDependencies finds lockfile with relative RENV_PATHS_LOCKFILE", {
+  skip_on_cran()
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  # the lockfile lives at a custom path inside a directory (renv/), specified with
+  # RENV_PATHS_LOCKFILE to point to it with a relative path.
+  #
+  #   app_dir/
+  #     app.R
+  #     renv/
+  #       renv_custom_location.lock
+  app_dir <- local_temp_app(list(
+    "app.R" = "library(foreign); library(MASS)"
+  ))
+
+  # Snapshot first (writes to the standard renv.lock location), then
+  # move the lockfile into renv/ under a custom name.
+  # we can't just set `RENV_PATHS_LOCKFILE` and then snapshot because
+  # renv interprets the relative path wrt CWD, not the project dir.
+  renv::snapshot(app_dir, prompt = FALSE)
+  dir.create(file.path(app_dir, "renv"))
+  file.rename(
+    file.path(app_dir, "renv.lock"),
+    file.path(app_dir, "renv", "renv_custom_location.lock")
+  )
+
+  withr::local_envvar(
+    RENV_PATHS_LOCKFILE = "renv/renv_custom_location.lock"
+  )
+
+  withr::local_dir(app_dir)
+  deps <- appDependencies(app_dir)
+  expect_true("foreign" %in% deps$Package)
+  expect_true("MASS" %in% deps$Package)
+  # renv is in the lockfile, but not the app. So if it is in the deps,
+  #then we know we are using the lockfile.
+  expect_true("renv" %in% deps$Package)
 })
 
 test_that("can capture deps with packrat even when renv lockfile present", {

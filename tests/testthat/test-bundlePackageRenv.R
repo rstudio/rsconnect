@@ -108,7 +108,7 @@ test_that("gets DESCRIPTION from renv & system libraries", {
   app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
   renv::snapshot(app_dir, prompt = FALSE)
 
-  deps <- parseRenvDependencies(app_dir)
+  deps <- parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir)
   expect_setequal(deps$Package, c("foreign", "MASS", "renv"))
 
   expect_type(deps$description, "list")
@@ -127,7 +127,10 @@ test_that("errors if library and project are inconsistent", {
   renv::snapshot(app_dir, prompt = FALSE)
   renv::record("MASS@0.1.1", project = app_dir)
 
-  expect_snapshot(parseRenvDependencies(app_dir), error = TRUE)
+  expect_snapshot(
+    parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir),
+    error = TRUE
+  )
 })
 
 # standardizeRenvPackage -----------------------------------------

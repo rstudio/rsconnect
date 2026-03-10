@@ -31,16 +31,15 @@ snapshotRenvDependencies <- function(
   )
   renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
   # renv::snapshot() respects RENV_PATHS_LOCKFILE and renv profiles, so the
-  # lockfile may have been written to a non-standard location. Copy it into the
-  # bundle dir so parseRenvDependencies() can find it.
-  ensureRenvLockFile(bundleDir)
+  # lockfile may have been written to a non-standard location.
+  lockfile <- resolveRenvLockFile(bundleDir)
   defer(removeRenv(bundleDir))
 
-  parseRenvDependencies(bundleDir, snapshot = TRUE)
+  parseRenvDependencies(lockfile, bundleDir, snapshot = TRUE)
 }
 
-parseRenvDependencies <- function(bundleDir, snapshot = FALSE) {
-  renvLock <- jsonlite::read_json(renvLockFile(bundleDir))
+parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
+  renvLock <- jsonlite::read_json(lockfile)
   repos <- setNames(
     vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
     vapply(renvLock$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
@@ -176,39 +175,20 @@ renvLockFile <- function(bundleDir) {
   file.path(bundleDir, "renv.lock")
 }
 
-# Ensure the renv lockfile is at the standard bundle location.
-# If found at a custom location (via RENV_PATHS_LOCKFILE or renv profiles),
-# copies it into bundleDir/renv.lock, overwriting any stale lockfile.
-# Returns TRUE if the lockfile is available, FALSE otherwise.
-ensureRenvLockFile <- function(bundleDir) {
-  standard <- renvLockFile(bundleDir)
+# Find the renv lockfile, checking both the renv-resolved path and the
+# standard location. Returns the path if found, NULL otherwise.
+resolveRenvLockFile <- function(bundleDir) {
   resolved <- renv::paths$lockfile(project = bundleDir)
-
-  # If the resolved file exists, and is different from the standard location,
-  # copy it to the standard location.
   if (file.exists(resolved)) {
-    # Normalize to avoid self-copy (e.g., /var vs /private/var on macOS)
-    if (
-      normalizePath(resolved, mustWork = FALSE) !=
-        normalizePath(standard, mustWork = FALSE)
-    ) {
-      if (file.exists(standard)) {
-        cli::cli_warn(c(
-          "Using lockfile at {.path {resolved}} instead of {.path {standard}}.",
-          i = "The lockfile in the project root may be outdated.",
-          i = "Remove it to silence this warning."
-        ))
-      }
-      if (!file.copy(resolved, standard, overwrite = TRUE)) {
-        cli::cli_abort(
-          "Failed to copy lockfile from {.path {resolved}} to {.path {standard}}."
-        )
-      }
-    }
-    return(TRUE)
+    return(resolved)
   }
 
-  file.exists(standard)
+  standard <- renvLockFile(bundleDir)
+  if (file.exists(standard)) {
+    return(standard)
+  }
+
+  NULL
 }
 
 removeRenv <- function(path, lockfile = TRUE) {
