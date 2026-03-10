@@ -34,5 +34,6 @@ jobs:
             any::shiny
 
       - name: Run shinyapps.io integration tests
+        if: env.SHINYAPPS_SECRET != ''
         run: |
           Rscript -e 'testthat::test_dir("tests/shinyapps-integration", package="rsconnect", load_package="installed")'
