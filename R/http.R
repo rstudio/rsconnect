@@ -23,7 +23,7 @@ httpRequest <- function(
   headers <- c(headers, authHeaders(authInfo, method, path), httpHeaders())
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
-  if (isTRUE(getOption("rsconnect.httr2", TRUE))) {
+  if (isTRUE(getOption("rsconnect.httr2", TRUE)) && !isTRUE(grepl("shinyapps\\.io$", service$host))) {
     # httr2 backend - handles cookies and redirects automatically
     resp <- httr2Request(
       service,
@@ -102,7 +102,7 @@ httpRequestWithBody <- function(
   authed_headers <- c(headers, authHeaders(authInfo, method, path, file))
   certificate <- requestCertificate(service$protocol, authInfo$certificate)
 
-  if (isTRUE(getOption("rsconnect.httr2", TRUE))) {
+  if (isTRUE(getOption("rsconnect.httr2", TRUE)) && !isTRUE(grepl("shinyapps\\.io$", service$host))) {
     # httr2 backend - handles cookies and redirects automatically
     resp <- httr2Request(
       service,

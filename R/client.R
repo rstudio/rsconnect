@@ -4,13 +4,6 @@ clientForAccount <- function(account) {
   serverUrl <- parseHttpUrl(serverInfo$url)
 
   if (isShinyappsServer(account$server)) {
-    # Disable httr2 for shinyapps.io. The shinyapps.io API returns 303
-    # redirects on several POST endpoints (updateBundleStatus,
-    # deployApplication), and httr2 drops the request body on redirect
-    # while keeping the X-Content-Checksum header, causing "bad checksum"
-    # and "Method Not Allowed" errors.
-    # See https://github.com/rstudio/rsconnect/issues/1297
-    options(rsconnect.httr2 = FALSE)
     shinyAppsClient(serverUrl, account)
   } else if (isPositConnectCloudServer(account$server)) {
     connectCloudClient(serverUrl, account)
