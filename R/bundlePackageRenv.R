@@ -33,6 +33,9 @@ snapshotRenvDependencies <- function(
   # renv::snapshot() respects RENV_PATHS_LOCKFILE and renv profiles, so the
   # lockfile may have been written to a non-standard location.
   lockfile <- resolveRenvLockFile(bundleDir)
+  if (is.null(lockfile)) {
+    cli::cli_abort("renv::snapshot() did not produce a lockfile")
+  }
   defer(removeRenv(bundleDir))
 
   parseRenvDependencies(lockfile, bundleDir, snapshot = TRUE)
