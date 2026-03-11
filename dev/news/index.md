@@ -45,6 +45,10 @@
   log streaming via rsconnect in Connect Cloud.
   ([\#1292](https://github.com/rstudio/rsconnect/issues/1292))
 
+- Added support for renv profiles and renv lockfiles that are located
+  outside of the project root.
+  ([\#1122](https://github.com/rstudio/rsconnect/issues/1122))
+
 ## rsconnect 1.7.0
 
 CRAN release: 2025-12-06
