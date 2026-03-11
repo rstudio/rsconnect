@@ -183,7 +183,7 @@ httpRequestWithBody <- function(
 }
 
 isRedirect <- function(status) {
-  status %in% c(301, 302, 303, 307, 308)
+  status %in% c(301, 302, 307, 308)
 }
 
 redirectService <- function(service, location) {
