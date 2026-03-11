@@ -35,6 +35,8 @@
   If this feature is important to your workflow, please file an issue and we
   will consider reintroduction of log streaming via rsconnect in Connect Cloud.
   (#1292)
+* Added support for renv profiles and renv lockfiles that are located outside of
+  the project root. (#1122)
 
 # rsconnect 1.7.0
 
