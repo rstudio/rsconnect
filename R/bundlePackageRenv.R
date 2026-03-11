@@ -174,10 +174,6 @@ biocRepos <- function(bundleDir) {
   repos[setdiff(names(repos), "CRAN")]
 }
 
-renvLockFile <- function(bundleDir) {
-  file.path(bundleDir, "renv.lock")
-}
-
 # Find the renv lockfile, checking both the renv-resolved path and the
 # standard location. Returns the path if found, NULL otherwise.
 resolveRenvLockFile <- function(bundleDir) {
@@ -186,7 +182,7 @@ resolveRenvLockFile <- function(bundleDir) {
     return(resolved)
   }
 
-  standard <- renvLockFile(bundleDir)
+  standard <- file.path(bundleDir, "renv.lock")
   if (file.exists(standard)) {
     return(standard)
   }
@@ -196,7 +192,7 @@ resolveRenvLockFile <- function(bundleDir) {
 
 removeRenv <- function(path, lockfile = TRUE) {
   if (lockfile) {
-    unlink(renvLockFile(path))
+    unlink(resolveRenvLockFile(path))
   }
   unlink(file.path(path, "renv"), recursive = TRUE)
 }
