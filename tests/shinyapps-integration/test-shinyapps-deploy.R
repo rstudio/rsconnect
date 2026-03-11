@@ -6,7 +6,8 @@ test_that("deploy to shinyapps.io does not error", {
       appDir = "example-shiny",
       appName = app_name,
       account = shinyapps_name,
-      forceUpdate = TRUE
+      forceUpdate = TRUE,
+      manifestPath = "example-shiny/manifest.json"
     )
   )
 })
