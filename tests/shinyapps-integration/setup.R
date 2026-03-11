@@ -11,7 +11,13 @@ if (shinyapps_name == "" || shinyapps_token == "" || shinyapps_secret == "") {
     "SHINYAPPS_NAME, SHINYAPPS_TOKEN, and SHINYAPPS_SECRET must be set to run shinyapps.io integration tests."
   )
 }
-
+original_repos <- getOption("repos")
+if ("RSPM" %in% names(original_repos) && !"CRAN" %in% names(original_repos)) {
+  cran_repos <- original_repos
+  names(cran_repos)[names(cran_repos) == "RSPM"] <- "CRAN"
+  options(repos = cran_repos)
+  withr::defer(options(repos = original_repos), teardown_env())
+}
 # Register the shinyapps.io account for testing
 rsconnect::setAccountInfo(
   name = shinyapps_name,
