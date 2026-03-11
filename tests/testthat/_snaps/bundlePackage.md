@@ -30,6 +30,22 @@
       i Capturing R dependencies from renv.lock
       v Found 3 dependencies
 
+# can capture deps from renv lockfile in custom location (RENV_PATHS_LOCKFILE)
+
+    Code
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies from renv.lock
+      v Found 3 dependencies
+
+# can capture deps from renv lockfile with renv profile
+
+    Code
+      pkgs <- bundlePackages(app_dir)
+    Message
+      i Capturing R dependencies from renv.lock
+      v Found 3 dependencies
+
 # can capture deps with packrat even when renv lockfile present
 
     Code

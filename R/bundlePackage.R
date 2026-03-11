@@ -58,11 +58,12 @@ computePackageDependencies <- function(
       extraPackages,
       verbose = verbose
     )
-  } else if (file.exists(renvLockFile(bundleDir))) {
+  } else if (!is.null(resolveRenvLockFile(bundleDir))) {
+    lockfile <- resolveRenvLockFile(bundleDir)
     # This ignores extraPackages; if you're using a lockfile it's your
     # responsibility to install any other packages you need
     taskStart(quiet, "Capturing R dependencies from renv.lock")
-    deps <- parseRenvDependencies(bundleDir)
+    deps <- parseRenvDependencies(lockfile, bundleDir)
     # Once we've captured the deps, we can remove the renv directory
     # from the bundle (retaining the renv.lock).
     removeRenv(bundleDir, lockfile = FALSE)
