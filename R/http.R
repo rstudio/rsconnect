@@ -41,7 +41,7 @@ httpRequest <- function(
       resp <- httr2Request(
         service,
         authInfo,
-        method,
+        "GET",
         service$path,
         headers,
         timeout,
