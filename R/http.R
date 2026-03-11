@@ -121,6 +121,23 @@ httpRequestWithBody <- function(
       file = file
     )
     httpResponse <- httr2_response_to_list(resp)
+
+    while (isRedirect(httpResponse$status)) {
+      # This is a simplification of the spec, since we should preserve
+      # the method for 307 and 308, but that's unlikely to arise for our apps
+      # https://www.rfc-editor.org/rfc/rfc9110.html#name-redirection-3xx
+      service <- redirectService(service, httpResponse$location)
+      authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
+      resp <- httr2Request(
+        service,
+        authInfo,
+        "GET",
+        service$path,
+        authed_headers,
+        certificate = certificate
+      )
+      httpResponse <- httr2_response_to_list(resp)
+    }
   } else {
     # Legacy libcurl backend
     httpResponse <- httpLibCurl(
@@ -161,7 +178,7 @@ httpRequestWithBody <- function(
 }
 
 isRedirect <- function(status) {
-  status %in% c(301, 302, 307, 308)
+  status %in% c(301, 302, 303, 307, 308)
 }
 
 redirectService <- function(service, location) {
