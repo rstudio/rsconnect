@@ -62,9 +62,7 @@ CRAN release: 2025-12-06
 
 - `urlEncode()` now uses
   [`curl::curl_escape()`](https://jeroen.r-universe.dev/curl/reference/curl_escape.html)
-  instead of
-  [`RCurl::curlEscape()`](https://rdrr.io/pkg/RCurl/man/curlEscape.html),
-  as RCurl is a Suggests dependency.
+  instead of `RCurl::curlEscape()`, as RCurl is a Suggests dependency.
   ([\#1265](https://github.com/rstudio/rsconnect/issues/1265))
 
 - The `User-Agent` header in requests made from rsconnect will now be of
