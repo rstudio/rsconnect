@@ -35,6 +35,20 @@ httpRequest <- function(
       certificate
     )
     httpResponse <- httr2_response_to_list(resp)
+
+    while (isRedirect(httpResponse$status)) {
+      service <- redirectService(service, httpResponse$location)
+      resp <- httr2Request(
+        service,
+        authInfo,
+        "GET",
+        service$path,
+        headers,
+        timeout,
+        certificate
+      )
+      httpResponse <- httr2_response_to_list(resp)
+    }
   } else {
     # Legacy libcurl backend
     httpResponse <- httpLibCurl(
@@ -115,6 +129,20 @@ httpRequestWithBody <- function(
       file = file
     )
     httpResponse <- httr2_response_to_list(resp)
+
+    while (isRedirect(httpResponse$status)) {
+      service <- redirectService(service, httpResponse$location)
+      authed_headers <- c(headers, authHeaders(authInfo, "GET", service$path))
+      resp <- httr2Request(
+        service,
+        authInfo,
+        "GET",
+        service$path,
+        authed_headers,
+        certificate = certificate
+      )
+      httpResponse <- httr2_response_to_list(resp)
+    }
   } else {
     # Legacy libcurl backend
     httpResponse <- httpLibCurl(

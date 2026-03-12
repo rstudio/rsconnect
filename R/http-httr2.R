@@ -61,6 +61,7 @@ httr2Request <- function(
   }
 
   # Don't error on HTTP failures - we handle that in handleResponse
+  req <- httr2::req_options(req, followlocation = FALSE)
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
 
   resp <- httr2::req_perform(req)

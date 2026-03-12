@@ -1,0 +1,39 @@
+name: shinyapps.io Integration Tests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  shinyapps-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Only run if shinyapps.io credentials are available (not on forks)
+    if: github.event_name == 'push' || !github.event.pull_request.head.repo.fork
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      SHINYAPPS_NAME: ${{ secrets.SHINYAPPS_NAME }}
+      SHINYAPPS_TOKEN: ${{ secrets.SHINYAPPS_TOKEN }}
+      SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"hard"'
+          extra-packages: |
+            local::.
+            any::testthat
+            any::shiny
+
+      - name: Run shinyapps.io integration tests
+        if: env.SHINYAPPS_SECRET != ''
+        run: |
+          Rscript -e 'testthat::test_dir("tests/shinyapps-integration", package="rsconnect", load_package="installed")'
