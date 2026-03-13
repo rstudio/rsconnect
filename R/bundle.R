@@ -45,6 +45,21 @@ bundleAppDir <- function(
       tweakRProfile(to)
     }
   }
+
+  # When an renv profile is active, the profile-specific lockfile lives under
+  # renv/profiles/<name>/renv.lock, which is excluded from the bundle (the
+  # entire renv/ directory is ignored). Resolve the correct lockfile from the
+  # original appDir and copy it into the bundle so that
+  # parseRenvDependencies() compares against the right lockfile.
+  profileLockfile <- tryCatch(
+    resolveRenvLockFile(appDir),
+    error = function(e) NULL
+  )
+  if (!is.null(profileLockfile) && file.exists(profileLockfile)) {
+    bundleLockfile <- file.path(bundleDir, "renv.lock")
+    file.copy(profileLockfile, bundleLockfile, overwrite = TRUE)
+  }
+
   bundleDir
 }
 
