@@ -196,6 +196,29 @@ test_that(".Rprofile tweaked automatically", {
   )
 })
 
+test_that("bundleAppDir copies profile-specific renv.lock into bundle", {
+  skip_if_not_installed("renv")
+
+  app_dir <- local_temp_app(list("app.R" = "1 + 1"))
+
+  # Create a default renv.lock and a profile-specific one
+  writeLines('{"R":{"Version":"4.3.0"}}', file.path(app_dir, "renv.lock"))
+  profile_dir <- file.path(app_dir, "renv", "profiles", "dev")
+  dir.create(profile_dir, recursive = TRUE)
+  writeLines(
+    '{"R":{"Version":"4.4.0"}}',
+    file.path(profile_dir, "renv.lock")
+  )
+
+  withr::local_envvar(RENV_PROFILE = "dev")
+  appFiles <- list.files(app_dir, all.files = TRUE, recursive = TRUE)
+  bundled <- bundleAppDir(app_dir, appFiles)
+
+  # The bundle should contain the profile-specific lockfile, not the default
+  lock_content <- readLines(file.path(bundled, "renv.lock"))
+  expect_match(lock_content, "4.4.0", all = FALSE)
+})
+
 test_that(".Rprofile without renv/packrt left as is", {
   lines <- c("1 + 1", "# Line 2", "library(foo)")
   path <- withr::local_tempfile(lines = lines)
