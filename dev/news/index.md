@@ -8,35 +8,37 @@
   set `options(rsconnect.httr2 = FALSE)` as a temporary workaround.
   ([\#1284](https://github.com/rstudio/rsconnect/issues/1284))
 
+- Added support for renv profiles and renv lockfiles that are located
+  outside of the project root.
+  ([\#1122](https://github.com/rstudio/rsconnect/issues/1122))
+
 - Resolved a bug where `renv.lock` files that had multiple repositories
   were not being translated faithfully when creating the manifest file.
   ([\#1268](https://github.com/rstudio/rsconnect/issues/1268))
 
 - Added support for overriding R package repository resolution behavior.
-
-- Upgraded to use `v1` APIs for deploying to Connect servers, which
-  enables new features for specifying settings in the manifest file.
-  ([\#1280](https://github.com/rstudio/rsconnect/issues/1280))
-
-- Removed several functions, including `addConnectServer()` and
-  `discoverServer()`, as well as HTTP backends other than libcurl, which
-  were deprecated in rsconnect 1.0.0.
-  ([\#1282](https://github.com/rstudio/rsconnect/issues/1282))
-
-- The `snowflakeConnectionName` parameter now respects the default
-  Snowflake connection name in the `connections.toml` file (when it
-  exists), making it optional in many cases. This is only applicable to
-  Connect servers hosted on Snowflake.
+  ([\#1272](https://github.com/rstudio/rsconnect/issues/1272))
 
 - Push-button publishing from desktop RStudio is now compatible with
   Connect servers hosted on Snowflake. This includes support for
   browser-based authentication during deployment.
   ([\#1289](https://github.com/rstudio/rsconnect/issues/1289))
 
+- The `snowflakeConnectionName` parameter now respects the default
+  Snowflake connection name in the `connections.toml` file (when it
+  exists), making it optional in many cases. This is only applicable to
+  Connect servers hosted on Snowflake.
+  ([\#1283](https://github.com/rstudio/rsconnect/issues/1283))
+
 - Added support for using identity federation to authenticate against
   Connect when running in Posit Workbench, when available. This allows
   deploying to Connect servers without the need to store long-lived
   credentials.
+  ([\#1287](https://github.com/rstudio/rsconnect/issues/1287))
+
+- Upgraded to use `v1` APIs for deploying to Connect servers, which
+  enables new features for specifying settings in the manifest file.
+  ([\#1280](https://github.com/rstudio/rsconnect/issues/1280))
 
 - Removed support for log streaming from shinyapps.io due to loss of
   support for this feature on the shinyapps.io platform
@@ -45,9 +47,10 @@
   log streaming via rsconnect in Connect Cloud.
   ([\#1292](https://github.com/rstudio/rsconnect/issues/1292))
 
-- Added support for renv profiles and renv lockfiles that are located
-  outside of the project root.
-  ([\#1122](https://github.com/rstudio/rsconnect/issues/1122))
+- Removed several functions, including `addConnectServer()` and
+  `discoverServer()`, as well as HTTP backends other than libcurl, which
+  were deprecated in rsconnect 1.0.0.
+  ([\#1282](https://github.com/rstudio/rsconnect/issues/1282))
 
 ## rsconnect 1.7.0
 
