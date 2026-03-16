@@ -14,3 +14,5 @@ tags
 ^cran-comments\.md$
 ^revdep$
 ^CRAN-SUBMISSION$
+^\.positai$
+^\.claude$
