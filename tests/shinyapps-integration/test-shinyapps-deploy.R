@@ -1,6 +1,9 @@
-app_name <- paste0("rsconnect-test-", strftime(Sys.time(), "%Y%m%d%H%M%S"))
-
-test_that("deploy to shinyapps.io does not error", {
+test_that("can deploy to shinyapps.io and terminate", {
+  app_name <- paste0(
+    run_prefix,
+    "-rsconnect-test-",
+    strftime(Sys.time(), "%Y%m%d%H%M%S")
+  )
   expect_no_error(
     deployApp(
       appDir = "example-shiny",
@@ -10,9 +13,6 @@ test_that("deploy to shinyapps.io does not error", {
       manifestPath = "example-shiny/manifest.json"
     )
   )
-})
-
-test_that("terminate app on shinyapps.io", {
   expect_no_error(
     terminateApp(app_name, account = shinyapps_name)
   )

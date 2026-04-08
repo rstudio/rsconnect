@@ -25,8 +25,25 @@ rsconnect::setAccountInfo(
   secret = shinyapps_secret
 )
 
+# apps from this run will have names starting with this prefix. we use this on
+# cleanup to know which apps to purge from the test account.
+run_prefix <- paste(sample(c(letters, LETTERS, 0:9), 5), collapse = "")
+
 withr::defer(
   {
+    tryCatch(
+      {
+        apps <- applications(account = shinyapps_name)
+        to_purge <- apps[grepl(paste0("^", run_prefix), apps$name), "name"]
+        # purge applications from the current run
+        lapply(to_purge, purgeApp, account = shinyapps_name)
+      },
+      error = function(e) {
+        warning(
+          "Unable to clean up test applications from shinyapps.io account"
+        )
+      }
+    )
     removeAccount(shinyapps_name)
     # Clean up any rsconnect deployment artifacts
     files <- grep(
