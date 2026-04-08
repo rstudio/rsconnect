@@ -11,6 +11,9 @@
 * Resolved a bug where `renv.lock` files that had multiple repositories were not
   being translated faithfully when creating the manifest file. (#1268)
 
+* Packages installed locally via pak are resolved against configured
+  repositories. (#1305)
+
 * Added support for overriding R package repository resolution behavior. (#1272)
 
 * Push-button publishing from desktop RStudio is now compatible with Connect

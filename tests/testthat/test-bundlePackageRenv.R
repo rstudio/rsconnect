@@ -282,7 +282,7 @@ test_that("packages available in multiple repos use the one from renv.lock", {
   )
 })
 
-test_that("source packages get NA source + repository", {
+test_that("unknown source packages get NA source + repository", {
   source <- list(Package = "pkg", Source = "unknown", Repository = "useless")
   expect_equal(
     standardizeRenvPackage(source),
@@ -290,10 +290,46 @@ test_that("source packages get NA source + repository", {
   )
 })
 
-test_that("Local packages get NA source + repository", {
-  source <- list(Package = "pkg", Source = "Local", Repository = "useless")
+test_that("Local packages resolve from a configured repo when available", {
+  pkg <- list(Package = "pkg", Version = "1.0.0", Source = "Local")
+
+  packages <- as.matrix(data.frame(
+    Package = "pkg",
+    Version = "1.0.0",
+    Repository = "https://cran.com/src/contrib",
+    stringsAsFactors = FALSE
+  ))
+  repos <- c(CRAN = "https://cran.com")
+
   expect_equal(
-    standardizeRenvPackage(source),
-    list(Package = "pkg", Source = NA_character_, Repository = NA_character_)
+    standardizeRenvPackage(pkg, packages, repos = repos),
+    list(
+      Package = "pkg",
+      Version = "1.0.0",
+      Source = "CRAN",
+      Repository = "https://cran.com"
+    )
+  )
+})
+
+test_that("Local packages get NA source + repository when not in any repo", {
+  pkg <- list(Package = "pkg", Version = "1.0.0", Source = "Local")
+
+  packages <- as.matrix(data.frame(
+    Package = "otherpkg",
+    Version = "1.0.0",
+    Repository = "https://cran.com/src/contrib",
+    stringsAsFactors = FALSE
+  ))
+  repos <- c(CRAN = "https://cran.com")
+
+  expect_equal(
+    standardizeRenvPackage(pkg, packages, repos = repos),
+    list(
+      Package = "pkg",
+      Version = "1.0.0",
+      Source = NA_character_,
+      Repository = NA_character_
+    )
   )
 })
