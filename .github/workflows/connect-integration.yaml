@@ -22,9 +22,6 @@ jobs:
           # These versions use R 4.2 and seem to take forever to install R dependencies
           # - "2024.03.0" # jammy
           # - "2023.09.0" # jammy
-          # These also use R 4.2 but seem fine, maybe because they are bionic?
-          - "2023.03.0" # bionic
-          - "2022.10.0" # bionic (the oldest we can test using with-connect)
     name: Connect ${{ matrix.version }}
 
     env:
