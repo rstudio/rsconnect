@@ -152,7 +152,17 @@ standardizeRenvPackage <- function(
     }
   } else if (pkg$Source %in% c("Bitbucket", "GitHub", "GitLab")) {
     pkg$Source <- tolower(pkg$Source)
-  } else if (pkg$Source %in% c("Local", "unknown")) {
+  } else if (pkg$Source == "Local") {
+    # A locally-installed package (e.g. via pak "local::") may still be
+    # available from a configured repository. Make a best effort to locate
+    # it, the same way we handle packages installed from source.
+    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+    pkg$Source <- findRepoName(pkg$Repository, repos)
+    if (is.na(pkg$Source)) {
+      pkg$Source <- NA_character_
+      pkg$Repository <- NA_character_
+    }
+  } else if (pkg$Source == "unknown") {
     pkg$Source <- NA_character_
     pkg$Repository <- NA_character_
   }
