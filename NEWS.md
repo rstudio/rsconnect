@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.8.0
 
 * `rsconnect` now uses [`httr2`](https://httr2.r-lib.org/) as its HTTP client.
