@@ -52,8 +52,8 @@ addServerCertificate(name, certificate, quiet = FALSE)
 
 - snowflakeConnectionName:
 
-  Name for the Snowflake connection parameters stored in
-  `connections.toml`.
+  Name for the Snowflake connection in `connections.toml` to use for
+  authentication or `NULL` to use the default (when applicable).
 
 - quiet:
 

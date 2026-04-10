@@ -22,19 +22,6 @@ Supported global options include:
   defaults to `TRUE`. Setting to `FALSE` is insecure, but will allow you
   to connect to hosts using invalid certificates as a last resort.
 
-- `rsconnect.http`:
-
-  Http implementation used for connections to the back-end service:
-
-  |            |                                                       |
-  |------------|-------------------------------------------------------|
-  | `libcurl`  | Secure https using the `curl` R package               |
-  | `rcurl`    | Secure https using the `Rcurl` R package (deprecated) |
-  | `curl`     | Secure https using the curl system utility            |
-  | `internal` | Insecure http using raw sockets                       |
-
-  If no option is specified then `libcurl` is used by default.
-
 - `rsconnect.http.trace`:
 
   When `TRUE`, trace http calls (prints the method, path, and total
@@ -59,17 +46,10 @@ Supported global options include:
   environment variable `RSCONNECT_TAR`. Leave undefined to use the
   default `tar` implementation.
 
-- `rsconnect.rcurl.options`:
-
-  A named list of additional cURL options to use when using the RCurl
-  HTTP implementation in R. Run
-  [`RCurl::curlOptions()`](https://rdrr.io/pkg/RCurl/man/curlOptions.html)
-  to see available options.
-
 - `rsconnect.libcurl.options`:
 
-  A named list of additional cURL options to use when using the curl
-  HTTP implementation in R. Run
+  A named list of additional cURL options to use when making HTTP
+  requests. Run
   [`curl::curl_options()`](https://jeroen.r-universe.dev/curl/reference/curl_options.html)
   to see available options.
 
@@ -150,9 +130,6 @@ Note that, unlike `.Rprofile`, these files don't replace each other;
 
 ``` r
 if (FALSE) { # \dontrun{
-
-# use curl for http connections
-options(rsconnect.http = "curl")
 
 # trace http requests
 options(rsconnect.http.trace = TRUE)

@@ -64,9 +64,9 @@ getLogs(
 
 - streaming:
 
-  Whether to stream the logs. If `TRUE`, then the function does not
-  return; instead, log entries are written to the console as they are
-  made, until R is interrupted. Defaults to `FALSE`.
+  Deprecated. Streaming logs is not currently supported as the
+  ShinyApps.io backend no longer supports this feature. If `TRUE`, an
+  error will be thrown. Defaults to `FALSE`.
 
 ## Value
 
@@ -74,5 +74,4 @@ getLogs(
 
 ## Note
 
-These functions only use the `libcurl` transport, and only work for
-applications deployed to ShinyApps.io.
+These functions only work for applications deployed to ShinyApps.io.

@@ -23,8 +23,6 @@
 
 - [`addAuthorizedUser()`](https://rstudio.github.io/rsconnect/reference/addAuthorizedUser.md)
   : Add authorized user to application
-- [`authorizedUsers()`](https://rstudio.github.io/rsconnect/reference/authorizedUsers.md)
-  : (Deprecated) List authorized users for an application
 - [`connectApiUser()`](https://rstudio.github.io/rsconnect/reference/connectApiUser.md)
   [`connectUser()`](https://rstudio.github.io/rsconnect/reference/connectApiUser.md)
   : Register account on Posit Connect

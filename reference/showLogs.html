@@ -17,7 +17,7 @@ Supported servers: ShinyApps servers"><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ Supported servers: ShinyApps servers"><meta property="og:image" content="https:/
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Application Logs</h1>
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/rsconnect/blob/v1.7.0/R/applications.R" class="external-link"><code>R/applications.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/rsconnect/blob/main/R/applications.R" class="external-link"><code>R/applications.R</code></a></small>
       <div class="d-none name"><code>showLogs.Rd</code></div>
     </div>
 
@@ -107,9 +107,9 @@ multiple servers.</p></dd>
 
 
 <dt id="arg-streaming">streaming<a class="anchor" aria-label="anchor" href="#arg-streaming"></a></dt>
-<dd><p>Whether to stream the logs. If <code>TRUE</code>, then the
-function does not return; instead, log entries are written to the console
-as they are made, until R is interrupted. Defaults to <code>FALSE</code>.</p></dd>
+<dd><p>Deprecated. Streaming logs is not currently supported
+as the ShinyApps.io backend no longer supports this feature. If <code>TRUE</code>,
+an error will be thrown. Defaults to <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -118,7 +118,7 @@ as they are made, until R is interrupted. Defaults to <code>FALSE</code>.</p></d
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
-    <p>These functions only use the <code>libcurl</code> transport, and only work
+    <p>These functions only work
 for applications deployed to ShinyApps.io.</p>
     </div>
 

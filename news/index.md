@@ -1,6 +1,66 @@
 # Changelog
 
+## rsconnect 1.8.0
+
+CRAN release: 2026-04-10
+
+- `rsconnect` now uses [`httr2`](https://httr2.r-lib.org/) as its HTTP
+  client. There should be no user-visible changes as a result, but if
+  something does not work as expected, please file an issue, and you can
+  set `options(rsconnect.httr2 = FALSE)` as a temporary workaround.
+  ([\#1284](https://github.com/rstudio/rsconnect/issues/1284))
+
+- Added support for renv profiles and renv lockfiles that are located
+  outside of the project root.
+  ([\#1122](https://github.com/rstudio/rsconnect/issues/1122))
+
+- Resolved a bug where `renv.lock` files that had multiple repositories
+  were not being translated faithfully when creating the manifest file.
+  ([\#1268](https://github.com/rstudio/rsconnect/issues/1268))
+
+- Packages installed locally via pak are resolved against configured
+  repositories.
+  ([\#1305](https://github.com/rstudio/rsconnect/issues/1305))
+
+- Added support for overriding R package repository resolution behavior.
+  ([\#1272](https://github.com/rstudio/rsconnect/issues/1272))
+
+- Push-button publishing from desktop RStudio is now compatible with
+  Connect servers hosted on Snowflake. This includes support for
+  browser-based authentication during deployment.
+  ([\#1289](https://github.com/rstudio/rsconnect/issues/1289))
+
+- The `snowflakeConnectionName` parameter now respects the default
+  Snowflake connection name in the `connections.toml` file (when it
+  exists), making it optional in many cases. This is only applicable to
+  Connect servers hosted on Snowflake.
+  ([\#1283](https://github.com/rstudio/rsconnect/issues/1283))
+
+- Added support for using identity federation to authenticate against
+  Connect when running in Posit Workbench, when available. This allows
+  deploying to Connect servers without the need to store long-lived
+  credentials.
+  ([\#1287](https://github.com/rstudio/rsconnect/issues/1287))
+
+- Upgraded to use `v1` APIs for deploying to Connect servers, which
+  enables new features for specifying settings in the manifest file.
+  ([\#1280](https://github.com/rstudio/rsconnect/issues/1280))
+
+- Removed support for log streaming from shinyapps.io due to loss of
+  support for this feature on the shinyapps.io platform
+  (`showLogs(streaming = TRUE)`). If this feature is important to your
+  workflow, please file an issue and we will consider reintroduction of
+  log streaming via rsconnect in Connect Cloud.
+  ([\#1292](https://github.com/rstudio/rsconnect/issues/1292))
+
+- Removed several functions, including `addConnectServer()` and
+  `discoverServer()`, as well as HTTP backends other than libcurl, which
+  were deprecated in rsconnect 1.0.0.
+  ([\#1282](https://github.com/rstudio/rsconnect/issues/1282))
+
 ## rsconnect 1.7.0
+
+CRAN release: 2025-12-06
 
 - Added support for deploying from `manifest.json` files created by
   [`writeManifest()`](https://rstudio.github.io/rsconnect/reference/writeManifest.md):
@@ -11,9 +71,7 @@
 
 - `urlEncode()` now uses
   [`curl::curl_escape()`](https://jeroen.r-universe.dev/curl/reference/curl_escape.html)
-  instead of
-  [`RCurl::curlEscape()`](https://rdrr.io/pkg/RCurl/man/curlEscape.html),
-  as RCurl is a Suggests dependency.
+  instead of `RCurl::curlEscape()`, as RCurl is a Suggests dependency.
   ([\#1265](https://github.com/rstudio/rsconnect/issues/1265))
 
 - The `User-Agent` header in requests made from rsconnect will now be of
@@ -483,8 +541,8 @@ CRAN release: 2023-07-17
   libcurl doesn’t work for you, please report the problem ASAP so we can
   fix it.
 
-- [`addConnectServer()`](https://rstudio.github.io/rsconnect/reference/addConnectServer.md)
-  has been deprecated because it does the same thing as
+- `addConnectServer()` has been deprecated because it does the same
+  thing as
   [`addServer()`](https://rstudio.github.io/rsconnect/reference/addServer.md)
   now that
   [`addServer()`](https://rstudio.github.io/rsconnect/reference/addServer.md)
