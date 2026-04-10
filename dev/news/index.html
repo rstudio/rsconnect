@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.7.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.8.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.8.0" id="rsconnect-180">rsconnect 1.8.0<a class="anchor" aria-label="anchor" href="#rsconnect-180"></a></h2><p class="text-muted">CRAN release: 2026-04-10</p>
 <ul><li><p><code>rsconnect</code> now uses <a href="https://httr2.r-lib.org/" class="external-link"><code>httr2</code></a> as its HTTP client. There should be no user-visible changes as a result, but if something does not work as expected, please file an issue, and you can set <code>options(rsconnect.httr2 = FALSE)</code> as a temporary workaround. (<a href="https://github.com/rstudio/rsconnect/issues/1284" class="external-link">#1284</a>)</p></li>
 <li><p>Added support for renv profiles and renv lockfiles that are located outside of the project root. (<a href="https://github.com/rstudio/rsconnect/issues/1122" class="external-link">#1122</a>)</p></li>
 <li><p>Resolved a bug where <code>renv.lock</code> files that had multiple repositories were not being translated faithfully when creating the manifest file. (<a href="https://github.com/rstudio/rsconnect/issues/1268" class="external-link">#1268</a>)</p></li>
