@@ -1,5 +1,11 @@
 test_that("deploy does not error", {
-  expect_true(deployApp("example-shiny", appTitle = "Test", account = account))
+  # Also test verbose logging
+  expect_true(deployApp(
+    "example-shiny",
+    appTitle = "Test",
+    account = account,
+    logLevel = "verbose"
+  ))
 })
 
 test_that("re-deploy does not error", {
