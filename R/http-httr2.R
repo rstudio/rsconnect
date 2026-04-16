@@ -65,7 +65,7 @@ httr2Request <- function(
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
 
   resp <- httr2::req_perform(req)
-  httpTrace(method, path, httr2::resp_timing(resp)$total)
+  httpTrace(method, path, httr2::resp_timing(resp)["total"])
 
   # Store cookies from response (same as libcurl backend)
   cookieHeaders <- httr2::resp_headers(resp, "set-cookie")
