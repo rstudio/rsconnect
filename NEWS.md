@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
+
 # rsconnect 1.8.0
 
 * `rsconnect` now uses [`httr2`](https://httr2.r-lib.org/) as its HTTP client.
