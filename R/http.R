@@ -476,7 +476,7 @@ httpTrace <- function(method, path, time) {
       " ",
       path,
       " ",
-      as.integer(time[["elapsed"]] * 1000),
+      as.integer(time * 1000),
       "ms\n",
       sep = ""
     )

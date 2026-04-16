@@ -67,7 +67,7 @@ httpLibCurl <- function(
   response <- curl::curl_fetch_memory(url, handle = handle)
   time <- proc.time() - start
 
-  httpTrace(method, path, time)
+  httpTrace(method, path, time[["elapsed"]])
 
   # Process headers
   headers <- curl::parse_headers_list(rawToChar(response$headers))
