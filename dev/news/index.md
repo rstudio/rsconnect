@@ -2,6 +2,10 @@
 
 ## rsconnect (development version)
 
+- [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
+  with `logLevel = "verbose"` no longer errors using the `httr2`
+  backend. ([\#1312](https://github.com/rstudio/rsconnect/issues/1312))
+
 ## rsconnect 1.8.0
 
 CRAN release: 2026-04-10

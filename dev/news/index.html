@@ -37,7 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>
+<code><a href="../reference/deployApp.html">deployApp()</a></code> with <code>logLevel = "verbose"</code> no longer errors using the <code>httr2</code> backend. (<a href="https://github.com/rstudio/rsconnect/issues/1312" class="external-link">#1312</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.8.0" id="rsconnect-180">rsconnect 1.8.0<a class="anchor" aria-label="anchor" href="#rsconnect-180"></a></h2><p class="text-muted">CRAN release: 2026-04-10</p>
 <ul><li><p><code>rsconnect</code> now uses <a href="https://httr2.r-lib.org/" class="external-link"><code>httr2</code></a> as its HTTP client. There should be no user-visible changes as a result, but if something does not work as expected, please file an issue, and you can set <code>options(rsconnect.httr2 = FALSE)</code> as a temporary workaround. (<a href="https://github.com/rstudio/rsconnect/issues/1284" class="external-link">#1284</a>)</p></li>
