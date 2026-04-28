@@ -19,6 +19,7 @@ writeManifest(
   envManagementR = NULL,
   envManagementPy = NULL,
   packageRepositoryResolutionR = NULL,
+  checkLockfile = TRUE,
   verbose = FALSE,
   quiet = FALSE
 )
@@ -105,6 +106,13 @@ resolution strategy for R packages. Must be one of \code{"lax"}, \code{"strict"}
 \code{"legacy"}, \code{"lockfile"}, or \code{NULL}. The default, \code{NULL}, will not write
 any values to the bundle manifest and Connect will fall back to the
 server's package repository resolution strategy.}
+
+\item{checkLockfile}{If \code{TRUE} (the default), verifies that the versions in
+\code{renv.lock} match the locally installed library before deploying. Set to
+\code{FALSE} to skip this check and trust the lockfile as-is. This is useful
+when deploying from a CI/CD environment where the local library doesn't
+match the lockfile, or when the lockfile has been manually edited (e.g.
+with \code{renv::record()}). Only applies when an \code{renv.lock} file is present.}
 
 \item{verbose}{If \code{TRUE}, prints detailed progress messages.}
 

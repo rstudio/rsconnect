@@ -8,7 +8,8 @@ appDependencies(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
-  appMode = NULL
+  appMode = NULL,
+  checkLockfile = TRUE
 )
 }
 \arguments{
@@ -29,6 +30,13 @@ Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"a
 \code{"rmd-static"}, \code{"rmd-shiny"}, \code{"quarto-static"}, \code{"quarto-shiny"}, and
 \code{"static"}. The Posit Connect API Reference contains a full set of
 available values. Not all servers support all types of content.}
+
+\item{checkLockfile}{If \code{TRUE} (the default), verifies that the versions in
+\code{renv.lock} match the locally installed library before deploying. Set to
+\code{FALSE} to skip this check and trust the lockfile as-is. This is useful
+when deploying from a CI/CD environment where the local library doesn't
+match the lockfile, or when the lockfile has been manually edited (e.g.
+with \code{renv::record()}). Only applies when an \code{renv.lock} file is present.}
 }
 \value{
 A data frame with one row for each dependency (direct, indirect,
