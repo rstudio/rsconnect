@@ -145,10 +145,9 @@ standardizeRenvPackage <- function(
       }
     }
   } else if (pkg$Source == "Bioconductor") {
-    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+    pkg$Repository <- findRepoUrl(pkg$Package, biocPackages)
     if (is.na(pkg$Repository)) {
-      # Try packages defined from default bioC repos
-      pkg$Repository <- findRepoUrl(pkg$Package, biocPackages)
+      pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
     }
   } else if (pkg$Source %in% c("Bitbucket", "GitHub", "GitLab")) {
     pkg$Source <- tolower(pkg$Source)
