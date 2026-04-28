@@ -47,10 +47,17 @@ parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
     vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
     vapply(renvLock$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
   )
+  bioc <- biocRepos(bundleDir)
+  if (any(bioc %in% repos)) {
+    biocPkgs <- NULL
+  } else {
+    signal("evaluating", class = "rsconnect_biocRepos")
+    biocPkgs <- availablePackages(bioc)
+  }
   deps <- standardizeRenvPackages(
     renvLock$Packages,
     repos,
-    biocPackages = biocPackages(bundleDir)
+    biocPackages = biocPkgs
   )
   if (nrow(deps) == 0) {
     return(data.frame())
@@ -145,10 +152,9 @@ standardizeRenvPackage <- function(
       }
     }
   } else if (pkg$Source == "Bioconductor") {
-    pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
+    pkg$Repository <- findRepoUrl(pkg$Package, biocPackages)
     if (is.na(pkg$Repository)) {
-      # Try packages defined from default bioC repos
-      pkg$Repository <- findRepoUrl(pkg$Package, biocPackages)
+      pkg$Repository <- findRepoUrl(pkg$Package, availablePackages)
     }
   } else if (pkg$Source %in% c("Bitbucket", "GitHub", "GitLab")) {
     pkg$Source <- tolower(pkg$Source)
@@ -175,10 +181,6 @@ standardizeRenvPackage <- function(
   pkg[manifestPackageColumns(pkg)]
 }
 
-biocPackages <- function(bundleDir) {
-  signal("evaluating", class = "rsconnect_biocRepos") # used for testing
-  availablePackages(biocRepos(bundleDir))
-}
 biocRepos <- function(bundleDir) {
   repos <- getFromNamespace("renv_bioconductor_repos", "renv")(bundleDir)
   repos[setdiff(names(repos), "CRAN")]

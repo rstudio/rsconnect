@@ -169,6 +169,25 @@ test_that("BioC gets normalized repo", {
   )
 })
 
+test_that("BioC prefers biocPackages over availablePackages (#1314)", {
+  bioc_pkg <- list(Package = "S4Vectors", Source = "Bioconductor")
+
+  avail <- data.frame(
+    Package = "S4Vectors",
+    Repository = "https://cran.rstudio.com/src/contrib/Transit",
+    stringsAsFactors = FALSE
+  )
+
+  bioc <- data.frame(
+    Package = "S4Vectors",
+    Repository = "https://bioconductor.org/packages/3.22/bioc/src/contrib",
+    stringsAsFactors = FALSE
+  )
+
+  result <- standardizeRenvPackage(bioc_pkg, avail, biocPackages = bioc)
+  expect_equal(result$Repository, "https://bioconductor.org/packages/3.22/bioc")
+})
+
 test_that("has special handling for CRAN packages", {
   packages <- as.matrix(data.frame(
     Package = "pkg",
