@@ -136,7 +136,12 @@ appDependencies <- function(
   defer(unlink(bundleDir, recursive = TRUE))
 
   extraPackages <- inferRPackageDependencies(appMetadata)
-  deps <- computePackageDependencies(bundleDir, extraPackages, quiet = TRUE, checkLockfile = checkLockfile)
+  deps <- computePackageDependencies(
+    bundleDir,
+    extraPackages,
+    quiet = TRUE,
+    checkLockfile = checkLockfile
+  )
   deps[c("Package", "Version", "Source", "Repository")]
 }
 
