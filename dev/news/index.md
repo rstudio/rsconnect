@@ -2,6 +2,11 @@
 
 ## rsconnect (development version)
 
+- Fixed an issue where Bioconductor packages could be incorrectly
+  associated with a CRAN repository URL when the same package appeared
+  in CRAN’s Transit directory.
+  ([\#1314](https://github.com/rstudio/rsconnect/issues/1314))
+
 - [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
   with `logLevel = "verbose"` no longer errors using the `httr2`
   backend. ([\#1312](https://github.com/rstudio/rsconnect/issues/1312))
