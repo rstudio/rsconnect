@@ -201,6 +201,12 @@
 #'   `"legacy"`, `"lockfile"`, or `NULL`. The default, `NULL`, will not write
 #'   any values to the bundle manifest and Connect will fall back to the
 #'   server's package repository resolution strategy.
+#' @param checkLockfile If `TRUE` (the default), verifies that the versions in
+#'   `renv.lock` match the locally installed library before deploying. Set to
+#'   `FALSE` to skip this check and trust the lockfile as-is. This is useful
+#'   when deploying from a CI/CD environment where the local library doesn't
+#'   match the lockfile, or when the lockfile has been manually edited (e.g.
+#'   with `renv::record()`). Only applies when an `renv.lock` file is present.
 #' @examples
 #' \dontrun{
 #'
@@ -271,12 +277,14 @@ deployApp <- function(
   envManagementR = NULL,
   envManagementPy = NULL,
   envManagementNodejs = NULL,
-  packageRepositoryResolutionR = NULL
+  packageRepositoryResolutionR = NULL,
+  checkLockfile = TRUE
 ) {
   check_string(appDir)
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
+  check_bool(checkLockfile)
   check_string(appName, allow_null = TRUE)
 
   if (!is.null(appPrimaryDoc)) {
@@ -656,6 +664,7 @@ deployApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
+      checkLockfile = checkLockfile,
       existingManifest = manifest
     )
     size <- format(file_size(bundlePath), big.mark = ",")
@@ -931,6 +940,7 @@ bundleApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
+  checkLockfile = TRUE,
   existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)
@@ -970,6 +980,7 @@ bundleApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
+      checkLockfile = checkLockfile,
       verbose = verbose,
       quiet = quiet
     )

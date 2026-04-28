@@ -3,13 +3,15 @@ bundlePackages <- function(
   extraPackages = character(),
   quiet = FALSE,
   verbose = FALSE,
+  checkLockfile = TRUE,
   error_call = caller_env()
 ) {
   deps <- computePackageDependencies(
     bundleDir,
     extraPackages,
     quiet = quiet,
-    verbose = verbose
+    verbose = verbose,
+    checkLockfile = checkLockfile
   )
   if (nrow(deps) == 0) {
     return(list())
@@ -45,7 +47,8 @@ computePackageDependencies <- function(
   bundleDir,
   extraPackages = character(),
   quiet = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  checkLockfile = TRUE
 ) {
   if (usePackrat()) {
     taskStart(quiet, "Capturing R dependencies with packrat")
@@ -63,7 +66,7 @@ computePackageDependencies <- function(
     # This ignores extraPackages; if you're using a lockfile it's your
     # responsibility to install any other packages you need
     taskStart(quiet, "Capturing R dependencies from renv.lock")
-    deps <- parseRenvDependencies(lockfile, bundleDir)
+    deps <- parseRenvDependencies(lockfile, bundleDir, checkLockfile = checkLockfile)
     # Once we've captured the deps, we can remove the renv directory
     # from the bundle (retaining the renv.lock).
     removeRenv(bundleDir, lockfile = FALSE)

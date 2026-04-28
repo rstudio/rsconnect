@@ -34,6 +34,7 @@ writeManifest <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
+  checkLockfile = TRUE,
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -76,6 +77,7 @@ writeManifest <- function(
     envManagementPy = envManagementPy,
     envManagementNodejs = envManagementNodejs,
     packageRepositoryResolutionR = packageRepositoryResolutionR,
+    checkLockfile = checkLockfile,
     verbose = verbose,
     quiet = quiet
   )
