@@ -29,7 +29,20 @@ snapshotRenvDependencies <- function(
     quiet = if (quiet) TRUE else NULL,
     progress = FALSE
   )
-  renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
+  withCallingHandlers(
+    renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE),
+    error = function(err) {
+      cli::cli_abort(
+        c(
+          "Failed to snapshot dependencies with renv.",
+          i = "This can happen when a locally-developed package is not installed from a known source.",
+          i = "Use {.code renv::settings$ignored.packages(\"pkg\")} to exclude it from the snapshot.",
+          i = "Or create your own {.file renv.lock} and set {.code checkLockfile = FALSE} when deploying."
+        ),
+        parent = err
+      )
+    }
+  )
   # renv::snapshot() respects RENV_PATHS_LOCKFILE and renv profiles, so the
   # lockfile may have been written to a non-standard location.
   lockfile <- resolveRenvLockFile(bundleDir)
@@ -41,7 +54,12 @@ snapshotRenvDependencies <- function(
   parseRenvDependencies(lockfile, bundleDir, snapshot = TRUE)
 }
 
-parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
+parseRenvDependencies <- function(
+  lockfile,
+  bundleDir,
+  snapshot = FALSE,
+  checkLockfile = TRUE
+) {
   renvLock <- jsonlite::read_json(lockfile)
   repos <- setNames(
     vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
@@ -56,14 +74,15 @@ parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
     return(data.frame())
   }
   deps$description <- lapply(deps$Package, package_record)
-  if (!snapshot) {
+  if (!snapshot && checkLockfile) {
     lib_versions <- unlist(lapply(deps$description, "[[", "Version"))
 
     if (any(deps$Version != lib_versions)) {
       cli::cli_abort(c(
         "Library and lockfile are out of sync",
         i = "Use renv::restore() or renv::snapshot() to synchronise",
-        i = "Or ignore the lockfile by adding to your .rscignore"
+        i = "Or ignore the lockfile by adding to your .rscignore",
+        i = "Or set `checkLockfile = FALSE` to trust the lockfile as-is"
       ))
     }
   }

@@ -33,6 +33,7 @@ writeManifest <- function(
   envManagementR = NULL,
   envManagementPy = NULL,
   packageRepositoryResolutionR = NULL,
+  checkLockfile = TRUE,
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -74,6 +75,7 @@ writeManifest <- function(
     envManagementR = envManagementR,
     envManagementPy = envManagementPy,
     packageRepositoryResolutionR = packageRepositoryResolutionR,
+    checkLockfile = checkLockfile,
     verbose = verbose,
     quiet = quiet
   )

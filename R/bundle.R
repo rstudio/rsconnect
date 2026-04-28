@@ -191,6 +191,7 @@ createAppManifest <- function(
   envManagementR = NULL,
   envManagementPy = NULL,
   packageRepositoryResolutionR = NULL,
+  checkLockfile = TRUE,
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -216,7 +217,8 @@ createAppManifest <- function(
       bundleDir = appDir,
       extraPackages = extraPackages,
       verbose = verbose,
-      quiet = quiet
+      quiet = quiet,
+      checkLockfile = checkLockfile
     )
     rVersionReq <- rVersionRequires(appDir)
   } else {

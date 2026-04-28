@@ -133,6 +133,24 @@ test_that("errors if library and project are inconsistent", {
   )
 })
 
+test_that("checkLockfile = FALSE skips sync check", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+  renv::record("MASS@0.1.1", project = app_dir)
+
+  deps <- parseRenvDependencies(
+    file.path(app_dir, "renv.lock"),
+    app_dir,
+    checkLockfile = FALSE
+  )
+  expect_true("MASS" %in% deps$Package)
+})
+
 # standardizeRenvPackage -----------------------------------------
 
 test_that("SCM get names translated", {

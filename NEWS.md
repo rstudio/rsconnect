@@ -2,6 +2,18 @@
 
 * `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
 
+* `deployApp()`, `writeManifest()`, and `appDependencies()` gain a
+  `checkLockfile` parameter. Set `checkLockfile = FALSE` to skip the
+  verification that `renv.lock` versions match the local library. This is
+  useful when deploying from CI/CD environments where the local library
+  differs from the lockfile, or when the lockfile has been manually edited
+  (e.g. with `renv::record()`). (#1046, #1315, #1317)
+
+* Improved error messages when `renv::snapshot()` fails during dependency
+  discovery. The error now suggests actionable workarounds such as
+  `renv::settings$ignored.packages()` for locally-developed packages.
+  (#1078)
+
 # rsconnect 1.8.0
 
 * `rsconnect` now uses [`httr2`](https://httr2.r-lib.org/) as its HTTP client.
