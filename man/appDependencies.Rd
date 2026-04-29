@@ -9,7 +9,7 @@ appDependencies(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  checkLockfile = TRUE
+  ignoreLockfile = FALSE
 )
 }
 \arguments{
@@ -31,12 +31,12 @@ Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"a
 \code{"static"}. The Posit Connect API Reference contains a full set of
 available values. Not all servers support all types of content.}
 
-\item{checkLockfile}{If \code{TRUE} (the default), verifies that the versions in
-\code{renv.lock} match the locally installed library before deploying. Set to
-\code{FALSE} to skip this check and trust the lockfile as-is. This is useful
-when deploying from a CI/CD environment where the local library doesn't
-match the lockfile, or when the lockfile has been manually edited (e.g.
-with \code{renv::record()}). Only applies when an \code{renv.lock} file is present.}
+\item{ignoreLockfile}{If \code{TRUE}, the \code{renv.lock} file is ignored and
+package dependencies are resolved from the locally installed library
+instead. This is useful when the lockfile is out of sync with the local
+library and cannot be updated (e.g. in CI/CD environments). Note that
+the deployed content will reflect the local library, not the lockfile.
+Defaults to \code{FALSE}.}
 }
 \value{
 A data frame with one row for each dependency (direct, indirect,

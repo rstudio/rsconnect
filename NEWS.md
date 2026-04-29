@@ -2,12 +2,11 @@
 
 * `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
 
-* `deployApp()`, `writeManifest()`, and `appDependencies()` gain a
-  `checkLockfile` parameter. Set `checkLockfile = FALSE` to skip the
-  verification that `renv.lock` versions match the local library. This is
-  useful when deploying from CI/CD environments where the local library
-  differs from the lockfile, or when the lockfile has been manually edited
-  (e.g. with `renv::record()`). (#1046, #1315, #1317)
+* `deployApp()`, `writeManifest()`, and `appDependencies()` gain an
+  `ignoreLockfile` parameter. Set `ignoreLockfile = TRUE` to ignore the
+  `renv.lock` file and resolve package dependencies from the local library
+  instead. This is useful when deploying from CI/CD environments where the
+  local library doesn't match the lockfile. (#1046, #1315, #1317)
 
 * Improved error messages when `renv::snapshot()` fails during dependency
   discovery. The error now suggests actionable workarounds such as

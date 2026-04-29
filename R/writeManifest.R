@@ -33,7 +33,7 @@ writeManifest <- function(
   envManagementR = NULL,
   envManagementPy = NULL,
   packageRepositoryResolutionR = NULL,
-  checkLockfile = TRUE,
+  ignoreLockfile = FALSE,
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -64,6 +64,10 @@ writeManifest <- function(
   python <- getPython(python)
   pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+  if (ignoreLockfile) {
+    confirmIgnoreLockfile()
+  }
+
   # generate the manifest and write it into the bundle dir
   manifest <- createAppManifest(
     appDir = bundleDir,
@@ -75,7 +79,7 @@ writeManifest <- function(
     envManagementR = envManagementR,
     envManagementPy = envManagementPy,
     packageRepositoryResolutionR = packageRepositoryResolutionR,
-    checkLockfile = checkLockfile,
+    ignoreLockfile = ignoreLockfile,
     verbose = verbose,
     quiet = quiet
   )

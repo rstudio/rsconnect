@@ -36,8 +36,7 @@ snapshotRenvDependencies <- function(
         c(
           "Failed to snapshot dependencies with renv.",
           i = "This can happen when a locally-developed package is not installed from a known source.",
-          i = "Use {.code renv::settings$ignored.packages(\"pkg\")} to exclude it from the snapshot.",
-          i = "Or create your own {.file renv.lock} and set {.code checkLockfile = FALSE} when deploying."
+          i = "You can set {.code ignoreLockfile = TRUE} when deploying to ignore the {.file renv.lock} file and resolve package dependencies from the local library instead."
         ),
         parent = err
       )
@@ -54,12 +53,7 @@ snapshotRenvDependencies <- function(
   parseRenvDependencies(lockfile, bundleDir, snapshot = TRUE)
 }
 
-parseRenvDependencies <- function(
-  lockfile,
-  bundleDir,
-  snapshot = FALSE,
-  checkLockfile = TRUE
-) {
+parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
   renvLock <- jsonlite::read_json(lockfile)
   repos <- setNames(
     vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
@@ -74,7 +68,7 @@ parseRenvDependencies <- function(
     return(data.frame())
   }
   deps$description <- lapply(deps$Package, package_record)
-  if (!snapshot && checkLockfile) {
+  if (!snapshot) {
     lib_versions <- unlist(lapply(deps$description, "[[", "Version"))
 
     if (any(deps$Version != lib_versions)) {
@@ -82,7 +76,7 @@ parseRenvDependencies <- function(
         "Library and lockfile are out of sync",
         i = "Use renv::restore() or renv::snapshot() to synchronise",
         i = "Or ignore the lockfile by adding to your .rscignore",
-        i = "Or set `checkLockfile = FALSE` to trust the lockfile as-is"
+        i = "Or set {.code ignoreLockfile = TRUE} to ignore the lockfile and use the local library instead"
       ))
     }
   }
