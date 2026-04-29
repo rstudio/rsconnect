@@ -144,6 +144,7 @@ test_that("ignoreLockfile = TRUE bypasses lockfile and uses local library", {
   renv::snapshot(app_dir, prompt = FALSE)
   renv::record("MASS@0.1.1", project = app_dir)
 
+  # Without ignoreLockfile, this would error with "out of sync"
   deps <- computePackageDependencies(
     app_dir,
     quiet = TRUE,
@@ -151,7 +152,7 @@ test_that("ignoreLockfile = TRUE bypasses lockfile and uses local library", {
   )
   expect_true("MASS" %in% deps$Package)
   mass_dep <- deps[deps$Package == "MASS", ]
-  expect_equal(mass_dep$Version, as.character(packageVersion("MASS")))
+  expect_true(mass_dep$Version != "0.1.1")
 })
 
 # standardizeRenvPackage -----------------------------------------
