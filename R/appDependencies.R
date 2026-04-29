@@ -114,7 +114,7 @@ appDependencies <- function(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  checkLockfile = TRUE
+  ignoreLockfile = FALSE
 ) {
   appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
   appMetadata <- appMetadata(appDir, appFiles = appFiles, appMode = appMode)
@@ -140,7 +140,7 @@ appDependencies <- function(
     bundleDir,
     extraPackages,
     quiet = TRUE,
-    checkLockfile = checkLockfile
+    ignoreLockfile = ignoreLockfile
   )
   deps[c("Package", "Version", "Source", "Repository")]
 }

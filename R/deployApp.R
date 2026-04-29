@@ -201,12 +201,12 @@
 #'   `"legacy"`, `"lockfile"`, or `NULL`. The default, `NULL`, will not write
 #'   any values to the bundle manifest and Connect will fall back to the
 #'   server's package repository resolution strategy.
-#' @param checkLockfile If `TRUE` (the default), verifies that the versions in
-#'   `renv.lock` match the locally installed library before deploying. Set to
-#'   `FALSE` to skip this check and trust the lockfile as-is. This is useful
-#'   when deploying from a CI/CD environment where the local library doesn't
-#'   match the lockfile, or when the lockfile has been manually edited (e.g.
-#'   with `renv::record()`). Only applies when an `renv.lock` file is present.
+#' @param ignoreLockfile If `TRUE`, the `renv.lock` file is ignored and
+#'   package dependencies are resolved from the locally installed library
+#'   instead. This is useful when the lockfile is out of sync with the local
+#'   library and cannot be updated (e.g. in CI/CD environments). Note that
+#'   the deployed content will reflect the local library, not the lockfile.
+#'   Defaults to `FALSE`.
 #' @examples
 #' \dontrun{
 #'
@@ -278,13 +278,13 @@ deployApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  checkLockfile = TRUE
+  ignoreLockfile = FALSE
 ) {
   check_string(appDir)
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
-  check_bool(checkLockfile)
+  check_bool(ignoreLockfile)
   check_string(appName, allow_null = TRUE)
 
   if (!is.null(appPrimaryDoc)) {
@@ -649,6 +649,10 @@ deployApp <- function(
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
+    if (ignoreLockfile) {
+      confirmIgnoreLockfile()
+    }
+
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
     bundlePath <- bundleApp(
       appName = deployment$name,
@@ -664,7 +668,7 @@ deployApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
-      checkLockfile = checkLockfile,
+      ignoreLockfile = ignoreLockfile,
       existingManifest = manifest
     )
     size <- format(file_size(bundlePath), big.mark = ",")
@@ -940,7 +944,7 @@ bundleApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  checkLockfile = TRUE,
+  ignoreLockfile = FALSE,
   existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)
@@ -980,7 +984,7 @@ bundleApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
-      checkLockfile = checkLockfile,
+      ignoreLockfile = ignoreLockfile,
       verbose = verbose,
       quiet = quiet
     )
@@ -996,6 +1000,20 @@ bundleApp <- function(
   bundlePath <- tempfile("rsconnect-bundle", fileext = ".tar.gz")
   writeBundle(bundleDir, bundlePath)
   bundlePath
+}
+
+confirmIgnoreLockfile <- function() {
+  cli::cli_warn(c(
+    "{.file renv.lock} will be ignored.",
+    "!" = "Package dependencies will be resolved from the local library instead.",
+    "!" = "The deployed content may differ from what the lockfile specifies."
+  ))
+  if (is_interactive()) {
+    response <- cli_readline("Do you want to proceed? [Y/n]: ")
+    if (nzchar(response) && tolower(substring(response, 1, 1)) != "y") {
+      cli::cli_abort("Deployment cancelled.")
+    }
+  }
 }
 
 validURL <- function(url) {

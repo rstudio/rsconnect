@@ -133,7 +133,8 @@ test_that("errors if library and project are inconsistent", {
   )
 })
 
-test_that("checkLockfile = FALSE skips sync check", {
+test_that("ignoreLockfile = TRUE bypasses lockfile and uses local library", {
+  skip_on_cran()
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
 
@@ -143,12 +144,10 @@ test_that("checkLockfile = FALSE skips sync check", {
   renv::snapshot(app_dir, prompt = FALSE)
   renv::record("MASS@0.1.1", project = app_dir)
 
-  deps <- parseRenvDependencies(
-    file.path(app_dir, "renv.lock"),
-    app_dir,
-    checkLockfile = FALSE
-  )
+  deps <- computePackageDependencies(app_dir, quiet = TRUE, ignoreLockfile = TRUE)
   expect_true("MASS" %in% deps$Package)
+  mass_dep <- deps[deps$Package == "MASS", ]
+  expect_equal(mass_dep$Version, as.character(packageVersion("MASS")))
 })
 
 # standardizeRenvPackage -----------------------------------------
