@@ -36,7 +36,8 @@ snapshotRenvDependencies <- function(
         c(
           "Failed to snapshot dependencies with renv.",
           i = "This can happen when a locally-developed package is not installed from a known source.",
-          i = "You can set {.code ignoreLockfile = TRUE} when deploying to ignore the {.file renv.lock} file and resolve package dependencies from the local library instead."
+          i = "Set {.code ignoreLockfile = TRUE} when deploying to ignore the
+          {.file renv.lock} and resolve dependencies from the local library."
         ),
         parent = err
       )
