@@ -195,3 +195,36 @@ test_that("manifestPath ignored when NULL", {
     )
   })
 })
+
+# confirmIgnoreLockfile ---------------------------------------------------
+
+test_that("confirmIgnoreLockfile proceeds when user answers Y", {
+  simulate_user_input("Y")
+  expect_warning(
+    confirmIgnoreLockfile(),
+    "renv.lock.*will be ignored"
+  )
+})
+
+test_that("confirmIgnoreLockfile proceeds on empty input (default Y)", {
+  simulate_user_input("")
+  expect_warning(
+    confirmIgnoreLockfile(),
+    "renv.lock.*will be ignored"
+  )
+})
+
+test_that("confirmIgnoreLockfile aborts when user answers n", {
+  simulate_user_input("n")
+  expect_error(
+    suppressWarnings(confirmIgnoreLockfile()),
+    "Deployment cancelled"
+  )
+})
+
+test_that("confirmIgnoreLockfile proceeds non-interactively with warning", {
+  expect_warning(
+    confirmIgnoreLockfile(),
+    "renv.lock.*will be ignored"
+  )
+})

@@ -12,4 +12,5 @@
       ! Library and lockfile are out of sync
       i Use renv::restore() or renv::snapshot() to synchronise
       i Or ignore the lockfile by adding to your .rscignore
+      i Or set `ignoreLockfile = TRUE` to ignore the lockfile and use the local library instead
 

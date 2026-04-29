@@ -35,7 +35,8 @@ deployApp(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
-  packageRepositoryResolutionR = NULL
+  packageRepositoryResolutionR = NULL,
+  ignoreLockfile = FALSE
 )
 }
 \arguments{
@@ -235,6 +236,13 @@ resolution strategy for R packages. Must be one of \code{"lax"}, \code{"strict"}
 \code{"legacy"}, \code{"lockfile"}, or \code{NULL}. The default, \code{NULL}, will not write
 any values to the bundle manifest and Connect will fall back to the
 server's package repository resolution strategy.}
+
+\item{ignoreLockfile}{If \code{TRUE}, the \code{renv.lock} file is ignored and
+package dependencies are resolved from the locally installed library
+instead. This is useful when the lockfile is out of sync with the local
+library and cannot be updated (e.g. in CI/CD environments). Note that
+the deployed content will reflect the local library, not the lockfile.
+Defaults to \code{FALSE}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

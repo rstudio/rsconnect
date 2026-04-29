@@ -29,7 +29,20 @@ snapshotRenvDependencies <- function(
     quiet = if (quiet) TRUE else NULL,
     progress = FALSE
   )
-  renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE)
+  withCallingHandlers(
+    renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE),
+    error = function(err) {
+      cli::cli_abort(
+        c(
+          "Failed to snapshot dependencies with renv.",
+          i = "This can happen when a locally-developed package is not installed from a known source.",
+          i = "Set {.code ignoreLockfile = TRUE} when deploying to ignore the
+          {.file renv.lock} and resolve dependencies from the local library."
+        ),
+        parent = err
+      )
+    }
+  )
   # renv::snapshot() respects RENV_PATHS_LOCKFILE and renv profiles, so the
   # lockfile may have been written to a non-standard location.
   lockfile <- resolveRenvLockFile(bundleDir)
@@ -70,7 +83,8 @@ parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
       cli::cli_abort(c(
         "Library and lockfile are out of sync",
         i = "Use renv::restore() or renv::snapshot() to synchronise",
-        i = "Or ignore the lockfile by adding to your .rscignore"
+        i = "Or ignore the lockfile by adding to your .rscignore",
+        i = "Or set {.code ignoreLockfile = TRUE} to ignore the lockfile and use the local library instead"
       ))
     }
   }
