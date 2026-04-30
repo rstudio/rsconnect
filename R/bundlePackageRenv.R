@@ -31,7 +31,12 @@ snapshotRenvDependencies <- function(
     progress = FALSE
   )
   withCallingHandlers(
-    renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE, force = force),
+    renv::snapshot(
+      bundleDir,
+      packages = deps$Package,
+      prompt = FALSE,
+      force = force
+    ),
     error = function(err) {
       cli::cli_abort(
         c(
