@@ -80,7 +80,8 @@ computePackageDependencies <- function(
       bundleDir,
       extraPackages,
       quiet = quiet,
-      verbose = verbose
+      verbose = verbose,
+      force = ignoreLockfile
     )
   }
   taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}")

@@ -2,7 +2,8 @@ snapshotRenvDependencies <- function(
   bundleDir,
   extraPackages = character(),
   quiet = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  force = FALSE
 ) {
   recordExtraDependencies(bundleDir, extraPackages)
 
@@ -30,14 +31,13 @@ snapshotRenvDependencies <- function(
     progress = FALSE
   )
   withCallingHandlers(
-    renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE),
+    renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE, force = force),
     error = function(err) {
       cli::cli_abort(
         c(
           "Failed to snapshot dependencies with renv.",
           i = "This can happen when a locally-developed package is not installed from a known source.",
-          i = "Set {.code ignoreLockfile = TRUE} when deploying to ignore the
-          {.file renv.lock} and resolve dependencies from the local library."
+          i = "Set {.code ignoreLockfile = TRUE} to force dependency resolution from the local library."
         ),
         parent = err
       )
