@@ -1,6 +1,7 @@
 # Customising HTTP requests
 
 ``` r
+
 library(rsconnect)
 ```
 
@@ -37,6 +38,7 @@ The most straightforward way to specify a proxy is to set the
 following code to your `.rsconnect_profile`:
 
 ``` r
+
 Sys.setenv(https_proxy = "https://proxy.example.com")
 ```
 
@@ -56,6 +58,7 @@ respectively. `rsconnect.http.headers` needs a named vector of header
 names and values:
 
 ``` r
+
 options(
   rsconnect.http.headers = c(
     "CustomHeader1" = "CustomValue", "CustomHeader2" = "CustomValue2"
@@ -67,6 +70,7 @@ While `rsconnect.http.cookies` expects cookies formatted the same way
 that a webserver expects them:
 
 ``` r
+
 options(
   rsconnect.http.headers = c("cookie1=value1", "cookie2=value2")
 )
@@ -75,6 +79,7 @@ options(
 And you can supply other cookie parameters if needed:
 
 ``` r
+
 options(
   rsconnect.http.headers = "cookie1=value1; Expires=Thu, 31 Oct 2021 07:28:00 GMT; Secure"
 )

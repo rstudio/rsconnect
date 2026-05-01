@@ -7,6 +7,13 @@
   in CRAN’s Transit directory.
   ([\#1314](https://github.com/rstudio/rsconnect/issues/1314))
 
+- The global deployment history file used by the Workbench dashboard no
+  longer uses a fixed temporary file name during updates, eliminating a
+  race condition that could cause the file to rapidly grow during
+  concurrent deployments. The history is also capped at 100 records and
+  resets if the file grows excessively large.
+  ([\#1320](https://github.com/rstudio/rsconnect/issues/1320))
+
 - [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
   with `logLevel = "verbose"` no longer errors using the `httr2`
   backend. ([\#1312](https://github.com/rstudio/rsconnect/issues/1312))
