@@ -106,11 +106,15 @@ accountConfigFiles <- function(server = NULL) {
 
 # deployments -------------------------------------------------------------
 
+# returns the path to the history file. When new=TRUE, computes a temporary location to use during
+# history-file modification. The caller is responsible for removing this temporary file.
 deploymentHistoryPath <- function(new = FALSE) {
-  file.path(
-    rsconnectConfigDir("deployments"),
-    paste0("history", if (new) ".new", ".dcf")
-  )
+  dir <- rsconnectConfigDir("deployments")
+  if (new) {
+    tempfile(pattern = "history", tmpdir = dir, fileext = ".dcf")
+  } else {
+    file.path(dir, "history.dcf")
+  }
 }
 
 # given a path, return the directory under which rsconnect package state is

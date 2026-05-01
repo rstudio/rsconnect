@@ -4,6 +4,12 @@
   with a CRAN repository URL when the same package appeared in CRAN's Transit
   directory. (#1314)
 
+* The global deployment history file used by the Workbench dashboard no longer
+  uses a fixed temporary file name during updates, eliminating a race
+  condition that could cause the file to rapidly grow during concurrent
+  deployments. The history is also capped at 100 records and resets if the
+  file grows excessively large. (#1320)
+
 * `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
 
 # rsconnect 1.8.0
@@ -49,7 +55,6 @@
 * Removed several functions, including `addConnectServer()` and
   `discoverServer()`, as well as HTTP backends other than libcurl,
   which were deprecated in rsconnect 1.0.0. (#1282)
-
 
 # rsconnect 1.7.0
 

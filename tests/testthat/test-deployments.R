@@ -195,3 +195,46 @@ test_that("addToDeploymentHistory() adds needed new lines", {
     writeLines(readLines(deploymentHistoryPath()))
   })
 })
+
+test_that("addToDeploymentHistory() caps records at rsconnect.max.history.records", {
+  local_temp_config()
+
+  withr::local_options(rsconnect.max.history.records = 3L)
+
+  expect_snapshot({
+    for (i in 1:5) {
+      addToDeploymentHistory("path", list(x = i))
+    }
+    writeLines(readLines(deploymentHistoryPath()))
+  })
+})
+
+test_that("addToDeploymentHistory() preserves only the new record when max_records = 1L", {
+  local_temp_config()
+
+  # Create existing history before capping.
+  addToDeploymentHistory("path", list(x = 1))
+  addToDeploymentHistory("path", list(x = 2))
+
+  withr::local_options(rsconnect.max.history.records = 1L)
+
+  expect_snapshot({
+    addToDeploymentHistory("path", list(x = 3))
+    writeLines(readLines(deploymentHistoryPath()))
+  })
+})
+
+test_that("addToDeploymentHistory() restarts when history exceeds rsconnect.max.history.bytes", {
+  local_temp_config()
+
+  # Create some records before constraining the size of the history file.
+  addToDeploymentHistory("path", list(x = 1))
+  addToDeploymentHistory("path", list(x = 2))
+
+  withr::local_options(rsconnect.max.history.bytes = 0L)
+
+  expect_snapshot({
+    addToDeploymentHistory("path", list(x = 3))
+    writeLines(readLines(deploymentHistoryPath()))
+  })
+})
