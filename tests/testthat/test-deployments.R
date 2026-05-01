@@ -209,6 +209,21 @@ test_that("addToDeploymentHistory() caps records at rsconnect.max.history.record
   })
 })
 
+test_that("addToDeploymentHistory() preserves only the new record when max_records = 1L", {
+  local_temp_config()
+
+  # Create existing history before capping.
+  addToDeploymentHistory("path", list(x = 1))
+  addToDeploymentHistory("path", list(x = 2))
+
+  withr::local_options(rsconnect.max.history.records = 1L)
+
+  expect_snapshot({
+    addToDeploymentHistory("path", list(x = 3))
+    writeLines(readLines(deploymentHistoryPath()))
+  })
+})
+
 test_that("addToDeploymentHistory() restarts when history exceeds rsconnect.max.history.bytes", {
   local_temp_config()
 

@@ -33,6 +33,15 @@
       x: 3
       appPath: path
 
+# addToDeploymentHistory() preserves only the new record when max_records = 1L
+
+    Code
+      addToDeploymentHistory("path", list(x = 3))
+      writeLines(readLines(deploymentHistoryPath()))
+    Output
+      x: 3
+      appPath: path
+
 # addToDeploymentHistory() restarts when history exceeds rsconnect.max.history.bytes
 
     Code

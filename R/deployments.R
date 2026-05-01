@@ -189,7 +189,7 @@ writeDeploymentRecord <- function(record, filePath) {
 
 # Workbench uses to show a list of recently deployed content on user dashboard.
 addToDeploymentHistory <- function(appPath, deploymentRecord) {
-  ## deployment history is global; reference back to the app path.
+  # deployment history is global; reference back to the app path.
   deploymentRecord$appPath <- appPath
 
   # Truncate the history file when it grows beyond this size.
@@ -197,7 +197,7 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
   max_bytes <- getOption("rsconnect.max.history.bytes", 1e6)
 
   # When the history file is reasonably sized, preserve this number of records.
-  max_records <- getOption("rsconnect.max.history.records", 100L)
+  max_records <- max(1L, getOption("rsconnect.max.history.records", 100L))
 
   history <- deploymentHistoryPath()
   prior <- if (file.exists(history) && file.size(history) <= max_bytes) {
@@ -211,8 +211,8 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
   newHistory <- deploymentHistoryPath(new = TRUE)
   on.exit(unlink(newHistory), add = TRUE)
   writeDeploymentRecord(deploymentRecord, newHistory)
-  if (nrow(prior) > 0L) {
-    n_prior <- min(nrow(prior), max_records - 1L)
+  n_prior <- min(nrow(prior), max_records - 1L)
+  if (n_prior > 0L) {
     cat("\n", file = newHistory, append = TRUE)
     write.dcf(head(prior, n_prior), newHistory, append = TRUE, width = 4096)
   }

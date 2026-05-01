@@ -12,7 +12,6 @@
 
 * `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
 
-
 # rsconnect 1.8.0
 
 * `rsconnect` now uses [`httr2`](https://httr2.r-lib.org/) as its HTTP client.
@@ -56,7 +55,6 @@
 * Removed several functions, including `addConnectServer()` and
   `discoverServer()`, as well as HTTP backends other than libcurl,
   which were deprecated in rsconnect 1.0.0. (#1282)
-
 
 # rsconnect 1.7.0
 
