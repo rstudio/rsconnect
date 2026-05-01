@@ -194,7 +194,7 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
 
   # Truncate the history file when it grows beyond this size.
   # Do not read large files; they may be enormous (#1320).
-  max_bytes <- getOption("rsconnect.max.history.bytes", 1e6)
+  max_bytes <- getOption("rsconnect.max.history.bytes", 1024^2)
 
   # When the history file is reasonably sized, preserve this number of records.
   max_records <- max(1L, getOption("rsconnect.max.history.records", 100L))
