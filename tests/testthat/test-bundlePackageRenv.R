@@ -133,6 +133,28 @@ test_that("errors if library and project are inconsistent", {
   )
 })
 
+test_that("ignoreLockfile = TRUE bypasses lockfile and uses local library", {
+  skip_on_cran()
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+  renv::record("MASS@0.1.1", project = app_dir)
+
+  # Without ignoreLockfile, this would error with "out of sync"
+  deps <- computePackageDependencies(
+    app_dir,
+    quiet = TRUE,
+    ignoreLockfile = TRUE
+  )
+  expect_true("MASS" %in% deps$Package)
+  mass_dep <- deps[deps$Package == "MASS", ]
+  expect_true(mass_dep$Version != "0.1.1")
+})
+
 # standardizeRenvPackage -----------------------------------------
 
 test_that("SCM get names translated", {
