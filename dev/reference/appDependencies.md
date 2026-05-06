@@ -46,8 +46,9 @@ appDependencies(
   example, when static HTML content includes a downloadable Shiny
   application `app.R`. Accepted values include `"shiny"`, `"api"`,
   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`,
-  and `"static"`. The Posit Connect API Reference contains a full set of
-  available values. Not all servers support all types of content.
+  `"nodejs"`, and `"static"`. The Posit Connect API Reference contains a
+  full set of available values. Not all servers support all types of
+  content.
 
 ## Value
 

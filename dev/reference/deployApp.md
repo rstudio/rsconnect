@@ -41,6 +41,7 @@ deployApp(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL
 )
 ```
@@ -159,8 +160,9 @@ deployApp(
   example, when static HTML content includes a downloadable Shiny
   application `app.R`. Accepted values include `"shiny"`, `"api"`,
   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`,
-  and `"static"`. The Posit Connect API Reference contains a full set of
-  available values. Not all servers support all types of content.
+  `"nodejs"`, and `"static"`. The Posit Connect API Reference contains a
+  full set of available values. Not all servers support all types of
+  content.
 
 - contentCategory:
 
@@ -276,14 +278,14 @@ deployApp(
 
 - envManagement:
 
-  Optional. Should Posit Connect install R and Python packages for this
-  content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will not
-  write any values to the bundle manifest, and Connect will fall back to
-  the application default environment management strategy, or the server
+  Optional. Should Posit Connect install packages for this content?
+  (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will not write any
+  values to the bundle manifest, and Connect will fall back to the
+  application default environment management strategy, or the server
   default if no application default is defined.
 
-  (This option is a shorthand flag which overwrites the values of both
-  `envManagementR` and `envManagementPy`.)
+  (This option is a shorthand flag which overwrites the values of
+  `envManagementR`, `envManagementPy`, and `envManagementNodejs`.)
 
 - envManagementR:
 
@@ -302,6 +304,16 @@ deployApp(
   write any values to the bundle manifest, and Connect will fall back to
   the application default Python environment management strategy, or the
   server default if no application default is defined.
+
+  (This option is ignored when `envManagement` is non-`NULL`.)
+
+- envManagementNodejs:
+
+  Optional. Should Posit Connect install Node.js packages for this
+  content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will not
+  write any values to the bundle manifest, and Connect will fall back to
+  the application default Node.js environment management strategy, or
+  the server default if no application default is defined.
 
   (This option is ignored when `envManagement` is non-`NULL`.)
 

@@ -82,6 +82,7 @@ content to a server.</p>
 <span>  envManagement <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envManagementR <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envManagementPy <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  envManagementNodejs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  packageRepositoryResolutionR <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -183,9 +184,9 @@ for re-deploying apps created by someone else.</p>
 Provide this option when the inferred type of content is incorrect. This
 can happen, for example, when static HTML content includes a downloadable
 Shiny application <code>app.R</code>. Accepted values include <code>"shiny"</code>, <code>"api"</code>,
-<code>"rmd-static"</code>, <code>"rmd-shiny"</code>, <code>"quarto-static"</code>, <code>"quarto-shiny"</code>, and
-<code>"static"</code>. The Posit Connect API Reference contains a full set of
-available values. Not all servers support all types of content.</p></dd>
+<code>"rmd-static"</code>, <code>"rmd-shiny"</code>, <code>"quarto-static"</code>, <code>"quarto-shiny"</code>,
+<code>"nodejs"</code>, and <code>"static"</code>. The Posit Connect API Reference contains a
+full set of available values. Not all servers support all types of content.</p></dd>
 
 
 <dt id="arg-contentcategory">contentCategory<a class="anchor" aria-label="anchor" href="#arg-contentcategory"></a></dt>
@@ -294,14 +295,14 @@ override the default by setting the environment variable <code>RSCONNECT_IMAGE</
 
 
 <dt id="arg-envmanagement">envManagement<a class="anchor" aria-label="anchor" href="#arg-envmanagement"></a></dt>
-<dd><p>Optional. Should Posit Connect install R and Python
-packages for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>).
+<dd><p>Optional. Should Posit Connect install packages
+for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>).
 The default, <code>NULL</code>, will not write any values to the bundle manifest,
 and Connect will fall back to the application default environment
 management strategy, or the server default if no application default
 is defined.</p>
-<p>(This option is a shorthand flag which overwrites the values of both
-<code>envManagementR</code> and <code>envManagementPy</code>.)</p></dd>
+<p>(This option is a shorthand flag which overwrites the values of
+<code>envManagementR</code>, <code>envManagementPy</code>, and <code>envManagementNodejs</code>.)</p></dd>
 
 
 <dt id="arg-envmanagementr">envManagementR<a class="anchor" aria-label="anchor" href="#arg-envmanagementr"></a></dt>
@@ -319,6 +320,15 @@ for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>).
 not write any values to the bundle manifest, and Connect will fall back to
 the application default Python environment management strategy, or the
 server default if no application default is defined.</p>
+<p>(This option is ignored when <code>envManagement</code> is non-<code>NULL</code>.)</p></dd>
+
+
+<dt id="arg-envmanagementnodejs">envManagementNodejs<a class="anchor" aria-label="anchor" href="#arg-envmanagementnodejs"></a></dt>
+<dd><p>Optional. Should Posit Connect install Node.js
+packages for this content? (<code>TRUE</code>, <code>FALSE</code>, or <code>NULL</code>). The default,
+<code>NULL</code>, will not write any values to the bundle manifest, and Connect will
+fall back to the application default Node.js environment management
+strategy, or the server default if no application default is defined.</p>
 <p>(This option is ignored when <code>envManagement</code> is non-<code>NULL</code>.)</p></dd>
 
 
