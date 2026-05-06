@@ -116,7 +116,6 @@ writeBundle <- function(bundleDir, bundlePath, verbose = FALSE) {
   )
 }
 
-
 getTarImplementation <- function() {
   # Check the rsconnect.tar option first. If that is unset, check the
   # RSCONNECT_TAR environment var. If neither are set, use "internal".
@@ -129,7 +128,6 @@ getTarImplementation <- function() {
   }
   return(tarImplementation)
 }
-
 
 isWindows <- function() {
   Sys.info()[["sysname"]] == "Windows"
@@ -190,6 +188,7 @@ createAppManifest <- function(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
   verbose = FALSE,
   quiet = FALSE
@@ -273,6 +272,10 @@ createAppManifest <- function(
     }
   }
 
+  nodejsVersionReq <- if (appMetadata$appMode == "nodejs") {
+    appMetadata$nodejsInfo$enginesNode
+  }
+
   # create the manifest
   manifest <- list()
   manifest$version <- 1
@@ -308,13 +311,18 @@ createAppManifest <- function(
   )
   metadata$has_parameters <- appMetadata$hasParameters
 
+  if (appMetadata$appMode == "nodejs") {
+    metadata$entrypoint <- appMetadata$nodejsInfo$entrypoint
+  }
+
   # add metadata
   manifest$metadata <- metadata
 
-  # handle shorthand arg to enable/disable both R and Python
+  # handle shorthand arg to enable/disable all runtimes
   if (!is.null(envManagement)) {
     envManagementR <- envManagement
     envManagementPy <- envManagement
+    envManagementNodejs <- envManagement
   }
 
   # if envManagement is explicitly enabled/disabled,
@@ -326,6 +334,9 @@ createAppManifest <- function(
   if (!is.null(envManagementPy)) {
     envManagementInfo$python <- envManagementPy
   }
+  if (!is.null(envManagementNodejs)) {
+    envManagementInfo$nodejs <- envManagementNodejs
+  }
 
   # emit the environment field
   if (
@@ -333,6 +344,7 @@ createAppManifest <- function(
       length(envManagementInfo) > 0 ||
       !is.null(rVersionReq) ||
       !is.null(pyVersionReq) ||
+      !is.null(nodejsVersionReq) ||
       !is.null(packageRepositoryResolutionR)
   ) {
     manifest$environment <- list()
@@ -358,8 +370,13 @@ createAppManifest <- function(
       manifest$environment$python <- list(requires = pyVersionReq)
     }
 
-    # if either environment_management.r or environment_management.python
-    # is provided, write the environment_management field
+    # if there is a Node.js version constraint
+    if (!is.null(nodejsVersionReq)) {
+      manifest$environment$nodejs <- list(requires = nodejsVersionReq)
+    }
+
+    # if environment_management is provided for any runtime,
+    # write the environment_management field
     if (length(envManagementInfo) > 0) {
       manifest$environment$environment_management <- envManagementInfo
     }
@@ -371,6 +388,11 @@ createAppManifest <- function(
   # if there is python info for reticulate or Quarto, attach it
   if (!is.null(python)) {
     manifest$python <- python
+  }
+
+  # node.js content includes an empty nodejs object
+  if (appMetadata$appMode == "nodejs") {
+    manifest$nodejs <- structure(list(), names = character(0))
   }
   # if there are no packages set manifest$packages to NA (json null)
   if (length(packages) > 0) {
