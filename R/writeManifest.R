@@ -32,6 +32,7 @@ writeManifest <- function(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
   verbose = FALSE,
   quiet = FALSE
@@ -73,6 +74,7 @@ writeManifest <- function(
     envManagement = envManagement,
     envManagementR = envManagementR,
     envManagementPy = envManagementPy,
+    envManagementNodejs = envManagementNodejs,
     packageRepositoryResolutionR = packageRepositoryResolutionR,
     verbose = verbose,
     quiet = quiet

@@ -190,6 +190,9 @@ ignoreBundleFiles <- function(dir, contents) {
     # R/RStudio
     ".Rhistory",
     ".Rproj.user",
+    # Node.js
+    "node_modules",
+    ".npm",
     # other
     ".DS_Store",
     ".quarto",

@@ -140,7 +140,9 @@ appDependencies <- function(
 }
 
 needsR <- function(appMetadata) {
-  if (appMetadata$appMode %in% c("static", "tensorflow-saved-model")) {
+  if (
+    appMetadata$appMode %in% c("static", "tensorflow-saved-model", "nodejs")
+  ) {
     return(FALSE)
   }
 

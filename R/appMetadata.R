@@ -81,6 +81,23 @@ appMetadata <- function(
     plumberInfo <- inferPlumberInfo(appDir)
   }
 
+  nodejsInfo <- NULL
+  if (appMode == "nodejs") {
+    nodejsInfo <- inferNodejsInfo(appDir)
+    if (!nodejsInfo$hasLockfile) {
+      cli::cli_abort(c(
+        "Node.js deployments require a {.file package-lock.json}.",
+        "i" = "Run {.code npm install} to generate one."
+      ))
+    }
+    if (!file.exists(file.path(appDir, nodejsInfo$entrypoint))) {
+      cli::cli_warn(c(
+        "Entrypoint {.file {nodejsInfo$entrypoint}} not found in app directory.",
+        "i" = "Set the {.field main} field in {.file package.json} to your app\'s entry file."
+      ))
+    }
+  }
+
   list(
     appMode = appMode,
     appPrimaryDoc = appPrimaryDoc,
@@ -89,7 +106,8 @@ appMetadata <- function(
     contentCategory = contentCategory,
     documentsHavePython = documentsHavePython,
     quartoInfo = quartoInfo,
-    plumberInfo = plumberInfo
+    plumberInfo = plumberInfo,
+    nodejsInfo = nodejsInfo
   )
 }
 
@@ -222,6 +240,12 @@ inferAppMode <- function(
     # Assume that this is a rendered script, as this is a better fall-back than
     # "static".
     return(list(appMode = "quarto-static", primaryFile = basename(rFiles[1])))
+  }
+
+  # Node.js application (detected after all R/Python/Quarto signals)
+  packageJsonFiles <- matchingNames(absoluteRootFiles, "^package\\.json$")
+  if (length(packageJsonFiles) > 0) {
+    return(list(appMode = "nodejs", primaryFile = NULL))
   }
 
   # TensorFlow model files are lower in the hierarchy, not at the root.
@@ -406,6 +430,36 @@ documentHasPythonChunk <- function(filename) {
   lines <- readLines(filename, warn = FALSE, encoding = "UTF-8")
   matches <- grep("`{python", lines, fixed = TRUE)
   return(length(matches) > 0)
+}
+
+#' Infer node.js information
+#'
+#' @param appDir directory containing content
+#' @return list containing the entrypoint, engines, and whether a
+#'   package-lock.json exists.
+#' @noRd
+inferNodejsInfo <- function(appDir) {
+  packageJsonPath <- file.path(appDir, "package.json")
+  pkg <- jsonlite::fromJSON(packageJsonPath, simplifyVector = FALSE)
+
+  entrypoint <- pkg$main
+  if (is.null(entrypoint) || !nzchar(entrypoint)) {
+    entrypoint <- "index.js"
+  }
+
+  enginesNode <- NULL
+  if (!is.null(pkg$engines) && !is.null(pkg$engines$node)) {
+    enginesNode <- pkg$engines$node
+  }
+
+  lockfilePath <- file.path(appDir, "package-lock.json")
+  hasLockfile <- file.exists(lockfilePath)
+
+  list(
+    entrypoint = entrypoint,
+    enginesNode = enginesNode,
+    hasLockfile = hasLockfile
+  )
 }
 
 #' Infer plumber information

@@ -127,6 +127,7 @@ expect_known_manifest_fields <- function(manifest) {
     "platform",
     "locale",
     "python",
+    "nodejs",
     "metadata",
     "quarto",
     "packages",

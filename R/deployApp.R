@@ -99,9 +99,9 @@
 #'   Provide this option when the inferred type of content is incorrect. This
 #'   can happen, for example, when static HTML content includes a downloadable
 #'   Shiny application `app.R`. Accepted values include `"shiny"`, `"api"`,
-#'   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`, and
-#'   `"static"`. The Posit Connect API Reference contains a full set of
-#'   available values. Not all servers support all types of content.
+#'   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`,
+#'   `"nodejs"`, and `"static"`. The Posit Connect API Reference contains a
+#'   full set of available values. Not all servers support all types of content.
 #' @param contentCategory Optional; classifies the kind of content being
 #'   deployed (e.g. `"plot"` or `"site"`).
 #' @param account,server Uniquely identify a remote server with either your
@@ -166,15 +166,15 @@
 #'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements. You can
 #'   override the default by setting the environment variable `RSCONNECT_IMAGE`.
-#' @param envManagement Optional. Should Posit Connect install R and Python
-#'   packages for this content? (`TRUE`, `FALSE`, or `NULL`).
+#' @param envManagement Optional. Should Posit Connect install packages
+#'   for this content? (`TRUE`, `FALSE`, or `NULL`).
 #'   The default, `NULL`, will not write any values to the bundle manifest,
 #'   and Connect will fall back to the application default environment
 #'   management strategy, or the server default if no application default
 #'   is defined.
 #'
-#'   (This option is a shorthand flag which overwrites the values of both
-#'   `envManagementR` and `envManagementPy`.)
+#'   (This option is a shorthand flag which overwrites the values of
+#'   `envManagementR`, `envManagementPy`, and `envManagementNodejs`.)
 #' @param envManagementR Optional. Should Posit Connect install R packages
 #'   for this content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will
 #'   not write any values to the bundle manifest, and Connect will fall back to
@@ -187,6 +187,13 @@
 #'   not write any values to the bundle manifest, and Connect will fall back to
 #'   the application default Python environment management strategy, or the
 #'   server default if no application default is defined.
+#'
+#'   (This option is ignored when `envManagement` is non-`NULL`.)
+#' @param envManagementNodejs Optional. Should Posit Connect install Node.js
+#'   packages for this content? (`TRUE`, `FALSE`, or `NULL`). The default,
+#'   `NULL`, will not write any values to the bundle manifest, and Connect will
+#'   fall back to the application default Node.js environment management
+#'   strategy, or the server default if no application default is defined.
 #'
 #'   (This option is ignored when `envManagement` is non-`NULL`.)
 #' @param packageRepositoryResolutionR Optional. Specifies the package repository
@@ -263,6 +270,7 @@ deployApp <- function(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL
 ) {
   check_string(appDir)
@@ -494,6 +502,16 @@ deployApp <- function(
     metadata = metadata
   )
 
+  if (appMetadata$appMode == "nodejs") {
+    if (isShinyappsServer(accountDetails$server)) {
+      cli::cli_abort("Node.js content is not supported on shinyapps.io.")
+    }
+    if (isPositConnectCloudServer(accountDetails$server)) {
+      cli::cli_abort("Node.js content is not supported on Posit Connect Cloud.")
+    }
+    checkConnectSupportsNodejs(client)
+  }
+
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating content on server...")
     if (isPositConnectCloudServer(accountDetails$server)) {
@@ -636,6 +654,7 @@ deployApp <- function(
       envManagement = envManagement,
       envManagementR = envManagementR,
       envManagementPy = envManagementPy,
+      envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
       existingManifest = manifest
     )
@@ -744,6 +763,42 @@ deployApp <- function(
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+checkConnectSupportsNodejs <- function(client) {
+  settings <- tryCatch(
+    client$serverSettings(),
+    error = function(e) NULL
+  )
+
+  version <- settings$version
+  result <- connectVersionLt(version, "2026.04.0")
+
+  if (is.na(result)) {
+    cli::cli_inform(c(
+      "i" = "Could not determine the Posit Connect server version.",
+      "i" = "Node.js support requires Connect {.val 2026.04.0} or later."
+    ))
+  } else if (result) {
+    cli::cli_abort(
+      c(
+        "Node.js content requires Posit Connect {.val 2026.04.0} or later.",
+        "x" = "This server is running version {.val {version}}."
+      ),
+      call = NULL
+    )
+  }
+  invisible()
+}
+
+connectVersionLt <- function(version, minimum) {
+  if (is.null(version) || !nzchar(version)) {
+    return(NA)
+  }
+  tryCatch(
+    suppressWarnings(utils::compareVersion(version, minimum)) < 0,
+    error = function(e) NA
+  )
 }
 
 serverSupportsEnvVars <- function(server, client) {
@@ -874,6 +929,7 @@ bundleApp <- function(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
   existingManifest = NULL
 ) {
@@ -912,6 +968,7 @@ bundleApp <- function(
       envManagement = envManagement,
       envManagementR = envManagementR,
       envManagementPy = envManagementPy,
+      envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
       verbose = verbose,
       quiet = quiet

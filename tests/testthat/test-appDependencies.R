@@ -117,3 +117,8 @@ test_that("infers correct packages for each source", {
     inferRPackageDependencies(simulateMetadata("api", plumberInfo = "plumber2"))
   })
 })
+
+test_that("needsR returns FALSE for nodejs", {
+  metadata <- list(appMode = "nodejs")
+  expect_false(needsR(metadata))
+})

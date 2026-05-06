@@ -35,6 +35,7 @@ deployApp(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL
 )
 }
@@ -121,9 +122,9 @@ You can find the \code{appId} in the following places:
 Provide this option when the inferred type of content is incorrect. This
 can happen, for example, when static HTML content includes a downloadable
 Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"api"},
-\code{"rmd-static"}, \code{"rmd-shiny"}, \code{"quarto-static"}, \code{"quarto-shiny"}, and
-\code{"static"}. The Posit Connect API Reference contains a full set of
-available values. Not all servers support all types of content.}
+\code{"rmd-static"}, \code{"rmd-shiny"}, \code{"quarto-static"}, \code{"quarto-shiny"},
+\code{"nodejs"}, and \code{"static"}. The Posit Connect API Reference contains a
+full set of available values. Not all servers support all types of content.}
 
 \item{contentCategory}{Optional; classifies the kind of content being
 deployed (e.g. \code{"plot"} or \code{"site"}).}
@@ -204,15 +205,15 @@ executing this content. If none is provided, Posit Connect will
 attempt to choose an image based on the content requirements. You can
 override the default by setting the environment variable \code{RSCONNECT_IMAGE}.}
 
-\item{envManagement}{Optional. Should Posit Connect install R and Python
-packages for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}).
+\item{envManagement}{Optional. Should Posit Connect install packages
+for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}).
 The default, \code{NULL}, will not write any values to the bundle manifest,
 and Connect will fall back to the application default environment
 management strategy, or the server default if no application default
 is defined.
 
-(This option is a shorthand flag which overwrites the values of both
-\code{envManagementR} and \code{envManagementPy}.)}
+(This option is a shorthand flag which overwrites the values of
+\code{envManagementR}, \code{envManagementPy}, and \code{envManagementNodejs}.)}
 
 \item{envManagementR}{Optional. Should Posit Connect install R packages
 for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default, \code{NULL}, will
@@ -227,6 +228,14 @@ for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default, \cod
 not write any values to the bundle manifest, and Connect will fall back to
 the application default Python environment management strategy, or the
 server default if no application default is defined.
+
+(This option is ignored when \code{envManagement} is non-\code{NULL}.)}
+
+\item{envManagementNodejs}{Optional. Should Posit Connect install Node.js
+packages for this content? (\code{TRUE}, \code{FALSE}, or \code{NULL}). The default,
+\code{NULL}, will not write any values to the bundle manifest, and Connect will
+fall back to the application default Node.js environment management
+strategy, or the server default if no application default is defined.
 
 (This option is ignored when \code{envManagement} is non-\code{NULL}.)}
 

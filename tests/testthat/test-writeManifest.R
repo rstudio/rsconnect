@@ -607,3 +607,128 @@ test_that("environment.r.package_repository_resolution - combined with requires"
   expect_equal(manifest$environment$r$requires, ">= 3.5.0")
   expect_equal(manifest$environment$r$package_repository_resolution, "lockfile")
 })
+
+test_that("Node.js app gets correct manifest data", {
+  dir <- local_temp_app(list(
+    "package.json" = '{"name": "test", "main": "app.js", "engines": {"node": ">=22.18.0"}}',
+    "package-lock.json" = '{"lockfileVersion": 3}',
+    "app.js" = "const http = require('http');"
+  ))
+
+  manifest <- makeManifest(dir)
+  expect_equal(manifest$metadata$appmode, "nodejs")
+  expect_equal(manifest$metadata$entrypoint, "app.js")
+  expect_equal(manifest$metadata$has_parameters, FALSE)
+  expect_null(manifest$packages)
+  expect_null(manifest$quarto)
+  expect_null(manifest$python)
+  expect_type(manifest$nodejs, "list")
+  expect_named(manifest$files, c("app.js", "package-lock.json", "package.json"))
+  expect_known_manifest_fields(manifest)
+})
+
+test_that("Node.js minimal app (no main, no engines) gets correct manifest data", {
+  dir <- local_temp_app(list(
+    "package.json" = '{"name": "test"}',
+    "package-lock.json" = '{"lockfileVersion": 3}',
+    "index.js" = ""
+  ))
+
+  manifest <- makeManifest(dir)
+  expect_equal(manifest$metadata$appmode, "nodejs")
+  expect_equal(manifest$metadata$entrypoint, "index.js")
+  expect_null(manifest$environment)
+  expect_known_manifest_fields(manifest)
+})
+
+test_that("environment.nodejs.requires is set from engines.node", {
+  dir <- local_temp_app(list(
+    "package.json" = '{"name": "test", "main": "app.js", "engines": {"node": ">=22.18.0"}}',
+    "package-lock.json" = "{}",
+    "app.js" = ""
+  ))
+
+  manifest <- makeManifest(dir)
+  expect_equal(manifest$environment$nodejs$requires, ">=22.18.0")
+})
+
+test_that("Sets environment.environment_management.nodejs in the manifest if envManagementNodejs is defined", {
+  dir <- local_temp_app(list(
+    "package.json" = '{"name": "test", "main": "app.js"}',
+    "package-lock.json" = "{}",
+    "app.js" = ""
+  ))
+
+  manifest <- makeManifest(dir, envManagementNodejs = TRUE)
+  expect_true(manifest$environment$environment_management$nodejs)
+
+  manifest <- makeManifest(dir, envManagementNodejs = FALSE)
+  expect_false(manifest$environment$environment_management$nodejs)
+
+  manifest <- makeManifest(dir)
+  expect_null(manifest$environment$environment_management)
+})
+
+test_that("envManagement shorthand overrides envManagementNodejs", {
+  dir <- local_temp_app(list(
+    "package.json" = '{"name": "test", "main": "app.js"}',
+    "package-lock.json" = "{}",
+    "app.js" = ""
+  ))
+
+  manifest <- makeManifest(
+    dir,
+    envManagement = FALSE,
+    envManagementNodejs = TRUE
+  )
+  expect_false(manifest$environment$environment_management$nodejs)
+})
+
+test_that("Node.js manifest nodejs field serializes as empty JSON object", {
+  dir <- local_temp_app(list(
+    "package.json" = '{"name": "test", "main": "app.js"}',
+    "package-lock.json" = "{}",
+    "app.js" = ""
+  ))
+
+  writeManifest(dir, quiet = TRUE)
+  jsonStr <- readLines(file.path(dir, "manifest.json"), warn = FALSE)
+  jsonStr <- paste(jsonStr, collapse = "\n")
+  expect_match(jsonStr, '"nodejs":\\s*\\{\\s*\\}', perl = TRUE)
+  unlink(file.path(dir, "manifest.json"))
+})
+
+test_that("Node.js end-to-end bundle produces valid tar.gz", {
+  appDir <- local_temp_app(list(
+    "package.json" = '{"name": "test", "main": "app.js", "engines": {"node": ">=22.18.0"}}',
+    "package-lock.json" = '{"lockfileVersion": 3}',
+    "app.js" = "const http = require('http');"
+  ))
+  appFiles <- bundleFiles(appDir)
+  appMeta <- appMetadata(appDir, appFiles)
+
+  bundlePath <- bundleApp(
+    appName = "test-nodejs",
+    appDir = appDir,
+    appFiles = appFiles,
+    appMetadata = appMeta,
+    quiet = TRUE
+  )
+  on.exit(unlink(bundlePath))
+
+  expect_true(file.exists(bundlePath))
+
+  extractDir <- tempfile()
+  on.exit(unlink(extractDir, recursive = TRUE), add = TRUE)
+  utils::untar(bundlePath, exdir = extractDir)
+
+  expect_true(file.exists(file.path(extractDir, "manifest.json")))
+  expect_true(file.exists(file.path(extractDir, "app.js")))
+  expect_true(file.exists(file.path(extractDir, "package.json")))
+  expect_true(file.exists(file.path(extractDir, "package-lock.json")))
+
+  manifest <- jsonlite::fromJSON(file.path(extractDir, "manifest.json"))
+  expect_equal(manifest$metadata$appmode, "nodejs")
+  expect_equal(manifest$metadata$entrypoint, "app.js")
+  expect_known_manifest_fields(manifest)
+})

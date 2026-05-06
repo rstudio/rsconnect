@@ -1,5 +1,12 @@
 # rsconnect (development version)
 
+* Added support for deploying Node.js applications to Posit Connect.
+  `deployApp()` and `writeManifest()` now automatically detect Node.js content
+  from `package.json` and generate the appropriate manifest. Added
+  `envManagementNodejs` parameter for controlling Node.js environment
+  management. [Node.js support](https://docs.posit.co/connect/user/nodejs/) is
+  in Early Access as of Connect version 2026.04.0. (#1322)
+
 * Fixed an issue where Bioconductor packages could be incorrectly associated
   with a CRAN repository URL when the same package appeared in CRAN's Transit
   directory. (#1314)
