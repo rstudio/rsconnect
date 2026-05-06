@@ -59,6 +59,80 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
   ))
 })
 
+test_that("checkConnectSupportsNodejs errors for old server versions", {
+  client <- list(
+    serverSettings = function() list(version = "2025.12.0")
+  )
+  expect_error(
+    checkConnectSupportsNodejs(client),
+    "2026.04.0"
+  )
+})
+
+test_that("checkConnectSupportsNodejs passes for supported server versions", {
+  client <- list(
+    serverSettings = function() list(version = "2026.04.0")
+  )
+  expect_no_error(checkConnectSupportsNodejs(client))
+
+  client <- list(
+    serverSettings = function() list(version = "2026.05.0")
+  )
+  expect_no_error(checkConnectSupportsNodejs(client))
+
+  client <- list(
+    serverSettings = function() list(version = "2026.05.0-dev+54-sdlkfjsd")
+  )
+  expect_no_error(checkConnectSupportsNodejs(client))
+})
+
+test_that("checkConnectSupportsNodejs messages when version is unavailable", {
+  client <- list(
+    serverSettings = function() list(version = "")
+  )
+  expect_message(
+    checkConnectSupportsNodejs(client),
+    "Could not determine"
+  )
+})
+
+test_that("checkConnectSupportsNodejs messages when serverSettings errors", {
+  client <- list(
+    serverSettings = function() stop("connection failed")
+  )
+  expect_message(
+    checkConnectSupportsNodejs(client),
+    "Could not determine"
+  )
+})
+
+test_that("checkConnectSupportsNodejs messages when version is unparseable", {
+  client <- list(
+    serverSettings = function() list(version = "not-a-version")
+  )
+  expect_message(
+    checkConnectSupportsNodejs(client),
+    "Could not determine"
+  )
+})
+
+test_that("connectVersionLt compares versions correctly", {
+  expect_true(connectVersionLt("2025.12.0", "2026.04.0"))
+  expect_false(connectVersionLt("2026.04.0", "2026.04.0"))
+  expect_false(connectVersionLt("2026.05.0", "2026.04.0"))
+  expect_false(connectVersionLt("2027.01.0", "2026.04.0"))
+})
+
+test_that("connectVersionLt handles dev versions gracefully", {
+  expect_false(connectVersionLt("2026.04.0-dev+67", "2026.04.0"))
+})
+
+test_that("connectVersionLt returns NA for unparseable or missing input", {
+  expect_true(is.na(connectVersionLt("garbage", "2026.04.0")))
+  expect_true(is.na(connectVersionLt(NULL, "2026.04.0")))
+  expect_true(is.na(connectVersionLt("", "2026.04.0")))
+})
+
 test_that("deployHook executes function if set", {
   withr::local_options(rsconnect.pre.deploy = NULL)
   expect_equal(

@@ -509,6 +509,7 @@ deployApp <- function(
     if (isPositConnectCloudServer(accountDetails$server)) {
       cli::cli_abort("Node.js content is not supported on Posit Connect Cloud.")
     }
+    checkConnectSupportsNodejs(client)
   }
 
   if (is.null(deployment$appId)) {
@@ -762,6 +763,42 @@ deployApp <- function(
   logger("Deployment log finished")
 
   invisible(deploymentSucceeded)
+}
+
+checkConnectSupportsNodejs <- function(client) {
+  settings <- tryCatch(
+    client$serverSettings(),
+    error = function(e) NULL
+  )
+
+  version <- settings$version
+  result <- connectVersionLt(version, "2026.04.0")
+
+  if (is.na(result)) {
+    cli::cli_inform(c(
+      "i" = "Could not determine the Posit Connect server version.",
+      "i" = "Node.js support requires Connect {.val 2026.04.0} or later."
+    ))
+  } else if (result) {
+    cli::cli_abort(
+      c(
+        "Node.js content requires Posit Connect {.val 2026.04.0} or later.",
+        "x" = "This server is running version {.val {version}}."
+      ),
+      call = NULL
+    )
+  }
+  invisible()
+}
+
+connectVersionLt <- function(version, minimum) {
+  if (is.null(version) || !nzchar(version)) {
+    return(NA)
+  }
+  tryCatch(
+    suppressWarnings(utils::compareVersion(version, minimum)) < 0,
+    error = function(e) NA
+  )
 }
 
 serverSupportsEnvVars <- function(server, client) {
