@@ -61,7 +61,9 @@ computePackageDependencies <- function(
       extraPackages,
       verbose = verbose
     )
-  } else if (dependencySource != "library" && !is.null(resolveRenvLockFile(bundleDir))) {
+  } else if (
+    dependencySource != "library" && !is.null(resolveRenvLockFile(bundleDir))
+  ) {
     lockfile <- resolveRenvLockFile(bundleDir)
     # This ignores extraPackages; if you're using a lockfile it's your
     # responsibility to install any other packages you need
