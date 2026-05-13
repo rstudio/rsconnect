@@ -25,12 +25,10 @@
   The version that is recorded is what is installed in the libraries active in the
   R session (i.e. what is displayed with `.libPaths()`). This is useful when
   deploying from environments where there is a mismatch between the
-  renv lock file (#1046, #1315, #1317)
+  renv lock file and the user's environment. (#1046, #1315, #1317)
 
 * Improved error messages when `renv::snapshot()` fails during dependency
-  discovery. The error now suggests actionable workarounds such as
-  `renv::settings$ignored.packages()` for locally-developed packages.
-  (#1078)
+  discovery. (#1078)
 
 # rsconnect 1.8.0
 

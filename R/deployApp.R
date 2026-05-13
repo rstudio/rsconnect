@@ -1005,16 +1005,20 @@ bundleApp <- function(
 }
 
 confirmDependencySourceLibrary <- function() {
-  cli::cli_warn(c(
-    "{.file renv.lock} will be ignored.",
-    "!" = "Package dependencies will be resolved from the local library instead.",
-    "!" = "The deployed content may differ from what the lockfile specifies."
-  ))
   if (is_interactive()) {
-    response <- cli_readline("Do you want to proceed? [Y/n]: ")
+    response <- cli_readline(paste0(
+      "renv.lock will be ignored. ",
+      "Package dependencies will be resolved from the local library instead.\n",
+      "Do you want to proceed? [Y/n]: "
+    ))
     if (nzchar(response) && tolower(substring(response, 1, 1)) != "y") {
       cli::cli_abort("Deployment cancelled.")
     }
+  } else {
+    cli::cli_inform(c(
+      "{.file renv.lock} will be ignored.",
+      "!" = "Package dependencies will be resolved from the local library instead."
+    ))
   }
 }
 

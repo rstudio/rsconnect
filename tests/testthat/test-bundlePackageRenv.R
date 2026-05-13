@@ -149,12 +149,11 @@ test_that("errors if library and project are inconsistent", {
 
 test_that("dependencySource = 'library' bypasses lockfile and uses local library", {
   skip_on_cran()
-  skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")
 
   withr::local_options(renv.verbose = FALSE)
 
-  app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
+  app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
   renv::snapshot(app_dir, prompt = FALSE)
   renv::record("MASS@0.1.1", project = app_dir)
 
