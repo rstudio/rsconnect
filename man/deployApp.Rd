@@ -37,7 +37,7 @@ deployApp(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "default"
+  dependencySource = "strict"
 )
 }
 \arguments{
@@ -247,13 +247,14 @@ any values to the bundle manifest and Connect will fall back to the
 server's package repository resolution strategy.}
 
 \item{dependencySource}{Controls how R package dependencies are resolved.
-Must be one of \code{"default"} or \code{"library"}. When \code{"default"}, the
-\code{renv.lock} file is used if present. When \code{"library"}, the lockfile is
-ignored and dependencies are resolved from the locally installed library
-instead. This is useful when the lockfile is out of sync with the local
-library and cannot be updated (e.g. in CI/CD environments). Note that
-the deployed content will reflect the local library, not the lockfile.
-Defaults to \code{"default"}.}
+Must be one of \code{"strict"} or \code{"library"}. When \code{"strict"}, the
+\code{renv.lock} file is used if present and must match the local library.
+When \code{"library"}, the lockfile is ignored and dependencies are resolved
+from the locally installed library instead. This is useful when the
+lockfile is out of sync with the local library and cannot be updated
+(e.g. in CI/CD environments). Note that the deployed content will
+reflect the local library, not the lockfile.
+Defaults to \code{"strict"}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

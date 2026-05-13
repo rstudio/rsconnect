@@ -202,13 +202,13 @@
 #'   any values to the bundle manifest and Connect will fall back to the
 #'   server's package repository resolution strategy.
 #' @param dependencySource Controls how R package dependencies are resolved.
-#'   Must be one of `"default"` or `"library"`. When `"default"`, the
-#'   `renv.lock` file is used if present. When `"library"`, the lockfile is
-#'   ignored and dependencies are resolved from the locally installed library
-#'   instead. This is useful when the lockfile is out of sync with the local
-#'   library and cannot be updated (e.g. in CI/CD environments). Note that
-#'   the deployed content will reflect the local library, not the lockfile.
-#'   Defaults to `"default"`.
+#'   Must be one of `"strict"` or `"library"`. When `"strict"`, the
+#'   `renv.lock` file is used if present and must match the local library.
+#'   When `"library"`, the lockfile is ignored and dependencies are resolved
+#'   from the locally installed library instead. This is useful when the
+#'   lockfile is out of sync with the local library and cannot be updated
+#'   (e.g. in CI/CD environments). Note that the deployed content will
+#'   reflect the local library, not the lockfile. Defaults to `"strict"`.
 #' @examples
 #' \dontrun{
 #'
@@ -280,13 +280,13 @@ deployApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "default"
+  dependencySource = "strict"
 ) {
   check_string(appDir)
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
-  dependencySource <- match.arg(dependencySource, c("default", "library"))
+  dependencySource <- match.arg(dependencySource, c("strict", "library"))
   check_string(appName, allow_null = TRUE)
 
   if (!is.null(appPrimaryDoc)) {
@@ -946,7 +946,7 @@ bundleApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "default",
+  dependencySource = "strict",
   existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)

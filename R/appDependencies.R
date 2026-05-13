@@ -114,9 +114,9 @@ appDependencies <- function(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  dependencySource = "default"
+  dependencySource = "strict"
 ) {
-  dependencySource <- match.arg(dependencySource, c("default", "library"))
+  dependencySource <- match.arg(dependencySource, c("strict", "library"))
 
   appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
   appMetadata <- appMetadata(appDir, appFiles = appFiles, appMode = appMode)

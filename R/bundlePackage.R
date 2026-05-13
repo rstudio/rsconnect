@@ -3,7 +3,7 @@ bundlePackages <- function(
   extraPackages = character(),
   quiet = FALSE,
   verbose = FALSE,
-  dependencySource = "default",
+  dependencySource = "strict",
   error_call = caller_env()
 ) {
   deps <- computePackageDependencies(
@@ -48,7 +48,7 @@ computePackageDependencies <- function(
   extraPackages = character(),
   quiet = FALSE,
   verbose = FALSE,
-  dependencySource = "default"
+  dependencySource = "strict"
 ) {
   if (usePackrat()) {
     taskStart(quiet, "Capturing R dependencies with packrat")

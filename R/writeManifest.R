@@ -34,7 +34,7 @@ writeManifest <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "default",
+  dependencySource = "strict",
   verbose = FALSE,
   quiet = FALSE
 ) {

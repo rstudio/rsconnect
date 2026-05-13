@@ -9,7 +9,7 @@ appDependencies(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  dependencySource = "default"
+  dependencySource = "strict"
 )
 }
 \arguments{
@@ -32,13 +32,14 @@ Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"a
 full set of available values. Not all servers support all types of content.}
 
 \item{dependencySource}{Controls how R package dependencies are resolved.
-Must be one of \code{"default"} or \code{"library"}. When \code{"default"}, the
-\code{renv.lock} file is used if present. When \code{"library"}, the lockfile is
-ignored and dependencies are resolved from the locally installed library
-instead. This is useful when the lockfile is out of sync with the local
-library and cannot be updated (e.g. in CI/CD environments). Note that
-the deployed content will reflect the local library, not the lockfile.
-Defaults to \code{"default"}.}
+Must be one of \code{"strict"} or \code{"library"}. When \code{"strict"}, the
+\code{renv.lock} file is used if present and must match the local library.
+When \code{"library"}, the lockfile is ignored and dependencies are resolved
+from the locally installed library instead. This is useful when the
+lockfile is out of sync with the local library and cannot be updated
+(e.g. in CI/CD environments). Note that the deployed content will
+reflect the local library, not the lockfile.
+Defaults to \code{"strict"}.}
 }
 \value{
 A data frame with one row for each dependency (direct, indirect,
