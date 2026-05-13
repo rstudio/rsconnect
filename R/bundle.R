@@ -190,7 +190,7 @@ createAppManifest <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  ignoreLockfile = FALSE,
+  dependencySource = "default",
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -217,7 +217,7 @@ createAppManifest <- function(
       extraPackages = extraPackages,
       verbose = verbose,
       quiet = quiet,
-      ignoreLockfile = ignoreLockfile
+      dependencySource = dependencySource
     )
     rVersionReq <- rVersionRequires(appDir)
   } else {

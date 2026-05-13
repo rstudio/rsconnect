@@ -3,6 +3,17 @@
     Code
       deps <- snapshotRenvDependencies(app_dir)
 
+# errors when renv::snapshot fails
+
+    Code
+      snapshotRenvDependencies(app_dir)
+    Condition
+      Error in `snapshotRenvDependencies()`:
+      ! Failed to snapshot dependencies with renv.
+      i For example you have a locally-developed package that is not installed from a known source.
+      Caused by error in `renv::snapshot()`:
+      ! can't snapshot this package
+
 # errors if library and project are inconsistent
 
     Code
@@ -12,5 +23,5 @@
       ! Library and lockfile are out of sync
       i Use renv::restore() or renv::snapshot() to synchronise
       i Or ignore the lockfile by adding to your .rscignore
-      i Or set `ignoreLockfile = TRUE` to ignore the lockfile and use the local library instead
+      i Or set `dependencySource = "library"` to ignore the lockfile and use the local library instead
 

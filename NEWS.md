@@ -19,12 +19,12 @@
 
 * `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
 
-* `deployApp()`, `writeManifest()`, and `appDependencies()` gain an
-  `ignoreLockfile` parameter. Set `ignoreLockfile = TRUE` to ignore the
-  `renv.lock` file and resolve package dependencies by scanning the code. 
-  The version that is recorded is what is installed in the libraries active in the 
-  R session (i.e. what is displayed with `.libPaths()`). This is useful when 
-  deploying from environments where there is a mismatch between the 
+* `deployApp()`, `writeManifest()`, and `appDependencies()` gain a
+  `dependencySource` parameter. Set `dependencySource = "library"` to ignore
+  the `renv.lock` file and resolve package dependencies by scanning the code.
+  The version that is recorded is what is installed in the libraries active in the
+  R session (i.e. what is displayed with `.libPaths()`). This is useful when
+  deploying from environments where there is a mismatch between the
   renv lock file (#1046, #1315, #1317)
 
 * Improved error messages when `renv::snapshot()` fails during dependency

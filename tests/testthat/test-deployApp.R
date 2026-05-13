@@ -270,35 +270,35 @@ test_that("manifestPath ignored when NULL", {
   })
 })
 
-# confirmIgnoreLockfile ---------------------------------------------------
+# confirmDependencySourceLibrary -------------------------------------------
 
-test_that("confirmIgnoreLockfile proceeds when user answers Y", {
+test_that("confirmDependencySourceLibrary proceeds when user answers Y", {
   simulate_user_input("Y")
   expect_warning(
-    confirmIgnoreLockfile(),
+    confirmDependencySourceLibrary(),
     "renv.lock.*will be ignored"
   )
 })
 
-test_that("confirmIgnoreLockfile proceeds on empty input (default Y)", {
+test_that("confirmDependencySourceLibrary proceeds on empty input (default Y)", {
   simulate_user_input("")
   expect_warning(
-    confirmIgnoreLockfile(),
+    confirmDependencySourceLibrary(),
     "renv.lock.*will be ignored"
   )
 })
 
-test_that("confirmIgnoreLockfile aborts when user answers n", {
+test_that("confirmDependencySourceLibrary aborts when user answers n", {
   simulate_user_input("n")
   expect_error(
-    suppressWarnings(confirmIgnoreLockfile()),
+    suppressWarnings(confirmDependencySourceLibrary()),
     "Deployment cancelled"
   )
 })
 
-test_that("confirmIgnoreLockfile proceeds non-interactively with warning", {
+test_that("confirmDependencySourceLibrary proceeds non-interactively with warning", {
   expect_warning(
-    confirmIgnoreLockfile(),
+    confirmDependencySourceLibrary(),
     "renv.lock.*will be ignored"
   )
 })

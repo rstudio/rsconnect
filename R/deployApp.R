@@ -201,12 +201,14 @@
 #'   `"legacy"`, `"lockfile"`, or `NULL`. The default, `NULL`, will not write
 #'   any values to the bundle manifest and Connect will fall back to the
 #'   server's package repository resolution strategy.
-#' @param ignoreLockfile If `TRUE`, the `renv.lock` file is ignored and
-#'   package dependencies are resolved from the locally installed library
+#' @param dependencySource Controls how R package dependencies are resolved.
+#'   Must be one of `"default"` or `"library"`. When `"default"`, the
+#'   `renv.lock` file is used if present. When `"library"`, the lockfile is
+#'   ignored and dependencies are resolved from the locally installed library
 #'   instead. This is useful when the lockfile is out of sync with the local
 #'   library and cannot be updated (e.g. in CI/CD environments). Note that
 #'   the deployed content will reflect the local library, not the lockfile.
-#'   Defaults to `FALSE`.
+#'   Defaults to `"default"`.
 #' @examples
 #' \dontrun{
 #'
@@ -278,13 +280,13 @@ deployApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  ignoreLockfile = FALSE
+  dependencySource = "default"
 ) {
   check_string(appDir)
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
-  check_bool(ignoreLockfile)
+  dependencySource <- match.arg(dependencySource, c("default", "library"))
   check_string(appName, allow_null = TRUE)
 
   if (!is.null(appPrimaryDoc)) {
@@ -649,8 +651,8 @@ deployApp <- function(
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
-    if (ignoreLockfile) {
-      confirmIgnoreLockfile()
+    if (dependencySource == "library") {
+      confirmDependencySourceLibrary()
     }
 
     taskStart(quiet, "Bundling {length(appFiles)} file{?s}: {.file {appFiles}}")
@@ -668,7 +670,7 @@ deployApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
-      ignoreLockfile = ignoreLockfile,
+      dependencySource = dependencySource,
       existingManifest = manifest
     )
     size <- format(file_size(bundlePath), big.mark = ",")
@@ -944,7 +946,7 @@ bundleApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  ignoreLockfile = FALSE,
+  dependencySource = "default",
   existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)
@@ -984,7 +986,7 @@ bundleApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
-      ignoreLockfile = ignoreLockfile,
+      dependencySource = dependencySource,
       verbose = verbose,
       quiet = quiet
     )
@@ -1002,7 +1004,7 @@ bundleApp <- function(
   bundlePath
 }
 
-confirmIgnoreLockfile <- function() {
+confirmDependencySourceLibrary <- function() {
   cli::cli_warn(c(
     "{.file renv.lock} will be ignored.",
     "!" = "Package dependencies will be resolved from the local library instead.",

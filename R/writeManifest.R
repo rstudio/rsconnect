@@ -34,7 +34,7 @@ writeManifest <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  ignoreLockfile = FALSE,
+  dependencySource = "default",
   verbose = FALSE,
   quiet = FALSE
 ) {
@@ -65,8 +65,8 @@ writeManifest <- function(
   python <- getPython(python)
   pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
-  if (ignoreLockfile) {
-    confirmIgnoreLockfile()
+  if (dependencySource == "library") {
+    confirmDependencySourceLibrary()
   }
 
   # generate the manifest and write it into the bundle dir
@@ -81,7 +81,7 @@ writeManifest <- function(
     envManagementPy = envManagementPy,
     envManagementNodejs = envManagementNodejs,
     packageRepositoryResolutionR = packageRepositoryResolutionR,
-    ignoreLockfile = ignoreLockfile,
+    dependencySource = dependencySource,
     verbose = verbose,
     quiet = quiet
   )
