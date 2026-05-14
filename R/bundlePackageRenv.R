@@ -2,8 +2,7 @@ snapshotRenvDependencies <- function(
   bundleDir,
   extraPackages = character(),
   quiet = FALSE,
-  verbose = FALSE,
-  force = FALSE
+  verbose = FALSE
 ) {
   recordExtraDependencies(bundleDir, extraPackages)
 
@@ -32,12 +31,7 @@ snapshotRenvDependencies <- function(
   )
 
   tryCatch(
-    renv::snapshot(
-      bundleDir,
-      packages = deps$Package,
-      prompt = FALSE,
-      force = force
-    ),
+    renv::snapshot(bundleDir, packages = deps$Package, prompt = FALSE),
     error = function(err) {
       cli::cli_abort(
         c(

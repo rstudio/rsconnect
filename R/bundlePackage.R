@@ -82,8 +82,7 @@ computePackageDependencies <- function(
       bundleDir,
       extraPackages,
       quiet = quiet,
-      verbose = verbose,
-      force = dependencySource == "library"
+      verbose = verbose
     )
   }
   taskComplete(quiet, "Found {nrow(deps)} dependenc{?y/ies}")
