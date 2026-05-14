@@ -37,7 +37,7 @@ deployApp(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "strict"
+  dependencySource = c("strict", "library")
 )
 }
 \arguments{

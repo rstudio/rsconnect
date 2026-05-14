@@ -10,7 +10,7 @@
     Condition
       Error in `snapshotRenvDependencies()`:
       ! Failed to snapshot dependencies with renv.
-      i For example you have a locally-developed package that is not installed from a known source.
+      i For example, you have a locally-developed package that is installed from disk.
       Caused by error in `renv::snapshot()`:
       ! can't snapshot this package
 

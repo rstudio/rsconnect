@@ -20,7 +20,7 @@ writeManifest(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "strict",
+  dependencySource = c("strict", "library"),
   verbose = FALSE,
   quiet = FALSE
 )

@@ -34,10 +34,11 @@ writeManifest <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "strict",
+  dependencySource = c("strict", "library"),
   verbose = FALSE,
   quiet = FALSE
 ) {
+  dependencySource <- match.arg(dependencySource)
   appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,

@@ -279,13 +279,13 @@ deployApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "strict"
+  dependencySource = c("strict", "library")
 ) {
   check_string(appDir)
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
-  dependencySource <- match.arg(dependencySource, c("strict", "library"))
+  dependencySource <- match.arg(dependencySource)
   check_string(appName, allow_null = TRUE)
 
   if (!is.null(appPrimaryDoc)) {

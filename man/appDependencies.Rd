@@ -9,7 +9,7 @@ appDependencies(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  dependencySource = "strict"
+  dependencySource = c("strict", "library")
 )
 }
 \arguments{
