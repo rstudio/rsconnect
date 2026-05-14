@@ -205,7 +205,7 @@
 #'   Must be one of `"strict"` or `"library"`. When `"strict"`, the
 #'   `renv.lock` file is used if present and must match the local library.
 #'   When `"library"`, the lockfile is ignored and dependencies are resolved
-#'   from the locally installed library instead. This is useful when the
+#'   from the available local libraries instead. This is useful when the
 #'   lockfile is out of sync with the local library and cannot be updated
 #'   (e.g. in CI/CD environments). Note that the deployed content will
 #'   reflect the local library, not the lockfile. Defaults to `"strict"`.
