@@ -42,7 +42,7 @@ snapshotRenvDependencies <- function(
       cli::cli_abort(
         c(
           "Failed to snapshot dependencies with renv.",
-          i = "For example you have a locally-developed package that is not installed from a known source."
+          i = "For example, you have a locally-developed package that is installed from disk."
         ),
         parent = err
       )
