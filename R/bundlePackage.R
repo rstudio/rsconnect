@@ -62,7 +62,8 @@ computePackageDependencies <- function(
       verbose = verbose
     )
   } else if (
-    dependencyResolution != "library" && !is.null(resolveRenvLockFile(bundleDir))
+    dependencyResolution != "library" &&
+      !is.null(resolveRenvLockFile(bundleDir))
   ) {
     lockfile <- resolveRenvLockFile(bundleDir)
     # This ignores extraPackages; if you're using a lockfile it's your
