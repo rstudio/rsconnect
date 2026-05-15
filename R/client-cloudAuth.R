@@ -62,6 +62,25 @@ cloudAuthClient <- function() {
         contentType = "application/x-www-form-urlencoded",
         content = content
       )
+    },
+
+    exchangeClientCredentials = function(clientId, clientSecret) {
+      content <- paste0(
+        "grant_type=client_credentials",
+        "&client_id=",
+        urlEncode(clientId),
+        "&client_secret=",
+        urlEncode(clientSecret),
+        "&scope=vivid"
+      )
+
+      POST(
+        service,
+        list(),
+        path = "/oauth/token",
+        contentType = "application/x-www-form-urlencoded",
+        content = content
+      )
     }
   )
 }

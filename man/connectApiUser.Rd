@@ -44,6 +44,7 @@ Supported servers: Posit Connect servers
 \seealso{
 Other Account functions: 
 \code{\link{accounts}()},
+\code{\link{connectCloudClientCredentials}()},
 \code{\link{connectCloudUser}()},
 \code{\link{setAccountInfo}()}
 }

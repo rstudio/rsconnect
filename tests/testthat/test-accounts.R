@@ -177,6 +177,182 @@ test_that("connectSPCSUser works with explicit snowflakeConnectionName", {
   )
 })
 
+test_that("registerAccount stores clientId and clientSecret", {
+  local_temp_config()
+
+  registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = "ci",
+    accountId = "acc-1",
+    accessToken = "access",
+    clientId = "client-1",
+    clientSecret = "secret-1"
+  )
+
+  info <- accountInfo("ci", "connect.posit.cloud")
+  expect_equal(info$clientId, "client-1")
+  # clientSecret is wrapped via secret() so that casual printing redacts it.
+  expect_s3_class(info$clientSecret, "rsconnect_secret")
+})
+
+# Builds a fake Connect Cloud client whose getAccounts() returns the supplied
+# list. Used to drive connectCloudClientCredentials in tests without hitting the
+# network.
+fakeCloudClient <- function(accounts) {
+  list(
+    getAccounts = function() list(data = accounts)
+  )
+}
+
+# Mocks the OAuth exchange that connectCloudClientCredentials performs before
+# touching the API.
+mockClientCredentialsAuth <- function(
+  accessToken = "access-token",
+  refreshToken = NULL
+) {
+  function() {
+    list(
+      exchangeClientCredentials = function(clientId, clientSecret) {
+        list(access_token = accessToken, refresh_token = refreshToken)
+      }
+    )
+  }
+}
+
+test_that("connectCloudClientCredentials auto-picks the only publishable account", {
+  local_temp_config()
+
+  registered <- NULL
+  local_mocked_bindings(
+    cloudAuthClient = mockClientCredentialsAuth(),
+    connectCloudClient = function(service, authInfo) {
+      fakeCloudClient(list(
+        list(id = "acc-1", name = "alice", permissions = list("content:create"))
+      ))
+    },
+    registerAccount = function(...) {
+      registered <<- list(...)
+    }
+  )
+
+  connectCloudClientCredentials(
+    clientId = "client-1",
+    clientSecret = "secret-1",
+    quiet = TRUE
+  )
+
+  expect_equal(registered$serverName, "connect.posit.cloud")
+  expect_equal(registered$accountName, "alice")
+  expect_equal(registered$accountId, "acc-1")
+  expect_equal(registered$accessToken, "access-token")
+  expect_equal(registered$clientId, "client-1")
+  expect_equal(registered$clientSecret, "secret-1")
+})
+
+test_that("connectCloudClientCredentials accepts an explicit accountId", {
+  local_temp_config()
+
+  registered <- NULL
+  local_mocked_bindings(
+    cloudAuthClient = mockClientCredentialsAuth(),
+    connectCloudClient = function(service, authInfo) {
+      fakeCloudClient(list(
+        list(id = "acc-1", name = "alice", permissions = list("content:create")),
+        list(id = "acc-2", name = "bob", permissions = list("content:create"))
+      ))
+    },
+    registerAccount = function(...) {
+      registered <<- list(...)
+    }
+  )
+
+  connectCloudClientCredentials(
+    clientId = "client-1",
+    clientSecret = "secret-1",
+    accountId = "acc-2",
+    quiet = TRUE
+  )
+
+  expect_equal(registered$accountName, "bob")
+  expect_equal(registered$accountId, "acc-2")
+})
+
+test_that("connectCloudClientCredentials errors when accountId is unknown", {
+  local_temp_config()
+
+  local_mocked_bindings(
+    cloudAuthClient = mockClientCredentialsAuth(),
+    connectCloudClient = function(service, authInfo) {
+      fakeCloudClient(list(
+        list(id = "acc-1", name = "alice", permissions = list("content:create"))
+      ))
+    }
+  )
+
+  expect_error(
+    connectCloudClientCredentials(
+      clientId = "client-1",
+      clientSecret = "secret-1",
+      accountId = "acc-missing",
+      quiet = TRUE
+    ),
+    "not found"
+  )
+})
+
+test_that("connectCloudClientCredentials distinguishes unpublishable accounts in errors", {
+  local_temp_config()
+
+  local_mocked_bindings(
+    cloudAuthClient = mockClientCredentialsAuth(),
+    connectCloudClient = function(service, authInfo) {
+      # acc-2 exists but the credentials lack content:create on it.
+      fakeCloudClient(list(
+        list(id = "acc-1", name = "alice", permissions = list("content:create")),
+        list(id = "acc-2", name = "bob", permissions = list())
+      ))
+    }
+  )
+
+  expect_error(
+    connectCloudClientCredentials(
+      clientId = "client-1",
+      clientSecret = "secret-1",
+      accountId = "acc-2",
+      quiet = TRUE
+    ),
+    "does not grant publish permission"
+  )
+})
+
+test_that("connectCloudClientCredentials prompts when multiple publishable accounts are available", {
+  local_temp_config()
+
+  registered <- NULL
+  local_mocked_bindings(
+    cloudAuthClient = mockClientCredentialsAuth(),
+    connectCloudClient = function(service, authInfo) {
+      fakeCloudClient(list(
+        list(id = "acc-1", name = "alice", permissions = list("content:create")),
+        list(id = "acc-2", name = "bob", permissions = list("content:create"))
+      ))
+    },
+    registerAccount = function(...) {
+      registered <<- list(...)
+    }
+  )
+
+  simulate_user_input(2)
+  connectCloudClientCredentials(
+    clientId = "client-1",
+    clientSecret = "secret-1",
+    quiet = TRUE
+  )
+
+  expect_equal(registered$accountId, "acc-2")
+  expect_equal(registered$accountName, "bob")
+})
+
 test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount", {
   local_temp_config()
 

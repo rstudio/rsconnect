@@ -28,28 +28,43 @@ cloudContentTypeFromAppMode <- function(appMode) {
 # Creates a client for interacting with the Connect Cloud API.
 connectCloudClient <- function(service, authInfo) {
   # Generic retry wrapper. If a request fails with 401 Unauthorized, it will
-  # exchange the refresh token for a new access token and retry the request
-  # once.
+  # mint a new access token (via client_credentials when the account was
+  # registered with a clientSecret, otherwise via refresh_token) and retry
+  # the request once.
   withTokenRefreshRetry <- function(request_fn, ...) {
     tryCatch(
       {
         request_fn(service, authInfo, ...)
       },
       rsconnect_http_401 = function(e) {
-        # Exchange refresh token for new access token
         authClient <- cloudAuthClient()
-        tokenResponse <- authClient$exchangeToken(list(
-          grant_type = "refresh_token",
-          refresh_token = authInfo$refreshToken
-        ))
+        if (!is.null(authInfo$clientSecret)) {
+          # Prefer client_credentials when the account has it: the secret is
+          # long-lived and caller-controlled, while any refresh_token returned
+          # alongside a client_credentials grant is non-standard
+          # (RFC 6749 §4.4.3) and shouldn't be relied on.
+          tokenResponse <- authClient$exchangeClientCredentials(
+            authInfo$clientId,
+            authInfo$clientSecret
+          )
+        } else {
+          tokenResponse <- authClient$exchangeToken(list(
+            grant_type = "refresh_token",
+            refresh_token = authInfo$refreshToken
+          ))
+        }
 
-        # Save updated tokens
+        # registerAccount writes a fresh DCF from the fields passed (no merge),
+        # so pass clientId/clientSecret through to keep them on disk for the
+        # next deploy.
         registerAccount(
           authInfo$server,
           authInfo$name,
           authInfo$accountId,
           accessToken = tokenResponse$access_token,
-          refreshToken = tokenResponse$refresh_token
+          refreshToken = tokenResponse$refresh_token,
+          clientId = authInfo$clientId,
+          clientSecret = authInfo$clientSecret
         )
 
         # Retry the original request with refreshed token

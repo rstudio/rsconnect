@@ -24,6 +24,7 @@ Supported servers: Posit Connect Cloud servers
 Other Account functions: 
 \code{\link{accounts}()},
 \code{\link{connectApiUser}()},
+\code{\link{connectCloudClientCredentials}()},
 \code{\link{setAccountInfo}()}
 }
 \concept{Account functions}

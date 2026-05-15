@@ -40,6 +40,7 @@ previously registered accounts.
 \seealso{
 Other Account functions: 
 \code{\link{connectApiUser}()},
+\code{\link{connectCloudClientCredentials}()},
 \code{\link{connectCloudUser}()},
 \code{\link{setAccountInfo}()}
 }

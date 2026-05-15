@@ -35,6 +35,7 @@ removeAccount("user")
 Other Account functions: 
 \code{\link{accounts}()},
 \code{\link{connectApiUser}()},
+\code{\link{connectCloudClientCredentials}()},
 \code{\link{connectCloudUser}()}
 }
 \concept{Account functions}
