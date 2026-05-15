@@ -257,7 +257,11 @@ test_that("connectCloudClientCredentials accepts an explicit accountId", {
     cloudAuthClient = mockClientCredentialsAuth(),
     connectCloudClient = function(service, authInfo) {
       fakeCloudClient(list(
-        list(id = "acc-1", name = "alice", permissions = list("content:create")),
+        list(
+          id = "acc-1",
+          name = "alice",
+          permissions = list("content:create")
+        ),
         list(id = "acc-2", name = "bob", permissions = list("content:create"))
       ))
     },
@@ -308,7 +312,11 @@ test_that("connectCloudClientCredentials distinguishes unpublishable accounts in
     connectCloudClient = function(service, authInfo) {
       # acc-2 exists but the credentials lack content:create on it.
       fakeCloudClient(list(
-        list(id = "acc-1", name = "alice", permissions = list("content:create")),
+        list(
+          id = "acc-1",
+          name = "alice",
+          permissions = list("content:create")
+        ),
         list(id = "acc-2", name = "bob", permissions = list())
       ))
     }
@@ -333,7 +341,11 @@ test_that("connectCloudClientCredentials prompts when multiple publishable accou
     cloudAuthClient = mockClientCredentialsAuth(),
     connectCloudClient = function(service, authInfo) {
       fakeCloudClient(list(
-        list(id = "acc-1", name = "alice", permissions = list("content:create")),
+        list(
+          id = "acc-1",
+          name = "alice",
+          permissions = list("content:create")
+        ),
         list(id = "acc-2", name = "bob", permissions = list("content:create"))
       ))
     },

@@ -328,7 +328,9 @@ test_that("withTokenRefreshRetry uses client_credentials when clientSecret is se
     cloudAuthClient = function() {
       list(
         exchangeToken = function(request) {
-          fail("exchangeToken should not be called when clientSecret is present")
+          fail(
+            "exchangeToken should not be called when clientSecret is present"
+          )
         },
         exchangeClientCredentials = function(clientId, clientSecret) {
           expect_equal(clientId, "client-id-1")

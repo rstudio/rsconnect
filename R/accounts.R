@@ -326,7 +326,10 @@ connectCloudClientCredentials <- function(
     publishable <- filterPublishableAccounts(accounts)
     account <- Find(function(a) identical(a$name, accountName), publishable)
     if (is.null(account)) {
-      visible <- !is.null(Find(function(a) identical(a$name, accountName), accounts))
+      visible <- !is.null(Find(
+        function(a) identical(a$name, accountName),
+        accounts
+      ))
       if (visible) {
         cli::cli_abort(
           "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."
