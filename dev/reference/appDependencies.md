@@ -18,7 +18,8 @@ appDependencies(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
-  appMode = NULL
+  appMode = NULL,
+  dependencyResolution = c("strict", "library")
 )
 ```
 
@@ -49,6 +50,17 @@ appDependencies(
   `"nodejs"`, and `"static"`. The Posit Connect API Reference contains a
   full set of available values. Not all servers support all types of
   content.
+
+- dependencyResolution:
+
+  Controls how R package dependencies are resolved. Must be one of
+  `"strict"` or `"library"`. When `"strict"`, the `renv.lock` file is
+  used if present and must match the local library. When `"library"`,
+  the lockfile is ignored and dependencies are resolved from the locally
+  installed library instead. This is useful when the lockfile is out of
+  sync with the local library and cannot be updated (e.g. in CI/CD
+  environments). Note that the deployed content will reflect the local
+  library, not the lockfile. Defaults to `"strict"`.
 
 ## Value
 

@@ -29,6 +29,27 @@
   with `logLevel = "verbose"` no longer errors using the `httr2`
   backend. ([\#1312](https://github.com/rstudio/rsconnect/issues/1312))
 
+- [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md),
+  [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md),
+  and
+  [`appDependencies()`](https://rstudio.github.io/rsconnect/dev/reference/appDependencies.md)
+  gain a `dependencyResolution` parameter. Set
+  `dependencyResolution = "library"` to ignore the `renv.lock` file and
+  resolve package dependencies by scanning the code. The version that is
+  recorded is what is installed in the libraries active in the R session
+  (i.e. what is displayed with
+  [`.libPaths()`](https://rdrr.io/r/base/libPaths.html)). This is useful
+  when deploying from environments where there is a mismatch between the
+  renv lock file and the user’s environment.
+  ([\#1046](https://github.com/rstudio/rsconnect/issues/1046),
+  [\#1315](https://github.com/rstudio/rsconnect/issues/1315),
+  [\#1317](https://github.com/rstudio/rsconnect/issues/1317))
+
+- Improved error messages when
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.html)
+  fails during dependency discovery.
+  ([\#1078](https://github.com/rstudio/rsconnect/issues/1078))
+
 ## rsconnect 1.8.0
 
 CRAN release: 2026-04-10
