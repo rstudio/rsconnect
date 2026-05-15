@@ -269,3 +269,36 @@ test_that("manifestPath ignored when NULL", {
     )
   })
 })
+
+# confirmDependencySourceLibrary -------------------------------------------
+
+test_that("confirmDependencySourceLibrary proceeds when user answers Y", {
+  simulate_user_input("Y")
+  expect_message(
+    confirmDependencySourceLibrary(),
+    "renv.lock will be ignored"
+  )
+})
+
+test_that("confirmDependencySourceLibrary proceeds on empty input (default Y)", {
+  simulate_user_input("")
+  expect_message(
+    confirmDependencySourceLibrary(),
+    "renv.lock will be ignored"
+  )
+})
+
+test_that("confirmDependencySourceLibrary aborts when user answers n", {
+  simulate_user_input("n")
+  expect_error(
+    suppressMessages(confirmDependencySourceLibrary()),
+    "Deployment cancelled"
+  )
+})
+
+test_that("confirmDependencySourceLibrary informs non-interactively", {
+  expect_message(
+    confirmDependencySourceLibrary(),
+    "renv.lock.*will be ignored"
+  )
+})

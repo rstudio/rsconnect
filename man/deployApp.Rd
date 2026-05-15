@@ -36,7 +36,8 @@ deployApp(
   envManagementR = NULL,
   envManagementPy = NULL,
   envManagementNodejs = NULL,
-  packageRepositoryResolutionR = NULL
+  packageRepositoryResolutionR = NULL,
+  dependencyResolution = c("strict", "library")
 )
 }
 \arguments{
@@ -244,6 +245,16 @@ resolution strategy for R packages. Must be one of \code{"lax"}, \code{"strict"}
 \code{"legacy"}, \code{"lockfile"}, or \code{NULL}. The default, \code{NULL}, will not write
 any values to the bundle manifest and Connect will fall back to the
 server's package repository resolution strategy.}
+
+\item{dependencyResolution}{Controls how R package dependencies are resolved.
+Must be one of \code{"strict"} or \code{"library"}. When \code{"strict"}, the
+\code{renv.lock} file is used if present and must match the local library.
+When \code{"library"}, the lockfile is ignored and dependencies are resolved
+from the locally installed library instead. This is useful when the
+lockfile is out of sync with the local library and cannot be updated
+(e.g. in CI/CD environments). Note that the deployed content will
+reflect the local library, not the lockfile.
+Defaults to \code{"strict"}.}
 }
 \description{
 Deploy a \link[shiny:shiny-package]{shiny} application, an

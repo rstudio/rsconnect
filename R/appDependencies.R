@@ -113,8 +113,11 @@ appDependencies <- function(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
-  appMode = NULL
+  appMode = NULL,
+  dependencyResolution = c("strict", "library")
 ) {
+  dependencyResolution <- match.arg(dependencyResolution)
+
   appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
   appMetadata <- appMetadata(appDir, appFiles = appFiles, appMode = appMode)
   if (!needsR(appMetadata)) {
@@ -135,7 +138,12 @@ appDependencies <- function(
   defer(unlink(bundleDir, recursive = TRUE))
 
   extraPackages <- inferRPackageDependencies(appMetadata)
-  deps <- computePackageDependencies(bundleDir, extraPackages, quiet = TRUE)
+  deps <- computePackageDependencies(
+    bundleDir,
+    extraPackages,
+    quiet = TRUE,
+    dependencyResolution = dependencyResolution
+  )
   deps[c("Package", "Version", "Source", "Repository")]
 }
 
