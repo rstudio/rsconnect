@@ -20,7 +20,7 @@
 * `deployApp()` with `logLevel = "verbose"` no longer errors using the `httr2` backend. (#1312)
 
 * `deployApp()`, `writeManifest()`, and `appDependencies()` gain a
-  `dependencySource` parameter. Set `dependencySource = "library"` to ignore
+  `dependencyResolution` parameter. Set `dependencyResolution = "library"` to ignore
   the `renv.lock` file and resolve package dependencies by scanning the code.
   The version that is recorded is what is installed in the libraries active in the
   R session (i.e. what is displayed with `.libPaths()`). This is useful when

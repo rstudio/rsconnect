@@ -114,9 +114,9 @@ appDependencies <- function(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  dependencySource = c("strict", "library")
+  dependencyResolution = c("strict", "library")
 ) {
-  dependencySource <- match.arg(dependencySource)
+  dependencyResolution <- match.arg(dependencyResolution)
 
   appFiles <- listDeploymentFiles(appDir, appFiles, appFileManifest)
   appMetadata <- appMetadata(appDir, appFiles = appFiles, appMode = appMode)
@@ -142,7 +142,7 @@ appDependencies <- function(
     bundleDir,
     extraPackages,
     quiet = TRUE,
-    dependencySource = dependencySource
+    dependencyResolution = dependencyResolution
   )
   deps[c("Package", "Version", "Source", "Repository")]
 }

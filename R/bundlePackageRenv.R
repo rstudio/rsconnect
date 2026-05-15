@@ -83,7 +83,7 @@ parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
         "Library and lockfile are out of sync",
         i = "Use renv::restore() or renv::snapshot() to synchronise",
         i = "Or ignore the lockfile by adding to your .rscignore",
-        i = "Or set {.code dependencySource = \"library\"} to ignore the lockfile and use the local library instead"
+        i = "Or set {.code dependencyResolution = \"library\"} to ignore the lockfile and use the local library instead"
       ))
     }
   }

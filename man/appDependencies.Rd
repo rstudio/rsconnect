@@ -9,7 +9,7 @@ appDependencies(
   appFiles = NULL,
   appFileManifest = NULL,
   appMode = NULL,
-  dependencySource = c("strict", "library")
+  dependencyResolution = c("strict", "library")
 )
 }
 \arguments{
@@ -31,7 +31,7 @@ Shiny application \code{app.R}. Accepted values include \code{"shiny"}, \code{"a
 \code{"nodejs"}, and \code{"static"}. The Posit Connect API Reference contains a
 full set of available values. Not all servers support all types of content.}
 
-\item{dependencySource}{Controls how R package dependencies are resolved.
+\item{dependencyResolution}{Controls how R package dependencies are resolved.
 Must be one of \code{"strict"} or \code{"library"}. When \code{"strict"}, the
 \code{renv.lock} file is used if present and must match the local library.
 When \code{"library"}, the lockfile is ignored and dependencies are resolved

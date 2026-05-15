@@ -34,11 +34,11 @@ writeManifest <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = c("strict", "library"),
+  dependencyResolution = c("strict", "library"),
   verbose = FALSE,
   quiet = FALSE
 ) {
-  dependencySource <- match.arg(dependencySource)
+  dependencyResolution <- match.arg(dependencyResolution)
   appFiles <- listDeploymentFiles(
     appDir,
     appFiles = appFiles,
@@ -66,7 +66,7 @@ writeManifest <- function(
   python <- getPython(python)
   pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
-  if (dependencySource == "library") {
+  if (dependencyResolution == "library") {
     confirmDependencySourceLibrary()
   }
 
@@ -82,7 +82,7 @@ writeManifest <- function(
     envManagementPy = envManagementPy,
     envManagementNodejs = envManagementNodejs,
     packageRepositoryResolutionR = packageRepositoryResolutionR,
-    dependencySource = dependencySource,
+    dependencyResolution = dependencyResolution,
     verbose = verbose,
     quiet = quiet
   )

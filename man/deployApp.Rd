@@ -37,7 +37,7 @@ deployApp(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = c("strict", "library")
+  dependencyResolution = c("strict", "library")
 )
 }
 \arguments{
@@ -246,7 +246,7 @@ resolution strategy for R packages. Must be one of \code{"lax"}, \code{"strict"}
 any values to the bundle manifest and Connect will fall back to the
 server's package repository resolution strategy.}
 
-\item{dependencySource}{Controls how R package dependencies are resolved.
+\item{dependencyResolution}{Controls how R package dependencies are resolved.
 Must be one of \code{"strict"} or \code{"library"}. When \code{"strict"}, the
 \code{renv.lock} file is used if present and must match the local library.
 When \code{"library"}, the lockfile is ignored and dependencies are resolved

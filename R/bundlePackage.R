@@ -3,7 +3,7 @@ bundlePackages <- function(
   extraPackages = character(),
   quiet = FALSE,
   verbose = FALSE,
-  dependencySource = "strict",
+  dependencyResolution = "strict",
   error_call = caller_env()
 ) {
   deps <- computePackageDependencies(
@@ -11,7 +11,7 @@ bundlePackages <- function(
     extraPackages,
     quiet = quiet,
     verbose = verbose,
-    dependencySource = dependencySource
+    dependencyResolution = dependencyResolution
   )
   if (nrow(deps) == 0) {
     return(list())
@@ -48,7 +48,7 @@ computePackageDependencies <- function(
   extraPackages = character(),
   quiet = FALSE,
   verbose = FALSE,
-  dependencySource = "strict"
+  dependencyResolution = "strict"
 ) {
   if (usePackrat()) {
     taskStart(quiet, "Capturing R dependencies with packrat")
@@ -62,7 +62,7 @@ computePackageDependencies <- function(
       verbose = verbose
     )
   } else if (
-    dependencySource != "library" && !is.null(resolveRenvLockFile(bundleDir))
+    dependencyResolution != "library" && !is.null(resolveRenvLockFile(bundleDir))
   ) {
     lockfile <- resolveRenvLockFile(bundleDir)
     # This ignores extraPackages; if you're using a lockfile it's your

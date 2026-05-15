@@ -147,7 +147,7 @@ test_that("errors if library and project are inconsistent", {
   )
 })
 
-test_that("dependencySource = 'library' bypasses lockfile and uses local library", {
+test_that("dependencyResolution = 'library' bypasses lockfile and uses local library", {
   skip_on_cran()
   skip_if_not_installed("MASS")
 
@@ -157,11 +157,11 @@ test_that("dependencySource = 'library' bypasses lockfile and uses local library
   renv::snapshot(app_dir, prompt = FALSE)
   renv::record("MASS@0.1.1", project = app_dir)
 
-  # Without dependencySource = "library", this would error with "out of sync"
+  # Without dependencyResolution = "library", this would error with "out of sync"
   deps <- computePackageDependencies(
     app_dir,
     quiet = TRUE,
-    dependencySource = "library"
+    dependencyResolution = "library"
   )
   expect_true("MASS" %in% deps$Package)
   mass_dep <- deps[deps$Package == "MASS", ]

@@ -201,7 +201,7 @@
 #'   `"legacy"`, `"lockfile"`, or `NULL`. The default, `NULL`, will not write
 #'   any values to the bundle manifest and Connect will fall back to the
 #'   server's package repository resolution strategy.
-#' @param dependencySource Controls how R package dependencies are resolved.
+#' @param dependencyResolution Controls how R package dependencies are resolved.
 #'   Must be one of `"strict"` or `"library"`. When `"strict"`, the
 #'   `renv.lock` file is used if present and must match the local library.
 #'   When `"library"`, the lockfile is ignored and dependencies are resolved
@@ -279,13 +279,13 @@ deployApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = c("strict", "library")
+  dependencyResolution = c("strict", "library")
 ) {
   check_string(appDir)
   check_directory(appDir)
   appDir <- normalizePath(appDir)
 
-  dependencySource <- match.arg(dependencySource)
+  dependencyResolution <- match.arg(dependencyResolution)
   check_string(appName, allow_null = TRUE)
 
   if (!is.null(appPrimaryDoc)) {
@@ -650,7 +650,7 @@ deployApp <- function(
     python <- getPythonForTarget(python, accountDetails)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
-    if (dependencySource == "library") {
+    if (dependencyResolution == "library") {
       confirmDependencySourceLibrary()
     }
 
@@ -669,7 +669,7 @@ deployApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
-      dependencySource = dependencySource,
+      dependencyResolution = dependencyResolution,
       existingManifest = manifest
     )
     size <- format(file_size(bundlePath), big.mark = ",")
@@ -945,7 +945,7 @@ bundleApp <- function(
   envManagementPy = NULL,
   envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
-  dependencySource = "strict",
+  dependencyResolution = "strict",
   existingManifest = NULL
 ) {
   logger <- verboseLogger(verbose)
@@ -985,7 +985,7 @@ bundleApp <- function(
       envManagementPy = envManagementPy,
       envManagementNodejs = envManagementNodejs,
       packageRepositoryResolutionR = packageRepositoryResolutionR,
-      dependencySource = dependencySource,
+      dependencyResolution = dependencyResolution,
       verbose = verbose,
       quiet = quiet
     )
