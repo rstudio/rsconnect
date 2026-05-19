@@ -97,6 +97,20 @@ test_that("large directories are analyzed", {
   expect_contains(deps$Package, "foreign")
 })
 
+test_that("errors when renv::snapshot fails", {
+  local_mocked_bindings(
+    dependencies = function(...) data.frame(Package = "fakepkg"),
+    snapshot = function(...) stop("can't snapshot this package"),
+    .package = "renv"
+  )
+
+  app_dir <- local_temp_app(list("foo.R" = "library(foreign)"))
+  expect_snapshot(
+    snapshotRenvDependencies(app_dir),
+    error = TRUE
+  )
+})
+
 # parseRenvDependencies ---------------------------------------------------
 
 test_that("gets DESCRIPTION from renv & system libraries", {
@@ -131,6 +145,27 @@ test_that("errors if library and project are inconsistent", {
     parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir),
     error = TRUE
   )
+})
+
+test_that("dependencyResolution = 'library' bypasses lockfile and uses local library", {
+  skip_on_cran()
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+  renv::record("MASS@0.1.1", project = app_dir)
+
+  # Without dependencyResolution = "library", this would error with "out of sync"
+  deps <- computePackageDependencies(
+    app_dir,
+    quiet = TRUE,
+    dependencyResolution = "library"
+  )
+  expect_true("MASS" %in% deps$Package)
+  mass_dep <- deps[deps$Package == "MASS", ]
+  expect_true(mass_dep$Version != "0.1.1")
 })
 
 # standardizeRenvPackage -----------------------------------------
