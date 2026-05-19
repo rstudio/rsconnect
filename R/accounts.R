@@ -270,9 +270,9 @@ connectCloudUser <- function(launch.browser = TRUE) {
 #' Register a Posit Connect Cloud account using OAuth client credentials
 #'
 #' @description
-#' `connectCloudClientCredentials()` registers a Posit Connect Cloud account using
-#' an OAuth 2.0 `client_credentials` grant provided by the Posit Cloud auth
-#' service. Use this function to authenticate in non-interactive contexts.
+#' `connectCloudClientCredentials()` registers a Posit Connect Cloud account 
+#' using an OAuth 2.0 `client_credentials` grant provided by the Posit Cloud
+#' auth service. Use this function to authenticate in non-interactive contexts.
 #'
 #' If `accountName` is omitted and the credentials can publish to exactly one
 #' Connect Cloud account, that account is selected automatically. If they can
@@ -326,10 +326,7 @@ connectCloudClientCredentials <- function(
     publishable <- filterPublishableAccounts(accounts)
     account <- Find(function(a) identical(a$name, accountName), publishable)
     if (is.null(account)) {
-      visible <- !is.null(Find(
-        function(a) identical(a$name, accountName),
-        accounts
-      ))
+      visible <- !is.null(Find(function(a) identical(a$name, accountName), accounts))
       if (visible) {
         cli::cli_abort(
           "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."
