@@ -249,7 +249,7 @@ test_that("connectCloudClientCredentials auto-picks the only publishable account
   expect_equal(registered$clientSecret, "secret-1")
 })
 
-test_that("connectCloudClientCredentials accepts an explicit accountId", {
+test_that("connectCloudClientCredentials accepts an explicit account name", {
   local_temp_config()
 
   registered <- NULL
@@ -273,7 +273,7 @@ test_that("connectCloudClientCredentials accepts an explicit accountId", {
   connectCloudClientCredentials(
     clientId = "client-1",
     clientSecret = "secret-1",
-    accountId = "acc-2",
+    accountName = "bob",
     quiet = TRUE
   )
 
@@ -281,7 +281,7 @@ test_that("connectCloudClientCredentials accepts an explicit accountId", {
   expect_equal(registered$accountId, "acc-2")
 })
 
-test_that("connectCloudClientCredentials errors when accountId is unknown", {
+test_that("connectCloudClientCredentials errors when account name is unknown", {
   local_temp_config()
 
   local_mocked_bindings(
@@ -297,7 +297,7 @@ test_that("connectCloudClientCredentials errors when accountId is unknown", {
     connectCloudClientCredentials(
       clientId = "client-1",
       clientSecret = "secret-1",
-      accountId = "acc-missing",
+      accountName = "charlie",
       quiet = TRUE
     ),
     "not found"
@@ -326,7 +326,7 @@ test_that("connectCloudClientCredentials distinguishes unpublishable accounts in
     connectCloudClientCredentials(
       clientId = "client-1",
       clientSecret = "secret-1",
-      accountId = "acc-2",
+      accountName = "bob",
       quiet = TRUE
     ),
     "does not grant publish permission"
