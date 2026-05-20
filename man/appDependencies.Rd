@@ -35,11 +35,9 @@ full set of available values. Not all servers support all types of content.}
 Must be one of \code{"strict"} or \code{"library"}. When \code{"strict"}, the
 \code{renv.lock} file is used if present and must match the local library.
 When \code{"library"}, the lockfile is ignored and dependencies are resolved
-from the locally installed library instead. This is useful when the
-lockfile is out of sync with the local library and cannot be updated
-(e.g. in CI/CD environments). Note that the deployed content will
-reflect the local library, not the lockfile.
-Defaults to \code{"strict"}.}
+from the available local libraries instead. This is useful when the
+lockfile is out of sync with the local library and cannot be updated. Note that the deployed content will
+reflect the local library, not the lockfile. Defaults to \code{"strict"}.}
 }
 \value{
 A data frame with one row for each dependency (direct, indirect,
