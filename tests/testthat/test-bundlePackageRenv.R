@@ -132,14 +132,11 @@ test_that("gets DESCRIPTION from renv & system libraries", {
 
 
 test_that("errors if library and project are inconsistent", {
-  skip_if_not_installed("foreign")
-  skip_if_not_installed("MASS")
-
   withr::local_options(renv.verbose = FALSE)
 
-  app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
+  app_dir <- local_temp_app(list("foo.R" = "library(withr)"))
   renv::snapshot(app_dir, prompt = FALSE)
-  renv::record("MASS@0.1.1", project = app_dir)
+  renv::record("withr@0.1.1", project = app_dir)
 
   expect_snapshot(
     parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir),
@@ -149,13 +146,12 @@ test_that("errors if library and project are inconsistent", {
 
 test_that("dependencyResolution = 'library' bypasses lockfile and uses local library", {
   skip_on_cran()
-  skip_if_not_installed("MASS")
 
   withr::local_options(renv.verbose = FALSE)
 
-  app_dir <- local_temp_app(list("foo.R" = "library(MASS)"))
+  app_dir <- local_temp_app(list("foo.R" = "library(withr)"))
   renv::snapshot(app_dir, prompt = FALSE)
-  renv::record("MASS@0.1.1", project = app_dir)
+  renv::record("withr@0.1.1", project = app_dir)
 
   # Without dependencyResolution = "library", this would error with "out of sync"
   deps <- computePackageDependencies(
@@ -163,9 +159,9 @@ test_that("dependencyResolution = 'library' bypasses lockfile and uses local lib
     quiet = TRUE,
     dependencyResolution = "library"
   )
-  expect_true("MASS" %in% deps$Package)
-  mass_dep <- deps[deps$Package == "MASS", ]
-  expect_true(mass_dep$Version != "0.1.1")
+  expect_true("withr" %in% deps$Package)
+  withr_dep <- deps[deps$Package == "withr", ]
+  expect_true(withr_dep$Version != "0.1.1")
 })
 
 # standardizeRenvPackage -----------------------------------------
