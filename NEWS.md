@@ -7,6 +7,10 @@
   management. [Node.js support](https://docs.posit.co/connect/user/nodejs/) is
   in Early Access as of Connect version 2026.04.0. (#1322)
 
+* Added a new function, `connectCloudClientCredentials`, for adding Posit Connect
+  Cloud credentials (managed at https://login.posit.cloud/identity/credentials)
+  non-interactively.
+
 * Fixed an issue where Bioconductor packages could be incorrectly associated
   with a CRAN repository URL when the same package appeared in CRAN's Transit
   directory. (#1314)

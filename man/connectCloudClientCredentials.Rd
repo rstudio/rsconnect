@@ -29,9 +29,10 @@ account's Connect Cloud display name.}
 \item{quiet}{Whether or not to show messages while connecting the account.}
 }
 \description{
-\code{connectCloudClientCredentials()} registers a Posit Connect Cloud account using
-an OAuth 2.0 \code{client_credentials} grant provided by the Posit Cloud auth
-service. Use this function to authenticate in non-interactive contexts.
+\code{connectCloudClientCredentials()} registers a Posit Connect Cloud account
+using an OAuth 2.0 \code{client_credentials} grant provided by the Posit Cloud
+auth service (https://login.posit.cloud/identity/credentials). Use this
+function to authenticate in non-interactive contexts.
 
 If \code{accountName} is omitted and the credentials can publish to exactly one
 Connect Cloud account, that account is selected automatically. If they can
