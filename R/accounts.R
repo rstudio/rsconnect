@@ -272,7 +272,7 @@ connectCloudUser <- function(launch.browser = TRUE) {
 #' @description
 #' `connectCloudClientCredentials()` registers a Posit Connect Cloud account
 #' using an OAuth 2.0 `client_credentials` grant provided by the Posit Cloud
-#' auth service (https://login.posit.cloud/identity/credentials). Use this 
+#' auth service (https://login.posit.cloud/identity/credentials). Use this
 #' function to authenticate in non-interactive contexts.
 #'
 #' If `accountName` is omitted and the credentials can publish to exactly one
