@@ -307,8 +307,6 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
 })
 
 test_that("withTokenRefreshRetry uses client_credentials when clientSecret is set", {
-  skip_if_not_installed("webfakes")
-
   call_count <- 0
   mock_request_fn <- function(service, authInfo, path) {
     call_count <<- call_count + 1
