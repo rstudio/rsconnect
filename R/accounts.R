@@ -272,25 +272,18 @@ connectCloudUser <- function(launch.browser = TRUE) {
 #' @description
 #' `connectCloudClientCredentials()` registers a Posit Connect Cloud account
 #' using an OAuth 2.0 `client_credentials` grant provided by the Posit Cloud
-#' auth service (https://login.posit.cloud/identity/credentials). Use this 
+#' auth service (https://login.posit.cloud/identity/credentials). Use this
 #' function to authenticate in non-interactive contexts.
-#'
-#' If `accountName` is omitted and the credentials can publish to exactly one
-#' Connect Cloud account, that account is selected automatically. If they can
-#' publish to multiple accounts, you will be prompted to choose; this requires
-#' an interactive session.
 #'
 #' Supported servers: Posit Connect Cloud servers
 #'
 #' @param clientId The OAuth client ID issued for a Posit Connect Cloud
 #'   service account.
 #' @param clientSecret The OAuth client secret paired with `clientId`.
-#' @param accountName The Posit Connect Cloud account name to publish to. If
-#'   `NULL`, an account will be selected interactively (when there are
-#'   multiple) or automatically (when there is exactly one publishable
-#'   account).
-#' @param name The local name to record the account under. Defaults to the
-#'   account's Connect Cloud display name.
+#' @param accountName The Posit Connect Cloud account name to publish to. The
+#'   credentials must grant publish permission on this account.
+#' @param name The local name to record the account under. Defaults to
+#'   `accountName`.
 #' @param quiet Whether or not to show messages while connecting the account.
 #'
 #' @family Account functions
@@ -298,19 +291,13 @@ connectCloudUser <- function(launch.browser = TRUE) {
 connectCloudClientCredentials <- function(
   clientId,
   clientSecret,
-  accountName = NULL,
+  accountName,
   name = NULL,
   quiet = FALSE
 ) {
   check_string(clientId)
   check_string(clientSecret)
-
-  if (is_interactive()) {
-    cli::cli_warn(c(
-      "{.fn connectCloudClientCredentials} is intended for non-interactive use.",
-      i = "For interactive sessions, {.fn connectCloudUser} is recommended."
-    ))
-  }
+  check_string(accountName)
 
   authClient <- cloudAuthClient()
   tokenResponse <- authClient$exchangeClientCredentials(clientId, clientSecret)
@@ -329,27 +316,23 @@ connectCloudClientCredentials <- function(
     )
   )
 
-  if (!is.null(accountName)) {
-    accounts <- client$getAccounts()$data
-    publishable <- filterPublishableAccounts(accounts)
-    account <- Find(function(a) identical(a$name, accountName), publishable)
-    if (is.null(account)) {
-      visible <- !is.null(Find(
-        function(a) identical(a$name, accountName),
-        accounts
-      ))
-      if (visible) {
-        cli::cli_abort(
-          "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."
-        )
-      } else {
-        cli::cli_abort(
-          "Account {.val {accountName}} was not found for these credentials."
-        )
-      }
+  accounts <- client$getAccounts()$data
+  publishable <- filterPublishableAccounts(accounts)
+  account <- Find(function(a) identical(a$name, accountName), publishable)
+  if (is.null(account)) {
+    visible <- !is.null(Find(
+      function(a) identical(a$name, accountName),
+      accounts
+    ))
+    if (visible) {
+      cli::cli_abort(
+        "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."
+      )
+    } else {
+      cli::cli_abort(
+        "Account {.val {accountName}} was not found for these credentials."
+      )
     }
-  } else {
-    account <- selectCloudAccount(client, allow_create = FALSE)
   }
 
   registerAccount(

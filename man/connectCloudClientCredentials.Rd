@@ -7,7 +7,7 @@
 connectCloudClientCredentials(
   clientId,
   clientSecret,
-  accountName = NULL,
+  accountName,
   name = NULL,
   quiet = FALSE
 )
@@ -18,13 +18,11 @@ service account.}
 
 \item{clientSecret}{The OAuth client secret paired with \code{clientId}.}
 
-\item{accountName}{The Posit Connect Cloud account name to publish to. If
-\code{NULL}, an account will be selected interactively (when there are
-multiple) or automatically (when there is exactly one publishable
-account).}
+\item{accountName}{The Posit Connect Cloud account name to publish to. The
+credentials must grant publish permission on this account.}
 
-\item{name}{The local name to record the account under. Defaults to the
-account's Connect Cloud display name.}
+\item{name}{The local name to record the account under. Defaults to
+\code{accountName}.}
 
 \item{quiet}{Whether or not to show messages while connecting the account.}
 }
@@ -33,11 +31,6 @@ account's Connect Cloud display name.}
 using an OAuth 2.0 \code{client_credentials} grant provided by the Posit Cloud
 auth service (https://login.posit.cloud/identity/credentials). Use this
 function to authenticate in non-interactive contexts.
-
-If \code{accountName} is omitted and the credentials can publish to exactly one
-Connect Cloud account, that account is selected automatically. If they can
-publish to multiple accounts, you will be prompted to choose; this requires
-an interactive session.
 
 Supported servers: Posit Connect Cloud servers
 }

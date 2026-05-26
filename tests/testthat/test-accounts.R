@@ -219,7 +219,7 @@ mockClientCredentialsAuth <- function(
   }
 }
 
-test_that("connectCloudClientCredentials auto-picks the only publishable account", {
+test_that("connectCloudClientCredentials registers the named publishable account", {
   local_temp_config()
 
   registered <- NULL
@@ -238,6 +238,7 @@ test_that("connectCloudClientCredentials auto-picks the only publishable account
   connectCloudClientCredentials(
     clientId = "client-1",
     clientSecret = "secret-1",
+    accountName = "alice",
     quiet = TRUE
   )
 
@@ -249,7 +250,7 @@ test_that("connectCloudClientCredentials auto-picks the only publishable account
   expect_equal(registered$clientSecret, "secret-1")
 })
 
-test_that("connectCloudClientCredentials accepts an explicit account name", {
+test_that("connectCloudClientCredentials selects the named account from multiple", {
   local_temp_config()
 
   registered <- NULL
@@ -331,38 +332,6 @@ test_that("connectCloudClientCredentials distinguishes unpublishable accounts in
     ),
     "does not grant publish permission"
   )
-})
-
-test_that("connectCloudClientCredentials prompts when multiple publishable accounts are available", {
-  local_temp_config()
-
-  registered <- NULL
-  local_mocked_bindings(
-    cloudAuthClient = mockClientCredentialsAuth(),
-    connectCloudClient = function(service, authInfo) {
-      fakeCloudClient(list(
-        list(
-          id = "acc-1",
-          name = "alice",
-          permissions = list("content:create")
-        ),
-        list(id = "acc-2", name = "bob", permissions = list("content:create"))
-      ))
-    },
-    registerAccount = function(...) {
-      registered <<- list(...)
-    }
-  )
-
-  simulate_user_input(2)
-  connectCloudClientCredentials(
-    clientId = "client-1",
-    clientSecret = "secret-1",
-    quiet = TRUE
-  )
-
-  expect_equal(registered$accountId, "acc-2")
-  expect_equal(registered$accountName, "bob")
 })
 
 test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount", {
