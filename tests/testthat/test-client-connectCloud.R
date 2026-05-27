@@ -273,7 +273,9 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
       name,
       accountId,
       accessToken,
-      refreshToken
+      refreshToken,
+      clientId,
+      clientSecret
     ) {
       register_called <<- TRUE
       expect_equal(server, "connect.posit.cloud")
@@ -281,6 +283,8 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
       expect_equal(accountId, "123")
       expect_equal(accessToken, "new-access-token")
       expect_equal(refreshToken, "new-refresh-token")
+      expect_null(clientId)
+      expect_null(clientSecret)
     }
   )
 
@@ -298,6 +302,75 @@ test_that("withTokenRefreshRetry handles 401 with successful token refresh", {
 
   expect_equal(result$success, TRUE)
   expect_equal(result$data, "success after refresh")
+  expect_equal(call_count, 2)
+  expect_true(register_called)
+})
+
+test_that("withTokenRefreshRetry uses client_credentials when clientSecret is set", {
+  call_count <- 0
+  mock_request_fn <- function(service, authInfo, path) {
+    call_count <<- call_count + 1
+    if (call_count == 1) {
+      err <- structure(
+        list(message = "HTTP 401"),
+        class = c("rsconnect_http_401", "rsconnect_http", "error", "condition")
+      )
+      stop(err)
+    } else {
+      list(success = TRUE, data = "success after client_credentials refresh")
+    }
+  }
+
+  register_called <- FALSE
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        exchangeToken = function(request) {
+          fail(
+            "exchangeToken should not be called when clientSecret is present"
+          )
+        },
+        exchangeClientCredentials = function(clientId, clientSecret) {
+          expect_equal(clientId, "client-id-1")
+          expect_equal(clientSecret, "client-secret-1")
+          # RFC 6749 §4.4.3: no refresh_token expected in the response.
+          list(access_token = "new-access-token", refresh_token = NULL)
+        }
+      )
+    },
+    registerAccount = function(
+      server,
+      name,
+      accountId,
+      accessToken,
+      refreshToken,
+      clientId,
+      clientSecret
+    ) {
+      register_called <<- TRUE
+      expect_equal(accessToken, "new-access-token")
+      expect_null(refreshToken)
+      # clientId/clientSecret must be re-persisted because registerAccount
+      # rewrites the whole DCF (no merge with existing fields).
+      expect_equal(clientId, "client-id-1")
+      expect_equal(clientSecret, "client-secret-1")
+    }
+  )
+
+  service <- list(host = "example.com", port = 443, protocol = "https")
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "test-user",
+    accountId = "123",
+    accessToken = "current-token",
+    clientId = "client-id-1",
+    clientSecret = "client-secret-1"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$withTokenRefreshRetry(mock_request_fn, "/test")
+
+  expect_equal(result$success, TRUE)
   expect_equal(call_count, 2)
   expect_true(register_called)
 })

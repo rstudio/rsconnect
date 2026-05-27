@@ -250,14 +250,125 @@ connectCloudUser <- function(launch.browser = TRUE) {
     list(accessToken = accessToken, refreshToken = refreshToken)
   )
 
+  account <- selectCloudAccount(
+    client,
+    allow_create = TRUE,
+    launch.browser = launch.browser
+  )
+
+  registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = account$name,
+    accountId = account$id,
+    accessToken = accessToken,
+    refreshToken = refreshToken
+  )
+
+  cli::cli_alert_success("Registered account.")
+}
+
+#' Register a Posit Connect Cloud account using OAuth client credentials
+#'
+#' @description
+#' `connectCloudClientCredentials()` registers a Posit Connect Cloud account
+#' using an OAuth 2.0 `client_credentials` grant provided by the Posit Cloud
+#' auth service (https://login.posit.cloud/identity/credentials). Use this
+#' function to authenticate in non-interactive contexts.
+#'
+#' Supported servers: Posit Connect Cloud servers
+#'
+#' @param clientId The OAuth client ID issued for a Posit Connect Cloud
+#'   service account.
+#' @param clientSecret The OAuth client secret paired with `clientId`.
+#' @param accountName The Posit Connect Cloud account name to publish to. The
+#'   credentials must grant publish permission on this account.
+#' @param name The local name to record the account under. Defaults to
+#'   `accountName`.
+#' @param quiet Whether or not to show messages while connecting the account.
+#'
+#' @family Account functions
+#' @export
+connectCloudClientCredentials <- function(
+  clientId,
+  clientSecret,
+  accountName,
+  name = NULL,
+  quiet = FALSE
+) {
+  check_string(clientId)
+  check_string(clientSecret)
+  check_string(accountName)
+
+  authClient <- cloudAuthClient()
+  tokenResponse <- authClient$exchangeClientCredentials(clientId, clientSecret)
+  accessToken <- tokenResponse$access_token
+  # RFC 6749 §4.4.3: "A refresh token SHOULD NOT be included" for the
+  # client_credentials grant, so refresh_token is typically absent here.
+  refreshToken <- tokenResponse$refresh_token
+
+  client <- connectCloudClient(
+    parseHttpUrl(connectCloudUrls()$api),
+    list(
+      accessToken = accessToken,
+      refreshToken = refreshToken,
+      clientId = clientId,
+      clientSecret = clientSecret
+    )
+  )
+
+  accounts <- client$getAccounts()$data
+  publishable <- filterPublishableAccounts(accounts)
+  account <- Find(function(a) identical(a$name, accountName), publishable)
+  if (is.null(account)) {
+    visible <- !is.null(Find(
+      function(a) identical(a$name, accountName),
+      accounts
+    ))
+    if (visible) {
+      cli::cli_abort(
+        "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."
+      )
+    } else {
+      cli::cli_abort(
+        "Account {.val {accountName}} was not found for these credentials."
+      )
+    }
+  }
+
+  registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = name %||% account$name,
+    accountId = account$id,
+    accessToken = accessToken,
+    refreshToken = refreshToken,
+    clientId = clientId,
+    clientSecret = clientSecret
+  )
+
+  if (!quiet) {
+    cli::cli_alert_success(
+      "Registered account for {accountLabel(account$name, 'connect.posit.cloud')}"
+    )
+  }
+  invisible()
+}
+
+# Picks a publishable Connect Cloud account using `client`.
+#
+# When allow_create is TRUE and the caller has no accounts at all, opens the
+# account-creation page and polls for up to 10 minutes for a publishable
+# account to appear. When allow_create is FALSE, errors out instead — used by
+# non-interactive auth flows where browser interaction isn't available.
+selectCloudAccount <- function(
+  client,
+  allow_create = TRUE,
+  launch.browser = TRUE
+) {
   getAccounts <- function() {
-    accountsResponse <- tryCatch(
-      {
-        response <- client$getAccounts()
-        response$data
-      },
+    tryCatch(
+      client$getAccounts()$data,
       rsconnect_http_401 = function(err) {
-        if (err$errorType == "no_user_for_lucid_user") {
+        if (isTRUE(err$errorType == "no_user_for_lucid_user")) {
           return(list())
         }
         stop(err)
@@ -266,10 +377,11 @@ connectCloudUser <- function(launch.browser = TRUE) {
   }
 
   accounts <- getAccounts()
-  accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
+  publishable <- filterPublishableAccounts(accounts)
   cloudUiUrl <- connectCloudUrls()$ui
-  if (length(accountsWhereUserCanPublish) == 0) {
-    if (length(accounts) == 0) {
+
+  if (length(publishable) == 0) {
+    if (length(accounts) == 0 && allow_create) {
       accountCreationPage <- addUtmParameters(paste0(
         cloudUiUrl,
         "/account/done"
@@ -294,17 +406,21 @@ connectCloudUser <- function(launch.browser = TRUE) {
         Sys.sleep(2)
         accounts <- getAccounts()
         if (length(accounts) > 0) {
-          accountsWhereUserCanPublish <- filterPublishableAccounts(accounts)
-          if (length(accountsWhereUserCanPublish) > 0) {
+          publishable <- filterPublishableAccounts(accounts)
+          if (length(publishable) > 0) {
             break
           }
         }
       }
-      if (length(accountsWhereUserCanPublish) == 0) {
+      if (length(publishable) == 0) {
         cli::cli_abort(
           "Timed out waiting for an account to be created. Try again after creating a new account."
         )
       }
+    } else if (length(accounts) == 0) {
+      cli::cli_abort(
+        "No Posit Connect Cloud accounts are visible to these credentials."
+      )
     } else {
       cli::cli_abort(
         "You do not have permission to publish content on any of your accounts. To publish, you may create a new account at {.url cloudUiUrl}."
@@ -312,34 +428,22 @@ connectCloudUser <- function(launch.browser = TRUE) {
     }
   }
 
-  # prompt the user to select an account if there's more than one they can publish to
-  if (length(accountsWhereUserCanPublish) > 1) {
+  if (length(publishable) > 1) {
     cli::cli_alert_info("You have permission to publish to multiple accounts.")
     accountNames <- vapply(
-      accountsWhereUserCanPublish,
+      publishable,
       function(account) account$name,
       character(1)
     )
-    # selected <- utils::menu(accountNames, title = "Select an account to use:")
     selected <- cli_menu(
       "Multiple accounts found.",
       "Which account do you want to use?",
       accountNames
     )
-    account <- accountsWhereUserCanPublish[[selected]]
+    publishable[[selected]]
   } else {
-    account <- accountsWhereUserCanPublish[[1]]
+    publishable[[1]]
   }
-
-  registerAccount(
-    serverName = "connect.posit.cloud",
-    accountName = account$name,
-    accountId = account$id,
-    accessToken = accessToken,
-    refreshToken = refreshToken
-  )
-
-  cli::cli_alert_success("Registered account.")
 }
 
 # Poll the server until the user has completed device authentication, returning
@@ -658,6 +762,7 @@ findAccountInfo <- function(
   info$secret <- secret(info$secret)
   info$apiKey <- secret(info$apiKey)
   info$snowflakeToken <- secret(info$snowflakeToken)
+  info$clientSecret <- secret(info$clientSecret)
 
   info
 }
@@ -687,7 +792,9 @@ registerAccount <- function(
   apiKey = NULL,
   snowflakeConnectionName = NULL,
   accessToken = NULL,
-  refreshToken = NULL
+  refreshToken = NULL,
+  clientId = NULL,
+  clientSecret = NULL
 ) {
   check_string(serverName)
   check_string(accountName)
@@ -705,7 +812,9 @@ registerAccount <- function(
     apiKey = apiKey,
     snowflakeConnectionName = snowflakeConnectionName,
     accessToken = accessToken,
-    refreshToken = refreshToken
+    refreshToken = refreshToken,
+    clientId = clientId,
+    clientSecret = clientSecret
   )
 
   path <- accountConfigFile(accountName, serverName)
