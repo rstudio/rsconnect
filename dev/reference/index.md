@@ -18,6 +18,9 @@
   : Maintain environment variables across multiple applications
 - [`setAccountInfo()`](https://rstudio.github.io/rsconnect/dev/reference/setAccountInfo.md)
   : Register account on shinyapps.io
+- [`connectCloudClientCredentials()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudClientCredentials.md)
+  : Register a Posit Connect Cloud account using OAuth client
+  credentials
 
 ## Users
 

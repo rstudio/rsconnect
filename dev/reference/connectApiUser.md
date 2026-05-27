@@ -54,5 +54,6 @@ connectUser(
 
 Other Account functions:
 [`accounts()`](https://rstudio.github.io/rsconnect/dev/reference/accounts.md),
+[`connectCloudClientCredentials()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudClientCredentials.md),
 [`connectCloudUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudUser.md),
 [`setAccountInfo()`](https://rstudio.github.io/rsconnect/dev/reference/setAccountInfo.md)

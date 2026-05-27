@@ -49,5 +49,6 @@ previously registered accounts.
 
 Other Account functions:
 [`connectApiUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectApiUser.md),
+[`connectCloudClientCredentials()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudClientCredentials.md),
 [`connectCloudUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudUser.md),
 [`setAccountInfo()`](https://rstudio.github.io/rsconnect/dev/reference/setAccountInfo.md)
