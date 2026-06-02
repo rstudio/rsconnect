@@ -15,6 +15,14 @@ if (server == "" || apiKey == "") {
 # Generate a unique account name
 account <- paste0("testing", strftime(Sys.time(), "%Y%m%d%H%M%S"))
 
+nodejs_supported <- function(account) {
+  accountDetails <- accountInfo(account)
+  client <- clientForAccount(accountDetails)
+  settings <- tryCatch(client$serverSettings(), error = function(e) NULL)
+  version <- settings$version
+  !isTRUE(connectVersionLt(version, "2026.04.0"))
+}
+
 addServer(
   server,
   name = account,

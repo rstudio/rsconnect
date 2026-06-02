@@ -17,3 +17,18 @@ test_that("listAccountEnvVars", {
   envs <- listAccountEnvVars(account = account)
   expect_true(nrow(envs) == 1)
 })
+
+test_that("deploy nodejs does not error", {
+  if (nodejs_supported(account)) {
+    expect_true(
+      deployApp("example-nodejs", account = account)
+    )
+    # redeploy also succeeds
+    expect_true(deployApp("example-nodejs", account = account))
+  } else {
+    expect_error(
+      deployApp("example-nodejs", account = account),
+      "2026.04.0"
+    )
+  }
+})
