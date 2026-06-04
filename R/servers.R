@@ -241,7 +241,10 @@ addServer <- function(
     }
     out <- validateConnectUrl(url, certificate, snowflakeConnectionName)
     if (!out$valid) {
-      cli::cli_abort("{.arg url} does not appear to be a Posit Connect server.")
+      cli::cli_abort(c(
+        "{.arg url} does not appear to be a Posit Connect server.",
+        "x" = out$message
+      ))
     }
     url <- out$url
   }
@@ -300,7 +303,17 @@ validateConnectUrl <- function(
   }
 
   if (!is.null(cnd)) {
-    return(list(valid = FALSE, message = conditionMessage(cnd)))
+    if (inherits(cnd, "rsconnect_http")) {
+      # Server responded but with an error status. Display the status (but not the full response
+      # body, as it may be a large HTML blob)
+      reason <- cli::format_inline(
+        "<{cnd$url}> responded with HTTP status {cnd$status}."
+      )
+    } else {
+      # Transport-level failure (DNS, connection refused, TLS/certificate, etc.)
+      reason <- conditionMessage(cnd)
+    }
+    return(list(valid = FALSE, message = reason))
   }
 
   contentType <- attr(response, "httpContentType")
