@@ -100,7 +100,10 @@ test_that("validateConnectUrl() returns concise message for HTTP status errors",
   result <- validateConnectUrl(url)
 
   expect_false(result$valid)
-  expect_match(result$message, "__api__/server_settings> responded with HTTP status 404\\.$")
+  expect_match(
+    result$message,
+    "__api__/server_settings> responded with HTTP status 404\\.$"
+  )
 })
 
 test_that("validateConnectUrl() surfaces transport error message verbatim", {
