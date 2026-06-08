@@ -89,7 +89,54 @@ test_that("addServer() errors if url not a connect server", {
 
   service <- httpbin_service()
   url <- buildHttpUrl(service)
-  expect_snapshot(addServer(url), error = TRUE)
+  expect_snapshot(addServer(url), transform = strip_port(service), error = TRUE)
+})
+
+test_that("validateConnectUrl() returns concise message for HTTP status errors", {
+  skip_if_not_installed("webfakes")
+
+  service <- httpbin_service()
+  url <- buildHttpUrl(service)
+  result <- validateConnectUrl(url)
+
+  expect_false(result$valid)
+  expect_match(
+    result$message,
+    "__api__/server_settings> responded with HTTP status 404\\.$"
+  )
+})
+
+test_that("validateConnectUrl() surfaces transport error message verbatim", {
+  transport_err <- structure(
+    class = c("simulated_transport_error", "error", "condition"),
+    list(message = "Could not resolve host: no-such-host.invalid")
+  )
+  local_mocked_bindings(
+    GET = function(...) stop(transport_err),
+    .package = "rsconnect"
+  )
+
+  result <- validateConnectUrl("https://no-such-host.invalid")
+
+  expect_false(result$valid)
+  expect_equal(result$message, "Could not resolve host: no-such-host.invalid")
+})
+
+test_that("validateConnectUrl() returns message for non-JSON response", {
+  html_response <- structure(
+    "<!DOCTYPE html><html><body>Not Connect</body></html>",
+    httpContentType = "text/html; charset=utf-8",
+    httpUrl = "https://example.com/__api__/server_settings"
+  )
+  local_mocked_bindings(
+    GET = function(...) html_response,
+    .package = "rsconnect"
+  )
+
+  result <- validateConnectUrl("https://example.com")
+
+  expect_false(result$valid)
+  expect_match(result$message, "Endpoint did not return JSON")
 })
 
 test_that("addServer() and addServerCertificate() inform about their actions", {

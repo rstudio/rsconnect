@@ -44,6 +44,7 @@
     Condition
       Error in `addServer()`:
       ! `url` does not appear to be a Posit Connect server.
+      x <http://127.0.0.1:{port}/__api__/server_settings> responded with HTTP status 404.
 
 # addServer() and addServerCertificate() inform about their actions
 

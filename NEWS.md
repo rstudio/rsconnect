@@ -33,6 +33,9 @@
 
 * Improved error messages when `renv::snapshot()` fails during dependency
   discovery. (#1078)
+  
+  * `addServer()` now reports the underlying reason a URL was rejected (e.g.
+  connection error, TLS/certificate problem, or unexpected HTTP status). (#1197)
 
 # rsconnect 1.8.0
 
