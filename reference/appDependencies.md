@@ -18,7 +18,8 @@ appDependencies(
   appDir = getwd(),
   appFiles = NULL,
   appFileManifest = NULL,
-  appMode = NULL
+  appMode = NULL,
+  dependencyResolution = c("strict", "library")
 )
 ```
 
@@ -46,8 +47,20 @@ appDependencies(
   example, when static HTML content includes a downloadable Shiny
   application `app.R`. Accepted values include `"shiny"`, `"api"`,
   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`,
-  and `"static"`. The Posit Connect API Reference contains a full set of
-  available values. Not all servers support all types of content.
+  `"nodejs"`, and `"static"`. The Posit Connect API Reference contains a
+  full set of available values. Not all servers support all types of
+  content.
+
+- dependencyResolution:
+
+  Controls how R package dependencies are resolved. Must be one of
+  `"strict"` or `"library"`. When `"strict"`, the `renv.lock` file is
+  used if present and must match the local library. When `"library"`,
+  the lockfile is ignored and dependencies are resolved from the
+  available local libraries instead. This is useful when the lockfile is
+  out of sync with the local library and cannot be updated. Note that
+  the deployed content will reflect the local library, not the lockfile.
+  Defaults to `"strict"`.
 
 ## Value
 

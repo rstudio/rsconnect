@@ -33,6 +33,7 @@ setAccountInfo(name, token, secret, server = "shinyapps.io")
 Other Account functions:
 [`accounts()`](https://rstudio.github.io/rsconnect/reference/accounts.md),
 [`connectApiUser()`](https://rstudio.github.io/rsconnect/reference/connectApiUser.md),
+[`connectCloudClientCredentials()`](https://rstudio.github.io/rsconnect/reference/connectCloudClientCredentials.md),
 [`connectCloudUser()`](https://rstudio.github.io/rsconnect/reference/connectCloudUser.md)
 
 ## Examples

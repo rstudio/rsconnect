@@ -1,5 +1,67 @@
 # Changelog
 
+## rsconnect 1.10.0
+
+## rsconnect 1.9.0
+
+- Added support for deploying Node.js applications to Posit Connect.
+  [`deployApp()`](https://rstudio.github.io/rsconnect/reference/deployApp.md)
+  and
+  [`writeManifest()`](https://rstudio.github.io/rsconnect/reference/writeManifest.md)
+  now automatically detect Node.js content from `package.json` and
+  generate the appropriate manifest. Added `envManagementNodejs`
+  parameter for controlling Node.js environment management. [Node.js
+  support](https://docs.posit.co/connect/user/nodejs/) is in Early
+  Access as of Connect version 2026.04.0.
+  ([\#1322](https://github.com/rstudio/rsconnect/issues/1322))
+
+- Added a new function, `connectCloudClientCredentials`, for adding
+  Posit Connect Cloud credentials (managed at
+  <https://login.posit.cloud/identity/credentials>) non-interactively.
+
+- Fixed an issue where Bioconductor packages could be incorrectly
+  associated with a CRAN repository URL when the same package appeared
+  in CRAN’s Transit directory.
+  ([\#1314](https://github.com/rstudio/rsconnect/issues/1314))
+
+- The global deployment history file used by the Workbench dashboard no
+  longer uses a fixed temporary file name during updates, eliminating a
+  race condition that could cause the file to rapidly grow during
+  concurrent deployments. The history is also capped at 100 records and
+  resets if the file grows excessively large.
+  ([\#1320](https://github.com/rstudio/rsconnect/issues/1320))
+
+- [`deployApp()`](https://rstudio.github.io/rsconnect/reference/deployApp.md)
+  with `logLevel = "verbose"` no longer errors using the `httr2`
+  backend. ([\#1312](https://github.com/rstudio/rsconnect/issues/1312))
+
+- [`deployApp()`](https://rstudio.github.io/rsconnect/reference/deployApp.md),
+  [`writeManifest()`](https://rstudio.github.io/rsconnect/reference/writeManifest.md),
+  and
+  [`appDependencies()`](https://rstudio.github.io/rsconnect/reference/appDependencies.md)
+  gain a `dependencyResolution` parameter. Set
+  `dependencyResolution = "library"` to ignore the `renv.lock` file and
+  resolve package dependencies by scanning the code. The version that is
+  recorded is what is installed in the libraries active in the R session
+  (i.e. what is displayed with
+  [`.libPaths()`](https://rdrr.io/r/base/libPaths.html)). This is useful
+  when deploying from environments where there is a mismatch between the
+  renv lock file and the user’s environment.
+  ([\#1046](https://github.com/rstudio/rsconnect/issues/1046),
+  [\#1315](https://github.com/rstudio/rsconnect/issues/1315),
+  [\#1317](https://github.com/rstudio/rsconnect/issues/1317))
+
+- Improved error messages when
+  [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.html)
+  fails during dependency discovery.
+  ([\#1078](https://github.com/rstudio/rsconnect/issues/1078))
+
+  - [`addServer()`](https://rstudio.github.io/rsconnect/reference/addServer.md)
+    now reports the underlying reason a URL was rejected (e.g.
+    connection error, TLS/certificate problem, or unexpected HTTP
+    status).
+    ([\#1197](https://github.com/rstudio/rsconnect/issues/1197))
+
 ## rsconnect 1.8.0
 
 CRAN release: 2026-04-10

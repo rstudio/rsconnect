@@ -26,16 +26,16 @@ applications(account = NULL, server = NULL)
 
 Returns a data frame with the following columns:
 
-|              |                                                                                                                    |
-|--------------|--------------------------------------------------------------------------------------------------------------------|
-| `id`         | Application unique id                                                                                              |
-| `name`       | Name of application                                                                                                |
-| `title`      | Application title                                                                                                  |
-| `url`        | URL where application can be accessed                                                                              |
-| `status`     | Current status of application. Valid values are `pending`, `deploying`, `running`, `terminating`, and `terminated` |
-| `size`       | Instance size (small, medium, large, etc.) (on ShinyApps.io)                                                       |
-| `instances`  | Number of instances (on ShinyApps.io)                                                                              |
-| `config_url` | URL where application can be configured                                                                            |
+|  |  |
+|----|----|
+| `id` | Application unique id |
+| `name` | Name of application |
+| `title` | Application title |
+| `url` | URL where application can be accessed |
+| `status` | Current status of application. Valid values are `pending`, `deploying`, `running`, `terminating`, and `terminated` |
+| `size` | Instance size (small, medium, large, etc.) (on ShinyApps.io) |
+| `instances` | Number of instances (on ShinyApps.io) |
+| `config_url` | URL where application can be configured |
 
 ## Note
 

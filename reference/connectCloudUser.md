@@ -27,4 +27,5 @@ connectCloudUser(launch.browser = TRUE)
 Other Account functions:
 [`accounts()`](https://rstudio.github.io/rsconnect/reference/accounts.md),
 [`connectApiUser()`](https://rstudio.github.io/rsconnect/reference/connectApiUser.md),
+[`connectCloudClientCredentials()`](https://rstudio.github.io/rsconnect/reference/connectCloudClientCredentials.md),
 [`setAccountInfo()`](https://rstudio.github.io/rsconnect/reference/setAccountInfo.md)

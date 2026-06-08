@@ -28,7 +28,9 @@ writeManifest(
   envManagement = NULL,
   envManagementR = NULL,
   envManagementPy = NULL,
+  envManagementNodejs = NULL,
   packageRepositoryResolutionR = NULL,
+  dependencyResolution = c("strict", "library"),
   verbose = FALSE,
   quiet = FALSE
 )
@@ -65,8 +67,9 @@ writeManifest(
   example, when static HTML content includes a downloadable Shiny
   application `app.R`. Accepted values include `"shiny"`, `"api"`,
   `"rmd-static"`, `"rmd-shiny"`, `"quarto-static"`, `"quarto-shiny"`,
-  and `"static"`. The Posit Connect API Reference contains a full set of
-  available values. Not all servers support all types of content.
+  `"nodejs"`, and `"static"`. The Posit Connect API Reference contains a
+  full set of available values. Not all servers support all types of
+  content.
 
 - contentCategory:
 
@@ -106,14 +109,14 @@ writeManifest(
 
 - envManagement:
 
-  Optional. Should Posit Connect install R and Python packages for this
-  content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will not
-  write any values to the bundle manifest, and Connect will fall back to
-  the application default environment management strategy, or the server
+  Optional. Should Posit Connect install packages for this content?
+  (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will not write any
+  values to the bundle manifest, and Connect will fall back to the
+  application default environment management strategy, or the server
   default if no application default is defined.
 
-  (This option is a shorthand flag which overwrites the values of both
-  `envManagementR` and `envManagementPy`.)
+  (This option is a shorthand flag which overwrites the values of
+  `envManagementR`, `envManagementPy`, and `envManagementNodejs`.)
 
 - envManagementR:
 
@@ -135,6 +138,16 @@ writeManifest(
 
   (This option is ignored when `envManagement` is non-`NULL`.)
 
+- envManagementNodejs:
+
+  Optional. Should Posit Connect install Node.js packages for this
+  content? (`TRUE`, `FALSE`, or `NULL`). The default, `NULL`, will not
+  write any values to the bundle manifest, and Connect will fall back to
+  the application default Node.js environment management strategy, or
+  the server default if no application default is defined.
+
+  (This option is ignored when `envManagement` is non-`NULL`.)
+
 - packageRepositoryResolutionR:
 
   Optional. Specifies the package repository resolution strategy for R
@@ -142,6 +155,17 @@ writeManifest(
   `"lockfile"`, or `NULL`. The default, `NULL`, will not write any
   values to the bundle manifest and Connect will fall back to the
   server's package repository resolution strategy.
+
+- dependencyResolution:
+
+  Controls how R package dependencies are resolved. Must be one of
+  `"strict"` or `"library"`. When `"strict"`, the `renv.lock` file is
+  used if present and must match the local library. When `"library"`,
+  the lockfile is ignored and dependencies are resolved from the
+  available local libraries instead. This is useful when the lockfile is
+  out of sync with the local library and cannot be updated. Note that
+  the deployed content will reflect the local library, not the lockfile.
+  Defaults to `"strict"`.
 
 - verbose:
 
