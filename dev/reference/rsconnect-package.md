@@ -20,6 +20,8 @@ Useful links:
 
 Authors:
 
+- Aron Atkins <aron@posit.co>
+
 - Toph Allen
 
 - Hadley Wickham
