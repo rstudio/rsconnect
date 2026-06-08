@@ -14,7 +14,7 @@ status](https://www.r-pkg.org/badges/version/rsconnect)](https://cran.r-project.
 
 rsconnect makes it easy to publish your Shiny apps, RMarkdown and Quarto
 documents, and Plumber APIs<sup>\*</sup> to [Posit
-Connect](https://posit.co/products/enterprise/connect/), [Posit Connect
+Connect](https://posit.co/products/enterprise/connect), [Posit Connect
 Cloud](https://connect.posit.cloud/), and
 [shinyapps.io](https://www.shinyapps.io/) from R.
 
