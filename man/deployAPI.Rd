@@ -27,11 +27,11 @@ for more information. Alternatively, deploy a plumber2 API by supplying a
 directory containing \verb{_server.yml}.
 }
 \seealso{
-Other Deployment functions: 
-\code{\link{applications}()},
-\code{\link{deployApp}()},
-\code{\link{deployDoc}()},
-\code{\link{deploySite}()},
-\code{\link{deployTFModel}()}
+Other Deployment functions:
+\code{\link[=applications]{applications()}},
+\code{\link[=deployApp]{deployApp()}},
+\code{\link[=deployDoc]{deployDoc()}},
+\code{\link[=deploySite]{deploySite()}},
+\code{\link[=deployTFModel]{deployTFModel()}}
 }
 \concept{Deployment functions}

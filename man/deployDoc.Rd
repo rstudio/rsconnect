@@ -37,11 +37,11 @@ deployDoc("static-file.html")
 }
 }
 \seealso{
-Other Deployment functions: 
-\code{\link{applications}()},
-\code{\link{deployAPI}()},
-\code{\link{deployApp}()},
-\code{\link{deploySite}()},
-\code{\link{deployTFModel}()}
+Other Deployment functions:
+\code{\link[=applications]{applications()}},
+\code{\link[=deployAPI]{deployAPI()}},
+\code{\link[=deployApp]{deployApp()}},
+\code{\link[=deploySite]{deploySite()}},
+\code{\link[=deployTFModel]{deployTFModel()}}
 }
 \concept{Deployment functions}

@@ -42,10 +42,10 @@ API key from your account settings.
 Supported servers: Posit Connect servers
 }
 \seealso{
-Other Account functions: 
-\code{\link{accounts}()},
-\code{\link{connectCloudClientCredentials}()},
-\code{\link{connectCloudUser}()},
-\code{\link{setAccountInfo}()}
+Other Account functions:
+\code{\link[=accounts]{accounts()}},
+\code{\link[=connectCloudClientCredentials]{connectCloudClientCredentials()}},
+\code{\link[=connectCloudUser]{connectCloudUser()}},
+\code{\link[=setAccountInfo]{setAccountInfo()}}
 }
 \concept{Account functions}

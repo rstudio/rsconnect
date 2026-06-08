@@ -6,7 +6,7 @@
 \alias{rsconnect-package}
 \title{rsconnect: Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'}
 \description{
-\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
 
 Programmatic deployment interface for 'RPubs', 'shinyapps.io', and 'Posit Connect'. Supported content types include R Markdown documents, Shiny applications, Plumber APIs, plots, and static web content.
 }
@@ -24,6 +24,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Aron Atkins \email{aron@posit.co}
   \item Toph Allen
   \item Hadley Wickham
   \item Jonathan McPherson

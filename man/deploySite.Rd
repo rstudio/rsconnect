@@ -85,11 +85,11 @@ Deploy an R Markdown or quarto website to a server.
 Supported servers: Posit Connect, Posit Connect Cloud and ShinyApps servers
 }
 \seealso{
-Other Deployment functions: 
-\code{\link{applications}()},
-\code{\link{deployAPI}()},
-\code{\link{deployApp}()},
-\code{\link{deployDoc}()},
-\code{\link{deployTFModel}()}
+Other Deployment functions:
+\code{\link[=applications]{applications()}},
+\code{\link[=deployAPI]{deployAPI()}},
+\code{\link[=deployApp]{deployApp()}},
+\code{\link[=deployDoc]{deployDoc()}},
+\code{\link[=deployTFModel]{deployTFModel()}}
 }
 \concept{Deployment functions}

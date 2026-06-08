@@ -15,11 +15,11 @@ Deploys a directory containing a TensorFlow saved model.
 Supported servers: Posit Connect and ShinyApps servers
 }
 \seealso{
-Other Deployment functions: 
-\code{\link{applications}()},
-\code{\link{deployAPI}()},
-\code{\link{deployApp}()},
-\code{\link{deployDoc}()},
-\code{\link{deploySite}()}
+Other Deployment functions:
+\code{\link[=applications]{applications()}},
+\code{\link[=deployAPI]{deployAPI()}},
+\code{\link[=deployApp]{deployApp()}},
+\code{\link[=deployDoc]{deployDoc()}},
+\code{\link[=deploySite]{deploySite()}}
 }
 \concept{Deployment functions}

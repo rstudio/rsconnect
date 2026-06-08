@@ -38,10 +38,10 @@ The \code{accounts} and \code{accountInfo} functions are provided for viewing
 previously registered accounts.
 }
 \seealso{
-Other Account functions: 
-\code{\link{connectApiUser}()},
-\code{\link{connectCloudClientCredentials}()},
-\code{\link{connectCloudUser}()},
-\code{\link{setAccountInfo}()}
+Other Account functions:
+\code{\link[=connectApiUser]{connectApiUser()}},
+\code{\link[=connectCloudClientCredentials]{connectCloudClientCredentials()}},
+\code{\link[=connectCloudUser]{connectCloudUser()}},
+\code{\link[=setAccountInfo]{setAccountInfo()}}
 }
 \concept{Account functions}

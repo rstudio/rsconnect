@@ -21,10 +21,10 @@ you to create an account or select an account to use if you have multiple.
 Supported servers: Posit Connect Cloud servers
 }
 \seealso{
-Other Account functions: 
-\code{\link{accounts}()},
-\code{\link{connectApiUser}()},
-\code{\link{connectCloudClientCredentials}()},
-\code{\link{setAccountInfo}()}
+Other Account functions:
+\code{\link[=accounts]{accounts()}},
+\code{\link[=connectApiUser]{connectApiUser()}},
+\code{\link[=connectCloudClientCredentials]{connectCloudClientCredentials()}},
+\code{\link[=setAccountInfo]{setAccountInfo()}}
 }
 \concept{Account functions}

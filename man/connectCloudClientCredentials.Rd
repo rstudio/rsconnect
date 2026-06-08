@@ -35,10 +35,10 @@ function to authenticate in non-interactive contexts.
 Supported servers: Posit Connect Cloud servers
 }
 \seealso{
-Other Account functions: 
-\code{\link{accounts}()},
-\code{\link{connectApiUser}()},
-\code{\link{connectCloudUser}()},
-\code{\link{setAccountInfo}()}
+Other Account functions:
+\code{\link[=accounts]{accounts()}},
+\code{\link[=connectApiUser]{connectApiUser()}},
+\code{\link[=connectCloudUser]{connectCloudUser()}},
+\code{\link[=setAccountInfo]{setAccountInfo()}}
 }
 \concept{Account functions}
