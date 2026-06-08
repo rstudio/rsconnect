@@ -21,7 +21,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     cli,
-    curl,
+    curl (>= 7.0.0),
     digest,
     httr2,
     jsonlite,
