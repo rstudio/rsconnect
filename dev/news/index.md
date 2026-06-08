@@ -54,6 +54,12 @@
   fails during dependency discovery.
   ([\#1078](https://github.com/rstudio/rsconnect/issues/1078))
 
+  - [`addServer()`](https://rstudio.github.io/rsconnect/dev/reference/addServer.md)
+    now reports the underlying reason a URL was rejected (e.g.
+    connection error, TLS/certificate problem, or unexpected HTTP
+    status).
+    ([\#1197](https://github.com/rstudio/rsconnect/issues/1197))
+
 ## rsconnect 1.8.0
 
 CRAN release: 2026-04-10
