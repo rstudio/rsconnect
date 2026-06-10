@@ -1,7 +1,5 @@
 # rsconnect 1.10.0
 
-# rsconnect 1.9.0
-
 * Added support for deploying Node.js applications to Posit Connect.
   `deployApp()` and `writeManifest()` now automatically detect Node.js content
   from `package.json` and generate the appropriate manifest. Added
