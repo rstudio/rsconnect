@@ -641,14 +641,19 @@ signatureHeaders <- function(authInfo, method, path, file = NULL) {
 }
 
 signRequestPrivateKey <- function(private_key, canonicalRequest) {
-  # Use a custom hash function to avoid using system openssl for
-  # SHA1, which can be problematic in strict FIPS environments.
-  rawsig <- openssl::signature_create(
-    charToRaw(canonicalRequest),
+  # The openssl::signature_create function uses the recommended EVP_PKEY_sign
+  # API, which disallows MD5/SHA1 hashes under FIPS.
+  #
+  # The openssl::rsa_sign uses the deprecated legacy function RSA_sign, which
+  # is limited RSA keys and legacy hash functions and does not enforce FIPS.
+  rawsig <- openssl::rsa_sign(
+    digest::digest(
+      charToRaw(canonicalRequest),
+      algo = "sha1",
+      serialize = FALSE,
+      raw = TRUE
+    ),
     key = private_key,
-    hash = function(x) {
-      digest::digest(x, algo = "sha1", serialize = FALSE, raw = TRUE)
-    }
   )
   openssl::base64_encode(rawsig)
 }
