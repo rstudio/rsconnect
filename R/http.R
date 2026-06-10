@@ -644,8 +644,8 @@ signRequestPrivateKey <- function(private_key, canonicalRequest) {
   # The openssl::signature_create function uses the recommended EVP_PKEY_sign
   # API, which disallows MD5/SHA1 hashes under FIPS.
   #
-  # The openssl::rsa_sign uses the deprecated legacy function RSA_sign, which
-  # is limited RSA keys and legacy hash functions and does not enforce FIPS.
+  # The openssl::rsa_sign uses the deprecated legacy API RSA_sign, which is
+  # limited to RSA keys and legacy hash functions and does not enforce FIPS.
   rawsig <- openssl::rsa_sign(
     digest::digest(
       charToRaw(canonicalRequest),
