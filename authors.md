@@ -18,7 +18,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/rstudio/rsconnect/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/rstudio/rsconnect/blob/aron-1.10-news-no-1.9/DESCRIPTION)
 
 Atkins A, Allen T, Wickham H, McPherson J, Allaire J (2026). *rsconnect:
 Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and

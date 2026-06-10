@@ -2,7 +2,7 @@
 
 ## rsconnect 1.10.0
 
-## rsconnect 1.9.0
+CRAN release: 2026-06-08
 
 - Added support for deploying Node.js applications to Posit Connect.
   [`deployApp()`](https://rstudio.github.io/rsconnect/reference/deployApp.md)
