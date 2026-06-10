@@ -37,7 +37,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>Use <code><a href="https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html" class="external-link">openssl::rsa_sign</a></code> rather than PKI signing. (<a href="https://github.com/rstudio/rsconnect/issues/1333" class="external-link">#1333</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.10.0" id="rsconnect-1100">rsconnect 1.10.0<a class="anchor" aria-label="anchor" href="#rsconnect-1100"></a></h2><p class="text-muted">CRAN release: 2026-06-08</p>
 <ul><li><p>Added support for deploying Node.js applications to Posit Connect. <code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> now automatically detect Node.js content from <code>package.json</code> and generate the appropriate manifest. Added <code>envManagementNodejs</code> parameter for controlling Node.js environment management. <a href="https://docs.posit.co/connect/user/nodejs/" class="external-link">Node.js support</a> is in Early Access as of Connect version 2026.04.0. (<a href="https://github.com/rstudio/rsconnect/issues/1322" class="external-link">#1322</a>)</p></li>

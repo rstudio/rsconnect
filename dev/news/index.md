@@ -2,6 +2,11 @@
 
 ## rsconnect (development version)
 
+- Use
+  [`openssl::rsa_sign`](https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html)
+  rather than PKI signing.
+  ([\#1333](https://github.com/rstudio/rsconnect/issues/1333))
+
 ## rsconnect 1.10.0
 
 CRAN release: 2026-06-08
