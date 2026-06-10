@@ -1,5 +1,7 @@
 # rsconnect (development version)
 
+* Use `openssl::rsa_sign` rather than PKI signing. (#1333)
+
 # rsconnect 1.10.0
 
 * Added support for deploying Node.js applications to Posit Connect.
