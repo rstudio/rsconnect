@@ -46,7 +46,7 @@
       Error in `applicationDeleted()`:
       ! Failed to find existing content on server; it's probably been deleted.
       i Use `forgetDeployment()` to remove outdated record and try again.
-      i Or use `applications()` to see other content deployed to the the server.
+      i Or use `applications()` to see other content deployed to the server.
 
 ---
 

@@ -50,7 +50,7 @@ Note that for \code{"none"} and \code{"local"} source files (e.g. \code{.R}, \co
 \item{launch.browser}{If true, the system's default web browser will be
 launched automatically after the app is started. Defaults to \code{TRUE} in
 interactive sessions only. If a function is passed, it will be called
-after the app is started, with the app URL as a paramter.}
+after the app is started, with the app URL as a parameter.}
 
 \item{logLevel}{One of \code{"quiet"}, \code{"normal"} or \code{"verbose"}; indicates how
 much logging to the console is to be performed. At \code{"quiet"} reports no

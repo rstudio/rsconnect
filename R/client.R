@@ -180,7 +180,7 @@ uploadBundle <- function(bundle, bundleSize, bundlePath) {
   # AWS requires a base64 encoded hash
   headers$`Content-MD5` <- bundle$presigned_checksum
 
-  # AWS seems very sensitive to additional headers (likely becauseit was not included and signed
+  # AWS seems very sensitive to additional headers (likely because it was not included and signed
   # for when the presigned link was created). So the lower level library is used here.
   response <- httpLibCurl(
     presigned_service$protocol,

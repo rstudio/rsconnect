@@ -48,7 +48,7 @@ delta such as "2d" or "3w").}
 \item{until}{Date range ending timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").}
 
-\item{interval}{Summarization interval. Data points at intervals less then this
+\item{interval}{Summarization interval. Data points at intervals less than this
 will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").}
 }
 \description{

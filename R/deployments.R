@@ -17,7 +17,7 @@
 #'   are no longer registered (via e.g.[removeAccount()]) will not be
 #'   returned.
 #' @return
-#' Returns a data frame with at least following columns:
+#' Returns a data frame with at least the following columns:
 #' \tabular{ll}{
 #' `name` \tab Name of deployed application\cr
 #' `account` \tab Account owning deployed application\cr

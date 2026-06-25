@@ -70,7 +70,7 @@ addAuthorizedUser <- function(
   # check for and remove password file
   cleanupPasswordFile(appDir)
 
-  # fetch authoriztion list
+  # fetch authorization list
   api <- clientForAccount(accountDetails)
   api$inviteApplicationUser(
     application$id,
@@ -175,7 +175,7 @@ showUsers <- function(
   }
   application <- resolveApplication(accountDetails, appName)
 
-  # fetch authoriztion list
+  # fetch authorization list
   api <- clientForAccount(accountDetails)
   res <- api$listApplicationAuthorization(application$id)
 
@@ -290,7 +290,7 @@ resendInvitation <- function(
     if (invite %in% invited$email) {
       invite <- invited[invited$email == invite, ]
     } else {
-      stop("Invitiation for \"", invite, "\" not found", call. = FALSE)
+      stop("Invitation for \"", invite, "\" not found", call. = FALSE)
     }
   }
 
