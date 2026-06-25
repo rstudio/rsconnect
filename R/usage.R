@@ -9,12 +9,12 @@
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @inheritParams deployApp
-#' @param usageType Use metric to retreive (for example: "hours")
+#' @param usageType Use metric to retrieve (for example: "hours")
 #' @param from Date range starting timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
 #' @param until Date range ending timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
-#' @param interval Summarization interval. Data points at intervals less then this
+#' @param interval Summarization interval. Data points at intervals less than this
 #'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @note This function only works for ShinyApps servers.
 #' @export
@@ -87,7 +87,7 @@ showUsage <- function(
 #'   delta such as "2d" or "3w").
 #' @param until Date range ending timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
-#' @param interval Summarization interval. Data points at intervals less then this
+#' @param interval Summarization interval. Data points at intervals less than this
 #'   will be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 #' @export
 showMetrics <- function(
@@ -138,12 +138,12 @@ showMetrics <- function(
 #' Supported servers: ShinyApps servers
 #'
 #' @inheritParams deployApp
-#' @param usageType Use metric to retreive (for example: "hours")
+#' @param usageType Use metric to retrieve (for example: "hours")
 #' @param from Date range starting timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
 #' @param until Date range ending timestamp (Unix timestamp or relative time
 #'   delta such as "2d" or "3w").
-#' @param interval Summarization interval. Data points at intervals less then this
+#' @param interval Summarization interval. Data points at intervals less than this
 #'   will be grouped. (Number of seconds or relative time delta e.g. "1h").
 #' @note This function only works for ShinyApps servers.
 #' @export

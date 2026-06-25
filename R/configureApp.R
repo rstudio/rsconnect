@@ -11,7 +11,7 @@
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @inheritParams deployApp
-#' @param redeploy Re-deploy application after its been configured.
+#' @param redeploy Re-deploy application after modifying its configuration.
 #' @param size Configure application instance size
 #' @param instances Configure number of application instances
 #' @examples

@@ -24,7 +24,7 @@ uses any of them will be updated with all of them.}
 }
 \value{
 \code{listAccountEnvVars()} returns a data frame with one row
-for each data frame. It has variables \code{id}, \code{guid}, \code{name}, and
+for each application. It has variables \code{id}, \code{guid}, \code{name}, and
 \code{envVars}. \code{envVars} is a list-column.
 }
 \description{

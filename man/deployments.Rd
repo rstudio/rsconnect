@@ -30,7 +30,7 @@ are no longer registered (via e.g.\code{\link[=removeAccount]{removeAccount()}})
 returned.}
 }
 \value{
-Returns a data frame with at least following columns:
+Returns a data frame with at least the following columns:
 \tabular{ll}{
 \code{name} \tab Name of deployed application\cr
 \code{account} \tab Account owning deployed application\cr

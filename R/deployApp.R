@@ -59,7 +59,7 @@
 #'   `appDir` for directory and website, and from the `appPrimaryDoc` for
 #'   document. On subsequent deploys, it will use the previously stored value.
 #' @param appTitle Free-form descriptive title of application. Optional; if
-#'   supplied, will often be displayed in favor of the name. If ommitted,
+#'   supplied, will often be displayed in favor of the name. If omitted,
 #'   on second and subsequent deploys, the title will be unchanged.
 #' @param envVars A character vector giving the names of environment variables
 #'   whose values should be synchronised with the server (currently supported by
@@ -121,7 +121,7 @@
 #' @param launch.browser If true, the system's default web browser will be
 #'   launched automatically after the app is started. Defaults to `TRUE` in
 #'   interactive sessions only. If a function is passed, it will be called
-#'   after the app is started, with the app URL as a paramter.
+#'   after the app is started, with the app URL as a parameter.
 #' @param on.failure Function to be called if the deployment fails. If a
 #'   deployment log URL is available, it's passed as a parameter.
 #' @param logLevel One of `"quiet"`, `"normal"` or `"verbose"`; indicates how
@@ -884,7 +884,7 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
   header <- "Failed to find existing content on server; it's probably been deleted."
   not_interactive <- c(
     i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
-    i = "Or use {.fn applications} to see other content deployed to the the server."
+    i = "Or use {.fn applications} to see other content deployed to the server."
   )
   prompt <- "What do you want to do?"
   choices <- c(

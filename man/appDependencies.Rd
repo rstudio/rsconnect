@@ -56,14 +56,14 @@ with its own repository name -> repository URL mapping.
 \code{appDependencies()} recursively detects all R package dependencies for an
 application by parsing all \code{.R} and \code{.Rmd} files and looking for calls
 to \code{library()}, \code{require()}, \code{requireNamespace()}, \code{::}, and so on.
-It then adds implicit dependencies (i.e. an \code{.Rmd} requires Rmarkdown)
+It then adds implicit dependencies (i.e. an \code{.Rmd} requires rmarkdown)
 and adds all recursive dependencies to create a complete manifest of
-package packages need to be installed to run the app.
+packages need to be installed to run the app.
 
 Supported servers: All servers
 }
 \section{Dependency discovery}{
-rsconnect use one of three mechanisms to find which packages your application
+rsconnect uses one of three mechanisms to find which packages your application
 uses:
 \enumerate{
 \item If \code{renv.lock} is present, it will use the versions and sources defined in
@@ -88,7 +88,7 @@ rsconnect ensures the versions used on the server will match the versions
 you used locally. It knows how to install packages from the following
 sources:
 \itemize{
-\item CRAN and BioConductor (\code{Source: CRAN} or \code{Source: Bioconductor}). The
+\item CRAN and Bioconductor (\code{Source: CRAN} or \code{Source: Bioconductor}). The
 remote server will ignore the specific CRAN or Bioconductor mirror that
 you use locally, always using the CRAN/BioC mirror that has been configured
 on the server.
@@ -109,9 +109,9 @@ have source \code{CORPORATE}. Posit Connect
 \href{https://docs.posit.co/connect/admin/appendix/configuration/#RPackageRepository}{can be configured}
 to override their repository url so that (e.g.) you can use different
 packages versions on staging and production servers.
-\item Packages installed from GitHub, GitLab, or BitBucket, have \code{Source}
+\item Packages installed from GitHub, GitLab, or Bitbucket, have \code{Source}
 \code{github}, \code{gitlab}, and \code{bitbucket} respectively. When deployed, the
-bundle contains the additional metadata needed to precisely recreated
+bundle contains the additional metadata needed to precisely recreate
 the installed version.
 }
 

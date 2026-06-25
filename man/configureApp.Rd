@@ -27,7 +27,7 @@ there are multiple options, you'll be prompted to pick one.
 
 Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
-\item{redeploy}{Re-deploy application after its been configured.}
+\item{redeploy}{Re-deploy application after modifying its configuration.}
 
 \item{size}{Configure application instance size}
 

@@ -20,7 +20,7 @@ there are multiple options, you'll be prompted to pick one.
 
 Use \code{\link[=accounts]{accounts()}} to see the full list of available options.}
 
-\item{usageType}{Use metric to retreive (for example: "hours")}
+\item{usageType}{Use metric to retrieve (for example: "hours")}
 
 \item{from}{Date range starting timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").}
@@ -28,7 +28,7 @@ delta such as "2d" or "3w").}
 \item{until}{Date range ending timestamp (Unix timestamp or relative time
 delta such as "2d" or "3w").}
 
-\item{interval}{Summarization interval. Data points at intervals less then this
+\item{interval}{Summarization interval. Data points at intervals less than this
 will be grouped. (Number of seconds or relative time delta e.g. "1h").}
 }
 \description{
