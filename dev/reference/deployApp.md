@@ -103,7 +103,7 @@ deployApp(
 - appTitle:
 
   Free-form descriptive title of application. Optional; if supplied,
-  will often be displayed in favor of the name. If ommitted, on second
+  will often be displayed in favor of the name. If omitted, on second
   and subsequent deploys, the title will be unchanged.
 
 - envVars:
@@ -202,7 +202,7 @@ deployApp(
   If true, the system's default web browser will be launched
   automatically after the app is started. Defaults to `TRUE` in
   interactive sessions only. If a function is passed, it will be called
-  after the app is started, with the app URL as a paramter.
+  after the app is started, with the app URL as a parameter.
 
 - on.failure:
 

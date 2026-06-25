@@ -41,6 +41,6 @@ updateAccountEnvVars(envVars, server = NULL, account = NULL)
 
 ## Value
 
-`listAccountEnvVars()` returns a data frame with one row for each data
-frame. It has variables `id`, `guid`, `name`, and `envVars`. `envVars`
-is a list-column.
+`listAccountEnvVars()` returns a data frame with one row for each
+application. It has variables `id`, `guid`, `name`, and `envVars`.
+`envVars` is a list-column.

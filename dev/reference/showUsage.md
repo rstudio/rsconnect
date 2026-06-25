@@ -42,7 +42,7 @@ showUsage(
 
 - usageType:
 
-  Use metric to retreive (for example: "hours")
+  Use metric to retrieve (for example: "hours")
 
 - from:
 
@@ -56,7 +56,7 @@ showUsage(
 
 - interval:
 
-  Summarization interval. Data points at intervals less then this will
+  Summarization interval. Data points at intervals less than this will
   be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").
 
 ## Note
