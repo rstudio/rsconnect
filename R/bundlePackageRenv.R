@@ -59,12 +59,18 @@ parseRenvDependencies <- function(lockfile, bundleDir, snapshot = FALSE) {
     vapply(renvLock$R$Repositories, "[[", "URL", FUN.VALUE = character(1)),
     vapply(renvLock$R$Repositories, "[[", "Name", FUN.VALUE = character(1))
   )
-  bioc <- biocRepos(bundleDir)
-  if (any(bioc %in% repos)) {
-    biocPkgs <- NULL
+  # Only resolve Bioconductor repositories when the project actually contains a
+  # Bioconductor-sourced package.
+  if (hasBiocPackage(renvLock$Packages)) {
+    bioc <- biocRepos(bundleDir)
+    if (any(bioc %in% repos)) {
+      biocPkgs <- NULL
+    } else {
+      signal("evaluating", class = "rsconnect_biocRepos")
+      biocPkgs <- availablePackages(bioc)
+    }
   } else {
-    signal("evaluating", class = "rsconnect_biocRepos")
-    biocPkgs <- availablePackages(bioc)
+    biocPkgs <- NULL
   }
   deps <- standardizeRenvPackages(
     renvLock$Packages,
@@ -118,13 +124,9 @@ standardizeRenvPackage <- function(
   # Convert renv source to manifest source/repository
   # https://github.com/rstudio/renv/blob/0.17.2/R/snapshot.R#L730-L773
 
-  if (
-    is.null(pkg$Repository) &&
-      !is.null(pkg$RemoteRepos) &&
-      grepl("bioconductor.org", pkg$RemoteRepos)
-  ) {
-    # Work around bug where renv fails to detect BioC package installed by pak
-    # https://github.com/rstudio/renv/issues/1202
+  # Normalize Bioconductor packages to Source == "Bioconductor", including those
+  # installed by pak that renv records without a Bioconductor source.
+  if (isBiocPackage(pkg)) {
     pkg$Source <- "Bioconductor"
   }
 
@@ -197,6 +199,23 @@ standardizeRenvPackage <- function(
 biocRepos <- function(bundleDir) {
   repos <- getFromNamespace("renv_bioconductor_repos", "renv")(bundleDir)
   repos[setdiff(names(repos), "CRAN")]
+}
+
+# Is a single renv.lock package record sourced from Bioconductor? True when it
+# has an explicit Bioconductor source, or when it was installed by pak, which
+# renv records without one (https://github.com/rstudio/renv/issues/1202).
+isBiocPackage <- function(pkg) {
+  isTRUE(pkg$Source == "Bioconductor") ||
+    (is.null(pkg$Repository) &&
+      !is.null(pkg$RemoteRepos) &&
+      grepl("bioconductor.org", pkg$RemoteRepos))
+}
+
+# Does the lockfile contain any Bioconductor-sourced package? Used to avoid
+# resolving Bioconductor repositories (a BiocManager install and network call)
+# for CRAN-only content (#1337).
+hasBiocPackage <- function(packages) {
+  any(vapply(packages, isBiocPackage, logical(1)))
 }
 
 # Find the renv lockfile, checking both the renv-resolved path and the
