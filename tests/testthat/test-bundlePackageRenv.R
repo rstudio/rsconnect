@@ -130,6 +130,26 @@ test_that("gets DESCRIPTION from renv & system libraries", {
   expect_type(deps$description[[which(deps$Package == "MASS")]], "list")
 })
 
+# https://github.com/rstudio/rsconnect/issues/1337
+test_that("CRAN-only projects don't resolve Bioconductor repos", {
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("MASS")
+
+  withr::local_options(renv.verbose = FALSE)
+
+  # biocRepos() installs BiocManager and contacts bioconductor.org; it must not
+  # be reached when no dependency comes from Bioconductor.
+  local_mocked_bindings(
+    biocRepos = function(...) stop("biocRepos() should not be called")
+  )
+
+  app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
+  renv::snapshot(app_dir, prompt = FALSE)
+
+  deps <- parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir)
+  expect_setequal(deps$Package, c("foreign", "MASS", "renv"))
+})
+
 
 test_that("errors if library and project are inconsistent", {
   withr::local_options(renv.verbose = FALSE)
@@ -200,6 +220,26 @@ test_that("BioC gets normalized repo", {
   )
 })
 
+# pak installs BioC packages without a Bioconductor source; renv records them as
+# "Repository" with a Bioconductor RemoteRepos (https://github.com/rstudio/renv/issues/1202).
+test_that("pak-installed BioC packages are treated as Bioconductor", {
+  pak_bioc <- list(
+    Package = "pkg",
+    Source = "Repository",
+    RemoteRepos = "https://bioconductor.org/packages/3.22/bioc"
+  )
+
+  bioc <- data.frame(
+    Package = "pkg",
+    Repository = "https://bioconductor.org/packages/3.22/bioc/src/contrib",
+    stringsAsFactors = FALSE
+  )
+
+  result <- standardizeRenvPackage(pak_bioc, biocPackages = bioc)
+  expect_equal(result$Source, "Bioconductor")
+  expect_equal(result$Repository, "https://bioconductor.org/packages/3.22/bioc")
+})
+
 test_that("BioC prefers biocPackages over availablePackages (#1314)", {
   bioc_pkg <- list(Package = "S4Vectors", Source = "Bioconductor")
 
@@ -217,6 +257,23 @@ test_that("BioC prefers biocPackages over availablePackages (#1314)", {
 
   result <- standardizeRenvPackage(bioc_pkg, avail, biocPackages = bioc)
   expect_equal(result$Repository, "https://bioconductor.org/packages/3.22/bioc")
+})
+
+test_that("hasBiocPackage detects Bioconductor source and pak workaround (#1337)", {
+  cran <- list(Package = "withr", Source = "Repository", Repository = "CRAN")
+  bioc <- list(Package = "Biobase", Source = "Bioconductor")
+  # pak installs BioC packages without a Repository but with a BioC RemoteRepos
+  pak_bioc <- list(
+    Package = "Biobase",
+    Source = "Repository",
+    RemoteRepos = "https://bioconductor.org/packages/3.22/bioc"
+  )
+
+  expect_false(hasBiocPackage(list(cran)))
+  expect_false(hasBiocPackage(list()))
+  expect_true(hasBiocPackage(list(bioc)))
+  expect_true(hasBiocPackage(list(cran, bioc)))
+  expect_true(hasBiocPackage(list(cran, pak_bioc)))
 })
 
 test_that("has special handling for CRAN packages", {
