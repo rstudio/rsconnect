@@ -2,6 +2,17 @@
 
 ## rsconnect (development version)
 
+- Fixed a regression where
+  [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
+  and
+  [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md)
+  would install BiocManager and contact bioconductor.org during
+  dependency capture even for projects with no Bioconductor
+  dependencies, breaking deployment of CRAN-only content in air-gapped
+  or offline environments. Bioconductor repositories are now resolved
+  only when a Bioconductor-sourced package is present.
+  ([\#1337](https://github.com/rstudio/rsconnect/issues/1337))
+
 - Use
   [`openssl::rsa_sign`](https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html)
   rather than PKI signing.
