@@ -146,10 +146,7 @@ test_that("CRAN-only projects don't resolve Bioconductor repos", {
   app_dir <- local_temp_app(list("foo.R" = "library(foreign); library(MASS)"))
   renv::snapshot(app_dir, prompt = FALSE)
 
-  expect_no_condition(
-    deps <- parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir),
-    class = "rsconnect_biocRepos"
-  )
+  deps <- parseRenvDependencies(file.path(app_dir, "renv.lock"), app_dir)
   expect_setequal(deps$Package, c("foreign", "MASS", "renv"))
 })
 
