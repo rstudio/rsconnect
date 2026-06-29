@@ -260,6 +260,24 @@ test_that("can infer mode for API with _server.yml", {
   )
 })
 
+test_that("_server.yml with the mcptools engine defaults contentCategory to mcp", {
+  dir <- local_temp_app(list("_server.yml" = "engine: 'mcptools'"))
+  files <- list.files(dir)
+
+  metadata <- appMetadata(dir, files)
+  expect_equal(metadata$appMode, "api")
+  expect_equal(metadata$contentCategory, "mcp")
+
+  # an explicit contentCategory still wins
+  metadata_explicit <- appMetadata(dir, files, contentCategory = "other")
+  expect_equal(metadata_explicit$contentCategory, "other")
+
+  # other engines are unaffected
+  dir_plumber2 <- local_temp_app(list("_server.yml" = "engine: 'plumber2'"))
+  metadata_plumber2 <- appMetadata(dir_plumber2, list.files(dir_plumber2))
+  expect_null(metadata_plumber2$contentCategory)
+})
+
 test_that("can infer mode for shiny apps with app.R", {
   dir <- local_temp_app(list("app.R" = ""))
   paths <- list.files(dir)
