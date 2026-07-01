@@ -81,6 +81,12 @@ appMetadata <- function(
     plumberInfo <- inferPlumberInfo(appDir)
   }
 
+  # mcptools uses plumber2's _server.yml spec (posit-dev/mcptools#106).
+  # the appMode is left as `"api"`.
+  if (is.null(contentCategory) && identical(plumberInfo, "mcptools")) {
+    contentCategory <- "mcp"
+  }
+
   nodejsInfo <- NULL
   if (appMode == "nodejs") {
     nodejsInfo <- inferNodejsInfo(appDir)
