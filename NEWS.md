@@ -8,6 +8,8 @@
 
 * Use `openssl::rsa_sign` rather than PKI signing. (#1333)
 
+* Address CRAN test failures from sample packages using custom encoding. (#1344)
+
 # rsconnect 1.10.0
 
 * Added support for deploying Node.js applications to Posit Connect.

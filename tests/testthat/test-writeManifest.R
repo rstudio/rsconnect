@@ -416,8 +416,8 @@ Depends: R (>= 1.42.0)
 test_that("environment.r.requires - No DESCRIPTION and No renv.lock", {
   withr::local_options(renv.verbose = TRUE)
 
-  appDir <- test_path("packages/windows1251package")
-  manifest <- makeManifest(appDir, appPrimaryDoc = "R/hello.R")
+  appDir <- local_temp_app(list("hello.R" = "1"))
+  manifest <- makeManifest(appDir, appPrimaryDoc = "hello.R")
   expect_null(manifest$environment)
 })
 
