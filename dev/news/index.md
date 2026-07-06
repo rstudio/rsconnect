@@ -13,6 +13,10 @@
   only when a Bioconductor-sourced package is present.
   ([\#1337](https://github.com/rstudio/rsconnect/issues/1337))
 
+- `deployApp(contentCategory)` now defaults to `"mcp"` for deployments
+  with a `_server.yml` and `engine: mcptools`
+  ([\#1343](https://github.com/rstudio/rsconnect/issues/1343)).
+
 - Use
   [`openssl::rsa_sign`](https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html)
   rather than PKI signing.
