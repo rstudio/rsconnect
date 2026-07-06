@@ -248,3 +248,21 @@ test_that("package_record works", {
   utf8Record <- package_record("utf8package", lib_dir = test_path("packages"))
   expect_equal(utf8Record$Author, "Jens Fröhling")
 })
+
+test_that("package_record works with non-UTF-8 encodings", {
+  # R 4.7 (devel) always reads DCF files as UTF-8, which breaks reading these
+  # sample packages with custom encodings.
+  skip_unless_r("< 4.7")
+
+  latin1Record <- package_record(
+    "latin1package",
+    lib_dir = test_path("packages")
+  )
+  expect_equal(latin1Record$Author, "Jens Fröhling")
+
+  windows1251Record <- package_record(
+    "windows1251package",
+    lib_dir = test_path("packages")
+  )
+  expect_equal(windows1251Record$Author, "Сергей Брин")
+})
