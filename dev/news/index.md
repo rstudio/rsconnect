@@ -18,6 +18,9 @@
   rather than PKI signing.
   ([\#1333](https://github.com/rstudio/rsconnect/issues/1333))
 
+- Address CRAN test failures from sample packages using custom encoding.
+  ([\#1344](https://github.com/rstudio/rsconnect/issues/1344))
+
 ## rsconnect 1.10.0
 
 CRAN release: 2026-06-08
