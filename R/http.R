@@ -202,9 +202,20 @@ handleResponse <- function(
 ) {
   url <- buildHttpUrl(response$req)
   reportError <- function(msg, errorType = NULL) {
+    # If a newer rsconnect version is available, mention it -- this is
+    # purely informational (we don't know whether it would fix this error).
+    # Bounded by rsconnect.update_check_timeout so a slow/unreachable repo
+    # can't meaningfully delay error reporting.
+    newer <- tryCatch(checkForNewerVersion(), error = function(e) NULL)
+    hint <- if (!is.null(newer)) {
+      updateErrorHint(utils::packageVersion("rsconnect"), newer)
+    } else {
+      NULL
+    }
+
     # msg may be JSON; wrapping with "{msg}" avoids treating it as a formatting string.
     cli::cli_abort(
-      c("<{url}> failed with HTTP status {response$status}", "{msg}"),
+      c("<{url}> failed with HTTP status {response$status}", "{msg}", hint),
       class = c(paste0("rsconnect_http_", response$status), "rsconnect_http"),
       status = response$status,
       url = url,

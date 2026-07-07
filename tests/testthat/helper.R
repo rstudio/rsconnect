@@ -3,6 +3,14 @@ showDcf <- function(df) {
   invisible()
 }
 
+fakeAvailablePackages <- function(pkg = "rsconnect", version = "1.11.0") {
+  matrix(
+    c(pkg, version),
+    nrow = 1,
+    dimnames = list(NULL, c("Package", "Version"))
+  )
+}
+
 # Create and use a directory as temporary replacement for R_USER_CONFIG_DIR to
 # avoid having tests overwrite the "official" configuration locations.
 local_temp_config <- function(env = caller_env()) {

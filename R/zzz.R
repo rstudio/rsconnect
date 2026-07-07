@@ -19,6 +19,21 @@ setOptionDefaults <- function(...) {
 .onLoad <- function(libname, pkgname) {
   setOptionDefaults(
     rsconnect.max.bundle.size = defaultMaxBundleSize,
-    rsconnect.max.bundle.files = defaultMaxBundleFiles
+    rsconnect.max.bundle.files = defaultMaxBundleFiles,
+    rsconnect.check_updates = TRUE,
+    rsconnect.update_check_timeout = 5
   )
+}
+
+.onAttach <- function(libname, pkgname) {
+  if (!is_interactive()) {
+    return(invisible())
+  }
+
+  newer <- tryCatch(checkForNewerVersion(pkgname), error = function(e) NULL)
+  if (!is.null(newer)) {
+    packageStartupMessage(
+      updateStartupMessage(utils::packageVersion(pkgname), newer)
+    )
+  }
 }
