@@ -84,6 +84,21 @@ service_redirect <- function(target) {
   parseHttpUrl(app$url())
 }
 
+# A CRAN-like repo serving a PACKAGES index at /src/contrib/PACKAGES, with
+# an optional artificial delay -- used to test that update-check requests
+# are bounded by rsconnect.update_check_timeout instead of hanging.
+service_repo <- function(packages = character(), delay = 0) {
+  body <- paste(packages, collapse = "\n\n")
+  app <- webfakes::new_app()
+  app$get("/src/contrib/PACKAGES", function(req, res) {
+    if (delay > 0) {
+      Sys.sleep(delay)
+    }
+    res$set_type("text/plain")$send(body)
+  })
+  proc <- webfakes::new_app_process(app)
+  proc$url()
+}
 
 # Generic tests of various http methods -----------------------------------
 

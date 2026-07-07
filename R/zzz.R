@@ -21,7 +21,8 @@ setOptionDefaults <- function(...) {
     rsconnect.max.bundle.size = defaultMaxBundleSize,
     rsconnect.max.bundle.files = defaultMaxBundleFiles,
     rsconnect.check_updates = TRUE,
-    rsconnect.update_check_timeout = 5
+    rsconnect.update_check_timeout = 2,
+    rsconnect.update_check_interval = 60 * 60 * 24
   )
 }
 
