@@ -45,7 +45,10 @@ test_that("latestAvailableVersion() reads the version out of a repo's PACKAGES i
   skip_if_not_installed("webfakes")
 
   repo <- service_repo(c("Package: rsconnect\nVersion: 1.11.0"))
-  expect_equal(latestAvailableVersion("rsconnect", repos = c(CRAN = repo)), "1.11.0")
+  expect_equal(
+    latestAvailableVersion("rsconnect", repos = c(CRAN = repo)),
+    "1.11.0"
+  )
 })
 
 test_that("latestAvailableVersion() returns NULL when the package isn't listed", {
@@ -62,7 +65,10 @@ test_that("latestAvailableVersion() takes the highest version across multiple re
   new_repo <- service_repo(c("Package: rsconnect\nVersion: 1.11.0"))
 
   expect_equal(
-    latestAvailableVersion("rsconnect", repos = c(old = old_repo, new = new_repo)),
+    latestAvailableVersion(
+      "rsconnect",
+      repos = c(old = old_repo, new = new_repo)
+    ),
     "1.11.0"
   )
 })
@@ -201,7 +207,12 @@ test_that("cachedLatestVersion() refreshes a stale cache", {
 test_that("cachedLatestVersion() refreshes when repos change", {
   cacheDir <- withr::local_tempdir()
   oldRepos <- c(CRAN = "https://old.example")
-  writeVersionCheckCache("rsconnect", "1.9.0", reposCacheKey(oldRepos), cacheDir)
+  writeVersionCheckCache(
+    "rsconnect",
+    "1.9.0",
+    reposCacheKey(oldRepos),
+    cacheDir
+  )
 
   local_mocked_bindings(latestAvailableVersion = function(...) "1.11.0")
 

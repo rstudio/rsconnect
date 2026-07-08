@@ -51,14 +51,22 @@ parsePackagesVersion <- function(packagesText, pkg) {
 
 # Returns the newest version of `pkg` available from `repos`, or NULL if it
 # can't be determined.
-latestAvailableVersion <- function(pkg = "rsconnect", repos = getOption("repos")) {
+latestAvailableVersion <- function(
+  pkg = "rsconnect",
+  repos = getOption("repos")
+) {
   repos <- repos[repos != "@CRAN@"]
   if (length(repos) == 0) {
     return(NULL)
   }
 
   timeout <- getOption("rsconnect.update_check_timeout", 2)
-  versions <- unlist(lapply(repos, latestVersionInRepo, pkg = pkg, timeout = timeout))
+  versions <- unlist(lapply(
+    repos,
+    latestVersionInRepo,
+    pkg = pkg,
+    timeout = timeout
+  ))
   versions <- versions[vapply(versions, isValidVersion, logical(1))]
   if (length(versions) == 0) {
     NULL
@@ -125,7 +133,11 @@ readVersionCheckCache <- function(pkg, cacheDir) {
       dcf <- read.dcf(path)
       list(
         checked = as.numeric(dcf[1, "Checked"]),
-        latest = if (nzchar(dcf[1, "Latest"])) unname(dcf[1, "Latest"]) else NULL,
+        latest = if (nzchar(dcf[1, "Latest"])) {
+          unname(dcf[1, "Latest"])
+        } else {
+          NULL
+        },
         repos = unname(dcf[1, "Repos"])
       )
     },
