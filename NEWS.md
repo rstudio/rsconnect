@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.10.1
 
 * Fixed a regression where `deployApp()` and `writeManifest()` would install
