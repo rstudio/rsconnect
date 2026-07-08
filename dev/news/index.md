@@ -2,6 +2,10 @@
 
 ## rsconnect (development version)
 
+## rsconnect 1.10.1
+
+CRAN release: 2026-07-08
+
 - Fixed a regression where
   [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
   and

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.10.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.10.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.10.1" id="rsconnect-1101">rsconnect 1.10.1<a class="anchor" aria-label="anchor" href="#rsconnect-1101"></a></h2><p class="text-muted">CRAN release: 2026-07-08</p>
 <ul><li><p>Fixed a regression where <code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> would install BiocManager and contact bioconductor.org during dependency capture even for projects with no Bioconductor dependencies, breaking deployment of CRAN-only content in air-gapped or offline environments. Bioconductor repositories are now resolved only when a Bioconductor-sourced package is present. (<a href="https://github.com/rstudio/rsconnect/issues/1337" class="external-link">#1337</a>)</p></li>
 <li><p><code>deployApp(contentCategory)</code> now defaults to <code>"mcp"</code> for deployments with a <code>_server.yml</code> and <code>engine: mcptools</code> (<a href="https://github.com/rstudio/rsconnect/issues/1343" class="external-link">#1343</a>).</p></li>
 <li><p>Use <code><a href="https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html" class="external-link">openssl::rsa_sign</a></code> rather than PKI signing. (<a href="https://github.com/rstudio/rsconnect/issues/1333" class="external-link">#1333</a>)</p></li>
@@ -392,7 +395,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
   </div></footer></body></html>
