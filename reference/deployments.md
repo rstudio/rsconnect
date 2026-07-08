@@ -45,7 +45,7 @@ deployments(
 
 ## Value
 
-Returns a data frame with at least following columns:
+Returns a data frame with at least the following columns:
 
 |                  |                                             |
 |------------------|---------------------------------------------|

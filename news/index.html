@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.10.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,9 +32,16 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/rstudio/rsconnect/blob/aron-1.10-news-no-1.9/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/rsconnect/blob/v1.10.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.10.1" id="rsconnect-1101">rsconnect 1.10.1<a class="anchor" aria-label="anchor" href="#rsconnect-1101"></a></h2><p class="text-muted">CRAN release: 2026-07-08</p>
+<ul><li><p>Fixed a regression where <code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> would install BiocManager and contact bioconductor.org during dependency capture even for projects with no Bioconductor dependencies, breaking deployment of CRAN-only content in air-gapped or offline environments. Bioconductor repositories are now resolved only when a Bioconductor-sourced package is present. (<a href="https://github.com/rstudio/rsconnect/issues/1337" class="external-link">#1337</a>)</p></li>
+<li><p><code>deployApp(contentCategory)</code> now defaults to <code>"mcp"</code> for deployments with a <code>_server.yml</code> and <code>engine: mcptools</code> (<a href="https://github.com/rstudio/rsconnect/issues/1343" class="external-link">#1343</a>).</p></li>
+<li><p>Use <code><a href="https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html" class="external-link">openssl::rsa_sign</a></code> rather than PKI signing. (<a href="https://github.com/rstudio/rsconnect/issues/1333" class="external-link">#1333</a>)</p></li>
+<li><p>Address CRAN test failures from sample packages using custom encoding. (<a href="https://github.com/rstudio/rsconnect/issues/1344" class="external-link">#1344</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.10.0" id="rsconnect-1100">rsconnect 1.10.0<a class="anchor" aria-label="anchor" href="#rsconnect-1100"></a></h2><p class="text-muted">CRAN release: 2026-06-08</p>
 <ul><li><p>Added support for deploying Node.js applications to Posit Connect. <code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> now automatically detect Node.js content from <code>package.json</code> and generate the appropriate manifest. Added <code>envManagementNodejs</code> parameter for controlling Node.js environment management. <a href="https://docs.posit.co/connect/user/nodejs/" class="external-link">Node.js support</a> is in Early Access as of Connect version 2026.04.0. (<a href="https://github.com/rstudio/rsconnect/issues/1322" class="external-link">#1322</a>)</p></li>
@@ -385,7 +392,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
   </div></footer></body></html>

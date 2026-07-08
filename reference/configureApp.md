@@ -42,7 +42,7 @@ configureApp(
 
 - redeploy:
 
-  Re-deploy application after its been configured.
+  Re-deploy application after modifying its configuration.
 
 - size:
 

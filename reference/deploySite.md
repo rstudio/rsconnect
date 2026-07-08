@@ -71,7 +71,7 @@ deploySite(
   If true, the system's default web browser will be launched
   automatically after the app is started. Defaults to `TRUE` in
   interactive sessions only. If a function is passed, it will be called
-  after the app is started, with the app URL as a paramter.
+  after the app is started, with the app URL as a parameter.
 
 - logLevel:
 

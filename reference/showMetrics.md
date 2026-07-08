@@ -72,5 +72,5 @@ showMetrics(
 
 - interval:
 
-  Summarization interval. Data points at intervals less then this will
+  Summarization interval. Data points at intervals less than this will
   be grouped. (Relative time delta e.g. "120s" or "1h" or "30d").

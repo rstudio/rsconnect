@@ -6,8 +6,8 @@ calls to [`library()`](https://rdrr.io/r/base/library.html),
 [`require()`](https://rdrr.io/r/base/library.html),
 [`requireNamespace()`](https://rdrr.io/r/base/ns-load.html), `::`, and
 so on. It then adds implicit dependencies (i.e. an `.Rmd` requires
-Rmarkdown) and adds all recursive dependencies to create a complete
-manifest of package packages need to be installed to run the app.
+rmarkdown) and adds all recursive dependencies to create a complete
+manifest of packages need to be installed to run the app.
 
 Supported servers: All servers
 
@@ -80,7 +80,7 @@ inferred), and 4 columns:
 
 ## Dependency discovery
 
-rsconnect use one of three mechanisms to find which packages your
+rsconnect uses one of three mechanisms to find which packages your
 application uses:
 
 1.  If `renv.lock` is present, it will use the versions and sources
@@ -109,7 +109,7 @@ rsconnect ensures the versions used on the server will match the
 versions you used locally. It knows how to install packages from the
 following sources:
 
-- CRAN and BioConductor (`Source: CRAN` or `Source: Bioconductor`). The
+- CRAN and Bioconductor (`Source: CRAN` or `Source: Bioconductor`). The
   remote server will ignore the specific CRAN or Bioconductor mirror
   that you use locally, always using the CRAN/BioC mirror that has been
   configured on the server.
@@ -131,9 +131,9 @@ following sources:
   to override their repository url so that (e.g.) you can use different
   packages versions on staging and production servers.
 
-- Packages installed from GitHub, GitLab, or BitBucket, have `Source`
+- Packages installed from GitHub, GitLab, or Bitbucket, have `Source`
   `github`, `gitlab`, and `bitbucket` respectively. When deployed, the
-  bundle contains the additional metadata needed to precisely recreated
+  bundle contains the additional metadata needed to precisely recreate
   the installed version.
 
 It's not possible to recreate the packages that you have built and
