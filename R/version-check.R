@@ -230,6 +230,23 @@ updateStartupMessage <- function(installed, latest) {
   )
 }
 
+# Emitted at the start of every deployApp() call so that captured deploy
+# logs always record the rsconnect version in use, plus the newer available
+# version when one is known.
+deployVersionMessage <- function(installed, latest = NULL) {
+  if (is.null(latest)) {
+    paste0("This is rsconnect ", installed)
+  } else {
+    paste0(
+      "This is rsconnect ",
+      installed,
+      " (",
+      latest,
+      " is latest available)"
+    )
+  }
+}
+
 # A neutral bullet appended to HTTP error messages. Deliberately avoids
 # implying that updating will resolve the error -- rsconnect has no way of
 # knowing whether an outdated version caused the failure.

@@ -307,3 +307,10 @@ test_that("update messages are informative but don't overclaim", {
     updateErrorHint("1.10.0", "1.11.0")
   })
 })
+
+test_that("deploy version message mentions latest version only when known", {
+  expect_snapshot({
+    deployVersionMessage("1.10.0")
+    deployVersionMessage("1.10.0", "1.11.0")
+  })
+})
