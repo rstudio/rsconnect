@@ -37,7 +37,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>rsconnect checks whether a newer version of itself is available from your configured repositories, and lets you know: as a startup message when the package is attached interactively, and as a note appended to deployment errors otherwise. <code><a href="../reference/deployApp.html">deployApp()</a></code> also reports the rsconnect version in use (and the newer version, when one is known) so that captured deploy logs record it. The check can be disabled by setting <code>options(rsconnect.check_updates = FALSE)</code>. (<a href="https://github.com/rstudio/rsconnect/issues/1342" class="external-link">#1342</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.10.1" id="rsconnect-1101">rsconnect 1.10.1<a class="anchor" aria-label="anchor" href="#rsconnect-1101"></a></h2><p class="text-muted">CRAN release: 2026-07-08</p>
 <ul><li><p>Fixed a regression where <code><a href="../reference/deployApp.html">deployApp()</a></code> and <code><a href="../reference/writeManifest.html">writeManifest()</a></code> would install BiocManager and contact bioconductor.org during dependency capture even for projects with no Bioconductor dependencies, breaking deployment of CRAN-only content in air-gapped or offline environments. Bioconductor repositories are now resolved only when a Bioconductor-sourced package is present. (<a href="https://github.com/rstudio/rsconnect/issues/1337" class="external-link">#1337</a>)</p></li>

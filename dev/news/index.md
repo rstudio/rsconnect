@@ -2,6 +2,16 @@
 
 ## rsconnect (development version)
 
+- rsconnect checks whether a newer version of itself is available from
+  your configured repositories, and lets you know: as a startup message
+  when the package is attached interactively, and as a note appended to
+  deployment errors otherwise.
+  [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
+  also reports the rsconnect version in use (and the newer version, when
+  one is known) so that captured deploy logs record it. The check can be
+  disabled by setting `options(rsconnect.check_updates = FALSE)`.
+  ([\#1342](https://github.com/rstudio/rsconnect/issues/1342))
+
 ## rsconnect 1.10.1
 
 CRAN release: 2026-07-08
