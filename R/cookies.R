@@ -71,12 +71,12 @@ storeCookies <- function(requestURL, cookieHeaders) {
   lapply(cookies, function(co) {
     # Remove any duplicates
     # RFC says duplicate cookies are ones that have the same domain, name, and path
-    hostCookies <<- hostCookies[
+    hostCookies <<- hostCookies[ # nolint
       !(co$name == hostCookies$name & co$path == hostCookies$path),
     ]
 
     # append this new cookie on
-    hostCookies <<- rbind(
+    hostCookies <<- rbind( # nolint
       as.data.frame(co, stringsAsFactors = FALSE),
       hostCookies
     )
