@@ -44,6 +44,8 @@ test_that("parsePackagesVersion() returns NULL rather than erroring on garbage i
 test_that("latestAvailableVersion() reads the version out of a repo's PACKAGES index", {
   skip_if_not_installed("webfakes")
 
+  # The default 2s timeout can be exceeded by a slow CI runner
+  withr::local_options(rsconnect.update_check_timeout = 10)
   repo <- service_repo(c("Package: rsconnect\nVersion: 1.11.0"))
   expect_equal(
     latestAvailableVersion("rsconnect", repos = c(CRAN = repo)),
@@ -61,6 +63,8 @@ test_that("latestAvailableVersion() returns NULL when the package isn't listed",
 test_that("latestAvailableVersion() takes the highest version across multiple repos", {
   skip_if_not_installed("webfakes")
 
+  # The default 2s timeout can be exceeded by a slow CI runner
+  withr::local_options(rsconnect.update_check_timeout = 10)
   old_repo <- service_repo(c("Package: rsconnect\nVersion: 1.9.0"))
   new_repo <- service_repo(c("Package: rsconnect\nVersion: 1.11.0"))
 
@@ -98,6 +102,8 @@ test_that("latestAvailableVersion() returns NULL rather than erroring on a malfo
 test_that("latestAvailableVersion() ignores a malformed version from one repo among several", {
   skip_if_not_installed("webfakes")
 
+  # The default 2s timeout can be exceeded by a slow CI runner
+  withr::local_options(rsconnect.update_check_timeout = 10)
   broken <- service_repo(c("Package: rsconnect\nVersion: not-a-version!!"))
   ok <- service_repo(c("Package: rsconnect\nVersion: 5.0.0"))
 
