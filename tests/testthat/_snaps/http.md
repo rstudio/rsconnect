@@ -68,3 +68,21 @@
       Error in `POST()`:
       ! <http://127.0.0.1:{port}/status/403> failed with HTTP status 403
 
+# http errors mention a newer rsconnect version when one is known
+
+    Code
+      GET(service, list(), path = "status/404")
+    Condition
+      Error in `GET()`:
+      ! <http://127.0.0.1:{port}/status/404> failed with HTTP status 404
+      
+      i rsconnect 99.0.0 is available from your repositories (you have 1.10.0.9000).
+
+# http errors don't mention a version hint when none is known
+
+    Code
+      GET(service, list(), path = "status/404")
+    Condition
+      Error in `GET()`:
+      ! <http://127.0.0.1:{port}/status/404> failed with HTTP status 404
+

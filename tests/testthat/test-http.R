@@ -198,6 +198,36 @@ test_that("http error includes status in error class", {
   )
 })
 
+test_that("http errors mention a newer rsconnect version when one is known", {
+  skip_if_not_installed("webfakes")
+
+  service <- httpbin_service()
+  local_mocked_bindings(checkForNewerVersion = function(...) "99.0.0")
+  local_mocked_bindings(
+    packageVersion = function(...) package_version("1.10.0.9000"),
+    .package = "utils"
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    GET(service, list(), path = "status/404"),
+    transform = strip_port(service)
+  )
+})
+
+test_that("http errors don't mention a version hint when none is known", {
+  skip_if_not_installed("webfakes")
+
+  service <- httpbin_service()
+  local_mocked_bindings(checkForNewerVersion = function(...) NULL)
+
+  expect_snapshot(
+    error = TRUE,
+    GET(service, list(), path = "status/404"),
+    transform = strip_port(service)
+  )
+})
+
 test_that("handles redirects", {
   skip_if_not_installed("webfakes")
 

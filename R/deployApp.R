@@ -434,6 +434,10 @@ deployApp <- function(
 
   if (!quiet) {
     cli::cli_rule("Preparing for deployment")
+    newer <- tryCatch(checkForNewerVersion(), error = function(e) NULL)
+    cli::cli_alert_info(
+      deployVersionMessage(utils::packageVersion("rsconnect"), newer)
+    )
   }
 
   forceUpdate <- forceUpdate %||%

@@ -84,6 +84,28 @@ service_redirect <- function(target) {
   parseHttpUrl(app$url())
 }
 
+# A CRAN-like repo serving a PACKAGES index at /src/contrib/PACKAGES, with
+# an optional artificial delay -- used to test that update-check requests
+# are bounded by rsconnect.update_check_timeout instead of hanging.
+service_repo <- function(
+  packages = character(),
+  delay = 0,
+  env = parent.frame()
+) {
+  body <- paste(packages, collapse = "\n\n")
+  app <- webfakes::new_app()
+  app$get("/src/contrib/PACKAGES", function(req, res) {
+    if (delay > 0) {
+      Sys.sleep(delay)
+    }
+    res$set_type("text/plain")$send(body)
+  })
+  # The process handle must outlive this function: the server subprocess is
+  # killed as soon as the handle is garbage collected, which made repos
+  # vanish mid-test. Tie its lifetime to the calling test instead.
+  proc <- webfakes::local_app_process(app, .local_envir = env)
+  proc$url()
+}
 
 # Generic tests of various http methods -----------------------------------
 
