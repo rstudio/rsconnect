@@ -22,8 +22,7 @@ test_that("authHeaders() picks correct method based on supplied fields", {
     rfc2616Date = function() "Thu, 09 Mar 2023 14:29:00 GMT"
   )
 
-  # Dummy key created with
-  # openssl::base64_encode(openssl::rsa_keygen(2048L))
+  # Created with `openssl::base64_encode(openssl::rsa_keygen(2048L))`
   key_string <- "-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC/eiSQAKXADslq
 GGsbsQu2eEgEHD06BtUhaeU1nvsY7a6u12xpG0OAGYWhnGhR+1K/3qoZQQNmN0MC

@@ -203,11 +203,6 @@ showLintResults <- function(appDir, lintResults) {
       cli::cli_abort("Cancelling deployment.")
     }
   } else {
-    # message(
-    #   "\nIf you believe these errors are spurious, run:\n\n",
-    #   "\tdeployApp(lint = FALSE)\n\n",
-    #   "to disable linting."
-    # )
     message(
       "If your code fails to run post-deployment, ",
       "please double-check these messages."
