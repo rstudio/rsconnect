@@ -32,9 +32,9 @@ or plumber API). Defaults to the current directory.}
 \verb{_} and \code{-}. The application name is used to identify applications on a
 server, so must be unique.
 
-If not specified, the first deployment will be automatically it from the
-\code{appDir} for directory and website, and from the \code{appPrimaryDoc} for
-document. On subsequent deploys, it will use the previously stored value.}
+If not specified, the name is automatically derived on the first deployment
+from \code{appDir} for applications and websites, and from \code{appPrimaryDoc} for
+documents. On subsequent deploys, the previously stored value is used.}
 
 \item{account, server}{Uniquely identify a remote server with either your
 user \code{account}, the \code{server} name, or both. If neither are supplied, and

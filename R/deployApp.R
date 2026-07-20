@@ -55,9 +55,9 @@
 #'   `_` and `-`. The application name is used to identify applications on a
 #'   server, so must be unique.
 #'
-#'   If not specified, the first deployment will be automatically it from the
-#'   `appDir` for directory and website, and from the `appPrimaryDoc` for
-#'   document. On subsequent deploys, it will use the previously stored value.
+#'   If not specified, the name is automatically derived on the first deployment
+#'   from `appDir` for applications and websites, and from `appPrimaryDoc` for
+#'   documents. On subsequent deploys, the previously stored value is used.
 #' @param appTitle Free-form descriptive title of application. Optional; if
 #'   supplied, will often be displayed in favor of the name. If omitted,
 #'   on second and subsequent deploys, the title will be unchanged.
