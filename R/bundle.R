@@ -265,7 +265,7 @@ createAppManifest <- function(
   # create userlist
   userlist <- list()
   if (!is.null(users) && length(users) > 0) {
-    for (i in 1:nrow(users)) {
+    for (i in seq_len(nrow(users))) {
       user <- users[i, "user"]
       hash <- users[i, "hash"]
       userinfo <- list()
