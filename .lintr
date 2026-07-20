@@ -4,7 +4,10 @@ linters: linters_with_defaults(
     object_length_linter(60),
     object_name_linter = NULL,
     object_usage_linter = NULL,
-    brace_linter = NULL,
     commented_code_linter = NULL,
     return_linter = NULL
+  )
+exclusions: list(
+    "R/import-standalone-obj-type.R",
+    "R/import-standalone-types-check.R"
   )
