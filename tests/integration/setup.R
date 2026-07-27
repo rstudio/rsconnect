@@ -1,8 +1,6 @@
 library(testthat)
 library(rsconnect)
 
-# options("rsconnect.httr2" = FALSE)
-
 # Configure the account() for testing, with cleanup
 server <- Sys.getenv("CONNECT_SERVER")
 apiKey <- Sys.getenv("CONNECT_API_KEY")

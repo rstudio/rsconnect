@@ -30,8 +30,8 @@ account.}
 \code{connectSPCSUser()} connects your Posit Connect account to the rsconnect
 package so it can deploy and manage applications on your behalf.
 Configure a
-\href{https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-fil}{\code{connections.toml} file}
-in the appropriate location.
+\href{https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-cli#location-of-the-toml-configuration-file}{\code{connections.toml}}
+file in the appropriate location.
 
 SPCS deployments require both Snowflake authentication (via the connection
 name) and a Posit Connect API key. The Snowflake token provides proxied
