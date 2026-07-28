@@ -17,8 +17,8 @@ migrateDeployment(
 \item{appPath}{Path to the content directory. Defaults to the current
 working directory.}
 
-\item{contentId}{The Connect Cloud content ID. Found in the content admin
-page URL: \code{https://connect.posit.cloud/{account}/content/{contentId}}.}
+\item{contentId}{The Connect Cloud content ID. Found in the content URL:
+\verb{https://connect.posit.cloud/\{account\}/content/\{contentId\}}.}
 
 \item{cloudAccount}{Local name of the Connect Cloud account to write the
 new record under. When \code{NULL} and exactly one Connect Cloud account is
@@ -32,10 +32,11 @@ The path to the new deployment record file, invisibly.
 }
 \description{
 Rewrites a local deployment record to point at an existing Posit Connect
-Cloud content item so that subsequent \code{\link[=deployApp]{deployApp()}} calls (including
-the RStudio IDE Publish button) route to Connect Cloud instead of the
-original server. The target content must already exist in Connect Cloud —
-this function updates only the local \code{.dcf} file on disk.
-
+Cloud content item so that subsequent \code{\link[=deployApp]{deployApp()}} calls (including the
+RStudio IDE Publish button) route to Connect Cloud instead of the original
+server. The target content must already exist in Connect Cloud — this
+function updates only the local \code{.dcf} file on disk.
+}
+\details{
 Supported servers: all (source) -> Posit Connect Cloud (target)
 }
