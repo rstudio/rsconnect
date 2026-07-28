@@ -7,6 +7,13 @@
   newer version, when one is known) so that captured deploy logs record it. The
   check can be disabled by setting `options(rsconnect.check_updates = FALSE)`.
   (#1342)
+
+* New `migrateDeployment()` rewrites a local deployment record so a
+  previously-deployed app (e.g. deployed to shinyapps.io) points at an
+  existing Posit Connect Cloud content item instead, so the next deploy
+  (including the RStudio IDE's Publish button) routes to Connect Cloud. If no
+  Connect Cloud account is registered yet, it guides you through setting one
+  up first. (#1353)
   
 # rsconnect 1.10.1
 
