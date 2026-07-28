@@ -322,3 +322,132 @@ forgetDeployment <- function(
 
   invisible(NULL)
 }
+
+#' Migrate a deployment record to Posit Connect Cloud
+#'
+#' Rewrites a local deployment record to point at an existing Posit Connect
+#' Cloud content item so that subsequent [deployApp()] calls (including the
+#' RStudio IDE Publish button) route to Connect Cloud instead of the original
+#' server. The target content must already exist in Connect Cloud — this
+#' function updates only the local `.dcf` file on disk.
+#'
+#' Supported servers: all (source) -> Posit Connect Cloud (target)
+#'
+#' @param appPath Path to the content directory. Defaults to the current
+#'   working directory.
+#' @param contentId The Connect Cloud content ID. Found in the content admin
+#'   page URL: `https://connect.posit.cloud/{account}/content/{contentId}`.
+#' @param cloudAccount Local name of the Connect Cloud account to write the
+#'   new record under. When `NULL` and exactly one Connect Cloud account is
+#'   registered, it is used automatically.
+#' @param name,account,server Filters to disambiguate the source deployment
+#'   record when `appPath` has records for multiple deployments.
+#'
+#' @return The path to the new deployment record file, invisibly.
+#' @export
+migrateDeployment <- function(
+  appPath = ".",
+  contentId,
+  cloudAccount = NULL,
+  name = NULL,
+  account = NULL,
+  server = NULL
+) {
+  check_string(contentId)
+
+  # Ensure a Connect Cloud account exists; prompt to register one if not.
+  ensureConnectCloudAccount()
+  ccInfo <- findAccountInfo(cloudAccount, "connect.posit.cloud")
+
+  # Verify the target content exists and collect its metadata.
+  client <- clientForAccount(ccInfo)
+  content <- client$getContent(contentId)
+
+  # Disambiguate the source deployment record.
+  sourceDeps <- deployments(
+    appPath,
+    nameFilter = name,
+    accountFilter = account,
+    serverFilter = server,
+    excludeOrphaned = FALSE
+  )
+  if (nrow(sourceDeps) == 0) {
+    cli::cli_abort(
+      c(
+        "No deployment records found for {.path {appPath}}.",
+        i = "Deploy the app first, then call {.fun migrateDeployment}."
+      )
+    )
+  }
+  sourceRecord <- disambiguateDeployments(sourceDeps)
+
+  if (isPositConnectCloudServer(sourceRecord$server)) {
+    cli::cli_abort(
+      "The selected deployment already targets Connect Cloud. Nothing to migrate."
+    )
+  }
+
+  # Build and write the new Connect Cloud record.
+  newRecord <- deploymentRecord(
+    name     = sourceRecord$name,
+    title    = content$title %||% sourceRecord$title,
+    username = ccInfo$name,
+    account  = ccInfo$name,
+    server   = "connect.posit.cloud",
+    hostUrl  = serverInfo("connect.posit.cloud")$url,
+    appId    = contentId,
+    bundleId = NULL,           # Connect Cloud does not use bundle IDs
+    url      = content$url %||% "",
+    envVars  = sourceRecord$envVars[[1L]]
+  )
+  newPath <- deploymentConfigFile(
+    appPath,
+    newRecord$name,
+    newRecord$account,
+    newRecord$server
+  )
+  writeDeploymentRecord(newRecord, newPath)
+
+  # Remove the superseded source record.
+  unlink(sourceRecord$deploymentFile)
+
+  cli::cli_alert_success(
+    "Migration complete: next deploy of {.path {appPath}} targets Connect Cloud content {.val {contentId}}."
+  )
+  invisible(newPath)
+}
+
+# Internal: abort or prompt to register a Connect Cloud account when none exists.
+ensureConnectCloudAccount <- function() {
+  allAccounts <- accounts()
+  if (any(allAccounts$server == "connect.posit.cloud")) return(invisible())
+
+  if (!is_interactive()) {
+    cli::cli_abort(
+      c(
+        "No Posit Connect Cloud account registered.",
+        i = "Call {.fun rsconnect::connectCloudUser} or {.fun rsconnect::connectCloudClientCredentials} first."
+      )
+    )
+  }
+
+  idx <- cli_menu(
+    "No Posit Connect Cloud account registered.",
+    "Choose a setup method:",
+    choices = c(
+      "Browser (device auth): {.fun connectCloudUser}",
+      "Client credentials (CI): {.fun connectCloudClientCredentials}"
+    )
+  )
+  if (idx == 1L) {
+    connectCloudUser()
+  } else {
+    cli::cli_abort(
+      c(
+        "Register a client-credentials account first.",
+        i = "Run {.code connectCloudClientCredentials(clientId, clientSecret, accountName)}, then retry."
+      ),
+      call = NULL
+    )
+  }
+}
