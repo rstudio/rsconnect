@@ -1,48 +1,5 @@
-# ============================================================
-# MANUAL DEVELOPER WORKFLOW (run interactively, not by testthat)
-# ============================================================
-# Prerequisites: devtools::install() from a local rsconnect checkout.
-#
-# Step 1 — Register shinyapps.io account:
-#   rsconnect::setAccountInfo(name = "MYNAME", token = "TOK", secret = "SEC")
-#
-# Step 2 — Deploy the test app to shinyapps.io:
-#   rsconnect::deployApp(
-#     appDir  = "tests/shinyapps-integration/example-shiny",
-#     appName = "migrate-demo",
-#     account = "MYNAME"
-#   )
-#   # Creates: <appDir>/rsconnect/shinyapps.io/MYNAME/migrate-demo.dcf
-#
-# Step 3 — Register Connect Cloud account (browser):
-#   rsconnect::connectCloudUser()
-#
-# Step 4 — Deploy same app to Connect Cloud to create the migration target:
-#   rsconnect::deployApp(
-#     appDir  = "tests/shinyapps-integration/example-shiny",
-#     appName = "migrate-demo",
-#     server  = "connect.posit.cloud"
-#   )
-#   # Note the content ID from the resulting DCF or the admin URL.
-#
-# Step 5 — Simulate migration scenario (reset to shinyapps.io as active record):
-#   rsconnect::forgetDeployment(
-#     "tests/shinyapps-integration/example-shiny",
-#     name    = "migrate-demo",
-#     account = "<cc_account>",
-#     server  = "connect.posit.cloud"
-#   )
-#
-# Step 6 — Run the migration:
-#   rsconnect::migrateDeployment(
-#     appPath   = "tests/shinyapps-integration/example-shiny",
-#     contentId = "<content ID from step 4>"
-#   )
-#
-# Step 7 — Verify: deployApp() should now route to Connect Cloud.
-#   rsconnect::deployments("tests/shinyapps-integration/example-shiny")
-#   # Should show server = "connect.posit.cloud" only.
-# ============================================================
+# See README.md in this directory for the manual developer workflow
+# (register both accounts, deploy to both platforms, migrate, verify).
 
 # Required env var for the automated test below:
 #   CONNECT_CLOUD_CONTENT_ID — ID of a pre-existing Connect Cloud content item
