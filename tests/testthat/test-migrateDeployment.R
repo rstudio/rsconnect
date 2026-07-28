@@ -102,6 +102,7 @@ test_that("ensureConnectCloudAccount() aborts in non-interactive session with no
 
 test_that("migrateDeployment() aborts when source record cannot be deleted", {
   skip_on_cran()
+  skip_on_os("windows")
   appDir  <- withr::local_tempdir()
   srcPath <- write_shinyapps_dcf(appDir)
   # Lock the parent dir so unlink() returns non-zero.
