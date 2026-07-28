@@ -335,8 +335,8 @@ forgetDeployment <- function(
 #'
 #' @param appPath Path to the content directory. Defaults to the current
 #'   working directory.
-#' @param contentId The Connect Cloud content ID. Found in the content admin
-#'   page URL: `https://connect.posit.cloud/{account}/content/{contentId}`.
+#' @param contentId The Connect Cloud content ID. Found in the content URL:
+#'   `https://connect.posit.cloud/{account}/content/{contentId}`.
 #' @param cloudAccount Local name of the Connect Cloud account to write the
 #'   new record under. When `NULL` and exactly one Connect Cloud account is
 #'   registered, it is used automatically.
@@ -389,16 +389,16 @@ migrateDeployment <- function(
 
   # Build and write the new Connect Cloud record.
   newRecord <- deploymentRecord(
-    name     = sourceRecord$name,
-    title    = content$title %||% sourceRecord$title,
+    name = sourceRecord$name,
+    title = content$title %||% sourceRecord$title,
     username = ccInfo$name,
-    account  = ccInfo$name,
-    server   = "connect.posit.cloud",
-    hostUrl  = serverInfo("connect.posit.cloud")$url,
-    appId    = contentId,
-    bundleId = NULL,           # Connect Cloud does not use bundle IDs
-    url      = content$url %||% "",
-    envVars  = sourceRecord$envVars[[1L]]
+    account = ccInfo$name,
+    server = "connect.posit.cloud",
+    hostUrl = serverInfo("connect.posit.cloud")$url,
+    appId = contentId,
+    bundleId = NULL, # Connect Cloud does not use bundle IDs
+    url = content$url %||% "",
+    envVars = sourceRecord$envVars[[1L]]
   )
   newPath <- deploymentConfigFile(
     appPath,
@@ -427,7 +427,9 @@ migrateDeployment <- function(
 # Internal: abort or prompt to register a Connect Cloud account when none exists.
 ensureConnectCloudAccount <- function() {
   allAccounts <- accounts()
-  if (any(allAccounts$server == "connect.posit.cloud")) return(invisible())
+  if (any(allAccounts$server == "connect.posit.cloud")) {
+    return(invisible())
+  }
 
   if (!is_interactive()) {
     cli::cli_abort(

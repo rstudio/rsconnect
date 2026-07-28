@@ -52,7 +52,9 @@
 test_that("migrateDeployment() rewrites a fixture DCF against the live Connect Cloud API", {
   content_id <- Sys.getenv("CONNECT_CLOUD_CONTENT_ID")
   if (content_id == "") {
-    skip("CONNECT_CLOUD_CONTENT_ID not set — skipping live API integration test.")
+    skip(
+      "CONNECT_CLOUD_CONTENT_ID not set — skipping live API integration test."
+    )
   }
 
   # Fixture: a minimal shinyapps.io deployment record (no actual shinyapps.io
@@ -62,16 +64,16 @@ test_that("migrateDeployment() rewrites a fixture DCF against the live Connect C
   dir.create(dcfDir, recursive = TRUE)
   write.dcf(
     list(
-      name     = "migrate-test",
-      title    = "Migrate Test",
+      name = "migrate-test",
+      title = "Migrate Test",
       username = "fixture-account",
-      account  = "fixture-account",
-      server   = "shinyapps.io",
-      hostUrl  = "https://api.shinyapps.io/v1",
-      appId    = "99",
+      account = "fixture-account",
+      server = "shinyapps.io",
+      hostUrl = "https://api.shinyapps.io/v1",
+      appId = "99",
       bundleId = "1",
-      url      = "https://fixture-account.shinyapps.io/migrate-test",
-      version  = "1"
+      url = "https://fixture-account.shinyapps.io/migrate-test",
+      version = "1"
     ),
     file.path(dcfDir, "migrate-test.dcf"),
     width = 4096
@@ -80,17 +82,17 @@ test_that("migrateDeployment() rewrites a fixture DCF against the live Connect C
 
   # Run the migration against the live Connect Cloud API.
   new_dcf <- migrateDeployment(
-    appPath      = appDir,
-    contentId    = content_id,
-    cloudAccount = cc_local_name  # set by setup.R
+    appPath = appDir,
+    contentId = content_id,
+    cloudAccount = cc_local_name # set by setup.R
   )
 
   # New record exists and points at Connect Cloud.
   expect_true(file.exists(new_dcf))
   rec <- as.list(as.data.frame(read.dcf(new_dcf)))
-  expect_equal(rec$server,   "connect.posit.cloud")
-  expect_equal(rec$appId,    content_id)
-  expect_equal(rec$account,  cc_local_name)
+  expect_equal(rec$server, "connect.posit.cloud")
+  expect_equal(rec$appId, content_id)
+  expect_equal(rec$account, cc_local_name)
   expect_equal(rec$bundleId, "")
 
   # Old shinyapps.io record is gone.

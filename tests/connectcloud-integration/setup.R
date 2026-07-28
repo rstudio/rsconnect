@@ -9,9 +9,9 @@ library(rsconnect)
 # One-time setup: obtain client credentials at
 # https://connect.posit.cloud/identity/credentials
 
-cc_client_id     <- Sys.getenv("CONNECT_CLOUD_CLIENT_ID")
+cc_client_id <- Sys.getenv("CONNECT_CLOUD_CLIENT_ID")
 cc_client_secret <- Sys.getenv("CONNECT_CLOUD_CLIENT_SECRET")
-cc_account       <- Sys.getenv("CONNECT_CLOUD_ACCOUNT")
+cc_account <- Sys.getenv("CONNECT_CLOUD_ACCOUNT")
 
 if (cc_client_id == "" || cc_client_secret == "" || cc_account == "") {
   stop(
@@ -25,11 +25,11 @@ if (cc_client_id == "" || cc_client_secret == "" || cc_account == "") {
 cc_local_name <- paste0("testing-cc-", strftime(Sys.time(), "%Y%m%d%H%M%S"))
 
 rsconnect::connectCloudClientCredentials(
-  clientId     = cc_client_id,
+  clientId = cc_client_id,
   clientSecret = cc_client_secret,
-  accountName  = cc_account,
-  name         = cc_local_name,
-  quiet        = TRUE
+  accountName = cc_account,
+  name = cc_local_name,
+  quiet = TRUE
 )
 
 withr::defer(
