@@ -100,6 +100,35 @@ test_that("ensureConnectCloudAccount() aborts in non-interactive session with no
   )
 })
 
+test_that("migrateDeployment() aborts when source record cannot be deleted", {
+  skip_on_cran()
+  appDir  <- withr::local_tempdir()
+  srcPath <- write_shinyapps_dcf(appDir)
+  # Lock the parent dir so unlink() returns non-zero.
+  srcDir  <- dirname(srcPath)
+  Sys.chmod(srcDir, mode = "555")
+  withr::defer(Sys.chmod(srcDir, mode = "755"))
+
+  local_mocked_bindings(
+    accounts = function(...) {
+      data.frame(
+        name   = c("myaccount", "cc-account"),
+        server = c("shinyapps.io", "connect.posit.cloud"),
+        stringsAsFactors = FALSE
+      )
+    },
+    findAccountInfo  = function(...) list(name = "cc-account", server = "connect.posit.cloud", accessToken = "tok"),
+    clientForAccount = function(...) {
+      list(getContent = function(id) list(id = id, title = "My App", url = "", state = "active"))
+    }
+  )
+
+  expect_error(
+    migrateDeployment(appDir, contentId = "abc123", cloudAccount = "cc-account"),
+    "Failed to remove source deployment record"
+  )
+})
+
 test_that("migrateDeployment() aborts with no deployment records", {
   appDir <- withr::local_tempdir()
 

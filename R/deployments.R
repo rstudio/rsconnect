@@ -359,11 +359,7 @@ migrateDeployment <- function(
   ensureConnectCloudAccount()
   ccInfo <- findAccountInfo(cloudAccount, "connect.posit.cloud")
 
-  # Verify the target content exists and collect its metadata.
-  client <- clientForAccount(ccInfo)
-  content <- client$getContent(contentId)
-
-  # Disambiguate the source deployment record.
+  # Resolve and validate the source deployment record before touching the network.
   sourceDeps <- deployments(
     appPath,
     nameFilter = name,
@@ -387,6 +383,10 @@ migrateDeployment <- function(
     )
   }
 
+  # Verify the target content exists and collect its metadata.
+  client <- clientForAccount(ccInfo)
+  content <- client$getContent(contentId)
+
   # Build and write the new Connect Cloud record.
   newRecord <- deploymentRecord(
     name     = sourceRecord$name,
@@ -409,7 +409,14 @@ migrateDeployment <- function(
   writeDeploymentRecord(newRecord, newPath)
 
   # Remove the superseded source record.
-  unlink(sourceRecord$deploymentFile)
+  if (unlink(sourceRecord$deploymentFile) != 0L) {
+    cli::cli_abort(
+      c(
+        "Failed to remove source deployment record {.path {sourceRecord$deploymentFile}}.",
+        i = "Check file permissions. The new Connect Cloud record was written to {.path {newPath}}."
+      )
+    )
+  }
 
   cli::cli_alert_success(
     "Migration complete: next deploy of {.path {appPath}} targets Connect Cloud content {.val {contentId}}."
