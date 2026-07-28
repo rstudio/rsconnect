@@ -82,7 +82,7 @@ test_that("migrateDeployment() rewrites a fixture DCF against the live Connect C
   new_dcf <- migrateDeployment(
     appPath      = appDir,
     contentId    = content_id,
-    cloudAccount = cc_account  # set by setup.R
+    cloudAccount = cc_local_name  # set by setup.R
   )
 
   # New record exists and points at Connect Cloud.
@@ -90,7 +90,7 @@ test_that("migrateDeployment() rewrites a fixture DCF against the live Connect C
   rec <- as.list(as.data.frame(read.dcf(new_dcf)))
   expect_equal(rec$server,   "connect.posit.cloud")
   expect_equal(rec$appId,    content_id)
-  expect_equal(rec$account,  cc_account)
+  expect_equal(rec$account,  cc_local_name)
   expect_equal(rec$bundleId, "")
 
   # Old shinyapps.io record is gone.

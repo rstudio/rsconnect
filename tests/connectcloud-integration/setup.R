@@ -20,14 +20,19 @@ if (cc_client_id == "" || cc_client_secret == "" || cc_account == "") {
   )
 }
 
+# Use a unique local alias so we never clobber a pre-existing account entry
+# with the same name in the developer's local config (mirrors integration/setup.R).
+cc_local_name <- paste0("testing-cc-", strftime(Sys.time(), "%Y%m%d%H%M%S"))
+
 rsconnect::connectCloudClientCredentials(
   clientId     = cc_client_id,
   clientSecret = cc_client_secret,
   accountName  = cc_account,
+  name         = cc_local_name,
   quiet        = TRUE
 )
 
 withr::defer(
-  removeAccount(cc_account, server = "connect.posit.cloud"),
+  removeAccount(cc_local_name, server = "connect.posit.cloud"),
   teardown_env()
 )
