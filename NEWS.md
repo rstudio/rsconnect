@@ -8,7 +8,7 @@
   check can be disabled by setting `options(rsconnect.check_updates = FALSE)`.
   (#1342)
 
-* New `migrateDeployment()` rewrites a local deployment record so a
+* New `migrateToConnectCloud()` rewrites a local deployment record so a
   previously-deployed app (e.g. deployed to shinyapps.io) points at an
   existing Posit Connect Cloud content item instead, so the next deploy
   (including the RStudio IDE's Publish button) routes to Connect Cloud. If no

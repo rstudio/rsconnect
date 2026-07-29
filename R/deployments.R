@@ -345,7 +345,7 @@ forgetDeployment <- function(
 #'
 #' @return The path to the new deployment record file, invisibly.
 #' @export
-migrateDeployment <- function(
+migrateToConnectCloud <- function(
   appPath = ".",
   contentId,
   cloudAccount = NULL,
@@ -371,7 +371,7 @@ migrateDeployment <- function(
     cli::cli_abort(
       c(
         "No deployment records found for {.path {appPath}}.",
-        i = "Deploy the app first, then call {.fun migrateDeployment}."
+        i = "Deploy the app first, then call {.fun migrateToConnectCloud}."
       )
     )
   }
@@ -387,6 +387,22 @@ migrateDeployment <- function(
   client <- clientForAccount(ccInfo)
   content <- client$getContent(contentId)
 
+  # The content response carries only the owning account's id
+  # (`account_id`), not a ready-made URL or slug. Resolve it against the
+  # accounts the caller has a role on, since the content may belong to a
+  # different account (e.g. a team account) than the one authenticating
+  # this request -- using `ccInfo$name` unconditionally would build a URL
+  # under the wrong account for that case.
+  ownerAccount <- Find(
+    function(a) identical(a$id, content$account_id),
+    client$getAccounts()$data
+  )
+  contentUrl <- if (is.null(ownerAccount)) {
+    ""
+  } else {
+    paste0(connectCloudUrls()$ui, "/", ownerAccount$name, "/content/", contentId)
+  }
+
   # Build and write the new Connect Cloud record.
   newRecord <- deploymentRecord(
     name = sourceRecord$name,
@@ -397,7 +413,7 @@ migrateDeployment <- function(
     hostUrl = serverInfo("connect.posit.cloud")$url,
     appId = contentId,
     bundleId = NULL, # Connect Cloud does not use bundle IDs
-    url = content$url %||% "",
+    url = contentUrl,
     envVars = sourceRecord$envVars[[1L]]
   )
   newPath <- deploymentConfigFile(
@@ -406,6 +422,24 @@ migrateDeployment <- function(
     newRecord$account,
     newRecord$server
   )
+
+  if (file.exists(newPath)) {
+    idx <- cli_menu(
+      "A Connect Cloud deployment record already exists at {.path {newPath}}.",
+      "What do you want to do?",
+      choices = c(
+        "Overwrite the existing record",
+        "Abort"
+      ),
+      not_interactive = c(
+        i = "Remove the existing record, or pass a different {.arg name}/{.arg cloudAccount}, then retry."
+      )
+    )
+    if (idx != 1L) {
+      cli::cli_abort("Migration cancelled.", call = NULL)
+    }
+  }
+
   writeDeploymentRecord(newRecord, newPath)
 
   # Remove the superseded source record.
@@ -444,7 +478,7 @@ ensureConnectCloudAccount <- function() {
     "No Posit Connect Cloud account registered.",
     "Choose a setup method:",
     choices = c(
-      "Browser (device auth): {.fun connectCloudUser}",
+      "Browser (Recommended): {.fun connectCloudUser}",
       "Client credentials (CI): {.fun connectCloudClientCredentials}"
     )
   )
