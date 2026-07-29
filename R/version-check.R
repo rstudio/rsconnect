@@ -22,10 +22,12 @@ latestVersionInRepo <- function(pkg, repo, timeout) {
   url <- paste0(sub("/+$", "", repo), "/src/contrib/PACKAGES")
 
   packages <- tryCatch(
-    httr2::request(url) |>
-      httr2::req_timeout(timeout) |>
-      httr2::req_perform() |>
-      httr2::resp_body_string(),
+    {
+      req <- httr2::request(url)
+      req <- httr2::req_timeout(req, timeout)
+      resp <- httr2::req_perform(req)
+      httr2::resp_body_string(resp)
+    },
     error = function(e) NULL
   )
 
