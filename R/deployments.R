@@ -400,7 +400,13 @@ migrateToConnectCloud <- function(
   contentUrl <- if (is.null(ownerAccount)) {
     ""
   } else {
-    paste0(connectCloudUrls()$ui, "/", ownerAccount$name, "/content/", contentId)
+    paste0(
+      connectCloudUrls()$ui,
+      "/",
+      ownerAccount$name,
+      "/content/",
+      contentId
+    )
   }
 
   # Build and write the new Connect Cloud record.

@@ -77,7 +77,10 @@ test_that("migrateToConnectCloud() rewrites DCF and removes source record", {
   expect_equal(newRec$bundleId, "") # Connect Cloud never uses bundleId
   # URL is built from the content's owning account (acct-1 -> "cc-account"),
   # not assumed from the locally authenticated account.
-  expect_equal(newRec$url, "https://connect.posit.cloud/cc-account/content/abc123")
+  expect_equal(
+    newRec$url,
+    "https://connect.posit.cloud/cc-account/content/abc123"
+  )
 
   # Old shinyapps.io record is gone.
   expect_false(file.exists(srcPath))
@@ -109,13 +112,20 @@ test_that("migrateToConnectCloud() builds the URL from the content's owning acco
     clientForAccount = function(...) {
       list(
         getContent = function(contentId) {
-          list(id = contentId, title = "My App", account_id = "acct-2", state = "active")
+          list(
+            id = contentId,
+            title = "My App",
+            account_id = "acct-2",
+            state = "active"
+          )
         },
         getAccounts = function() {
-          list(data = list(
-            list(id = "acct-1", name = "cc-account"),
-            list(id = "acct-2", name = "team-account")
-          ))
+          list(
+            data = list(
+              list(id = "acct-1", name = "cc-account"),
+              list(id = "acct-2", name = "team-account")
+            )
+          )
         }
       )
     }
@@ -128,7 +138,10 @@ test_that("migrateToConnectCloud() builds the URL from the content's owning acco
   )
 
   newRec <- as.list(as.data.frame(read.dcf(newPath)))
-  expect_equal(newRec$url, "https://connect.posit.cloud/team-account/content/abc123")
+  expect_equal(
+    newRec$url,
+    "https://connect.posit.cloud/team-account/content/abc123"
+  )
 })
 
 test_that("migrateToConnectCloud() aborts when source already targets Connect Cloud", {
@@ -213,7 +226,12 @@ test_that("migrateToConnectCloud() aborts when a record already exists at the ta
     clientForAccount = function(...) {
       list(
         getContent = function(id) {
-          list(id = id, title = "My App", account_id = "acct-1", state = "active")
+          list(
+            id = id,
+            title = "My App",
+            account_id = "acct-1",
+            state = "active"
+          )
         },
         getAccounts = function() {
           list(data = list(list(id = "acct-1", name = "cc-account")))
@@ -282,7 +300,12 @@ test_that("migrateToConnectCloud() aborts when source record cannot be deleted",
     clientForAccount = function(...) {
       list(
         getContent = function(id) {
-          list(id = id, title = "My App", account_id = "acct-1", state = "active")
+          list(
+            id = id,
+            title = "My App",
+            account_id = "acct-1",
+            state = "active"
+          )
         },
         getAccounts = function() {
           list(data = list(list(id = "acct-1", name = "cc-account")))

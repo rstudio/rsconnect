@@ -32,6 +32,7 @@ reference:
     - writeManifest
     - matches("[Dd]eploy")
     - listDeploymentFiles
+    - migrateToConnectCloud
 
   - title: Servers
     desc : ~
