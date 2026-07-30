@@ -16,6 +16,18 @@ test_that("awaitCompletion", {
       auto_unbox = TRUE
     )
   })
+  revision_app$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = I(req$params$id), state = "active", account_id = "acct-1"),
+      auto_unbox = TRUE
+    )
+  })
+  revision_app$get("/accounts", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(data = list(list(id = "acct-1", name = "some-user"))),
+      auto_unbox = TRUE
+    )
+  })
   app <- webfakes::new_app_process(revision_app)
   service <- parseHttpUrl(app$url())
 
@@ -54,6 +66,18 @@ test_that("awaitCompletion handles failure", {
         url = NULL,
         publish_error_details = "Deployment failed due to missing dependencies"
       ),
+      auto_unbox = TRUE
+    )
+  })
+  revision_app$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = I(req$params$id), state = "active", account_id = "acct-1"),
+      auto_unbox = TRUE
+    )
+  })
+  revision_app$get("/accounts", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(data = list(list(id = "acct-1", name = "some-user"))),
       auto_unbox = TRUE
     )
   })
@@ -97,6 +121,18 @@ test_that("awaitCompletion handles failure with logs", {
         publish_error_details = "Deployment failed due to missing dependencies",
         publish_log_channel = "log-channel-123"
       ),
+      auto_unbox = TRUE
+    )
+  })
+  cloudApiApp$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = I(req$params$id), state = "active", account_id = "acct-1"),
+      auto_unbox = TRUE
+    )
+  })
+  cloudApiApp$get("/accounts", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(data = list(list(id = "acct-1", name = "some-user"))),
       auto_unbox = TRUE
     )
   })

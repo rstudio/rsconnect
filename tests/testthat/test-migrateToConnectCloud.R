@@ -144,6 +144,49 @@ test_that("migrateToConnectCloud() builds the URL from the content's owning acco
   )
 })
 
+test_that("migrateToConnectCloud() aborts when the content's account can't be resolved", {
+  # If the content's account_id isn't among the accounts the caller has a
+  # role on, the caller likely can't deploy to it either -- fail early
+  # instead of writing a record with an empty url.
+  appDir <- withr::local_tempdir()
+  srcPath <- write_shinyapps_dcf(appDir)
+
+  local_mocked_bindings(
+    accounts = function(...) {
+      data.frame(
+        name = c("myaccount", "cc-account"),
+        server = c("shinyapps.io", "connect.posit.cloud"),
+        stringsAsFactors = FALSE
+      )
+    },
+    findAccountInfo = function(...) {
+      list(
+        name = "cc-account",
+        server = "connect.posit.cloud",
+        accessToken = "tok"
+      )
+    },
+    clientForAccount = function(...) {
+      list(
+        getContent = function(id) {
+          list(id = id, title = "My App", account_id = "acct-unknown", state = "active")
+        },
+        getAccounts = function() {
+          list(data = list(list(id = "acct-1", name = "cc-account")))
+        }
+      )
+    }
+  )
+
+  expect_error(
+    migrateToConnectCloud(appDir, contentId = "abc123", cloudAccount = "cc-account"),
+    "Unable to determine the Connect Cloud account"
+  )
+
+  # Nothing was written or deleted.
+  expect_true(file.exists(srcPath))
+})
+
 test_that("migrateToConnectCloud() aborts when source already targets Connect Cloud", {
   appDir <- withr::local_tempdir()
   ccDir <- file.path(appDir, "rsconnect", "connect.posit.cloud", "cc-account")

@@ -392,22 +392,9 @@ migrateToConnectCloud <- function(
   # accounts the caller has a role on, since the content may belong to a
   # different account (e.g. a team account) than the one authenticating
   # this request -- using `ccInfo$name` unconditionally would build a URL
-  # under the wrong account for that case.
-  ownerAccount <- Find(
-    function(a) identical(a$id, content$account_id),
-    client$getAccounts()$data
-  )
-  contentUrl <- if (is.null(ownerAccount)) {
-    ""
-  } else {
-    paste0(
-      connectCloudUrls()$ui,
-      "/",
-      ownerAccount$name,
-      "/content/",
-      contentId
-    )
-  }
+  # under the wrong account for that case. Aborts if the account can't be
+  # resolved, since that means the caller likely can't deploy to it either.
+  contentUrl <- connectCloudContentUrl(client$getAccounts, content$account_id, contentId)
 
   # Build and write the new Connect Cloud record.
   newRecord <- deploymentRecord(
