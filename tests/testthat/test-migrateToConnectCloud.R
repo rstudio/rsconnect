@@ -169,7 +169,12 @@ test_that("migrateToConnectCloud() aborts when the content's account can't be re
     clientForAccount = function(...) {
       list(
         getContent = function(id) {
-          list(id = id, title = "My App", account_id = "acct-unknown", state = "active")
+          list(
+            id = id,
+            title = "My App",
+            account_id = "acct-unknown",
+            state = "active"
+          )
         },
         getAccounts = function() {
           list(data = list(list(id = "acct-1", name = "cc-account")))
@@ -179,7 +184,11 @@ test_that("migrateToConnectCloud() aborts when the content's account can't be re
   )
 
   expect_error(
-    migrateToConnectCloud(appDir, contentId = "abc123", cloudAccount = "cc-account"),
+    migrateToConnectCloud(
+      appDir,
+      contentId = "abc123",
+      cloudAccount = "cc-account"
+    ),
     "Unable to determine the Connect Cloud account"
   )
 
