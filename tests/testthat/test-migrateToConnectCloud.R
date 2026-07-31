@@ -275,20 +275,10 @@ test_that("migrateToConnectCloud() aborts when a record already exists at the ta
         accessToken = "tok"
       )
     },
+    # The path collision check happens before any Connect Cloud API calls,
+    # so clientForAccount() should never even be invoked here.
     clientForAccount = function(...) {
-      list(
-        getContent = function(id) {
-          list(
-            id = id,
-            title = "My App",
-            account_id = "acct-1",
-            state = "active"
-          )
-        },
-        getAccounts = function() {
-          list(data = list(list(id = "acct-1", name = "cc-account")))
-        }
-      )
+      stop("clientForAccount() should not be called before the collision check")
     }
   )
 

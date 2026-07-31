@@ -383,6 +383,33 @@ migrateToConnectCloud <- function(
     )
   }
 
+  # Check for a collision at the target path before doing any Connect Cloud
+  # API work -- the path only depends on the source record and ccInfo, not
+  # on the content being migrated.
+  newPath <- deploymentConfigFile(
+    appPath,
+    sourceRecord$name,
+    ccInfo$name,
+    "connect.posit.cloud"
+  )
+
+  if (file.exists(newPath)) {
+    idx <- cli_menu(
+      "A Connect Cloud deployment record already exists at {.path {newPath}}.",
+      "What do you want to do?",
+      choices = c(
+        "Overwrite the existing record",
+        "Abort"
+      ),
+      not_interactive = c(
+        i = "Remove the existing record, or pass a different {.arg name}/{.arg cloudAccount}, then retry."
+      )
+    )
+    if (idx != 1L) {
+      cli::cli_abort("Migration cancelled.", call = NULL)
+    }
+  }
+
   # Verify the target content exists and collect its metadata.
   client <- clientForAccount(ccInfo)
   content <- client$getContent(contentId)
@@ -413,29 +440,6 @@ migrateToConnectCloud <- function(
     url = contentUrl,
     envVars = sourceRecord$envVars[[1L]]
   )
-  newPath <- deploymentConfigFile(
-    appPath,
-    newRecord$name,
-    newRecord$account,
-    newRecord$server
-  )
-
-  if (file.exists(newPath)) {
-    idx <- cli_menu(
-      "A Connect Cloud deployment record already exists at {.path {newPath}}.",
-      "What do you want to do?",
-      choices = c(
-        "Overwrite the existing record",
-        "Abort"
-      ),
-      not_interactive = c(
-        i = "Remove the existing record, or pass a different {.arg name}/{.arg cloudAccount}, then retry."
-      )
-    )
-    if (idx != 1L) {
-      cli::cli_abort("Migration cancelled.", call = NULL)
-    }
-  }
 
   writeDeploymentRecord(newRecord, newPath)
 

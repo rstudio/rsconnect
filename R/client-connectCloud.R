@@ -130,7 +130,10 @@ connectCloudClient <- function(service, authInfo) {
   }
 
   getAccounts <- function() {
-    GET(service, authInfo, "/accounts?has_user_role=true")
+    # limit=100 is a stopgap, not full pagination: covers the vast majority
+    # of users, but a caller with more than 100 accounts could still have an
+    # account fall outside this page.
+    withTokenRefreshRetry(GET, "/accounts?has_user_role=true&limit=100")
   }
 
   list(
@@ -285,12 +288,25 @@ connectCloudClient <- function(service, authInfo) {
         if (!is.null(revision$publish_result)) {
           # Resolve the URL from the content's actual owning account, not the
           # locally authenticated one -- the content may belong to a
-          # different (e.g. team) account than the one publishing it.
-          content <- getContent(revision$content_id)
-          contentUrl <- connectCloudContentUrl(
-            getAccounts,
-            content$account_id,
-            revision$content_id
+          # different (e.g. team) account than the one publishing it. Don't
+          # let a failure here (e.g. a transient API error) mask the actual
+          # publish result -- fall back to an empty URL and warn instead of
+          # aborting the whole deploy.
+          contentUrl <- tryCatch(
+            {
+              content <- getContent(revision$content_id)
+              connectCloudContentUrl(
+                getAccounts,
+                content$account_id,
+                revision$content_id
+              )
+            },
+            error = function(e) {
+              cli::cli_alert_warning(
+                "Failed to resolve the content URL: {e$message}"
+              )
+              ""
+            }
           )
 
           if (revision$publish_result == "failure") {
