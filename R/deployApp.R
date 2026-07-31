@@ -754,9 +754,18 @@ deployApp <- function(
   }
   if (!quiet) {
     if (deploymentSucceeded) {
-      cli::cli_alert_success(
-        "Successfully deployed to {.url {application$url}}"
-      )
+      if (isTRUE(nzchar(application$url))) {
+        cli::cli_alert_success(
+          "Successfully deployed to {.url {application$url}}"
+        )
+      } else {
+        # Connect Cloud's awaitCompletion() falls back to an empty url when
+        # it can't resolve the content's URL -- don't render a broken-looking
+        # "deployed to <>" message in that case.
+        cli::cli_alert_success(
+          "Successfully deployed (the content URL could not be determined)"
+        )
+      }
     } else {
       cli::cli_alert_danger("Deployment failed with error: {response$error}")
     }
@@ -1067,7 +1076,11 @@ openURL <- function(
     }
   } else if (deploymentSucceeded) {
     # shinyapps.io should land here if things succeeded
-    showURL(application$url)
+    if (validURL(application$url)) {
+      showURL(application$url)
+    }
+    # else: succeeded, but no valid URL to open (e.g. Connect Cloud
+    # couldn't resolve one) -- nothing to browse to.
   } else if (is.function(on.failure)) {
     on.failure(NULL)
   }

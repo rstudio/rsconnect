@@ -129,11 +129,28 @@ connectCloudClient <- function(service, authInfo) {
     content
   }
 
+  # Paginates through GET /accounts?has_user_role=true, accumulating every
+  # account the caller has a role on (not just the first page), since the
+  # content being migrated/published may belong to any of them.
   getAccounts <- function() {
-    # limit=100 is a stopgap, not full pagination: covers the vast majority
-    # of users, but a caller with more than 100 accounts could still have an
-    # account fall outside this page.
-    withTokenRefreshRetry(GET, "/accounts?has_user_role=true&limit=100")
+    pageSize <- 100
+    offset <- 0
+    allAccounts <- list()
+    repeat {
+      path <- paste0(
+        "/accounts?has_user_role=true&include_total=true&limit=",
+        pageSize,
+        "&offset=",
+        offset
+      )
+      response <- withTokenRefreshRetry(GET, path)
+      allAccounts <- c(allAccounts, response$data)
+      offset <- offset + length(response$data)
+      if (length(response$data) == 0 || offset >= response$total) {
+        break
+      }
+    }
+    list(data = allAccounts)
   }
 
   list(
@@ -289,9 +306,12 @@ connectCloudClient <- function(service, authInfo) {
           # Resolve the URL from the content's actual owning account, not the
           # locally authenticated one -- the content may belong to a
           # different (e.g. team) account than the one publishing it. Don't
-          # let a failure here (e.g. a transient API error) mask the actual
-          # publish result -- fall back to an empty URL and warn instead of
-          # aborting the whole deploy.
+          # let a failure here mask the actual publish result: fall back to
+          # an empty URL and warn instead of aborting the whole deploy.
+          # Content genuinely deleted right after publishing gets its own
+          # message since we know exactly what happened; anything else
+          # (transient API errors, pagination limits, etc.) gets a generic
+          # one.
           contentUrl <- tryCatch(
             {
               content <- getContent(revision$content_id)
@@ -300,6 +320,12 @@ connectCloudClient <- function(service, authInfo) {
                 content$account_id,
                 revision$content_id
               )
+            },
+            rsconnect_http_404 = function(e) {
+              cli::cli_alert_warning(
+                "The published content could not be found immediately after publishing; no URL is available."
+              )
+              ""
             },
             error = function(e) {
               cli::cli_alert_warning(

@@ -302,3 +302,38 @@ test_that("confirmDependencySourceLibrary informs non-interactively", {
     "renv.lock.*will be ignored"
   )
 })
+
+test_that("openURL() does not launch the browser on success with no valid url", {
+  # e.g. Connect Cloud's awaitCompletion() falling back to url = "" when it
+  # can't resolve the content's owning account.
+  launched <- FALSE
+  openURL(
+    client = NULL,
+    application = list(url = "", dashboard_url = NULL),
+    server = "connect.posit.cloud",
+    launch.browser = function(url) launched <<- TRUE,
+    on.failure = function(url) {
+      stop("on.failure should not be called on success")
+    },
+    deploymentSucceeded = TRUE
+  )
+  expect_false(launched)
+})
+
+test_that("openURL() launches the browser on success with a valid url", {
+  launched <- FALSE
+  openURL(
+    client = NULL,
+    application = list(
+      url = "https://connect.posit.cloud/acct/content/abc123",
+      dashboard_url = NULL
+    ),
+    server = "connect.posit.cloud",
+    launch.browser = function(url) launched <<- TRUE,
+    on.failure = function(url) {
+      stop("on.failure should not be called on success")
+    },
+    deploymentSucceeded = TRUE
+  )
+  expect_true(launched)
+})

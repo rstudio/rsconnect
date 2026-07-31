@@ -24,7 +24,7 @@ test_that("awaitCompletion", {
   })
   revision_app$get("/accounts", function(req, res) {
     res$set_status(200L)$send_json(
-      list(data = list(list(id = "acct-1", name = "some-user"))),
+      list(data = list(list(id = "acct-1", name = "some-user")), total = 1),
       auto_unbox = TRUE
     )
   })
@@ -83,7 +83,7 @@ test_that("awaitCompletion falls back to an empty url instead of erroring when t
     # "acct-unknown" is not in this list -- connectCloudContentUrl() can't
     # resolve it and would normally abort.
     res$set_status(200L)$send_json(
-      list(data = list(list(id = "acct-1", name = "some-user"))),
+      list(data = list(list(id = "acct-1", name = "some-user")), total = 1),
       auto_unbox = TRUE
     )
   })
@@ -106,6 +106,92 @@ test_that("awaitCompletion falls back to an empty url instead of erroring when t
   expect_true(result$success)
   expect_equal(result$url, "")
   expect_null(result$error)
+})
+
+test_that("awaitCompletion shows a specific message when content was deleted right after publishing", {
+  skip_if_not_installed("webfakes")
+
+  revision_app <- webfakes::new_app()
+  revision_app$use(webfakes::mw_json())
+  revision_app$get("/revisions/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = I(req$params$id),
+        content_id = "content789",
+        publish_result = "success",
+        status = "published",
+        url = "https://example.posit.cloud/content/123",
+        publish_error_details = NULL
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  revision_app$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = I(req$params$id), state = "deleted"),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::new_app_process(revision_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_message(
+    result <- client$awaitCompletion("rev123"),
+    "could not be found immediately after publishing"
+  )
+  expect_true(result$success)
+  expect_equal(result$url, "")
+})
+
+test_that("getAccounts() paginates through multiple pages", {
+  skip_if_not_installed("webfakes")
+
+  accounts_app <- webfakes::new_app()
+  accounts_app$use(webfakes::mw_json())
+  accounts_app$get("/accounts", function(req, res) {
+    allAccounts <- list(
+      list(id = "acct-1", name = "account-one"),
+      list(id = "acct-2", name = "account-two"),
+      list(id = "acct-3", name = "account-three")
+    )
+    offset <- as.integer(req$query$offset)
+    remaining <- allAccounts[seq(offset + 1, length(allAccounts))]
+    page <- remaining[seq_len(min(2, length(remaining)))]
+    res$set_status(200L)$send_json(
+      list(data = page, total = length(allAccounts)),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::new_app_process(accounts_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  # 3 accounts, 2 per page -- must take two requests (offset=0, offset=2) to
+  # accumulate all of them.
+  result <- client$getAccounts()
+  expect_equal(
+    vapply(result$data, function(a) a$id, character(1)),
+    c("acct-1", "acct-2", "acct-3")
+  )
 })
 
 test_that("awaitCompletion handles failure", {
@@ -134,7 +220,7 @@ test_that("awaitCompletion handles failure", {
   })
   revision_app$get("/accounts", function(req, res) {
     res$set_status(200L)$send_json(
-      list(data = list(list(id = "acct-1", name = "some-user"))),
+      list(data = list(list(id = "acct-1", name = "some-user")), total = 1),
       auto_unbox = TRUE
     )
   })
@@ -189,7 +275,7 @@ test_that("awaitCompletion handles failure with logs", {
   })
   cloudApiApp$get("/accounts", function(req, res) {
     res$set_status(200L)$send_json(
-      list(data = list(list(id = "acct-1", name = "some-user"))),
+      list(data = list(list(id = "acct-1", name = "some-user")), total = 1),
       auto_unbox = TRUE
     )
   })
