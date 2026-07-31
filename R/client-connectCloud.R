@@ -146,7 +146,7 @@ connectCloudClient <- function(service, authInfo) {
       response <- withTokenRefreshRetry(GET, path)
       allAccounts <- c(allAccounts, response$data)
       offset <- offset + length(response$data)
-      if (length(response$data) == 0 || offset >= response$total) {
+      if (length(response$data) == 0 || isTRUE(offset >= as.numeric(response$total))) {
         break
       }
     }

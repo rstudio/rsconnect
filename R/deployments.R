@@ -340,8 +340,8 @@ forgetDeployment <- function(
 #' @param cloudAccount Local name of the Connect Cloud account to write the
 #'   new record under. When `NULL` and exactly one Connect Cloud account is
 #'   registered, it is used automatically.
-#' @param name,account,server Filters to disambiguate the source deployment
-#'   record when `appPath` has records for multiple deployments.
+#' @param appName,account,server Filters to disambiguate the source
+#'   deployment record when `appPath` has records for multiple deployments.
 #'
 #' @return The path to the new deployment record file, invisibly.
 #' @export
@@ -349,7 +349,7 @@ migrateToConnectCloud <- function(
   appPath = ".",
   contentId,
   cloudAccount = NULL,
-  name = NULL,
+  appName = NULL,
   account = NULL,
   server = NULL
 ) {
@@ -362,7 +362,7 @@ migrateToConnectCloud <- function(
   # Resolve and validate the source deployment record before touching the network.
   sourceDeps <- deployments(
     appPath,
-    nameFilter = name,
+    nameFilter = appName,
     accountFilter = account,
     serverFilter = server,
     excludeOrphaned = FALSE
@@ -402,7 +402,7 @@ migrateToConnectCloud <- function(
         "Abort"
       ),
       not_interactive = c(
-        i = "Remove the existing record, or pass a different {.arg name}/{.arg cloudAccount}, then retry."
+        i = "Remove the existing record, or pass a different {.arg appName}/{.arg cloudAccount}, then retry."
       )
     )
     if (idx != 1L) {

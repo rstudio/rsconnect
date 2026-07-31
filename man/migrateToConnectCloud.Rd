@@ -8,7 +8,7 @@ migrateToConnectCloud(
   appPath = ".",
   contentId,
   cloudAccount = NULL,
-  name = NULL,
+  appName = NULL,
   account = NULL,
   server = NULL
 )
@@ -24,8 +24,8 @@ working directory.}
 new record under. When \code{NULL} and exactly one Connect Cloud account is
 registered, it is used automatically.}
 
-\item{name, account, server}{Filters to disambiguate the source deployment
-record when \code{appPath} has records for multiple deployments.}
+\item{appName, account, server}{Filters to disambiguate the source
+deployment record when \code{appPath} has records for multiple deployments.}
 }
 \value{
 The path to the new deployment record file, invisibly.
