@@ -71,7 +71,11 @@ test_that("awaitCompletion falls back to an empty url instead of erroring when t
   })
   revision_app$get("/contents/:id", function(req, res) {
     res$set_status(200L)$send_json(
-      list(id = I(req$params$id), state = "active", account_id = "acct-unknown"),
+      list(
+        id = I(req$params$id),
+        state = "active",
+        account_id = "acct-unknown"
+      ),
       auto_unbox = TRUE
     )
   })
