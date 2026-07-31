@@ -1,5 +1,27 @@
 # Docs: https://posit-hosted.github.io/vivid-api
 
+# Resolves the browsable URL for `contentId`, based on the account it
+# actually belongs to (`accountId`) rather than the caller's own account --
+# necessary because content may belong to a different (e.g. team) account
+# than the one authenticating the request. `getAccounts` is a zero-arg
+# function returning the accounts the caller has a role on (shared by
+# `connectCloudClient()$getAccounts` and `migrateToConnectCloud()`).
+connectCloudContentUrl <- function(getAccounts, accountId, contentId) {
+  ownerAccount <- Find(
+    function(a) identical(a$id, accountId),
+    getAccounts()$data
+  )
+  if (is.null(ownerAccount)) {
+    cli::cli_abort(
+      c(
+        "Unable to determine the Connect Cloud account for content {.val {contentId}}.",
+        i = "You may not have access to the account this content belongs to."
+      )
+    )
+  }
+  paste0(connectCloudUrls()$ui, "/", ownerAccount$name, "/content/", contentId)
+}
+
 # Map rsconnect appMode to Connect Cloud contentType
 cloudContentTypeFromAppMode <- function(appMode) {
   switch(
@@ -92,6 +114,48 @@ connectCloudClient <- function(service, authInfo) {
     response$token
   }
 
+  getContent <- function(contentId) {
+    path <- paste0("/contents/", contentId)
+    content <- withTokenRefreshRetry(GET, path)
+    if (content$state == "deleted") {
+      cli::cli_abort(
+        "Content is pending deletion.",
+        class = c(
+          "rsconnect_http_404",
+          "rsconnect_http"
+        )
+      )
+    }
+    content
+  }
+
+  # Paginates through GET /accounts?has_user_role=true, accumulating every
+  # account the caller has a role on (not just the first page), since the
+  # content being migrated/published may belong to any of them.
+  getAccounts <- function() {
+    pageSize <- 100
+    offset <- 0
+    allAccounts <- list()
+    repeat {
+      path <- paste0(
+        "/accounts?has_user_role=true&include_total=true&limit=",
+        pageSize,
+        "&offset=",
+        offset
+      )
+      response <- withTokenRefreshRetry(GET, path)
+      allAccounts <- c(allAccounts, response$data)
+      offset <- offset + length(response$data)
+      if (
+        length(response$data) == 0 ||
+          isTRUE(offset >= as.numeric(response$total))
+      ) {
+        break
+      }
+    }
+    list(data = allAccounts)
+  }
+
   list(
     service = function() {
       "connect.posit.cloud"
@@ -154,20 +218,7 @@ connectCloudClient <- function(service, authInfo) {
       content
     },
 
-    getContent = function(contentId) {
-      path <- paste0("/contents/", contentId)
-      content <- withTokenRefreshRetry(GET, path)
-      if (content$state == "deleted") {
-        cli::cli_abort(
-          "Content is pending deletion.",
-          class = c(
-            "rsconnect_http_404",
-            "rsconnect_http"
-          )
-        )
-      }
-      content
-    },
+    getContent = getContent,
 
     updateContent = function(
       contentId,
@@ -254,15 +305,39 @@ connectCloudClient <- function(service, authInfo) {
           lastStatus <- newStatus
         }
 
-        contentUrl <- paste0(
-          connectCloudUrls()$ui,
-          "/",
-          authInfo$username,
-          "/content/",
-          revision$content_id
-        )
-
         if (!is.null(revision$publish_result)) {
+          # Resolve the URL from the content's actual owning account, not the
+          # locally authenticated one -- the content may belong to a
+          # different (e.g. team) account than the one publishing it. Don't
+          # let a failure here mask the actual publish result: fall back to
+          # an empty URL and warn instead of aborting the whole deploy.
+          # Content genuinely deleted right after publishing gets its own
+          # message since we know exactly what happened; anything else
+          # (transient API errors, pagination limits, etc.) gets a generic
+          # one.
+          contentUrl <- tryCatch(
+            {
+              content <- getContent(revision$content_id)
+              connectCloudContentUrl(
+                getAccounts,
+                content$account_id,
+                revision$content_id
+              )
+            },
+            rsconnect_http_404 = function(e) {
+              cli::cli_alert_warning(
+                "The published content could not be found immediately after publishing; no URL is available."
+              )
+              ""
+            },
+            error = function(e) {
+              cli::cli_alert_warning(
+                "Failed to resolve the content URL: {e$message}"
+              )
+              ""
+            }
+          )
+
           if (revision$publish_result == "failure") {
             # Try to retrieve logs if log channel is available
             if (!is.null(revision$publish_log_channel)) {
@@ -341,8 +416,6 @@ connectCloudClient <- function(service, authInfo) {
 
     getAuthorization = getAuthorization,
 
-    getAccounts = function(revisionId) {
-      GET(service, authInfo, "/accounts?has_user_role=true")
-    }
+    getAccounts = getAccounts
   )
 }
