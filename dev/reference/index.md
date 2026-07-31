@@ -69,6 +69,9 @@
 - [`listDeploymentFiles()`](https://rstudio.github.io/rsconnect/dev/reference/listDeploymentFiles.md)
   : Gather files to be bundled with an app
 
+- [`migrateToConnectCloud()`](https://rstudio.github.io/rsconnect/dev/reference/migrateToConnectCloud.md)
+  : Migrate a deployment record to Posit Connect Cloud
+
 ## Servers
 
 - [`addServer()`](https://rstudio.github.io/rsconnect/dev/reference/addServer.md)

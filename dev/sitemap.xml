@@ -33,6 +33,7 @@
 <url><loc>https://rstudio.github.io/rsconnect/dev/reference/listBundleFiles.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/reference/listDeploymentFiles.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/reference/makeLinterMessage.html</loc></url>
+<url><loc>https://rstudio.github.io/rsconnect/dev/reference/migrateToConnectCloud.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/reference/oldApplicationConfigDir.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/reference/options.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/reference/purgeApp.html</loc></url>
