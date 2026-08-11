@@ -42,12 +42,20 @@ migrateToConnectCloud(
 - appName, account, server:
 
   Filters to disambiguate the source deployment record when `appPath`
-  has records for multiple deployments.
+  has records for multiple deployments. When no source record exists,
+  `appName` names the reconstructed record; if omitted, the name is
+  derived from the content title.
 
 ## Value
 
 The path to the new deployment record file, invisibly.
 
 ## Details
+
+The source deployment record is optional. When `appPath` has no local
+record (for example, the `rsconnect/` directory was never checked in or
+has been lost), the Connect Cloud record is reconstructed from
+`contentId` alone. In that case the record name is taken from `appName`,
+or derived from the content's title when `appName` is not supplied.
 
 Supported servers: all (source) -\> Posit Connect Cloud (target)

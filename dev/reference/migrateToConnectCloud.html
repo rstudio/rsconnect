@@ -86,7 +86,9 @@ registered, it is used automatically.</p></dd>
 
 <dt id="arg-appname-account-server">appName, account, server<a class="anchor" aria-label="anchor" href="#arg-appname-account-server"></a></dt>
 <dd><p>Filters to disambiguate the source
-deployment record when <code>appPath</code> has records for multiple deployments.</p></dd>
+deployment record when <code>appPath</code> has records for multiple deployments.
+When no source record exists, <code>appName</code> names the reconstructed record;
+if omitted, the name is derived from the content title.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -95,7 +97,12 @@ deployment record when <code>appPath</code> has records for multiple deployments
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Supported servers: all (source) -&gt; Posit Connect Cloud (target)</p>
+    <p>The source deployment record is optional. When <code>appPath</code> has no local
+record (for example, the <code>rsconnect/</code> directory was never checked in or has
+been lost), the Connect Cloud record is reconstructed from <code>contentId</code>
+alone. In that case the record name is taken from <code>appName</code>, or derived from
+the content's title when <code>appName</code> is not supplied.</p>
+<p>Supported servers: all (source) -&gt; Posit Connect Cloud (target)</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
