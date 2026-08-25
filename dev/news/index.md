@@ -2,6 +2,8 @@
 
 ## rsconnect (development version)
 
+## rsconnect 1.11.0
+
 - rsconnect checks whether a newer version of itself is available from
   your configured repositories, and lets you know: as a startup message
   when the package is attached interactively, and as a note appended to
