@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Connect Cloud deployments no longer send empty values for environment
+  variables that are unset in the current R session. (#1361)
+
 # rsconnect 1.11.0
 
 * rsconnect checks whether a newer version of itself is available from your

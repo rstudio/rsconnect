@@ -47,6 +47,22 @@ cloudContentTypeFromAppMode <- function(appMode) {
   )
 }
 
+cloudSecrets <- function(envVars) {
+  values <- Sys.getenv(envVars, unset = NA)
+  keep <- !is.na(values)
+
+  unname(Map(
+    function(name, value) {
+      list(
+        name = name,
+        value = value
+      )
+    },
+    envVars[keep],
+    values[keep]
+  ))
+}
+
 # Creates a client for interacting with the Connect Cloud API.
 connectCloudClient <- function(service, authInfo) {
   # Generic retry wrapper. If a request fails with 401 Unauthorized, it will
@@ -191,16 +207,7 @@ connectCloudClient <- function(service, authInfo) {
         primary_file = primaryFile
       )
 
-      secrets <- unname(Map(
-        function(name, value) {
-          list(
-            name = name,
-            value = value
-          )
-        },
-        envVars,
-        Sys.getenv(envVars)
-      ))
+      secrets <- cloudSecrets(envVars)
 
       json <- list(
         account_id = accountId,
@@ -232,16 +239,7 @@ connectCloudClient <- function(service, authInfo) {
         path <- paste0(path, "?new_bundle=true")
       }
 
-      secrets <- unname(Map(
-        function(name, value) {
-          list(
-            name = name,
-            value = value
-          )
-        },
-        envVars,
-        Sys.getenv(envVars)
-      ))
+      secrets <- cloudSecrets(envVars)
 
       json <- list(
         secrets = secrets,
