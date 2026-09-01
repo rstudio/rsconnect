@@ -2,7 +2,41 @@
 
 ## rsconnect (development version)
 
+- [`showUsers()`](https://rstudio.github.io/rsconnect/dev/reference/showUsers.md)
+  and
+  [`showInvited()`](https://rstudio.github.io/rsconnect/dev/reference/showInvited.md)
+  now always return a data frame with atomic `character`/`logical`
+  columns, including a typed 0-row data frame (rather than `NULL`) when
+  there are no results. User ids are now always `character` (previously
+  numeric on shinyapps.io). On Posit Connect Cloud,
+  [`showUsers()`](https://rstudio.github.io/rsconnect/dev/reference/showUsers.md)
+  also includes `display_name` and `role` columns; the `account` column
+  is populated only on shinyapps.io and is `NA` on Connect Cloud.
+
+- [`addAuthorizedUser()`](https://rstudio.github.io/rsconnect/dev/reference/addAuthorizedUser.md),
+  [`removeAuthorizedUser()`](https://rstudio.github.io/rsconnect/dev/reference/removeAuthorizedUser.md),
+  [`showUsers()`](https://rstudio.github.io/rsconnect/dev/reference/showUsers.md),
+  [`showInvited()`](https://rstudio.github.io/rsconnect/dev/reference/showInvited.md),
+  and
+  [`resendInvitation()`](https://rstudio.github.io/rsconnect/dev/reference/resendInvitation.md)
+  now work with Posit Connect Cloud accounts in addition to ShinyApps.
+  On Posit Connect Cloud, the `sendEmail` argument to
+  [`addAuthorizedUser()`](https://rstudio.github.io/rsconnect/dev/reference/addAuthorizedUser.md)
+  is ignored because PCC always emails invitees; a warning is emitted
+  when it is explicitly set to `FALSE`. On Posit Connect Cloud these
+  functions also accept a `contentId` argument that targets the content
+  directly (the id is shown in the content URL and returned by
+  [`applications()`](https://rstudio.github.io/rsconnect/dev/reference/applications.md)),
+  so a local deployment record is not required; `contentId` is not
+  supported on shinyapps.io.
+
+- [`applications()`](https://rstudio.github.io/rsconnect/dev/reference/applications.md)
+  now supports Posit Connect Cloud accounts, returning a data frame with
+  the same columns as for ShinyApps and Posit Connect accounts.
+
 ## rsconnect 1.11.0
+
+CRAN release: 2026-08-25
 
 - rsconnect checks whether a newer version of itself is available from
   your configured repositories, and lets you know: as a startup message
