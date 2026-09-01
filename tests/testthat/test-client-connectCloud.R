@@ -28,7 +28,7 @@ test_that("awaitCompletion", {
       auto_unbox = TRUE
     )
   })
-  app <- webfakes::new_app_process(revision_app)
+  app <- webfakes::local_app_process(revision_app)
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
@@ -143,7 +143,7 @@ test_that("awaitCompletion falls back to an empty url instead of erroring when t
       auto_unbox = TRUE
     )
   })
-  app <- webfakes::new_app_process(revision_app)
+  app <- webfakes::local_app_process(revision_app)
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
@@ -188,7 +188,7 @@ test_that("awaitCompletion shows a specific message when content was deleted rig
       auto_unbox = TRUE
     )
   })
-  app <- webfakes::new_app_process(revision_app)
+  app <- webfakes::local_app_process(revision_app)
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
@@ -228,7 +228,7 @@ test_that("getAccounts() paginates through multiple pages", {
       auto_unbox = TRUE
     )
   })
-  app <- webfakes::new_app_process(accounts_app)
+  app <- webfakes::local_app_process(accounts_app)
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
@@ -280,7 +280,7 @@ test_that("awaitCompletion handles failure", {
       auto_unbox = TRUE
     )
   })
-  app <- webfakes::new_app_process(revision_app)
+  app <- webfakes::local_app_process(revision_app)
   service <- parseHttpUrl(app$url())
 
   authInfo <- list(
@@ -371,8 +371,8 @@ test_that("awaitCompletion handles failure with logs", {
   })
 
   # Start the main app and logs app
-  app <- webfakes::new_app_process(cloudApiApp)
-  logs_app_process <- webfakes::new_app_process(logs_app)
+  app <- webfakes::local_app_process(cloudApiApp)
+  logs_app_process <- webfakes::local_app_process(logs_app)
 
   service <- parseHttpUrl(app$url())
   authInfo <- list(
@@ -608,4 +608,493 @@ test_that("withTokenRefreshRetry uses client_credentials when clientSecret is se
   expect_equal(result$success, TRUE)
   expect_equal(call_count, 2)
   expect_true(register_called)
+})
+
+test_that("listApplications() paginates through multiple pages", {
+  skip_if_not_installed("webfakes")
+
+  allContents <- list(
+    list(id = "c1", title = "app-one"),
+    list(id = "c2", title = "app-two"),
+    list(id = "c3", title = "app-three")
+  )
+
+  contents_app <- webfakes::new_app()
+  contents_app$use(webfakes::mw_json())
+  # Serve at most 2 items per page regardless of the client's limit param,
+  # forcing two GET /contents requests to accumulate all 3 items.
+  contents_app$get("/contents", function(req, res) {
+    offset <- as.integer(req$query$offset)
+    remaining <- allContents[seq(offset + 1L, length(allContents))]
+    page <- remaining[seq_len(min(2L, length(remaining)))]
+    res$set_status(200L)$send_json(
+      list(data = page, total = length(allContents)),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(contents_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "acct-1",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$listApplications("acct-1")
+  expect_equal(length(result), 3L)
+  expect_equal(
+    vapply(result, function(x) x$id, character(1)),
+    c("c1", "c2", "c3")
+  )
+  # name must be derived from title
+  expect_equal(
+    vapply(result, function(x) x$name, character(1)),
+    c("app-one", "app-two", "app-three")
+  )
+})
+
+test_that("listApplications() filters by exact name, not substring", {
+  skip_if_not_installed("webfakes")
+
+  allContents <- list(
+    list(id = "c1", title = "my-app"),
+    list(id = "c2", title = "my-app-extra"),
+    list(id = "c3", title = "other-app")
+  )
+
+  contents_app <- webfakes::new_app()
+  contents_app$use(webfakes::mw_json())
+  contents_app$get("/contents", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(data = allContents, total = length(allContents)),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(contents_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "acct-1",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  # "my-app-extra" shares a prefix with "my-app"; exact match must exclude it.
+  result <- client$listApplications("acct-1", filters = list(name = "my-app"))
+  expect_equal(length(result), 1L)
+  expect_equal(result[[1]]$id, "c1")
+  expect_equal(result[[1]]$name, "my-app")
+})
+
+test_that("listApplications() requests a stable sort and drops deleted content", {
+  skip_if_not_installed("webfakes")
+
+  contents_app <- webfakes::new_app()
+  contents_app$use(webfakes::mw_json())
+  contents_app$get("/contents", function(req, res) {
+    # Reject if the stable-sort param is absent (paging regression guard).
+    if (!identical(req$query$order_by, "created_time")) {
+      res$set_status(400L)$send_json(
+        list(error = "order_by=created_time must be present"),
+        auto_unbox = TRUE
+      )
+      return()
+    }
+    res$set_status(200L)$send_json(
+      list(
+        data = list(
+          list(id = "c1", title = "active-app", state = "active"),
+          list(id = "c2", title = "deleted-app", state = "deleted")
+        ),
+        total = 2L
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(contents_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "acct-1",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  # order_by must have been sent (else the app 400s); deleted content is dropped.
+  result <- client$listApplications("acct-1")
+  expect_equal(length(result), 1L)
+  expect_equal(result[[1]]$id, "c1")
+  expect_equal(result[[1]]$name, "active-app")
+})
+
+test_that("listApplicationAuthorization GETs /contents/{id}/users and returns parsed data", {
+  skip_if_not_installed("webfakes")
+
+  users_app <- webfakes::new_app()
+  users_app$use(webfakes::mw_json())
+  users_app$get("/contents/:id/users", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        data = list(
+          list(
+            user = list(id = "user-uuid-1", email = "alice@example.com"),
+            account = "acct-a"
+          ),
+          list(
+            user = list(id = "user-uuid-2", email = "bob@example.com"),
+            account = "acct-b"
+          )
+        )
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(users_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$listApplicationAuthorization("content-abc")
+  expect_equal(length(result), 2L)
+  expect_equal(result[[1]]$user$email, "alice@example.com")
+  expect_equal(result[[2]]$user$email, "bob@example.com")
+  expect_equal(result[[1]]$user$id, "user-uuid-1")
+})
+
+test_that("removeApplicationUser DELETEs /contents/{id}/users/{userId} and returns TRUE", {
+  skip_if_not_installed("webfakes")
+
+  delete_app <- webfakes::new_app()
+  delete_app$use(webfakes::mw_json())
+  delete_app$delete("/contents/:id/users/:userId", function(req, res) {
+    res$set_status(200L)$send_json(list(), auto_unbox = TRUE)
+  })
+  app <- webfakes::local_app_process(delete_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$removeApplicationUser("content-abc", "user-uuid-1")
+  expect_true(result)
+})
+
+test_that("inviteApplicationUser POSTs expected JSON fields to /contents/{id}/invitations", {
+  skip_if_not_installed("webfakes")
+
+  invite_app <- webfakes::new_app()
+  invite_app$use(webfakes::mw_json())
+  invite_app$post("/contents/:id/invitations", function(req, res) {
+    j <- req$json
+    # Validate required payload shape; 400 forces a client error if the body is wrong
+    has_email_inv <- is.list(j$email_invitations) &&
+      length(j$email_invitations) >= 1L
+    has_addr <- identical(
+      j$email_invitations[[1]]$email_address,
+      "alice@example.com"
+    )
+    has_recv_inv <- is.list(j$recipient_invitations)
+    has_message <- identical(j$message, "Welcome!")
+    if (has_email_inv && has_addr && has_recv_inv && has_message) {
+      res$set_status(200L)$send_json(list(), auto_unbox = TRUE)
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "unexpected body shape"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  app <- webfakes::local_app_process(invite_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$inviteApplicationUser(
+    "content-abc",
+    "alice@example.com",
+    TRUE,
+    "Welcome!"
+  )
+  expect_true(result)
+})
+
+test_that("inviteApplicationUser sends null message field when emailMessage is NULL", {
+  skip_if_not_installed("webfakes")
+
+  null_msg_app <- webfakes::new_app()
+  null_msg_app$use(webfakes::mw_json())
+  null_msg_app$post("/contents/:id/invitations", function(req, res) {
+    j <- req$json
+    # toJSON(list(message = NULL), null = "null") renders {"message":null,...};
+    # jsonlite parses null back to NULL, so is.null(j$message) must be TRUE.
+    has_email_inv <- is.list(j$email_invitations) &&
+      length(j$email_invitations) >= 1L
+    has_addr <- identical(
+      j$email_invitations[[1]]$email_address,
+      "alice@example.com"
+    )
+    has_null_msg <- is.null(j$message) && "message" %in% names(j)
+    if (has_email_inv && has_addr && has_null_msg) {
+      res$set_status(200L)$send_json(list(), auto_unbox = TRUE)
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "expected null message field"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  app <- webfakes::local_app_process(null_msg_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$inviteApplicationUser(
+    "content-abc",
+    "alice@example.com",
+    TRUE,
+    NULL
+  )
+  expect_true(result)
+})
+
+test_that("listApplicationInvitations GETs /contents/{id}/invitations?accepted_time__isnull=true", {
+  skip_if_not_installed("webfakes")
+
+  list_app <- webfakes::new_app()
+  list_app$use(webfakes::mw_json())
+  list_app$get("/contents/:id/invitations", function(req, res) {
+    # 400 if the required filter query param is absent or wrong
+    if (identical(req$query$accepted_time__isnull, "true")) {
+      res$set_status(200L)$send_json(
+        list(
+          data = list(
+            list(
+              id = "inv-1",
+              email_address = "bob@example.com",
+              is_expired = FALSE
+            )
+          )
+        ),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "accepted_time__isnull=true must be present"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  app <- webfakes::local_app_process(list_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$listApplicationInvitations("content-abc")
+
+  expect_equal(length(result), 1L)
+  expect_equal(result[[1]]$id, "inv-1")
+  expect_equal(result[[1]]$email_address, "bob@example.com")
+})
+
+test_that("resendApplicationInvitation sends {} (object not array) to /content_invitations/{id}/resend", {
+  skip_if_not_installed("webfakes")
+
+  resend_app <- webfakes::new_app()
+  resend_app$use(webfakes::mw_json())
+  resend_app$post("/content_invitations/:id/resend", function(req, res) {
+    j <- req$json
+    # {} parses to a named empty list; [] parses to an unnamed empty list
+    # 400 if setNames(list(), character(0)) somehow regressed to list()
+    if (is.list(j) && length(j) == 0L && !is.null(names(j))) {
+      res$set_status(200L)$send_json(list(), auto_unbox = TRUE)
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "body must be JSON object {} not array []"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  app <- webfakes::local_app_process(resend_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$resendApplicationInvitation("inv-uuid-1", FALSE)
+  expect_true(result)
+})
+
+test_that("listApplicationAuthorization accumulates multiple pages", {
+  skip_if_not_installed("webfakes")
+
+  # Page 1: 2 users. Page 2: 1 user. Total=3 reported on each page.
+  page1 <- list(
+    list(user = list(id = "u1", email = "a@example.com"), account = "acct-a"),
+    list(user = list(id = "u2", email = "b@example.com"), account = "acct-b")
+  )
+  page2 <- list(
+    list(user = list(id = "u3", email = "c@example.com"), account = "acct-c")
+  )
+
+  users_app <- webfakes::new_app()
+  users_app$use(webfakes::mw_json())
+  users_app$get("/contents/:id/users", function(req, res) {
+    # Reject if the stable-sort param is absent (paging regression guard).
+    if (!identical(req$query$order_by, "created_time")) {
+      res$set_status(400L)$send_json(
+        list(error = "order_by=created_time must be present"),
+        auto_unbox = TRUE
+      )
+      return()
+    }
+    offset <- as.integer(req$query$offset %||% "0")
+    if (offset == 0L) {
+      res$set_status(200L)$send_json(
+        list(data = page1, total = 3L),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(200L)$send_json(
+        list(data = page2, total = 3L),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  app <- webfakes::local_app_process(users_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$listApplicationAuthorization("content-abc")
+  expect_equal(length(result), 3L)
+  expect_equal(result[[1]]$user$id, "u1")
+  expect_equal(result[[2]]$user$id, "u2")
+  expect_equal(result[[3]]$user$id, "u3")
+})
+
+test_that("listApplicationInvitations accumulates multiple pages and keeps accepted_time__isnull filter", {
+  skip_if_not_installed("webfakes")
+
+  page1 <- list(
+    list(id = "inv-1", email_address = "a@example.com", is_expired = FALSE),
+    list(id = "inv-2", email_address = "b@example.com", is_expired = FALSE)
+  )
+  page2 <- list(
+    list(id = "inv-3", email_address = "c@example.com", is_expired = TRUE)
+  )
+
+  inv_app <- webfakes::new_app()
+  inv_app$use(webfakes::mw_json())
+  inv_app$get("/contents/:id/invitations", function(req, res) {
+    # Reject if the required filter or stable-sort param is absent.
+    if (
+      !identical(req$query$accepted_time__isnull, "true") ||
+        !identical(req$query$order_by, "created_time")
+    ) {
+      res$set_status(400L)$send_json(
+        list(
+          error = "accepted_time__isnull=true and order_by=created_time must be present"
+        ),
+        auto_unbox = TRUE
+      )
+      return()
+    }
+    offset <- as.integer(req$query$offset %||% "0")
+    if (offset == 0L) {
+      res$set_status(200L)$send_json(
+        list(data = page1, total = 3L),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(200L)$send_json(
+        list(data = page2, total = 3L),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  app <- webfakes::local_app_process(inv_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$listApplicationInvitations("content-abc")
+  expect_equal(length(result), 3L)
+  expect_equal(result[[1]]$id, "inv-1")
+  expect_equal(result[[2]]$id, "inv-2")
+  expect_equal(result[[3]]$id, "inv-3")
 })

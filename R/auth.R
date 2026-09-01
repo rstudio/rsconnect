@@ -1,3 +1,92 @@
+# Internal: fetch authorized users for an already-resolved application id.
+# Does NOT call resolveContentTarget(); callers are responsible for resolving
+# content exactly once before invoking this.
+# isPCC = TRUE adds display_name and role columns from the PCC response shape
+# ({user: {id, email, display_name, ...}, role}); shinyapps.io keeps the
+# original three-column shape (id, email, account).
+showUsers_impl <- function(api, applicationId, isPCC = FALSE) {
+  res <- api$listApplicationAuthorization(applicationId)
+  rows <- lapply(res, function(x) {
+    id <- as.character(x$user$id %||% NA_character_)
+    email <- as.character(x$user$email %||% NA_character_)
+    if (is.na(id) && is.na(email)) {
+      backend <- if (isPCC) "Posit Connect Cloud" else "shinyapps.io"
+      cli::cli_abort(
+        c(
+          "Unexpected response from {backend}: a user record has neither an {.field id} nor an {.field email}.",
+          i = "The response shape may have changed; contact Posit support if this persists."
+        )
+      )
+    }
+    if (isPCC) {
+      data.frame(
+        id = id,
+        email = email,
+        account = NA_character_,
+        display_name = as.character(x$user$display_name %||% NA_character_),
+        role = as.character(x$role %||% NA_character_),
+        stringsAsFactors = FALSE
+      )
+    } else {
+      data.frame(
+        id = id,
+        email = email,
+        account = if (!is.null(x$account)) {
+          as.character(x$account)
+        } else {
+          NA_character_
+        },
+        stringsAsFactors = FALSE
+      )
+    }
+  })
+  if (length(rows) == 0L) {
+    if (isPCC) {
+      return(data.frame(
+        id = character(),
+        email = character(),
+        account = character(),
+        display_name = character(),
+        role = character(),
+        stringsAsFactors = FALSE
+      ))
+    }
+    return(data.frame(
+      id = character(),
+      email = character(),
+      account = character(),
+      stringsAsFactors = FALSE
+    ))
+  }
+  do.call(rbind, rows)
+}
+
+# Internal: fetch pending invitations for an already-resolved application id.
+# Does NOT call resolveContentTarget().
+showInvited_impl <- function(api, applicationId) {
+  res <- api$listApplicationInvitations(applicationId)
+  # PCC uses email_address / is_expired; shinyapps.io uses email / expired.
+  rows <- lapply(res, function(x) {
+    data.frame(
+      id = as.character(x$id %||% NA_character_),
+      email = as.character(x$email_address %||% x$email %||% NA_character_),
+      link = as.character(x$link %||% NA_character_),
+      expired = as.logical(x$is_expired %||% x$expired %||% NA),
+      stringsAsFactors = FALSE
+    )
+  })
+  if (length(rows) == 0L) {
+    return(data.frame(
+      id = character(),
+      email = character(),
+      link = character(),
+      expired = logical(),
+      stringsAsFactors = FALSE
+    ))
+  }
+  do.call(rbind, rows)
+}
+
 cleanupPasswordFile <- function(appDir) {
   check_directory(appDir)
   appDir <- normalizePath(appDir)
@@ -29,17 +118,72 @@ cleanupPasswordFile <- function(appDir) {
   invisible(TRUE)
 }
 
+# Internal: resolve the target content for collaborator management functions.
+# On PCC, an explicit contentId targets the content directly; otherwise reads
+# the local deployment record to get the content id (appId) rather than matching
+# by title (mutable, non-unique on PCC).
+# On shinyapps.io, delegates to resolveApplication() unchanged; contentId is
+# not supported there.
+resolveContentTarget <- function(
+  accountDetails,
+  appDir,
+  appName,
+  contentId = NULL
+) {
+  if (isPositConnectCloudServer(accountDetails$server)) {
+    # An explicit content id targets PCC content directly, with no local
+    # deployment record required.
+    if (!is.null(contentId)) {
+      check_string(contentId)
+      return(list(id = contentId))
+    }
+    recs <- deployments(
+      appPath = appDir,
+      accountFilter = accountDetails$name,
+      serverFilter = accountDetails$server,
+      nameFilter = appName
+    )
+    if (nrow(recs) == 0L) {
+      cli::cli_abort(c(
+        "Can't identify the Posit Connect Cloud content for {.file {appDir}}.",
+        i = paste0(
+          "No deployment record found. Deploy the content first, or run from ",
+          "the project directory that contains its {.path rsconnect/} deployment record."
+        )
+      ))
+    }
+    if (nrow(recs) > 1L) {
+      dep <- disambiguateDeployments(recs)
+      return(list(id = dep$appId))
+    }
+    list(id = recs$appId[[1L]])
+  } else {
+    if (!is.null(contentId)) {
+      cli::cli_abort(c(
+        "{.arg contentId} is only supported on Posit Connect Cloud.",
+        i = "On shinyapps.io, identify the application with {.arg appName}."
+      ))
+    }
+    resolveApplication(accountDetails, appName %||% basename(appDir))
+  }
+}
+
 #' Add authorized user to application
 #'
 #' @description
 #' Add authorized user to application
 #'
-#' Supported servers: ShinyApps servers
+#' Supported servers: ShinyApps, Posit Connect Cloud
 #'
 #' @param email Email address of user to add.
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
+#' @param contentId On Posit Connect Cloud, the content ID to manage, taken from
+#'   the content URL
+#'   (\code{https://connect.posit.cloud/{account}/content/{contentId}}). When
+#'   supplied, \code{appDir} and \code{appName} are ignored and no local
+#'   deployment record is required. Not supported on shinyapps.io.
 #' @inheritParams deployApp
 #' @param sendEmail Send an email letting the user know the application
 #'   has been shared with them.
@@ -47,28 +191,54 @@ cleanupPasswordFile <- function(appDir) {
 #'   custom message to send in email invitation. Defaults to NULL, which
 #'   will use default invitation message.
 #' @seealso [removeAuthorizedUser()] and [showUsers()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works for ShinyApps and Posit Connect Cloud. On Posit
+#'   Connect Cloud, the content's account must be an organization account.
+#'   The \code{sendEmail} argument is ignored on Posit Connect Cloud;
+#'   PCC always sends an invitation email.
+#'
+#'   On Posit Connect Cloud, the content is resolved from the local deployment
+#'   record under \code{appDir}, which defaults to the working directory. Pass
+#'   \code{appDir} to point at the project directory that contains the
+#'   \code{rsconnect/} deployment record. \code{appName} selects among multiple records in
+#'   the same directory. Alternatively, pass \code{contentId} to target the
+#'   content directly, without a local deployment record.
 #' @export
 addAuthorizedUser <- function(
   email,
   appDir = getwd(),
   appName = NULL,
+  contentId = NULL,
   account = NULL,
   server = NULL,
   sendEmail = NULL,
   emailMessage = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  checkShinyappsServer(accountDetails$server)
-
-  # resolve application
-  if (is.null(appName)) {
-    appName <- basename(appDir)
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    checkShinyappsServer(accountDetails$server)
   }
-  application <- resolveApplication(accountDetails, appName)
 
-  # check for and remove password file
-  cleanupPasswordFile(appDir)
+  application <- resolveContentTarget(
+    accountDetails,
+    appDir,
+    appName,
+    contentId
+  )
+
+  # check for and remove password file (shinyapps.io only; PCC has no password file)
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    cleanupPasswordFile(appDir)
+  }
+
+  # PCC always emails invitees; warn only when caller explicitly opts out
+  if (
+    isPositConnectCloudServer(accountDetails$server) &&
+      identical(sendEmail, FALSE)
+  ) {
+    cli::cli_warn(
+      "{.arg sendEmail} is ignored on Posit Connect Cloud; PCC always sends an invitation email."
+    )
+  }
 
   # fetch authorization list
   api <- clientForAccount(accountDetails)
@@ -89,56 +259,93 @@ addAuthorizedUser <- function(
 #' @description
 #' Remove authorized user from an application
 #'
-#' Supported servers: ShinyApps servers
+#' Supported servers: ShinyApps, Posit Connect Cloud
 #'
 #' @param user The user to remove. Can be id or email address.
 #' @param appDir Directory containing application. Defaults to
 #' current working directory.
 #' @param appName Name of application.
+#' @param contentId On Posit Connect Cloud, the content ID to manage, taken from
+#'   the content URL
+#'   (\code{https://connect.posit.cloud/{account}/content/{contentId}}). When
+#'   supplied, \code{appDir} and \code{appName} are ignored and no local
+#'   deployment record is required. Not supported on shinyapps.io.
 #' @inheritParams deployApp
 #' @seealso [addAuthorizedUser()] and [showUsers()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works for ShinyApps and Posit Connect Cloud.
+#'
+#'   On Posit Connect Cloud, the content is resolved from the local deployment
+#'   record under \code{appDir}, which defaults to the working directory. Pass
+#'   \code{appDir} to point at the project directory that contains the
+#'   \code{rsconnect/} deployment record. \code{appName} selects among multiple records in
+#'   the same directory. Alternatively, pass \code{contentId} to target the
+#'   content directly, without a local deployment record.
 #' @export
 removeAuthorizedUser <- function(
   user,
   appDir = getwd(),
   appName = NULL,
+  contentId = NULL,
   account = NULL,
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  checkShinyappsServer(accountDetails$server)
-
-  # resolve application
-  if (is.null(appName)) {
-    appName <- basename(appDir)
-  }
-  application <- resolveApplication(accountDetails, appName)
-
-  # check and remove password file
-  cleanupPasswordFile(appDir)
-
-  # get users
-  users <- showUsers(appDir, appName, account, server)
-
-  if (is.numeric(user)) {
-    # lookup by id
-    if (user %in% users$id) {
-      user <- users[users$id == user, ]
-    } else {
-      stop("User ", user, " not found", call. = FALSE)
-    }
-  } else {
-    # lookup by email
-    if (user %in% users$email) {
-      user <- users[users$email == user, ]
-    } else {
-      stop("User \"", user, "\" not found", call. = FALSE)
-    }
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    checkShinyappsServer(accountDetails$server)
   }
 
-  # remove user
+  application <- resolveContentTarget(
+    accountDetails,
+    appDir,
+    appName,
+    contentId
+  )
+
+  # check and remove password file (shinyapps.io only; PCC has no password file)
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    cleanupPasswordFile(appDir)
+  }
+
+  # resolve content exactly once: use impl so showUsers() does not call
+  # resolveContentTarget() a second time (a second interactive prompt could
+  # return a different record, causing removeApplicationUser to act on the
+  # wrong content).
   api <- clientForAccount(accountDetails)
+  users <- showUsers_impl(
+    api,
+    application$id,
+    isPCC = isPositConnectCloudServer(accountDetails$server)
+  )
+
+  user <- as.character(user)
+  # Match id first (UUID strings on PCC, numeric-as-character on shinyapps.io),
+  # then fall back to email. The old is.numeric() branch missed PCC UUID ids.
+  if (user %in% users$id) {
+    user <- users[which(users$id == user), ]
+  } else if (user %in% users$email) {
+    user <- users[which(users$email == user), ]
+  } else {
+    # Only PCC redacts emails, and the hint only helps someone who searched by
+    # email (an id-based lookup already avoids the problem).
+    redactionHint <-
+      isPositConnectCloudServer(accountDetails$server) &&
+      grepl("@", user, fixed = TRUE)
+    cli::cli_abort(c(
+      "User {.val {user}} not found.",
+      i = if (redactionHint) {
+        "On Posit Connect Cloud an email can be redacted and won't match; pass the user id from {.fn showUsers} instead."
+      }
+    ))
+  }
+
+  if (is.na(user$id)) {
+    cli::cli_abort(c(
+      "Cannot remove user {.val {user$email}}: the matched record has no id.",
+      i = "This is unexpected; contact Posit support if this persists."
+    ))
+  }
+
+  # remove user (api already built above)
   api$removeApplicationUser(application$id, user$id)
 
   message(paste("Removed:", user$email, "from application", sep = " "))
@@ -151,51 +358,58 @@ removeAuthorizedUser <- function(
 #' @description
 #' List authorized users for an application
 #'
-#' Supported servers: ShinyApps servers
+#' Supported servers: ShinyApps, Posit Connect Cloud
 #'
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
+#' @param contentId On Posit Connect Cloud, the content ID to manage, taken from
+#'   the content URL
+#'   (\code{https://connect.posit.cloud/{account}/content/{contentId}}). When
+#'   supplied, \code{appDir} and \code{appName} are ignored and no local
+#'   deployment record is required. Not supported on shinyapps.io.
 #' @inheritParams deployApp
 #' @seealso [addAuthorizedUser()] and [showInvited()]
-#' @note This function works only for ShinyApps servers.
+#' @return A data frame with one row per authorized user. Columns always
+#'   present: \code{id}, \code{email}, \code{account}. The \code{account}
+#'   column is populated on shinyapps.io only and is \code{NA} on Posit Connect
+#'   Cloud. On Posit Connect Cloud the data frame additionally includes
+#'   \code{display_name} and \code{role} (e.g. \code{"viewer"} or
+#'   \code{"collaborator"}) from the API response.
+#' @note This function works for ShinyApps and Posit Connect Cloud.
+#'
+#'   On Posit Connect Cloud, the content is resolved from the local deployment
+#'   record under \code{appDir}, which defaults to the working directory. Pass
+#'   \code{appDir} to point at the project directory that contains the
+#'   \code{rsconnect/} deployment record. \code{appName} selects among multiple records in
+#'   the same directory. Alternatively, pass \code{contentId} to target the
+#'   content directly, without a local deployment record.
 #' @export
 showUsers <- function(
   appDir = getwd(),
   appName = NULL,
+  contentId = NULL,
   account = NULL,
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  checkShinyappsServer(accountDetails$server)
-
-  # resolve application
-  if (is.null(appName)) {
-    appName <- basename(appDir)
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    checkShinyappsServer(accountDetails$server)
   }
-  application <- resolveApplication(accountDetails, appName)
 
-  # fetch authorization list
+  application <- resolveContentTarget(
+    accountDetails,
+    appDir,
+    appName,
+    contentId
+  )
+
   api <- clientForAccount(accountDetails)
-  res <- api$listApplicationAuthorization(application$id)
-
-  # get interesting fields
-  users <- lapply(res, function(x) {
-    a <- list()
-    a$id <- x$user$id
-    a$email <- x$user$email
-    if (!is.null(x$account)) {
-      a$account <- x$account
-    } else {
-      a$account <- NA
-    }
-    return(a)
-  })
-
-  # convert to data frame
-  users <- do.call(rbind, users)
-  df <- as.data.frame(users, stringsAsFactors = FALSE)
-  return(df)
+  showUsers_impl(
+    api,
+    application$id,
+    isPCC = isPositConnectCloudServer(accountDetails$server)
+  )
 }
 
 #' List invited users for an application
@@ -203,48 +417,51 @@ showUsers <- function(
 #' @description
 #' List invited users for an application
 #'
-#' Supported servers: ShinyApps servers
+#' Supported servers: ShinyApps, Posit Connect Cloud
 #'
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
+#' @param contentId On Posit Connect Cloud, the content ID to manage, taken from
+#'   the content URL
+#'   (\code{https://connect.posit.cloud/{account}/content/{contentId}}). When
+#'   supplied, \code{appDir} and \code{appName} are ignored and no local
+#'   deployment record is required. Not supported on shinyapps.io.
 #' @inheritParams deployApp
 #' @seealso [addAuthorizedUser()] and [showUsers()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works for ShinyApps and Posit Connect Cloud. On Posit
+#'   Connect Cloud, the \code{link} column is always \code{NA} because the
+#'   accept link is only emailed to the recipient and is never returned by
+#'   the API.
+#'
+#'   On Posit Connect Cloud, the content is resolved from the local deployment
+#'   record under \code{appDir}, which defaults to the working directory. Pass
+#'   \code{appDir} to point at the project directory that contains the
+#'   \code{rsconnect/} deployment record. \code{appName} selects among multiple records in
+#'   the same directory. Alternatively, pass \code{contentId} to target the
+#'   content directly, without a local deployment record.
 #' @export
 showInvited <- function(
   appDir = getwd(),
   appName = NULL,
+  contentId = NULL,
   account = NULL,
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  checkShinyappsServer(accountDetails$server)
-
-  # resolve application
-  if (is.null(appName)) {
-    appName <- basename(appDir)
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    checkShinyappsServer(accountDetails$server)
   }
-  application <- resolveApplication(accountDetails, appName)
 
-  # fetch invitation list
+  application <- resolveContentTarget(
+    accountDetails,
+    appDir,
+    appName,
+    contentId
+  )
+
   api <- clientForAccount(accountDetails)
-  res <- api$listApplicationInvitations(application$id)
-
-  # get interesting fields
-  users <- lapply(res, function(x) {
-    a <- list()
-    a$id <- x$id
-    a$email <- x$email
-    a$link <- x$link
-    a$expired <- x$expired
-    return(a)
-  })
-
-  # convert to data frame
-  users <- do.call(rbind, users)
-  df <- as.data.frame(users, stringsAsFactors = FALSE)
-  return(df)
+  showInvited_impl(api, application$id)
 }
 
 #' Resend invitation for invited users of an application
@@ -252,7 +469,7 @@ showInvited <- function(
 #' @description
 #' Resend invitation for invited users of an application
 #'
-#' Supported servers: ShinyApps servers
+#' Supported servers: ShinyApps, Posit Connect Cloud
 #'
 #' @param invite The invitation to resend. Can be id or email address.
 #' @param regenerate Regenerate the invite code. Can be helpful is the
@@ -260,42 +477,68 @@ showInvited <- function(
 #' @param appDir Directory containing application. Defaults to
 #'   current working directory.
 #' @param appName Name of application.
+#' @param contentId On Posit Connect Cloud, the content ID to manage, taken from
+#'   the content URL
+#'   (\code{https://connect.posit.cloud/{account}/content/{contentId}}). When
+#'   supplied, \code{appDir} and \code{appName} are ignored and no local
+#'   deployment record is required. Not supported on shinyapps.io.
 #' @inheritParams deployApp
 #' @seealso [showInvited()]
-#' @note This function works only for ShinyApps servers.
+#' @note This function works for ShinyApps and Posit Connect Cloud. The
+#'   invitation can be selected by id or email address. On Posit Connect Cloud,
+#'   the \code{regenerate} argument has no effect.
+#'
+#'   On Posit Connect Cloud, the content is resolved from the local deployment
+#'   record under \code{appDir}, which defaults to the working directory. Pass
+#'   \code{appDir} to point at the project directory that contains the
+#'   \code{rsconnect/} deployment record. \code{appName} selects among multiple records in
+#'   the same directory. Alternatively, pass \code{contentId} to target the
+#'   content directly, without a local deployment record.
 #' @export
 resendInvitation <- function(
   invite,
   regenerate = FALSE,
   appDir = getwd(),
   appName = NULL,
+  contentId = NULL,
   account = NULL,
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  checkShinyappsServer(accountDetails$server)
-
-  # get invitations
-  invited <- showInvited(appDir, appName, account, server)
-
-  if (is.numeric(invite)) {
-    # lookup by id
-    if (invite %in% invited$id) {
-      invite <- invited[invited$id == invite, ]
-    } else {
-      stop("Invitation \"", invite, "\" not found", call. = FALSE)
-    }
-  } else {
-    # lookup by email
-    if (invite %in% invited$email) {
-      invite <- invited[invited$email == invite, ]
-    } else {
-      stop("Invitation for \"", invite, "\" not found", call. = FALSE)
-    }
+  if (!isPositConnectCloudServer(accountDetails$server)) {
+    checkShinyappsServer(accountDetails$server)
   }
 
-  # resend invitation
+  # resolve content exactly once, then fetch invitations via impl (avoids a
+  # second resolveContentTarget() call).
+  application <- resolveContentTarget(
+    accountDetails,
+    appDir,
+    appName,
+    contentId
+  )
   api <- clientForAccount(accountDetails)
+  invited <- showInvited_impl(api, application$id)
+
+  invite <- as.character(invite)
+  # Match id first (UUID strings on PCC, numeric-as-character on shinyapps.io),
+  # then fall back to email. The old is.numeric() branch missed PCC UUID ids.
+  if (invite %in% invited$id) {
+    invite <- invited[which(invited$id == invite), ]
+  } else if (invite %in% invited$email) {
+    invite <- invited[which(invited$email == invite), ]
+  } else {
+    stop("Invitation for \"", invite, "\" not found", call. = FALSE)
+  }
+
+  if (is.na(invite$id)) {
+    cli::cli_abort(c(
+      "Cannot resend invitation for {.val {invite$email}}: the matched record has no id.",
+      i = "This is unexpected; contact Posit support if this persists."
+    ))
+  }
+
+  # resend invitation (api already built above)
   api$resendApplicationInvitation(invite$id, regenerate)
 
   message(paste("Sent invitation to", invite$email, "", sep = " "))

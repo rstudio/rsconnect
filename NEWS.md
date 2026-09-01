@@ -3,6 +3,27 @@
 * Connect Cloud deployments no longer send empty values for environment
   variables that are unset in the current R session. (#1361)
 
+* `showUsers()` and `showInvited()` now always return a data frame with
+  atomic `character`/`logical` columns, including a typed 0-row data frame
+  (rather than `NULL`) when there are no results. User ids are now always
+  `character` (previously numeric on shinyapps.io). On Posit Connect Cloud,
+  `showUsers()` also includes `display_name` and `role` columns; the
+  `account` column is populated only on shinyapps.io and is `NA` on Connect
+  Cloud.
+
+* `addAuthorizedUser()`, `removeAuthorizedUser()`, `showUsers()`,
+  `showInvited()`, and `resendInvitation()` now work with Posit Connect Cloud
+  accounts in addition to ShinyApps. On Posit Connect Cloud, the `sendEmail`
+  argument to `addAuthorizedUser()` is ignored because PCC always emails
+  invitees; a warning is emitted when it is explicitly set to `FALSE`. On Posit
+  Connect Cloud these functions also accept a `contentId` argument that targets
+  the content directly (the id is shown in the content URL and returned by
+  `applications()`), so a local deployment record is not required; `contentId`
+  is not supported on shinyapps.io.
+
+* `applications()` now supports Posit Connect Cloud accounts, returning a
+  data frame with the same columns as for ShinyApps and Posit Connect accounts.
+
 # rsconnect 1.11.0
 
 * rsconnect checks whether a newer version of itself is available from your

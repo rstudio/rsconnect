@@ -43,16 +43,79 @@ applications <- function(account = NULL, server = NULL) {
   serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
 
-  if (isPositConnectCloudServer(accountDetails$server)) {
-    cli::cli_abort(
-      "The applications() function is not supported for Posit Connect Cloud accounts."
-    )
-  }
-
   isConnect <- isConnectServer(accountDetails$server)
+  isPCC <- isPositConnectCloudServer(accountDetails$server)
 
   # retrieve applications
   apps <- client$listApplications(accountDetails$accountId)
+
+  if (isPCC) {
+    empty <- data.frame(
+      id = character(),
+      name = character(),
+      title = character(),
+      url = character(),
+      status = character(),
+      size = character(),
+      instances = integer(),
+      config_url = character(),
+      created_time = character(),
+      updated_time = character(),
+      guid = character(),
+      stringsAsFactors = FALSE
+    )
+    if (length(apps) == 0) {
+      return(empty)
+    }
+    # Resolve the owning account's real server-side slug once. All items belong
+    # to accountDetails$accountId (listApplications filters by it), so one
+    # getAccounts() call covers every row. Using the resolved slug rather than
+    # accountDetails$name (the local alias) prevents wrong-account URLs when the
+    # remote slug differs from the alias stored in the local config.
+    pccAccts <- client$getAccounts()$data
+    pccOwner <- Find(
+      function(a) identical(a$id, accountDetails$accountId),
+      pccAccts
+    )
+    if (is.null(pccOwner)) {
+      cli::cli_abort(
+        c(
+          "Unable to determine the Connect Cloud account for content listing.",
+          i = "You may not have access to the account this content belongs to."
+        )
+      )
+    }
+    contentUrlBase <- paste0(
+      connectCloudUrls()$ui,
+      "/",
+      pccOwner$name,
+      "/content/"
+    )
+    res <- lapply(apps, function(x) {
+      # url = the standalone served URL handed to app consumers (consistent with
+      # shinyapps.io/Connect); config_url = the dashboard settings page.
+      # Prefer the revision's served URL (the vanity/custom URL when set); fall
+      # back to the constructed content-id URL for content not yet published,
+      # where current_revision (or its url) is absent.
+      contentId <- x$id %||% ""
+      dashboardUrl <- paste0(contentUrlBase, contentId)
+      data.frame(
+        id = x$id %||% NA_character_,
+        name = x$title %||% NA_character_,
+        title = x$title %||% NA_character_,
+        url = x$current_revision$url %||% connectCloudStandaloneUrl(contentId),
+        status = NA_character_,
+        size = NA_character_,
+        instances = NA_integer_,
+        config_url = paste0(dashboardUrl, "/settings/info"),
+        created_time = x$created_time %||% NA_character_,
+        updated_time = x$updated_time %||% NA_character_,
+        guid = NA_character_,
+        stringsAsFactors = FALSE
+      )
+    })
+    return(do.call("rbind", res))
+  }
 
   # extract the subset of fields we're interested in
   keep <- if (isConnect) {
@@ -298,6 +361,7 @@ getLogs <- function(
     server = server,
     account = account
   )
+  checkShinyappsServer(deployment$server)
   accountDetails <- accountInfo(deployment$account, deployment$server)
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)

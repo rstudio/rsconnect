@@ -8,6 +8,7 @@ removeAuthorizedUser(
   user,
   appDir = getwd(),
   appName = NULL,
+  contentId = NULL,
   account = NULL,
   server = NULL
 )
@@ -20,6 +21,12 @@ current working directory.}
 
 \item{appName}{Name of application.}
 
+\item{contentId}{On Posit Connect Cloud, the content ID to manage, taken from
+the content URL
+(\code{https://connect.posit.cloud/{account}/content/{contentId}}). When
+supplied, \code{appDir} and \code{appName} are ignored and no local
+deployment record is required. Not supported on shinyapps.io.}
+
 \item{account, server}{Uniquely identify a remote server with either your
 user \code{account}, the \code{server} name, or both. If neither are supplied, and
 there are multiple options, you'll be prompted to pick one.
@@ -29,10 +36,17 @@ Use \code{\link[=accounts]{accounts()}} to see the full list of available option
 \description{
 Remove authorized user from an application
 
-Supported servers: ShinyApps servers
+Supported servers: ShinyApps, Posit Connect Cloud
 }
 \note{
-This function works only for ShinyApps servers.
+This function works for ShinyApps and Posit Connect Cloud.
+
+On Posit Connect Cloud, the content is resolved from the local deployment
+record under \code{appDir}, which defaults to the working directory. Pass
+\code{appDir} to point at the project directory that contains the
+\code{rsconnect/} deployment record. \code{appName} selects among multiple records in
+the same directory. Alternatively, pass \code{contentId} to target the
+content directly, without a local deployment record.
 }
 \seealso{
 \code{\link[=addAuthorizedUser]{addAuthorizedUser()}} and \code{\link[=showUsers]{showUsers()}}

@@ -472,6 +472,43 @@ test_that("can find existing application on shinyapps.io & not use it", {
   confirm_existing_app_not_used("shinyapps.io")
 })
 
+test_that("PCC deploy with no local record creates new content, not adopting same-titled existing", {
+  local_temp_config()
+  addTestServer(
+    url = "https://connect.posit.cloud",
+    name = "connect.posit.cloud"
+  )
+  addTestAccount("myaccount", server = "connect.posit.cloud")
+
+  # getAppByName is mocked to prove it is NOT called on PCC.
+  # Without the guard, getAppByName would return the existing app and forceUpdate = TRUE
+  # would adopt it (appId = "existing-uuid-123"). With the guard, getAppByName is
+  # never reached → falls through to create-new → appId = NULL.
+  local_mocked_bindings(
+    getAppByName = function(...) {
+      data.frame(
+        name = "my_app",
+        id = "existing-uuid-123",
+        url = "https://connect.posit.cloud/myaccount/content/existing-uuid-123",
+        stringsAsFactors = FALSE
+      )
+    }
+  )
+
+  app_dir <- dirCreate(file.path(withr::local_tempdir(), "my_app"))
+
+  target <- findDeploymentTarget(
+    app_dir,
+    appName = "my_app",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    forceUpdate = TRUE
+  )
+  # Guard skips getAppByName on PCC; falls through to createDeployment(appId = NULL)
+  expect_null(target$deployment$appId)
+  expect_equal(target$deployment$name, "my_app")
+})
+
 # helpers -----------------------------------------------------------------
 
 test_that("shouldUpdateApp errors when non-interactive", {

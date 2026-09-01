@@ -22,6 +22,17 @@ connectCloudContentUrl <- function(getAccounts, accountId, contentId) {
   paste0(connectCloudUrls()$ui, "/", ownerAccount$name, "/content/", contentId)
 }
 
+# Standalone (served) content URL -- the link handed to app consumers, and the
+# value returned in the `url` column of `applications()`. Consistent with the
+# served URL that shinyapps.io and Posit Connect report. The canonical scheme is
+# <content-id>.share.<connect-cloud-host> (e.g.
+# https://abc-123.share.connect.posit.cloud/). Derived from the UI base so it
+# tracks the active environment (production/staging/development).
+connectCloudStandaloneUrl <- function(contentId) {
+  host <- sub("^https?://", "", connectCloudUrls()$ui)
+  paste0("https://", contentId, ".share.", host, "/")
+}
+
 # Map rsconnect appMode to Connect Cloud contentType
 cloudContentTypeFromAppMode <- function(appMode) {
   switch(
@@ -145,31 +156,41 @@ connectCloudClient <- function(service, authInfo) {
     content
   }
 
-  # Paginates through GET /accounts?has_user_role=true, accumulating every
-  # account the caller has a role on (not just the first page), since the
-  # content being migrated/published may belong to any of them.
-  getAccounts <- function() {
-    pageSize <- 100
+  # Accumulate every page of a paginated GET list endpoint. `buildPath(limit,
+  # offset)` returns the request path for a single page; it must include
+  # `include_total=true` and a stable `order_by` so offset paging can't skip or
+  # duplicate rows. Callers do any post-filtering on the returned list.
+  paginate <- function(buildPath, pageSize = 100) {
     offset <- 0
-    allAccounts <- list()
+    allItems <- list()
     repeat {
-      path <- paste0(
-        "/accounts?has_user_role=true&include_total=true&limit=",
-        pageSize,
-        "&offset=",
-        offset
-      )
-      response <- withTokenRefreshRetry(GET, path)
-      allAccounts <- c(allAccounts, response$data)
+      response <- withTokenRefreshRetry(GET, buildPath(pageSize, offset))
+      allItems <- c(allItems, response$data)
       offset <- offset + length(response$data)
+      total <- as.numeric(response$total)
       if (
-        length(response$data) == 0 ||
-          isTRUE(offset >= as.numeric(response$total))
+        length(response$data) == 0L ||
+          isTRUE(offset >= total) ||
+          (length(total) == 0L && length(response$data) < pageSize)
       ) {
         break
       }
     }
-    list(data = allAccounts)
+    allItems
+  }
+
+  # Accumulates every account the caller has a role on (not just the first
+  # page), since the content being migrated/published may belong to any of them.
+  getAccounts <- function() {
+    accounts <- paginate(function(limit, offset) {
+      paste0(
+        "/accounts?has_user_role=true&include_total=true&limit=",
+        limit,
+        "&offset=",
+        offset
+      )
+    })
+    list(data = accounts)
   }
 
   list(
@@ -184,8 +205,42 @@ connectCloudClient <- function(service, authInfo) {
     withTokenRefreshRetry = withTokenRefreshRetry,
 
     listApplications = function(accountId, filters = list()) {
-      # TODO: call the real API when available (api doesn't support filtering by name yet)
-      return(list())
+      # order_by gives the list a stable total order; without it offset-based
+      # paging can skip or duplicate rows across requests.
+      allItems <- paginate(function(limit, offset) {
+        paste0(
+          "/contents?account_id=",
+          accountId,
+          "&order_by=created_time&include_total=true&limit=",
+          limit,
+          "&offset=",
+          offset
+        )
+      })
+      # Drop content that has been soft-deleted but not yet hard-deleted: an
+      # account owner can still see it in the window before the cleanup job runs.
+      allItems <- Filter(
+        function(item) !identical(item$state, "deleted"),
+        allItems
+      )
+      # Set name = title so resolveApplication (which matches on app$name) works for PCC.
+      items <- lapply(allItems, function(item) {
+        item$name <- item$title
+        item
+      })
+      # Honor filters$name with exact-match semantics to match the shinyapps.io
+      # client contract (listApplications callers may pass filters$name).
+      # NOTE: getAppByName()/getLogs() historically reached this block; getLogs()
+      # is now guarded with checkShinyappsServer() so PCC callers never reach it.
+      # The block is kept for listApplications contract parity with shinyapps.io:
+      # removing it would silently break any future caller that passes filters$name.
+      if (!is.null(filters$name)) {
+        items <- Filter(
+          function(item) identical(item$name, filters$name),
+          items
+        )
+      }
+      items
     },
 
     createContent = function(
@@ -414,6 +469,59 @@ connectCloudClient <- function(service, authInfo) {
 
     getAuthorization = getAuthorization,
 
-    getAccounts = getAccounts
+    getAccounts = getAccounts,
+
+    listApplicationAuthorization = function(appId) {
+      # order_by keeps offset-based paging stable (see paginate()).
+      paginate(function(limit, offset) {
+        paste0(
+          "/contents/",
+          appId,
+          "/users?order_by=created_time&include_total=true&limit=",
+          limit,
+          "&offset=",
+          offset
+        )
+      })
+    },
+
+    removeApplicationUser = function(appId, userId) {
+      path <- paste0("/contents/", appId, "/users/", userId)
+      withTokenRefreshRetry(DELETE, path)
+      invisible(TRUE)
+    },
+
+    inviteApplicationUser = function(appId, email, sendEmail, emailMessage) {
+      path <- paste0("/contents/", appId, "/invitations")
+      json <- list(
+        message = emailMessage,
+        email_invitations = list(list(email_address = email)),
+        recipient_invitations = list()
+      )
+      withTokenRefreshRetry(POST_JSON, path, json)
+      invisible(TRUE)
+    },
+
+    listApplicationInvitations = function(appId) {
+      # order_by keeps offset-based paging stable (see paginate()).
+      paginate(function(limit, offset) {
+        paste0(
+          "/contents/",
+          appId,
+          "/invitations?accepted_time__isnull=true&order_by=created_time&include_total=true&limit=",
+          limit,
+          "&offset=",
+          offset
+        )
+      })
+    },
+
+    resendApplicationInvitation = function(inviteId, regenerate) {
+      # regenerate is shinyapps.io-specific; PCC re-sends the existing invite email.
+      # Use setNames(list(), character(0)) to produce {} not [] at the wire level.
+      path <- paste0("/content_invitations/", inviteId, "/resend")
+      withTokenRefreshRetry(POST_JSON, path, setNames(list(), character(0)))
+      invisible(TRUE)
+    }
   )
 }
