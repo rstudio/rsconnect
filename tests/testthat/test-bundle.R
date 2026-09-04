@@ -64,7 +64,7 @@ test_that("parameterized Rmd identified as parameterized when other Rmd in bundl
   expect_known_manifest_fields(manifest)
 })
 
-test_that("primary doc can be inferred (and non-parameterized dispite an included parameterized", {
+test_that("primary doc can be inferred (and non-parameterized despite an included parameterized", {
   skip_on_cran()
   bundleTempDir <- local_shiny_bundle(
     "rmd primary",
