@@ -13,7 +13,7 @@ Supported global options include:
 
   Path to a custom bundle of Certificate Authority root certificates to
   use when connecting to servers via SSL. This option can also be
-  specied in the environment variable `RSCONNECT_CA_BUNDLE`. Leave
+  specified in the environment variable `RSCONNECT_CA_BUNDLE`. Leave
   undefined to use your system's default certificate store.
 
 - `rsconnect.check.certificate`:
