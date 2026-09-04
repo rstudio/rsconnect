@@ -27,6 +27,9 @@ Supported global options include:
    \item{\code{rsconnect.pre.deploy}}{A function to run prior to deploying content; it receives as an argument the directory containing the content  about to be deployed.}
    \item{\code{rsconnect.post.deploy}}{A function to run after successfully deploying content; it receives as an argument the directory containing the content  about to be deployed.}
    \item{\code{rsconnect.python.enabled}}{When \code{TRUE}, use the python executable specified by the \code{RETICULATE_PYTHON} environment variable and add a \code{python} section to the deployment manifest. By default, python is enabled when deploying to Posit Connect and disabled when deploying to shinyapps.io.}
+   \item{\code{rsconnect.check_updates}}{When \code{TRUE} (the default), rsconnect looks in your configured repositories for a newer version of the package and tells you if one is available. Set to \code{FALSE} to turn this check off. You can also set the environment variable \code{RSCONNECT_CHECK_UPDATES}, which takes precedence over the option.}
+   \item{\code{rsconnect.update_check_timeout}}{The maximum time, in seconds, to wait for each repository request during the update check. Defaults to 2. This limit keeps the check from delaying \code{library(rsconnect)} or error reporting.}
+   \item{\code{rsconnect.update_check_interval}}{How long, in seconds, to cache the result of the update check. Defaults to 86400 (one day).}
 }
 When deploying content from the RStudio IDE, the rsconnect package's deployment methods are executed in a vanilla R session that doesn't execute startup scripts. This can make it challenging to ensure options are set properly prior to push-button deployment, so the rsconnect package has a parallel set of ``startup'' scripts it runs prior to deploying. The follow are run in order, if they exist, prior to deployment:
 \describe{
