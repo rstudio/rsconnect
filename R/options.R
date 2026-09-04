@@ -7,26 +7,73 @@
 #' @details
 #' Supported global options include:
 #'
-#' - `rsconnect.ca.bundle`: Path to a custom bundle of Certificate Authority root certificates to use when connecting to servers via SSL. This option can also be specified in the environment variable `RSCONNECT_CA_BUNDLE`. Leave undefined to use your system's default certificate store.
-#' - `rsconnect.check.certificate`: Whether to check the SSL certificate when connecting to a remote host; defaults to `TRUE`. Setting to `FALSE` is insecure, but will allow you to connect to hosts using invalid certificates as a last resort.
-#' - `rsconnect.http.trace`: When `TRUE`, trace http calls (prints the method, path, and total milliseconds for each http request).
-#' - `rsconnect.http.trace.json`: When `TRUE`, trace JSON content (shows JSON payloads sent to and received from the server).
-#' - `rsconnect.http.verbose`: When `TRUE`, print verbose output for http connections (useful only for debugging SSL certificate or http connection problems).
-#' - `rsconnect.tar`: By default, rsconnect uses R's internal `tar` implementation to compress content bundles. This may cause invalid bundles in some environments. In those cases, use this option to specify a path to an alternate `tar` executable. This option can also be specified in the environment variable `RSCONNECT_TAR`. Leave undefined to use the default `tar` implementation.
-#' - `rsconnect.libcurl.options`: A named list of additional cURL options to use when making HTTP requests. Run `curl::curl_options()` to see available options.
-#' - `rsconnect.error.trace`: When `TRUE`, print detailed stack traces for errors occurring during deployment.
-#' - `rsconnect.launch.browser`: When `TRUE`, automatically launch a browser to view applications after they are deployed.
+#' - `rsconnect.ca.bundle`: Path to a custom bundle of Certificate Authority root certificates to
+#' use when connecting to servers via SSL. This option can also be specified in the environment
+#' variable `RSCONNECT_CA_BUNDLE`. Leave undefined to use your system's default certificate store.
+#'
+#' - `rsconnect.check.certificate`: Whether to check the SSL certificate when connecting to a remote
+#' host; defaults to `TRUE`. Setting to `FALSE` is insecure, but will allow you to connect to hosts
+#' using invalid certificates as a last resort.
+#'
+#' - `rsconnect.http.trace`: When `TRUE`, trace http calls (prints the method, path, and total
+#' milliseconds for each http request).
+#'
+#' - `rsconnect.http.trace.json`: When `TRUE`, trace JSON content (shows JSON payloads sent to and
+#' received from the server).
+#'
+#' - `rsconnect.http.verbose`: When `TRUE`, print verbose output for http connections (useful only
+#' for debugging SSL certificate or http connection problems).
+#'
+#' - `rsconnect.tar`: By default, rsconnect uses R's internal `tar` implementation to compress
+#' content bundles. This may cause invalid bundles in some environments. In those cases, use this
+#' option to specify a path to an alternate `tar` executable. This option can also be specified in
+#' the environment variable `RSCONNECT_TAR`. Leave undefined to use the default `tar`
+#' implementation.
+#'
+#' - `rsconnect.libcurl.options`: A named list of additional cURL options to use when making HTTP
+#' requests. Run `curl::curl_options()` to see available options.
+#'
+#' - `rsconnect.error.trace`: When `TRUE`, print detailed stack traces for errors occurring during
+#' deployment.
+#'
+#' - `rsconnect.launch.browser`: When `TRUE`, automatically launch a browser to view applications
+#' after they are deployed.
+#'
 #' - `rsconnect.locale.cache`: When `FALSE`, disable the detected locale cache (Windows only).
+#'
 #' - `rsconnect.locale`: Override the detected locale.
-#' - `rsconnect.max.bundle.size`: The maximum size, in bytes, for deployed content. If not set, defaults to 3 GB.
-#' - `rsconnect.max.bundle.files`: The maximum number of files to deploy. If not set, defaults to 10,000.
-#' - `rsconnect.force.update.apps`: When `TRUE`, bypasses the prompt to confirm whether you wish to update previously-deployed content.
-#' - `rsconnect.pre.deploy`: A function to run prior to deploying content; it receives as an argument the directory containing the content about to be deployed.
-#' - `rsconnect.post.deploy`: A function to run after successfully deploying content; it receives as an argument the directory containing the content about to be deployed.
-#' - `rsconnect.python.enabled`: When `TRUE`, use the python executable specified by the `RETICULATE_PYTHON` environment variable and add a `python` section to the deployment manifest. By default, python is enabled when deploying to Posit Connect and disabled when deploying to shinyapps.io.
-#' - `rsconnect.check_updates`: When `TRUE` (the default), rsconnect looks in your configured repositories for a newer version of the package and tells you if one is available. Set to `FALSE` to turn this check off. You can also set the environment variable `RSCONNECT_CHECK_UPDATES`, which takes precedence over the option.
-#' - `rsconnect.update_check_timeout`: The maximum time, in seconds, to wait for each repository request during the update check. Defaults to 2. This limit keeps the check from delaying `library(rsconnect)` or error reporting.
-#' - `rsconnect.update_check_interval`: How long, in seconds, to cache the result of the update check. Defaults to 86400 (one day).
+#'
+#' - `rsconnect.max.bundle.size`: The maximum size, in bytes, for deployed content. If not set,
+#' defaults to 3 GB.
+#'
+#' - `rsconnect.max.bundle.files`: The maximum number of files to deploy. If not set, defaults to
+#' 10,000.
+#'
+#' - `rsconnect.force.update.apps`: When `TRUE`, bypasses the prompt to confirm whether you wish to
+#' update previously-deployed content.
+#'
+#' - `rsconnect.pre.deploy`: A function to run prior to deploying content; it receives as an
+#' argument the directory containing the content about to be deployed.
+#'
+#' - `rsconnect.post.deploy`: A function to run after successfully deploying content; it receives as
+#' an argument the directory containing the content about to be deployed.
+#'
+#' - `rsconnect.python.enabled`: When `TRUE`, use the python executable specified by the
+#' `RETICULATE_PYTHON` environment variable and add a `python` section to the deployment manifest.
+#' By default, python is enabled when deploying to Posit Connect and disabled when deploying to
+#' shinyapps.io.
+#'
+#' - `rsconnect.check_updates`: When `TRUE` (the default), rsconnect looks in your configured
+#' repositories for a newer version of the package and tells you if one is available. Set to `FALSE`
+#' to turn this check off. You can also set the environment variable `RSCONNECT_CHECK_UPDATES`,
+#' which takes precedence over the option.
+#'
+#' - `rsconnect.update_check_timeout`: The maximum time, in seconds, to wait for each repository
+#' request during the update check. Defaults to 2. This limit keeps the check from delaying
+#' `library(rsconnect)` or error reporting.
+#'
+#' - `rsconnect.update_check_interval`: How long, in seconds, to cache the result of the update
+#' check. Defaults to 86400 (one day).
 #'
 #' When deploying content from the RStudio IDE, the rsconnect package's
 #' deployment methods are executed in a vanilla R session that doesn't execute
@@ -36,8 +83,11 @@
 #' are run in order, if they exist, prior to deployment:
 #'
 #' - `$R_HOME/etc/rsconnect.site`: Like `Rprofile.site`; for site-wide pre-flight and options.
+#'
 #' - `~/.rsconnect_profile`: Like `.Rprofile`; for user-specific content.
-#' - `$PROJECT/.rsconnect_profile`: Like `.Rprofile` for projects; `$PROJECT` here refers to the root directory of the content being deployed.
+#'
+#' - `$PROJECT/.rsconnect_profile`: Like `.Rprofile` for projects; `$PROJECT` here refers to the
+#' root directory of the content being deployed.
 #'
 #' Note that, unlike `.Rprofile`, these files don't replace each other; _all
 #' three_ will be run if they exist.
