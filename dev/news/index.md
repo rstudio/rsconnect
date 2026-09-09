@@ -34,6 +34,10 @@
   now supports Posit Connect Cloud accounts, returning a data frame with
   the same columns as for ShinyApps and Posit Connect accounts.
 
+- Redeploying to Posit Connect now opens the content in the Connect
+  dashboard, rather than in standalone view, matching initial deploys
+  ([\#1372](https://github.com/rstudio/rsconnect/issues/1372)).
+
 ## rsconnect 1.11.0
 
 CRAN release: 2026-08-25
