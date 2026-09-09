@@ -98,7 +98,10 @@ test_that("getApplication() fills in dashboard_url from guid when missing", {
   result <- client$getApplication(101, "unknown")
   expect_equal(
     result$dashboard_url,
-    connectDashboardUrl(buildHttpUrl(service), "3bfbd98a-6d6d-41bd-a15f-cab52025742f")
+    connectDashboardUrl(
+      buildHttpUrl(service),
+      "3bfbd98a-6d6d-41bd-a15f-cab52025742f"
+    )
   )
 })
 

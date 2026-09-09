@@ -104,7 +104,11 @@ connectClient <- function(service, authInfo) {
     # We still have to use the unversioned URL here because the saved deployment
     # record only saves numeric id, not the guid, which we need for v1/content/
     getApplication = function(applicationId, deploymentRecordVersion) {
-      app <- GET(service, authInfo, unversioned_url("applications", applicationId))
+      app <- GET(
+        service,
+        authInfo,
+        unversioned_url("applications", applicationId)
+      )
       # Add dashboard_url, which comes in the v1/content URL but not applications/
       app$dashboard_url <- connectDashboardUrl(buildHttpUrl(service), app$guid)
       app
