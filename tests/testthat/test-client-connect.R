@@ -75,22 +75,32 @@ test_that("waitForTask", {
   expect_snapshot(invisible(client$waitForTask(42, quiet = TRUE)))
 })
 
-# NOTE: These tests expect that you're already running connect; the tests
-# will speak to that running connect process (if it can find it)
-findConnect <- function() {
-  connect <- Sys.which("connect")
-  if (connect == "") {
-    possibleLocs <- c(
-      "~/git/connect/bin"
+test_that("getApplication() fills in dashboard_url from guid when missing", {
+  skip_if_not_installed("webfakes")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$get("/applications/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = I(req$params$id),
+        guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f"
+      ),
+      auto_unbox = TRUE
     )
-    for (loc in possibleLocs) {
-      if (file.exists(file.path(loc, "connect"))) {
-        return(normalizePath(file.path(loc, "connect")))
-      }
-    }
-    stop("Couldn't find an appropriate 'connect' binary")
-  }
-}
+  })
+  process <- webfakes::new_app_process(app)
+  service <- parseHttpUrl(process$url())
+
+  authInfo <- list(apiKey = "the-api-key")
+  client <- connectClient(service, authInfo)
+
+  result <- client$getApplication(101, "unknown")
+  expect_equal(
+    result$dashboard_url,
+    connectDashboardUrl(buildHttpUrl(service), "3bfbd98a-6d6d-41bd-a15f-cab52025742f")
+  )
+})
 
 # Tests for Snowflake authentication with auto-detection
 
@@ -177,5 +187,20 @@ test_that("extractSnowflakeAccount handles various hostname formats", {
   expect_equal(
     extractSnowflakeAccount("prefix-org-account.privatelink.snowflake.app"),
     "org-account.privatelink"
+  )
+})
+
+
+test_that("connectDashboardUrl builds the dashboard URL from a server URL and id", {
+  expect_equal(
+    connectDashboardUrl("https://connect.example.com/__api__", "42"),
+    "https://connect.example.com/connect/#/apps/42"
+  )
+  expect_equal(
+    connectDashboardUrl(
+      "https://connect.example.com/__api__",
+      "3bfbd98a-6d6d-41bd-a15f-cab52025742f"
+    ),
+    "https://connect.example.com/connect/#/apps/3bfbd98a-6d6d-41bd-a15f-cab52025742f"
   )
 })
