@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Connect Cloud deployments no longer send empty values for environment
+  variables that are unset in the current R session. (#1361)
+
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
   (rather than `NULL`) when there are no results. User ids are now always
