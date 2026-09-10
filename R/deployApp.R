@@ -525,6 +525,8 @@ deployApp <- function(
     checkConnectSupportsNodejs(client)
   }
 
+  createdContent <- is.null(deployment$appId)
+
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating content on server...")
     if (isPositConnectCloudServer(accountDetails$server)) {
@@ -563,6 +565,7 @@ deployApp <- function(
           application
         },
         rsconnect_http_404 = function(err) {
+          createdContent <<- TRUE
           application <- applicationDeleted(
             client,
             deployment,
@@ -615,9 +618,10 @@ deployApp <- function(
 
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
-    # no update needed if we just created the content
-    # current revision will be null only when creating new content
-    if (!is.null(application$current_revision)) {
+    # Existing content: mint a fresh bundle + upload URL. Skipped only when we
+    # just created (or recreated) the content in this call, which already has a
+    # pending revision.
+    if (!createdContent) {
       taskStart(quiet, "Updating content...")
       # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
       primaryFile <- appMetadata$appPrimaryDoc %||%
@@ -649,6 +653,8 @@ deployApp <- function(
       taskComplete(quiet, "Environment variables updated")
     }
   }
+
+  bundle <- NULL
 
   if (upload) {
     python <- getPythonForTarget(python, accountDetails)
@@ -687,7 +693,6 @@ deployApp <- function(
       if (!success) {
         cli::cli_abort("Could not upload bundle.")
       }
-      bundle <- NULL # PCC doesn't use bundle objects like other servers
     } else if (isShinyappsServer(accountDetails$server)) {
       bundle <- uploadShinyappsBundle(
         client,

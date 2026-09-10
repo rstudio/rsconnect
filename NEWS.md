@@ -1,5 +1,14 @@
 # rsconnect (development version)
 
+* Deploying to existing Posit Connect Cloud content that has no current
+  revision (e.g. after republishing or migrating through the UI) no longer
+  fails with "Invalid token". rsconnect now always requests a fresh bundle
+  upload URL for existing content instead of assuming a null current revision
+  means newly-created content. (#1370)
+
+* `deployApp(upload = FALSE)` no longer errors with
+  `object 'bundle' not found` on Posit Connect Cloud. (#1369)
+
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
   (rather than `NULL`) when there are no results. User ids are now always
