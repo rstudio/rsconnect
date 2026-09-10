@@ -1,7 +1,7 @@
 # rsconnect (development version)
 
 * Deploying to Posit Connect Cloud content that has no environment variables
-  no longer fails on R < 4.0.0 with "zero-length inputs cannot be mixed with
+  no longer fails on R < 4.2.0 with "zero-length inputs cannot be mixed with
   those of non-zero length". The Connect Cloud client no longer calls
   `Sys.getenv()` on an empty vector when building the secrets payload.
 
