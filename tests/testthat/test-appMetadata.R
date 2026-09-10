@@ -229,6 +229,38 @@ test_that("appMetadata returns NULL plumberInfo for nodejs", {
   expect_null(metadata$plumberInfo)
 })
 
+test_that("inferredPrimaryFile is populated when appMode is supplied (app.R)", {
+  dir <- withr::local_tempdir()
+  writeLines(
+    "library(shiny); shinyApp(fluidPage(), function(input, output) {})",
+    file.path(dir, "app.R")
+  )
+  metadata <- appMetadata(dir, appFiles = "app.R", appMode = "shiny")
+  expect_equal(metadata$inferredPrimaryFile, "app.R")
+})
+
+test_that("inferredPrimaryFile is populated when appMode is supplied (server.R)", {
+  dir <- withr::local_tempdir()
+  writeLines("", file.path(dir, "server.R"))
+  writeLines("", file.path(dir, "ui.R"))
+  metadata <- appMetadata(
+    dir,
+    appFiles = c("server.R", "ui.R"),
+    appMode = "shiny"
+  )
+  expect_equal(metadata$inferredPrimaryFile, "server.R")
+})
+
+test_that("inferredPrimaryFile is still populated when appMode is NULL (no regression)", {
+  dir <- withr::local_tempdir()
+  writeLines(
+    "library(shiny); shinyApp(fluidPage(), function(input, output) {})",
+    file.path(dir, "app.R")
+  )
+  metadata <- appMetadata(dir, appFiles = "app.R")
+  expect_equal(metadata$inferredPrimaryFile, "app.R")
+})
+
 # checkLayout -------------------------------------------------------------
 
 # inferAppMode ------------------------------------------------------------

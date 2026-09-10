@@ -1,5 +1,10 @@
 # rsconnect (development version)
 
+* Deploying to Posit Connect Cloud from a pre-generated `manifest.json`
+  (`deployApp(manifestPath=)`) no longer fails with a null `primary_file`.
+  The primary file is now inferred from the file list even when `appMode` is
+  supplied. (#1366)
+
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
   (rather than `NULL`) when there are no results. User ids are now always
