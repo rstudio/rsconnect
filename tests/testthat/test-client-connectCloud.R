@@ -1056,7 +1056,7 @@ test_that("createContent sends empty secrets array when envVars is NULL", {
   app$post("/contents", function(req, res) {
     j <- req$json
     # secrets must be an empty JSON array; any other shape means Sys.getenv()
-    # was called on the whole environment (pre-fix behaviour on R < 4.0.0).
+    # was called on the whole environment (pre-fix behaviour on R < 4.2.0).
     if (is.list(j$secrets) && length(j$secrets) == 0L) {
       res$set_status(200L)$send_json(
         list(id = "content-new-1"),
