@@ -337,3 +337,210 @@ test_that("openURL() launches the browser on success with a valid url", {
   )
   expect_true(launched)
 })
+
+# PCC deploy: updateContent / createdContent guard (#1370, #1369) ----------
+
+# Shared PCC test content fixture: existing content with NULL current_revision.
+pcc_existing_content_null_revision <- list(
+  id = "content-abc",
+  url = "https://connect.posit.cloud/myaccount/content/content-abc",
+  current_revision = NULL,
+  next_revision = list(
+    id = "rev-new",
+    source_bundle_upload_url = "https://upload.example.com/bundle"
+  )
+)
+
+# Shared PCC test content fixture: existing content with a current_revision.
+pcc_existing_content_with_revision <- utils::modifyList(
+  pcc_existing_content_null_revision,
+  list(current_revision = list(id = "rev-old"))
+)
+
+# Set up a PCC server, account, and (optionally) a re-deploy record.
+local_pcc_deploy_env <- function(
+  appDir,
+  appId = "content-abc",
+  env = parent.frame()
+) {
+  local_temp_config(env = env)
+  addTestServer(
+    url = "https://connect.posit.cloud",
+    name = "connect.posit.cloud"
+  )
+  addTestAccount("myaccount", server = "connect.posit.cloud")
+  if (!is.null(appId)) {
+    addTestDeployment(
+      appDir,
+      appName = "myapp",
+      appId = appId,
+      account = "myaccount",
+      server = "connect.posit.cloud"
+    )
+  }
+}
+
+test_that("#1370: existing PCC content with NULL current_revision calls updateContent", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir)
+
+  update_content_called <- FALSE
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        getContent = function(id) pcc_existing_content_null_revision,
+        updateContent = function(id, envVars, newBundle, primaryFile, appMode) {
+          update_content_called <<- TRUE
+          pcc_existing_content_null_revision
+        },
+        uploadBundle = function(bundlePath, url) TRUE,
+        publish = function(id) invisible(NULL),
+        awaitCompletion = function(revisionId) {
+          list(
+            success = TRUE,
+            url = "https://connect.posit.cloud/myaccount/content/content-abc"
+          )
+        }
+      )
+    },
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_true(update_content_called)
+})
+
+test_that("#1370: newly-created PCC content (no prior record) does NOT call updateContent", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir, appId = NULL)
+
+  update_content_called <- FALSE
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        createContent = function(...) pcc_existing_content_null_revision,
+        updateContent = function(...) {
+          update_content_called <<- TRUE
+          pcc_existing_content_null_revision
+        },
+        uploadBundle = function(bundlePath, url) TRUE,
+        publish = function(id) invisible(NULL),
+        awaitCompletion = function(revisionId) {
+          list(
+            success = TRUE,
+            url = "https://connect.posit.cloud/myaccount/content/content-abc"
+          )
+        }
+      )
+    },
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_false(update_content_called)
+})
+
+test_that("#1370: existing PCC content with non-null current_revision still calls updateContent", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir)
+
+  update_content_called <- FALSE
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        getContent = function(id) pcc_existing_content_with_revision,
+        updateContent = function(...) {
+          update_content_called <<- TRUE
+          pcc_existing_content_with_revision
+        },
+        uploadBundle = function(bundlePath, url) TRUE,
+        publish = function(id) invisible(NULL),
+        awaitCompletion = function(revisionId) {
+          list(
+            success = TRUE,
+            url = "https://connect.posit.cloud/myaccount/content/content-abc"
+          )
+        }
+      )
+    },
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_true(update_content_called)
+})
+
+test_that("#1369: deployApp(upload=FALSE) on PCC does not error with 'bundle not found'", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir)
+
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        getContent = function(id) pcc_existing_content_with_revision,
+        updateContent = function(...) pcc_existing_content_with_revision,
+        publish = function(id) invisible(NULL),
+        awaitCompletion = function(revisionId) {
+          list(
+            success = TRUE,
+            url = "https://connect.posit.cloud/myaccount/content/content-abc"
+          )
+        }
+      )
+    }
+  )
+
+  expect_no_error(suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    upload = FALSE,
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  )))
+})
