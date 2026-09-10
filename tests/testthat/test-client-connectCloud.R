@@ -1042,3 +1042,237 @@ test_that("listApplicationInvitations accumulates multiple pages and keeps accep
   expect_equal(result[[2]]$id, "inv-2")
   expect_equal(result[[3]]$id, "inv-3")
 })
+
+# --- envVars / secrets tests ---------------------------------------------------
+# webfakes runs in a separate process so we can't use <<- to capture req$json.
+# Instead the server validates the payload and returns 400 on a bad shape
+# (the client will then throw), so a clean 200 response proves the assertion.
+
+test_that("createContent sends empty secrets array when envVars is NULL", {
+  skip_if_not_installed("webfakes")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$post("/contents", function(req, res) {
+    j <- req$json
+    # secrets must be an empty JSON array; any other shape means Sys.getenv()
+    # was called on the whole environment (pre-fix behaviour on R < 4.0.0).
+    if (is.list(j$secrets) && length(j$secrets) == 0L) {
+      res$set_status(200L)$send_json(
+        list(id = "content-new-1"),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "secrets must be an empty array"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    accountId = "acct-1",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_no_error(
+    client$createContent(
+      name = "my-app",
+      title = "My App",
+      accountId = "acct-1",
+      appMode = "shiny",
+      primaryFile = "app.R",
+      envVars = NULL
+    )
+  )
+})
+
+test_that("createContent sends empty secrets array when envVars is character(0)", {
+  skip_if_not_installed("webfakes")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$post("/contents", function(req, res) {
+    j <- req$json
+    if (is.list(j$secrets) && length(j$secrets) == 0L) {
+      res$set_status(200L)$send_json(
+        list(id = "content-new-2"),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "secrets must be an empty array"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    accountId = "acct-1",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_no_error(
+    client$createContent(
+      name = "my-app",
+      title = "My App",
+      accountId = "acct-1",
+      appMode = "shiny",
+      primaryFile = "app.R",
+      envVars = character(0)
+    )
+  )
+})
+
+test_that("createContent includes envVar name and value in secrets when envVars is non-empty", {
+  skip_if_not_installed("webfakes")
+  skip_if_not_installed("withr")
+
+  withr::local_envvar(RSCONNECT_TEST_CC_KEY = "test-secret-value")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$post("/contents", function(req, res) {
+    j <- req$json
+    ok <- is.list(j$secrets) &&
+      length(j$secrets) == 1L &&
+      identical(j$secrets[[1]]$name, "RSCONNECT_TEST_CC_KEY") &&
+      identical(j$secrets[[1]]$value, "test-secret-value")
+    if (ok) {
+      res$set_status(200L)$send_json(
+        list(id = "content-new-3"),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "expected one secret with correct name/value"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    accountId = "acct-1",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_no_error(
+    client$createContent(
+      name = "my-app",
+      title = "My App",
+      accountId = "acct-1",
+      appMode = "shiny",
+      primaryFile = "app.R",
+      envVars = "RSCONNECT_TEST_CC_KEY"
+    )
+  )
+})
+
+test_that("updateContent sends empty secrets array when envVars is NULL", {
+  skip_if_not_installed("webfakes")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$patch("/contents/:id", function(req, res) {
+    j <- req$json
+    if (is.list(j$secrets) && length(j$secrets) == 0L) {
+      res$set_status(200L)$send_json(
+        list(id = I(req$params$id)),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "secrets must be an empty array"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    accountId = "acct-1",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_no_error(
+    client$updateContent(
+      contentId = "content-abc",
+      envVars = NULL,
+      newBundle = FALSE,
+      primaryFile = "app.R",
+      appMode = "shiny"
+    )
+  )
+})
+
+test_that("updateContent includes envVar name and value in secrets when envVars is non-empty", {
+  skip_if_not_installed("webfakes")
+  skip_if_not_installed("withr")
+
+  withr::local_envvar(RSCONNECT_TEST_CC_KEY = "test-secret-value")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$patch("/contents/:id", function(req, res) {
+    j <- req$json
+    ok <- is.list(j$secrets) &&
+      length(j$secrets) == 1L &&
+      identical(j$secrets[[1]]$name, "RSCONNECT_TEST_CC_KEY") &&
+      identical(j$secrets[[1]]$value, "test-secret-value")
+    if (ok) {
+      res$set_status(200L)$send_json(
+        list(id = I(req$params$id)),
+        auto_unbox = TRUE
+      )
+    } else {
+      res$set_status(400L)$send_json(
+        list(error = "expected one secret with correct name/value"),
+        auto_unbox = TRUE
+      )
+    }
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    accountId = "acct-1",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_no_error(
+    client$updateContent(
+      contentId = "content-abc",
+      envVars = "RSCONNECT_TEST_CC_KEY",
+      newBundle = FALSE,
+      primaryFile = "app.R",
+      appMode = "shiny"
+    )
+  )
+})
