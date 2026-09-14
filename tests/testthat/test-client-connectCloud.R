@@ -1042,3 +1042,39 @@ test_that("listApplicationInvitations accumulates multiple pages and keeps accep
   expect_equal(result[[2]]$id, "inv-2")
   expect_equal(result[[3]]$id, "inv-3")
 })
+
+test_that("getApplication() delegates to getContent and derives name from the title", {
+  skip_if_not_installed("webfakes")
+
+  content_app <- webfakes::new_app()
+  content_app$use(webfakes::mw_json())
+  content_app$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = "content-abc",
+        title = "My App Title",
+        state = "active",
+        account_id = "acct-1"
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(content_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  result <- client$getApplication("content-abc", "unknown")
+  expect_equal(result$id, "content-abc")
+  expect_equal(result$title, "My App Title")
+  # name is a valid record identifier derived from the title, not the raw title.
+  expect_equal(result$name, "my_app_title")
+})
