@@ -246,8 +246,9 @@ connectCloudClient <- function(service, authInfo) {
         primary_file = primaryFile
       )
 
-      secrets <- if (length(envVars) > 0) {
-        unname(Map(
+      secrets <- list()
+      if (length(envVars) > 0) {
+        secrets <- unname(Map(
           function(name, value) {
             list(
               name = name,
@@ -257,8 +258,6 @@ connectCloudClient <- function(service, authInfo) {
           envVars,
           Sys.getenv(envVars)
         ))
-      } else {
-        list()
       }
 
       json <- list(
@@ -291,8 +290,9 @@ connectCloudClient <- function(service, authInfo) {
         path <- paste0(path, "?new_bundle=true")
       }
 
-      secrets <- if (length(envVars) > 0) {
-        unname(Map(
+      secrets <- list()
+      if (length(envVars) > 0) {
+        secrets <- unname(Map(
           function(name, value) {
             list(
               name = name,
@@ -302,8 +302,6 @@ connectCloudClient <- function(service, authInfo) {
           envVars,
           Sys.getenv(envVars)
         ))
-      } else {
-        list()
       }
 
       json <- list(

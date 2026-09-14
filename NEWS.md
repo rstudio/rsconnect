@@ -2,8 +2,7 @@
 
 * Deploying to Posit Connect Cloud content that has no environment variables
   no longer fails on R < 4.2.0 with "zero-length inputs cannot be mixed with
-  those of non-zero length". The Connect Cloud client no longer calls
-  `Sys.getenv()` on an empty vector when building the secrets payload.
+  those of non-zero length".
 
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
