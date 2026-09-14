@@ -1043,7 +1043,7 @@ test_that("listApplicationInvitations accumulates multiple pages and keeps accep
   expect_equal(result[[3]]$id, "inv-3")
 })
 
-test_that("getApplication() delegates to getContent and sets name = title", {
+test_that("getApplication() delegates to getContent and derives name from the title", {
   skip_if_not_installed("webfakes")
 
   content_app <- webfakes::new_app()
@@ -1075,5 +1075,6 @@ test_that("getApplication() delegates to getContent and sets name = title", {
   result <- client$getApplication("content-abc", "unknown")
   expect_equal(result$id, "content-abc")
   expect_equal(result$title, "My App Title")
-  expect_equal(result$name, "My App Title")
+  # name is a valid record identifier derived from the title, not the raw title.
+  expect_equal(result$name, "my_app_title")
 })

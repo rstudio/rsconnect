@@ -524,7 +524,8 @@ test_that("findDeploymentTargetByAppId works for PCC with no local deployment re
           list(
             id = applicationId,
             title = "My PCC App",
-            name = "My PCC App"
+            # Real client derives a valid record name from the title.
+            name = "my_pcc_app"
           )
         }
       )
@@ -540,7 +541,7 @@ test_that("findDeploymentTargetByAppId works for PCC with no local deployment re
     server = "connect.posit.cloud"
   )
   expect_equal(target$deployment$appId, "pcc-content-uuid")
-  expect_equal(target$deployment$name, "My PCC App")
+  expect_equal(target$deployment$name, "my_pcc_app")
   expect_equal(target$accountDetails$server, "connect.posit.cloud")
 })
 

@@ -277,7 +277,7 @@ connectCloudClient <- function(service, authInfo) {
 
     getApplication = function(applicationId, deploymentRecordVersion) {
       content <- getContent(applicationId)
-      content$name <- content$title
+      content$name <- generateAppName(content$title, unique = FALSE)
       content
     },
 
