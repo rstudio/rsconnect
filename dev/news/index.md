@@ -2,6 +2,12 @@
 
 ## rsconnect (development version)
 
+- `deployApp(appId=)` now works for Posit Connect Cloud content.
+  Deploying to an existing content item by id (rather than via a local
+  deployment record) previously errored with “attempt to apply
+  non-function”.
+  ([\#1367](https://github.com/rstudio/rsconnect/issues/1367))
+
 - [`showUsers()`](https://rstudio.github.io/rsconnect/dev/reference/showUsers.md)
   and
   [`showInvited()`](https://rstudio.github.io/rsconnect/dev/reference/showInvited.md)
