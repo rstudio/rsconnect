@@ -525,7 +525,9 @@ deployApp <- function(
     checkConnectSupportsNodejs(client)
   }
 
-  createdContent <- is.null(deployment$appId)
+  # New content (no existing target, or the target was deleted and recreated
+  # below) already has a fresh pending revision, so it skips updateContent().
+  isNewContent <- is.null(deployment$appId)
 
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating content on server...")
@@ -565,7 +567,7 @@ deployApp <- function(
           application
         },
         rsconnect_http_404 = function(err) {
-          createdContent <<- TRUE
+          isNewContent <<- TRUE
           application <- applicationDeleted(
             client,
             deployment,
@@ -618,10 +620,9 @@ deployApp <- function(
 
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
-    # Existing content: mint a fresh bundle + upload URL. Skipped only when we
-    # just created (or recreated) the content in this call, which already has a
-    # pending revision.
-    if (!createdContent) {
+    # Existing content: mint a fresh bundle + upload URL. New content already
+    # has a fresh pending revision from createContent(), so it skips this.
+    if (!isNewContent) {
       taskStart(quiet, "Updating content...")
       # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
       primaryFile <- appMetadata$appPrimaryDoc %||%

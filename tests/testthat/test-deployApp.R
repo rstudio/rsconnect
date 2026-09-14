@@ -338,7 +338,7 @@ test_that("openURL() launches the browser on success with a valid url", {
   expect_true(launched)
 })
 
-# PCC deploy: updateContent / createdContent guard (#1370, #1369) ----------
+# PCC deploy: updateContent / isNewContent guard (#1370, #1369) ----------
 
 # Shared PCC test content fixture: existing content with NULL current_revision.
 pcc_existing_content_null_revision <- list(
