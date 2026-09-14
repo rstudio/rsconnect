@@ -1,9 +1,8 @@
 # rsconnect (development version)
 
-* `deployApp(appId=)` now works for Posit Connect Cloud content. The Connect
-  Cloud client previously implemented no `getApplication()` method, so
-  deploying to an existing content item by id (rather than via a local
-  deployment record) errored with "attempt to apply non-function". (#1367)
+* `deployApp(appId=)` now works for Posit Connect Cloud content. Deploying to
+  an existing content item by id (rather than via a local deployment record)
+  previously errored with "attempt to apply non-function". (#1367)
 
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
