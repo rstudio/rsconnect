@@ -10,6 +10,14 @@
 * `deployApp(upload = FALSE)` no longer errors with
   `object 'bundle' not found` on Posit Connect Cloud. (#1369)
 
+* Deploying to Posit Connect Cloud content that has no environment variables
+  no longer fails on R < 4.2.0 with "zero-length inputs cannot be mixed with
+  those of non-zero length".
+
+* `deployApp(appId=)` now works for Posit Connect Cloud content. Deploying to
+  an existing content item by id (rather than via a local deployment record)
+  previously errored with "attempt to apply non-function". (#1367)
+
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
   (rather than `NULL`) when there are no results. User ids are now always
