@@ -525,8 +525,10 @@ deployApp <- function(
     checkConnectSupportsNodejs(client)
   }
 
-  # New content (no existing target, or the target was deleted and recreated
-  # below) already has a fresh pending revision, so it skips updateContent().
+  # New content already has a fresh pending revision, so it doesn't need
+  # updateContent() to mint one. Content with no existing deployment record is
+  # new; so is a record whose target has been deleted, which we detect and
+  # recreate on a 404 further down.
   isNewContent <- is.null(deployment$appId)
 
   if (is.null(deployment$appId)) {
@@ -560,14 +562,13 @@ deployApp <- function(
         quiet,
         "Looking up content with id {.val {deployment$appId}}..."
       )
-      application <- tryCatch(
+      found <- tryCatch(
         {
           application <- client$getContent(deployment$appId)
           taskComplete(quiet, "Found content")
-          application
+          list(application = application, isNew = FALSE)
         },
         rsconnect_http_404 = function(err) {
-          isNewContent <<- TRUE
           application <- applicationDeleted(
             client,
             deployment,
@@ -578,9 +579,11 @@ deployApp <- function(
             quiet,
             "Created content with id {.val {application$id}}"
           )
-          application
+          list(application = application, isNew = TRUE)
         }
       )
+      application <- found$application
+      isNewContent <- found$isNew
     } else {
       taskStart(
         quiet,

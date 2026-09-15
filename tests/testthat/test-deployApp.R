@@ -338,63 +338,37 @@ test_that("openURL() launches the browser on success with a valid url", {
   expect_true(launched)
 })
 
-# PCC deploy: updateContent / isNewContent guard (#1370, #1369) ----------
+# PCC deploy: updateContent / isNewContent guard -------------------------
+# Shared fixtures (pcc_existing_content_*, local_pcc_deploy_env) live in
+# helper.R.
 
-# Shared PCC test content fixture: existing content with NULL current_revision.
-pcc_existing_content_null_revision <- list(
-  id = "content-abc",
-  url = "https://connect.posit.cloud/myaccount/content/content-abc",
-  current_revision = NULL,
-  next_revision = list(
-    id = "rev-new",
-    source_bundle_upload_url = "https://upload.example.com/bundle"
-  )
-)
-
-# Shared PCC test content fixture: existing content with a current_revision.
-pcc_existing_content_with_revision <- utils::modifyList(
-  pcc_existing_content_null_revision,
-  list(current_revision = list(id = "rev-old"))
-)
-
-# Set up a PCC server, account, and (optionally) a re-deploy record.
-local_pcc_deploy_env <- function(
-  appDir,
-  appId = "content-abc",
-  env = parent.frame()
-) {
-  local_temp_config(env = env)
-  addTestServer(
-    url = "https://connect.posit.cloud",
-    name = "connect.posit.cloud"
-  )
-  addTestAccount("myaccount", server = "connect.posit.cloud")
-  if (!is.null(appId)) {
-    addTestDeployment(
-      appDir,
-      appName = "myapp",
-      appId = appId,
-      account = "myaccount",
-      server = "connect.posit.cloud"
-    )
-  }
-}
-
-test_that("#1370: existing PCC content with NULL current_revision calls updateContent", {
+test_that("existing PCC content with NULL current_revision calls updateContent", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
 
+  # updateContent() mints a fresh upload URL; the bundle must go there, not to
+  # the stale URL from the getContent() response.
+  old_upload_url <-
+    pcc_existing_content_null_revision$next_revision$source_bundle_upload_url
+  new_upload_url <- "https://upload.example.com/bundle-fresh"
+  updated_content <- pcc_existing_content_null_revision
+  updated_content$next_revision$source_bundle_upload_url <- new_upload_url
+
   update_content_called <- FALSE
+  uploaded_url <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
       list(
         getContent = function(id) pcc_existing_content_null_revision,
         updateContent = function(id, envVars, newBundle, primaryFile, appMode) {
           update_content_called <<- TRUE
-          pcc_existing_content_null_revision
+          updated_content
         },
-        uploadBundle = function(bundlePath, url) TRUE,
+        uploadBundle = function(bundlePath, url) {
+          uploaded_url <<- url
+          TRUE
+        },
         publish = function(id) invisible(NULL),
         awaitCompletion = function(revisionId) {
           list(
@@ -422,9 +396,11 @@ test_that("#1370: existing PCC content with NULL current_revision calls updateCo
   ))
 
   expect_true(update_content_called)
+  expect_equal(uploaded_url, new_upload_url)
+  expect_false(identical(uploaded_url, old_upload_url))
 })
 
-test_that("#1370: newly-created PCC content (no prior record) does NOT call updateContent", {
+test_that("newly-created PCC content (no prior record) does NOT call updateContent", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir, appId = NULL)
@@ -468,7 +444,7 @@ test_that("#1370: newly-created PCC content (no prior record) does NOT call upda
   expect_false(update_content_called)
 })
 
-test_that("#1370: existing PCC content with non-null current_revision still calls updateContent", {
+test_that("existing PCC content with non-null current_revision still calls updateContent", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
@@ -512,7 +488,7 @@ test_that("#1370: existing PCC content with non-null current_revision still call
   expect_true(update_content_called)
 })
 
-test_that("#1369: deployApp(upload=FALSE) on PCC does not error with 'bundle not found'", {
+test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
