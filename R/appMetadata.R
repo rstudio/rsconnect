@@ -40,6 +40,18 @@ appMetadata <- function(
       appMode <- appModeResult$appMode
       inferredPrimaryFile <- appModeResult$primaryFile
     }
+  } else {
+    # appMode was supplied (e.g. from a manifest), so the inference block above
+    # is skipped -- but Connect Cloud still needs a primary_file. Infer just the
+    # primary file, keeping the supplied appMode. The inferred mode may differ
+    # (e.g. a Shiny app entered via foo.R infers as quarto-static), but the
+    # inferred primary file is still the correct entrypoint.
+    inferredPrimaryFile <- inferAppMode(
+      appDir,
+      appFiles,
+      usesQuarto = quarto,
+      isShinyappsServer = isShinyappsServer
+    )$primaryFile
   }
 
   appPrimaryDoc <- inferAppPrimaryDoc(

@@ -1,5 +1,10 @@
 # rsconnect (development version)
 
+* Deploying to Posit Connect Cloud from a pre-generated `manifest.json`
+  (`deployApp(manifestPath=)`) no longer fails with a null `primary_file`.
+  The primary file is now inferred from the file list even when `appMode` is
+  supplied. (#1366)
+
 * Deploying to Posit Connect Cloud content that has no environment variables
   no longer fails on R < 4.2.0 with "zero-length inputs cannot be mixed with
   those of non-zero length".
