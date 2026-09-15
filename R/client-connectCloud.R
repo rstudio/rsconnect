@@ -246,16 +246,19 @@ connectCloudClient <- function(service, authInfo) {
         primary_file = primaryFile
       )
 
-      secrets <- unname(Map(
-        function(name, value) {
-          list(
-            name = name,
-            value = value
-          )
-        },
-        envVars,
-        Sys.getenv(envVars)
-      ))
+      secrets <- list()
+      if (length(envVars) > 0) {
+        secrets <- unname(Map(
+          function(name, value) {
+            list(
+              name = name,
+              value = value
+            )
+          },
+          envVars,
+          Sys.getenv(envVars)
+        ))
+      }
 
       json <- list(
         account_id = accountId,
@@ -275,6 +278,12 @@ connectCloudClient <- function(service, authInfo) {
 
     getContent = getContent,
 
+    getApplication = function(applicationId, deploymentRecordVersion) {
+      content <- getContent(applicationId)
+      content$name <- generateAppName(content$title, unique = FALSE)
+      content
+    },
+
     updateContent = function(
       contentId,
       envVars,
@@ -287,16 +296,19 @@ connectCloudClient <- function(service, authInfo) {
         path <- paste0(path, "?new_bundle=true")
       }
 
-      secrets <- unname(Map(
-        function(name, value) {
-          list(
-            name = name,
-            value = value
-          )
-        },
-        envVars,
-        Sys.getenv(envVars)
-      ))
+      secrets <- list()
+      if (length(envVars) > 0) {
+        secrets <- unname(Map(
+          function(name, value) {
+            list(
+              name = name,
+              value = value
+            )
+          },
+          envVars,
+          Sys.getenv(envVars)
+        ))
+      }
 
       json <- list(
         secrets = secrets,
