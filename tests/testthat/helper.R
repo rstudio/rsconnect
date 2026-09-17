@@ -112,6 +112,48 @@ addTestDeployment <- function(
   )
 }
 
+# Posit Connect Cloud deploy fixtures -------------------------------------
+
+# Existing PCC content with a NULL current_revision.
+pcc_existing_content_null_revision <- list(
+  id = "content-abc",
+  url = "https://connect.posit.cloud/myaccount/content/content-abc",
+  current_revision = NULL,
+  next_revision = list(
+    id = "rev-new",
+    source_bundle_upload_url = "https://upload.example.com/bundle"
+  )
+)
+
+# Existing PCC content with a current_revision.
+pcc_existing_content_with_revision <- utils::modifyList(
+  pcc_existing_content_null_revision,
+  list(current_revision = list(id = "rev-old"))
+)
+
+# Set up a PCC server, account, and (optionally) a re-deploy record.
+local_pcc_deploy_env <- function(
+  appDir,
+  appId = "content-abc",
+  env = parent.frame()
+) {
+  local_temp_config(env = env)
+  addTestServer(
+    url = "https://connect.posit.cloud",
+    name = "connect.posit.cloud"
+  )
+  addTestAccount("myaccount", server = "connect.posit.cloud")
+  if (!is.null(appId)) {
+    addTestDeployment(
+      appDir,
+      appName = "myapp",
+      appId = appId,
+      account = "myaccount",
+      server = "connect.posit.cloud"
+    )
+  }
+}
+
 # adding a top-level manifest field is allowed,
 # but requires coordination with the hosted team
 # to avoid upstream issues. In particular,
