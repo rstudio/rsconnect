@@ -35,6 +35,35 @@ test_that("syncAppMetadata deletes deployment records if needed", {
   expect_equal(nrow(deployments(app)), 0)
 })
 
+test_that("applications() builds config_url for standard Connect accounts", {
+  local_temp_config()
+  addTestServer(url = "https://connect.example.com")
+  addTestAccount("ron", server = "connect.example.com")
+
+  local_mocked_bindings(clientForAccount = function(...) {
+    list(
+      listApplications = function(accountId, ...) {
+        list(list(
+          id = "123",
+          name = "myapp",
+          title = "My App",
+          url = "https://connect.example.com/content/123/",
+          build_status = "ready",
+          created_time = "2024-01-01T00:00:00Z",
+          last_deployed_time = "2024-01-02T00:00:00Z",
+          guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f"
+        ))
+      }
+    )
+  })
+
+  result <- applications(account = "ron", server = "connect.example.com")
+  expect_equal(
+    result$config_url,
+    "https://connect.example.com/connect/#/apps/123"
+  )
+})
+
 test_that("applications() returns a data frame for PCC accounts", {
   local_temp_config()
   addTestServer(

@@ -59,8 +59,14 @@ cloudContentTypeFromAppMode <- function(appMode) {
 }
 
 cloudSecrets <- function(envVars) {
+  if (length(envVars) == 0L) {
+    return(I(list()))
+  }
   values <- Sys.getenv(envVars, unset = NA)
   keep <- !is.na(values)
+  if (!any(keep)) {
+    return(I(list()))
+  }
 
   unname(Map(
     function(name, value) {
@@ -281,6 +287,12 @@ connectCloudClient <- function(service, authInfo) {
     },
 
     getContent = getContent,
+
+    getApplication = function(applicationId, deploymentRecordVersion) {
+      content <- getContent(applicationId)
+      content$name <- generateAppName(content$title, unique = FALSE)
+      content
+    },
 
     updateContent = function(
       contentId,

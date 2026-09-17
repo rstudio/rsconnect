@@ -26,8 +26,8 @@ Success:
 ### Add a shiny account
 
 1. Open Options | Publishing.
-1. Click Connect, then Shinyapps.io. 
-1. Follow the on-screen instuctions, then click Connect Account.
+1. Click Connect, then Shinyapps.io.
+1. Follow the on-screen instructions, then click Connect Account.
 
 Success:
 
@@ -62,12 +62,12 @@ Success:
 
 Success:
 
-1. Dialog asks if you want to replace existing content. 
+1. Dialog asks if you want to replace existing content.
 1. After clicking "Replace" the deploy succeeds.
 
 ### Re-deploy to deleted app
 
-1. On deployed app click "..." menu, then delete. 
+1. On deployed app click "..." menu, then delete.
 1. Click ok, wait 30s, then refresh the page to confirm the app is deleted.
 1. Return to RStudio, then click the deploy drop down. Choose other destinations, then click deploy.
 

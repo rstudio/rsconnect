@@ -52,7 +52,7 @@ rpubsUpload <- function(
   check_string(title, allow_empty = FALSE)
   check_file(contentFile)
   if (!is.list(properties)) {
-    stop("properties paramater must be a named list")
+    stop("properties parameter must be a named list")
   }
 
   pathFromId <- function(id) {

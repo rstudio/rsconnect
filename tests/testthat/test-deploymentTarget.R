@@ -509,6 +509,42 @@ test_that("PCC deploy with no local record creates new content, not adopting sam
   expect_equal(target$deployment$name, "my_app")
 })
 
+test_that("findDeploymentTargetByAppId works for PCC with no local deployment record", {
+  local_temp_config()
+  addTestServer(
+    url = "https://connect.posit.cloud",
+    name = "connect.posit.cloud"
+  )
+  addTestAccount("myaccount", server = "connect.posit.cloud")
+
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        getApplication = function(applicationId, deploymentRecordVersion) {
+          list(
+            id = applicationId,
+            title = "My PCC App",
+            # Real client derives a valid record name from the title.
+            name = "my_pcc_app"
+          )
+        }
+      )
+    }
+  )
+
+  app_dir <- withr::local_tempdir()
+
+  target <- findDeploymentTarget(
+    app_dir,
+    appId = "pcc-content-uuid",
+    account = "myaccount",
+    server = "connect.posit.cloud"
+  )
+  expect_equal(target$deployment$appId, "pcc-content-uuid")
+  expect_equal(target$deployment$name, "my_pcc_app")
+  expect_equal(target$accountDetails$server, "connect.posit.cloud")
+})
+
 # helpers -----------------------------------------------------------------
 
 test_that("shouldUpdateApp errors when non-interactive", {

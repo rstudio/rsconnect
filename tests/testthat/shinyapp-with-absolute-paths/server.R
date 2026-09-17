@@ -29,6 +29,6 @@ shinyServer(function(input, output) {
     file <- read.csv("data/College.txt") ## okay
 
     ## don't warn about absolute paths that could be URL query paths
-    file <- paste("/applcations")
+    file <- paste("/applications")
   })
 })

@@ -172,8 +172,7 @@ applications <- function(account = NULL, server = NULL) {
   # infer it from the account type
   res <- lapply(res, function(row) {
     if (isConnect) {
-      prefix <- sub("/__api__", "", serverDetails$url)
-      row$config_url <- paste(prefix, "connect/#/apps", row$id, sep = "/")
+      row$config_url <- connectDashboardUrl(serverDetails$url, row$id)
     } else {
       row$config_url <- paste(
         "https://www.shinyapps.io/admin/#/application",

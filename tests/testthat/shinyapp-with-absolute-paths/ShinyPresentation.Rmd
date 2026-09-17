@@ -8,9 +8,9 @@ runtime: shiny
 
 ## Shiny Presentation
 
-This R Markdown presentation is made interactive using Shiny. The viewers of the presentation can change the assumptions underlying what's presented and see the results immediately. 
+This R Markdown presentation is made interactive using Shiny. The viewers of the presentation can change the assumptions underlying what's presented and see the results immediately.
 
-To learn more, see [Interative Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
 
 Here's some internal help: [Helpful Link](/Users/MrBurns/)
 And another: [Favourite Goats](../../goats.txt)
@@ -46,5 +46,3 @@ renderPlot({
 ```{r}
 summary(cars)
 ```
-
-

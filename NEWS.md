@@ -3,6 +3,14 @@
 * Connect Cloud deployments no longer send empty values for environment
   variables that are unset in the current R session. (#1361)
 
+* Deploying to Posit Connect Cloud content that has no environment variables
+  no longer fails on R < 4.2.0 with "zero-length inputs cannot be mixed with
+  those of non-zero length".
+
+* `deployApp(appId=)` now works for Posit Connect Cloud content. Deploying to
+  an existing content item by id (rather than via a local deployment record)
+  previously errored with "attempt to apply non-function". (#1367)
+
 * `showUsers()` and `showInvited()` now always return a data frame with
   atomic `character`/`logical` columns, including a typed 0-row data frame
   (rather than `NULL`) when there are no results. User ids are now always
@@ -23,6 +31,9 @@
 
 * `applications()` now supports Posit Connect Cloud accounts, returning a
   data frame with the same columns as for ShinyApps and Posit Connect accounts.
+
+* Redeploying to Posit Connect now opens the content in the Connect dashboard, 
+  rather than in standalone view, matching initial deploys (#1372).
 
 # rsconnect 1.11.0
 
