@@ -5,6 +5,16 @@
   The primary file is now inferred from the file list even when `appMode` is
   supplied. (#1366)
 
+* Redeploying Posit Connect Cloud content whose initial publish failed
+  (leaving it with no current revision) no longer fails with "Invalid token".
+  rsconnect previously treated a null current revision as newly-created content
+  and skipped requesting a fresh bundle upload URL, so it reused an expired
+  token; it now always requests a fresh upload URL when deploying to existing
+  content. (#1370)
+
+* `deployApp(upload = FALSE)` no longer errors with
+  `object 'bundle' not found` on Posit Connect Cloud. (#1369)
+
 * Deploying to Posit Connect Cloud content that has no environment variables
   no longer fails on R < 4.2.0 with "zero-length inputs cannot be mixed with
   those of non-zero length".
