@@ -2,6 +2,12 @@
 
 ## rsconnect (development version)
 
+- Deploying to Posit Connect Cloud from a pre-generated `manifest.json`
+  (`deployApp(manifestPath=)`) no longer fails with a null
+  `primary_file`. The primary file is now inferred from the file list
+  even when `appMode` is supplied.
+  ([\#1366](https://github.com/rstudio/rsconnect/issues/1366))
+
 - Redeploying Posit Connect Cloud content whose initial publish failed
   (leaving it with no current revision) no longer fails with “Invalid
   token”. rsconnect previously treated a null current revision as
