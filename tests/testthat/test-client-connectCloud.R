@@ -90,13 +90,16 @@ test_that("Connect Cloud omits unset environment variables from secrets", {
     primaryFile = "app.R",
     envVars = env_vars
   )
-  expect_equal(
-    created$json$secrets,
-    list(
-      list(name = "RSCONNECT_1361_SET", value = "configured"),
-      list(name = "RSCONNECT_1361_EMPTY", value = "")
-    )
+  expected <- list(
+    list(name = "RSCONNECT_1361_SET", value = "configured"),
+    list(name = "RSCONNECT_1361_EMPTY", value = "")
   )
+  # On Windows, setting an environment variable to "" unsets it, so the
+  # empty-but-set case cannot exist there and its entry is omitted too.
+  if (is.na(Sys.getenv("RSCONNECT_1361_EMPTY", unset = NA))) {
+    expected <- expected[1]
+  }
+  expect_equal(created$json$secrets, expected)
 
   updated <- client$updateContent(
     contentId = "content123",
