@@ -51,6 +51,65 @@ test_that("awaitCompletion", {
   expect_null(result$error)
 })
 
+test_that("Connect Cloud omits unset environment variables from secrets", {
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      list(id = "content123", json = json)
+    },
+    PATCH_JSON = function(service, authInfo, path, json) {
+      list(id = "content123", json = json)
+    },
+    .package = "rsconnect"
+  )
+  withr::local_envvar(c(
+    RSCONNECT_1361_SET = "configured",
+    RSCONNECT_1361_EMPTY = ""
+  ))
+  Sys.unsetenv("RSCONNECT_1361_UNSET")
+  withr::defer(Sys.unsetenv(c(
+    "RSCONNECT_1361_SET",
+    "RSCONNECT_1361_EMPTY",
+    "RSCONNECT_1361_UNSET"
+  )))
+
+  client <- connectCloudClient(
+    service = list(host = "example.com", port = 443, protocol = "https"),
+    authInfo = list()
+  )
+  env_vars <- c(
+    "RSCONNECT_1361_SET",
+    "RSCONNECT_1361_EMPTY",
+    "RSCONNECT_1361_UNSET"
+  )
+
+  created <- client$createContent(
+    name = "app",
+    title = "App",
+    accountId = "account123",
+    appMode = "shiny",
+    primaryFile = "app.R",
+    envVars = env_vars
+  )
+  expected <- list(
+    list(name = "RSCONNECT_1361_SET", value = "configured"),
+    list(name = "RSCONNECT_1361_EMPTY", value = "")
+  )
+  # On Windows, setting an environment variable to "" unsets it, so the
+  # empty-but-set case cannot exist there and its entry is omitted too.
+  if (is.na(Sys.getenv("RSCONNECT_1361_EMPTY", unset = NA))) {
+    expected <- expected[1]
+  }
+  expect_equal(created$json$secrets, expected)
+
+  updated <- client$updateContent(
+    contentId = "content123",
+    envVars = env_vars,
+    primaryFile = "app.R",
+    appMode = "shiny"
+  )
+  expect_equal(updated$json$secrets, created$json$secrets)
+})
+
 test_that("awaitCompletion falls back to an empty url instead of erroring when the account can't be resolved", {
   skip_if_not_installed("webfakes")
 
