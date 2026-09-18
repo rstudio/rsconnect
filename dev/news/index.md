@@ -2,6 +2,10 @@
 
 ## rsconnect (development version)
 
+- Connect Cloud deployments no longer send empty values for environment
+  variables that are unset in the current R session.
+  ([\#1361](https://github.com/rstudio/rsconnect/issues/1361))
+
 - Deploying to Posit Connect Cloud from a pre-generated `manifest.json`
   (`deployApp(manifestPath=)`) no longer fails with a null
   `primary_file`. The primary file is now inferred from the file list
