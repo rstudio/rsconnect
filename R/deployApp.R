@@ -525,6 +525,12 @@ deployApp <- function(
     checkConnectSupportsNodejs(client)
   }
 
+  # New content already has a fresh pending revision, so it doesn't need
+  # updateContent() to mint one. Content with no existing deployment record is
+  # new; so is a record whose target has been deleted, which we detect and
+  # recreate on a 404 further down.
+  isNewContent <- is.null(deployment$appId)
+
   if (is.null(deployment$appId)) {
     taskStart(quiet, "Creating content on server...")
     if (isPositConnectCloudServer(accountDetails$server)) {
@@ -556,11 +562,11 @@ deployApp <- function(
         quiet,
         "Looking up content with id {.val {deployment$appId}}..."
       )
-      application <- tryCatch(
+      found <- tryCatch(
         {
           application <- client$getContent(deployment$appId)
           taskComplete(quiet, "Found content")
-          application
+          list(application = application, isNew = FALSE)
         },
         rsconnect_http_404 = function(err) {
           application <- applicationDeleted(
@@ -573,9 +579,11 @@ deployApp <- function(
             quiet,
             "Created content with id {.val {application$id}}"
           )
-          application
+          list(application = application, isNew = TRUE)
         }
       )
+      application <- found$application
+      isNewContent <- found$isNew
     } else {
       taskStart(
         quiet,
@@ -615,9 +623,9 @@ deployApp <- function(
 
   # Change _visibility_ & set env vars before uploading contents
   if (isPositConnectCloudServer(accountDetails$server)) {
-    # no update needed if we just created the content
-    # current revision will be null only when creating new content
-    if (!is.null(application$current_revision)) {
+    # Existing content: mint a fresh bundle + upload URL. New content already
+    # has a fresh pending revision from createContent(), so it skips this.
+    if (!isNewContent) {
       taskStart(quiet, "Updating content...")
       # Use appPrimaryDoc if available, otherwise fall back to inferredPrimaryFile
       primaryFile <- appMetadata$appPrimaryDoc %||%
@@ -649,6 +657,8 @@ deployApp <- function(
       taskComplete(quiet, "Environment variables updated")
     }
   }
+
+  bundle <- NULL
 
   if (upload) {
     python <- getPythonForTarget(python, accountDetails)
@@ -687,7 +697,6 @@ deployApp <- function(
       if (!success) {
         cli::cli_abort("Could not upload bundle.")
       }
-      bundle <- NULL # PCC doesn't use bundle objects like other servers
     } else if (isShinyappsServer(accountDetails$server)) {
       bundle <- uploadShinyappsBundle(
         client,
