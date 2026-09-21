@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.11.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.11.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.11.1" id="rsconnect-1111">rsconnect 1.11.1<a class="anchor" aria-label="anchor" href="#rsconnect-1111"></a></h2>
 <ul><li><p>Redeploying to Posit Connect now opens the content in the Connect dashboard, rather than in standalone view, matching initial deploys (<a href="https://github.com/rstudio/rsconnect/issues/1372" class="external-link">#1372</a>).</p></li>
 <li><p>Connect Cloud deployments no longer send empty values for environment variables that are unset in the current R session. (<a href="https://github.com/rstudio/rsconnect/issues/1361" class="external-link">#1361</a>)</p></li>
 <li><p>Deploying to Posit Connect Cloud from a pre-generated <code>manifest.json</code> (<code>deployApp(manifestPath=)</code>) no longer fails with a null <code>primary_file</code>. The primary file is now inferred from the file list even when <code>appMode</code> is supplied. (<a href="https://github.com/rstudio/rsconnect/issues/1366" class="external-link">#1366</a>)</p></li>
