@@ -60,7 +60,8 @@ local_migrate_mocks <- function(
     }
   client <- client %||%
     function(...) {
-      list(
+      fake_client(
+        "connectCloudClient",
         getContent = get_content,
         getAccounts = function() list(data = owned_accounts)
       )

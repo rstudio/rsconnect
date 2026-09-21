@@ -62,6 +62,43 @@ local_nodejs_app <- function(env = caller_env()) {
   )
 }
 
+# A classed stand-in for connectClient()/shinyAppsClient()/
+# connectCloudClient(), for tests that only need a couple of methods.
+# Attaches the class vector so generics dispatch the same way they would on
+# a real client, and keeps any closures passed in `...` as fields for
+# methods that are not yet generics.
+fake_client <- function(class, ...) {
+  stopifnot(class %in% client_classes())
+  structure(list(...), class = c(class, "rsconnectClient"))
+}
+
+client_classes <- function() {
+  c("connectClient", "shinyAppsClient", "connectCloudClient")
+}
+
+client_generics <- function() {
+  generics <- lapply(client_classes(), function(class) {
+    attr(utils::.S3methods(class = class), "info")$generic
+  })
+  unique(unlist(generics))
+}
+
+has_client_method <- function(generic, class) {
+  method <- getS3method(generic, class, optional = TRUE)
+  if (is.null(method)) {
+    method <- getS3method(generic, "rsconnectClient", optional = TRUE)
+  }
+  !is.null(method)
+}
+
+expect_client_method <- function(generic, class) {
+  testthat::expect(
+    has_client_method(generic, class),
+    sprintf("expected a method for `%s.%s`", generic, class)
+  )
+}
+
+
 # Servers and accounts ----------------------------------------------------
 
 addTestAccount <- function(

@@ -344,7 +344,10 @@ test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount"
     clientForAccount = function(account) {
       # Check that snowflakeConnectionName is passed through
       expect_equal(account$snowflakeConnectionName, "test_connection")
-      list(currentUser = function() list(id = "user123", username = "testuser"))
+      fake_client(
+        "connectClient",
+        currentUser = function() list(id = "user123", username = "testuser")
+      )
     }
   )
 

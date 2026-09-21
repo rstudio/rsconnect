@@ -359,7 +359,8 @@ test_that("existing PCC content with NULL current_revision calls updateContent",
   uploaded_url <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectCloudClient",
         getContent = function(id) pcc_existing_content_null_revision,
         updateContent = function(id, envVars, newBundle, primaryFile, appMode) {
           update_content_called <<- TRUE
@@ -408,7 +409,8 @@ test_that("newly-created PCC content (no prior record) does NOT call updateConte
   update_content_called <- FALSE
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectCloudClient",
         createContent = function(...) pcc_existing_content_null_revision,
         updateContent = function(...) {
           update_content_called <<- TRUE
@@ -452,7 +454,8 @@ test_that("existing PCC content with non-null current_revision still calls updat
   update_content_called <- FALSE
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectCloudClient",
         getContent = function(id) pcc_existing_content_with_revision,
         updateContent = function(...) {
           update_content_called <<- TRUE
@@ -495,7 +498,8 @@ test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'
 
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectCloudClient",
         getContent = function(id) pcc_existing_content_with_revision,
         updateContent = function(...) pcc_existing_content_with_revision,
         publish = function(id) invisible(NULL),
@@ -531,7 +535,8 @@ test_that("fresh Connect deploy uploads to the newly created app, not an existin
   uploaded_guid <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectClient",
         # No local deployment record, so deployApp() checks the server for an
         # app with a matching name before deciding this is a fresh deploy.
         listApplications = function(...) list(),
@@ -592,7 +597,8 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
   uploaded_guid <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectClient",
         createApplication = function(...) {
           stop("createApplication() should not be called for a redeploy")
         },
@@ -642,7 +648,8 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
   uploaded_id <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "shinyAppsClient",
         listApplications = function(...) list(),
         createApplication = function(...) {
           list(
@@ -701,7 +708,8 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
   uploaded_id <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "shinyAppsClient",
         createApplication = function(...) {
           stop("createApplication() should not be called for a redeploy")
         },
@@ -767,7 +775,8 @@ test_that("deployApp(upload=FALSE) on shinyapps.io does not error", {
 
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "shinyAppsClient",
         getApplication = function(...) shinyapps_app_with_bundle,
         deployApplication = function(...) list(id = "task-1"),
         waitForTask = function(...) list()

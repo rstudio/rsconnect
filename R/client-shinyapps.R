@@ -1,11 +1,7 @@
 shinyAppsClient <- function(service, authInfo) {
-  list(
+  self <- list(
     status = function() {
       GET(service, authInfo, "/internal/status")
-    },
-
-    service = function() {
-      "shinyapps.io"
     },
 
     currentUser = function() {
@@ -374,4 +370,5 @@ shinyAppsClient <- function(service, authInfo) {
       }
     }
   )
+  structure(self, class = c("shinyAppsClient", "rsconnectClient"))
 }
