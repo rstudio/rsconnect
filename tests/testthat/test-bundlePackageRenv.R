@@ -440,3 +440,31 @@ test_that("Local packages get NA source + repository when not in any repo", {
     )
   )
 })
+
+test_that("out-of-sync renv.lock aborts under dependencyResolution = 'strict'", {
+  skip_on_cran()
+  skip_if_not_installed("shiny")
+  withr::local_options(renv.verbose = FALSE)
+
+  appDir <- local_temp_app(list(
+    "app.R" = c(
+      "library(shiny)",
+      "library(withr)",
+      "",
+      "shinyApp(ui = fluidPage(), server = function(input, output) {})"
+    )
+  ))
+  renv::snapshot(appDir, prompt = FALSE)
+  # withr never released a 0.1.1 (its earliest CRAN release is 1.0.1), so this
+  # is out of sync regardless of what's installed locally.
+  renv::record("withr@0.1.1", project = appDir)
+
+  expect_error(
+    local_shiny_bundle(
+      "renv-out-of-sync",
+      appDir,
+      NULL
+    ),
+    regexp = "Library and lockfile are out of sync"
+  )
+})

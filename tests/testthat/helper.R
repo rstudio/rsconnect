@@ -178,3 +178,24 @@ expect_known_manifest_fields <- function(manifest) {
   )
   expect_in(names(manifest), known_fields)
 }
+
+local_mocked_account_info <- function(env = caller_env()) {
+  local_mocked_bindings(
+    accountInfo = function(name = NULL, server = NULL) {
+      list(name = name, server = server)
+    },
+    .env = env
+  )
+}
+
+# Node.js content that appMetadata() accepts. A package-lock.json is required.
+local_nodejs_app <- function(env = caller_env()) {
+  local_temp_app(
+    list(
+      "index.js" = "",
+      "package.json" = '{"name": "app", "main": "index.js"}',
+      "package-lock.json" = '{"name": "app", "lockfileVersion": 3}'
+    ),
+    env = env
+  )
+}

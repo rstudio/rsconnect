@@ -296,3 +296,30 @@ test_that("addServer accepts snowflakeConnectionName parameter", {
   server_list <- servers(local = TRUE)
   expect_true("spcs_server" %in% server_list$name)
 })
+
+test_that("removeServer() aborts for shinyapps.io and Connect Cloud", {
+  local_temp_config()
+
+  expect_error(
+    removeServer("shinyapps.io"),
+    regexp = "`server` must be a Posit Connect server"
+  )
+  expect_error(
+    removeServer("connect.posit.cloud"),
+    regexp = "`server` must be a Posit Connect server"
+  )
+})
+
+test_that("addServerCertificate() aborts for shinyapps.io and Connect Cloud", {
+  local_temp_config()
+  cert <- test_path("certs", "sample.crt")
+
+  expect_error(
+    addServerCertificate("shinyapps.io", cert),
+    regexp = "`server` must be a Posit Connect server"
+  )
+  expect_error(
+    addServerCertificate("connect.posit.cloud", cert),
+    regexp = "`server` must be a Posit Connect server"
+  )
+})

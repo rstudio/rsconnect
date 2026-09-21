@@ -425,3 +425,13 @@ test_that("migrateToConnectCloud() rejects a blank appName", {
     migrateToConnectCloud(appDir, contentId = "abc123", appName = "")
   )
 })
+
+test_that("migrateToConnectCloud() aborts when the source already targets Connect Cloud", {
+  appDir <- local_temp_app()
+  local_pcc_deploy_env(appDir, appId = "content-abc")
+
+  expect_error(
+    migrateToConnectCloud(appDir, contentId = "abc123"),
+    regexp = "already targets Connect Cloud"
+  )
+})

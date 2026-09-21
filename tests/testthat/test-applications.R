@@ -177,3 +177,51 @@ test_that("applications() returns empty data frame for PCC account with no conte
     )
   )
 })
+
+test_that("showLogs() aborts for Posit Connect and Connect Cloud accounts", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    showLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+  expect_error(
+    showLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "cloud-user",
+      server = "connect.posit.cloud"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})
+
+test_that("getLogs() aborts for Posit Connect and Connect Cloud accounts", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    getLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+  expect_error(
+    getLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "cloud-user",
+      server = "connect.posit.cloud"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})
