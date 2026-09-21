@@ -1,7 +1,6 @@
 ## Summary
 
-Minor release including functions to help migrations from shinyapps.io to
-Posit Connect Cloud.
+Patch release mostly addressing issues with Posit Connect Cloud.
 
 ## R CMD check results
 
