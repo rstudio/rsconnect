@@ -31,6 +31,7 @@
 - Deploying to Posit Connect Cloud content that has no environment
   variables no longer fails on R \< 4.2.0 with “zero-length inputs
   cannot be mixed with those of non-zero length”.
+  ([\#1378](https://github.com/rstudio/rsconnect/issues/1378))
 
 - `deployApp(appId=)` now works for Posit Connect Cloud content.
   Deploying to an existing content item by id (rather than via a local
