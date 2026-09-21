@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* Redeploying to Posit Connect now opens the content in the Connect dashboard,
+  rather than in standalone view, matching initial deploys (#1372).
+
 * Connect Cloud deployments no longer send empty values for environment
   variables that are unset in the current R session. (#1361)
 
@@ -47,9 +50,6 @@
 * `applications()` now supports Posit Connect Cloud accounts, returning a
   data frame with the same columns as for ShinyApps and Posit Connect accounts.
 
-* Redeploying to Posit Connect now opens the content in the Connect dashboard, 
-  rather than in standalone view, matching initial deploys (#1372).
-
 # rsconnect 1.11.0
 
 * rsconnect checks whether a newer version of itself is available from your
@@ -68,7 +68,7 @@
   up first. When the local deployment record has been lost, it reconstructs
   the record from `contentId` alone, taking the name from `appName` or the
   content's title. (#1353)
-  
+
 # rsconnect 1.10.1
 
 * Fixed a regression where `deployApp()` and `writeManifest()` would install
@@ -119,7 +119,7 @@
 
 * Improved error messages when `renv::snapshot()` fails during dependency
   discovery. (#1078)
-  
+
   * `addServer()` now reports the underlying reason a URL was rejected (e.g.
   connection error, TLS/certificate problem, or unexpected HTTP status). (#1197)
 
