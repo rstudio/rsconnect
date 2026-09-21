@@ -2,6 +2,10 @@
 
 ## rsconnect (development version)
 
+- Redeploying to Posit Connect now opens the content in the Connect
+  dashboard, rather than in standalone view, matching initial deploys
+  ([\#1372](https://github.com/rstudio/rsconnect/issues/1372)).
+
 - Connect Cloud deployments no longer send empty values for environment
   variables that are unset in the current R session.
   ([\#1361](https://github.com/rstudio/rsconnect/issues/1361))
@@ -65,10 +69,6 @@
 - [`applications()`](https://rstudio.github.io/rsconnect/dev/reference/applications.md)
   now supports Posit Connect Cloud accounts, returning a data frame with
   the same columns as for ShinyApps and Posit Connect accounts.
-
-- Redeploying to Posit Connect now opens the content in the Connect
-  dashboard, rather than in standalone view, matching initial deploys
-  ([\#1372](https://github.com/rstudio/rsconnect/issues/1372)).
 
 ## rsconnect 1.11.0
 
