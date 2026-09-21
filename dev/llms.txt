@@ -37,7 +37,7 @@ is to use the publishing dialog, which you can find by clicking the
 
 You can also connect from any R session by running a little code:
 
-- For Posit Conect Cloud, call
+- For Posit Connect Cloud, call
   [`connectCloudUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudUser.md)
   to authenticate through the browser.
 
