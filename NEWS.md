@@ -1,4 +1,4 @@
-# rsconnect (development version)
+# rsconnect 1.11.1
 
 * Redeploying to Posit Connect now opens the content in the Connect dashboard,
   rather than in standalone view, matching initial deploys (#1372).
