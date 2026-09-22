@@ -16,3 +16,4 @@ tags
 ^CRAN-SUBMISSION$
 ^\.positai$
 ^\.claude$
+^tests/integration$
