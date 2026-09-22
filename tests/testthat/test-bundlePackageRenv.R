@@ -53,6 +53,10 @@ test_that("works with BioC packages", {
       "library(Biobase)"
     )
   ))
+  # avoid spurious pre-flight failures that can be specific to the environment
+  # and don't affect the real behavior we're testing
+  withr::local_options(renv.config.snapshot.validate = FALSE)
+
   biocRepos <- BiocManager::repositories()
   withr::local_options(repos = biocRepos)
   expect_no_condition(
