@@ -105,3 +105,17 @@
       ! Files listed in manifest are missing from `appDir`.
       x Missing files: 'missing.R'
 
+# checkAppVisibility() rejects values the server doesn't support
+
+    Code
+      checkAppVisibility("view_team_edit_team", "shinyapps.io")
+    Condition
+      Error:
+      ! `appVisibility` must be one of "private" or "public", not "view_team_edit_team".
+    Code
+      checkAppVisibility("privat", "connect.posit.cloud")
+    Condition
+      Error:
+      ! `appVisibility` must be one of "private", "public", "view_team_edit_private", "view_team_edit_team", or "view_public_edit_team", not "privat".
+      i Did you mean "private"?
+

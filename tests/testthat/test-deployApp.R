@@ -338,6 +338,26 @@ test_that("openURL() launches the browser on success with a valid url", {
   expect_true(launched)
 })
 
+test_that("checkAppVisibility() accepts values the server supports", {
+  expect_no_error(checkAppVisibility(NULL, "shinyapps.io"))
+  expect_no_error(checkAppVisibility("private", "shinyapps.io"))
+  expect_no_error(checkAppVisibility("public", "shinyapps.io"))
+  expect_no_error(checkAppVisibility("private", "connect.posit.cloud"))
+  expect_no_error(checkAppVisibility(
+    "view_team_edit_team",
+    "connect.posit.cloud"
+  ))
+  # Posit Connect ignores appVisibility, so nothing is checked.
+  expect_no_error(checkAppVisibility("anything", "connect.example.com"))
+})
+
+test_that("checkAppVisibility() rejects values the server doesn't support", {
+  expect_snapshot(error = TRUE, {
+    checkAppVisibility("view_team_edit_team", "shinyapps.io")
+    checkAppVisibility("privat", "connect.posit.cloud")
+  })
+})
+
 # PCC deploy: updateContent / isNewContent guard -------------------------
 # Shared fixtures (pcc_existing_content_*, local_pcc_deploy_env) live in
 # helper.R.
@@ -361,7 +381,14 @@ test_that("existing PCC content with NULL current_revision calls updateContent",
     clientForAccount = function(...) {
       list(
         getContent = function(id) pcc_existing_content_null_revision,
-        updateContent = function(id, envVars, newBundle, primaryFile, appMode) {
+        updateContent = function(
+          id,
+          envVars,
+          newBundle,
+          primaryFile,
+          appMode,
+          access = NULL
+        ) {
           update_content_called <<- TRUE
           updated_content
         },
@@ -519,4 +546,95 @@ test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'
     lint = FALSE,
     launch.browser = FALSE
   )))
+})
+
+# PCC deploy: appVisibility ----------------------------------------------
+
+test_that("PCC deploy passes appVisibility to createContent", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir, appId = NULL)
+
+  sent_access <- "unset"
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        createContent = function(..., access = NULL) {
+          sent_access <<- access
+          pcc_existing_content_null_revision
+        },
+        uploadBundle = function(bundlePath, url) TRUE,
+        publish = function(id) invisible(NULL),
+        awaitCompletion = function(revisionId) {
+          list(
+            success = TRUE,
+            url = "https://connect.posit.cloud/myaccount/content/content-abc"
+          )
+        }
+      )
+    },
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    appVisibility = "view_team_edit_private",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_equal(sent_access, "view_team_edit_private")
+})
+
+test_that("PCC redeploy passes appVisibility to updateContent", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir)
+
+  sent_access <- "unset"
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      list(
+        getContent = function(id) pcc_existing_content_with_revision,
+        updateContent = function(..., access = NULL) {
+          sent_access <<- access
+          pcc_existing_content_with_revision
+        },
+        uploadBundle = function(bundlePath, url) TRUE,
+        publish = function(id) invisible(NULL),
+        awaitCompletion = function(revisionId) {
+          list(
+            success = TRUE,
+            url = "https://connect.posit.cloud/myaccount/content/content-abc"
+          )
+        }
+      )
+    },
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    appVisibility = "private",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_equal(sent_access, "private")
 })
