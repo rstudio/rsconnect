@@ -497,6 +497,12 @@ connectCloudClient <- function(service, authInfo) {
       })
     },
 
+    deleteContent = function(contentId) {
+      path <- paste0("/contents/", contentId)
+      withTokenRefreshRetry(DELETE, path)
+      invisible(TRUE)
+    },
+
     removeApplicationUser = function(appId, userId) {
       path <- paste0("/contents/", appId, "/users/", userId)
       withTokenRefreshRetry(DELETE, path)

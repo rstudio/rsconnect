@@ -51,6 +51,7 @@ reference:
     desc : ~
     contents :
     - matches("[Aa]pp")
+    - deleteContent
 
   - title: Other functions
     desc : ~
