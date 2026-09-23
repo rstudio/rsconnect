@@ -689,24 +689,11 @@ deployApp <- function(
     size <- format(file_size(bundlePath), big.mark = ",")
     taskComplete(quiet, "Created bundle of size: {size}b")
 
-    # create, and upload the bundle
+    # create and upload the bundle
     taskStart(quiet, "Uploading bundle...")
-    if (isPositConnectCloudServer(accountDetails$server)) {
-      uploadUrl <- application$next_revision$source_bundle_upload_url
-      success <- client$uploadBundle(bundlePath, uploadUrl)
-      if (!success) {
-        cli::cli_abort("Could not upload bundle.")
-      }
-    } else if (isShinyappsServer(accountDetails$server)) {
-      bundle <- uploadShinyappsBundle(
-        client,
-        application$application_id,
-        bundlePath
-      )
-    } else {
-      bundle <- client$uploadBundle(application$guid, bundlePath)
-    }
-    if (isPositConnectCloudServer(accountDetails$server)) {
+    bundle <- uploadBundle(client, application, bundlePath)
+    # A backend with no bundle id returns NULL, so the message drops the id.
+    if (is.null(bundle$id)) {
       taskComplete(quiet, "Uploaded bundle")
     } else {
       taskComplete(quiet, "Uploaded bundle with id {.val {bundle$id}}")

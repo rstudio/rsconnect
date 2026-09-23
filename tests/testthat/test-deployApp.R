@@ -366,10 +366,6 @@ test_that("existing PCC content with NULL current_revision calls updateContent",
           update_content_called <<- TRUE
           updated_content
         },
-        uploadBundle = function(bundlePath, url) {
-          uploaded_url <<- url
-          TRUE
-        },
         publish = function(id) invisible(NULL),
         awaitCompletion = function(revisionId) {
           list(
@@ -378,6 +374,14 @@ test_that("existing PCC content with NULL current_revision calls updateContent",
           )
         }
       )
+    },
+    uploadBundle.connectCloudClient = function(
+      client,
+      application,
+      bundlePath
+    ) {
+      uploaded_url <<- application$next_revision$source_bundle_upload_url
+      NULL
     },
     bundleApp = function(...) {
       tmp <- tempfile(fileext = ".tar.gz")
@@ -416,7 +420,6 @@ test_that("newly-created PCC content (no prior record) does NOT call updateConte
           update_content_called <<- TRUE
           pcc_existing_content_null_revision
         },
-        uploadBundle = function(bundlePath, url) TRUE,
         publish = function(id) invisible(NULL),
         awaitCompletion = function(revisionId) {
           list(
@@ -425,6 +428,13 @@ test_that("newly-created PCC content (no prior record) does NOT call updateConte
           )
         }
       )
+    },
+    uploadBundle.connectCloudClient = function(
+      client,
+      application,
+      bundlePath
+    ) {
+      NULL
     },
     bundleApp = function(...) {
       tmp <- tempfile(fileext = ".tar.gz")
@@ -461,7 +471,6 @@ test_that("existing PCC content with non-null current_revision still calls updat
           update_content_called <<- TRUE
           pcc_existing_content_with_revision
         },
-        uploadBundle = function(bundlePath, url) TRUE,
         publish = function(id) invisible(NULL),
         awaitCompletion = function(revisionId) {
           list(
@@ -470,6 +479,13 @@ test_that("existing PCC content with non-null current_revision still calls updat
           )
         }
       )
+    },
+    uploadBundle.connectCloudClient = function(
+      client,
+      application,
+      bundlePath
+    ) {
+      NULL
     },
     bundleApp = function(...) {
       tmp <- tempfile(fileext = ".tar.gz")
@@ -551,13 +567,13 @@ test_that("fresh Connect deploy uploads to the newly created app, not an existin
         getApplication = function(...) {
           stop("getApplication() should not be called for a fresh deploy")
         },
-        uploadBundle = function(contentGuid, bundlePath) {
-          uploaded_guid <<- contentGuid
-          list(id = "bundle-1")
-        },
         deployApplication = function(...) list(id = "task-1"),
         waitForTask = function(...) list()
       )
+    },
+    uploadBundle.connectClient = function(client, application, bundlePath) {
+      uploaded_guid <<- application$guid
+      list(id = "bundle-1")
     },
     bundleApp = function(...) {
       tmp <- tempfile(fileext = ".tar.gz")
@@ -610,13 +626,13 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
             dashboard_url = "https://example.com/connect/#/apps/guid-42"
           )
         },
-        uploadBundle = function(contentGuid, bundlePath) {
-          uploaded_guid <<- contentGuid
-          list(id = "bundle-1")
-        },
         deployApplication = function(...) list(id = "task-1"),
         waitForTask = function(...) list()
       )
+    },
+    uploadBundle.connectClient = function(client, application, bundlePath) {
+      uploaded_guid <<- application$guid
+      list(id = "bundle-1")
     },
     bundleApp = function(...) {
       tmp <- tempfile(fileext = ".tar.gz")

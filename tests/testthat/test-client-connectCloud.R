@@ -1371,3 +1371,63 @@ test_that("getApplication() delegates to getContent and derives name from the ti
   # name is a valid record identifier derived from the title, not the raw title.
   expect_equal(result$name, "my_app_title")
 })
+
+test_that("uploadBundle POSTs to the revision upload URL and returns NULL on success", {
+  skip_if_not_installed("webfakes")
+
+  bundlePath <- withr::local_tempfile(fileext = ".tar.gz")
+  writeLines("bundle contents", bundlePath)
+
+  app <- webfakes::new_app()
+  app$post("/upload", function(req, res) {
+    res$set_status(200L)$send("")
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  application <- list(
+    next_revision = list(
+      source_bundle_upload_url = paste0(proc$url(), "/upload")
+    )
+  )
+  # Connect Cloud has no bundle id, so a successful upload returns NULL.
+  expect_null(uploadBundle(client, application, bundlePath))
+})
+
+test_that("uploadBundle aborts when the Connect Cloud upload fails", {
+  skip_if_not_installed("webfakes")
+
+  bundlePath <- withr::local_tempfile(fileext = ".tar.gz")
+  writeLines("bundle contents", bundlePath)
+
+  app <- webfakes::new_app()
+  app$post("/upload", function(req, res) {
+    res$set_status(500L)$send("")
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  application <- list(
+    next_revision = list(
+      source_bundle_upload_url = paste0(proc$url(), "/upload")
+    )
+  )
+  expect_error(
+    uploadBundle(client, application, bundlePath),
+    "Could not upload bundle"
+  )
+})

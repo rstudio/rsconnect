@@ -8,6 +8,10 @@ stripConnectTimestamps <- function(messages) {
 
 connectClient <- function(service, authInfo) {
   self <- list(
+    # The connection identity. Methods read these to make requests.
+    service = service,
+    authInfo = authInfo,
+
     ## Server settings API
 
     serverSettings = function() {
@@ -73,17 +77,6 @@ connectClient <- function(service, authInfo) {
         url = result$content_url,
         # Include dashboard_url so we can open it or logs path after deploy
         dashboard_url = result$dashboard_url
-      )
-    },
-
-    uploadBundle = function(contentGuid, bundlePath) {
-      path <- v1_url("content", contentGuid, "bundles")
-      POST(
-        service,
-        authInfo,
-        path,
-        contentType = "application/x-gzip",
-        file = bundlePath
       )
     },
 
@@ -165,6 +158,18 @@ connectClient <- function(service, authInfo) {
     }
   )
   structure(self, class = c("connectClient", "rsconnectClient"))
+}
+
+#' @export
+uploadBundle.connectClient <- function(client, application, bundlePath) {
+  path <- v1_url("content", application$guid, "bundles")
+  POST(
+    client$service,
+    client$authInfo,
+    path,
+    contentType = "application/x-gzip",
+    file = bundlePath
+  )
 }
 
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {

@@ -317,25 +317,6 @@ connectCloudClient <- function(service, authInfo) {
       content
     },
 
-    uploadBundle = function(bundlePath, uploadUrl) {
-      uploadService <- parseHttpUrl(uploadUrl)
-      headers <- list()
-      headers$`Content-Type` <- "application/gzip"
-
-      response <- httpLibCurl(
-        uploadService$protocol,
-        uploadService$host,
-        uploadService$port,
-        "POST",
-        uploadService$path,
-        headers,
-        headers$`Content-Type`,
-        bundlePath
-      )
-
-      response$status <= 299
-    },
-
     publish = function(contentId) {
       path <- paste0("/contents/", contentId, "/publish")
       withTokenRefreshRetry(POST_JSON, path, list())
@@ -533,4 +514,29 @@ connectCloudClient <- function(service, authInfo) {
     }
   )
   structure(self, class = c("connectCloudClient", "rsconnectClient"))
+}
+
+#' @export
+uploadBundle.connectCloudClient <- function(client, application, bundlePath) {
+  uploadUrl <- application$next_revision$source_bundle_upload_url
+  uploadService <- parseHttpUrl(uploadUrl)
+  headers <- list()
+  headers$`Content-Type` <- "application/gzip"
+
+  response <- httpLibCurl(
+    uploadService$protocol,
+    uploadService$host,
+    uploadService$port,
+    "POST",
+    uploadService$path,
+    headers,
+    headers$`Content-Type`,
+    bundlePath
+  )
+
+  if (response$status > 299) {
+    cli::cli_abort("Could not upload bundle.")
+  }
+  # Connect Cloud has no bundle id, so the deploy template gets NULL here.
+  NULL
 }
