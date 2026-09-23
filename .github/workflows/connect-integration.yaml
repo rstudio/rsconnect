@@ -39,11 +39,12 @@ jobs:
               XDG_CACHE_HOME=/tmp/connect-xdg-cache
               XDG_DATA_HOME=/tmp/connect-xdg-data
               XDG_RUNTIME_DIR=/tmp/connect-xdg-runtime
+          # (every 6 months, just bc every release would be overkill)
           - version: "2026.03.0" # jammy
             pyVersion: "3.13"
           - version: "2025.09.0" # jammy
             pyVersion: "3.11"
-          - version: "2025.03.0" # jammy (every 6 months, just bc every release would be overkill)
+          - version: "2025.03.0" # jammy
             pyVersion: "3.11"
           - version: "2024.09.0" # jammy
             pyVersion: "3.11"
