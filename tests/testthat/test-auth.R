@@ -1029,3 +1029,66 @@ test_that("cleanupPasswordFile is NOT called on PCC accounts", {
   )
   expect_false(cleanup_called)
 })
+
+test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    addAuthorizedUser(
+      "alice@example.com",
+      appDir = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})
+
+test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    removeAuthorizedUser(
+      "alice@example.com",
+      appDir = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})
+
+test_that("showInvited() aborts targeting a Posit Connect server", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    showInvited(
+      appDir = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})
+
+test_that("resendInvitation() aborts targeting a Posit Connect server", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    resendInvitation(
+      "alice@example.com",
+      appDir = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})

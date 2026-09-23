@@ -1,0 +1,13 @@
+---
+title: Static R Markdown report
+output: html_document
+---
+
+## Summary
+
+This report has no parameters and no Shiny runtime. It renders once to
+static HTML.
+
+```{r}
+summary(cars)
+```

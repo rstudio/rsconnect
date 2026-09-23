@@ -14,23 +14,55 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - "preview"   # Nightly builds of Connect
-          - "release"   # special value that always points to the latest Connect release
-          - "2025.09.0" # jammy
-          - "2025.03.0" # jammy (every 6 months, just bc every release would be overkill)
-          - "2024.09.0" # jammy
-          # These versions use R 4.2 and seem to take forever to install R dependencies
-          # - "2024.03.0" # jammy
-          # - "2023.09.0" # jammy
+        # pyVersion must be a Python the target Connect image has as a
+        # deployable environment, or the python fixtures fail to build with
+        # "no compatible Local environment".
+        #
+        # The noble release/preview images run content with a home directory
+        # that isn't writable, which breaks quarto: it writes to several
+        # directories under the home. We point the XDG base directories at
+        # writable /tmp paths so those writes succeed. These images also lack
+        # libsodium, so we force manylinux binaries for the plumber API
+        # example to build.
+        include:
+          - version: "preview" # Nightly builds of Connect
+            pyVersion: "3.14"
+            connectEnv: |
+              CONNECT_R_POSITPACKAGEMANAGERURLREWRITING=force-portable
+              XDG_CACHE_HOME=/tmp/connect-xdg-cache
+              XDG_DATA_HOME=/tmp/connect-xdg-data
+              XDG_RUNTIME_DIR=/tmp/connect-xdg-runtime
+          - version: "release" # special value that always points to the latest Connect release
+            pyVersion: "3.14"
+            connectEnv: |
+              CONNECT_R_POSITPACKAGEMANAGERURLREWRITING=force-portable
+              XDG_CACHE_HOME=/tmp/connect-xdg-cache
+              XDG_DATA_HOME=/tmp/connect-xdg-data
+              XDG_RUNTIME_DIR=/tmp/connect-xdg-runtime
+          # (every 6 months, just bc every release would be overkill)
+          - version: "2026.03.0" # jammy
+            pyVersion: "3.13"
+          - version: "2025.09.0" # jammy
+            pyVersion: "3.11"
+          - version: "2025.03.0" # jammy
+            pyVersion: "3.11"
+          - version: "2024.09.0" # jammy
+            pyVersion: "3.11"
     name: Connect ${{ matrix.version }}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      RETICULATE_PYTHON: python3
 
     steps:
       - uses: actions/checkout@v6
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.pyVersion }}
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -44,11 +76,16 @@ jobs:
             local::.
             any::testthat
             any::shiny
+            any::quarto
+            any::reticulate
+            any::plumber
+            any::rmarkdown
 
       - name: Run integration tests
         uses: posit-dev/with-connect@main
         with:
           version: ${{ matrix.version }}
+          env: ${{ matrix.connectEnv }}
           license: ${{ secrets.CONNECT_LICENSE_FILE }}
           command: |
             Rscript -e 'testthat::test_dir("tests/integration", package="rsconnect", load_package="installed")'

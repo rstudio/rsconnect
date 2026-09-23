@@ -50,6 +50,17 @@ local_shiny_bundle <- function(appName, appDir, appPrimaryDoc, python = NULL) {
   bundleTempDir
 }
 
+# Node.js content that appMetadata() accepts. A package-lock.json is required.
+local_nodejs_app <- function(env = caller_env()) {
+  local_temp_app(
+    list(
+      "index.js" = "",
+      "package.json" = '{"name": "app", "main": "index.js"}',
+      "package-lock.json" = '{"name": "app", "lockfileVersion": 3}'
+    ),
+    env = env
+  )
+}
 
 # Servers and accounts ----------------------------------------------------
 
@@ -109,6 +120,15 @@ addTestDeployment <- function(
     hostUrl = hostUrl,
     metadata = metadata,
     addToHistory = FALSE
+  )
+}
+
+local_mocked_account_info <- function(env = caller_env()) {
+  local_mocked_bindings(
+    accountInfo = function(name = NULL, server = NULL) {
+      list(name = name, server = server)
+    },
+    .env = env
   )
 }
 
