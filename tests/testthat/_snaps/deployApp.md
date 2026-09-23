@@ -119,3 +119,12 @@
       ! `appVisibility` must be one of "private", "public", "view_team_edit_private", "view_team_edit_team", or "view_public_edit_team", not "privat".
       i Did you mean "private"?
 
+# deployApp() rejects an unsupported appVisibility before contacting the server
+
+    Code
+      deployApp(appDir, appName = "myapp", account = "myaccount", server = "connect.posit.cloud",
+        appVisibility = "team", logLevel = "quiet", lint = FALSE, launch.browser = FALSE)
+    Condition
+      Error in `deployApp()`:
+      ! `appVisibility` must be one of "private", "public", "view_team_edit_private", "view_team_edit_team", or "view_public_edit_team", not "team".
+

@@ -550,6 +550,35 @@ test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'
 
 # PCC deploy: appVisibility ----------------------------------------------
 
+test_that("deployApp() rejects an unsupported appVisibility before contacting the server", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir, appId = NULL)
+
+  client_created <- FALSE
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      client_created <<- TRUE
+      list()
+    }
+  )
+
+  expect_snapshot(
+    deployApp(
+      appDir,
+      appName = "myapp",
+      account = "myaccount",
+      server = "connect.posit.cloud",
+      appVisibility = "team",
+      logLevel = "quiet",
+      lint = FALSE,
+      launch.browser = FALSE
+    ),
+    error = TRUE
+  )
+  expect_false(client_created)
+})
+
 test_that("PCC deploy passes appVisibility to createContent", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))

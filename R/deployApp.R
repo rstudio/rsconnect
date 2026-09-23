@@ -172,8 +172,8 @@
 #'   * `"view_team_edit_team"`: account members can view and edit.
 #'   * `"view_public_edit_team"`: anyone can view; account members can edit.
 #'
-#'   Every value except `"public"` needs a Connect Cloud plan that includes
-#'   private content. New Connect Cloud content deployed with `NULL` is
+#'   `"private"` and the `"view_team_*"` values need a Connect Cloud plan
+#'   that includes private content. New Connect Cloud content deployed with `NULL` is
 #'   private when the plan allows it, and public otherwise.
 #' @param image Optional. The name of the image to use when building and
 #'   executing this content. If none is provided, Posit Connect will

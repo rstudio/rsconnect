@@ -212,8 +212,8 @@ users can edit.
 \item \code{"view_public_edit_team"}: anyone can view; account members can edit.
 }
 
-Every value except \code{"public"} needs a Connect Cloud plan that includes
-private content. New Connect Cloud content deployed with \code{NULL} is
+\code{"private"} and the \code{"view_team_*"} values need a Connect Cloud plan
+that includes private content. New Connect Cloud content deployed with \code{NULL} is
 private when the plan allows it, and public otherwise.}
 
 \item{image}{Optional. The name of the image to use when building and
