@@ -24,11 +24,11 @@ test_that("listAccountEnvVars", {
 
 # Deploy every piece of sample content under deploy-content/ to a real Posit
 # Connect server and assert each deploy succeeds
-for (deploy_fixture in deploy_fixtures()) {
-  test_that(paste("deployApp() succeeds:", deploy_fixture), {
+for (fixture in fixtures()) {
+  test_that(paste("deployApp() succeeds:", fixture), {
     expect_true(deployApp(
-      test_path("deploy-content", deploy_fixture),
-      appName = paste0(run_prefix, "-", deploy_fixture),
+      test_path("deploy-content", fixture),
+      appName = paste0(run_prefix, "-", fixture),
       account = account
     ))
   })
