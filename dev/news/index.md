@@ -4,6 +4,8 @@
 
 ## rsconnect 1.11.1
 
+CRAN release: 2026-09-21
+
 - Redeploying to Posit Connect now opens the content in the Connect
   dashboard, rather than in standalone view, matching initial deploys
   ([\#1372](https://github.com/rstudio/rsconnect/issues/1372)).
