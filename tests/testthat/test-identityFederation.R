@@ -109,7 +109,7 @@ test_that("clientForAccount attempts identity federation for Connect without cre
   account <- list(server = "example.com")
   client <- clientForAccount(account)
 
-  expect_equal(client$service(), "connect")
+  expect_s3_class(client, "connectClient")
 })
 
 test_that("clientForAccount skips identity federation when credentials exist", {
@@ -131,7 +131,7 @@ test_that("clientForAccount skips identity federation when credentials exist", {
   account <- list(server = "example.com", apiKey = "existing-key")
   client <- clientForAccount(account)
 
-  expect_equal(client$service(), "connect")
+  expect_s3_class(client, "connectClient")
   expect_false(attempted)
 })
 
@@ -148,7 +148,7 @@ test_that("clientForAccount skips identity federation for ShinyApps", {
   account <- list(server = "shinyapps.io")
   client <- clientForAccount(account)
 
-  expect_equal(client$service(), "shinyapps.io")
+  expect_s3_class(client, "shinyAppsClient")
   expect_false(attempted)
 })
 
@@ -165,6 +165,6 @@ test_that("clientForAccount skips identity federation for Connect Cloud", {
   account <- list(server = "connect.posit.cloud")
   client <- clientForAccount(account)
 
-  expect_equal(client$service(), "connect.posit.cloud")
+  expect_s3_class(client, "connectCloudClient")
   expect_false(attempted)
 })
