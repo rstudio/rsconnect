@@ -89,16 +89,16 @@ test_that("reports content that is already deleted", {
     )
   })
 
-  expect_error(
-    expect_message(
+  expect_message(
+    expect_error(
       deleteContent(
         appDir = app_dir,
         server = "connect.posit.cloud",
         force = TRUE
       ),
-      "Removed deployment record"
+      "may already be deleted"
     ),
-    "may already be deleted"
+    "Removed deployment record"
   )
   expect_equal(nrow(deployments(app_dir)), 0)
 })
