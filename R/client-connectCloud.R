@@ -552,3 +552,58 @@ uploadBundle.connectCloudClient <- function(client, application, bundlePath) {
   # Connect Cloud has no bundle id, so the deploy template gets NULL here.
   NULL
 }
+
+#' @export
+serverDisplayName.connectCloudClient <- function(client) {
+  "Posit Connect Cloud"
+}
+
+#' @export
+supportsEnvVars.connectCloudClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsEnvVarManagement.connectCloudClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsNodejs.connectCloudClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsUserManagement.connectCloudClient <- function(client) {
+  TRUE
+}
+
+#' @export
+requiresUpload.connectCloudClient <- function(client) {
+  FALSE
+}
+
+#' @export
+pythonEnabledByDefault.connectCloudClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsVisibility.connectCloudClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsMetadataSync.connectCloudClient <- function(client) {
+  FALSE
+}
+
+#' @export
+staticRmdNeedsShiny.connectCloudClient <- function(client) {
+  FALSE
+}
+
+#' @export
+addsUtmParameters.connectCloudClient <- function(client) {
+  TRUE
+}

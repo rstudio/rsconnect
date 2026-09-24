@@ -396,6 +396,61 @@ uploadBundle.shinyAppsClient <- function(client, application, bundlePath) {
   client$getBundle(bundle$id)
 }
 
+#' @export
+serverDisplayName.shinyAppsClient <- function(client) {
+  "shinyapps.io"
+}
+
+#' @export
+supportsEnvVars.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsEnvVarManagement.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsNodejs.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsUserManagement.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+requiresUpload.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+pythonEnabledByDefault.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsVisibility.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsMetadataSync.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+staticRmdNeedsShiny.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+addsUtmParameters.shinyAppsClient <- function(client) {
+  FALSE
+}
+
 putPresignedBundle <- function(bundle, bundleSize, bundlePath) {
   presigned_service <- parseHttpUrl(bundle$presigned_url)
 

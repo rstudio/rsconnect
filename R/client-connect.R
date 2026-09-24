@@ -172,6 +172,61 @@ uploadBundle.connectClient <- function(client, application, bundlePath) {
   )
 }
 
+#' @export
+serverDisplayName.connectClient <- function(client) {
+  "Posit Connect"
+}
+
+#' @export
+supportsEnvVars.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsEnvVarManagement.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsNodejs.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsUserManagement.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+requiresUpload.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+pythonEnabledByDefault.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsVisibility.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsMetadataSync.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+staticRmdNeedsShiny.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+addsUtmParameters.connectClient <- function(client) {
+  FALSE
+}
+
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
   parsedURL <- parseHttpUrl(url)
   ingressURL <- parsedURL$host
