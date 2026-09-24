@@ -1,0 +1,9 @@
+---
+title: R Markdown report with a Python chunk
+---
+
+```{python}
+from pprint import pprint
+xs = range(5)
+pprint([(x, x**2) for x in xs])
+```

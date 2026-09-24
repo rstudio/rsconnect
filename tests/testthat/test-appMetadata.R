@@ -722,3 +722,27 @@ test_that("inferPlumberInfo errors if both _server.yml and _server.yaml present"
   )
   expect_error(inferPlumberInfo(dir))
 })
+
+test_that("Quarto Shiny content without an executable engine aborts", {
+  skip_on_cran()
+
+  dir <- local_temp_app(list(
+    "index.qmd" = c("---", "server: shiny", "---")
+  ))
+  files <- list.files(dir)
+
+  expect_error(
+    appMetadata(dir, files),
+    regexp = "does not use an executable engine"
+  )
+})
+
+test_that("static content with no HTML file aborts", {
+  dir <- local_temp_app(list("style.css" = "body {}"))
+  files <- list.files(dir)
+
+  expect_error(
+    appMetadata(dir, files),
+    regexp = "Failed to determine `appPrimaryDoc` for \"static\" content"
+  )
+})

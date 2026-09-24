@@ -1,0 +1,12 @@
+---
+title: Shiny R Markdown report
+output: html_document
+runtime: shiny
+---
+
+```{r}
+sliderInput("bins", "Number of bins:", min = 1, max = 50, value = 10)
+renderPlot({
+  hist(faithful$waiting, breaks = input$bins)
+})
+```

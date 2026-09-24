@@ -1,0 +1,11 @@
+---
+title: "quarto-doc"
+---
+
+## Quarto
+
+This is a minimal Quarto document rendered with the default knitr engine.
+
+```{r}
+summary(cars)
+```

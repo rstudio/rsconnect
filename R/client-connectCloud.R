@@ -199,11 +199,7 @@ connectCloudClient <- function(service, authInfo) {
     list(data = accounts)
   }
 
-  list(
-    service = function() {
-      "connect.posit.cloud"
-    },
-
+  self <- list(
     currentUser = function() {
       GET(service, authInfo, "/users/me")
     },
@@ -542,4 +538,5 @@ connectCloudClient <- function(service, authInfo) {
       invisible(TRUE)
     }
   )
+  structure(self, class = c("connectCloudClient", "rsconnectClient"))
 }

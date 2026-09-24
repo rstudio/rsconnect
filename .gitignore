@@ -18,3 +18,6 @@ tests/**/*.quarto_ipynb
 
 # pylon build worktrees
 .worktrees/
+
+# quarto writes a project cache next to content that has a _quarto.yml
+.quarto/

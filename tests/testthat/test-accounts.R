@@ -344,7 +344,10 @@ test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount"
     clientForAccount = function(account) {
       # Check that snowflakeConnectionName is passed through
       expect_equal(account$snowflakeConnectionName, "test_connection")
-      list(currentUser = function() list(id = "user123", username = "testuser"))
+      fake_client(
+        "connectClient",
+        currentUser = function() list(id = "user123", username = "testuser")
+      )
     }
   )
 
@@ -355,4 +358,17 @@ test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount"
   )
 
   expect_equal(result$username, "testuser")
+})
+
+test_that("connectApiUser() aborts for shinyapps.io and Connect Cloud", {
+  local_temp_config()
+
+  expect_error(
+    connectApiUser(server = "shinyapps.io", apiKey = "key"),
+    regexp = "`server` must be a Posit Connect server"
+  )
+  expect_error(
+    connectApiUser(server = "connect.posit.cloud", apiKey = "key"),
+    regexp = "`server` must be a Posit Connect server"
+  )
 })
