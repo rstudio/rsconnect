@@ -351,7 +351,7 @@ test_that("can infer mode for rmd as shiny quarto with guidance", {
   dir <- local_temp_app(list("foo.Rmd" = ""))
   paths <- list.files(dir)
   expect_equal(
-    inferAppMode(dir, paths, isShinyappsServer = TRUE),
+    inferAppMode(dir, paths, staticRmdNeedsShiny = TRUE),
     list(appMode = "rmd-shiny", primaryFile = "foo.Rmd")
   )
 })

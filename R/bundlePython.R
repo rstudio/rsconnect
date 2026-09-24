@@ -24,10 +24,11 @@ pythonConfigurator <- function(python, forceGenerate = FALSE) {
   }
 }
 
-# python is enabled on Connect, but not on Shinyapps
-getPythonForTarget <- function(path, accountDetails) {
-  targetIsShinyapps <- isShinyappsServer(accountDetails$server)
-  pythonEnabled <- getOption("rsconnect.python.enabled", !targetIsShinyapps)
+getPythonForTarget <- function(path, client) {
+  pythonEnabled <- getOption(
+    "rsconnect.python.enabled",
+    pythonEnabledByDefault(client)
+  )
   if (pythonEnabled) {
     getPython(path)
   } else {

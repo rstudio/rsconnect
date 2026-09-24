@@ -18,7 +18,8 @@
 #'   `envVars`. `envVars` is a list-column.
 listAccountEnvVars <- function(server = NULL, account = NULL) {
   accountDetails <- accountInfo(account, server)
-  checkServerHasEnvVars(accountDetails$server)
+  client <- clientForAccount(accountDetails)
+  checkServerHasEnvVars(client)
 
   apps <- applications(
     account = accountDetails$name,
@@ -26,7 +27,6 @@ listAccountEnvVars <- function(server = NULL, account = NULL) {
   )
   apps <- apps[c("id", "guid", "name")]
 
-  client <- clientForAccount(accountDetails)
   envVars <- lapply(apps$guid, client$getEnvVars)
   apps$envVars <- envVars
   apps
@@ -43,7 +43,8 @@ updateAccountEnvVars <- function(envVars, server = NULL, account = NULL) {
   check_character(envVars)
 
   accountDetails <- accountInfo(account, server)
-  checkServerHasEnvVars(accountDetails$server)
+  client <- clientForAccount(accountDetails)
+  checkServerHasEnvVars(client)
 
   apps <- listAccountEnvVars(
     account = accountDetails$name,
@@ -59,7 +60,6 @@ updateAccountEnvVars <- function(envVars, server = NULL, account = NULL) {
   guids <- apps$guid[uses_vars]
   cli::cli_progress_bar("Updating application...", total = length(guids))
 
-  client <- clientForAccount(accountDetails)
   for (guid in guids) {
     client$setEnvVars(guid, envVars)
     cli::cli_progress_update()
@@ -68,12 +68,13 @@ updateAccountEnvVars <- function(envVars, server = NULL, account = NULL) {
 
 # Helpers -----------------------------------------------------------------
 
-checkServerHasEnvVars <- function(server, error_call = caller_env()) {
-  if (isConnectServer(server)) {
+checkServerHasEnvVars <- function(client, error_call = caller_env()) {
+  if (supportsEnvVarManagement(client)) {
     return()
   }
 
   cli::cli_abort(
-    "The {.arg server} {.str {server}} does not support environment variables"
+    "{serverDisplayName(client)} does not support environment variables",
+    call = error_call
   )
 }

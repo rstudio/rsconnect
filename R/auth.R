@@ -118,6 +118,15 @@ cleanupPasswordFile <- function(appDir) {
   invisible(TRUE)
 }
 
+checkSupportsUserManagement <- function(client, call = caller_env()) {
+  if (!supportsUserManagement(client)) {
+    cli::cli_abort(
+      "`server` must be shinyapps.io or Posit Connect Cloud",
+      call = call
+    )
+  }
+}
+
 # Internal: resolve the target content for collaborator management functions.
 # On PCC, an explicit contentId targets the content directly; otherwise reads
 # the local deployment record to get the content id (appId) rather than matching
@@ -214,9 +223,8 @@ addAuthorizedUser <- function(
   emailMessage = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
-    checkShinyappsServer(accountDetails$server)
-  }
+  api <- clientForAccount(accountDetails)
+  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     accountDetails,
@@ -241,7 +249,6 @@ addAuthorizedUser <- function(
   }
 
   # fetch authorization list
-  api <- clientForAccount(accountDetails)
   api$inviteApplicationUser(
     application$id,
     validateEmail(email),
@@ -290,9 +297,8 @@ removeAuthorizedUser <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
-    checkShinyappsServer(accountDetails$server)
-  }
+  api <- clientForAccount(accountDetails)
+  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     accountDetails,
@@ -310,7 +316,6 @@ removeAuthorizedUser <- function(
   # resolveContentTarget() a second time (a second interactive prompt could
   # return a different record, causing removeApplicationUser to act on the
   # wrong content).
-  api <- clientForAccount(accountDetails)
   users <- showUsers_impl(
     api,
     application$id,
@@ -393,9 +398,8 @@ showUsers <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
-    checkShinyappsServer(accountDetails$server)
-  }
+  api <- clientForAccount(accountDetails)
+  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     accountDetails,
@@ -404,7 +408,6 @@ showUsers <- function(
     contentId
   )
 
-  api <- clientForAccount(accountDetails)
   showUsers_impl(
     api,
     application$id,
@@ -449,9 +452,8 @@ showInvited <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
-    checkShinyappsServer(accountDetails$server)
-  }
+  api <- clientForAccount(accountDetails)
+  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     accountDetails,
@@ -460,7 +462,6 @@ showInvited <- function(
     contentId
   )
 
-  api <- clientForAccount(accountDetails)
   showInvited_impl(api, application$id)
 }
 
@@ -505,9 +506,8 @@ resendInvitation <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
-    checkShinyappsServer(accountDetails$server)
-  }
+  api <- clientForAccount(accountDetails)
+  checkSupportsUserManagement(api)
 
   # resolve content exactly once, then fetch invitations via impl (avoids a
   # second resolveContentTarget() call).
@@ -517,7 +517,6 @@ resendInvitation <- function(
     appName,
     contentId
   )
-  api <- clientForAccount(accountDetails)
   invited <- showInvited_impl(api, application$id)
 
   invite <- as.character(invite)

@@ -487,35 +487,27 @@ deployApp <- function(
     )
   }
 
+  client <- clientForAccount(accountDetails)
+
   # Run checks prior to first saveDeployment() to avoid errors that will always
   # prevent a successful upload from generating a partial deployment
-  if (
-    isConnectServer(accountDetails$server) &&
-      identical(upload, FALSE)
-  ) {
-    # it is not possible to deploy to Connect without uploading
+  if (requiresUpload(client) && identical(upload, FALSE)) {
     stop(
-      "Posit Connect does not support deploying without uploading. ",
+      serverDisplayName(client),
+      " does not support deploying without uploading. ",
       "Specify upload=TRUE to upload and re-deploy your application."
     )
   }
 
-  client <- clientForAccount(accountDetails)
-
-  if (
-    !serverSupportsEnvVars(accountDetails$server, client) &&
-      length(envVars) > 0
-  ) {
+  if (!supportsEnvVars(client) && length(envVars) > 0) {
     cli::cli_abort(
-      "{accountDetails$server} does not support setting {.arg envVars}"
+      "{serverDisplayName(client)} does not support setting {.arg envVars}"
     )
   }
 
   if (verbose) {
     showCookies(serverInfo(accountDetails$server)$url)
   }
-
-  isShinyappsServer <- isShinyappsServer(accountDetails$server)
 
   logger("Inferring App mode and parameters")
   appMetadata <- appMetadata(
@@ -525,16 +517,15 @@ deployApp <- function(
     quarto = quarto,
     appMode = appMode,
     contentCategory = contentCategory,
-    isShinyappsServer = isShinyappsServer,
+    staticRmdNeedsShiny = staticRmdNeedsShiny(client),
     metadata = metadata
   )
 
   if (appMetadata$appMode == "nodejs") {
-    if (isShinyappsServer(accountDetails$server)) {
-      cli::cli_abort("Node.js content is not supported on shinyapps.io.")
-    }
-    if (isPositConnectCloudServer(accountDetails$server)) {
-      cli::cli_abort("Node.js content is not supported on Posit Connect Cloud.")
+    if (!supportsNodejs(client)) {
+      cli::cli_abort(
+        "Node.js content is not supported on {serverDisplayName(client)}."
+      )
     }
     checkConnectSupportsNodejs(client)
   }
@@ -657,9 +648,7 @@ deployApp <- function(
       taskComplete(quiet, "Content updated")
     }
   } else {
-    if (
-      needsVisibilityChange(accountDetails$server, application, appVisibility)
-    ) {
+    if (needsVisibilityChange(client, application, appVisibility)) {
       taskStart(quiet, "Setting visibility to {appVisibility}...")
       client$setApplicationProperty(
         application$id,
@@ -678,7 +667,7 @@ deployApp <- function(
   bundle <- NULL
 
   if (upload) {
-    python <- getPythonForTarget(python, accountDetails)
+    python <- getPythonForTarget(python, client)
     pythonConfig <- pythonConfigurator(python, forceGeneratePythonEnvironment)
 
     if (dependencyResolution == "library") {
@@ -787,7 +776,6 @@ deployApp <- function(
     openURL(
       client,
       application,
-      accountDetails$server,
       launch.browser,
       on.failure,
       deploymentSucceeded
@@ -837,15 +825,6 @@ connectVersionLt <- function(version, minimum) {
   tryCatch(
     suppressWarnings(utils::compareVersion(version, minimum)) < 0,
     error = function(e) NA
-  )
-}
-
-serverSupportsEnvVars <- function(server, client) {
-  return(
-    # Connect Cloud supports setting environment variables, but not through a
-    # setEnvVars client method
-    isPositConnectCloudServer(server) ||
-      (isConnectServer(server) && "setEnvVars" %in% names(client))
   )
 }
 
@@ -899,16 +878,8 @@ checkAppVisibility <- function(
 }
 
 # Need to set _before_ deploy
-needsVisibilityChange <- function(server, application, appVisibility = NULL) {
-  if (is.null(appVisibility)) {
-    return(FALSE)
-  }
-
-  if (isConnectServer(server)) {
-    # Defaults to private visibility
-    return(FALSE)
-  }
-  if (isPositConnectCloudServer(server)) {
+needsVisibilityChange <- function(client, application, appVisibility = NULL) {
+  if (is.null(appVisibility) || !supportsVisibility(client)) {
     return(FALSE)
   }
 
@@ -1086,14 +1057,13 @@ validURL <- function(url) {
 openURL <- function(
   client,
   application,
-  server,
   launch.browser,
   on.failure,
   deploymentSucceeded
 ) {
   # function to browse to a URL using user-supplied browser (config or final)
   showURL <- function(url) {
-    if (isPositConnectCloudServer(server)) {
+    if (addsUtmParameters(client)) {
       url <- addUtmParameters(url)
     }
     if (isTRUE(launch.browser)) {

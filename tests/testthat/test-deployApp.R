@@ -44,16 +44,24 @@ test_that("needsVisibilityChange() returns FALSE when no change needed", {
     )
   }
 
-  expect_false(needsVisibilityChange("connect.com"))
-  expect_false(needsVisibilityChange("shinyapps.io", dummyApp("public"), NULL))
+  expect_false(needsVisibilityChange(fake_client("connectClient")))
   expect_false(needsVisibilityChange(
-    "shinyapps.io",
+    fake_client("shinyAppsClient"),
+    dummyApp("public"),
+    NULL
+  ))
+  expect_false(needsVisibilityChange(
+    fake_client("shinyAppsClient"),
     dummyApp("public"),
     "public"
   ))
-  expect_true(needsVisibilityChange("shinyapps.io", dummyApp(NULL), "private"))
   expect_true(needsVisibilityChange(
-    "shinyapps.io",
+    fake_client("shinyAppsClient"),
+    dummyApp(NULL),
+    "private"
+  ))
+  expect_true(needsVisibilityChange(
+    fake_client("shinyAppsClient"),
     dummyApp("public"),
     "private"
   ))
@@ -308,9 +316,8 @@ test_that("openURL() does not launch the browser on success with no valid url", 
   # can't resolve the content's owning account.
   launched <- FALSE
   openURL(
-    client = NULL,
+    client = fake_client("connectCloudClient"),
     application = list(url = "", dashboard_url = NULL),
-    server = "connect.posit.cloud",
     launch.browser = function(url) launched <<- TRUE,
     on.failure = function(url) {
       stop("on.failure should not be called on success")
@@ -323,12 +330,11 @@ test_that("openURL() does not launch the browser on success with no valid url", 
 test_that("openURL() launches the browser on success with a valid url", {
   launched <- FALSE
   openURL(
-    client = NULL,
+    client = fake_client("connectCloudClient"),
     application = list(
       url = "https://connect.posit.cloud/acct/content/abc123",
       dashboard_url = NULL
     ),
-    server = "connect.posit.cloud",
     launch.browser = function(url) launched <<- TRUE,
     on.failure = function(url) {
       stop("on.failure should not be called on success")
@@ -1068,7 +1074,8 @@ test_that("deployApp(upload = FALSE) aborts on Posit Connect", {
         accountDetails = list(name = "connect-user", server = "connect-server"),
         deployment = list(name = "myapp", appId = "42")
       )
-    }
+    },
+    clientForAccount = function(...) fake_client("connectClient")
   )
 
   expect_error(

@@ -37,6 +37,29 @@ test_that("syncAppMetadata deletes deployment records if needed", {
   expect_equal(nrow(deployments(app)), 0)
 })
 
+test_that("syncAppMetadata skips Connect Cloud deployment records", {
+  local_temp_config()
+  addTestAccount("myaccount", server = "connect.posit.cloud")
+
+  app <- local_temp_app()
+  addTestDeployment(
+    app,
+    appId = "123",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    metadata = list(when = 123)
+  )
+  local_mocked_bindings(clientForAccount = function(...) {
+    fake_client(
+      "connectCloudClient",
+      getApplication = function(...) stop("getApplication should not be called")
+    )
+  })
+
+  syncAppMetadata(app)
+  expect_equal(deployments(app)$when, "123")
+})
+
 test_that("applications() builds config_url for standard Connect accounts", {
   local_temp_config()
   addTestServer(url = "https://connect.example.com")

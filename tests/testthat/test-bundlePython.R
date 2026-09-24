@@ -24,16 +24,16 @@ test_that("getPython looks in argument, RETICULATE_PYTHON, then RETICULATE_PYTHO
 test_that("rsconnect.python.enabled overrides getPythonForTarget() default", {
   skip_on_cran()
 
-  expect_equal(getPythonForTarget("p", list(server = "shinyapps.io")), NULL)
-  expect_equal(getPythonForTarget("p", list(server = "example.com")), "p")
+  expect_equal(getPythonForTarget("p", fake_client("shinyAppsClient")), NULL)
+  expect_equal(getPythonForTarget("p", fake_client("connectClient")), "p")
 
   withr::local_options(rsconnect.python.enabled = FALSE)
-  expect_equal(getPythonForTarget("p", list(server = "shinyapps.io")), NULL)
-  expect_equal(getPythonForTarget("p", list(server = "example.com")), NULL)
+  expect_equal(getPythonForTarget("p", fake_client("shinyAppsClient")), NULL)
+  expect_equal(getPythonForTarget("p", fake_client("connectClient")), NULL)
 
   withr::local_options(rsconnect.python.enabled = TRUE)
-  expect_equal(getPythonForTarget("p", list(server = "shinyapps.io")), "p")
-  expect_equal(getPythonForTarget("p", list(server = "example.com")), "p")
+  expect_equal(getPythonForTarget("p", fake_client("shinyAppsClient")), "p")
+  expect_equal(getPythonForTarget("p", fake_client("connectClient")), "p")
 })
 
 test_that("can infer env from existing directory", {

@@ -5,7 +5,7 @@ appMetadata <- function(
   quarto = NA,
   appMode = NULL,
   contentCategory = NULL,
-  isShinyappsServer = FALSE,
+  staticRmdNeedsShiny = FALSE,
   metadata = list()
 ) {
   check_bool(quarto, allow_na = TRUE)
@@ -35,7 +35,7 @@ appMetadata <- function(
         appDir,
         appFiles,
         usesQuarto = quarto,
-        isShinyappsServer = isShinyappsServer
+        staticRmdNeedsShiny = staticRmdNeedsShiny
       )
       appMode <- appModeResult$appMode
       inferredPrimaryFile <- appModeResult$primaryFile
@@ -50,7 +50,7 @@ appMetadata <- function(
       appDir,
       appFiles,
       usesQuarto = quarto,
-      isShinyappsServer = isShinyappsServer
+      staticRmdNeedsShiny = staticRmdNeedsShiny
     )$primaryFile
   }
 
@@ -136,7 +136,7 @@ inferAppMode <- function(
   appDir,
   appFiles,
   usesQuarto = NA,
-  isShinyappsServer = FALSE
+  staticRmdNeedsShiny = FALSE
 ) {
   rootFiles <- appFiles[dirname(appFiles) == "."]
   absoluteRootFiles <- file.path(appDir, rootFiles)
@@ -236,9 +236,9 @@ inferAppMode <- function(
         primaryFile = basename(primaryDocFile)
       ))
     } else {
-      # For shinyapps.io, treat "rmd-static" app mode as "rmd-shiny" so that
-      # it can be served from a shiny process in Connect
-      if (isShinyappsServer) {
+      # Some servers can only serve R Markdown from a Shiny process, so they
+      # get "rmd-shiny" in place of "rmd-static".
+      if (staticRmdNeedsShiny) {
         return(list(
           appMode = "rmd-shiny",
           primaryFile = basename(primaryDocFile)
