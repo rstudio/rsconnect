@@ -51,6 +51,7 @@ deleteContent <- function(
   content <- withCallingHandlers(
     client$getContent(target$id),
     rsconnect_http_404 = function(err) {
+      removeDeploymentRecord(target$deploymentFile)
       cli::cli_abort(
         "Can't find content with id {.str {target$id}}; it may already be deleted.",
         parent = err
@@ -71,10 +72,20 @@ deleteContent <- function(
   }
 
   client$deleteContent(target$id)
-  if (!is.null(target$deploymentFile)) {
-    unlink(target$deploymentFile)
-  }
   cli::cli_inform(c(v = "Deleted content {.val {content$title}}."))
+  removeDeploymentRecord(target$deploymentFile)
 
   invisible(TRUE)
+}
+
+removeDeploymentRecord <- function(path) {
+  if (is.null(path)) {
+    return(invisible())
+  }
+  if (unlink(path) != 0) {
+    cli::cli_warn("Failed to remove deployment record {.path {path}}.")
+  } else {
+    cli::cli_inform(c(i = "Removed deployment record {.path {path}}."))
+  }
+  invisible()
 }

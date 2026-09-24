@@ -1,60 +1,29 @@
-local_pcc_deployment <- function(env = caller_env()) {
-  local_temp_config(env)
-  addTestServer(
-    url = "https://connect.posit.cloud",
-    name = "connect.posit.cloud"
-  )
-  addTestAccount("myaccount", server = "connect.posit.cloud")
-
-  app_dir <- withr::local_tempdir(.local_envir = env)
-  addTestDeployment(
-    app_dir,
-    appName = "myapp",
-    appId = "content-uuid-123",
-    account = "myaccount",
-    server = "connect.posit.cloud"
-  )
-  app_dir
-}
-
-local_mock_pcc_client <- function(deleted, env = caller_env()) {
-  local_mocked_bindings(
-    clientForAccount = function(...) {
-      list(
-        getContent = function(contentId) {
-          list(id = contentId, title = "My App")
-        },
-        deleteContent = function(contentId) {
-          deleted(contentId)
-          invisible(TRUE)
-        }
-      )
-    },
-    .env = env
-  )
-}
-
 test_that("deletes content from the deployment record and removes the record", {
-  app_dir <- local_pcc_deployment()
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
   deleted_id <- NULL
-  local_mock_pcc_client(function(id) deleted_id <<- id)
+  local_mock_pcc_delete_client(function(id) deleted_id <<- id)
 
   expect_message(
-    deleteContent(
-      appDir = app_dir,
-      server = "connect.posit.cloud",
-      force = TRUE
+    expect_message(
+      deleteContent(
+        appDir = app_dir,
+        server = "connect.posit.cloud",
+        force = TRUE
+      ),
+      "Deleted content"
     ),
-    "Deleted content"
+    "Removed deployment record"
   )
   expect_equal(deleted_id, "content-uuid-123")
   expect_equal(nrow(deployments(app_dir)), 0)
 })
 
 test_that("contentId deletes directly and leaves local records alone", {
-  app_dir <- local_pcc_deployment()
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
   deleted_id <- NULL
-  local_mock_pcc_client(function(id) deleted_id <<- id)
+  local_mock_pcc_delete_client(function(id) deleted_id <<- id)
 
   expect_message(
     deleteContent(
@@ -69,9 +38,10 @@ test_that("contentId deletes directly and leaves local records alone", {
 })
 
 test_that("requires force in non-interactive sessions", {
-  app_dir <- local_pcc_deployment()
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
   deleted_id <- NULL
-  local_mock_pcc_client(function(id) deleted_id <<- id)
+  local_mock_pcc_delete_client(function(id) deleted_id <<- id)
   withr::local_options(rlang_interactive = FALSE)
 
   expect_error(
@@ -82,9 +52,10 @@ test_that("requires force in non-interactive sessions", {
 })
 
 test_that("confirmation prompt can cancel or proceed", {
-  app_dir <- local_pcc_deployment()
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
   deleted_id <- NULL
-  local_mock_pcc_client(function(id) deleted_id <<- id)
+  local_mock_pcc_delete_client(function(id) deleted_id <<- id)
 
   simulate_user_input("1")
   expect_error(
@@ -103,9 +74,11 @@ test_that("confirmation prompt can cancel or proceed", {
 })
 
 test_that("reports content that is already deleted", {
-  app_dir <- local_pcc_deployment()
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
   local_mocked_bindings(clientForAccount = function(...) {
-    list(
+    fake_client(
+      "connectCloudClient",
       getContent = function(contentId) {
         cli::cli_abort(
           "Content is pending deletion.",
@@ -117,13 +90,41 @@ test_that("reports content that is already deleted", {
   })
 
   expect_error(
-    deleteContent(
-      appDir = app_dir,
-      server = "connect.posit.cloud",
-      force = TRUE
+    expect_message(
+      deleteContent(
+        appDir = app_dir,
+        server = "connect.posit.cloud",
+        force = TRUE
+      ),
+      "Removed deployment record"
     ),
     "may already be deleted"
   )
+  expect_equal(nrow(deployments(app_dir)), 0)
+})
+
+test_that("warns when the deployment record can't be removed", {
+  skip_on_os("windows")
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
+  deleted_id <- NULL
+  local_mock_pcc_delete_client(function(id) deleted_id <<- id)
+
+  record_dir <- dirname(deployments(app_dir)$deploymentFile)
+  Sys.chmod(record_dir, "0555")
+  withr::defer(Sys.chmod(record_dir, "0755"))
+
+  expect_warning(
+    suppressMessages(
+      deleteContent(
+        appDir = app_dir,
+        server = "connect.posit.cloud",
+        force = TRUE
+      )
+    ),
+    "Failed to remove deployment record"
+  )
+  expect_equal(deleted_id, "content-uuid-123")
 })
 
 test_that("rejects servers other than Posit Connect Cloud", {

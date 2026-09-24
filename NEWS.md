@@ -2,7 +2,7 @@
 
 * New `deleteContent()` permanently deletes content from Posit Connect Cloud.
   It asks for confirmation unless `force = TRUE`, and removes the local
-  deployment record when the content was found through one.
+  deployment record when the content was found through one (#1386).
 
 # rsconnect 1.11.1
 
