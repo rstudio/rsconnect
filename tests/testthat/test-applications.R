@@ -6,7 +6,8 @@ test_that("syncAppMetadata updates deployment records", {
   app <- local_temp_app()
   addTestDeployment(app, appId = "123", metadata = list(when = 123))
   local_mocked_bindings(clientForAccount = function(...) {
-    list(
+    fake_client(
+      "connectClient",
       getApplication = function(...) list(title = "newtitle", url = "newurl")
     )
   })
@@ -26,7 +27,8 @@ test_that("syncAppMetadata deletes deployment records if needed", {
   app <- local_temp_app()
   addTestDeployment(app, appId = "123", metadata = list(when = 123))
   local_mocked_bindings(clientForAccount = function(...) {
-    list(
+    fake_client(
+      "connectClient",
       getApplication = function(...) abort(class = "rsconnect_http_404")
     )
   })
@@ -41,7 +43,8 @@ test_that("applications() builds config_url for standard Connect accounts", {
   addTestAccount("ron", server = "connect.example.com")
 
   local_mocked_bindings(clientForAccount = function(...) {
-    list(
+    fake_client(
+      "connectClient",
       listApplications = function(accountId, ...) {
         list(list(
           id = "123",
@@ -76,7 +79,8 @@ test_that("applications() returns a data frame for PCC accounts", {
   addTestAccount("myaccount", server = "connect.posit.cloud", userId = "acct-1")
 
   local_mocked_bindings(clientForAccount = function(...) {
-    list(
+    fake_client(
+      "connectCloudClient",
       listApplications = function(accountId, ...) {
         # GET /contents embeds the current revision, whose `url` is the served
         # (vanity/custom) URL of the published content.
@@ -122,7 +126,8 @@ test_that("applications() falls back to the constructed url when content is unpu
   addTestAccount("myaccount", server = "connect.posit.cloud", userId = "acct-1")
 
   local_mocked_bindings(clientForAccount = function(...) {
-    list(
+    fake_client(
+      "connectCloudClient",
       # No current_revision for content that has never published successfully;
       # url falls back to the constructed content-id URL.
       listApplications = function(accountId, ...) {
@@ -154,7 +159,7 @@ test_that("applications() returns empty data frame for PCC account with no conte
   addTestAccount("myaccount", server = "connect.posit.cloud")
 
   local_mocked_bindings(clientForAccount = function(...) {
-    list(listApplications = function(...) list())
+    fake_client("connectCloudClient", listApplications = function(...) list())
   })
 
   result <- applications(account = "myaccount", server = "connect.posit.cloud")
@@ -175,5 +180,53 @@ test_that("applications() returns empty data frame for PCC account with no conte
       "updated_time",
       "guid"
     )
+  )
+})
+
+test_that("showLogs() aborts for Posit Connect and Connect Cloud accounts", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    showLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+  expect_error(
+    showLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "cloud-user",
+      server = "connect.posit.cloud"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})
+
+test_that("getLogs() aborts for Posit Connect and Connect Cloud accounts", {
+  local_mocked_account_info()
+  appDir <- local_temp_app()
+
+  expect_error(
+    getLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+  expect_error(
+    getLogs(
+      appPath = appDir,
+      appName = "myapp",
+      account = "cloud-user",
+      server = "connect.posit.cloud"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
   )
 })

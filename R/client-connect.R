@@ -7,11 +7,7 @@ stripConnectTimestamps <- function(messages) {
 }
 
 connectClient <- function(service, authInfo) {
-  list(
-    service = function() {
-      "connect"
-    },
-
+  self <- list(
     ## Server settings API
 
     serverSettings = function() {
@@ -168,6 +164,7 @@ connectClient <- function(service, authInfo) {
       PATCH_JSON(service, authInfo, path, body)
     }
   )
+  structure(self, class = c("connectClient", "rsconnectClient"))
 }
 
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {

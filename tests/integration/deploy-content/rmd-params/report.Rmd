@@ -1,0 +1,7 @@
+---
+title: Parameterized R Markdown report
+params:
+  color: red
+---
+
+The chosen color is `r params$color`.

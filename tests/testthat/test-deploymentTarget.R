@@ -519,7 +519,8 @@ test_that("findDeploymentTargetByAppId works for PCC with no local deployment re
 
   local_mocked_bindings(
     clientForAccount = function(...) {
-      list(
+      fake_client(
+        "connectCloudClient",
         getApplication = function(applicationId, deploymentRecordVersion) {
           list(
             id = applicationId,
