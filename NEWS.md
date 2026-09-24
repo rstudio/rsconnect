@@ -4,7 +4,7 @@
   content. On Connect Cloud it also accepts `"view_team_edit_private"`,
   `"view_team_edit_team"`, and `"view_public_edit_team"`, which share content
   with members of the account. Unsupported values now fail before deploying,
-  rather than on the server.
+  rather than on the server (#1385).
 
 # rsconnect 1.11.1
 

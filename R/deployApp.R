@@ -894,18 +894,19 @@ checkAppVisibility <- function(
   if (is.null(appVisibility)) {
     return(invisible())
   }
-  values <- if (isPositConnectCloudServer(server)) {
-    c(
+  if (!isPositConnectCloudServer(server) && !isShinyappsServer(server)) {
+    return(invisible())
+  }
+  if (isPositConnectCloudServer(server)) {
+    values <- c(
       "private",
       "public",
       "view_team_edit_private",
       "view_team_edit_team",
       "view_public_edit_team"
     )
-  } else if (isShinyappsServer(server)) {
-    c("private", "public")
   } else {
-    return(invisible())
+    values <- c("private", "public")
   }
   arg_match(appVisibility, values, error_call = error_call)
   invisible()

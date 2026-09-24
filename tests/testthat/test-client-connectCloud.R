@@ -1338,49 +1338,21 @@ test_that("updateContent includes envVar name and value in secrets when envVars 
 
 # --- access tests -------------------------------------------------------------
 
-local_access_client <- function(method, path, ok, env = parent.frame()) {
-  app <- webfakes::new_app()
-  app$use(webfakes::mw_json())
-  app[[method]](path, function(req, res) {
-    if (ok(req$json)) {
-      res$set_status(200L)$send_json(list(id = "content-1"), auto_unbox = TRUE)
-    } else {
-      res$set_status(400L)$send_json(
-        list(error = "unexpected access"),
-        auto_unbox = TRUE
-      )
-    }
-  })
-  proc <- webfakes::local_app_process(app, .local_envir = env)
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "some-user",
-    accountId = "acct-1",
-    accessToken = "tok",
-    refreshToken = "ref"
-  )
-  connectCloudClient(parseHttpUrl(proc$url()), authInfo)
-}
-
 test_that("createContent omits access when NULL and sends it when set", {
   skip_if_not_installed("webfakes")
 
-  client <- local_access_client("post", "/contents", function(j) {
-    !("access" %in% names(j))
-  })
-  expect_no_error(client$createContent(
+  client <- local_echo_cloud_client("post", "/contents")
+  body <- client$createContent(
     "my-app",
     "My App",
     "acct-1",
     "shiny",
     "app.R",
     NULL
-  ))
+  )
+  expect_false("access" %in% names(body))
 
-  client <- local_access_client("post", "/contents", function(j) {
-    identical(j$access, "view_team_edit_team")
-  })
-  expect_no_error(client$createContent(
+  body <- client$createContent(
     "my-app",
     "My App",
     "acct-1",
@@ -1388,34 +1360,32 @@ test_that("createContent omits access when NULL and sends it when set", {
     "app.R",
     NULL,
     access = "view_team_edit_team"
-  ))
+  )
+  expect_equal(body$access, "view_team_edit_team")
 })
 
 test_that("updateContent omits access when NULL and sends it when set", {
   skip_if_not_installed("webfakes")
 
-  client <- local_access_client("patch", "/contents/:id", function(j) {
-    !("access" %in% names(j))
-  })
-  expect_no_error(client$updateContent(
+  client <- local_echo_cloud_client("patch", "/contents/:id")
+  body <- client$updateContent(
     "content-abc",
     NULL,
     FALSE,
     "app.R",
     "shiny"
-  ))
+  )
+  expect_false("access" %in% names(body))
 
-  client <- local_access_client("patch", "/contents/:id", function(j) {
-    identical(j$access, "private")
-  })
-  expect_no_error(client$updateContent(
+  body <- client$updateContent(
     "content-abc",
     NULL,
     FALSE,
     "app.R",
     "shiny",
     access = "private"
-  ))
+  )
+  expect_equal(body$access, "private")
 })
 
 test_that("getApplication() delegates to getContent and derives name from the title", {
