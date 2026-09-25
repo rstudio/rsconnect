@@ -19,6 +19,33 @@ test_that("deletes content from the deployment record and removes the record", {
   expect_equal(nrow(deployments(app_dir)), 0)
 })
 
+test_that("appName selects one of several deployment records", {
+  app_dir <- withr::local_tempdir()
+  local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
+  addTestDeployment(
+    app_dir,
+    appName = "otherapp",
+    appId = "content-uuid-456",
+    account = "myaccount",
+    server = "connect.posit.cloud"
+  )
+  deleted_id <- NULL
+  local_mock_pcc_delete_client(function(id) deleted_id <<- id)
+
+  suppressMessages(
+    deleteContent(
+      appDir = app_dir,
+      appName = "otherapp",
+      server = "connect.posit.cloud",
+      force = TRUE
+    )
+  )
+  expect_equal(deleted_id, "content-uuid-456")
+  remaining <- deployments(app_dir)
+  expect_equal(remaining$name, "myapp")
+  expect_equal(remaining$appId, "content-uuid-123")
+})
+
 test_that("contentId deletes directly and leaves local records alone", {
   app_dir <- withr::local_tempdir()
   local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
@@ -105,6 +132,7 @@ test_that("reports content that is already deleted", {
 
 test_that("warns when the deployment record can't be removed", {
   skip_on_os("windows")
+  skip_on_cran()
   app_dir <- withr::local_tempdir()
   local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
   deleted_id <- NULL
