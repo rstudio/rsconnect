@@ -211,6 +211,25 @@ local_pcc_deploy_env <- function(
   }
 }
 
+# A PCC client whose deleteContent() passes the content id to `deleted`.
+local_mock_pcc_delete_client <- function(deleted, env = caller_env()) {
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client(
+        "connectCloudClient",
+        getContent = function(contentId) {
+          list(id = contentId, title = "My App")
+        },
+        deleteContent = function(contentId) {
+          deleted(contentId)
+          invisible(TRUE)
+        }
+      )
+    },
+    .env = env
+  )
+}
+
 # adding a top-level manifest field is allowed,
 # but requires coordination with the hosted team
 # to avoid upstream issues. In particular,

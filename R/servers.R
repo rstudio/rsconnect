@@ -83,6 +83,12 @@ checkShinyappsServer <- function(server, call = caller_env()) {
   }
 }
 
+checkPositConnectCloudServer <- function(server, call = caller_env()) {
+  if (!isPositConnectCloudServer(server)) {
+    cli::cli_abort("`server` must be Posit Connect Cloud", call = call)
+  }
+}
+
 checkConnectServer <- function(server, call = caller_env()) {
   if (!isConnectServer(server)) {
     cli::cli_abort("`server` must be a Posit Connect server", call = call)

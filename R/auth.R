@@ -154,9 +154,9 @@ resolveContentTarget <- function(
     }
     if (nrow(recs) > 1L) {
       dep <- disambiguateDeployments(recs)
-      return(list(id = dep$appId))
+      return(list(id = dep$appId, deploymentFile = dep$deploymentFile))
     }
-    list(id = recs$appId[[1L]])
+    list(id = recs$appId[[1L]], deploymentFile = recs$deploymentFile[[1L]])
   } else {
     if (!is.null(contentId)) {
       cli::cli_abort(c(

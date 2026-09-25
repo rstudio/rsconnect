@@ -810,6 +810,33 @@ test_that("removeApplicationUser DELETEs /contents/{id}/users/{userId} and retur
   expect_true(result)
 })
 
+test_that("deleteContent DELETEs /contents/{id} and returns TRUE", {
+  skip_if_not_installed("webfakes")
+
+  delete_app <- webfakes::new_app()
+  delete_app$delete("/contents/:id", function(req, res) {
+    if (identical(req$params$id, "content-abc")) {
+      res$set_status(204L)$send("")
+    } else {
+      res$set_status(404L)$send("")
+    }
+  })
+  app <- webfakes::local_app_process(delete_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_true(client$deleteContent("content-abc"))
+})
+
 test_that("inviteApplicationUser POSTs expected JSON fields to /contents/{id}/invitations", {
   skip_if_not_installed("webfakes")
 

@@ -1,5 +1,9 @@
 # rsconnect (development version)
 
+* New `deleteContent()` permanently deletes content from Posit Connect Cloud.
+  It asks for confirmation unless `force = TRUE`, and removes the local
+  deployment record when the content was found through one (#1386).
+
 * `deployApp(appVisibility =)` now sets the visibility of Posit Connect Cloud
   content. On Connect Cloud it also accepts `"view_team_edit_private"`,
   `"view_team_edit_team"`, and `"view_public_edit_team"`, which share content
