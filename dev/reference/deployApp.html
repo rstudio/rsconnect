@@ -283,9 +283,18 @@ there are <code>.qmd</code> files in the bundle, or if there is a
 
 
 <dt id="arg-appvisibility">appVisibility<a class="anchor" aria-label="anchor" href="#arg-appvisibility"></a></dt>
-<dd><p>One of <code>NULL</code>, <code>"private"</code>, or <code>"public"</code>; the
-visibility of the deployment. When <code>NULL</code>, no change to visibility is
-made. Currently has an effect only on deployments to shinyapps.io.</p></dd>
+<dd><p>The visibility of the deployment. When <code>NULL</code>, no
+change to visibility is made. Ignored by Posit Connect.</p>
+<p>On shinyapps.io, one of <code>"private"</code> or <code>"public"</code>.</p>
+<p>On Posit Connect Cloud, one of:</p><ul><li><p><code>"private"</code>: only invited users can view or edit.</p></li>
+<li><p><code>"public"</code>: anyone can view; only invited users can edit.</p></li>
+<li><p><code>"view_team_edit_private"</code>: account members can view; only invited
+users can edit.</p></li>
+<li><p><code>"view_team_edit_team"</code>: account members can view and edit.</p></li>
+<li><p><code>"view_public_edit_team"</code>: anyone can view; account members can edit.</p></li>
+</ul><p><code>"private"</code> and the <code>"view_team_*"</code> values need a Connect Cloud plan
+that includes private content. New Connect Cloud content deployed with <code>NULL</code> is
+private when the plan allows it, and public otherwise.</p></dd>
 
 
 <dt id="arg-image">image<a class="anchor" aria-label="anchor" href="#arg-image"></a></dt>

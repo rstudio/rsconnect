@@ -37,7 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-</div>
+<ul><li>
+<code>deployApp(appVisibility =)</code> now sets the visibility of Posit Connect Cloud content. On Connect Cloud it also accepts <code>"view_team_edit_private"</code>, <code>"view_team_edit_team"</code>, and <code>"view_public_edit_team"</code>, which share content with members of the account. Unsupported values now fail before deploying, rather than on the server (<a href="https://github.com/rstudio/rsconnect/issues/1385" class="external-link">#1385</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.11.1" id="rsconnect-1111">rsconnect 1.11.1<a class="anchor" aria-label="anchor" href="#rsconnect-1111"></a></h2><p class="text-muted">CRAN release: 2026-09-21</p>
 <ul><li><p>Redeploying to Posit Connect now opens the content in the Connect dashboard, rather than in standalone view, matching initial deploys (<a href="https://github.com/rstudio/rsconnect/issues/1372" class="external-link">#1372</a>).</p></li>
