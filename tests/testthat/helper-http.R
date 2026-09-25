@@ -160,3 +160,23 @@ test_http_headers <- function() {
   resp <- POST(service, authInfo = list(apiKey = "abc123"), path = "post")
   expect_equal(resp$headers$Authorization, "Key abc123")
 }
+
+# Connect Cloud client whose server responds to `method` `path` with the
+# request body it received, plus an `id`.
+local_echo_cloud_client <- function(method, path, env = parent.frame()) {
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app[[method]](path, function(req, res) {
+    body <- c(req$json, list(id = "content-1"))
+    res$set_status(200L)$send_json(body, auto_unbox = TRUE)
+  })
+  proc <- webfakes::local_app_process(app, .local_envir = env)
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    accountId = "acct-1",
+    accessToken = "tok",
+    refreshToken = "ref"
+  )
+  connectCloudClient(parseHttpUrl(proc$url()), authInfo)
+}

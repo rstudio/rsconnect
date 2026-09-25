@@ -1363,6 +1363,58 @@ test_that("updateContent includes envVar name and value in secrets when envVars 
   )
 })
 
+# --- access tests -------------------------------------------------------------
+
+test_that("createContent omits access when NULL and sends it when set", {
+  skip_if_not_installed("webfakes")
+
+  client <- local_echo_cloud_client("post", "/contents")
+  body <- client$createContent(
+    "my-app",
+    "My App",
+    "acct-1",
+    "shiny",
+    "app.R",
+    NULL
+  )
+  expect_false("access" %in% names(body))
+
+  body <- client$createContent(
+    "my-app",
+    "My App",
+    "acct-1",
+    "shiny",
+    "app.R",
+    NULL,
+    access = "view_team_edit_team"
+  )
+  expect_equal(body$access, "view_team_edit_team")
+})
+
+test_that("updateContent omits access when NULL and sends it when set", {
+  skip_if_not_installed("webfakes")
+
+  client <- local_echo_cloud_client("patch", "/contents/:id")
+  body <- client$updateContent(
+    "content-abc",
+    NULL,
+    FALSE,
+    "app.R",
+    "shiny"
+  )
+  expect_false("access" %in% names(body))
+
+  body <- client$updateContent(
+    "content-abc",
+    NULL,
+    FALSE,
+    "app.R",
+    "shiny",
+    access = "private"
+  )
+  expect_equal(body$access, "private")
+})
+
 test_that("getApplication() delegates to getContent and derives name from the title", {
   skip_if_not_installed("webfakes")
 

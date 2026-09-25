@@ -159,9 +159,22 @@
 #'
 #'   (This option is ignored and quarto will always be used if the
 #'   `metadata` contains `quarto_version` and `quarto_engines` fields.)
-#' @param appVisibility One of `NULL`, `"private"`, or `"public"`; the
-#'   visibility of the deployment. When `NULL`, no change to visibility is
-#'   made. Currently has an effect only on deployments to shinyapps.io.
+#' @param appVisibility The visibility of the deployment. When `NULL`, no
+#'   change to visibility is made. Ignored by Posit Connect.
+#'
+#'   On shinyapps.io, one of `"private"` or `"public"`.
+#'
+#'   On Posit Connect Cloud, one of:
+#'   * `"private"`: only invited users can view or edit.
+#'   * `"public"`: anyone can view; only invited users can edit.
+#'   * `"view_team_edit_private"`: account members can view; only invited
+#'     users can edit.
+#'   * `"view_team_edit_team"`: account members can view and edit.
+#'   * `"view_public_edit_team"`: anyone can view; account members can edit.
+#'
+#'   `"private"` and the `"view_team_*"` values need a Connect Cloud plan
+#'   that includes private content. New Connect Cloud content deployed with `NULL` is
+#'   private when the plan allows it, and public otherwise.
 #' @param image Optional. The name of the image to use when building and
 #'   executing this content. If none is provided, Posit Connect will
 #'   attempt to choose an image based on the content requirements. You can
@@ -458,6 +471,7 @@ deployApp <- function(
   )
   accountDetails <- target$accountDetails
   deployment <- target$deployment
+  checkAppVisibility(appVisibility, accountDetails$server)
 
   if (is.null(deployment$appId)) {
     dest <- accountLabel(accountDetails$name, accountDetails$server)
@@ -543,7 +557,8 @@ deployApp <- function(
         accountDetails$accountId,
         appMetadata$appMode,
         primaryFile,
-        deployment$envVars
+        deployment$envVars,
+        access = appVisibility
       )
     } else {
       application <- client$createApplication(
@@ -573,7 +588,8 @@ deployApp <- function(
             client,
             deployment,
             recordPath,
-            appMetadata
+            appMetadata,
+            appVisibility
           )
           taskComplete(
             quiet,
@@ -635,7 +651,8 @@ deployApp <- function(
         deployment$envVars,
         newBundle = upload,
         primaryFile,
-        appMetadata$appMode
+        appMetadata$appMode,
+        access = appVisibility
       )
       taskComplete(quiet, "Content updated")
     }
@@ -869,6 +886,32 @@ findRecordPath <- function(appDir, recordDir = NULL, appPrimaryDoc = NULL) {
   }
 }
 
+checkAppVisibility <- function(
+  appVisibility,
+  server,
+  error_call = caller_env()
+) {
+  if (is.null(appVisibility)) {
+    return(invisible())
+  }
+  if (!isPositConnectCloudServer(server) && !isShinyappsServer(server)) {
+    return(invisible())
+  }
+  if (isPositConnectCloudServer(server)) {
+    values <- c(
+      "private",
+      "public",
+      "view_team_edit_private",
+      "view_team_edit_team",
+      "view_public_edit_team"
+    )
+  } else {
+    values <- c("private", "public")
+  }
+  arg_match(appVisibility, values, error_call = error_call)
+  invisible()
+}
+
 # Need to set _before_ deploy
 needsVisibilityChange <- function(server, application, appVisibility = NULL) {
   if (is.null(appVisibility)) {
@@ -902,7 +945,13 @@ runDeploymentHook <- function(appDir, option, verbose = FALSE) {
   hook(appDir)
 }
 
-applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
+applicationDeleted <- function(
+  client,
+  deployment,
+  recordPath,
+  appMetadata,
+  appVisibility = NULL
+) {
   header <- "Failed to find existing content on server; it's probably been deleted."
   not_interactive <- c(
     i = "Use {.fn forgetDeployment} to remove outdated record and try again.",
@@ -936,7 +985,8 @@ applicationDeleted <- function(client, deployment, recordPath, appMetadata) {
       accountDetails$accountId,
       appMetadata$appMode,
       primaryFile,
-      deployment$envVars
+      deployment$envVars,
+      access = appVisibility
     )
   } else {
     client$createApplication(

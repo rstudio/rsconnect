@@ -197,9 +197,24 @@ there are \code{.qmd} files in the bundle, or if there is a
 (This option is ignored and quarto will always be used if the
 \code{metadata} contains \code{quarto_version} and \code{quarto_engines} fields.)}
 
-\item{appVisibility}{One of \code{NULL}, \code{"private"}, or \code{"public"}; the
-visibility of the deployment. When \code{NULL}, no change to visibility is
-made. Currently has an effect only on deployments to shinyapps.io.}
+\item{appVisibility}{The visibility of the deployment. When \code{NULL}, no
+change to visibility is made. Ignored by Posit Connect.
+
+On shinyapps.io, one of \code{"private"} or \code{"public"}.
+
+On Posit Connect Cloud, one of:
+\itemize{
+\item \code{"private"}: only invited users can view or edit.
+\item \code{"public"}: anyone can view; only invited users can edit.
+\item \code{"view_team_edit_private"}: account members can view; only invited
+users can edit.
+\item \code{"view_team_edit_team"}: account members can view and edit.
+\item \code{"view_public_edit_team"}: anyone can view; account members can edit.
+}
+
+\code{"private"} and the \code{"view_team_*"} values need a Connect Cloud plan
+that includes private content. New Connect Cloud content deployed with \code{NULL} is
+private when the plan allows it, and public otherwise.}
 
 \item{image}{Optional. The name of the image to use when building and
 executing this content. If none is provided, Posit Connect will
