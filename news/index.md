@@ -1,6 +1,25 @@
 # Changelog
 
+## rsconnect 1.11.2
+
+- New
+  [`deleteContent()`](https://rstudio.github.io/rsconnect/reference/deleteContent.md)
+  permanently deletes content from Posit Connect Cloud. It asks for
+  confirmation unless `force = TRUE`, and removes the local deployment
+  record when the content was found through one
+  ([\#1386](https://github.com/rstudio/rsconnect/issues/1386)).
+
+- `deployApp(appVisibility =)` now sets the visibility of Posit Connect
+  Cloud content. On Connect Cloud it also accepts
+  `"view_team_edit_private"`, `"view_team_edit_team"`, and
+  `"view_public_edit_team"`, which share content with members of the
+  account. Unsupported values now fail before deploying, rather than on
+  the server
+  ([\#1385](https://github.com/rstudio/rsconnect/issues/1385)).
+
 ## rsconnect 1.11.1
+
+CRAN release: 2026-09-21
 
 - Redeploying to Posit Connect now opens the content in the Connect
   dashboard, rather than in standalone view, matching initial deploys

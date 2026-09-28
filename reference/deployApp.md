@@ -266,9 +266,28 @@ deployApp(
 
 - appVisibility:
 
-  One of `NULL`, `"private"`, or `"public"`; the visibility of the
-  deployment. When `NULL`, no change to visibility is made. Currently
-  has an effect only on deployments to shinyapps.io.
+  The visibility of the deployment. When `NULL`, no change to visibility
+  is made. Ignored by Posit Connect.
+
+  On shinyapps.io, one of `"private"` or `"public"`.
+
+  On Posit Connect Cloud, one of:
+
+  - `"private"`: only invited users can view or edit.
+
+  - `"public"`: anyone can view; only invited users can edit.
+
+  - `"view_team_edit_private"`: account members can view; only invited
+    users can edit.
+
+  - `"view_team_edit_team"`: account members can view and edit.
+
+  - `"view_public_edit_team"`: anyone can view; account members can
+    edit.
+
+  `"private"` and the `"view_team_*"` values need a Connect Cloud plan
+  that includes private content. New Connect Cloud content deployed with
+  `NULL` is private when the plan allows it, and public otherwise.
 
 - image:
 

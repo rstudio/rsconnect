@@ -122,6 +122,8 @@
   : Update deployment records
 - [`terminateApp()`](https://rstudio.github.io/rsconnect/reference/terminateApp.md)
   : Terminate an Application
+- [`deleteContent()`](https://rstudio.github.io/rsconnect/reference/deleteContent.md)
+  : Delete content
 
 ## Other functions
 
