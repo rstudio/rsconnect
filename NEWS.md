@@ -1,3 +1,5 @@
+# rsconnect (development version)
+
 # rsconnect 1.11.2
 
 * New `deleteContent()` permanently deletes content from Posit Connect Cloud.
