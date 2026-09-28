@@ -1,6 +1,6 @@
 ## Summary
 
-Patch release mostly addressing issues with Posit Connect Cloud.
+Patch release with improvements for Posit Connect Cloud.
 
 ## R CMD check results
 
