@@ -165,221 +165,12 @@ connectCloudClient <- function(service, authInfo) {
       items
     },
 
-    createContent = function(
-      name,
-      title,
-      accountId,
-      appMode,
-      primaryFile,
-      envVars,
-      access = NULL
-    ) {
-      title <- if (nzchar(title)) title else name
-      contentType <- cloudContentTypeFromAppMode(appMode)
-
-      # Build revision object, conditionally including primary_file
-      revision <- list(
-        source_type = "bundle",
-        content_type = contentType,
-        app_mode = appMode,
-        primary_file = primaryFile
-      )
-
-      secrets <- cloudSecrets(envVars)
-
-      json <- list(
-        account_id = accountId,
-        title = title,
-        next_revision = revision,
-        secrets = secrets
-      )
-      # Omit when NULL so the server picks the default for the account's plan.
-      json$access <- access
-
-      content <- withTokenRefreshRetry(
-        POST_JSON,
-        "/contents",
-        json
-      )
-      content$application_id <- content$id
-      content
-    },
-
     getContent = getContent,
 
     getApplication = function(applicationId, deploymentRecordVersion) {
       content <- getContent(applicationId)
       content$name <- generateAppName(content$title, unique = FALSE)
       content
-    },
-
-    updateContent = function(
-      contentId,
-      envVars,
-      newBundle = FALSE,
-      primaryFile,
-      appMode,
-      access = NULL
-    ) {
-      path <- paste0("/contents/", contentId)
-      if (newBundle) {
-        path <- paste0(path, "?new_bundle=true")
-      }
-
-      secrets <- cloudSecrets(envVars)
-
-      json <- list(
-        secrets = secrets,
-        revision_overrides = list(
-          primary_file = primaryFile,
-          app_mode = appMode
-        )
-      )
-      # Omit when NULL so a redeploy keeps visibility changed in the Cloud UI.
-      json$access <- access
-
-      content <- withTokenRefreshRetry(PATCH_JSON, path, json)
-      content$application_id <- content$id
-      content
-    },
-
-    publish = function(contentId) {
-      path <- paste0("/contents/", contentId, "/publish")
-      withTokenRefreshRetry(POST_JSON, path, list())
-    },
-
-    # Polls the revision until the publish process completes, returning whether
-    # the publish request succeeded and the error message if it failed.
-    awaitCompletion = function(revisionId) {
-      stateMessages <- list(
-        publish_deferred = "Content is currently publishing; your request will start soon.",
-        publish_requested = "Publish requested; waiting to start...",
-        publish_started = "Publish started.",
-        fetching = "Retrieving code...",
-        building = "Installing dependencies...",
-        rendering = "Rendering...",
-        publishing = "Publishing content...",
-        published = "Done."
-      )
-      lastStatus <- NULL
-      repeat {
-        path <- paste0("/revisions/", revisionId)
-        revision <- withTokenRefreshRetry(GET, path)
-        newStatus <- revision$status
-        if (!isTRUE(newStatus == lastStatus)) {
-          # Note: since we poll every second, it's possible to skip states in
-          # the output here
-          cli::cli_alert_info(stateMessages[[newStatus]])
-          lastStatus <- newStatus
-        }
-
-        if (!is.null(revision$publish_result)) {
-          # Resolve the URL from the content's actual owning account, not the
-          # locally authenticated one -- the content may belong to a
-          # different (e.g. team) account than the one publishing it. Don't
-          # let a failure here mask the actual publish result: fall back to
-          # an empty URL and warn instead of aborting the whole deploy.
-          # Content genuinely deleted right after publishing gets its own
-          # message since we know exactly what happened; anything else
-          # (transient API errors, pagination limits, etc.) gets a generic
-          # one.
-          contentUrl <- tryCatch(
-            {
-              content <- getContent(revision$content_id)
-              connectCloudContentUrl(
-                getAccounts,
-                content$account_id,
-                revision$content_id
-              )
-            },
-            rsconnect_http_404 = function(e) {
-              cli::cli_alert_warning(
-                "The published content could not be found immediately after publishing; no URL is available."
-              )
-              ""
-            },
-            error = function(e) {
-              cli::cli_alert_warning(
-                "Failed to resolve the content URL: {e$message}"
-              )
-              ""
-            }
-          )
-
-          if (revision$publish_result == "failure") {
-            # Try to retrieve logs if log channel is available
-            if (!is.null(revision$publish_log_channel)) {
-              tryCatch(
-                {
-                  # Get authorization token for the log channel
-                  authToken <- getAuthorization(
-                    revision$publish_log_channel
-                  )
-
-                  # Create logs client and fetch logs
-                  logsClient <- connectCloudLogsClient()
-                  logs <- logsClient$getLogs(
-                    revision$publish_log_channel,
-                    authToken
-                  )
-
-                  # Print logs to stderr
-                  if (!is.null(logs) && !is.null(logs$data)) {
-                    cli::cat_rule(
-                      "Begin Publishing Log",
-                      line = "#",
-                      file = stderr()
-                    )
-                    for (log_entry in logs$data) {
-                      local_timestamp <- as.POSIXct(
-                        # Convert to seconds
-                        log_entry$timestamp / 1e6,
-                        origin = "1970-01-01",
-                      )
-                      # Format with millisecond precision
-                      formatted_timestamp <- format(
-                        local_timestamp,
-                        "%Y-%m-%d %H:%M:%OS3"
-                      )
-                      cat(
-                        sprintf(
-                          "[%s] %s: %s\n",
-                          formatted_timestamp,
-                          toupper(log_entry$level),
-                          log_entry$message
-                        ),
-                        file = stderr()
-                      )
-                    }
-                    cli::cat_rule(
-                      "End Publishing Log",
-                      line = "#",
-                      file = stderr()
-                    )
-                  }
-                },
-                error = function(e) {
-                  # If log retrieval fails, continue without logs
-                  # Don't fail the entire operation just because logs couldn't be retrieved
-                  cli::cli_alert_warning(
-                    "Failed to retrieve logs: {e$message}"
-                  )
-                }
-              )
-            }
-
-            return(list(
-              success = FALSE,
-              url = contentUrl,
-              error = revision$publish_error_details
-            ))
-          }
-
-          return(list(success = TRUE, url = contentUrl, error = NULL))
-        }
-
-        Sys.sleep(1)
-      }
     },
 
     getAuthorization = getAuthorization,
@@ -471,6 +262,98 @@ uploadBundle.connectCloudClient <- function(client, application, bundlePath) {
   }
   # Connect Cloud has no bundle id, so the deploy template gets NULL here.
   NULL
+}
+
+# Connect Cloud content has no `url` until it is published.
+#' @export
+createContent.connectCloudClient <- function(
+  client,
+  deployment,
+  accountDetails,
+  appMetadata,
+  appVisibility = NULL
+) {
+  title <- if (nzchar(deployment$title)) deployment$title else deployment$name
+  revision <- list(
+    source_type = "bundle",
+    content_type = cloudContentTypeFromAppMode(appMetadata$appMode),
+    app_mode = appMetadata$appMode,
+    primary_file = connectCloudPrimaryFile(appMetadata)
+  )
+
+  json <- list(
+    account_id = accountDetails$accountId,
+    title = title,
+    next_revision = revision,
+    secrets = cloudSecrets(deployment$envVars)
+  )
+  # Omit when NULL so the server picks the default for the account's plan.
+  json$access <- appVisibility
+
+  content <- client$withTokenRefreshRetry(POST_JSON, "/contents", json)
+  content$application_id <- content$id
+  content
+}
+
+#' @export
+findContent.connectCloudClient <- function(client, deployment, quiet) {
+  application <- client$getContent(deployment$appId)
+  taskComplete(quiet, "Found content")
+  application
+}
+
+#' @export
+prepareContent.connectCloudClient <- function(
+  client,
+  application,
+  deployment,
+  appMetadata,
+  appVisibility,
+  isNewContent,
+  upload,
+  quiet
+) {
+  # New content already has a fresh pending revision from createContent().
+  # Existing content needs a new revision and upload URL.
+  if (isNewContent) {
+    return(application)
+  }
+  taskStart(quiet, "Updating content...")
+  path <- paste0("/contents/", application$id)
+  if (upload) {
+    path <- paste0(path, "?new_bundle=true")
+  }
+  json <- list(
+    secrets = cloudSecrets(deployment$envVars),
+    revision_overrides = list(
+      primary_file = connectCloudPrimaryFile(appMetadata),
+      app_mode = appMetadata$appMode
+    )
+  )
+  # Omit when NULL so a redeploy keeps visibility changed in the Cloud UI.
+  json$access <- appVisibility
+
+  content <- client$withTokenRefreshRetry(PATCH_JSON, path, json)
+  content$application_id <- content$id
+  taskComplete(quiet, "Content updated")
+  content
+}
+
+#' @export
+activateContent.connectCloudClient <- function(
+  client,
+  application,
+  bundle,
+  quiet
+) {
+  path <- paste0("/contents/", application$id, "/publish")
+  client$withTokenRefreshRetry(POST_JSON, path, list())
+  response <- awaitConnectCloudCompletion(client, application$next_revision$id)
+  list(
+    succeeded = response$success,
+    url = response$url,
+    error = response$error
+  )
 }
 
 #' @export
@@ -623,4 +506,144 @@ cloudSecrets <- function(envVars) {
     envVars[keep],
     values[keep]
   ))
+}
+
+# The primary file of the revision. Use appPrimaryDoc if it is set, otherwise
+# use the inferred primary file.
+connectCloudPrimaryFile <- function(appMetadata) {
+  appMetadata$appPrimaryDoc %||% appMetadata$inferredPrimaryFile
+}
+
+# Polls the revision until the publish process completes, returning whether
+# the publish request succeeded and the error message if it failed.
+awaitConnectCloudCompletion <- function(client, revisionId) {
+  stateMessages <- list(
+    publish_deferred = "Content is currently publishing; your request will start soon.",
+    publish_requested = "Publish requested; waiting to start...",
+    publish_started = "Publish started.",
+    fetching = "Retrieving code...",
+    building = "Installing dependencies...",
+    rendering = "Rendering...",
+    publishing = "Publishing content...",
+    published = "Done."
+  )
+  lastStatus <- NULL
+  repeat {
+    path <- paste0("/revisions/", revisionId)
+    revision <- client$withTokenRefreshRetry(GET, path)
+    newStatus <- revision$status
+    if (!isTRUE(newStatus == lastStatus)) {
+      # Note: since we poll every second, it's possible to skip states in
+      # the output here
+      cli::cli_alert_info(stateMessages[[newStatus]])
+      lastStatus <- newStatus
+    }
+
+    if (!is.null(revision$publish_result)) {
+      # Resolve the URL from the content's actual owning account, not the
+      # locally authenticated one -- the content may belong to a
+      # different (e.g. team) account than the one publishing it. Don't
+      # let a failure here mask the actual publish result: fall back to
+      # an empty URL and warn instead of aborting the whole deploy.
+      # Content genuinely deleted right after publishing gets its own
+      # message since we know exactly what happened; anything else
+      # (transient API errors, pagination limits, etc.) gets a generic
+      # one.
+      contentUrl <- tryCatch(
+        {
+          content <- client$getContent(revision$content_id)
+          connectCloudContentUrl(
+            client$getAccounts,
+            content$account_id,
+            revision$content_id
+          )
+        },
+        rsconnect_http_404 = function(e) {
+          cli::cli_alert_warning(
+            "The published content could not be found immediately after publishing; no URL is available."
+          )
+          ""
+        },
+        error = function(e) {
+          cli::cli_alert_warning(
+            "Failed to resolve the content URL: {e$message}"
+          )
+          ""
+        }
+      )
+
+      if (revision$publish_result == "failure") {
+        # Try to retrieve logs if log channel is available
+        if (!is.null(revision$publish_log_channel)) {
+          tryCatch(
+            {
+              # Get authorization token for the log channel
+              authToken <- client$getAuthorization(
+                revision$publish_log_channel
+              )
+
+              # Create logs client and fetch logs
+              logsClient <- connectCloudLogsClient()
+              logs <- logsClient$getLogs(
+                revision$publish_log_channel,
+                authToken
+              )
+
+              # Print logs to stderr
+              if (!is.null(logs) && !is.null(logs$data)) {
+                cli::cat_rule(
+                  "Begin Publishing Log",
+                  line = "#",
+                  file = stderr()
+                )
+                for (log_entry in logs$data) {
+                  local_timestamp <- as.POSIXct(
+                    # Convert to seconds
+                    log_entry$timestamp / 1e6,
+                    origin = "1970-01-01",
+                  )
+                  # Format with millisecond precision
+                  formatted_timestamp <- format(
+                    local_timestamp,
+                    "%Y-%m-%d %H:%M:%OS3"
+                  )
+                  cat(
+                    sprintf(
+                      "[%s] %s: %s\n",
+                      formatted_timestamp,
+                      toupper(log_entry$level),
+                      log_entry$message
+                    ),
+                    file = stderr()
+                  )
+                }
+                cli::cat_rule(
+                  "End Publishing Log",
+                  line = "#",
+                  file = stderr()
+                )
+              }
+            },
+            error = function(e) {
+              # If log retrieval fails, continue without logs
+              # Don't fail the entire operation just because logs couldn't be retrieved
+              cli::cli_alert_warning(
+                "Failed to retrieve logs: {e$message}"
+              )
+            }
+          )
+        }
+
+        return(list(
+          success = FALSE,
+          url = contentUrl,
+          error = revision$publish_error_details
+        ))
+      }
+
+      return(list(success = TRUE, url = contentUrl, error = NULL))
+    }
+
+    Sys.sleep(1)
+  }
 }

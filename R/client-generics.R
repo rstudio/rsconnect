@@ -23,6 +23,87 @@ uploadBundle <- function(client, application, bundlePath) {
   UseMethod("uploadBundle")
 }
 
+#' Create new content on the server
+#'
+#' @param client A client object.
+#' @param deployment The deployment from `findDeploymentTarget()`.
+#' @param accountDetails The account that deploys the content.
+#' @param appMetadata The result of `appMetadata()`.
+#' @param appVisibility The requested visibility, or `NULL`.
+#'
+#' @return The new content, which has an `id`. It has a `url` if the server
+#'   knows the URL before the deploy. If not, `activateContent()` gets the URL.
+#' @noRd
+createContent <- function(
+  client,
+  deployment,
+  accountDetails,
+  appMetadata,
+  appVisibility = NULL
+) {
+  UseMethod("createContent")
+}
+
+#' Get the content for an existing deployment record
+#'
+#' @param client A client object.
+#' @param deployment The deployment from `findDeploymentTarget()`. It has an
+#'   `appId`.
+#' @param quiet If `TRUE`, do not show messages.
+#'
+#' @return The content. If the content does not exist, the method signals an
+#'   `rsconnect_http_404` error.
+#' @noRd
+findContent <- function(client, deployment, quiet) {
+  UseMethod("findContent")
+}
+
+#' Prepare content before the upload
+#'
+#' Apply the settings that must be on the content before it deploys, for
+#' example visibility and environment variables.
+#'
+#' @param client A client object.
+#' @param application The content from `findContent()` or `createContent()`.
+#' @param deployment The deployment from `findDeploymentTarget()`.
+#' @param appMetadata The result of `appMetadata()`.
+#' @param appVisibility The requested visibility, or `NULL`.
+#' @param isNewContent `TRUE` if `createContent()` made the content during this
+#'   deploy.
+#' @param upload `TRUE` if the deploy uploads a new bundle.
+#' @param quiet If `TRUE`, do not show messages.
+#'
+#' @return The content. Use this value in the next steps, because a method can
+#'   replace the content object.
+#' @noRd
+prepareContent <- function(
+  client,
+  application,
+  deployment,
+  appMetadata,
+  appVisibility,
+  isNewContent,
+  upload,
+  quiet
+) {
+  UseMethod("prepareContent")
+}
+
+#' Deploy the bundle and wait until the deploy completes
+#'
+#' @param client A client object.
+#' @param application The content from `prepareContent()`.
+#' @param bundle The bundle from `uploadBundle()`, or `NULL` when the deploy
+#'   did not upload.
+#' @param quiet If `TRUE`, do not show messages.
+#'
+#' @return A list with three fields. `succeeded` is `TRUE` or `FALSE`. `url` is
+#'   the content URL. `error` is the error message, or `NULL`.
+#' @noRd
+activateContent <- function(client, application, bundle, quiet) {
+  UseMethod("activateContent")
+}
+
 #' Get the display name of the server a client talks to
 #'
 #' Use this name in messages to the user.

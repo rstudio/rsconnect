@@ -229,3 +229,168 @@ test_that("uploadBundle POSTs the bundle to the content guid and returns it", {
   bundle <- uploadBundle(client, list(guid = "guid-1"), bundlePath)
   expect_equal(bundle$id, "bundle-for-guid-1")
 })
+
+test_that("createContent() POSTs the name and title to v1/content", {
+  sent <- NULL
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      sent <<- list(path = path, json = json)
+      list(
+        id = "99",
+        guid = "guid-99",
+        content_url = "https://example.com/content/guid-99/",
+        dashboard_url = "https://example.com/connect/#/apps/guid-99"
+      )
+    }
+  )
+  client <- connectClient(list(), list())
+
+  application <- createContent(
+    client,
+    deployment = list(name = "my-app", title = "My App"),
+    accountDetails = list(accountId = "1"),
+    appMetadata = list(appMode = "shiny")
+  )
+
+  expect_equal(sent$path, "/v1/content")
+  expect_equal(sent$json, list(name = "my-app", title = "My App"))
+  expect_equal(
+    application,
+    list(
+      id = "99",
+      guid = "guid-99",
+      url = "https://example.com/content/guid-99/",
+      dashboard_url = "https://example.com/connect/#/apps/guid-99"
+    )
+  )
+})
+
+test_that("createContent() does not send an empty title", {
+  sent <- NULL
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      sent <<- json
+      list()
+    }
+  )
+  client <- connectClient(list(), list())
+
+  createContent(
+    client,
+    deployment = list(name = "my-app", title = ""),
+    accountDetails = list(accountId = "1"),
+    appMetadata = list(appMode = "shiny")
+  )
+
+  expect_equal(sent, list(name = "my-app"))
+})
+
+test_that("findContent() gets the application for the deployment record", {
+  requested <- NULL
+  client <- fake_client(
+    "connectClient",
+    getApplication = function(applicationId, deploymentRecordVersion) {
+      requested <<- list(applicationId, deploymentRecordVersion)
+      list(id = applicationId, url = "https://example.com/content/42/")
+    }
+  )
+
+  application <- findContent(
+    client,
+    deployment = list(appId = "42", version = "1"),
+    quiet = TRUE
+  )
+
+  expect_equal(requested, list("42", "1"))
+  expect_equal(application$id, "42")
+})
+
+test_that("prepareContent() sets the env vars of the deployment", {
+  sent <- NULL
+  client <- fake_client(
+    "connectClient",
+    setEnvVars = function(guid, vars) sent <<- list(guid = guid, vars = vars)
+  )
+  application <- list(id = "42", guid = "guid-42")
+
+  result <- prepareContent(
+    client,
+    application,
+    deployment = list(envVars = c("A", "B")),
+    appMetadata = list(),
+    appVisibility = NULL,
+    isNewContent = FALSE,
+    upload = TRUE,
+    quiet = TRUE
+  )
+
+  expect_equal(sent, list(guid = "guid-42", vars = c("A", "B")))
+  expect_equal(result, application)
+})
+
+test_that("prepareContent() does not set env vars when the deployment has none", {
+  client <- fake_client(
+    "connectClient",
+    setEnvVars = function(...) stop("setEnvVars() should not be called")
+  )
+
+  expect_no_error(prepareContent(
+    client,
+    list(id = "42", guid = "guid-42"),
+    deployment = list(envVars = NULL),
+    appMetadata = list(),
+    appVisibility = NULL,
+    isNewContent = FALSE,
+    upload = TRUE,
+    quiet = TRUE
+  ))
+})
+
+test_that("activateContent() deploys the bundle and waits for the task", {
+  deployed <- NULL
+  waited <- NULL
+  client <- fake_client(
+    "connectClient",
+    deployApplication = function(application, bundleId = NULL) {
+      deployed <<- list(guid = application$guid, bundleId = bundleId)
+      list(task_id = "task-1")
+    },
+    waitForTask = function(taskId, quiet = FALSE) {
+      waited <<- taskId
+      list(finished = TRUE, code = 0)
+    }
+  )
+  application <- list(guid = "guid-42", url = "https://example.com/42/")
+
+  result <- activateContent(
+    client,
+    application,
+    bundle = list(id = "bundle-1"),
+    quiet = TRUE
+  )
+
+  expect_equal(deployed, list(guid = "guid-42", bundleId = "bundle-1"))
+  expect_equal(waited, "task-1")
+  expect_equal(
+    result,
+    list(succeeded = TRUE, url = "https://example.com/42/", error = NULL)
+  )
+})
+
+test_that("activateContent() reports a failed task", {
+  client <- fake_client(
+    "connectClient",
+    deployApplication = function(...) list(task_id = "task-1"),
+    waitForTask = function(...) list(code = 1, error = "Build failed")
+  )
+
+  result <- activateContent(
+    client,
+    list(guid = "guid-42", url = "https://example.com/42/"),
+    bundle = list(id = "bundle-1"),
+    quiet = TRUE
+  )
+
+  expect_false(result$succeeded)
+  expect_equal(result$error, "Build failed")
+})

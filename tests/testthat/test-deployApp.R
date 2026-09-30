@@ -167,13 +167,11 @@ test_that("applicationDeleted() errors or prompts as needed", {
   app <- local_temp_app()
   addTestDeployment(app, appName = "name", account = "a", server = "s")
   target <- createDeployment("name", "title", "id", NULL, "a", "a", "s", 1)
-  client <- list(createApplication = function(...) NULL)
-
-  expect_snapshot(applicationDeleted(client, target, app), error = TRUE)
+  expect_snapshot(applicationDeleted(target, app), error = TRUE)
   expect_length(dir(app, recursive = TRUE), 1)
 
   simulate_user_input(2)
-  expect_snapshot(. <- applicationDeleted(client, target, app))
+  expect_snapshot(applicationDeleted(target, app))
   expect_length(dir(app, recursive = TRUE), 0)
 })
 
@@ -312,8 +310,8 @@ test_that("confirmDependencySourceLibrary informs non-interactively", {
 })
 
 test_that("openURL() does not launch the browser on success with no valid url", {
-  # e.g. Connect Cloud's awaitCompletion() falling back to url = "" when it
-  # can't resolve the content's owning account.
+  # e.g. Connect Cloud's awaitConnectCloudCompletion() falling back to
+  # url = "" when it can't resolve the content's owning account.
   launched <- FALSE
   openURL(
     client = fake_client("connectCloudClient"),
@@ -391,16 +389,16 @@ test_that("checkAppVisibility() rejects values the server doesn't support", {
   })
 })
 
-# PCC deploy: updateContent / isNewContent guard -------------------------
+# PCC deploy: prepareContent / isNewContent guard -------------------------
 # Shared fixtures (pcc_existing_content_*, local_pcc_deploy_env) live in
 # helper.R.
 
-test_that("existing PCC content with NULL current_revision calls updateContent", {
+test_that("existing PCC content with NULL current_revision is prepared as existing content", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
 
-  # updateContent() mints a fresh upload URL; the bundle must go there, not to
+  # prepareContent() mints a fresh upload URL; the bundle must go there, not to
   # the stale URL from the getContent() response.
   old_upload_url <-
     pcc_existing_content_null_revision$next_revision$source_bundle_upload_url
@@ -408,33 +406,20 @@ test_that("existing PCC content with NULL current_revision calls updateContent",
   updated_content <- pcc_existing_content_null_revision
   updated_content$next_revision$source_bundle_upload_url <- new_upload_url
 
-  update_content_called <- FALSE
+  prepared_as_new <- NULL
   uploaded_url <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "connectCloudClient",
-        getContent = function(id) pcc_existing_content_null_revision,
-        updateContent = function(
-          id,
-          envVars,
-          newBundle,
-          primaryFile,
-          appMode,
-          access = NULL
-        ) {
-          update_content_called <<- TRUE
-          updated_content
-        },
-        publish = function(id) invisible(NULL),
-        awaitCompletion = function(revisionId) {
-          list(
-            success = TRUE,
-            url = "https://connect.posit.cloud/myaccount/content/content-abc"
-          )
-        }
+        getContent = function(id) pcc_existing_content_null_revision
       )
     },
+    prepareContent.connectCloudClient = function(..., isNewContent) {
+      prepared_as_new <<- isNewContent
+      updated_content
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
     uploadBundle.connectCloudClient = function(
       client,
       application,
@@ -460,35 +445,29 @@ test_that("existing PCC content with NULL current_revision calls updateContent",
     launch.browser = FALSE
   ))
 
-  expect_true(update_content_called)
+  expect_false(prepared_as_new)
   expect_equal(uploaded_url, new_upload_url)
   expect_false(identical(uploaded_url, old_upload_url))
 })
 
-test_that("newly-created PCC content (no prior record) does NOT call updateContent", {
+test_that("newly-created PCC content (no prior record) is prepared as new content", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir, appId = NULL)
 
-  update_content_called <- FALSE
+  prepared_as_new <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        createContent = function(...) pcc_existing_content_null_revision,
-        updateContent = function(...) {
-          update_content_called <<- TRUE
-          pcc_existing_content_null_revision
-        },
-        publish = function(id) invisible(NULL),
-        awaitCompletion = function(revisionId) {
-          list(
-            success = TRUE,
-            url = "https://connect.posit.cloud/myaccount/content/content-abc"
-          )
-        }
-      )
+      fake_client("connectCloudClient")
     },
+    createContent.connectCloudClient = function(...) {
+      pcc_existing_content_null_revision
+    },
+    prepareContent.connectCloudClient = function(..., isNewContent) {
+      prepared_as_new <<- isNewContent
+      pcc_existing_content_null_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
     uploadBundle.connectCloudClient = function(
       client,
       application,
@@ -513,33 +492,27 @@ test_that("newly-created PCC content (no prior record) does NOT call updateConte
     launch.browser = FALSE
   ))
 
-  expect_false(update_content_called)
+  expect_true(prepared_as_new)
 })
 
-test_that("existing PCC content with non-null current_revision still calls updateContent", {
+test_that("existing PCC content with non-null current_revision is prepared as existing content", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
 
-  update_content_called <- FALSE
+  prepared_as_new <- NULL
   local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision,
-        updateContent = function(...) {
-          update_content_called <<- TRUE
-          pcc_existing_content_with_revision
-        },
-        publish = function(id) invisible(NULL),
-        awaitCompletion = function(revisionId) {
-          list(
-            success = TRUE,
-            url = "https://connect.posit.cloud/myaccount/content/content-abc"
-          )
-        }
+        getContent = function(id) pcc_existing_content_with_revision
       )
     },
+    prepareContent.connectCloudClient = function(..., isNewContent) {
+      prepared_as_new <<- isNewContent
+      pcc_existing_content_with_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
     uploadBundle.connectCloudClient = function(
       client,
       application,
@@ -564,7 +537,7 @@ test_that("existing PCC content with non-null current_revision still calls updat
     launch.browser = FALSE
   ))
 
-  expect_true(update_content_called)
+  expect_false(prepared_as_new)
 })
 
 test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'", {
@@ -576,17 +549,13 @@ test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'
     clientForAccount = function(...) {
       fake_client(
         "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision,
-        updateContent = function(...) pcc_existing_content_with_revision,
-        publish = function(id) invisible(NULL),
-        awaitCompletion = function(revisionId) {
-          list(
-            success = TRUE,
-            url = "https://connect.posit.cloud/myaccount/content/content-abc"
-          )
-        }
+        getContent = function(id) pcc_existing_content_with_revision
       )
-    }
+    },
+    prepareContent.connectCloudClient = function(...) {
+      pcc_existing_content_with_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success
   )
 
   expect_no_error(suppressMessages(deployApp(
@@ -599,6 +568,48 @@ test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'
     lint = FALSE,
     launch.browser = FALSE
   )))
+})
+
+test_that("PCC redeploy saves the new content URL after the deploy", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir)
+
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client(
+        "connectCloudClient",
+        getContent = function(id) pcc_existing_content_with_revision
+      )
+    },
+    prepareContent.connectCloudClient = function(...) {
+      pcc_existing_content_with_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
+    uploadBundle.connectCloudClient = function(...) NULL,
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "connect.posit.cloud",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  # The third save records the URL that activateContent() returned.
+  expect_equal(nrow(read.dcf(deploymentHistoryPath())), 3)
+  expect_equal(
+    deployments(appDir)$url,
+    "https://connect.posit.cloud/myaccount/content/content-abc"
+  )
 })
 
 # PCC deploy: appVisibility ----------------------------------------------
@@ -640,21 +651,19 @@ test_that("PCC deploy passes appVisibility to createContent", {
   sent_access <- "unset"
   local_mocked_bindings(
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        createContent = function(..., access = NULL) {
-          sent_access <<- access
-          pcc_existing_content_null_revision
-        },
-        publish = function(id) invisible(NULL),
-        awaitCompletion = function(revisionId) {
-          list(
-            success = TRUE,
-            url = "https://connect.posit.cloud/myaccount/content/content-abc"
-          )
-        }
-      )
+      fake_client("connectCloudClient")
     },
+    createContent.connectCloudClient = function(
+      client,
+      deployment,
+      accountDetails,
+      appMetadata,
+      appVisibility = NULL
+    ) {
+      sent_access <<- appVisibility
+      pcc_existing_content_null_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
     uploadBundle.connectCloudClient = function(
       client,
       application,
@@ -683,7 +692,7 @@ test_that("PCC deploy passes appVisibility to createContent", {
   expect_equal(sent_access, "view_team_edit_private")
 })
 
-test_that("PCC redeploy passes appVisibility to updateContent", {
+test_that("PCC redeploy passes appVisibility to prepareContent()", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
@@ -693,20 +702,14 @@ test_that("PCC redeploy passes appVisibility to updateContent", {
     clientForAccount = function(...) {
       fake_client(
         "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision,
-        updateContent = function(..., access = NULL) {
-          sent_access <<- access
-          pcc_existing_content_with_revision
-        },
-        publish = function(id) invisible(NULL),
-        awaitCompletion = function(revisionId) {
-          list(
-            success = TRUE,
-            url = "https://connect.posit.cloud/myaccount/content/content-abc"
-          )
-        }
+        getContent = function(id) pcc_existing_content_with_revision
       )
     },
+    prepareContent.connectCloudClient = function(..., appVisibility) {
+      sent_access <<- appVisibility
+      pcc_existing_content_with_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
     uploadBundle.connectCloudClient = function(
       client,
       application,
@@ -750,19 +753,19 @@ test_that("fresh Connect deploy uploads to the newly created app, not an existin
         # No local deployment record, so deployApp() checks the server for an
         # app with a matching name before deciding this is a fresh deploy.
         listApplications = function(...) list(),
-        createApplication = function(...) {
-          list(
-            id = "99",
-            guid = "guid-new",
-            url = "https://example.com/content/99",
-            dashboard_url = "https://example.com/connect/#/apps/guid-new"
-          )
-        },
         getApplication = function(...) {
           stop("getApplication() should not be called for a fresh deploy")
         },
-        deployApplication = function(...) list(id = "task-1"),
+        deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
+      )
+    },
+    createContent.connectClient = function(...) {
+      list(
+        id = "99",
+        guid = "guid-new",
+        url = "https://example.com/content/99",
+        dashboard_url = "https://example.com/connect/#/apps/guid-new"
       )
     },
     uploadBundle.connectClient = function(client, application, bundlePath) {
@@ -809,9 +812,6 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
     clientForAccount = function(...) {
       fake_client(
         "connectClient",
-        createApplication = function(...) {
-          stop("createApplication() should not be called for a redeploy")
-        },
         getApplication = function(...) {
           list(
             id = "42",
@@ -820,9 +820,12 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
             dashboard_url = "https://example.com/connect/#/apps/guid-42"
           )
         },
-        deployApplication = function(...) list(id = "task-1"),
+        deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
+    },
+    createContent.connectClient = function(...) {
+      stop("createContent() should not be called for a redeploy")
     },
     uploadBundle.connectClient = function(client, application, bundlePath) {
       uploaded_guid <<- application$guid
@@ -861,18 +864,18 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
       fake_client(
         "shinyAppsClient",
         listApplications = function(...) list(),
-        createApplication = function(...) {
-          list(
-            id = "new-1",
-            application_id = "new-1",
-            url = "https://myaccount.shinyapps.io/myapp/"
-          )
-        },
         getApplication = function(...) {
           stop("getApplication() should not be called for a fresh deploy")
         },
-        deployApplication = function(...) list(id = "task-1"),
+        deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
+      )
+    },
+    createContent.shinyAppsClient = function(...) {
+      list(
+        id = "new-1",
+        application_id = "new-1",
+        url = "https://myaccount.shinyapps.io/myapp/"
       )
     },
     bundleApp = function(...) {
@@ -920,9 +923,6 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
     clientForAccount = function(...) {
       fake_client(
         "shinyAppsClient",
-        createApplication = function(...) {
-          stop("createApplication() should not be called for a redeploy")
-        },
         getApplication = function(...) {
           list(
             id = "99",
@@ -931,9 +931,12 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
             deployment = list(bundle = list(id = "bundle-old"))
           )
         },
-        deployApplication = function(...) list(id = "task-1"),
+        deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
+    },
+    createContent.shinyAppsClient = function(...) {
+      stop("createContent() should not be called for a redeploy")
     },
     bundleApp = function(...) {
       tmp <- tempfile(fileext = ".tar.gz")
@@ -957,6 +960,169 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
   ))
 
   expect_equal(uploaded_id, "99")
+})
+
+test_that("redeploy to Connect makes new content when the recorded content was deleted", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_temp_config()
+  addTestServer()
+  addTestAccount("myaccount")
+  addTestDeployment(
+    appDir,
+    appName = "myapp",
+    appId = "42",
+    account = "myaccount"
+  )
+
+  uploaded_guid <- NULL
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client(
+        "connectClient",
+        getApplication = function(...) abort(class = "rsconnect_http_404"),
+        deployApplication = function(...) list(task_id = "task-1"),
+        waitForTask = function(...) list()
+      )
+    },
+    createContent.connectClient = function(...) {
+      list(
+        id = "99",
+        guid = "guid-new",
+        url = "https://example.com/content/99",
+        dashboard_url = "https://example.com/connect/#/apps/guid-new"
+      )
+    },
+    uploadBundle.connectClient = function(client, application, bundlePath) {
+      uploaded_guid <<- application$guid
+      list(id = "bundle-1")
+    },
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+  # Choose "Delete existing deployment record & deploy this content as a new
+  # item" in the menu.
+  simulate_user_input(2)
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "example.com",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_equal(uploaded_guid, "guid-new")
+  expect_equal(deployments(appDir)$appId, "99")
+})
+
+test_that("redeploy to shinyapps.io with upload = FALSE deploys the current bundle", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_temp_config()
+  addTestServer(name = "shinyapps.io", url = "https://shinyapps.io")
+  addTestAccount("myaccount", server = "shinyapps.io")
+  addTestDeployment(
+    appDir,
+    appName = "myapp",
+    appId = "99",
+    account = "myaccount",
+    server = "shinyapps.io"
+  )
+
+  deployed_bundle <- NULL
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client(
+        "shinyAppsClient",
+        getApplication = function(...) {
+          list(
+            id = "99",
+            application_id = "99",
+            url = "https://myaccount.shinyapps.io/myapp/",
+            deployment = list(bundle = list(id = "bundle-old"))
+          )
+        },
+        deployApplication = function(application, bundleId = NULL) {
+          deployed_bundle <<- bundleId
+          list(task_id = "task-1")
+        },
+        waitForTask = function(...) list()
+      )
+    },
+    uploadBundle.shinyAppsClient = function(...) {
+      stop("uploadBundle() should not be called when upload = FALSE")
+    }
+  )
+
+  suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "shinyapps.io",
+    upload = FALSE,
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_equal(deployed_bundle, "bundle-old")
+})
+
+test_that("redeploy to shinyapps.io ignores env vars saved in the record", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_temp_config()
+  addTestServer(name = "shinyapps.io", url = "https://shinyapps.io")
+  addTestAccount("myaccount", server = "shinyapps.io")
+  addTestDeployment(
+    appDir,
+    appName = "myapp",
+    appId = "99",
+    account = "myaccount",
+    server = "shinyapps.io",
+    envVars = "SECRET"
+  )
+
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client(
+        "shinyAppsClient",
+        getApplication = function(...) {
+          list(
+            id = "99",
+            application_id = "99",
+            url = "https://myaccount.shinyapps.io/myapp/"
+          )
+        },
+        deployApplication = function(...) list(task_id = "task-1"),
+        waitForTask = function(...) list()
+      )
+    },
+    uploadBundle.shinyAppsClient = function(...) list(id = "bundle-1"),
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  succeeded <- suppressMessages(deployApp(
+    appDir,
+    appName = "myapp",
+    account = "myaccount",
+    server = "shinyapps.io",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+
+  expect_true(succeeded)
 })
 
 test_that("deployApp(upload=FALSE) on shinyapps.io does not error", {
@@ -988,7 +1154,7 @@ test_that("deployApp(upload=FALSE) on shinyapps.io does not error", {
       fake_client(
         "shinyAppsClient",
         getApplication = function(...) shinyapps_app_with_bundle,
-        deployApplication = function(...) list(id = "task-1"),
+        deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
     }
