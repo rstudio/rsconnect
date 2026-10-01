@@ -187,6 +187,8 @@ supportsEnvVarManagement.connectClient <- function(client) {
   TRUE
 }
 
+# Connect needs a minimum version for Node.js content, which
+# `checkConnectSupportsNodejs()` checks.
 #' @export
 supportsNodejs.connectClient <- function(client) {
   TRUE

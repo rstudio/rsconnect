@@ -43,7 +43,7 @@ supportsEnvVars <- function(client) {
 #' Can the account list and update environment variables on all its content?
 #'
 #' This is different from `supportsEnvVars()`. It needs the `getEnvVars` and
-#' `setEnvVars` API calls, which only Connect has.
+#' `setEnvVars` API calls.
 #' @noRd
 supportsEnvVarManagement <- function(client) {
   UseMethod("supportsEnvVarManagement")
@@ -51,8 +51,7 @@ supportsEnvVarManagement <- function(client) {
 
 #' Can the server run Node.js content?
 #'
-#' A `TRUE` result does not check the server version. Connect needs a minimum
-#' version, which `checkConnectSupportsNodejs()` checks.
+#' A `TRUE` result does not check the server version.
 #' @noRd
 supportsNodejs <- function(client) {
   UseMethod("supportsNodejs")
@@ -91,9 +90,6 @@ supportsMetadataSync <- function(client) {
 }
 
 #' Must static R Markdown be deployed as `"rmd-shiny"`?
-#'
-#' shinyapps.io serves all content from a Shiny process, so it cannot serve
-#' `"rmd-static"` content.
 #' @noRd
 staticRmdNeedsShiny <- function(client) {
   UseMethod("staticRmdNeedsShiny")

@@ -441,6 +441,8 @@ supportsMetadataSync.shinyAppsClient <- function(client) {
   TRUE
 }
 
+# shinyapps.io serves all content from a Shiny process, so it cannot serve
+# `"rmd-static"` content.
 #' @export
 staticRmdNeedsShiny.shinyAppsClient <- function(client) {
   TRUE
