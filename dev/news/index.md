@@ -4,6 +4,8 @@
 
 ## rsconnect 1.11.2
 
+CRAN release: 2026-09-28
+
 - New
   [`deleteContent()`](https://rstudio.github.io/rsconnect/dev/reference/deleteContent.md)
   permanently deletes content from Posit Connect Cloud. It asks for
