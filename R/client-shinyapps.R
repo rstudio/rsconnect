@@ -372,3 +372,52 @@ shinyAppsClient <- function(service, authInfo) {
   )
   structure(self, class = c("shinyAppsClient", "rsconnectClient"))
 }
+
+#' @export
+uploadBundle.shinyAppsClient <- function(client, application, bundlePath) {
+  # Step 1. Create presigned URL and register pending bundle.
+  bundleSize <- file.info(bundlePath)$size
+  bundle <- client$createBundle(
+    application$application_id,
+    content_type = "application/x-tar",
+    content_length = bundleSize,
+    checksum = fileMD5(bundlePath)
+  )
+
+  # Step 2. Upload the bundle to the presigned URL.
+  if (!putPresignedBundle(bundle, bundleSize, bundlePath)) {
+    stop("Could not upload file.")
+  }
+
+  # Step 3. Set the bundle status to ready.
+  response <- client$updateBundleStatus(bundle$id, status = "ready")
+
+  # Step 4. Get the updated bundle after the status change.
+  client$getBundle(bundle$id)
+}
+
+putPresignedBundle <- function(bundle, bundleSize, bundlePath) {
+  presigned_service <- parseHttpUrl(bundle$presigned_url)
+
+  headers <- list()
+  headers$`Content-Type` <- "application/x-tar"
+  headers$`Content-Length` <- bundleSize
+
+  # AWS requires a base64 encoded hash
+  headers$`Content-MD5` <- bundle$presigned_checksum
+
+  # AWS is very sensitive to extra headers, because they were not signed when
+  # the presigned link was made. So the lower level library is used here.
+  response <- httpLibCurl(
+    presigned_service$protocol,
+    presigned_service$host,
+    presigned_service$port,
+    "PUT",
+    presigned_service$path,
+    headers,
+    headers$`Content-Type`,
+    bundlePath
+  )
+
+  response$status == 200
+}

@@ -207,3 +207,25 @@ test_that("connectDashboardUrl builds the dashboard URL from a server URL and id
     "https://connect.example.com/connect/#/apps/3bfbd98a-6d6d-41bd-a15f-cab52025742f"
   )
 })
+
+test_that("uploadBundle POSTs the bundle to the content guid and returns it", {
+  skip_if_not_installed("webfakes")
+
+  bundlePath <- withr::local_tempfile(fileext = ".tar.gz")
+  writeLines("bundle contents", bundlePath)
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$post("/v1/content/:guid/bundles", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = paste0("bundle-for-", req$params$guid)),
+      auto_unbox = TRUE
+    )
+  })
+  proc <- webfakes::local_app_process(app)
+  service <- parseHttpUrl(proc$url())
+  client <- connectClient(service, list(server = "example.com"))
+
+  bundle <- uploadBundle(client, list(guid = "guid-1"), bundlePath)
+  expect_equal(bundle$id, "bundle-for-guid-1")
+})
