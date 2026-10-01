@@ -375,31 +375,19 @@ shinyAppsClient <- function(service, authInfo) {
 
 #' @export
 uploadBundle.shinyAppsClient <- function(client, application, bundlePath) {
-  uploadShinyappsBundle(client, application$application_id, bundlePath)
-}
-
-uploadShinyappsBundle <- function(
-  client,
-  application_id,
-  bundlePath,
-  verbose = FALSE
-) {
   # Step 1. Create presigned URL and register pending bundle.
   bundleSize <- file.info(bundlePath)$size
   bundle <- client$createBundle(
-    application_id,
+    application$application_id,
     content_type = "application/x-tar",
     content_length = bundleSize,
     checksum = fileMD5(bundlePath)
   )
 
   # Step 2. Upload the bundle to the presigned URL.
-  logger <- verboseLogger(verbose)
-  logger("Starting upload now")
   if (!putPresignedBundle(bundle, bundleSize, bundlePath)) {
     stop("Could not upload file.")
   }
-  logger("Upload complete")
 
   # Step 3. Set the bundle status to ready.
   response <- client$updateBundleStatus(bundle$id, status = "ready")

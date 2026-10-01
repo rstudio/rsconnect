@@ -847,8 +847,8 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
       file.create(tmp)
       tmp
     },
-    uploadShinyappsBundle = function(client, application_id, bundlePath) {
-      uploaded_id <<- application_id
+    uploadBundle.shinyAppsClient = function(client, application, bundlePath) {
+      uploaded_id <<- application$application_id
       list(id = "bundle-1")
     }
   )
@@ -907,8 +907,8 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
       file.create(tmp)
       tmp
     },
-    uploadShinyappsBundle = function(client, application_id, bundlePath) {
-      uploaded_id <<- application_id
+    uploadBundle.shinyAppsClient = function(client, application, bundlePath) {
+      uploaded_id <<- application$application_id
       list(id = "bundle-1")
     }
   )
