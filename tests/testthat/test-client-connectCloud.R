@@ -601,6 +601,97 @@ test_that("withTokenRefreshRetry uses client_credentials when clientSecret is se
   expect_true(register_called)
 })
 
+test_that("requests after a token refresh use the new access token", {
+  sent_tokens <- character()
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      sent_tokens <<- c(sent_tokens, authInfo$accessToken)
+      if (authInfo$accessToken == "current-token") {
+        stop(http_401_error())
+      }
+      list(id = "content-1", state = "active")
+    }
+  )
+  exchange_count <- 0
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        exchangeToken = function(request) {
+          exchange_count <<- exchange_count + 1
+          list(
+            access_token = "new-access-token",
+            refresh_token = "new-refresh-token"
+          )
+        }
+      )
+    },
+    registerAccount = function(...) NULL
+  )
+
+  service <- list(host = "example.com", port = 443, protocol = "https")
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "test-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+
+  expect_equal(
+    sent_tokens,
+    c("current-token", "new-access-token", "new-access-token")
+  )
+  expect_equal(exchange_count, 1)
+})
+
+test_that("a second token refresh sends the refresh token from the first refresh", {
+  expired_tokens <- "current-token"
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      if (authInfo$accessToken %in% expired_tokens) {
+        stop(http_401_error())
+      }
+      list(id = "content-1", state = "active")
+    }
+  )
+  sent_refresh_tokens <- character()
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        exchangeToken = function(request) {
+          sent_refresh_tokens <<- c(sent_refresh_tokens, request$refresh_token)
+          n <- length(sent_refresh_tokens)
+          list(
+            access_token = paste0("new-access-token-", n),
+            refresh_token = paste0("new-refresh-token-", n)
+          )
+        }
+      )
+    },
+    registerAccount = function(...) NULL
+  )
+
+  service <- list(host = "example.com", port = 443, protocol = "https")
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "test-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+  expired_tokens <- c(expired_tokens, "new-access-token-1")
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+
+  expect_equal(sent_refresh_tokens, c("refresh-token", "new-refresh-token-1"))
+})
+
 test_that("listApplications() paginates through multiple pages", {
   skip_if_not_installed("webfakes")
 
