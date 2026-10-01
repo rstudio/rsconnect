@@ -1,85 +1,5 @@
 # Docs: https://posit-hosted.github.io/vivid-api
 
-# Resolves the browsable URL for `contentId`, based on the account it
-# actually belongs to (`accountId`) rather than the caller's own account --
-# necessary because content may belong to a different (e.g. team) account
-# than the one authenticating the request. `getAccounts` is a zero-arg
-# function returning the accounts the caller has a role on (shared by
-# `connectCloudClient()$getAccounts` and `migrateToConnectCloud()`).
-connectCloudContentUrl <- function(getAccounts, accountId, contentId) {
-  ownerAccount <- Find(
-    function(a) identical(a$id, accountId),
-    getAccounts()$data
-  )
-  if (is.null(ownerAccount)) {
-    cli::cli_abort(
-      c(
-        "Unable to determine the Connect Cloud account for content {.val {contentId}}.",
-        i = "You may not have access to the account this content belongs to."
-      )
-    )
-  }
-  paste0(connectCloudUrls()$ui, "/", ownerAccount$name, "/content/", contentId)
-}
-
-# Standalone (served) content URL -- the link handed to app consumers, and the
-# value returned in the `url` column of `applications()`. Consistent with the
-# served URL that shinyapps.io and Posit Connect report. The canonical scheme is
-# <content-id>.share.<connect-cloud-host> (e.g.
-# https://abc-123.share.connect.posit.cloud/). Derived from the UI base so it
-# tracks the active environment (production/staging/development).
-connectCloudStandaloneUrl <- function(contentId) {
-  host <- sub("^https?://", "", connectCloudUrls()$ui)
-  paste0("https://", contentId, ".share.", host, "/")
-}
-
-# Map rsconnect appMode to Connect Cloud contentType
-cloudContentTypeFromAppMode <- function(appMode) {
-  switch(
-    appMode,
-    "jupyter-notebook" = "jupyter",
-    "python-bokeh" = "bokeh",
-    "python-dash" = "dash",
-    "python-shiny" = "shiny",
-    "shiny" = "shiny",
-    "python-streamlit" = "streamlit",
-    "quarto" = "quarto",
-    "quarto-static" = "quarto",
-    "quarto-shiny" = "quarto",
-    "rmd-static" = "rmarkdown",
-    "rmd-shiny" = "rmarkdown",
-    "static" = "static",
-    stop(
-      "appMode '",
-      appMode,
-      "' is not supported by Connect Cloud",
-      call. = FALSE
-    )
-  )
-}
-
-cloudSecrets <- function(envVars) {
-  if (length(envVars) == 0L) {
-    return(I(list()))
-  }
-  values <- Sys.getenv(envVars, unset = NA)
-  keep <- !is.na(values)
-  if (!any(keep)) {
-    return(I(list()))
-  }
-
-  unname(Map(
-    function(name, value) {
-      list(
-        name = name,
-        value = value
-      )
-    },
-    envVars[keep],
-    values[keep]
-  ))
-}
-
 # Creates a client for interacting with the Connect Cloud API.
 connectCloudClient <- function(service, authInfo) {
   # Generic retry wrapper. If a request fails with 401 Unauthorized, it will
@@ -606,4 +526,84 @@ staticRmdNeedsShiny.connectCloudClient <- function(client) {
 #' @export
 addsUtmParameters.connectCloudClient <- function(client) {
   TRUE
+}
+
+# Resolves the browsable URL for `contentId`, based on the account it
+# actually belongs to (`accountId`) rather than the caller's own account --
+# necessary because content may belong to a different (e.g. team) account
+# than the one authenticating the request. `getAccounts` is a zero-arg
+# function returning the accounts the caller has a role on (shared by
+# `connectCloudClient()$getAccounts` and `migrateToConnectCloud()`).
+connectCloudContentUrl <- function(getAccounts, accountId, contentId) {
+  ownerAccount <- Find(
+    function(a) identical(a$id, accountId),
+    getAccounts()$data
+  )
+  if (is.null(ownerAccount)) {
+    cli::cli_abort(
+      c(
+        "Unable to determine the Connect Cloud account for content {.val {contentId}}.",
+        i = "You may not have access to the account this content belongs to."
+      )
+    )
+  }
+  paste0(connectCloudUrls()$ui, "/", ownerAccount$name, "/content/", contentId)
+}
+
+# Standalone (served) content URL -- the link handed to app consumers, and the
+# value returned in the `url` column of `applications()`. Consistent with the
+# served URL that shinyapps.io and Posit Connect report. The canonical scheme is
+# <content-id>.share.<connect-cloud-host> (e.g.
+# https://abc-123.share.connect.posit.cloud/). Derived from the UI base so it
+# tracks the active environment (production/staging/development).
+connectCloudStandaloneUrl <- function(contentId) {
+  host <- sub("^https?://", "", connectCloudUrls()$ui)
+  paste0("https://", contentId, ".share.", host, "/")
+}
+
+# Map rsconnect appMode to Connect Cloud contentType
+cloudContentTypeFromAppMode <- function(appMode) {
+  switch(
+    appMode,
+    "jupyter-notebook" = "jupyter",
+    "python-bokeh" = "bokeh",
+    "python-dash" = "dash",
+    "python-shiny" = "shiny",
+    "shiny" = "shiny",
+    "python-streamlit" = "streamlit",
+    "quarto" = "quarto",
+    "quarto-static" = "quarto",
+    "quarto-shiny" = "quarto",
+    "rmd-static" = "rmarkdown",
+    "rmd-shiny" = "rmarkdown",
+    "static" = "static",
+    stop(
+      "appMode '",
+      appMode,
+      "' is not supported by Connect Cloud",
+      call. = FALSE
+    )
+  )
+}
+
+cloudSecrets <- function(envVars) {
+  if (length(envVars) == 0L) {
+    return(I(list()))
+  }
+  values <- Sys.getenv(envVars, unset = NA)
+  keep <- !is.na(values)
+  if (!any(keep)) {
+    return(I(list()))
+  }
+
+  unname(Map(
+    function(name, value) {
+      list(
+        name = name,
+        value = value
+      )
+    },
+    envVars[keep],
+    values[keep]
+  ))
 }

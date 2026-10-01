@@ -1,11 +1,5 @@
 # Docs: https://docs.posit.co/connect/api/
 
-stripConnectTimestamps <- function(messages) {
-  # Strip timestamps, if found
-  timestamp_re <- "^\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
-  gsub(timestamp_re, "", messages)
-}
-
 connectClient <- function(service, authInfo) {
   self <- list(
     # The connection identity. Methods read these to make requests.
@@ -316,4 +310,10 @@ unversioned_url <- function(...) {
 connectDashboardUrl <- function(serverUrl, contentGuid) {
   prefix <- sub("/__api__$", "", serverUrl)
   paste(prefix, "connect/#/apps", contentGuid, sep = "/")
+}
+
+stripConnectTimestamps <- function(messages) {
+  # Strip timestamps, if found
+  timestamp_re <- "^\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
+  gsub(timestamp_re, "", messages)
 }
