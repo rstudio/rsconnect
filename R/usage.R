@@ -37,7 +37,7 @@ showUsage <- function(
   if (is.null(appName)) {
     appName <- basename(appDir)
   }
-  application <- resolveApplication(accountDetails, appName)
+  application <- resolveApplication(api, accountDetails, appName)
 
   # get application usage
   data <- client$getAccountUsage(
@@ -108,7 +108,7 @@ showMetrics <- function(
   if (is.null(appName)) {
     appName <- basename(appDir)
   }
-  application <- resolveApplication(accountDetails, appName)
+  application <- resolveApplication(api, accountDetails, appName)
 
   # get application usage
   data <- client$getApplicationMetrics(

@@ -39,7 +39,8 @@ configureApp <- function(
   if (is.null(appName)) {
     appName <- basename(appDir)
   }
-  application <- resolveApplication(accountDetails, appName)
+  client <- clientForAccount(accountDetails)
+  application <- resolveApplication(client, accountDetails, appName)
 
   displayStatus <- displayStatus(identical(logLevel, "quiet"))
 
@@ -56,7 +57,6 @@ configureApp <- function(
   }
 
   # set application properties
-  client <- clientForAccount(accountDetails)
   for (i in names(properties)) {
     propertyName <- i
     propertyValue <- properties[[i]]
