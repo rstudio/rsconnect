@@ -121,7 +121,7 @@ cleanupPasswordFile <- function(appDir) {
 checkSupportsUserManagement <- function(client, call = caller_env()) {
   if (!supportsUserManagement(client)) {
     cli::cli_abort(
-      "`server` must be shinyapps.io or Posit Connect Cloud",
+      "rsconnect can't manage application users on {serverDisplayName(client)}.",
       call = call
     )
   }
