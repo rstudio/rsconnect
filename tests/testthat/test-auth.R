@@ -392,7 +392,7 @@ test_that("showUsers aborts with a clear message when a user record has neither 
     )
   })
 
-  # The abort is raised inside showUsers_impl.
+  # The abort is raised inside listCollaborators().
   expect_error(
     showUsers(
       appDir = app_dir,
@@ -684,11 +684,10 @@ test_that("resolveContentTarget delegates to resolveApplication on shinyapps.io"
 })
 
 test_that("removeAuthorizedUser resolves content target exactly once (no double prompt)", {
-  # Regression test for double resolveContentTarget() via public showUsers().
-  # Before the fix, removeAuthorizedUser() called resolveContentTarget() and
-  # then showUsers() called it again — two independent prompts on multi-record
-  # appDir, potentially acting on different content. After the fix, clientForAccount
-  # is built once and showUsers_impl() is called directly with the resolved id.
+  # removeAuthorizedUser() must resolve the content only once. If it called
+  # showUsers(), the content would be resolved twice, and with several records in
+  # appDir, the two prompts could choose different content. So it calls
+  # listCollaborators() with the id that it already resolved.
   local_temp_config()
   addTestServer(
     url = "https://connect.posit.cloud",
@@ -911,7 +910,7 @@ test_that("removeAuthorizedUser aborts with clear message when matched user has 
     fake_client(
       "connectCloudClient",
       listApplicationAuthorization = function(appId) {
-        # user record has email but no id field — id will be NA after showUsers_impl
+        # user record has email but no id field, so listCollaborators() gives id = NA
         list(list(user = list(email = "alice@example.com")))
       }
     )
@@ -1029,7 +1028,7 @@ test_that("resendInvitation aborts with clear message when matched invitation ha
     fake_client(
       "connectCloudClient",
       listApplicationInvitations = function(appId) {
-        # invitation record has email_address but no id — id will be NA after showInvited_impl
+        # invitation record has email_address but no id, so listInvitations() gives id = NA
         list(list(email_address = "alice@example.com", is_expired = FALSE))
       }
     )
