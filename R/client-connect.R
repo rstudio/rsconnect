@@ -1,11 +1,5 @@
 # Docs: https://docs.posit.co/connect/api/
 
-stripConnectTimestamps <- function(messages) {
-  # Strip timestamps, if found
-  timestamp_re <- "^\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
-  gsub(timestamp_re, "", messages)
-}
-
 connectClient <- function(service, authInfo) {
   self <- list(
     # The connection identity. Methods read these to make requests.
@@ -172,6 +166,78 @@ uploadBundle.connectClient <- function(client, application, bundlePath) {
   )
 }
 
+#' @export
+serverDisplayName.connectClient <- function(client) {
+  "Posit Connect"
+}
+
+#' @export
+supportsEnvVars.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsEnvVarManagement.connectClient <- function(client) {
+  TRUE
+}
+
+# Connect needs a minimum version for Node.js content, which
+# `checkConnectSupportsNodejs()` checks.
+#' @export
+supportsNodejs.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsUserManagement.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+usesPasswordFile.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsOptionalInviteEmail.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+redactsUserEmails.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+requiresUpload.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+pythonEnabledByDefault.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsVisibility.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsMetadataSync.connectClient <- function(client) {
+  TRUE
+}
+
+#' @export
+staticRmdNeedsShiny.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+addsUtmParameters.connectClient <- function(client) {
+  FALSE
+}
+
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {
   parsedURL <- parseHttpUrl(url)
   ingressURL <- parsedURL$host
@@ -259,4 +325,10 @@ unversioned_url <- function(...) {
 connectDashboardUrl <- function(serverUrl, contentGuid) {
   prefix <- sub("/__api__$", "", serverUrl)
   paste(prefix, "connect/#/apps", contentGuid, sep = "/")
+}
+
+stripConnectTimestamps <- function(messages) {
+  # Strip timestamps, if found
+  timestamp_re <- "^\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3,} "
+  gsub(timestamp_re, "", messages)
 }

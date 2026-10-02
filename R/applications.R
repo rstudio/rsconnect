@@ -403,15 +403,16 @@ syncAppMetadata <- function(appPath = ".") {
   for (i in seq_len(nrow(deploys))) {
     curDeploy <- deploys[i, ]
 
-    # don't sync if published to RPubs or Connect Cloud
+    # RPubs has no client, so check it before the client is created
     if (isRPubs(curDeploy$server)) {
-      next
-    } else if (isPositConnectCloudServer(curDeploy$server)) {
       next
     }
 
     account <- accountInfo(curDeploy$account, curDeploy$server)
     client <- clientForAccount(account)
+    if (!supportsMetadataSync(client)) {
+      next
+    }
 
     application <- tryCatch(
       client$getApplication(curDeploy$appId),

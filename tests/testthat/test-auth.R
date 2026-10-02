@@ -403,7 +403,7 @@ test_that("showUsers errors on a non-shinyapps, non-PCC server", {
       account = "myaccount",
       server = "connect.example.com"
     ),
-    regexp = "shinyapps\\.io"
+    regexp = "rsconnect can't manage application users on Posit Connect"
   )
 })
 
@@ -1056,6 +1056,9 @@ test_that("cleanupPasswordFile is NOT called on PCC accounts", {
 
 test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
   local_mocked_account_info()
+  local_mocked_bindings(
+    clientForAccount = function(...) fake_client("connectClient")
+  )
   appDir <- local_temp_app()
 
   expect_error(
@@ -1066,12 +1069,15 @@ test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "`server` must be shinyapps\\.io"
+    regexp = "rsconnect can't manage application users on Posit Connect"
   )
 })
 
 test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
   local_mocked_account_info()
+  local_mocked_bindings(
+    clientForAccount = function(...) fake_client("connectClient")
+  )
   appDir <- local_temp_app()
 
   expect_error(
@@ -1082,12 +1088,15 @@ test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "`server` must be shinyapps\\.io"
+    regexp = "rsconnect can't manage application users on Posit Connect"
   )
 })
 
 test_that("showInvited() aborts targeting a Posit Connect server", {
   local_mocked_account_info()
+  local_mocked_bindings(
+    clientForAccount = function(...) fake_client("connectClient")
+  )
   appDir <- local_temp_app()
 
   expect_error(
@@ -1097,12 +1106,15 @@ test_that("showInvited() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "`server` must be shinyapps\\.io"
+    regexp = "rsconnect can't manage application users on Posit Connect"
   )
 })
 
 test_that("resendInvitation() aborts targeting a Posit Connect server", {
   local_mocked_account_info()
+  local_mocked_bindings(
+    clientForAccount = function(...) fake_client("connectClient")
+  )
   appDir <- local_temp_app()
 
   expect_error(
@@ -1113,6 +1125,24 @@ test_that("resendInvitation() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "`server` must be shinyapps\\.io"
+    regexp = "rsconnect can't manage application users on Posit Connect"
+  )
+})
+
+test_that("showUsers() aborts targeting a Posit Connect server", {
+  local_mocked_account_info()
+  local_mocked_bindings(
+    clientForAccount = function(...) fake_client("connectClient")
+  )
+  appDir <- local_temp_app()
+
+  expect_error(
+    showUsers(
+      appDir = appDir,
+      appName = "myapp",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "rsconnect can't manage application users on Posit Connect"
   )
 })

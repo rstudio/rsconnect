@@ -61,20 +61,11 @@ configureApp <- function(
     propertyName <- i
     propertyValue <- properties[[i]]
 
-    # dispatch to the appropriate client implementation
-    if (is.function(client$setApplicationProperty)) {
-      client$setApplicationProperty(
-        application$id,
-        propertyName,
-        propertyValue
-      )
-    } else {
-      stop(
-        "Server ",
-        accountDetails$server,
-        " has no appropriate configuration method."
-      )
-    }
+    client$setApplicationProperty(
+      application$id,
+      propertyName,
+      propertyValue
+    )
   }
 
   # redeploy application if requested

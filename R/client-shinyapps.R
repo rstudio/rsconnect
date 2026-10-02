@@ -396,6 +396,78 @@ uploadBundle.shinyAppsClient <- function(client, application, bundlePath) {
   client$getBundle(bundle$id)
 }
 
+#' @export
+serverDisplayName.shinyAppsClient <- function(client) {
+  "shinyapps.io"
+}
+
+#' @export
+supportsEnvVars.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsEnvVarManagement.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsNodejs.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsUserManagement.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+usesPasswordFile.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsOptionalInviteEmail.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+redactsUserEmails.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+requiresUpload.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+pythonEnabledByDefault.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsVisibility.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsMetadataSync.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+# shinyapps.io serves all content from a Shiny process, so it cannot serve
+# `"rmd-static"` content.
+#' @export
+staticRmdNeedsShiny.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+addsUtmParameters.shinyAppsClient <- function(client) {
+  FALSE
+}
+
 putPresignedBundle <- function(bundle, bundleSize, bundlePath) {
   presigned_service <- parseHttpUrl(bundle$presigned_url)
 
