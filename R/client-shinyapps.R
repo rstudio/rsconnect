@@ -1,5 +1,9 @@
 shinyAppsClient <- function(service, authInfo) {
   self <- list(
+    # The connection identity. Methods read these to make requests.
+    service = service,
+    authInfo = authInfo,
+
     status = function() {
       GET(service, authInfo, "/internal/status")
     },
@@ -134,27 +138,6 @@ shinyAppsClient <- function(service, authInfo) {
         query <- paste0(query, "&format=", format)
       }
       GET(service, authInfo, path, query)
-    },
-
-    createApplication = function(
-      name,
-      title,
-      template,
-      accountId,
-      appMode,
-      contentCategory = NULL
-    ) {
-      json <- list()
-      json$name <- name
-      # the title field is only used on connect
-      json$template <- template
-      json$account <- as.numeric(accountId)
-      application <- POST_JSON(service, authInfo, "/applications/", json)
-      list(
-        id = application$id,
-        application_id = application$id,
-        url = application$url
-      )
     },
 
     listApplicationProperties = function(applicationId) {
@@ -394,6 +377,80 @@ uploadBundle.shinyAppsClient <- function(client, application, bundlePath) {
 
   # Step 4. Get the updated bundle after the status change.
   client$getBundle(bundle$id)
+}
+
+#' @export
+createContent.shinyAppsClient <- function(
+  client,
+  deployment,
+  accountDetails,
+  appMetadata,
+  appVisibility = NULL
+) {
+  json <- list(
+    name = deployment$name,
+    template = "shiny",
+    account = as.numeric(accountDetails$accountId)
+  )
+  application <- POST_JSON(
+    client$service,
+    client$authInfo,
+    "/applications/",
+    json
+  )
+  list(
+    id = application$id,
+    application_id = application$id,
+    url = application$url
+  )
+}
+
+#' @export
+findContent.shinyAppsClient <- function(client, deployment, quiet) {
+  application <- client$getApplication(deployment$appId, deployment$version)
+  taskComplete(quiet, "Found content {.url {application$url}}")
+  application
+}
+
+#' @export
+prepareContent.shinyAppsClient <- function(
+  client,
+  application,
+  deployment,
+  appMetadata,
+  appVisibility,
+  isNewContent,
+  upload,
+  quiet
+) {
+  if (needsVisibilityChange(client, application, appVisibility)) {
+    taskStart(quiet, "Setting visibility to {appVisibility}...")
+    client$setApplicationProperty(
+      application$id,
+      "application.visibility",
+      appVisibility
+    )
+    taskComplete(quiet, "Visibility updated")
+  }
+  application
+}
+
+#' @export
+activateContent.shinyAppsClient <- function(
+  client,
+  application,
+  bundle,
+  quiet
+) {
+  # A deploy without an upload deploys the current bundle again.
+  bundle <- bundle %||% application$deployment$bundle
+  task <- client$deployApplication(application, bundle$id)
+  response <- client$waitForTask(task$task_id, quiet)
+  list(
+    succeeded = is.null(response$code) || response$code == 0,
+    url = application$url,
+    error = response$error
+  )
 }
 
 #' @export

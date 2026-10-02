@@ -48,32 +48,6 @@ connectClient <- function(service, authInfo) {
       listApplicationsRequest(service, authInfo, path, query, "applications")
     },
 
-    createApplication = function(
-      name,
-      title,
-      template,
-      accountId,
-      appMode,
-      contentCategory = NULL
-    ) {
-      # add name; inject title if specified
-      details <- list(name = name)
-      if (!is.null(title) && nzchar(title)) {
-        details$title <- title
-      }
-
-      # Connect doesn't use the template or account ID
-      # parameters; they exist for compatibility with lucid.
-      result <- POST_JSON(service, authInfo, v1_url("content"), details)
-      list(
-        id = result$id,
-        guid = result$guid,
-        url = result$content_url,
-        # Include dashboard_url so we can open it or logs path after deploy
-        dashboard_url = result$dashboard_url
-      )
-    },
-
     deployApplication = function(application, bundleId = NULL) {
       path <- v1_url("content", application$guid, "deploy")
       POST_JSON(
@@ -163,6 +137,72 @@ uploadBundle.connectClient <- function(client, application, bundlePath) {
     path,
     contentType = "application/x-gzip",
     file = bundlePath
+  )
+}
+
+#' @export
+createContent.connectClient <- function(
+  client,
+  deployment,
+  accountDetails,
+  appMetadata,
+  appVisibility = NULL
+) {
+  details <- list(name = deployment$name)
+  if (!is.null(deployment$title) && nzchar(deployment$title)) {
+    details$title <- deployment$title
+  }
+
+  result <- POST_JSON(
+    client$service,
+    client$authInfo,
+    v1_url("content"),
+    details
+  )
+  list(
+    id = result$id,
+    guid = result$guid,
+    url = result$content_url,
+    # Include dashboard_url so we can open it or logs path after deploy
+    dashboard_url = result$dashboard_url
+  )
+}
+
+#' @export
+findContent.connectClient <- function(client, deployment, quiet) {
+  application <- client$getApplication(deployment$appId, deployment$version)
+  taskComplete(quiet, "Found content {.url {application$url}}")
+  application
+}
+
+#' @export
+prepareContent.connectClient <- function(
+  client,
+  application,
+  deployment,
+  appMetadata,
+  appVisibility,
+  isNewContent,
+  upload,
+  quiet
+) {
+  envVars <- deployment$envVars
+  if (length(envVars) > 0) {
+    taskStart(quiet, "Updating environment variables {envVars}...")
+    client$setEnvVars(application$guid, envVars)
+    taskComplete(quiet, "Environment variables updated")
+  }
+  application
+}
+
+#' @export
+activateContent.connectClient <- function(client, application, bundle, quiet) {
+  task <- client$deployApplication(application, bundle$id)
+  response <- client$waitForTask(task$task_id, quiet)
+  list(
+    succeeded = is.null(response$code) || response$code == 0,
+    url = application$url,
+    error = response$error
   )
 }
 

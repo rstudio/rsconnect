@@ -41,7 +41,7 @@
 # applicationDeleted() errors or prompts as needed
 
     Code
-      applicationDeleted(client, target, app)
+      applicationDeleted(target, app)
     Condition
       Error in `applicationDeleted()`:
       ! Failed to find existing content on server; it's probably been deleted.
@@ -51,7 +51,7 @@
 ---
 
     Code
-      . <- applicationDeleted(client, target, app)
+      applicationDeleted(target, app)
     Message
       Failed to find existing content on server; it's probably been deleted.
       What do you want to do?

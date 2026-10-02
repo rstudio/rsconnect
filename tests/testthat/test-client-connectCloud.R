@@ -1,4 +1,4 @@
-test_that("awaitCompletion", {
+test_that("awaitConnectCloudCompletion() reports a successful publish", {
   skip_if_not_installed("webfakes")
 
   revision_app <- webfakes::new_app()
@@ -42,7 +42,7 @@ test_that("awaitCompletion", {
   client <- connectCloudClient(service, authInfo)
 
   # test successful completion
-  result <- client$awaitCompletion("rev123")
+  result <- awaitConnectCloudCompletion(client, "rev123")
   expect_true(result$success)
   expect_equal(
     result$url,
@@ -82,14 +82,7 @@ test_that("Connect Cloud omits unset environment variables from secrets", {
     "RSCONNECT_1361_UNSET"
   )
 
-  created <- client$createContent(
-    name = "app",
-    title = "App",
-    accountId = "account123",
-    appMode = "shiny",
-    primaryFile = "app.R",
-    envVars = env_vars
-  )
+  created <- create_cloud_content(client, envVars = env_vars)
   expected <- list(
     list(name = "RSCONNECT_1361_SET", value = "configured"),
     list(name = "RSCONNECT_1361_EMPTY", value = "")
@@ -101,16 +94,11 @@ test_that("Connect Cloud omits unset environment variables from secrets", {
   }
   expect_equal(created$json$secrets, expected)
 
-  updated <- client$updateContent(
-    contentId = "content123",
-    envVars = env_vars,
-    primaryFile = "app.R",
-    appMode = "shiny"
-  )
+  updated <- update_cloud_content(client, envVars = env_vars)
   expect_equal(updated$json$secrets, created$json$secrets)
 })
 
-test_that("awaitCompletion falls back to an empty url instead of erroring when the account can't be resolved", {
+test_that("awaitConnectCloudCompletion() falls back to an empty url instead of erroring when the account can't be resolved", {
   skip_if_not_installed("webfakes")
 
   revision_app <- webfakes::new_app()
@@ -161,13 +149,13 @@ test_that("awaitCompletion falls back to an empty url instead of erroring when t
 
   # The unresolvable account must not crash the whole call -- the actual
   # publish result (success, in this case) still needs to come through.
-  result <- expect_no_error(client$awaitCompletion("rev123"))
+  result <- expect_no_error(awaitConnectCloudCompletion(client, "rev123"))
   expect_true(result$success)
   expect_equal(result$url, "")
   expect_null(result$error)
 })
 
-test_that("awaitCompletion shows a specific message when content was deleted right after publishing", {
+test_that("awaitConnectCloudCompletion() shows a specific message when content was deleted right after publishing", {
   skip_if_not_installed("webfakes")
 
   revision_app <- webfakes::new_app()
@@ -205,7 +193,7 @@ test_that("awaitCompletion shows a specific message when content was deleted rig
   client <- connectCloudClient(service, authInfo)
 
   expect_message(
-    result <- client$awaitCompletion("rev123"),
+    result <- awaitConnectCloudCompletion(client, "rev123"),
     "could not be found immediately after publishing"
   )
   expect_true(result$success)
@@ -253,7 +241,7 @@ test_that("getAccounts() paginates through multiple pages", {
   )
 })
 
-test_that("awaitCompletion handles failure", {
+test_that("awaitConnectCloudCompletion() handles failure", {
   skip_if_not_installed("webfakes")
 
   revision_app <- webfakes::new_app()
@@ -297,7 +285,7 @@ test_that("awaitCompletion handles failure", {
   client <- connectCloudClient(service, authInfo)
 
   # test failure case
-  result <- client$awaitCompletion("rev456")
+  result <- awaitConnectCloudCompletion(client, "rev456")
   expect_false(result$success)
   expect_equal(
     result$url,
@@ -306,7 +294,7 @@ test_that("awaitCompletion handles failure", {
   expect_equal(result$error, "Deployment failed due to missing dependencies")
 })
 
-test_that("awaitCompletion handles failure with logs", {
+test_that("awaitConnectCloudCompletion() handles failure with logs", {
   skip_if_not_installed("webfakes")
 
   # Mock revision API that returns failure with log channel
@@ -419,7 +407,7 @@ test_that("awaitCompletion handles failure with logs", {
   # Test failure case with logs - capture stderr output
   stderr_output <- capture.output(
     {
-      result <- client$awaitCompletion("rev456")
+      result <- awaitConnectCloudCompletion(client, "rev456")
     },
     type = "message"
   )
@@ -611,6 +599,97 @@ test_that("withTokenRefreshRetry uses client_credentials when clientSecret is se
   expect_equal(result$success, TRUE)
   expect_equal(call_count, 2)
   expect_true(register_called)
+})
+
+test_that("requests after a token refresh use the new access token", {
+  sent_tokens <- character()
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      sent_tokens <<- c(sent_tokens, authInfo$accessToken)
+      if (authInfo$accessToken == "current-token") {
+        stop(http_401_error())
+      }
+      list(id = "content-1", state = "active")
+    }
+  )
+  exchange_count <- 0
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        exchangeToken = function(request) {
+          exchange_count <<- exchange_count + 1
+          list(
+            access_token = "new-access-token",
+            refresh_token = "new-refresh-token"
+          )
+        }
+      )
+    },
+    registerAccount = function(...) NULL
+  )
+
+  service <- list(host = "example.com", port = 443, protocol = "https")
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "test-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+
+  expect_equal(
+    sent_tokens,
+    c("current-token", "new-access-token", "new-access-token")
+  )
+  expect_equal(exchange_count, 1)
+})
+
+test_that("a second token refresh sends the refresh token from the first refresh", {
+  expired_tokens <- "current-token"
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      if (authInfo$accessToken %in% expired_tokens) {
+        stop(http_401_error())
+      }
+      list(id = "content-1", state = "active")
+    }
+  )
+  sent_refresh_tokens <- character()
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        exchangeToken = function(request) {
+          sent_refresh_tokens <<- c(sent_refresh_tokens, request$refresh_token)
+          n <- length(sent_refresh_tokens)
+          list(
+            access_token = paste0("new-access-token-", n),
+            refresh_token = paste0("new-refresh-token-", n)
+          )
+        }
+      )
+    },
+    registerAccount = function(...) NULL
+  )
+
+  service <- list(host = "example.com", port = 443, protocol = "https")
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "test-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+  expired_tokens <- c(expired_tokens, "new-access-token-1")
+  findContent(client, list(appId = "content-1"), quiet = TRUE)
+
+  expect_equal(sent_refresh_tokens, c("refresh-token", "new-refresh-token-1"))
 })
 
 test_that("listApplications() paginates through multiple pages", {
@@ -1168,14 +1247,7 @@ test_that("createContent sends empty secrets array when envVars is NULL", {
   client <- connectCloudClient(service, authInfo)
 
   expect_no_error(
-    client$createContent(
-      name = "my-app",
-      title = "My App",
-      accountId = "acct-1",
-      appMode = "shiny",
-      primaryFile = "app.R",
-      envVars = NULL
-    )
+    create_cloud_content(client)
   )
 })
 
@@ -1211,14 +1283,7 @@ test_that("createContent sends empty secrets array when envVars is character(0)"
   client <- connectCloudClient(service, authInfo)
 
   expect_no_error(
-    client$createContent(
-      name = "my-app",
-      title = "My App",
-      accountId = "acct-1",
-      appMode = "shiny",
-      primaryFile = "app.R",
-      envVars = character(0)
-    )
+    create_cloud_content(client, envVars = character(0))
   )
 })
 
@@ -1261,18 +1326,11 @@ test_that("createContent includes envVar name and value in secrets when envVars 
   client <- connectCloudClient(service, authInfo)
 
   expect_no_error(
-    client$createContent(
-      name = "my-app",
-      title = "My App",
-      accountId = "acct-1",
-      appMode = "shiny",
-      primaryFile = "app.R",
-      envVars = "RSCONNECT_TEST_CC_KEY"
-    )
+    create_cloud_content(client, envVars = "RSCONNECT_TEST_CC_KEY")
   )
 })
 
-test_that("updateContent sends empty secrets array when envVars is NULL", {
+test_that("prepareContent() sends empty secrets array when envVars is NULL", {
   skip_if_not_installed("webfakes")
 
   app <- webfakes::new_app()
@@ -1303,18 +1361,10 @@ test_that("updateContent sends empty secrets array when envVars is NULL", {
   )
   client <- connectCloudClient(service, authInfo)
 
-  expect_no_error(
-    client$updateContent(
-      contentId = "content-abc",
-      envVars = NULL,
-      newBundle = FALSE,
-      primaryFile = "app.R",
-      appMode = "shiny"
-    )
-  )
+  expect_no_error(update_cloud_content(client))
 })
 
-test_that("updateContent includes envVar name and value in secrets when envVars is non-empty", {
+test_that("prepareContent() includes envVar name and value in secrets when envVars is non-empty", {
   skip_if_not_installed("webfakes")
   skip_if_not_installed("withr")
 
@@ -1352,15 +1402,10 @@ test_that("updateContent includes envVar name and value in secrets when envVars 
   )
   client <- connectCloudClient(service, authInfo)
 
-  expect_no_error(
-    client$updateContent(
-      contentId = "content-abc",
-      envVars = "RSCONNECT_TEST_CC_KEY",
-      newBundle = FALSE,
-      primaryFile = "app.R",
-      appMode = "shiny"
-    )
-  )
+  expect_no_error(update_cloud_content(
+    client,
+    envVars = "RSCONNECT_TEST_CC_KEY"
+  ))
 })
 
 # --- access tests -------------------------------------------------------------
@@ -1369,49 +1414,21 @@ test_that("createContent omits access when NULL and sends it when set", {
   skip_if_not_installed("webfakes")
 
   client <- local_echo_cloud_client("post", "/contents")
-  body <- client$createContent(
-    "my-app",
-    "My App",
-    "acct-1",
-    "shiny",
-    "app.R",
-    NULL
-  )
+  body <- create_cloud_content(client)
   expect_false("access" %in% names(body))
 
-  body <- client$createContent(
-    "my-app",
-    "My App",
-    "acct-1",
-    "shiny",
-    "app.R",
-    NULL,
-    access = "view_team_edit_team"
-  )
+  body <- create_cloud_content(client, appVisibility = "view_team_edit_team")
   expect_equal(body$access, "view_team_edit_team")
 })
 
-test_that("updateContent omits access when NULL and sends it when set", {
+test_that("prepareContent() omits access when NULL and sends it when set", {
   skip_if_not_installed("webfakes")
 
   client <- local_echo_cloud_client("patch", "/contents/:id")
-  body <- client$updateContent(
-    "content-abc",
-    NULL,
-    FALSE,
-    "app.R",
-    "shiny"
-  )
+  body <- update_cloud_content(client)
   expect_false("access" %in% names(body))
 
-  body <- client$updateContent(
-    "content-abc",
-    NULL,
-    FALSE,
-    "app.R",
-    "shiny",
-    access = "private"
-  )
+  body <- update_cloud_content(client, appVisibility = "private")
   expect_equal(body$access, "private")
 })
 
@@ -1508,5 +1525,146 @@ test_that("uploadBundle aborts when the Connect Cloud upload fails", {
   expect_error(
     uploadBundle(client, application, bundlePath),
     "Could not upload bundle"
+  )
+})
+
+test_that("createContent() uses the inferred primary file and the name as title", {
+  sent <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, json) {
+      sent <<- list(path = path, json = json)
+      list(id = "content-1")
+    }
+  )
+
+  content <- createContent(
+    client,
+    deployment = list(name = "my-app", title = "", envVars = NULL),
+    accountDetails = list(accountId = "acct-1"),
+    appMetadata = list(appMode = "shiny", inferredPrimaryFile = "app.R")
+  )
+
+  expect_equal(sent$path, "/contents")
+  expect_equal(sent$json$account_id, "acct-1")
+  expect_equal(sent$json$title, "my-app")
+  expect_equal(
+    sent$json$next_revision,
+    list(
+      source_type = "bundle",
+      content_type = "shiny",
+      app_mode = "shiny",
+      primary_file = "app.R"
+    )
+  )
+  expect_equal(content$application_id, "content-1")
+})
+
+test_that("findContent() gets the content for the deployment record", {
+  requested <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    getContent = function(contentId) {
+      requested <<- contentId
+      list(id = contentId)
+    }
+  )
+
+  content <- findContent(client, list(appId = "content-abc"), quiet = TRUE)
+
+  expect_equal(requested, "content-abc")
+  expect_equal(content$id, "content-abc")
+})
+
+test_that("prepareContent() does not update new content", {
+  application <- list(id = "content-abc")
+
+  # The fake client has no withTokenRefreshRetry(), so a request fails.
+  result <- prepareContent(
+    fake_client("connectCloudClient"),
+    application,
+    deployment = list(envVars = NULL),
+    appMetadata = list(appMode = "shiny"),
+    appVisibility = NULL,
+    isNewContent = TRUE,
+    upload = TRUE,
+    quiet = TRUE
+  )
+
+  expect_equal(result, application)
+})
+
+test_that("prepareContent() updates existing content and returns the new content", {
+  skip_if_not_installed("withr")
+  withr::local_envvar(RSCONNECT_TEST_CC_KEY = "test-secret-value")
+  sent <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, json) {
+      sent <<- list(path = path, json = json)
+      list(id = "content-abc", next_revision = list(id = "rev-new"))
+    }
+  )
+
+  result <- update_cloud_content(
+    client,
+    envVars = "RSCONNECT_TEST_CC_KEY",
+    appVisibility = "private"
+  )
+
+  expect_equal(sent$path, "/contents/content-abc")
+  expect_equal(
+    sent$json$secrets,
+    list(list(name = "RSCONNECT_TEST_CC_KEY", value = "test-secret-value"))
+  )
+  expect_equal(
+    sent$json$revision_overrides,
+    list(primary_file = "app.R", app_mode = "shiny")
+  )
+  expect_equal(sent$json$access, "private")
+  expect_equal(result$application_id, "content-abc")
+  expect_equal(result$next_revision$id, "rev-new")
+})
+
+test_that("prepareContent() asks for a new bundle when the deploy uploads", {
+  sent_path <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, json) {
+      sent_path <<- path
+      list(id = "content-abc")
+    }
+  )
+
+  update_cloud_content(client, upload = TRUE)
+
+  expect_equal(sent_path, "/contents/content-abc?new_bundle=true")
+})
+
+test_that("activateContent() publishes and waits for the next revision", {
+  published <- NULL
+  awaited <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, json) {
+      published <<- path
+      NULL
+    }
+  )
+  local_mocked_bindings(
+    awaitConnectCloudCompletion = function(client, revisionId) {
+      awaited <<- revisionId
+      list(success = FALSE, url = "https://example.com/c", error = "failed")
+    }
+  )
+  application <- list(id = "content-abc", next_revision = list(id = "rev-1"))
+
+  result <- activateContent(client, application, bundle = NULL, quiet = TRUE)
+
+  expect_equal(published, "/contents/content-abc/publish")
+  expect_equal(awaited, "rev-1")
+  expect_equal(
+    result,
+    list(succeeded = FALSE, url = "https://example.com/c", error = "failed")
   )
 })

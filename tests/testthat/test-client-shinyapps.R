@@ -90,3 +90,203 @@ test_that("uploadBundle stops when the presigned upload fails", {
     "Could not upload file"
   )
 })
+
+test_that("createContent() POSTs the name, template, and account", {
+  sent <- NULL
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      sent <<- list(path = path, json = json)
+      list(id = 7, url = "https://some-user.shinyapps.io/my-app/")
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  application <- createContent(
+    client,
+    deployment = list(name = "my-app", title = "My App"),
+    accountDetails = list(accountId = "12"),
+    appMetadata = list(appMode = "shiny")
+  )
+
+  expect_equal(sent$path, "/applications/")
+  expect_equal(
+    sent$json,
+    list(name = "my-app", template = "shiny", account = 12)
+  )
+  expect_equal(
+    application,
+    list(
+      id = 7,
+      application_id = 7,
+      url = "https://some-user.shinyapps.io/my-app/"
+    )
+  )
+})
+
+test_that("findContent() gets the application for the deployment record", {
+  requested <- NULL
+  client <- fake_client(
+    "shinyAppsClient",
+    getApplication = function(applicationId, deploymentRecordVersion) {
+      requested <<- list(applicationId, deploymentRecordVersion)
+      list(id = applicationId, url = "https://some-user.shinyapps.io/app/")
+    }
+  )
+
+  application <- findContent(
+    client,
+    deployment = list(appId = "42", version = "1"),
+    quiet = TRUE
+  )
+
+  expect_equal(requested, list("42", "1"))
+  expect_equal(application$id, "42")
+})
+
+test_that("prepareContent() sets the visibility when it changes", {
+  sent <- NULL
+  client <- fake_client(
+    "shinyAppsClient",
+    setApplicationProperty = function(applicationId, propertyName, value) {
+      sent <<- list(applicationId, propertyName, value)
+    }
+  )
+  application <- list(
+    id = "42",
+    deployment = list(
+      properties = list(application.visibility = "public")
+    )
+  )
+
+  result <- prepareContent(
+    client,
+    application,
+    deployment = list(),
+    appMetadata = list(),
+    appVisibility = "private",
+    isNewContent = FALSE,
+    upload = TRUE,
+    quiet = TRUE
+  )
+
+  expect_equal(sent, list("42", "application.visibility", "private"))
+  expect_equal(result, application)
+})
+
+test_that("prepareContent() does not set the visibility when it is the same", {
+  client <- fake_client(
+    "shinyAppsClient",
+    setApplicationProperty = function(...) {
+      stop("setApplicationProperty() should not be called")
+    }
+  )
+  application <- list(
+    id = "42",
+    deployment = list(
+      properties = list(application.visibility = "private")
+    )
+  )
+
+  expect_no_error(prepareContent(
+    client,
+    application,
+    deployment = list(),
+    appMetadata = list(),
+    appVisibility = "private",
+    isNewContent = FALSE,
+    upload = TRUE,
+    quiet = TRUE
+  ))
+})
+
+test_that("prepareContent() ignores env vars on the deployment", {
+  client <- fake_client("shinyAppsClient")
+
+  expect_no_error(prepareContent(
+    client,
+    list(id = "42"),
+    deployment = list(envVars = "A"),
+    appMetadata = list(),
+    appVisibility = NULL,
+    isNewContent = FALSE,
+    upload = TRUE,
+    quiet = TRUE
+  ))
+})
+
+test_that("activateContent() deploys the uploaded bundle and waits for the task", {
+  deployed <- NULL
+  waited <- NULL
+  client <- fake_client(
+    "shinyAppsClient",
+    deployApplication = function(application, bundleId = NULL) {
+      deployed <<- bundleId
+      list(task_id = "task-1")
+    },
+    waitForTask = function(taskId, quiet = FALSE) {
+      waited <<- taskId
+      list()
+    }
+  )
+  application <- list(
+    id = "42",
+    url = "https://some-user.shinyapps.io/app/",
+    deployment = list(bundle = list(id = "bundle-old"))
+  )
+
+  result <- activateContent(
+    client,
+    application,
+    bundle = list(id = "bundle-new"),
+    quiet = TRUE
+  )
+
+  expect_equal(deployed, "bundle-new")
+  expect_equal(waited, "task-1")
+  expect_equal(
+    result,
+    list(
+      succeeded = TRUE,
+      url = "https://some-user.shinyapps.io/app/",
+      error = NULL
+    )
+  )
+})
+
+test_that("activateContent() deploys the current bundle when nothing was uploaded", {
+  deployed <- NULL
+  client <- fake_client(
+    "shinyAppsClient",
+    deployApplication = function(application, bundleId = NULL) {
+      deployed <<- bundleId
+      list(task_id = "task-1")
+    },
+    waitForTask = function(...) list()
+  )
+  application <- list(
+    id = "42",
+    deployment = list(bundle = list(id = "bundle-old"))
+  )
+
+  activateContent(client, application, bundle = NULL, quiet = TRUE)
+
+  expect_equal(deployed, "bundle-old")
+})
+
+test_that("activateContent() reports a failed task", {
+  client <- fake_client(
+    "shinyAppsClient",
+    deployApplication = function(...) list(task_id = "task-1"),
+    waitForTask = function(...) list(code = 1, error = "Build failed")
+  )
+
+  result <- activateContent(
+    client,
+    list(id = "42"),
+    bundle = list(id = "bundle-1"),
+    quiet = TRUE
+  )
+
+  expect_false(result$succeeded)
+  expect_equal(result$error, "Build failed")
+})

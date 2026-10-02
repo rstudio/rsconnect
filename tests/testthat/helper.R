@@ -171,10 +171,10 @@ local_mocked_account_info <- function(env = caller_env()) {
 
 # Posit Connect Cloud deploy fixtures -------------------------------------
 
-# Existing PCC content with a NULL current_revision.
+# Existing PCC content with a NULL current_revision. Connect Cloud content has
+# no top-level `url`; only a revision has one.
 pcc_existing_content_null_revision <- list(
   id = "content-abc",
-  url = "https://connect.posit.cloud/myaccount/content/content-abc",
   current_revision = NULL,
   next_revision = list(
     id = "rev-new",
@@ -187,6 +187,15 @@ pcc_existing_content_with_revision <- utils::modifyList(
   pcc_existing_content_null_revision,
   list(current_revision = list(id = "rev-old"))
 )
+
+# An activateContent() method for PCC that reports a successful deploy.
+pcc_activate_success <- function(client, application, bundle, quiet) {
+  list(
+    succeeded = TRUE,
+    url = "https://connect.posit.cloud/myaccount/content/content-abc",
+    error = NULL
+  )
+}
 
 # Set up a PCC server, account, and (optionally) a re-deploy record.
 local_pcc_deploy_env <- function(
@@ -227,6 +236,37 @@ local_mock_pcc_delete_client <- function(deleted, env = caller_env()) {
       )
     },
     .env = env
+  )
+}
+
+# calls createContent() for a Connect Cloud client with a small deployment.
+create_cloud_content <- function(client, envVars = NULL, appVisibility = NULL) {
+  createContent(
+    client,
+    deployment = list(name = "my-app", title = "My App", envVars = envVars),
+    accountDetails = list(accountId = "acct-1"),
+    appMetadata = list(appMode = "shiny", appPrimaryDoc = "app.R"),
+    appVisibility = appVisibility
+  )
+}
+
+# Calls prepareContent() for existing Connect Cloud content with a small
+# deployment.
+update_cloud_content <- function(
+  client,
+  envVars = NULL,
+  appVisibility = NULL,
+  upload = FALSE
+) {
+  prepareContent(
+    client,
+    application = list(id = "content-abc"),
+    deployment = list(envVars = envVars),
+    appMetadata = list(appMode = "shiny", appPrimaryDoc = "app.R"),
+    appVisibility = appVisibility,
+    isNewContent = FALSE,
+    upload = upload,
+    quiet = TRUE
   )
 }
 

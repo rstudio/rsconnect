@@ -180,3 +180,11 @@ local_echo_cloud_client <- function(method, path, env = parent.frame()) {
   )
   connectCloudClient(parseHttpUrl(proc$url()), authInfo)
 }
+
+# The condition that httpRequest() signals for an HTTP 401 response.
+http_401_error <- function() {
+  structure(
+    list(message = "HTTP 401"),
+    class = c("rsconnect_http_401", "rsconnect_http", "error", "condition")
+  )
+}
