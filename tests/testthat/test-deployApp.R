@@ -344,6 +344,33 @@ test_that("openURL() launches the browser on success with a valid url", {
   expect_true(launched)
 })
 
+test_that("openURL() adds UTM parameters only for Connect Cloud", {
+  withr::local_envvar(RSTUDIO = "")
+  application <- list(url = "https://example.com/app/", dashboard_url = NULL)
+
+  expect_message(
+    openURL(
+      client = fake_client("connectCloudClient"),
+      application = application,
+      launch.browser = function(url) message(url),
+      on.failure = NULL,
+      deploymentSucceeded = TRUE
+    ),
+    "https://example.com/app/?utm_source=rsconnect",
+    fixed = TRUE
+  )
+  expect_message(
+    openURL(
+      client = fake_client("shinyAppsClient"),
+      application = application,
+      launch.browser = function(url) message(url),
+      on.failure = NULL,
+      deploymentSucceeded = TRUE
+    ),
+    "^https://example.com/app/\n$"
+  )
+})
+
 test_that("checkAppVisibility() accepts values the server supports", {
   expect_no_error(checkAppVisibility(NULL, "shinyapps.io"))
   expect_no_error(checkAppVisibility("private", "shinyapps.io"))
