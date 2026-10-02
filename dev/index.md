@@ -39,7 +39,8 @@ You can also connect from any R session by running a little code:
 
 - For Posit Connect Cloud, call
   [`connectCloudUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudUser.md)
-  to authenticate through the browser.
+  to authenticate through the browser. Learn more in the [Publishing
+  Guide](https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html)
 
 - For Posit Connect, first use
   [`addServer()`](https://rstudio.github.io/rsconnect/dev/reference/addServer.md)
@@ -50,8 +51,8 @@ You can also connect from any R session by running a little code:
   [`connectUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectApiUser.md)
   is a bit simpler if you’re in an interactive session;
   [`connectApiUser()`](https://rstudio.github.io/rsconnect/dev/reference/connectApiUser.md)
-  works anywhere but requires a you to copy and paste an API key from
-  your user profile.
+  works anywhere but requires you to copy and paste an API key from your
+  user profile.
 
 - For shinyapps.io, go to your [tokens
   page](https://www.shinyapps.io/admin/#/tokens) and click “Add Token”,
@@ -60,7 +61,7 @@ You can also connect from any R session by running a little code:
   Learn more in the [Getting Started
   Guide](https://shiny.rstudio.com/articles/shinyapps.html).
 
-Now that you’re setup you can use
+Now that you’re set up you can use
 [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md),
 [`deployDoc()`](https://rstudio.github.io/rsconnect/dev/reference/deployDoc.md),
-and friends to publish your apps, documentations, APIs and more.
+and friends to publish your apps, documents, APIs and more.
