@@ -178,6 +178,15 @@ supportsVisibility <- function(client) {
   UseMethod("supportsVisibility")
 }
 
+#' Which `appVisibility` values can a deploy use?
+#'
+#' @return A character vector of values, or `NULL` if the server ignores
+#'   `appVisibility`.
+#' @noRd
+visibilityValues <- function(client) {
+  UseMethod("visibilityValues")
+}
+
 #' Can `syncAppMetadata()` update deployment records from the server?
 #' @noRd
 supportsMetadataSync <- function(client) {

@@ -469,6 +469,11 @@ supportsVisibility.shinyAppsClient <- function(client) {
 }
 
 #' @export
+visibilityValues.shinyAppsClient <- function(client) {
+  c("private", "public")
+}
+
+#' @export
 supportsMetadataSync.shinyAppsClient <- function(client) {
   TRUE
 }
