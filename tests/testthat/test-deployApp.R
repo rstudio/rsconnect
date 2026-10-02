@@ -370,22 +370,23 @@ test_that("openURL() adds UTM parameters only for Connect Cloud", {
 })
 
 test_that("checkAppVisibility() accepts values the server supports", {
-  expect_no_error(checkAppVisibility(NULL, "shinyapps.io"))
-  expect_no_error(checkAppVisibility("private", "shinyapps.io"))
-  expect_no_error(checkAppVisibility("public", "shinyapps.io"))
-  expect_no_error(checkAppVisibility("private", "connect.posit.cloud"))
-  expect_no_error(checkAppVisibility(
-    "view_team_edit_team",
-    "connect.posit.cloud"
-  ))
+  shinyapps <- fake_client("shinyAppsClient")
+  cloud <- fake_client("connectCloudClient")
+  expect_no_error(checkAppVisibility(NULL, shinyapps))
+  expect_no_error(checkAppVisibility("private", shinyapps))
+  expect_no_error(checkAppVisibility("public", shinyapps))
+  expect_no_error(checkAppVisibility("private", cloud))
+  expect_no_error(checkAppVisibility("view_team_edit_team", cloud))
   # Posit Connect ignores appVisibility, so nothing is checked.
-  expect_no_error(checkAppVisibility("anything", "connect.example.com"))
+  expect_no_error(checkAppVisibility("anything", fake_client("connectClient")))
 })
 
 test_that("checkAppVisibility() rejects values the server doesn't support", {
+  shinyapps <- fake_client("shinyAppsClient")
+  cloud <- fake_client("connectCloudClient")
   expect_snapshot(error = TRUE, {
-    checkAppVisibility("view_team_edit_team", "shinyapps.io")
-    checkAppVisibility("privat", "connect.posit.cloud")
+    checkAppVisibility("view_team_edit_team", shinyapps)
+    checkAppVisibility("privat", cloud)
   })
 })
 
