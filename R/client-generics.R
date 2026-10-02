@@ -138,12 +138,6 @@ supportsNodejs <- function(client) {
   UseMethod("supportsNodejs")
 }
 
-#' Can the user add, remove, and list the users of an application?
-#' @noRd
-supportsUserManagement <- function(client) {
-  UseMethod("supportsUserManagement")
-}
-
 #' Can an application directory have a legacy scrypt password file?
 #' @noRd
 usesPasswordFile <- function(client) {
@@ -223,17 +217,6 @@ resolveContentTarget <- function(
   UseMethod("resolveContentTarget")
 }
 
-#' @export
-resolveContentTarget.rsconnectClient <- function(
-  client,
-  accountDetails,
-  appDir,
-  appName,
-  contentId = NULL
-) {
-  abortUserManagementUnsupported(client)
-}
-
 #' List the users who can access an application
 #'
 #' @param client A client object.
@@ -246,11 +229,6 @@ listCollaborators <- function(client, applicationId) {
   UseMethod("listCollaborators")
 }
 
-#' @export
-listCollaborators.rsconnectClient <- function(client, applicationId) {
-  abortUserManagementUnsupported(client)
-}
-
 #' List the invitations that are not accepted for an application
 #'
 #' @param client A client object.
@@ -261,18 +239,6 @@ listCollaborators.rsconnectClient <- function(client, applicationId) {
 #' @noRd
 listInvitations <- function(client, applicationId) {
   UseMethod("listInvitations")
-}
-
-#' @export
-listInvitations.rsconnectClient <- function(client, applicationId) {
-  abortUserManagementUnsupported(client)
-}
-
-abortUserManagementUnsupported <- function(client, call = caller_env()) {
-  cli::cli_abort(
-    "rsconnect can't manage application users on {serverDisplayName(client)}.",
-    call = call
-  )
 }
 
 #' Invite a user to an application
@@ -294,17 +260,6 @@ inviteApplicationUser <- function(
   UseMethod("inviteApplicationUser")
 }
 
-#' @export
-inviteApplicationUser.rsconnectClient <- function(
-  client,
-  applicationId,
-  email,
-  sendEmail = NULL,
-  emailMessage = NULL
-) {
-  abortUserManagementUnsupported(client)
-}
-
 #' Remove a user from an application
 #'
 #' @param client A client object.
@@ -313,15 +268,6 @@ inviteApplicationUser.rsconnectClient <- function(
 #' @noRd
 removeApplicationUser <- function(client, applicationId, userId) {
   UseMethod("removeApplicationUser")
-}
-
-#' @export
-removeApplicationUser.rsconnectClient <- function(
-  client,
-  applicationId,
-  userId
-) {
-  abortUserManagementUnsupported(client)
 }
 
 #' Send an invitation again
@@ -336,13 +282,4 @@ resendApplicationInvitation <- function(
   regenerate = FALSE
 ) {
   UseMethod("resendApplicationInvitation")
-}
-
-#' @export
-resendApplicationInvitation.rsconnectClient <- function(
-  client,
-  invitationId,
-  regenerate = FALSE
-) {
-  abortUserManagementUnsupported(client)
 }

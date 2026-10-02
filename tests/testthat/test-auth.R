@@ -411,13 +411,13 @@ test_that("showUsers errors on a non-shinyapps, non-PCC server", {
   )
   addTestAccount("myaccount", server = "connect.example.com")
 
-  expect_error(
+  expect_snapshot(
     showUsers(
       appName = "myapp",
       account = "myaccount",
       server = "connect.example.com"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1093,7 +1093,7 @@ test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     addAuthorizedUser(
       "alice@example.com",
       appDir = appDir,
@@ -1101,7 +1101,7 @@ test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1112,7 +1112,7 @@ test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     removeAuthorizedUser(
       "alice@example.com",
       appDir = appDir,
@@ -1120,7 +1120,7 @@ test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1131,14 +1131,14 @@ test_that("showInvited() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     showInvited(
       appDir = appDir,
       appName = "myapp",
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1149,7 +1149,7 @@ test_that("resendInvitation() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     resendInvitation(
       "alice@example.com",
       appDir = appDir,
@@ -1157,7 +1157,7 @@ test_that("resendInvitation() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1168,13 +1168,13 @@ test_that("showUsers() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     showUsers(
       appDir = appDir,
       appName = "myapp",
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })

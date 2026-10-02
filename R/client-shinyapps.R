@@ -433,11 +433,6 @@ supportsNodejs.shinyAppsClient <- function(client) {
 }
 
 #' @export
-supportsUserManagement.shinyAppsClient <- function(client) {
-  TRUE
-}
-
-#' @export
 usesPasswordFile.shinyAppsClient <- function(client) {
   TRUE
 }

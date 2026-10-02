@@ -352,11 +352,6 @@ supportsNodejs.connectCloudClient <- function(client) {
 }
 
 #' @export
-supportsUserManagement.connectCloudClient <- function(client) {
-  TRUE
-}
-
-#' @export
 usesPasswordFile.connectCloudClient <- function(client) {
   FALSE
 }

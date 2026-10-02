@@ -229,11 +229,6 @@ supportsNodejs.connectClient <- function(client) {
 }
 
 #' @export
-supportsUserManagement.connectClient <- function(client) {
-  FALSE
-}
-
-#' @export
 usesPasswordFile.connectClient <- function(client) {
   FALSE
 }
@@ -276,6 +271,57 @@ staticRmdNeedsShiny.connectClient <- function(client) {
 #' @export
 addsUtmParameters.connectClient <- function(client) {
   FALSE
+}
+
+# rsconnect does not manage the users of Connect content.
+#' @export
+resolveContentTarget.connectClient <- function(
+  client,
+  accountDetails,
+  appDir,
+  appName,
+  contentId = NULL
+) {
+  abortUserManagementUnsupported(client)
+}
+
+#' @export
+listCollaborators.connectClient <- function(client, applicationId) {
+  abortUserManagementUnsupported(client)
+}
+
+#' @export
+listInvitations.connectClient <- function(client, applicationId) {
+  abortUserManagementUnsupported(client)
+}
+
+#' @export
+inviteApplicationUser.connectClient <- function(
+  client,
+  applicationId,
+  email,
+  sendEmail = NULL,
+  emailMessage = NULL
+) {
+  abortUserManagementUnsupported(client)
+}
+
+#' @export
+removeApplicationUser.connectClient <- function(
+  client,
+  applicationId,
+  userId
+) {
+  abortUserManagementUnsupported(client)
+}
+
+#' @export
+resendApplicationInvitation.connectClient <- function(
+  client,
+  invitationId,
+  regenerate = FALSE
+) {
+  abortUserManagementUnsupported(client)
 }
 
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {

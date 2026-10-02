@@ -22,6 +22,13 @@ emptyInvitations <- function() {
   )
 }
 
+abortUserManagementUnsupported <- function(client) {
+  cli::cli_abort(
+    "rsconnect can't manage application users on {serverDisplayName(client)}.",
+    call = NULL
+  )
+}
+
 cleanupPasswordFile <- function(appDir) {
   check_directory(appDir)
   appDir <- normalizePath(appDir)
@@ -51,12 +58,6 @@ cleanupPasswordFile <- function(appDir) {
   }
 
   invisible(TRUE)
-}
-
-checkSupportsUserManagement <- function(client, call = caller_env()) {
-  if (!supportsUserManagement(client)) {
-    abortUserManagementUnsupported(client, call = call)
-  }
 }
 
 #' Add authorized user to application
@@ -106,7 +107,6 @@ addAuthorizedUser <- function(
 ) {
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
-  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     api,
@@ -178,7 +178,6 @@ removeAuthorizedUser <- function(
 ) {
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
-  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     api,
@@ -272,7 +271,6 @@ showUsers <- function(
 ) {
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
-  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     api,
@@ -323,7 +321,6 @@ showInvited <- function(
 ) {
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
-  checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
     api,
@@ -378,7 +375,6 @@ resendInvitation <- function(
 ) {
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
-  checkSupportsUserManagement(api)
 
   # resolve content exactly once, then fetch invitations with listInvitations()
   # (showInvited() calls resolveContentTarget() a second time).
