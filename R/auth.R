@@ -1,90 +1,25 @@
-# Internal: fetch authorized users for an already-resolved application id.
-# Does NOT call resolveContentTarget(); callers are responsible for resolving
-# content exactly once before invoking this.
-# isPCC = TRUE adds display_name and role columns from the PCC response shape
-# ({user: {id, email, display_name, ...}, role}); shinyapps.io keeps the
-# original three-column shape (id, email, account).
-showUsers_impl <- function(api, applicationId, isPCC = FALSE) {
-  res <- api$listApplicationAuthorization(applicationId)
-  rows <- lapply(res, function(x) {
-    id <- as.character(x$user$id %||% NA_character_)
-    email <- as.character(x$user$email %||% NA_character_)
-    if (is.na(id) && is.na(email)) {
-      backend <- if (isPCC) "Posit Connect Cloud" else "shinyapps.io"
-      cli::cli_abort(
-        c(
-          "Unexpected response from {backend}: a user record has neither an {.field id} nor an {.field email}.",
-          i = "The response shape may have changed; contact Posit support if this persists."
-        )
-      )
-    }
-    if (isPCC) {
-      data.frame(
-        id = id,
-        email = email,
-        account = NA_character_,
-        display_name = as.character(x$user$display_name %||% NA_character_),
-        role = as.character(x$role %||% NA_character_),
-        stringsAsFactors = FALSE
-      )
-    } else {
-      data.frame(
-        id = id,
-        email = email,
-        account = if (!is.null(x$account)) {
-          as.character(x$account)
-        } else {
-          NA_character_
-        },
-        stringsAsFactors = FALSE
-      )
-    }
-  })
-  if (length(rows) == 0L) {
-    if (isPCC) {
-      return(data.frame(
-        id = character(),
-        email = character(),
-        account = character(),
-        display_name = character(),
-        role = character(),
-        stringsAsFactors = FALSE
-      ))
-    }
-    return(data.frame(
-      id = character(),
-      email = character(),
-      account = character(),
-      stringsAsFactors = FALSE
-    ))
+# Signals an error for a user record that has neither an id nor an email,
+# because the record cannot identify the user.
+checkCollaboratorRecord <- function(client, id, email, call = caller_env()) {
+  if (is.na(id) && is.na(email)) {
+    cli::cli_abort(
+      c(
+        "Unexpected response from {serverDisplayName(client)}: a user record has neither an {.field id} nor an {.field email}.",
+        i = "The response shape may have changed; contact Posit support if this persists."
+      ),
+      call = call
+    )
   }
-  do.call(rbind, rows)
 }
 
-# Internal: fetch pending invitations for an already-resolved application id.
-# Does NOT call resolveContentTarget().
-showInvited_impl <- function(api, applicationId) {
-  res <- api$listApplicationInvitations(applicationId)
-  # PCC uses email_address / is_expired; shinyapps.io uses email / expired.
-  rows <- lapply(res, function(x) {
-    data.frame(
-      id = as.character(x$id %||% NA_character_),
-      email = as.character(x$email_address %||% x$email %||% NA_character_),
-      link = as.character(x$link %||% NA_character_),
-      expired = as.logical(x$is_expired %||% x$expired %||% NA),
-      stringsAsFactors = FALSE
-    )
-  })
-  if (length(rows) == 0L) {
-    return(data.frame(
-      id = character(),
-      email = character(),
-      link = character(),
-      expired = logical(),
-      stringsAsFactors = FALSE
-    ))
-  }
-  do.call(rbind, rows)
+emptyInvitations <- function() {
+  data.frame(
+    id = character(),
+    email = character(),
+    link = character(),
+    expired = logical(),
+    stringsAsFactors = FALSE
+  )
 }
 
 cleanupPasswordFile <- function(appDir) {
@@ -120,60 +55,7 @@ cleanupPasswordFile <- function(appDir) {
 
 checkSupportsUserManagement <- function(client, call = caller_env()) {
   if (!supportsUserManagement(client)) {
-    cli::cli_abort(
-      "rsconnect can't manage application users on {serverDisplayName(client)}.",
-      call = call
-    )
-  }
-}
-
-# Internal: resolve the target content for collaborator management functions.
-# On PCC, an explicit contentId targets the content directly; otherwise reads
-# the local deployment record to get the content id (appId) rather than matching
-# by title (mutable, non-unique on PCC).
-# On shinyapps.io, delegates to resolveApplication() unchanged; contentId is
-# not supported there.
-resolveContentTarget <- function(
-  accountDetails,
-  appDir,
-  appName,
-  contentId = NULL
-) {
-  if (isPositConnectCloudServer(accountDetails$server)) {
-    # An explicit content id targets PCC content directly, with no local
-    # deployment record required.
-    if (!is.null(contentId)) {
-      check_string(contentId)
-      return(list(id = contentId))
-    }
-    recs <- deployments(
-      appPath = appDir,
-      accountFilter = accountDetails$name,
-      serverFilter = accountDetails$server,
-      nameFilter = appName
-    )
-    if (nrow(recs) == 0L) {
-      cli::cli_abort(c(
-        "Can't identify the Posit Connect Cloud content for {.file {appDir}}.",
-        i = paste0(
-          "No deployment record found. Deploy the content first, or run from ",
-          "the project directory that contains its {.path rsconnect/} deployment record."
-        )
-      ))
-    }
-    if (nrow(recs) > 1L) {
-      dep <- disambiguateDeployments(recs)
-      return(list(id = dep$appId, deploymentFile = dep$deploymentFile))
-    }
-    list(id = recs$appId[[1L]], deploymentFile = recs$deploymentFile[[1L]])
-  } else {
-    if (!is.null(contentId)) {
-      cli::cli_abort(c(
-        "{.arg contentId} is only supported on Posit Connect Cloud.",
-        i = "On shinyapps.io, identify the application with {.arg appName}."
-      ))
-    }
-    resolveApplication(accountDetails, appName %||% basename(appDir))
+    abortUserManagementUnsupported(client, call = call)
   }
 }
 
@@ -227,6 +109,7 @@ addAuthorizedUser <- function(
   checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
+    api,
     accountDetails,
     appDir,
     appName,
@@ -245,7 +128,8 @@ addAuthorizedUser <- function(
   }
 
   # fetch authorization list
-  api$inviteApplicationUser(
+  inviteApplicationUser(
+    api,
     application$id,
     validateEmail(email),
     sendEmail,
@@ -297,6 +181,7 @@ removeAuthorizedUser <- function(
   checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
+    api,
     accountDetails,
     appDir,
     appName,
@@ -307,15 +192,10 @@ removeAuthorizedUser <- function(
     cleanupPasswordFile(appDir)
   }
 
-  # resolve content exactly once: use impl so showUsers() does not call
-  # resolveContentTarget() a second time (a second interactive prompt could
-  # return a different record, causing removeApplicationUser to act on the
-  # wrong content).
-  users <- showUsers_impl(
-    api,
-    application$id,
-    isPCC = isPositConnectCloudServer(accountDetails$server)
-  )
+  # Resolve the content only once. showUsers() resolves it again, and a second
+  # interactive prompt can return a different record. Then
+  # removeApplicationUser() would act on the wrong content.
+  users <- listCollaborators(api, application$id)
 
   user <- as.character(user)
   # Match id first (UUID strings on PCC, numeric-as-character on shinyapps.io),
@@ -344,7 +224,7 @@ removeAuthorizedUser <- function(
   }
 
   # remove user (api already built above)
-  api$removeApplicationUser(application$id, user$id)
+  removeApplicationUser(api, application$id, user$id)
 
   message(paste("Removed:", user$email, "from application", sep = " "))
 
@@ -395,17 +275,14 @@ showUsers <- function(
   checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
+    api,
     accountDetails,
     appDir,
     appName,
     contentId
   )
 
-  showUsers_impl(
-    api,
-    application$id,
-    isPCC = isPositConnectCloudServer(accountDetails$server)
-  )
+  listCollaborators(api, application$id)
 }
 
 #' List invited users for an application
@@ -449,13 +326,14 @@ showInvited <- function(
   checkSupportsUserManagement(api)
 
   application <- resolveContentTarget(
+    api,
     accountDetails,
     appDir,
     appName,
     contentId
   )
 
-  showInvited_impl(api, application$id)
+  listInvitations(api, application$id)
 }
 
 #' Resend invitation for invited users of an application
@@ -502,15 +380,16 @@ resendInvitation <- function(
   api <- clientForAccount(accountDetails)
   checkSupportsUserManagement(api)
 
-  # resolve content exactly once, then fetch invitations via impl (avoids a
-  # second resolveContentTarget() call).
+  # resolve content exactly once, then fetch invitations with listInvitations()
+  # (showInvited() calls resolveContentTarget() a second time).
   application <- resolveContentTarget(
+    api,
     accountDetails,
     appDir,
     appName,
     contentId
   )
-  invited <- showInvited_impl(api, application$id)
+  invited <- listInvitations(api, application$id)
 
   invite <- as.character(invite)
   # Match id first (UUID strings on PCC, numeric-as-character on shinyapps.io),
@@ -531,7 +410,7 @@ resendInvitation <- function(
   }
 
   # resend invitation (api already built above)
-  api$resendApplicationInvitation(invite$id, regenerate)
+  resendApplicationInvitation(api, invite$id, regenerate)
 
   message(paste("Sent invitation to", invite$email, "", sep = " "))
 

@@ -72,15 +72,17 @@ test_that("removeAuthorizedUser calls removeApplicationUser on PCC", {
   )
 
   removed_user_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_user_id <<- userId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
       listApplicationAuthorization = function(appId) {
         list(list(user = list(id = "user-uuid-1", email = "alice@example.com")))
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_user_id <<- userId
-        invisible(TRUE)
       }
     )
   })
@@ -207,14 +209,20 @@ test_that("addAuthorizedUser calls inviteApplicationUser on PCC", {
   )
 
   invited <- list()
+  local_mocked_bindings(
+    inviteApplicationUser.connectCloudClient = function(
+      client,
+      appId,
+      email,
+      sendEmail,
+      emailMessage
+    ) {
+      invited[[length(invited) + 1]] <<- list(appId = appId, email = email)
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      inviteApplicationUser = function(appId, email, sendEmail, emailMessage) {
-        invited[[length(invited) + 1]] <<- list(appId = appId, email = email)
-        invisible(TRUE)
-      }
-    )
+    fake_client("connectCloudClient")
   })
 
   addAuthorizedUser(
@@ -284,13 +292,19 @@ test_that("addAuthorizedUser warns when sendEmail is non-NULL on PCC", {
     server = "connect.posit.cloud"
   )
 
+  local_mocked_bindings(
+    inviteApplicationUser.connectCloudClient = function(
+      client,
+      appId,
+      email,
+      sendEmail,
+      emailMessage
+    ) {
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      inviteApplicationUser = function(appId, email, sendEmail, emailMessage) {
-        invisible(TRUE)
-      }
-    )
+    fake_client("connectCloudClient")
   })
 
   msgs <- character(0)
@@ -425,6 +439,16 @@ test_that("resendInvitation calls resendApplicationInvitation on PCC", {
   )
 
   resent_id <- NULL
+  local_mocked_bindings(
+    resendApplicationInvitation.connectCloudClient = function(
+      client,
+      inviteId,
+      regenerate
+    ) {
+      resent_id <<- inviteId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -434,10 +458,6 @@ test_that("resendInvitation calls resendApplicationInvitation on PCC", {
           email_address = "alice@example.com",
           is_expired = FALSE
         ))
-      },
-      resendApplicationInvitation = function(inviteId, regenerate) {
-        resent_id <<- inviteId
-        invisible(TRUE)
       }
     )
   })
@@ -694,16 +714,18 @@ test_that("removeAuthorizedUser resolves content target exactly once (no double 
 
   client_build_count <- 0L
   removed_app_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_app_id <<- appId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     client_build_count <<- client_build_count + 1L
     fake_client(
       "connectCloudClient",
       listApplicationAuthorization = function(appId) {
         list(list(user = list(id = "user-uuid-1", email = "alice@example.com")))
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_app_id <<- appId
-        invisible(TRUE)
       }
     )
   })
@@ -741,6 +763,12 @@ test_that("removeAuthorizedUser resolves by UUID id on PCC (not email-only fallb
   )
 
   removed_user_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_user_id <<- userId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -748,10 +776,6 @@ test_that("removeAuthorizedUser resolves by UUID id on PCC (not email-only fallb
         list(list(
           user = list(id = "user-uuid-abc", email = "alice@example.com")
         ))
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_user_id <<- userId
-        invisible(TRUE)
       }
     )
   })
@@ -786,6 +810,12 @@ test_that("removeAuthorizedUser matches by email when another record has no emai
   )
 
   removed_user_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_user_id <<- userId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -795,10 +825,6 @@ test_that("removeAuthorizedUser matches by email when another record has no emai
           # A second member whose email is redacted (absent) on PCC.
           list(user = list(id = "id-redacted", email = NULL))
         )
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_user_id <<- userId
-        invisible(TRUE)
       }
     )
   })
@@ -832,6 +858,16 @@ test_that("resendInvitation resolves by UUID invite id on PCC (not email-only fa
   )
 
   resent_id <- NULL
+  local_mocked_bindings(
+    resendApplicationInvitation.connectCloudClient = function(
+      client,
+      inviteId,
+      regenerate
+    ) {
+      resent_id <<- inviteId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -841,10 +877,6 @@ test_that("resendInvitation resolves by UUID invite id on PCC (not email-only fa
           email_address = "bob@example.com",
           is_expired = FALSE
         ))
-      },
-      resendApplicationInvitation = function(inviteId, regenerate) {
-        resent_id <<- inviteId
-        invisible(TRUE)
       }
     )
   })
@@ -1033,15 +1065,15 @@ test_that("cleanupPasswordFile is NOT called on PCC accounts", {
 
   cleanup_called <- FALSE
   local_mocked_bindings(
+    inviteApplicationUser.connectCloudClient = function(...) invisible(TRUE)
+  )
+  local_mocked_bindings(
     cleanupPasswordFile = function(...) {
       cleanup_called <<- TRUE
       invisible(TRUE)
     },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        inviteApplicationUser = function(...) invisible(TRUE)
-      )
+      fake_client("connectCloudClient")
     }
   )
 
