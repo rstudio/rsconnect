@@ -220,7 +220,8 @@ listApplications.connectCloudClient <- function(
     function(item) !identical(item$state, "deleted"),
     allItems
   )
-  # Set name = title so resolveApplication (which matches on app$name) works for PCC.
+  # Each item gets a `name`, as on the other clients. Connect Cloud content has
+  # only a title.
   items <- lapply(allItems, function(item) {
     item$name <- item$title
     item

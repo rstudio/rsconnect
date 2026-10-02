@@ -424,3 +424,40 @@ test_that("resolveContentTarget() finds the application with the client it gets"
 
   expect_equal(target, list(id = 43, deploymentFile = NULL))
 })
+
+test_that("listApplications() filters by account, Shiny type, and name", {
+  sent <- list()
+  local_mocked_bindings(
+    listRequest = function(service, authInfo, path, query, ...) {
+      sent[[length(sent) + 1]] <<- list(path = path, query = query)
+      list()
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  listApplications(client, "1")
+  listApplications(client, "1", filters = list(name = "my-app"))
+
+  expect_equal(sent[[1]]$path, "/applications/")
+  expect_equal(sent[[1]]$query, "filter=account_id:1&filter=type:shiny")
+  expect_equal(
+    sent[[2]]$query,
+    "filter=account_id:1&filter=type:shiny&filter=name:my-app"
+  )
+})
+
+test_that("getApplication() GETs the application and copies its id", {
+  requested <- NULL
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      requested <<- path
+      list(id = 42, name = "my-app")
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  application <- getApplication(client, 42)
+
+  expect_equal(requested, "/applications/42")
+  expect_equal(application, list(id = 42, name = "my-app", application_id = 42))
+})
