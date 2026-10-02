@@ -194,6 +194,21 @@ supportsUserManagement.connectClient <- function(client) {
 }
 
 #' @export
+usesPasswordFile.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+supportsOptionalInviteEmail.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
+redactsUserEmails.connectClient <- function(client) {
+  FALSE
+}
+
+#' @export
 requiresUpload.connectClient <- function(client) {
   TRUE
 }

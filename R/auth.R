@@ -233,18 +233,14 @@ addAuthorizedUser <- function(
     contentId
   )
 
-  # check for and remove password file (shinyapps.io only; PCC has no password file)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
+  if (usesPasswordFile(api)) {
     cleanupPasswordFile(appDir)
   }
 
-  # PCC always emails invitees; warn only when caller explicitly opts out
-  if (
-    isPositConnectCloudServer(accountDetails$server) &&
-      identical(sendEmail, FALSE)
-  ) {
+  # Warn only when the caller explicitly opts out of the email.
+  if (!supportsOptionalInviteEmail(api) && identical(sendEmail, FALSE)) {
     cli::cli_warn(
-      "{.arg sendEmail} is ignored on Posit Connect Cloud; PCC always sends an invitation email."
+      "{.arg sendEmail} is ignored on {serverDisplayName(api)}, which always sends an invitation email."
     )
   }
 
@@ -307,8 +303,7 @@ removeAuthorizedUser <- function(
     contentId
   )
 
-  # check and remove password file (shinyapps.io only; PCC has no password file)
-  if (!isPositConnectCloudServer(accountDetails$server)) {
+  if (usesPasswordFile(api)) {
     cleanupPasswordFile(appDir)
   }
 
@@ -330,15 +325,13 @@ removeAuthorizedUser <- function(
   } else if (user %in% users$email) {
     user <- users[which(users$email == user), ]
   } else {
-    # Only PCC redacts emails, and the hint only helps someone who searched by
-    # email (an id-based lookup already avoids the problem).
-    redactionHint <-
-      isPositConnectCloudServer(accountDetails$server) &&
-      grepl("@", user, fixed = TRUE)
+    # The hint only helps someone who searched by email. A lookup by id is not
+    # affected by redaction.
+    redactionHint <- redactsUserEmails(api) && grepl("@", user, fixed = TRUE)
     cli::cli_abort(c(
       "User {.val {user}} not found.",
       i = if (redactionHint) {
-        "On Posit Connect Cloud an email can be redacted and won't match; pass the user id from {.fn showUsers} instead."
+        "On {serverDisplayName(api)} an email can be redacted and won't match; pass the user id from {.fn showUsers} instead."
       }
     ))
   }

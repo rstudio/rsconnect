@@ -63,6 +63,26 @@ supportsUserManagement <- function(client) {
   UseMethod("supportsUserManagement")
 }
 
+#' Can an application directory have a legacy scrypt password file?
+#' @noRd
+usesPasswordFile <- function(client) {
+  UseMethod("usesPasswordFile")
+}
+
+#' Can the caller choose not to send the invitation email?
+#' @noRd
+supportsOptionalInviteEmail <- function(client) {
+  UseMethod("supportsOptionalInviteEmail")
+}
+
+#' Can the server redact user emails in the list of users?
+#'
+#' A redacted email does not match the email that the caller gives.
+#' @noRd
+redactsUserEmails <- function(client) {
+  UseMethod("redactsUserEmails")
+}
+
 #' Must each deploy upload a bundle?
 #' @noRd
 requiresUpload <- function(client) {

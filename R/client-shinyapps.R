@@ -422,6 +422,21 @@ supportsUserManagement.shinyAppsClient <- function(client) {
 }
 
 #' @export
+usesPasswordFile.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+supportsOptionalInviteEmail.shinyAppsClient <- function(client) {
+  TRUE
+}
+
+#' @export
+redactsUserEmails.shinyAppsClient <- function(client) {
+  FALSE
+}
+
+#' @export
 requiresUpload.shinyAppsClient <- function(client) {
   FALSE
 }

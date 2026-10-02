@@ -34,6 +34,24 @@ test_that("supportsUserManagement() is correct for each client", {
   expect_true(supportsUserManagement(fake_client("connectCloudClient")))
 })
 
+test_that("usesPasswordFile() is correct for each client", {
+  expect_false(usesPasswordFile(fake_client("connectClient")))
+  expect_true(usesPasswordFile(fake_client("shinyAppsClient")))
+  expect_false(usesPasswordFile(fake_client("connectCloudClient")))
+})
+
+test_that("supportsOptionalInviteEmail() is correct for each client", {
+  expect_false(supportsOptionalInviteEmail(fake_client("connectClient")))
+  expect_true(supportsOptionalInviteEmail(fake_client("shinyAppsClient")))
+  expect_false(supportsOptionalInviteEmail(fake_client("connectCloudClient")))
+})
+
+test_that("redactsUserEmails() is correct for each client", {
+  expect_false(redactsUserEmails(fake_client("connectClient")))
+  expect_false(redactsUserEmails(fake_client("shinyAppsClient")))
+  expect_true(redactsUserEmails(fake_client("connectCloudClient")))
+})
+
 test_that("requiresUpload() is correct for each client", {
   expect_true(requiresUpload(fake_client("connectClient")))
   expect_false(requiresUpload(fake_client("shinyAppsClient")))

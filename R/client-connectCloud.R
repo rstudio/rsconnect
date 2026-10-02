@@ -499,6 +499,23 @@ supportsUserManagement.connectCloudClient <- function(client) {
 }
 
 #' @export
+usesPasswordFile.connectCloudClient <- function(client) {
+  FALSE
+}
+
+# Connect Cloud always sends the invitation email.
+#' @export
+supportsOptionalInviteEmail.connectCloudClient <- function(client) {
+  FALSE
+}
+
+# Connect Cloud can return a user record with a redacted email.
+#' @export
+redactsUserEmails.connectCloudClient <- function(client) {
+  TRUE
+}
+
+#' @export
 requiresUpload.connectCloudClient <- function(client) {
   FALSE
 }
