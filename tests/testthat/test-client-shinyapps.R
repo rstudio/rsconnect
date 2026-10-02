@@ -125,13 +125,16 @@ test_that("createContent() POSTs the name, template, and account", {
 
 test_that("findContent() gets the application for the deployment record", {
   requested <- NULL
-  client <- fake_client(
-    "shinyAppsClient",
-    getApplication = function(applicationId, deploymentRecordVersion) {
-      requested <<- list(applicationId, deploymentRecordVersion)
+  local_mocked_bindings(
+    getApplication.shinyAppsClient = function(
+      client,
+      applicationId
+    ) {
+      requested <<- applicationId
       list(id = applicationId, url = "https://some-user.shinyapps.io/app/")
     }
   )
+  client <- fake_client("shinyAppsClient")
 
   application <- findContent(
     client,
@@ -139,7 +142,7 @@ test_that("findContent() gets the application for the deployment record", {
     quiet = TRUE
   )
 
-  expect_equal(requested, list("42", "1"))
+  expect_equal(requested, "42")
   expect_equal(application$id, "42")
 })
 

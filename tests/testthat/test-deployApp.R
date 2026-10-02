@@ -619,11 +619,13 @@ test_that("deployApp() rejects an unsupported appVisibility before contacting th
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir, appId = NULL)
 
-  client_created <- FALSE
+  # Every Connect Cloud request goes through withTokenRefreshRetry().
   local_mocked_bindings(
     clientForAccount = function(...) {
-      client_created <<- TRUE
-      fake_client("connectCloudClient")
+      fake_client(
+        "connectCloudClient",
+        withTokenRefreshRetry = function(...) stop("contacted the server")
+      )
     }
   )
 
@@ -640,7 +642,6 @@ test_that("deployApp() rejects an unsupported appVisibility before contacting th
     ),
     error = TRUE
   )
-  expect_false(client_created)
 })
 
 test_that("PCC deploy passes appVisibility to createContent", {
@@ -747,15 +748,17 @@ test_that("fresh Connect deploy uploads to the newly created app, not an existin
 
   uploaded_guid <- NULL
   local_mocked_bindings(
+    getApplication.connectClient = function(...) {
+      stop("getApplication() should not be called for a fresh deploy")
+    }
+  )
+  local_mocked_bindings(
+    # No local deployment record, so deployApp() checks the server for an
+    # app with a matching name before deciding this is a fresh deploy.
+    listApplications.connectClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client(
         "connectClient",
-        # No local deployment record, so deployApp() checks the server for an
-        # app with a matching name before deciding this is a fresh deploy.
-        listApplications = function(...) list(),
-        getApplication = function(...) {
-          stop("getApplication() should not be called for a fresh deploy")
-        },
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
@@ -809,17 +812,19 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
   # recorded content rather than create new content.
   uploaded_guid <- NULL
   local_mocked_bindings(
+    getApplication.connectClient = function(...) {
+      list(
+        id = "42",
+        guid = "guid-42",
+        url = "https://example.com/content/42",
+        dashboard_url = "https://example.com/connect/#/apps/guid-42"
+      )
+    }
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "connectClient",
-        getApplication = function(...) {
-          list(
-            id = "42",
-            guid = "guid-42",
-            url = "https://example.com/content/42",
-            dashboard_url = "https://example.com/connect/#/apps/guid-42"
-          )
-        },
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
@@ -860,13 +865,15 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
 
   uploaded_id <- NULL
   local_mocked_bindings(
+    listApplications.shinyAppsClient = function(...) list(),
+    getApplication.shinyAppsClient = function(...) {
+      stop("getApplication() should not be called for a fresh deploy")
+    }
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "shinyAppsClient",
-        listApplications = function(...) list(),
-        getApplication = function(...) {
-          stop("getApplication() should not be called for a fresh deploy")
-        },
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
@@ -920,17 +927,19 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
   # recorded app rather than create a new one.
   uploaded_id <- NULL
   local_mocked_bindings(
+    getApplication.shinyAppsClient = function(...) {
+      list(
+        id = "99",
+        application_id = "99",
+        url = "https://myaccount.shinyapps.io/myapp/",
+        deployment = list(bundle = list(id = "bundle-old"))
+      )
+    }
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "shinyAppsClient",
-        getApplication = function(...) {
-          list(
-            id = "99",
-            application_id = "99",
-            url = "https://myaccount.shinyapps.io/myapp/",
-            deployment = list(bundle = list(id = "bundle-old"))
-          )
-        },
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
@@ -977,10 +986,14 @@ test_that("redeploy to Connect makes new content when the recorded content was d
 
   uploaded_guid <- NULL
   local_mocked_bindings(
+    getApplication.connectClient = function(...) {
+      abort(class = "rsconnect_http_404")
+    }
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "connectClient",
-        getApplication = function(...) abort(class = "rsconnect_http_404"),
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
@@ -1037,17 +1050,19 @@ test_that("redeploy to shinyapps.io with upload = FALSE deploys the current bund
 
   deployed_bundle <- NULL
   local_mocked_bindings(
+    getApplication.shinyAppsClient = function(...) {
+      list(
+        id = "99",
+        application_id = "99",
+        url = "https://myaccount.shinyapps.io/myapp/",
+        deployment = list(bundle = list(id = "bundle-old"))
+      )
+    }
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "shinyAppsClient",
-        getApplication = function(...) {
-          list(
-            id = "99",
-            application_id = "99",
-            url = "https://myaccount.shinyapps.io/myapp/",
-            deployment = list(bundle = list(id = "bundle-old"))
-          )
-        },
         deployApplication = function(application, bundleId = NULL) {
           deployed_bundle <<- bundleId
           list(task_id = "task-1")
@@ -1090,16 +1105,18 @@ test_that("redeploy to shinyapps.io ignores env vars saved in the record", {
   )
 
   local_mocked_bindings(
+    getApplication.shinyAppsClient = function(...) {
+      list(
+        id = "99",
+        application_id = "99",
+        url = "https://myaccount.shinyapps.io/myapp/"
+      )
+    }
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "shinyAppsClient",
-        getApplication = function(...) {
-          list(
-            id = "99",
-            application_id = "99",
-            url = "https://myaccount.shinyapps.io/myapp/"
-          )
-        },
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )
@@ -1150,10 +1167,12 @@ test_that("deployApp(upload=FALSE) on shinyapps.io does not error", {
   )
 
   local_mocked_bindings(
+    getApplication.shinyAppsClient = function(...) shinyapps_app_with_bundle
+  )
+  local_mocked_bindings(
     clientForAccount = function(...) {
       fake_client(
         "shinyAppsClient",
-        getApplication = function(...) shinyapps_app_with_bundle,
         deployApplication = function(...) list(task_id = "task-1"),
         waitForTask = function(...) list()
       )

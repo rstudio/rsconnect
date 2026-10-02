@@ -33,21 +33,6 @@ connectClient <- function(service, authInfo) {
 
     ## Applications API
 
-    listApplications = function(accountId, filters = NULL) {
-      if (is.null(filters)) {
-        filters <- vector()
-      }
-      path <- unversioned_url("applications")
-      query <- paste(
-        filterQuery(
-          c("account_id", names(filters)),
-          c(accountId, unname(filters))
-        ),
-        collapse = "&"
-      )
-      listApplicationsRequest(service, authInfo, path, query, "applications")
-    },
-
     deployApplication = function(application, bundleId = NULL) {
       path <- v1_url("content", application$guid, "deploy")
       POST_JSON(
@@ -56,19 +41,6 @@ connectClient <- function(service, authInfo) {
         path,
         json = list(bundle_id = bundleId)
       )
-    },
-
-    # We still have to use the unversioned URL here because the saved deployment
-    # record only saves numeric id, not the guid, which we need for v1/content/
-    getApplication = function(applicationId, deploymentRecordVersion) {
-      app <- GET(
-        service,
-        authInfo,
-        unversioned_url("applications", applicationId)
-      )
-      # Add dashboard_url, which comes in the v1/content URL but not applications/
-      app$dashboard_url <- connectDashboardUrl(buildHttpUrl(service), app$guid)
-      app
     },
 
     waitForTask = function(taskId, quiet = FALSE) {
@@ -141,6 +113,49 @@ uploadBundle.connectClient <- function(client, application, bundlePath) {
 }
 
 #' @export
+listApplications.connectClient <- function(
+  client,
+  accountId,
+  filters = list()
+) {
+  if (length(filters) == 0) {
+    filters <- vector()
+  }
+  path <- unversioned_url("applications")
+  query <- paste(
+    filterQuery(
+      c("account_id", names(filters)),
+      c(accountId, unname(filters))
+    ),
+    collapse = "&"
+  )
+  listApplicationsRequest(
+    client$service,
+    client$authInfo,
+    path,
+    query,
+    "applications"
+  )
+}
+
+# The deployment record has only the numeric id, and not the guid that
+# v1/content/ needs, so this uses the unversioned URL.
+#' @export
+getApplication.connectClient <- function(client, applicationId) {
+  app <- GET(
+    client$service,
+    client$authInfo,
+    unversioned_url("applications", applicationId)
+  )
+  # Add dashboard_url, which comes in the v1/content URL but not applications/
+  app$dashboard_url <- connectDashboardUrl(
+    buildHttpUrl(client$service),
+    app$guid
+  )
+  app
+}
+
+#' @export
 createContent.connectClient <- function(
   client,
   deployment,
@@ -170,7 +185,7 @@ createContent.connectClient <- function(
 
 #' @export
 findContent.connectClient <- function(client, deployment, quiet) {
-  application <- client$getApplication(deployment$appId, deployment$version)
+  application <- getApplication(client, deployment$appId)
   taskComplete(quiet, "Found content {.url {application$url}}")
   application
 }
@@ -322,6 +337,29 @@ resendApplicationInvitation.connectClient <- function(
   regenerate = FALSE
 ) {
   abortUserManagementUnsupported(client)
+}
+
+#' @export
+applicationsTable.connectClient <- function(client, accountDetails) {
+  serverUrl <- serverInfo(accountDetails$server)$url
+  apps <- listApplications(client, accountDetails$accountId)
+  rows <- lapply(apps, function(x) {
+    data.frame(
+      id = x$id,
+      name = x$name,
+      title = x$title %||% NA_character_,
+      url = x$url,
+      status = x$build_status,
+      created_time = x$created_time,
+      updated_time = x$last_deployed_time,
+      guid = x$guid,
+      size = NA,
+      instances = NA,
+      config_url = connectDashboardUrl(serverUrl, x$id),
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call(rbind, rows)
 }
 
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {

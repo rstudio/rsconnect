@@ -241,6 +241,65 @@ listInvitations <- function(client, applicationId) {
   UseMethod("listInvitations")
 }
 
+#' Build the data frame that `applications()` returns
+#'
+#' @param client A client object.
+#' @param accountDetails The account from `accountInfo()`.
+#'
+#' @return A data frame with one row for each content item. It has the columns
+#'   `id`, `name`, `title`, `url`, `status`, `size`, `instances`, `config_url`,
+#'   `created_time`, `updated_time`, and `guid`. A backend that does not have a
+#'   value for a column puts `NA` in it.
+#' @noRd
+applicationsTable <- function(client, accountDetails) {
+  UseMethod("applicationsTable")
+}
+
+#' Find existing content by name, for a deploy that has no deployment record
+#'
+#' @param client A client object.
+#' @param accountDetails The account from `accountInfo()`.
+#' @param name The name of the application.
+#'
+#' @return The content, or `NULL` if the server has no content with that name.
+#' @noRd
+findContentByName <- function(client, accountDetails, name) {
+  UseMethod("findContentByName")
+}
+
+#' @export
+findContentByName.rsconnectClient <- function(client, accountDetails, name) {
+  tryCatch(
+    getAppByName(client, accountDetails, name),
+    rsconnect_app_not_found = function(err) NULL
+  )
+}
+
+#' List the content of an account
+#'
+#' @param client A client object.
+#' @param accountId The id of the account.
+#' @param filters A named list of filters. Every client supports `name`, which
+#'   must match exactly.
+#'
+#' @return A list of content items. Each item has an `id` and a `name`.
+#' @noRd
+listApplications <- function(client, accountId, filters = list()) {
+  UseMethod("listApplications")
+}
+
+#' Get content by its id
+#'
+#' @param client A client object.
+#' @param applicationId The content id from the deployment record.
+#'
+#' @return The content. If the content does not exist, the method signals an
+#'   `rsconnect_http_404` error.
+#' @noRd
+getApplication <- function(client, applicationId) {
+  UseMethod("getApplication")
+}
+
 #' Invite a user to an application
 #'
 #' @param client A client object.
