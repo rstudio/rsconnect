@@ -5,11 +5,13 @@ test_that("syncAppMetadata updates deployment records", {
 
   app <- local_temp_app()
   addTestDeployment(app, appId = "123", metadata = list(when = 123))
+  local_mocked_bindings(
+    getApplication.connectClient = function(...) {
+      list(title = "newtitle", url = "newurl")
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectClient",
-      getApplication = function(...) list(title = "newtitle", url = "newurl")
-    )
+    fake_client("connectClient")
   })
 
   syncAppMetadata(app)
@@ -26,11 +28,13 @@ test_that("syncAppMetadata deletes deployment records if needed", {
 
   app <- local_temp_app()
   addTestDeployment(app, appId = "123", metadata = list(when = 123))
+  local_mocked_bindings(
+    getApplication.connectClient = function(...) {
+      abort(class = "rsconnect_http_404")
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectClient",
-      getApplication = function(...) abort(class = "rsconnect_http_404")
-    )
+    fake_client("connectClient")
   })
 
   expect_snapshot(syncAppMetadata(app))
@@ -49,11 +53,13 @@ test_that("syncAppMetadata skips Connect Cloud deployment records", {
     server = "connect.posit.cloud",
     metadata = list(when = 123)
   )
+  local_mocked_bindings(
+    getApplication.connectCloudClient = function(...) {
+      stop("getApplication should not be called")
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      getApplication = function(...) stop("getApplication should not be called")
-    )
+    fake_client("connectCloudClient")
   })
 
   syncAppMetadata(app)
@@ -65,28 +71,137 @@ test_that("applications() builds config_url for standard Connect accounts", {
   addTestServer(url = "https://connect.example.com")
   addTestAccount("ron", server = "connect.example.com")
 
+  local_mocked_bindings(
+    listApplications.connectClient = function(client, accountId, ...) {
+      list(list(
+        id = "123",
+        name = "myapp",
+        title = "My App",
+        url = "https://connect.example.com/content/123/",
+        build_status = "ready",
+        created_time = "2024-01-01T00:00:00Z",
+        last_deployed_time = "2024-01-02T00:00:00Z",
+        guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f"
+      ))
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectClient",
-      listApplications = function(accountId, ...) {
-        list(list(
-          id = "123",
-          name = "myapp",
-          title = "My App",
-          url = "https://connect.example.com/content/123/",
-          build_status = "ready",
-          created_time = "2024-01-01T00:00:00Z",
-          last_deployed_time = "2024-01-02T00:00:00Z",
-          guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f"
-        ))
-      }
-    )
+    fake_client("connectClient")
   })
 
   result <- applications(account = "ron", server = "connect.example.com")
   expect_equal(
     result$config_url,
     "https://connect.example.com/connect/#/apps/123"
+  )
+})
+
+test_that("applications() returns all columns for Connect accounts", {
+  local_temp_config()
+  addTestServer(url = "https://connect.example.com")
+  addTestAccount("ron", server = "connect.example.com")
+
+  local_mocked_bindings(
+    listApplications.connectClient = function(client, accountId, ...) {
+      list(list(
+        id = "123",
+        name = "myapp",
+        title = "My App",
+        url = "https://connect.example.com/content/123/",
+        build_status = "ready",
+        created_time = "2024-01-01T00:00:00Z",
+        last_deployed_time = "2024-01-02T00:00:00Z",
+        guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f",
+        owner_guid = "not-kept"
+      ))
+    }
+  )
+  local_mocked_bindings(clientForAccount = function(...) {
+    fake_client("connectClient")
+  })
+
+  result <- applications(account = "ron", server = "connect.example.com")
+  expect_equal(
+    result,
+    data.frame(
+      id = "123",
+      name = "myapp",
+      title = "My App",
+      url = "https://connect.example.com/content/123/",
+      status = "ready",
+      created_time = "2024-01-01T00:00:00Z",
+      updated_time = "2024-01-02T00:00:00Z",
+      guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f",
+      size = NA,
+      instances = NA,
+      config_url = "https://connect.example.com/connect/#/apps/123",
+      stringsAsFactors = FALSE
+    )
+  )
+})
+
+test_that("applications() returns all columns for shinyapps.io accounts", {
+  local_temp_config()
+  addTestServer(url = "https://shinyapps.io", name = "shinyapps.io")
+  addTestAccount("myaccount", server = "shinyapps.io")
+
+  local_mocked_bindings(
+    listApplications.shinyAppsClient = function(client, accountId, ...) {
+      list(
+        list(
+          id = 456L,
+          name = "myapp",
+          url = "https://myaccount.shinyapps.io/myapp/",
+          status = "running",
+          created_time = "2024-01-01T00:00:00Z",
+          updated_time = "2024-01-02T00:00:00Z",
+          deployment = list(
+            properties = list(
+              application.instances.template = "large",
+              application.instances.count = 2L
+            )
+          ),
+          owner_id = "not-kept"
+        ),
+        list(
+          id = 789L,
+          name = "otherapp",
+          url = "https://myaccount.shinyapps.io/otherapp/",
+          status = "terminated",
+          created_time = "2024-02-01T00:00:00Z",
+          updated_time = "2024-02-02T00:00:00Z",
+          deployment = list(properties = list())
+        )
+      )
+    }
+  )
+  local_mocked_bindings(clientForAccount = function(...) {
+    fake_client("shinyAppsClient")
+  })
+
+  result <- applications(account = "myaccount", server = "shinyapps.io")
+  expect_equal(
+    result,
+    data.frame(
+      id = c(456L, 789L),
+      name = c("myapp", "otherapp"),
+      url = c(
+        "https://myaccount.shinyapps.io/myapp/",
+        "https://myaccount.shinyapps.io/otherapp/"
+      ),
+      status = c("running", "terminated"),
+      created_time = c("2024-01-01T00:00:00Z", "2024-02-01T00:00:00Z"),
+      updated_time = c("2024-01-02T00:00:00Z", "2024-02-02T00:00:00Z"),
+      size = c("large", NA),
+      instances = c(2L, NA),
+      guid = NA,
+      title = NA_character_,
+      config_url = c(
+        "https://www.shinyapps.io/admin/#/application/456",
+        "https://www.shinyapps.io/admin/#/application/789"
+      ),
+      stringsAsFactors = FALSE
+    )
   )
 })
 
@@ -101,27 +216,26 @@ test_that("applications() returns a data frame for PCC accounts", {
   # userId is passed as accountId in registerAccount() via addTestAccount().
   addTestAccount("myaccount", server = "connect.posit.cloud", userId = "acct-1")
 
+  local_mocked_bindings(
+    listApplications.connectCloudClient = function(client, accountId, ...) {
+      # GET /contents embeds the current revision, whose `url` is the served
+      # (vanity/custom) URL of the published content.
+      list(list(
+        id = "abc-123",
+        title = "My App",
+        account_id = "acct-1",
+        created_time = "2024-01-01T00:00:00Z",
+        updated_time = "2024-01-02T00:00:00Z",
+        current_revision = list(
+          url = "https://my-app.share.connect.posit.cloud/"
+        )
+      ))
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      listApplications = function(accountId, ...) {
-        # GET /contents embeds the current revision, whose `url` is the served
-        # (vanity/custom) URL of the published content.
-        list(list(
-          id = "abc-123",
-          title = "My App",
-          account_id = "acct-1",
-          created_time = "2024-01-01T00:00:00Z",
-          updated_time = "2024-01-02T00:00:00Z",
-          current_revision = list(
-            url = "https://my-app.share.connect.posit.cloud/"
-          )
-        ))
-      },
-      getAccounts = function() {
-        list(data = list(list(id = "acct-1", name = "real-slug")))
-      }
-    )
+    fake_client("connectCloudClient", getAccounts = function() {
+      list(data = list(list(id = "acct-1", name = "real-slug")))
+    })
   })
 
   result <- applications(account = "myaccount", server = "connect.posit.cloud")
@@ -148,18 +262,20 @@ test_that("applications() falls back to the constructed url when content is unpu
   )
   addTestAccount("myaccount", server = "connect.posit.cloud", userId = "acct-1")
 
+  local_mocked_bindings(
+    # No current_revision for content that has never published successfully;
+    # url falls back to the constructed content-id URL.
+    listApplications.connectCloudClient = function(client, accountId, ...) {
+      list(list(
+        id = "abc-123",
+        title = "My App",
+        account_id = "acct-1"
+      ))
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
-      # No current_revision for content that has never published successfully;
-      # url falls back to the constructed content-id URL.
-      listApplications = function(accountId, ...) {
-        list(list(
-          id = "abc-123",
-          title = "My App",
-          account_id = "acct-1"
-        ))
-      },
       getAccounts = function() {
         list(data = list(list(id = "acct-1", name = "real-slug")))
       }
@@ -181,8 +297,11 @@ test_that("applications() returns empty data frame for PCC account with no conte
   )
   addTestAccount("myaccount", server = "connect.posit.cloud")
 
+  local_mocked_bindings(
+    listApplications.connectCloudClient = function(...) list()
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client("connectCloudClient", listApplications = function(...) list())
+    fake_client("connectCloudClient")
   })
 
   result <- applications(account = "myaccount", server = "connect.posit.cloud")

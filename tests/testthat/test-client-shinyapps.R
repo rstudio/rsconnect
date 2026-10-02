@@ -125,13 +125,16 @@ test_that("createContent() POSTs the name, template, and account", {
 
 test_that("findContent() gets the application for the deployment record", {
   requested <- NULL
-  client <- fake_client(
-    "shinyAppsClient",
-    getApplication = function(applicationId, deploymentRecordVersion) {
-      requested <<- list(applicationId, deploymentRecordVersion)
+  local_mocked_bindings(
+    getApplication.shinyAppsClient = function(
+      client,
+      applicationId
+    ) {
+      requested <<- applicationId
       list(id = applicationId, url = "https://some-user.shinyapps.io/app/")
     }
   )
+  client <- fake_client("shinyAppsClient")
 
   application <- findContent(
     client,
@@ -139,7 +142,7 @@ test_that("findContent() gets the application for the deployment record", {
     quiet = TRUE
   )
 
-  expect_equal(requested, list("42", "1"))
+  expect_equal(requested, "42")
   expect_equal(application$id, "42")
 })
 
@@ -401,4 +404,60 @@ test_that("listInvitations() returns an empty data frame when there are no invit
   )
 
   expect_equal(listInvitations(client, 42), emptyInvitations())
+})
+
+test_that("resolveContentTarget() finds the application with the client it gets", {
+  local_mocked_bindings(
+    clientForAccount = function(...) stop("built a second client"),
+    listApplications.shinyAppsClient = function(client, accountId, ...) {
+      list(list(id = 42, name = "other-app"), list(id = 43, name = "my-app"))
+    }
+  )
+  client <- fake_client("shinyAppsClient")
+
+  target <- resolveContentTarget(
+    client,
+    accountDetails = list(accountId = "1"),
+    appDir = "my-app",
+    appName = NULL
+  )
+
+  expect_equal(target, list(id = 43, deploymentFile = NULL))
+})
+
+test_that("listApplications() filters by account, Shiny type, and name", {
+  sent <- list()
+  local_mocked_bindings(
+    listRequest = function(service, authInfo, path, query, ...) {
+      sent[[length(sent) + 1]] <<- list(path = path, query = query)
+      list()
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  listApplications(client, "1")
+  listApplications(client, "1", filters = list(name = "my-app"))
+
+  expect_equal(sent[[1]]$path, "/applications/")
+  expect_equal(sent[[1]]$query, "filter=account_id:1&filter=type:shiny")
+  expect_equal(
+    sent[[2]]$query,
+    "filter=account_id:1&filter=type:shiny&filter=name:my-app"
+  )
+})
+
+test_that("getApplication() GETs the application and copies its id", {
+  requested <- NULL
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      requested <<- path
+      list(id = 42, name = "my-app")
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  application <- getApplication(client, 42)
+
+  expect_equal(requested, "/applications/42")
+  expect_equal(application, list(id = 42, name = "my-app", application_id = 42))
 })

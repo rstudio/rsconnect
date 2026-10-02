@@ -94,7 +94,7 @@ test_that("uses appId without local deployment record; created by local account"
   addTestAccount("leslie", "local")
 
   local_mocked_bindings(
-    getApplication = function(...) {
+    getApplicationForAccount = function(...) {
       data.frame(
         id = "the-appid",
         name = "remote-record",
@@ -126,7 +126,7 @@ test_that("uses appId without local deployment record; created by collaborator",
   app_dir <- withr::local_tempdir()
 
   local_mocked_bindings(
-    getApplication = function(...) {
+    getApplicationForAccount = function(...) {
       data.frame(
         id = "the-appid",
         name = "remote-record",
@@ -518,18 +518,22 @@ test_that("findDeploymentTargetByAppId works for PCC with no local deployment re
   addTestAccount("myaccount", server = "connect.posit.cloud")
 
   local_mocked_bindings(
-    clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getApplication = function(applicationId, deploymentRecordVersion) {
-          list(
-            id = applicationId,
-            title = "My PCC App",
-            # Real client derives a valid record name from the title.
-            name = "my_pcc_app"
-          )
-        }
+    getApplication.connectCloudClient = function(
+      client,
+      applicationId,
+      deploymentRecordVersion
+    ) {
+      list(
+        id = applicationId,
+        title = "My PCC App",
+        # Real client derives a valid record name from the title.
+        name = "my_pcc_app"
       )
+    }
+  )
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client("connectCloudClient")
     }
   )
 
