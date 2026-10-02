@@ -526,6 +526,7 @@ resolveContentTarget.shinyAppsClient <- function(
     ))
   }
   application <- resolveApplication(
+    client,
     accountDetails,
     appName %||% basename(appDir)
   )

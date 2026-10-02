@@ -405,3 +405,22 @@ test_that("listInvitations() returns an empty data frame when there are no invit
 
   expect_equal(listInvitations(client, 42), emptyInvitations())
 })
+
+test_that("resolveContentTarget() finds the application with the client it gets", {
+  local_mocked_bindings(
+    clientForAccount = function(...) stop("built a second client"),
+    listApplications.shinyAppsClient = function(client, accountId, ...) {
+      list(list(id = 42, name = "other-app"), list(id = 43, name = "my-app"))
+    }
+  )
+  client <- fake_client("shinyAppsClient")
+
+  target <- resolveContentTarget(
+    client,
+    accountDetails = list(accountId = "1"),
+    appDir = "my-app",
+    appName = NULL
+  )
+
+  expect_equal(target, list(id = 43, deploymentFile = NULL))
+})

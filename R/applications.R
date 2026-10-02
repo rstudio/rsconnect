@@ -65,8 +65,7 @@ getAppByName <- function(client, accountInfo, name, error_call = caller_env()) {
 }
 
 # Use the API to list all applications then filter the results client-side.
-resolveApplication <- function(accountDetails, appName) {
-  client <- clientForAccount(accountDetails)
+resolveApplication <- function(client, accountDetails, appName) {
   apps <- listApplications(client, accountDetails$accountId)
   for (app in apps) {
     if (identical(app$name, appName)) {
@@ -103,14 +102,14 @@ stopWithApplicationNotFound <- function(appName) {
 
 applicationTask <- function(taskDef, appName, accountDetails, quiet) {
   # resolve target account and application
-  application <- resolveApplication(accountDetails, appName)
+  client <- clientForAccount(accountDetails)
+  application <- resolveApplication(client, accountDetails, appName)
 
   # get status function and display initial status
   displayStatus <- displayStatus(quiet)
   displayStatus(paste(taskDef$beginStatus, "...\n", sep = ""))
 
   # perform the action
-  client <- clientForAccount(accountDetails)
   task <- taskDef$action(client, application)
   client$waitForTask(task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
