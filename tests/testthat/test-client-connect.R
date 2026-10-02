@@ -95,7 +95,7 @@ test_that("getApplication() fills in dashboard_url from guid when missing", {
   authInfo <- list(apiKey = "the-api-key")
   client <- connectClient(service, authInfo)
 
-  result <- client$getApplication(101, "unknown")
+  result <- getApplication(client, 101)
   expect_equal(
     result$dashboard_url,
     connectDashboardUrl(
@@ -287,13 +287,16 @@ test_that("createContent() does not send an empty title", {
 
 test_that("findContent() gets the application for the deployment record", {
   requested <- NULL
-  client <- fake_client(
-    "connectClient",
-    getApplication = function(applicationId, deploymentRecordVersion) {
-      requested <<- list(applicationId, deploymentRecordVersion)
+  local_mocked_bindings(
+    getApplication.connectClient = function(
+      client,
+      applicationId
+    ) {
+      requested <<- applicationId
       list(id = applicationId, url = "https://example.com/content/42/")
     }
   )
+  client <- fake_client("connectClient")
 
   application <- findContent(
     client,
@@ -301,7 +304,7 @@ test_that("findContent() gets the application for the deployment record", {
     quiet = TRUE
   )
 
-  expect_equal(requested, list("42", "1"))
+  expect_equal(requested, "42")
   expect_equal(application$id, "42")
 })
 

@@ -135,12 +135,14 @@ test_that("showUsers on shinyapps.io returns only id/email/account columns (no d
   addTestServer(url = "https://shinyapps.io", name = "shinyapps.io")
   addTestAccount("myaccount", server = "shinyapps.io")
 
+  local_mocked_bindings(
+    listApplications.shinyAppsClient = function(client, accountId, ...) {
+      list(list(name = "myapp", id = 42L))
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "shinyAppsClient",
-      listApplications = function(accountId, ...) {
-        list(list(name = "myapp", id = 42L))
-      },
       listApplicationAuthorization = function(appId) {
         list(
           list(
@@ -168,12 +170,14 @@ test_that("showUsers names shinyapps.io (not Connect Cloud) in the malformed-rec
   addTestServer(url = "https://shinyapps.io", name = "shinyapps.io")
   addTestAccount("myaccount", server = "shinyapps.io")
 
+  local_mocked_bindings(
+    listApplications.shinyAppsClient = function(client, accountId, ...) {
+      list(list(name = "myapp", id = 42L))
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "shinyAppsClient",
-      listApplications = function(accountId, ...) {
-        list(list(name = "myapp", id = 42L))
-      },
       listApplicationAuthorization = function(appId) {
         # record with neither id nor email — unexpected shape
         list(list(user = list()))
@@ -662,12 +666,14 @@ test_that("resolveContentTarget delegates to resolveApplication on shinyapps.io"
   addTestAccount("myaccount", server = "shinyapps.io")
 
   captured_app_id <- NULL
+  local_mocked_bindings(
+    listApplications.shinyAppsClient = function(client, accountId, ...) {
+      list(list(name = "myapp", id = 42L))
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "shinyAppsClient",
-      listApplications = function(accountId, ...) {
-        list(list(name = "myapp", id = 42L))
-      },
       listApplicationAuthorization = function(appId) {
         captured_app_id <<- appId
         list()

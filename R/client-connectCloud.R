@@ -126,52 +126,9 @@ connectCloudClient <- function(service, authInfo) {
 
     withTokenRefreshRetry = withTokenRefreshRetry,
 
-    listApplications = function(accountId, filters = list()) {
-      # order_by gives the list a stable total order; without it offset-based
-      # paging can skip or duplicate rows across requests.
-      allItems <- paginate(function(limit, offset) {
-        paste0(
-          "/contents?account_id=",
-          accountId,
-          "&order_by=created_time&include_total=true&limit=",
-          limit,
-          "&offset=",
-          offset
-        )
-      })
-      # Drop content that has been soft-deleted but not yet hard-deleted: an
-      # account owner can still see it in the window before the cleanup job runs.
-      allItems <- Filter(
-        function(item) !identical(item$state, "deleted"),
-        allItems
-      )
-      # Set name = title so resolveApplication (which matches on app$name) works for PCC.
-      items <- lapply(allItems, function(item) {
-        item$name <- item$title
-        item
-      })
-      # Honor filters$name with exact-match semantics to match the shinyapps.io
-      # client contract (listApplications callers may pass filters$name).
-      # NOTE: getAppByName()/getLogs() historically reached this block; getLogs()
-      # is now guarded with checkShinyappsServer() so PCC callers never reach it.
-      # The block is kept for listApplications contract parity with shinyapps.io:
-      # removing it would silently break any future caller that passes filters$name.
-      if (!is.null(filters$name)) {
-        items <- Filter(
-          function(item) identical(item$name, filters$name),
-          items
-        )
-      }
-      items
-    },
+    paginate = paginate,
 
     getContent = getContent,
-
-    getApplication = function(applicationId, deploymentRecordVersion) {
-      content <- getContent(applicationId)
-      content$name <- generateAppName(content$title, unique = FALSE)
-      content
-    },
 
     getAuthorization = getAuthorization,
 
@@ -237,6 +194,52 @@ uploadBundle.connectCloudClient <- function(client, application, bundlePath) {
   }
   # Connect Cloud has no bundle id, so the deploy template gets NULL here.
   NULL
+}
+
+#' @export
+listApplications.connectCloudClient <- function(
+  client,
+  accountId,
+  filters = list()
+) {
+  # order_by gives the list a stable total order; without it offset-based
+  # paging can skip or duplicate rows across requests.
+  allItems <- client$paginate(function(limit, offset) {
+    paste0(
+      "/contents?account_id=",
+      accountId,
+      "&order_by=created_time&include_total=true&limit=",
+      limit,
+      "&offset=",
+      offset
+    )
+  })
+  # Drop content that has been soft-deleted but not yet hard-deleted: an
+  # account owner can still see it in the window before the cleanup job runs.
+  allItems <- Filter(
+    function(item) !identical(item$state, "deleted"),
+    allItems
+  )
+  # Set name = title so resolveApplication (which matches on app$name) works for PCC.
+  items <- lapply(allItems, function(item) {
+    item$name <- item$title
+    item
+  })
+  # Match filters$name exactly, like the other clients do.
+  if (!is.null(filters$name)) {
+    items <- Filter(
+      function(item) identical(item$name, filters$name),
+      items
+    )
+  }
+  items
+}
+
+#' @export
+getApplication.connectCloudClient <- function(client, applicationId) {
+  content <- client$getContent(applicationId)
+  content$name <- generateAppName(content$title, unique = FALSE)
+  content
 }
 
 # Connect Cloud content has no `url` until it is published.
@@ -398,6 +401,13 @@ addsUtmParameters.connectCloudClient <- function(client) {
   TRUE
 }
 
+# Connect Cloud titles can change and do not have to be unique, so a deploy
+# without a deployment record always makes new content.
+#' @export
+findContentByName.connectCloudClient <- function(client, accountDetails, name) {
+  NULL
+}
+
 # A content id targets the content directly. If there is no content id, the id
 # comes from the local deployment record. The title cannot identify the
 # content, because Connect Cloud titles can change and do not have to be unique.
@@ -524,6 +534,76 @@ listInvitations.connectCloudClient <- function(client, applicationId) {
     return(emptyInvitations())
   }
   do.call(rbind, rows)
+}
+
+#' @export
+applicationsTable.connectCloudClient <- function(client, accountDetails) {
+  apps <- listApplications(client, accountDetails$accountId)
+  empty <- data.frame(
+    id = character(),
+    name = character(),
+    title = character(),
+    url = character(),
+    status = character(),
+    size = character(),
+    instances = integer(),
+    config_url = character(),
+    created_time = character(),
+    updated_time = character(),
+    guid = character(),
+    stringsAsFactors = FALSE
+  )
+  if (length(apps) == 0) {
+    return(empty)
+  }
+  # Resolve the owning account's real server-side slug once. All items belong
+  # to accountDetails$accountId (listApplications filters by it), so one
+  # getAccounts() call covers every row. Using the resolved slug rather than
+  # accountDetails$name (the local alias) prevents wrong-account URLs when the
+  # remote slug differs from the alias stored in the local config.
+  pccAccts <- client$getAccounts()$data
+  pccOwner <- Find(
+    function(a) identical(a$id, accountDetails$accountId),
+    pccAccts
+  )
+  if (is.null(pccOwner)) {
+    cli::cli_abort(
+      c(
+        "Unable to determine the Connect Cloud account for content listing.",
+        i = "You may not have access to the account this content belongs to."
+      )
+    )
+  }
+  contentUrlBase <- paste0(
+    connectCloudUrls()$ui,
+    "/",
+    pccOwner$name,
+    "/content/"
+  )
+  res <- lapply(apps, function(x) {
+    # url = the standalone served URL handed to app consumers (consistent with
+    # shinyapps.io/Connect); config_url = the dashboard settings page.
+    # Prefer the revision's served URL (the vanity/custom URL when set); fall
+    # back to the constructed content-id URL for content not yet published,
+    # where current_revision (or its url) is absent.
+    contentId <- x$id %||% ""
+    dashboardUrl <- paste0(contentUrlBase, contentId)
+    data.frame(
+      id = x$id %||% NA_character_,
+      name = x$title %||% NA_character_,
+      title = x$title %||% NA_character_,
+      url = x$current_revision$url %||% connectCloudStandaloneUrl(contentId),
+      status = NA_character_,
+      size = NA_character_,
+      instances = NA_integer_,
+      config_url = paste0(dashboardUrl, "/settings/info"),
+      created_time = x$created_time %||% NA_character_,
+      updated_time = x$updated_time %||% NA_character_,
+      guid = NA_character_,
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call("rbind", res)
 }
 
 # Resolves the browsable URL for `contentId`, based on the account it

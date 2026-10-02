@@ -727,7 +727,7 @@ test_that("listApplications() paginates through multiple pages", {
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$listApplications("acct-1")
+  result <- listApplications(client, "acct-1")
   expect_equal(length(result), 3L)
   expect_equal(
     vapply(result, function(x) x$id, character(1)),
@@ -771,7 +771,7 @@ test_that("listApplications() filters by exact name, not substring", {
   client <- connectCloudClient(service, authInfo)
 
   # "my-app-extra" shares a prefix with "my-app"; exact match must exclude it.
-  result <- client$listApplications("acct-1", filters = list(name = "my-app"))
+  result <- listApplications(client, "acct-1", filters = list(name = "my-app"))
   expect_equal(length(result), 1L)
   expect_equal(result[[1]]$id, "c1")
   expect_equal(result[[1]]$name, "my-app")
@@ -816,7 +816,7 @@ test_that("listApplications() requests a stable sort and drops deleted content",
   client <- connectCloudClient(service, authInfo)
 
   # order_by must have been sent (else the app 400s); deleted content is dropped.
-  result <- client$listApplications("acct-1")
+  result <- listApplications(client, "acct-1")
   expect_equal(length(result), 1L)
   expect_equal(result[[1]]$id, "c1")
   expect_equal(result[[1]]$name, "active-app")
@@ -1463,7 +1463,7 @@ test_that("getApplication() delegates to getContent and derives name from the ti
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$getApplication("content-abc", "unknown")
+  result <- getApplication(client, "content-abc")
   expect_equal(result$id, "content-abc")
   expect_equal(result$title, "My App Title")
   # name is a valid record identifier derived from the title, not the raw title.

@@ -28,3 +28,32 @@ test_that("every client generic has a method for every client class", {
     }
   }
 })
+
+test_that("findContentByName() returns the content with that name", {
+  local_mocked_bindings(
+    listApplications.shinyAppsClient = function(client, accountId, filters) {
+      list(list(id = 42, name = filters$name))
+    }
+  )
+  client <- fake_client("shinyAppsClient")
+  content <- findContentByName(client, list(accountId = "1"), "my-app")
+  expect_equal(content, list(id = 42, name = "my-app"))
+})
+
+test_that("findContentByName() returns NULL when no content has that name", {
+  local_mocked_bindings(
+    listApplications.connectClient = function(client, accountId, filters) list()
+  )
+  client <- fake_client("connectClient")
+  expect_null(findContentByName(client, list(accountId = "1"), "my-app"))
+})
+
+test_that("findContentByName() does not look up content on Connect Cloud", {
+  local_mocked_bindings(
+    listApplications.connectCloudClient = function(...) {
+      stop("listApplications was called")
+    }
+  )
+  client <- fake_client("connectCloudClient")
+  expect_null(findContentByName(client, list(accountId = "1"), "my-app"))
+})
