@@ -885,7 +885,7 @@ test_that("removeApplicationUser DELETEs /contents/{id}/users/{userId} and retur
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$removeApplicationUser("content-abc", "user-uuid-1")
+  result <- removeApplicationUser(client, "content-abc", "user-uuid-1")
   expect_true(result)
 })
 
@@ -954,7 +954,8 @@ test_that("inviteApplicationUser POSTs expected JSON fields to /contents/{id}/in
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$inviteApplicationUser(
+  result <- inviteApplicationUser(
+    client,
     "content-abc",
     "alice@example.com",
     TRUE,
@@ -1001,7 +1002,8 @@ test_that("inviteApplicationUser sends null message field when emailMessage is N
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$inviteApplicationUser(
+  result <- inviteApplicationUser(
+    client,
     "content-abc",
     "alice@example.com",
     TRUE,
@@ -1088,7 +1090,7 @@ test_that("resendApplicationInvitation sends {} (object not array) to /content_i
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$resendApplicationInvitation("inv-uuid-1", FALSE)
+  result <- resendApplicationInvitation(client, "inv-uuid-1", FALSE)
   expect_true(result)
 })
 

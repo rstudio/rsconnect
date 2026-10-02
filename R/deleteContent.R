@@ -45,8 +45,14 @@ deleteContent <- function(
   accountDetails <- accountInfo(account, server)
   checkPositConnectCloudServer(accountDetails$server)
 
-  target <- resolveContentTarget(accountDetails, appDir, appName, contentId)
   client <- clientForAccount(accountDetails)
+  target <- resolveContentTarget(
+    client,
+    accountDetails,
+    appDir,
+    appName,
+    contentId
+  )
 
   content <- withCallingHandlers(
     client$getContent(target$id),

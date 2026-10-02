@@ -212,29 +212,6 @@ shinyAppsClient <- function(service, authInfo) {
       POST(service, authInfo, path)
     },
 
-    inviteApplicationUser = function(
-      applicationId,
-      email,
-      invite_email = NULL,
-      invite_email_message = NULL
-    ) {
-      path <- paste(
-        "/applications/",
-        applicationId,
-        "/authorization/users",
-        sep = ""
-      )
-      json <- list()
-      json$email <- email
-      if (!is.null(invite_email)) {
-        json$invite_email <- invite_email
-      }
-      if (!is.null(invite_email_message)) {
-        json$invite_email_message <- invite_email_message
-      }
-      POST_JSON(service, authInfo, path, json)
-    },
-
     addApplicationUser = function(applicationId, userId) {
       path <- paste(
         "/applications/",
@@ -244,17 +221,6 @@ shinyAppsClient <- function(service, authInfo) {
         sep = ""
       )
       PUT(service, authInfo, path, NULL)
-    },
-
-    removeApplicationUser = function(applicationId, userId) {
-      path <- paste(
-        "/applications/",
-        applicationId,
-        "/authorization/users/",
-        userId,
-        sep = ""
-      )
-      DELETE(service, authInfo, path, NULL)
     },
 
     listApplicationAuthorization = function(applicationId) {
@@ -286,13 +252,6 @@ shinyAppsClient <- function(service, authInfo) {
       path <- "/invitations/"
       query <- paste(filterQuery("app_id", applicationId), collapse = "&")
       listRequest(service, authInfo, path, query, "invitations")
-    },
-
-    resendApplicationInvitation = function(invitationId, regenerate = FALSE) {
-      path <- paste("/invitations/", invitationId, "/send", sep = "")
-      json <- list()
-      json$regenerate <- regenerate
-      POST_JSON(service, authInfo, path, json)
     },
 
     listTasks = function(accountId, filters = NULL) {
@@ -474,11 +433,6 @@ supportsNodejs.shinyAppsClient <- function(client) {
 }
 
 #' @export
-supportsUserManagement.shinyAppsClient <- function(client) {
-  TRUE
-}
-
-#' @export
 usesPasswordFile.shinyAppsClient <- function(client) {
   TRUE
 }
@@ -523,6 +477,123 @@ staticRmdNeedsShiny.shinyAppsClient <- function(client) {
 #' @export
 addsUtmParameters.shinyAppsClient <- function(client) {
   FALSE
+}
+
+#' @export
+resolveContentTarget.shinyAppsClient <- function(
+  client,
+  accountDetails,
+  appDir,
+  appName,
+  contentId = NULL
+) {
+  if (!is.null(contentId)) {
+    cli::cli_abort(c(
+      "{.arg contentId} is only supported on Posit Connect Cloud.",
+      i = "On shinyapps.io, identify the application with {.arg appName}."
+    ))
+  }
+  application <- resolveApplication(
+    accountDetails,
+    appName %||% basename(appDir)
+  )
+  list(id = application$id, deploymentFile = NULL)
+}
+
+#' @export
+listCollaborators.shinyAppsClient <- function(client, applicationId) {
+  res <- client$listApplicationAuthorization(applicationId)
+  rows <- lapply(res, function(x) {
+    id <- as.character(x$user$id %||% NA_character_)
+    email <- as.character(x$user$email %||% NA_character_)
+    checkCollaboratorRecord(client, id, email)
+    data.frame(
+      id = id,
+      email = email,
+      account = as.character(x$account %||% NA_character_),
+      stringsAsFactors = FALSE
+    )
+  })
+  if (length(rows) == 0L) {
+    return(data.frame(
+      id = character(),
+      email = character(),
+      account = character(),
+      stringsAsFactors = FALSE
+    ))
+  }
+  do.call(rbind, rows)
+}
+
+#' @export
+inviteApplicationUser.shinyAppsClient <- function(
+  client,
+  applicationId,
+  email,
+  sendEmail = NULL,
+  emailMessage = NULL
+) {
+  path <- paste(
+    "/applications/",
+    applicationId,
+    "/authorization/users",
+    sep = ""
+  )
+  json <- list()
+  json$email <- email
+  if (!is.null(sendEmail)) {
+    json$invite_email <- sendEmail
+  }
+  if (!is.null(emailMessage)) {
+    json$invite_email_message <- emailMessage
+  }
+  POST_JSON(client$service, client$authInfo, path, json)
+}
+
+#' @export
+removeApplicationUser.shinyAppsClient <- function(
+  client,
+  applicationId,
+  userId
+) {
+  path <- paste(
+    "/applications/",
+    applicationId,
+    "/authorization/users/",
+    userId,
+    sep = ""
+  )
+  DELETE(client$service, client$authInfo, path, NULL)
+}
+
+#' @export
+resendApplicationInvitation.shinyAppsClient <- function(
+  client,
+  invitationId,
+  regenerate = FALSE
+) {
+  path <- paste("/invitations/", invitationId, "/send", sep = "")
+  json <- list()
+  json$regenerate <- regenerate
+  POST_JSON(client$service, client$authInfo, path, json)
+}
+
+#' @export
+listInvitations.shinyAppsClient <- function(client, applicationId) {
+  res <- client$listApplicationInvitations(applicationId)
+  rows <- lapply(res, function(x) {
+    data.frame(
+      id = as.character(x$id %||% NA_character_),
+      email = as.character(x$email %||% NA_character_),
+      link = as.character(x$link %||% NA_character_),
+      expired = as.logical(x$expired %||% NA),
+      stringsAsFactors = FALSE
+    )
+  })
+  if (length(rows) == 0L) {
+    return(emptyInvitations())
+  }
+  do.call(rbind, rows)
 }
 
 putPresignedBundle <- function(bundle, bundleSize, bundlePath) {
