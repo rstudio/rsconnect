@@ -388,6 +388,17 @@ supportsVisibility.connectCloudClient <- function(client) {
 }
 
 #' @export
+visibilityValues.connectCloudClient <- function(client) {
+  c(
+    "private",
+    "public",
+    "view_team_edit_private",
+    "view_team_edit_team",
+    "view_public_edit_team"
+  )
+}
+
+#' @export
 supportsMetadataSync.connectCloudClient <- function(client) {
   FALSE
 }

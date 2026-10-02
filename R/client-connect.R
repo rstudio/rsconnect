@@ -273,6 +273,12 @@ supportsVisibility.connectClient <- function(client) {
   FALSE
 }
 
+# Connect ignores `appVisibility`.
+#' @export
+visibilityValues.connectClient <- function(client) {
+  NULL
+}
+
 #' @export
 supportsMetadataSync.connectClient <- function(client) {
   TRUE
