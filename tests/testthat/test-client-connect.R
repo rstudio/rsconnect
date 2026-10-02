@@ -397,3 +397,21 @@ test_that("activateContent() reports a failed task", {
   expect_false(result$succeeded)
   expect_equal(result$error, "Build failed")
 })
+
+test_that("listApplications() filters by account and by name", {
+  sent <- list()
+  local_mocked_bindings(
+    listApplicationsRequest = function(service, authInfo, path, query, ...) {
+      sent[[length(sent) + 1]] <<- list(path = path, query = query)
+      list()
+    }
+  )
+  client <- connectClient(list(), list())
+
+  listApplications(client, "1")
+  listApplications(client, "1", filters = list(name = "my-app"))
+
+  expect_equal(sent[[1]]$path, "/applications")
+  expect_equal(sent[[1]]$query, "filter=account_id:1")
+  expect_equal(sent[[2]]$query, "filter=account_id:1&filter=name:my-app")
+})
