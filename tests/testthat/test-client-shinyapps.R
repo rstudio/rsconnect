@@ -474,3 +474,17 @@ test_that("getApplication() GETs the application and copies its id", {
   expect_equal(requested, "/applications/42")
   expect_equal(application, list(id = 42, name = "my-app", application_id = 42))
 })
+
+test_that("currentUser() GETs the current user", {
+  requested <- NULL
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      requested <<- path
+      list(id = 1, username = "me")
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  expect_equal(currentUser(client), list(id = 1, username = "me"))
+  expect_equal(requested, "/users/current/")
+})

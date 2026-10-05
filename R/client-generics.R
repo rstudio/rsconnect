@@ -130,6 +130,15 @@ supportsEnvVarManagement <- function(client) {
   UseMethod("supportsEnvVarManagement")
 }
 
+#' Get the user that the client authenticates as
+#'
+#' @param client A client object.
+#' @return The user. It has an `id` and a `username`.
+#' @noRd
+currentUser <- function(client) {
+  UseMethod("currentUser")
+}
+
 #' Can the server run Node.js content?
 #'
 #' A `TRUE` result does not check the server version.

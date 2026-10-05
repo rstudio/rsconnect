@@ -415,3 +415,20 @@ test_that("listApplications() filters by account and by name", {
   expect_equal(sent[[1]]$query, "filter=account_id:1")
   expect_equal(sent[[2]]$query, "filter=account_id:1&filter=name:my-app")
 })
+
+test_that("currentUser() GETs the current user", {
+  requested <- NULL
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      requested <<- list(service = service, path = path)
+      list(id = 1, username = "me")
+    }
+  )
+  client <- connectClient(list(host = "connect.example.com"), list())
+
+  user <- currentUser(client)
+
+  expect_equal(requested$service, list(host = "connect.example.com"))
+  expect_equal(requested$path, "/users/current")
+  expect_equal(user, list(id = 1, username = "me"))
+})

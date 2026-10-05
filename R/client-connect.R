@@ -12,19 +12,6 @@ connectClient <- function(service, authInfo) {
       GET(service, authInfo, unversioned_url("server_settings"))
     },
 
-    ## User API
-
-    currentUser = function() {
-      # All callers only need $id and $username,
-      # passed to registerAccount() (where account means user)
-      # and that gets written to a .dcf file
-      # /v1/user/ does not include $id
-      # But it looks like none of the Connect code paths use the account/user id,
-      # username is used to identify the "account", so this should be safe
-      # to upgrade to v1.
-      GET(service, authInfo, unversioned_url("users", "current"))
-    },
-
     ## Tokens API
 
     addToken = function(token) {
@@ -291,6 +278,13 @@ staticRmdNeedsShiny.connectClient <- function(client) {
 #' @export
 addsUtmParameters.connectClient <- function(client) {
   FALSE
+}
+
+# All callers only need $id and $username, which registerAccount() writes to a
+# .dcf file. /v1/user/ does not include $id, so this uses the unversioned URL.
+#' @export
+currentUser.connectClient <- function(client) {
+  GET(client$service, client$authInfo, unversioned_url("users", "current"))
 }
 
 # rsconnect does not manage the users of Connect content.

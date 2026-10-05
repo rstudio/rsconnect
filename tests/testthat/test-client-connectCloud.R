@@ -1670,3 +1670,17 @@ test_that("activateContent() publishes and waits for the next revision", {
     list(succeeded = FALSE, url = "https://example.com/c", error = "failed")
   )
 })
+
+test_that("currentUser() GETs the current user with a token refresh retry", {
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, ...) {
+      list(request_fn = request_fn, path = path)
+    }
+  )
+
+  sent <- currentUser(client)
+
+  expect_identical(sent$request_fn, GET)
+  expect_equal(sent$path, "/users/me")
+})

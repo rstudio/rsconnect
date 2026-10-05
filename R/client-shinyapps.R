@@ -4,10 +4,6 @@ shinyAppsClient <- function(service, authInfo) {
     service = service,
     authInfo = authInfo,
 
-    currentUser = function() {
-      GET(service, authInfo, "/users/current/")
-    },
-
     accountsForUser = function(userId) {
       path <- "/accounts/"
       query <- ""
@@ -446,6 +442,11 @@ staticRmdNeedsShiny.shinyAppsClient <- function(client) {
 #' @export
 addsUtmParameters.shinyAppsClient <- function(client) {
   FALSE
+}
+
+#' @export
+currentUser.shinyAppsClient <- function(client) {
+  GET(client$service, client$authInfo, "/users/current/")
 }
 
 #' @export

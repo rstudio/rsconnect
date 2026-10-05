@@ -120,10 +120,6 @@ connectCloudClient <- function(service, authInfo) {
   }
 
   self <- list(
-    currentUser = function() {
-      GET(service, authInfo, "/users/me")
-    },
-
     withTokenRefreshRetry = withTokenRefreshRetry,
 
     paginate = paginate,
@@ -412,6 +408,11 @@ staticRmdNeedsShiny.connectCloudClient <- function(client) {
 #' @export
 addsUtmParameters.connectCloudClient <- function(client) {
   TRUE
+}
+
+#' @export
+currentUser.connectCloudClient <- function(client) {
+  client$withTokenRefreshRetry(GET, "/users/me")
 }
 
 # Connect Cloud titles can change and do not have to be unique, so a deploy

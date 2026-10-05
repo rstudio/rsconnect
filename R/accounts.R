@@ -152,7 +152,7 @@ getSPCSAuthedUser <- function(server, apiKey, snowflakeConnectionName) {
   )
 
   client <- clientForAccount(account)
-  client$currentUser()
+  currentUser(client)
 }
 
 #' @rdname connectApiUser
@@ -522,7 +522,7 @@ getAuthToken <- function(server, userId = 0) {
   cachedApiKey <- getCachedApiKey(serverUrl)
   if (!is.null(cachedApiKey)) {
     # Verify that the API key actually works.
-    user <- tryCatch(client$currentUser(), error = function(e) NULL)
+    user <- tryCatch(currentUser(client), error = function(e) NULL)
     if (!is.null(user)) {
       # Return the API key as the "token" with a zero-length private key.
       # waitForAuthedUser will use this to detect federated authentication later
@@ -634,7 +634,7 @@ getAuthedUser <- function(
     private_key = private_key
   )
   client <- clientForAccount(account)
-  client$currentUser()
+  currentUser(client)
 }
 
 #' Register account on shinyapps.io
@@ -701,7 +701,7 @@ findShinyAppsAccountId <- function(
   account <- list(token = token, secret = secret, server = server)
   client <- clientForAccount(account)
 
-  userId <- client$currentUser()$id
+  userId <- currentUser(client)$id
 
   accountId <- NULL
   accounts <- client$accountsForUser(userId)
