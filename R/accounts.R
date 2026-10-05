@@ -707,7 +707,7 @@ findShinyAppsAccountId <- function(
   userId <- currentUser(client)$id
 
   accountId <- NULL
-  accounts <- client$accountsForUser(userId)
+  accounts <- shinyappsAccountsForUser(client, userId)
   for (account in accounts) {
     if (identical(account$name, name)) {
       return(account$id)

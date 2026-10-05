@@ -38,7 +38,7 @@ terminateApp <- function(
   taskDef$beginStatus <- "Terminating application"
   taskDef$endStatus <- "Application successfully terminated"
   taskDef$action <- function(client, application) {
-    client$terminateApplication(application$id)
+    shinyappsTerminateApplication(client, application$id)
   }
 
   # perform it

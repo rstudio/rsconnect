@@ -148,12 +148,17 @@ test_that("findContent() gets the application for the deployment record", {
 
 test_that("prepareContent() sets the visibility when it changes", {
   sent <- NULL
-  client <- fake_client(
-    "shinyAppsClient",
-    setApplicationProperty = function(applicationId, propertyName, value) {
+  local_mocked_bindings(
+    shinyappsSetApplicationProperty = function(
+      client,
+      applicationId,
+      propertyName,
+      value
+    ) {
       sent <<- list(applicationId, propertyName, value)
     }
   )
+  client <- fake_client("shinyAppsClient")
   application <- list(
     id = "42",
     deployment = list(
@@ -177,12 +182,12 @@ test_that("prepareContent() sets the visibility when it changes", {
 })
 
 test_that("prepareContent() does not set the visibility when it is the same", {
-  client <- fake_client(
-    "shinyAppsClient",
-    setApplicationProperty = function(...) {
+  local_mocked_bindings(
+    shinyappsSetApplicationProperty = function(...) {
       stop("setApplicationProperty() should not be called")
     }
   )
+  client <- fake_client("shinyAppsClient")
   application <- list(
     id = "42",
     deployment = list(
@@ -233,17 +238,21 @@ test_that("prepareContent() ignores env vars on the deployment", {
 test_that("activateContent() deploys the uploaded bundle and waits for the task", {
   deployed <- NULL
   waited <- NULL
-  client <- fake_client(
-    "shinyAppsClient",
-    deployApplication = function(application, bundleId = NULL) {
+  local_mocked_bindings(
+    shinyappsDeployApplication = function(
+      client,
+      application,
+      bundleId = NULL
+    ) {
       deployed <<- bundleId
       list(task_id = "task-1")
     },
-    waitForTask = function(taskId, quiet = FALSE) {
+    shinyappsWaitForTask = function(client, taskId, quiet = FALSE) {
       waited <<- taskId
       list()
     }
   )
+  client <- fake_client("shinyAppsClient")
   application <- list(
     id = "42",
     url = "https://some-user.shinyapps.io/app/",
@@ -271,14 +280,18 @@ test_that("activateContent() deploys the uploaded bundle and waits for the task"
 
 test_that("activateContent() deploys the current bundle when nothing was uploaded", {
   deployed <- NULL
-  client <- fake_client(
-    "shinyAppsClient",
-    deployApplication = function(application, bundleId = NULL) {
+  local_mocked_bindings(
+    shinyappsDeployApplication = function(
+      client,
+      application,
+      bundleId = NULL
+    ) {
       deployed <<- bundleId
       list(task_id = "task-1")
     },
-    waitForTask = function(...) list()
+    shinyappsWaitForTask = function(...) list()
   )
+  client <- fake_client("shinyAppsClient")
   application <- list(
     id = "42",
     deployment = list(bundle = list(id = "bundle-old"))
@@ -290,11 +303,11 @@ test_that("activateContent() deploys the current bundle when nothing was uploade
 })
 
 test_that("activateContent() reports a failed task", {
-  client <- fake_client(
-    "shinyAppsClient",
-    deployApplication = function(...) list(task_id = "task-1"),
-    waitForTask = function(...) list(code = 1, error = "Build failed")
+  local_mocked_bindings(
+    shinyappsDeployApplication = function(...) list(task_id = "task-1"),
+    shinyappsWaitForTask = function(...) list(code = 1, error = "Build failed")
   )
+  client <- fake_client("shinyAppsClient")
 
   result <- activateContent(
     client,
@@ -383,9 +396,8 @@ test_that("resendApplicationInvitation() POSTs regenerate to the invitation", {
 })
 
 test_that("listInvitations() maps the shinyapps.io invitation fields", {
-  client <- fake_client(
-    "shinyAppsClient",
-    listApplicationInvitations = function(applicationId) {
+  local_mocked_bindings(
+    shinyappsListApplicationInvitations = function(client, applicationId) {
       list(
         list(
           id = 9,
@@ -397,6 +409,7 @@ test_that("listInvitations() maps the shinyapps.io invitation fields", {
       )
     }
   )
+  client <- fake_client("shinyAppsClient")
 
   expect_equal(
     listInvitations(client, 42),
@@ -411,10 +424,10 @@ test_that("listInvitations() maps the shinyapps.io invitation fields", {
 })
 
 test_that("listInvitations() returns an empty data frame when there are no invitations", {
-  client <- fake_client(
-    "shinyAppsClient",
-    listApplicationInvitations = function(applicationId) list()
+  local_mocked_bindings(
+    shinyappsListApplicationInvitations = function(client, applicationId) list()
   )
+  client <- fake_client("shinyAppsClient")
 
   expect_equal(listInvitations(client, 42), emptyInvitations())
 })

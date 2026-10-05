@@ -33,7 +33,7 @@ purgeApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
   taskDef$beginStatus <- "Purging application"
   taskDef$endStatus <- "Application successfully purged"
   taskDef$action <- function(client, application) {
-    client$purgeApplication(application$id)
+    shinyappsPurgeApplication(client, application$id)
   }
 
   # perform it

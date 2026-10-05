@@ -841,12 +841,10 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
     }
   )
   local_mocked_bindings(
+    shinyappsDeployApplication = function(...) list(task_id = "task-1"),
+    shinyappsWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "shinyAppsClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("shinyAppsClient")
     },
     createContent.shinyAppsClient = function(...) {
       list(
@@ -933,13 +931,11 @@ test_that("deployApp() gives the shinyapps.io app URL to launch.browser", {
   addTestServer(name = "shinyapps.io", url = "https://shinyapps.io")
   addTestAccount("myaccount", server = "shinyapps.io")
   local_mocked_bindings(
+    shinyappsDeployApplication = function(...) list(task_id = "task-1"),
+    shinyappsWaitForTask = function(...) list(),
     listApplications.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "shinyAppsClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("shinyAppsClient")
     },
     createContent.shinyAppsClient = function(...) {
       list(
@@ -1044,12 +1040,10 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
     }
   )
   local_mocked_bindings(
+    shinyappsDeployApplication = function(...) list(task_id = "task-1"),
+    shinyappsWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "shinyAppsClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("shinyAppsClient")
     },
     createContent.shinyAppsClient = function(...) {
       stop("createContent() should not be called for a redeploy")
@@ -1165,15 +1159,17 @@ test_that("redeploy to shinyapps.io with upload = FALSE deploys the current bund
     }
   )
   local_mocked_bindings(
+    shinyappsDeployApplication = function(
+      client,
+      application,
+      bundleId = NULL
+    ) {
+      deployed_bundle <<- bundleId
+      list(task_id = "task-1")
+    },
+    shinyappsWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "shinyAppsClient",
-        deployApplication = function(application, bundleId = NULL) {
-          deployed_bundle <<- bundleId
-          list(task_id = "task-1")
-        },
-        waitForTask = function(...) list()
-      )
+      fake_client("shinyAppsClient")
     },
     uploadBundle.shinyAppsClient = function(...) {
       stop("uploadBundle() should not be called when upload = FALSE")
@@ -1219,12 +1215,10 @@ test_that("redeploy to shinyapps.io ignores env vars saved in the record", {
     }
   )
   local_mocked_bindings(
+    shinyappsDeployApplication = function(...) list(task_id = "task-1"),
+    shinyappsWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "shinyAppsClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("shinyAppsClient")
     },
     uploadBundle.shinyAppsClient = function(...) list(id = "bundle-1"),
     bundleApp = function(...) {
@@ -1275,12 +1269,10 @@ test_that("deployApp(upload=FALSE) on shinyapps.io does not error", {
     getApplication.shinyAppsClient = function(...) shinyapps_app_with_bundle
   )
   local_mocked_bindings(
+    shinyappsDeployApplication = function(...) list(task_id = "task-1"),
+    shinyappsWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "shinyAppsClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("shinyAppsClient")
     }
   )
 

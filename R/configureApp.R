@@ -61,7 +61,8 @@ configureApp <- function(
     propertyName <- i
     propertyValue <- properties[[i]]
 
-    client$setApplicationProperty(
+    shinyappsSetApplicationProperty(
+      client,
       application$id,
       propertyName,
       propertyValue
@@ -133,7 +134,8 @@ setProperty <- function(
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
 
-  invisible(client$setApplicationProperty(
+  invisible(shinyappsSetApplicationProperty(
+    client,
     application$id,
     propertyName,
     propertyValue,
@@ -182,7 +184,8 @@ unsetProperty <- function(
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountInfo, deployment$name)
 
-  invisible(client$unsetApplicationProperty(
+  invisible(shinyappsUnsetApplicationProperty(
+    client,
     application$id,
     propertyName,
     force

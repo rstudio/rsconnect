@@ -140,19 +140,19 @@ test_that("showUsers on shinyapps.io returns only id/email/account columns (no d
       list(list(name = "myapp", id = 42L))
     }
   )
-  local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "shinyAppsClient",
-      listApplicationAuthorization = function(appId) {
+  local_mocked_bindings(
+    shinyappsListApplicationAuthorization = function(client, appId) {
+      list(
         list(
-          list(
-            user = list(id = "101", email = "alice@example.com"),
-            account = "alice-account"
-          )
+          user = list(id = "101", email = "alice@example.com"),
+          account = "alice-account"
         )
-      }
-    )
-  })
+      )
+    },
+    clientForAccount = function(...) {
+      fake_client("shinyAppsClient")
+    }
+  )
 
   result <- showUsers(
     appName = "myapp",
@@ -175,15 +175,15 @@ test_that("showUsers names shinyapps.io (not Connect Cloud) in the malformed-rec
       list(list(name = "myapp", id = 42L))
     }
   )
-  local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "shinyAppsClient",
-      listApplicationAuthorization = function(appId) {
-        # record with neither id nor email — unexpected shape
-        list(list(user = list()))
-      }
-    )
-  })
+  local_mocked_bindings(
+    shinyappsListApplicationAuthorization = function(client, appId) {
+      # record with neither id nor email — unexpected shape
+      list(list(user = list()))
+    },
+    clientForAccount = function(...) {
+      fake_client("shinyAppsClient")
+    }
+  )
 
   expect_error(
     showUsers(
@@ -671,15 +671,15 @@ test_that("resolveContentTarget delegates to resolveApplication on shinyapps.io"
       list(list(name = "myapp", id = 42L))
     }
   )
-  local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "shinyAppsClient",
-      listApplicationAuthorization = function(appId) {
-        captured_app_id <<- appId
-        list()
-      }
-    )
-  })
+  local_mocked_bindings(
+    shinyappsListApplicationAuthorization = function(client, appId) {
+      captured_app_id <<- appId
+      list()
+    },
+    clientForAccount = function(...) {
+      fake_client("shinyAppsClient")
+    }
+  )
 
   showUsers(
     appName = "myapp",

@@ -33,7 +33,7 @@ tasks <- function(account = NULL, server = NULL) {
   client <- clientForAccount(accountDetails)
 
   # list tasks
-  tasks <- client$listTasks(accountDetails$accountId)
+  tasks <- shinyappsListTasks(client, accountDetails$accountId)
 
   # extract the subset of fields we're interested in
   res <- lapply(tasks, `[`, c("id", "action", "status", "created_time"))
@@ -81,10 +81,11 @@ taskLog <- function(taskId, account = NULL, server = NULL, output = NULL) {
   }
 
   # show task log
-  cat(client$getTaskLogs(taskId), file = conn)
+  cat(shinyappsGetTaskLogs(client, taskId), file = conn)
 
   # get child tasks
-  tasks <- client$listTasks(
+  tasks <- shinyappsListTasks(
+    client,
     accountDetails$accountId,
     filters = filterQuery("parent_id", taskId)
   )
