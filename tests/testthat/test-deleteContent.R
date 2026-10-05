@@ -103,18 +103,20 @@ test_that("confirmation prompt can cancel or proceed", {
 test_that("reports content that is already deleted", {
   app_dir <- withr::local_tempdir()
   local_pcc_deploy_env(app_dir, appId = "content-uuid-123")
-  local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      getContent = function(contentId) {
-        cli::cli_abort(
-          "Content is pending deletion.",
-          class = "rsconnect_http_404"
-        )
-      },
-      deleteContent = function(contentId) stop("should not be called")
-    )
-  })
+  local_mocked_bindings(
+    connectCloudGetContent = function(client, contentId) {
+      cli::cli_abort(
+        "Content is pending deletion.",
+        class = "rsconnect_http_404"
+      )
+    },
+    connectCloudDeleteContent = function(client, contentId) {
+      stop("should not be called")
+    },
+    clientForAccount = function(...) {
+      fake_client("connectCloudClient")
+    }
+  )
 
   expect_message(
     expect_error(

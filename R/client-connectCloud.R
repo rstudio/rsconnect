@@ -50,121 +50,13 @@ connectCloudClient <- function(service, authInfo) {
     )
   }
 
-  getAuthorization <- function(logChannel) {
-    json <- list(
-      resource_type = "log_channel",
-      resource_id = logChannel,
-      permission = "revision.logs:read"
-    )
-
-    response <- withTokenRefreshRetry(
-      POST_JSON,
-      "/authorization",
-      json
-    )
-
-    # Return the token from the response
-    response$token
-  }
-
-  getContent <- function(contentId) {
-    path <- paste0("/contents/", contentId)
-    content <- withTokenRefreshRetry(GET, path)
-    if (content$state == "deleted") {
-      cli::cli_abort(
-        "Content is pending deletion.",
-        class = c(
-          "rsconnect_http_404",
-          "rsconnect_http"
-        )
-      )
-    }
-    content
-  }
-
-  # Accumulate every page of a paginated GET list endpoint. `buildPath(limit,
-  # offset)` returns the request path for a single page; it must include
-  # `include_total=true` and a stable `order_by` so offset paging can't skip or
-  # duplicate rows. Callers do any post-filtering on the returned list.
-  paginate <- function(buildPath, pageSize = 100) {
-    offset <- 0
-    allItems <- list()
-    repeat {
-      response <- withTokenRefreshRetry(GET, buildPath(pageSize, offset))
-      allItems <- c(allItems, response$data)
-      offset <- offset + length(response$data)
-      total <- as.numeric(response$total)
-      if (
-        length(response$data) == 0L ||
-          isTRUE(offset >= total) ||
-          (length(total) == 0L && length(response$data) < pageSize)
-      ) {
-        break
-      }
-    }
-    allItems
-  }
-
-  # Accumulates every account the caller has a role on (not just the first
-  # page), since the content being migrated/published may belong to any of them.
-  getAccounts <- function() {
-    accounts <- paginate(function(limit, offset) {
-      paste0(
-        "/accounts?has_user_role=true&include_total=true&limit=",
-        limit,
-        "&offset=",
-        offset
-      )
-    })
-    list(data = accounts)
-  }
-
-  self <- list(
-    withTokenRefreshRetry = withTokenRefreshRetry,
-
-    paginate = paginate,
-
-    getContent = getContent,
-
-    getAuthorization = getAuthorization,
-
-    getAccounts = getAccounts,
-
-    listApplicationAuthorization = function(appId) {
-      # order_by keeps offset-based paging stable (see paginate()).
-      paginate(function(limit, offset) {
-        paste0(
-          "/contents/",
-          appId,
-          "/users?order_by=created_time&include_total=true&limit=",
-          limit,
-          "&offset=",
-          offset
-        )
-      })
-    },
-
-    deleteContent = function(contentId) {
-      path <- paste0("/contents/", contentId)
-      withTokenRefreshRetry(DELETE, path)
-      invisible(TRUE)
-    },
-
-    listApplicationInvitations = function(appId) {
-      # order_by keeps offset-based paging stable (see paginate()).
-      paginate(function(limit, offset) {
-        paste0(
-          "/contents/",
-          appId,
-          "/invitations?accepted_time__isnull=true&order_by=created_time&include_total=true&limit=",
-          limit,
-          "&offset=",
-          offset
-        )
-      })
-    }
+  self <- structure(
+    list(withTokenRefreshRetry = withTokenRefreshRetry),
+    class = c("connectCloudClient", "rsconnectClient")
   )
-  structure(self, class = c("connectCloudClient", "rsconnectClient"))
+  # The RStudio IDE calls client$getContent()
+  self$getContent <- function(contentId) connectCloudGetContent(self, contentId)
+  self
 }
 
 #' @export
@@ -200,7 +92,7 @@ listApplications.connectCloudClient <- function(
 ) {
   # order_by gives the list a stable total order; without it offset-based
   # paging can skip or duplicate rows across requests.
-  allItems <- client$paginate(function(limit, offset) {
+  allItems <- connectCloudPaginate(client, function(limit, offset) {
     paste0(
       "/contents?account_id=",
       accountId,
@@ -234,7 +126,7 @@ listApplications.connectCloudClient <- function(
 
 #' @export
 getApplication.connectCloudClient <- function(client, applicationId) {
-  content <- client$getContent(applicationId)
+  content <- connectCloudGetContent(client, applicationId)
   content$name <- generateAppName(content$title, unique = FALSE)
   content
 }
@@ -272,7 +164,7 @@ createContent.connectCloudClient <- function(
 
 #' @export
 findContent.connectCloudClient <- function(client, deployment, quiet) {
-  application <- client$getContent(deployment$appId)
+  application <- connectCloudGetContent(client, deployment$appId)
   taskComplete(quiet, "Found content")
   application
 }
@@ -463,7 +355,7 @@ resolveContentTarget.connectCloudClient <- function(
 # an account name.
 #' @export
 listCollaborators.connectCloudClient <- function(client, applicationId) {
-  res <- client$listApplicationAuthorization(applicationId)
+  res <- connectCloudListApplicationAuthorization(client, applicationId)
   rows <- lapply(res, function(x) {
     id <- as.character(x$user$id %||% NA_character_)
     email <- as.character(x$user$email %||% NA_character_)
@@ -534,7 +426,7 @@ resendApplicationInvitation.connectCloudClient <- function(
 
 #' @export
 listInvitations.connectCloudClient <- function(client, applicationId) {
-  res <- client$listApplicationInvitations(applicationId)
+  res <- connectCloudListApplicationInvitations(client, applicationId)
   rows <- lapply(res, function(x) {
     data.frame(
       id = as.character(x$id %||% NA_character_),
@@ -572,10 +464,10 @@ applicationsTable.connectCloudClient <- function(client, accountDetails) {
   }
   # Resolve the owning account's real server-side slug once. All items belong
   # to accountDetails$accountId (listApplications filters by it), so one
-  # getAccounts() call covers every row. Using the resolved slug rather than
-  # accountDetails$name (the local alias) prevents wrong-account URLs when the
-  # remote slug differs from the alias stored in the local config.
-  pccAccts <- client$getAccounts()$data
+  # connectCloudGetAccounts() call covers every row. Using the resolved slug
+  # rather than accountDetails$name (the local alias) prevents wrong-account
+  # URLs when the remote slug differs from the alias stored in the local config.
+  pccAccts <- connectCloudGetAccounts(client)$data
   pccOwner <- Find(
     function(a) identical(a$id, accountDetails$accountId),
     pccAccts
@@ -620,16 +512,117 @@ applicationsTable.connectCloudClient <- function(client, accountDetails) {
   do.call("rbind", res)
 }
 
+connectCloudGetAuthorization <- function(client, logChannel) {
+  json <- list(
+    resource_type = "log_channel",
+    resource_id = logChannel,
+    permission = "revision.logs:read"
+  )
+
+  response <- client$withTokenRefreshRetry(
+    POST_JSON,
+    "/authorization",
+    json
+  )
+
+  # Return the token from the response
+  response$token
+}
+
+connectCloudGetContent <- function(client, contentId) {
+  path <- paste0("/contents/", contentId)
+  content <- client$withTokenRefreshRetry(GET, path)
+  if (content$state == "deleted") {
+    cli::cli_abort(
+      "Content is pending deletion.",
+      class = c(
+        "rsconnect_http_404",
+        "rsconnect_http"
+      )
+    )
+  }
+  content
+}
+
+# Accumulate every page of a paginated GET list endpoint. `buildPath(limit,
+# offset)` returns the request path for a single page; it must include
+# `include_total=true` and a stable `order_by` so offset paging can't skip or
+# duplicate rows. Callers do any post-filtering on the returned list.
+connectCloudPaginate <- function(client, buildPath, pageSize = 100) {
+  offset <- 0
+  allItems <- list()
+  repeat {
+    response <- client$withTokenRefreshRetry(GET, buildPath(pageSize, offset))
+    allItems <- c(allItems, response$data)
+    offset <- offset + length(response$data)
+    total <- as.numeric(response$total)
+    if (
+      length(response$data) == 0L ||
+        isTRUE(offset >= total) ||
+        (length(total) == 0L && length(response$data) < pageSize)
+    ) {
+      break
+    }
+  }
+  allItems
+}
+
+# Accumulates every account the caller has a role on (not just the first
+# page), since the content being migrated/published may belong to any of them.
+connectCloudGetAccounts <- function(client) {
+  accounts <- connectCloudPaginate(client, function(limit, offset) {
+    paste0(
+      "/accounts?has_user_role=true&include_total=true&limit=",
+      limit,
+      "&offset=",
+      offset
+    )
+  })
+  list(data = accounts)
+}
+
+connectCloudListApplicationAuthorization <- function(client, appId) {
+  # order_by keeps offset-based paging stable.
+  connectCloudPaginate(client, function(limit, offset) {
+    paste0(
+      "/contents/",
+      appId,
+      "/users?order_by=created_time&include_total=true&limit=",
+      limit,
+      "&offset=",
+      offset
+    )
+  })
+}
+
+connectCloudDeleteContent <- function(client, contentId) {
+  path <- paste0("/contents/", contentId)
+  client$withTokenRefreshRetry(DELETE, path)
+  invisible(TRUE)
+}
+
+connectCloudListApplicationInvitations <- function(client, appId) {
+  # order_by keeps offset-based paging stable.
+  connectCloudPaginate(client, function(limit, offset) {
+    paste0(
+      "/contents/",
+      appId,
+      "/invitations?accepted_time__isnull=true&order_by=created_time&include_total=true&limit=",
+      limit,
+      "&offset=",
+      offset
+    )
+  })
+}
+
 # Resolves the browsable URL for `contentId`, based on the account it
 # actually belongs to (`accountId`) rather than the caller's own account --
 # necessary because content may belong to a different (e.g. team) account
-# than the one authenticating the request. `getAccounts` is a zero-arg
-# function returning the accounts the caller has a role on (shared by
-# `connectCloudClient()$getAccounts` and `migrateToConnectCloud()`).
-connectCloudContentUrl <- function(getAccounts, accountId, contentId) {
+# than the one authenticating the request.
+connectCloudContentUrl <- function(client, accountId, contentId) {
   ownerAccount <- Find(
     function(a) identical(a$id, accountId),
-    getAccounts()$data
+    connectCloudGetAccounts(client)$data
   )
   if (is.null(ownerAccount)) {
     cli::cli_abort(
@@ -743,9 +736,9 @@ awaitConnectCloudCompletion <- function(client, revisionId) {
       # one.
       contentUrl <- tryCatch(
         {
-          content <- client$getContent(revision$content_id)
+          content <- connectCloudGetContent(client, revision$content_id)
           connectCloudContentUrl(
-            client$getAccounts,
+            client,
             content$account_id,
             revision$content_id
           )
@@ -770,7 +763,8 @@ awaitConnectCloudCompletion <- function(client, revisionId) {
           tryCatch(
             {
               # Get authorization token for the log channel
-              authToken <- client$getAuthorization(
+              authToken <- connectCloudGetAuthorization(
+                client,
                 revision$publish_log_channel
               )
 

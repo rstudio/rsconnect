@@ -232,11 +232,14 @@ test_that("applications() returns a data frame for PCC accounts", {
       ))
     }
   )
-  local_mocked_bindings(clientForAccount = function(...) {
-    fake_client("connectCloudClient", getAccounts = function() {
+  local_mocked_bindings(
+    connectCloudGetAccounts = function(client) {
       list(data = list(list(id = "acct-1", name = "real-slug")))
-    })
-  })
+    },
+    clientForAccount = function(...) {
+      fake_client("connectCloudClient")
+    }
+  )
 
   result <- applications(account = "myaccount", server = "connect.posit.cloud")
   expect_s3_class(result, "data.frame")
@@ -273,14 +276,14 @@ test_that("applications() falls back to the constructed url when content is unpu
       ))
     }
   )
-  local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      getAccounts = function() {
-        list(data = list(list(id = "acct-1", name = "real-slug")))
-      }
-    )
-  })
+  local_mocked_bindings(
+    connectCloudGetAccounts = function(client) {
+      list(data = list(list(id = "acct-1", name = "real-slug")))
+    },
+    clientForAccount = function(...) {
+      fake_client("connectCloudClient")
+    }
+  )
 
   result <- applications(account = "myaccount", server = "connect.posit.cloud")
   expect_equal(

@@ -316,7 +316,7 @@ connectCloudClientCredentials <- function(
     )
   )
 
-  accounts <- client$getAccounts()$data
+  accounts <- connectCloudGetAccounts(client)$data
   publishable <- filterPublishableAccounts(accounts)
   account <- Find(function(a) identical(a$name, accountName), publishable)
   if (is.null(account)) {
@@ -366,7 +366,7 @@ selectCloudAccount <- function(
 ) {
   getAccounts <- function() {
     tryCatch(
-      client$getAccounts()$data,
+      connectCloudGetAccounts(client)$data,
       rsconnect_http_401 = function(err) {
         if (isTRUE(err$errorType == "no_user_for_lucid_user")) {
           return(list())

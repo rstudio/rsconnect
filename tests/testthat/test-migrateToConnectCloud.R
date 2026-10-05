@@ -58,13 +58,14 @@ local_migrate_mocks <- function(
     function(id) {
       list(id = id, title = title, account_id = account_id, state = "active")
     }
+  local_mocked_bindings(
+    connectCloudGetContent = function(client, contentId) get_content(contentId),
+    connectCloudGetAccounts = function(client) list(data = owned_accounts),
+    .env = .env
+  )
   client <- client %||%
     function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = get_content,
-        getAccounts = function() list(data = owned_accounts)
-      )
+      fake_client("connectCloudClient")
     }
   local_mocked_bindings(
     accounts = function(...) accounts,

@@ -195,12 +195,15 @@ test_that("registerAccount stores clientId and clientSecret", {
   expect_s3_class(info$clientSecret, "rsconnect_secret")
 })
 
-# Builds a fake Connect Cloud client whose getAccounts() returns the supplied
-# list. Used to drive connectCloudClientCredentials in tests without hitting the
-# network.
+# Builds a fake Connect Cloud client whose requests return the supplied
+# accounts as one page. Used to drive connectCloudClientCredentials in tests
+# without hitting the network.
 fakeCloudClient <- function(accounts) {
-  list(
-    getAccounts = function() list(data = accounts)
+  fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, ...) {
+      list(data = accounts, total = length(accounts))
+    }
   )
 }
 

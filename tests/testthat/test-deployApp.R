@@ -383,11 +383,11 @@ test_that("existing PCC content with NULL current_revision is prepared as existi
   prepared_as_new <- NULL
   uploaded_url <- NULL
   local_mocked_bindings(
+    connectCloudGetContent = function(client, id) {
+      pcc_existing_content_null_revision
+    },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = function(id) pcc_existing_content_null_revision
-      )
+      fake_client("connectCloudClient")
     },
     prepareContent.connectCloudClient = function(..., isNewContent) {
       prepared_as_new <<- isNewContent
@@ -476,11 +476,11 @@ test_that("existing PCC content with non-null current_revision is prepared as ex
 
   prepared_as_new <- NULL
   local_mocked_bindings(
+    connectCloudGetContent = function(client, id) {
+      pcc_existing_content_with_revision
+    },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision
-      )
+      fake_client("connectCloudClient")
     },
     prepareContent.connectCloudClient = function(..., isNewContent) {
       prepared_as_new <<- isNewContent
@@ -520,11 +520,11 @@ test_that("deployApp(upload=FALSE) on PCC does not error with 'bundle not found'
   local_pcc_deploy_env(appDir)
 
   local_mocked_bindings(
+    connectCloudGetContent = function(client, id) {
+      pcc_existing_content_with_revision
+    },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision
-      )
+      fake_client("connectCloudClient")
     },
     prepareContent.connectCloudClient = function(...) {
       pcc_existing_content_with_revision
@@ -550,11 +550,11 @@ test_that("PCC redeploy saves the new content URL after the deploy", {
   local_pcc_deploy_env(appDir)
 
   local_mocked_bindings(
+    connectCloudGetContent = function(client, id) {
+      pcc_existing_content_with_revision
+    },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision
-      )
+      fake_client("connectCloudClient")
     },
     prepareContent.connectCloudClient = function(...) {
       pcc_existing_content_with_revision
@@ -674,11 +674,11 @@ test_that("PCC redeploy passes appVisibility to prepareContent()", {
 
   sent_access <- "unset"
   local_mocked_bindings(
+    connectCloudGetContent = function(client, id) {
+      pcc_existing_content_with_revision
+    },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision
-      )
+      fake_client("connectCloudClient")
     },
     prepareContent.connectCloudClient = function(..., appVisibility) {
       sent_access <<- appVisibility
@@ -974,11 +974,11 @@ test_that("deployApp() gives the Connect Cloud URL with UTM parameters to launch
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
   local_pcc_deploy_env(appDir)
   local_mocked_bindings(
+    connectCloudGetContent = function(client, id) {
+      pcc_existing_content_with_revision
+    },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        getContent = function(id) pcc_existing_content_with_revision
-      )
+      fake_client("connectCloudClient")
     },
     prepareContent.connectCloudClient = function(...) {
       pcc_existing_content_with_revision
