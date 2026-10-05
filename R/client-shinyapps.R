@@ -4,10 +4,6 @@ shinyAppsClient <- function(service, authInfo) {
     service = service,
     authInfo = authInfo,
 
-    status = function() {
-      GET(service, authInfo, "/internal/status")
-    },
-
     currentUser = function() {
       GET(service, authInfo, "/users/current/")
     },
@@ -121,11 +117,6 @@ shinyAppsClient <- function(service, authInfo) {
       GET(service, authInfo, path, query)
     },
 
-    listApplicationProperties = function(applicationId) {
-      path <- paste("/applications/", applicationId, "/properties/", sep = "")
-      GET(service, authInfo, path)
-    },
-
     setApplicationProperty = function(
       applicationId,
       propertyName,
@@ -161,17 +152,6 @@ shinyAppsClient <- function(service, authInfo) {
       DELETE(service, authInfo, path, query)
     },
 
-    uploadApplication = function(applicationId, bundlePath) {
-      path <- paste("/applications/", applicationId, "/upload", sep = "")
-      POST(
-        service,
-        authInfo,
-        path,
-        contentType = "application/x-gzip",
-        file = bundlePath
-      )
-    },
-
     deployApplication = function(application, bundleId = NULL) {
       path <- paste("/applications/", application$id, "/deploy", sep = "")
       json <- list()
@@ -193,40 +173,9 @@ shinyAppsClient <- function(service, authInfo) {
       POST(service, authInfo, path)
     },
 
-    addApplicationUser = function(applicationId, userId) {
-      path <- paste(
-        "/applications/",
-        applicationId,
-        "/authorization/users/",
-        userId,
-        sep = ""
-      )
-      PUT(service, authInfo, path, NULL)
-    },
-
     listApplicationAuthorization = function(applicationId) {
       path <- paste("/applications/", applicationId, "/authorization", sep = "")
       listRequest(service, authInfo, path, NULL, "authorization")
-    },
-
-    listApplicationUsers = function(applicationId) {
-      path <- paste(
-        "/applications/",
-        applicationId,
-        "/authorization/users",
-        sep = ""
-      )
-      listRequest(service, authInfo, path, NULL, "users")
-    },
-
-    listApplicationGroups = function(applicationId) {
-      path <- paste(
-        "/applications/",
-        applicationId,
-        "/authorization/groups",
-        sep = ""
-      )
-      listRequest(service, authInfo, path, NULL, "groups")
     },
 
     listApplicationInvitations = function(applicationId) {
@@ -243,11 +192,6 @@ shinyAppsClient <- function(service, authInfo) {
       filters <- c(filterQuery("account_id", accountId), filters)
       query <- paste(filters, collapse = "&")
       listRequest(service, authInfo, path, query, "tasks", max = 100)
-    },
-
-    getTaskInfo = function(taskId) {
-      path <- paste("/tasks/", taskId, sep = "")
-      GET(service, authInfo, path)
     },
 
     getTaskLogs = function(taskId) {
