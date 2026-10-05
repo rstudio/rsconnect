@@ -874,6 +874,145 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
   expect_equal(uploaded_id, "new-1")
 })
 
+# The RStudio IDE detects a finished deploy from the message that this
+# launch.browser function shows. It is the same function that the IDE passes.
+test_that("deployApp() gives the Connect dashboard URL to launch.browser", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_temp_config()
+  addTestServer()
+  addTestAccount("myaccount")
+  local_mocked_bindings(
+    listApplications.connectClient = function(...) list(),
+    clientForAccount = function(...) {
+      fake_client(
+        "connectClient",
+        deployApplication = function(...) list(task_id = "task-1"),
+        waitForTask = function(...) list()
+      )
+    },
+    createContent.connectClient = function(...) {
+      list(
+        id = "99",
+        guid = "guid-new",
+        url = "https://example.com/content/99",
+        dashboard_url = "https://example.com/connect/#/apps/guid-new"
+      )
+    },
+    uploadBundle.connectClient = function(...) list(id = "bundle-1"),
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(expect_message(
+    deployApp(
+      appDir,
+      appName = "myapp",
+      account = "myaccount",
+      server = "example.com",
+      lint = FALSE,
+      launch.browser = function(url) {
+        message("Deployment completed: ", url)
+      }
+    ),
+    "Deployment completed: https://example.com/connect/#/apps/guid-new/access",
+    fixed = TRUE
+  ))
+})
+
+test_that("deployApp() gives the shinyapps.io app URL to launch.browser", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_temp_config()
+  addTestServer(name = "shinyapps.io", url = "https://shinyapps.io")
+  addTestAccount("myaccount", server = "shinyapps.io")
+  local_mocked_bindings(
+    listApplications.shinyAppsClient = function(...) list(),
+    clientForAccount = function(...) {
+      fake_client(
+        "shinyAppsClient",
+        deployApplication = function(...) list(task_id = "task-1"),
+        waitForTask = function(...) list()
+      )
+    },
+    createContent.shinyAppsClient = function(...) {
+      list(
+        id = "new-1",
+        application_id = "new-1",
+        url = "https://myaccount.shinyapps.io/myapp/"
+      )
+    },
+    uploadBundle.shinyAppsClient = function(...) list(id = "bundle-1"),
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(expect_message(
+    deployApp(
+      appDir,
+      appName = "myapp",
+      account = "myaccount",
+      server = "shinyapps.io",
+      lint = FALSE,
+      launch.browser = function(url) {
+        message("Deployment completed: ", url)
+      }
+    ),
+    "Deployment completed: https://myaccount.shinyapps.io/myapp/",
+    fixed = TRUE
+  ))
+})
+
+test_that("deployApp() gives the Connect Cloud URL with UTM parameters to launch.browser", {
+  skip_on_cran()
+  withr::local_envvar(RSTUDIO = "1")
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_pcc_deploy_env(appDir)
+  local_mocked_bindings(
+    clientForAccount = function(...) {
+      fake_client(
+        "connectCloudClient",
+        getContent = function(id) pcc_existing_content_with_revision
+      )
+    },
+    prepareContent.connectCloudClient = function(...) {
+      pcc_existing_content_with_revision
+    },
+    activateContent.connectCloudClient = pcc_activate_success,
+    uploadBundle.connectCloudClient = function(...) NULL,
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+
+  suppressMessages(expect_message(
+    deployApp(
+      appDir,
+      appName = "myapp",
+      account = "myaccount",
+      server = "connect.posit.cloud",
+      lint = FALSE,
+      launch.browser = function(url) {
+        message("Deployment completed: ", url)
+      }
+    ),
+    paste0(
+      "Deployment completed: ",
+      "https://connect.posit.cloud/myaccount/content/content-abc",
+      "?utm_source=rsconnect-rstudio"
+    ),
+    fixed = TRUE
+  ))
+})
+
 test_that("redeploy to shinyapps.io uploads to the existing app, not a new one", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
