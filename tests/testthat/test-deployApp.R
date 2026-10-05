@@ -32,9 +32,10 @@ test_that("findRecordPath() uses recordDir, then appPrimaryDoc, then appDir", {
 })
 
 test_that("checkConnectSupportsNodejs errors for old server versions", {
-  client <- list(
-    serverSettings = function() list(version = "2025.12.0")
+  local_mocked_bindings(
+    connectServerSettings = function(client) list(version = "2025.12.0")
   )
+  client <- fake_client("connectClient")
   expect_error(
     checkConnectSupportsNodejs(client),
     "2026.04.0"
@@ -42,26 +43,32 @@ test_that("checkConnectSupportsNodejs errors for old server versions", {
 })
 
 test_that("checkConnectSupportsNodejs passes for supported server versions", {
-  client <- list(
-    serverSettings = function() list(version = "2026.04.0")
+  local_mocked_bindings(
+    connectServerSettings = function(client) list(version = "2026.04.0")
   )
+  client <- fake_client("connectClient")
   expect_no_error(checkConnectSupportsNodejs(client))
 
-  client <- list(
-    serverSettings = function() list(version = "2026.05.0")
+  local_mocked_bindings(
+    connectServerSettings = function(client) list(version = "2026.05.0")
   )
+  client <- fake_client("connectClient")
   expect_no_error(checkConnectSupportsNodejs(client))
 
-  client <- list(
-    serverSettings = function() list(version = "2026.05.0-dev+54-sdlkfjsd")
+  local_mocked_bindings(
+    connectServerSettings = function(client) {
+      list(version = "2026.05.0-dev+54-sdlkfjsd")
+    }
   )
+  client <- fake_client("connectClient")
   expect_no_error(checkConnectSupportsNodejs(client))
 })
 
 test_that("checkConnectSupportsNodejs messages when version is unavailable", {
-  client <- list(
-    serverSettings = function() list(version = "")
+  local_mocked_bindings(
+    connectServerSettings = function(client) list(version = "")
   )
+  client <- fake_client("connectClient")
   expect_message(
     checkConnectSupportsNodejs(client),
     "Could not determine"
@@ -69,9 +76,10 @@ test_that("checkConnectSupportsNodejs messages when version is unavailable", {
 })
 
 test_that("checkConnectSupportsNodejs messages when serverSettings errors", {
-  client <- list(
-    serverSettings = function() stop("connection failed")
+  local_mocked_bindings(
+    connectServerSettings = function(client) stop("connection failed")
   )
+  client <- fake_client("connectClient")
   expect_message(
     checkConnectSupportsNodejs(client),
     "Could not determine"
@@ -79,9 +87,10 @@ test_that("checkConnectSupportsNodejs messages when serverSettings errors", {
 })
 
 test_that("checkConnectSupportsNodejs messages when version is unparseable", {
-  client <- list(
-    serverSettings = function() list(version = "not-a-version")
+  local_mocked_bindings(
+    connectServerSettings = function(client) list(version = "not-a-version")
   )
+  client <- fake_client("connectClient")
   expect_message(
     checkConnectSupportsNodejs(client),
     "Could not determine"
@@ -718,15 +727,13 @@ test_that("fresh Connect deploy uploads to the newly created app, not an existin
     }
   )
   local_mocked_bindings(
+    connectDeployApplication = function(...) list(task_id = "task-1"),
+    connectWaitForTask = function(...) list(),
     # No local deployment record, so deployApp() checks the server for an
     # app with a matching name before deciding this is a fresh deploy.
     listApplications.connectClient = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "connectClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("connectClient")
     },
     createContent.connectClient = function(...) {
       list(
@@ -787,12 +794,10 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
     }
   )
   local_mocked_bindings(
+    connectDeployApplication = function(...) list(task_id = "task-1"),
+    connectWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "connectClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("connectClient")
     },
     createContent.connectClient = function(...) {
       stop("createContent() should not be called for a redeploy")
@@ -883,13 +888,11 @@ test_that("deployApp() gives the Connect dashboard URL to launch.browser", {
   addTestServer()
   addTestAccount("myaccount")
   local_mocked_bindings(
+    connectDeployApplication = function(...) list(task_id = "task-1"),
+    connectWaitForTask = function(...) list(),
     listApplications.connectClient = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "connectClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("connectClient")
     },
     createContent.connectClient = function(...) {
       list(
@@ -1095,12 +1098,10 @@ test_that("redeploy to Connect makes new content when the recorded content was d
     }
   )
   local_mocked_bindings(
+    connectDeployApplication = function(...) list(task_id = "task-1"),
+    connectWaitForTask = function(...) list(),
     clientForAccount = function(...) {
-      fake_client(
-        "connectClient",
-        deployApplication = function(...) list(task_id = "task-1"),
-        waitForTask = function(...) list()
-      )
+      fake_client("connectClient")
     },
     createContent.connectClient = function(...) {
       list(

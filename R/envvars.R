@@ -27,7 +27,7 @@ listAccountEnvVars <- function(server = NULL, account = NULL) {
   )
   apps <- apps[c("id", "guid", "name")]
 
-  envVars <- lapply(apps$guid, client$getEnvVars)
+  envVars <- lapply(apps$guid, connectGetEnvVars, client = client)
   apps$envVars <- envVars
   apps
 }
@@ -61,7 +61,7 @@ updateAccountEnvVars <- function(envVars, server = NULL, account = NULL) {
   cli::cli_progress_bar("Updating application...", total = length(guids))
 
   for (guid in guids) {
-    client$setEnvVars(guid, envVars)
+    connectSetEnvVars(client, guid, envVars)
     cli::cli_progress_update()
   }
 }

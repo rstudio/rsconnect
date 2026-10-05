@@ -694,7 +694,7 @@ deployApp <- function(
 
 checkConnectSupportsNodejs <- function(client) {
   settings <- tryCatch(
-    client$serverSettings(),
+    connectServerSettings(client),
     error = function(e) NULL
   )
 

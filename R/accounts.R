@@ -545,11 +545,14 @@ getAuthToken <- function(server, userId = 0) {
   token <- generateToken()
 
   # Send public key to server, and generate URL where the token can be claimed
-  response <- client$addToken(list(
-    token = token$token,
-    public_key = token$public_key,
-    user_id = 0L
-  ))
+  response <- connectAddToken(
+    client,
+    list(
+      token = token$token,
+      public_key = token$public_key,
+      user_id = 0L
+    )
+  )
 
   list(
     token = token$token,
