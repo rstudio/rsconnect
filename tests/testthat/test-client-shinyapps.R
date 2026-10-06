@@ -290,3 +290,115 @@ test_that("activateContent() reports a failed task", {
   expect_false(result$succeeded)
   expect_equal(result$error, "Build failed")
 })
+
+test_that("inviteApplicationUser() POSTs the email and the invitation options", {
+  sent <- NULL
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      sent <<- list(path = path, json = json)
+      list()
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  inviteApplicationUser(
+    client,
+    applicationId = 42,
+    email = "alice@example.com",
+    sendEmail = FALSE,
+    emailMessage = "Welcome"
+  )
+
+  expect_equal(sent$path, "/applications/42/authorization/users")
+  expect_equal(
+    sent$json,
+    list(
+      email = "alice@example.com",
+      invite_email = FALSE,
+      invite_email_message = "Welcome"
+    )
+  )
+})
+
+test_that("inviteApplicationUser() omits the invitation options when they are NULL", {
+  sent <- NULL
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      sent <<- json
+      list()
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  inviteApplicationUser(client, 42, "alice@example.com")
+
+  expect_equal(sent, list(email = "alice@example.com"))
+})
+
+test_that("removeApplicationUser() DELETEs the user from the application", {
+  deleted <- NULL
+  local_mocked_bindings(
+    DELETE = function(service, authInfo, path, query) {
+      deleted <<- path
+      NULL
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  removeApplicationUser(client, applicationId = 42, userId = 101)
+
+  expect_equal(deleted, "/applications/42/authorization/users/101")
+})
+
+test_that("resendApplicationInvitation() POSTs regenerate to the invitation", {
+  sent <- NULL
+  local_mocked_bindings(
+    POST_JSON = function(service, authInfo, path, json) {
+      sent <<- list(path = path, json = json)
+      list()
+    }
+  )
+  client <- shinyAppsClient(list(), list())
+
+  resendApplicationInvitation(client, invitationId = 9, regenerate = TRUE)
+
+  expect_equal(sent$path, "/invitations/9/send")
+  expect_equal(sent$json, list(regenerate = TRUE))
+})
+
+test_that("listInvitations() maps the shinyapps.io invitation fields", {
+  client <- fake_client(
+    "shinyAppsClient",
+    listApplicationInvitations = function(applicationId) {
+      list(
+        list(
+          id = 9,
+          email = "alice@example.com",
+          link = "https://shinyapps.io/invite/abc",
+          expired = FALSE
+        ),
+        list(id = 10)
+      )
+    }
+  )
+
+  expect_equal(
+    listInvitations(client, 42),
+    data.frame(
+      id = c("9", "10"),
+      email = c("alice@example.com", NA),
+      link = c("https://shinyapps.io/invite/abc", NA),
+      expired = c(FALSE, NA),
+      stringsAsFactors = FALSE
+    )
+  )
+})
+
+test_that("listInvitations() returns an empty data frame when there are no invitations", {
+  client <- fake_client(
+    "shinyAppsClient",
+    listApplicationInvitations = function(applicationId) list()
+  )
+
+  expect_equal(listInvitations(client, 42), emptyInvitations())
+})

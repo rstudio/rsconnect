@@ -138,12 +138,6 @@ supportsNodejs <- function(client) {
   UseMethod("supportsNodejs")
 }
 
-#' Can the user add, remove, and list the users of an application?
-#' @noRd
-supportsUserManagement <- function(client) {
-  UseMethod("supportsUserManagement")
-}
-
 #' Can an application directory have a legacy scrypt password file?
 #' @noRd
 usesPasswordFile <- function(client) {
@@ -200,4 +194,92 @@ staticRmdNeedsShiny <- function(client) {
 #' @noRd
 addsUtmParameters <- function(client) {
   UseMethod("addsUtmParameters")
+}
+
+#' Find the content that a collaborator function acts on
+#'
+#' @param client A client object.
+#' @param accountDetails The account from `accountInfo()`.
+#' @param appDir The directory that contains the deployment record.
+#' @param appName The name of the application, or `NULL`.
+#' @param contentId The content id, or `NULL`. Only Connect Cloud supports it.
+#'
+#' @return A list with two fields. `id` is the content id. `deploymentFile` is
+#'   the path of the deployment record, or `NULL` if no record was used.
+#' @noRd
+resolveContentTarget <- function(
+  client,
+  accountDetails,
+  appDir,
+  appName,
+  contentId = NULL
+) {
+  UseMethod("resolveContentTarget")
+}
+
+#' List the users who can access an application
+#'
+#' @param client A client object.
+#' @param applicationId The content id from `resolveContentTarget()`.
+#'
+#' @return A data frame with one row for each user. It always has the columns
+#'   `id`, `email`, and `account`. A method can add more columns.
+#' @noRd
+listCollaborators <- function(client, applicationId) {
+  UseMethod("listCollaborators")
+}
+
+#' List the invitations that are not accepted for an application
+#'
+#' @param client A client object.
+#' @param applicationId The content id from `resolveContentTarget()`.
+#'
+#' @return A data frame with one row for each invitation, and the columns
+#'   `id`, `email`, `link`, and `expired`.
+#' @noRd
+listInvitations <- function(client, applicationId) {
+  UseMethod("listInvitations")
+}
+
+#' Invite a user to an application
+#'
+#' @param client A client object.
+#' @param applicationId The content id from `resolveContentTarget()`.
+#' @param email The email address of the user.
+#' @param sendEmail If `TRUE`, send an invitation email. `NULL` uses the server
+#'   default.
+#' @param emailMessage A message for the invitation email, or `NULL`.
+#' @noRd
+inviteApplicationUser <- function(
+  client,
+  applicationId,
+  email,
+  sendEmail = NULL,
+  emailMessage = NULL
+) {
+  UseMethod("inviteApplicationUser")
+}
+
+#' Remove a user from an application
+#'
+#' @param client A client object.
+#' @param applicationId The content id from `resolveContentTarget()`.
+#' @param userId The id of the user from `listCollaborators()`.
+#' @noRd
+removeApplicationUser <- function(client, applicationId, userId) {
+  UseMethod("removeApplicationUser")
+}
+
+#' Send an invitation again
+#'
+#' @param client A client object.
+#' @param invitationId The id of the invitation from `listInvitations()`.
+#' @param regenerate If `TRUE`, make a new invitation code.
+#' @noRd
+resendApplicationInvitation <- function(
+  client,
+  invitationId,
+  regenerate = FALSE
+) {
+  UseMethod("resendApplicationInvitation")
 }

@@ -197,23 +197,6 @@ connectCloudClient <- function(service, authInfo) {
       invisible(TRUE)
     },
 
-    removeApplicationUser = function(appId, userId) {
-      path <- paste0("/contents/", appId, "/users/", userId)
-      withTokenRefreshRetry(DELETE, path)
-      invisible(TRUE)
-    },
-
-    inviteApplicationUser = function(appId, email, sendEmail, emailMessage) {
-      path <- paste0("/contents/", appId, "/invitations")
-      json <- list(
-        message = emailMessage,
-        email_invitations = list(list(email_address = email)),
-        recipient_invitations = list()
-      )
-      withTokenRefreshRetry(POST_JSON, path, json)
-      invisible(TRUE)
-    },
-
     listApplicationInvitations = function(appId) {
       # order_by keeps offset-based paging stable (see paginate()).
       paginate(function(limit, offset) {
@@ -226,14 +209,6 @@ connectCloudClient <- function(service, authInfo) {
           offset
         )
       })
-    },
-
-    resendApplicationInvitation = function(inviteId, regenerate) {
-      # regenerate is shinyapps.io-specific; PCC re-sends the existing invite email.
-      # Use setNames(list(), character(0)) to produce {} not [] at the wire level.
-      path <- paste0("/content_invitations/", inviteId, "/resend")
-      withTokenRefreshRetry(POST_JSON, path, setNames(list(), character(0)))
-      invisible(TRUE)
     }
   )
   structure(self, class = c("connectCloudClient", "rsconnectClient"))
@@ -377,11 +352,6 @@ supportsNodejs.connectCloudClient <- function(client) {
 }
 
 #' @export
-supportsUserManagement.connectCloudClient <- function(client) {
-  TRUE
-}
-
-#' @export
 usesPasswordFile.connectCloudClient <- function(client) {
   FALSE
 }
@@ -426,6 +396,134 @@ staticRmdNeedsShiny.connectCloudClient <- function(client) {
 #' @export
 addsUtmParameters.connectCloudClient <- function(client) {
   TRUE
+}
+
+# A content id targets the content directly. If there is no content id, the id
+# comes from the local deployment record. The title cannot identify the
+# content, because Connect Cloud titles can change and do not have to be unique.
+#' @export
+resolveContentTarget.connectCloudClient <- function(
+  client,
+  accountDetails,
+  appDir,
+  appName,
+  contentId = NULL
+) {
+  if (!is.null(contentId)) {
+    check_string(contentId)
+    return(list(id = contentId, deploymentFile = NULL))
+  }
+  recs <- deployments(
+    appPath = appDir,
+    accountFilter = accountDetails$name,
+    serverFilter = accountDetails$server,
+    nameFilter = appName
+  )
+  if (nrow(recs) == 0L) {
+    cli::cli_abort(c(
+      "Can't identify the Posit Connect Cloud content for {.file {appDir}}.",
+      i = paste0(
+        "No deployment record found. Deploy the content first, or run from ",
+        "the project directory that contains its {.path rsconnect/} deployment record."
+      )
+    ))
+  }
+  if (nrow(recs) > 1L) {
+    dep <- disambiguateDeployments(recs)
+    return(list(id = dep$appId, deploymentFile = dep$deploymentFile))
+  }
+  list(id = recs$appId[[1L]], deploymentFile = recs$deploymentFile[[1L]])
+}
+
+# The `account` column is always `NA`, because Connect Cloud users do not have
+# an account name.
+#' @export
+listCollaborators.connectCloudClient <- function(client, applicationId) {
+  res <- client$listApplicationAuthorization(applicationId)
+  rows <- lapply(res, function(x) {
+    id <- as.character(x$user$id %||% NA_character_)
+    email <- as.character(x$user$email %||% NA_character_)
+    checkCollaboratorRecord(client, id, email)
+    data.frame(
+      id = id,
+      email = email,
+      account = NA_character_,
+      display_name = as.character(x$user$display_name %||% NA_character_),
+      role = as.character(x$role %||% NA_character_),
+      stringsAsFactors = FALSE
+    )
+  })
+  if (length(rows) == 0L) {
+    return(data.frame(
+      id = character(),
+      email = character(),
+      account = character(),
+      display_name = character(),
+      role = character(),
+      stringsAsFactors = FALSE
+    ))
+  }
+  do.call(rbind, rows)
+}
+
+#' @export
+inviteApplicationUser.connectCloudClient <- function(
+  client,
+  applicationId,
+  email,
+  sendEmail = NULL,
+  emailMessage = NULL
+) {
+  path <- paste0("/contents/", applicationId, "/invitations")
+  json <- list(
+    message = emailMessage,
+    email_invitations = list(list(email_address = email)),
+    recipient_invitations = list()
+  )
+  client$withTokenRefreshRetry(POST_JSON, path, json)
+  invisible(TRUE)
+}
+
+#' @export
+removeApplicationUser.connectCloudClient <- function(
+  client,
+  applicationId,
+  userId
+) {
+  path <- paste0("/contents/", applicationId, "/users/", userId)
+  client$withTokenRefreshRetry(DELETE, path)
+  invisible(TRUE)
+}
+
+# Connect Cloud sends the same invitation email again, so it ignores
+# `regenerate`. setNames(list(), character(0)) sends `{}` and not `[]`.
+#' @export
+resendApplicationInvitation.connectCloudClient <- function(
+  client,
+  invitationId,
+  regenerate = FALSE
+) {
+  path <- paste0("/content_invitations/", invitationId, "/resend")
+  client$withTokenRefreshRetry(POST_JSON, path, setNames(list(), character(0)))
+  invisible(TRUE)
+}
+
+#' @export
+listInvitations.connectCloudClient <- function(client, applicationId) {
+  res <- client$listApplicationInvitations(applicationId)
+  rows <- lapply(res, function(x) {
+    data.frame(
+      id = as.character(x$id %||% NA_character_),
+      email = as.character(x$email_address %||% NA_character_),
+      link = as.character(x$link %||% NA_character_),
+      expired = as.logical(x$is_expired %||% NA),
+      stringsAsFactors = FALSE
+    )
+  })
+  if (length(rows) == 0L) {
+    return(emptyInvitations())
+  }
+  do.call(rbind, rows)
 }
 
 # Resolves the browsable URL for `contentId`, based on the account it

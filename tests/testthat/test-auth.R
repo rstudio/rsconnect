@@ -72,15 +72,17 @@ test_that("removeAuthorizedUser calls removeApplicationUser on PCC", {
   )
 
   removed_user_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_user_id <<- userId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
       listApplicationAuthorization = function(appId) {
         list(list(user = list(id = "user-uuid-1", email = "alice@example.com")))
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_user_id <<- userId
-        invisible(TRUE)
       }
     )
   })
@@ -207,14 +209,20 @@ test_that("addAuthorizedUser calls inviteApplicationUser on PCC", {
   )
 
   invited <- list()
+  local_mocked_bindings(
+    inviteApplicationUser.connectCloudClient = function(
+      client,
+      appId,
+      email,
+      sendEmail,
+      emailMessage
+    ) {
+      invited[[length(invited) + 1]] <<- list(appId = appId, email = email)
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      inviteApplicationUser = function(appId, email, sendEmail, emailMessage) {
-        invited[[length(invited) + 1]] <<- list(appId = appId, email = email)
-        invisible(TRUE)
-      }
-    )
+    fake_client("connectCloudClient")
   })
 
   addAuthorizedUser(
@@ -284,13 +292,19 @@ test_that("addAuthorizedUser warns when sendEmail is non-NULL on PCC", {
     server = "connect.posit.cloud"
   )
 
+  local_mocked_bindings(
+    inviteApplicationUser.connectCloudClient = function(
+      client,
+      appId,
+      email,
+      sendEmail,
+      emailMessage
+    ) {
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
-    fake_client(
-      "connectCloudClient",
-      inviteApplicationUser = function(appId, email, sendEmail, emailMessage) {
-        invisible(TRUE)
-      }
-    )
+    fake_client("connectCloudClient")
   })
 
   msgs <- character(0)
@@ -378,7 +392,7 @@ test_that("showUsers aborts with a clear message when a user record has neither 
     )
   })
 
-  # The abort is raised inside showUsers_impl.
+  # The abort is raised inside listCollaborators().
   expect_error(
     showUsers(
       appDir = app_dir,
@@ -397,13 +411,13 @@ test_that("showUsers errors on a non-shinyapps, non-PCC server", {
   )
   addTestAccount("myaccount", server = "connect.example.com")
 
-  expect_error(
+  expect_snapshot(
     showUsers(
       appName = "myapp",
       account = "myaccount",
       server = "connect.example.com"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -425,6 +439,16 @@ test_that("resendInvitation calls resendApplicationInvitation on PCC", {
   )
 
   resent_id <- NULL
+  local_mocked_bindings(
+    resendApplicationInvitation.connectCloudClient = function(
+      client,
+      inviteId,
+      regenerate
+    ) {
+      resent_id <<- inviteId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -434,10 +458,6 @@ test_that("resendInvitation calls resendApplicationInvitation on PCC", {
           email_address = "alice@example.com",
           is_expired = FALSE
         ))
-      },
-      resendApplicationInvitation = function(inviteId, regenerate) {
-        resent_id <<- inviteId
-        invisible(TRUE)
       }
     )
   })
@@ -664,11 +684,10 @@ test_that("resolveContentTarget delegates to resolveApplication on shinyapps.io"
 })
 
 test_that("removeAuthorizedUser resolves content target exactly once (no double prompt)", {
-  # Regression test for double resolveContentTarget() via public showUsers().
-  # Before the fix, removeAuthorizedUser() called resolveContentTarget() and
-  # then showUsers() called it again — two independent prompts on multi-record
-  # appDir, potentially acting on different content. After the fix, clientForAccount
-  # is built once and showUsers_impl() is called directly with the resolved id.
+  # removeAuthorizedUser() must resolve the content only once. If it called
+  # showUsers(), the content would be resolved twice, and with several records in
+  # appDir, the two prompts could choose different content. So it calls
+  # listCollaborators() with the id that it already resolved.
   local_temp_config()
   addTestServer(
     url = "https://connect.posit.cloud",
@@ -694,16 +713,18 @@ test_that("removeAuthorizedUser resolves content target exactly once (no double 
 
   client_build_count <- 0L
   removed_app_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_app_id <<- appId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     client_build_count <<- client_build_count + 1L
     fake_client(
       "connectCloudClient",
       listApplicationAuthorization = function(appId) {
         list(list(user = list(id = "user-uuid-1", email = "alice@example.com")))
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_app_id <<- appId
-        invisible(TRUE)
       }
     )
   })
@@ -741,6 +762,12 @@ test_that("removeAuthorizedUser resolves by UUID id on PCC (not email-only fallb
   )
 
   removed_user_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_user_id <<- userId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -748,10 +775,6 @@ test_that("removeAuthorizedUser resolves by UUID id on PCC (not email-only fallb
         list(list(
           user = list(id = "user-uuid-abc", email = "alice@example.com")
         ))
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_user_id <<- userId
-        invisible(TRUE)
       }
     )
   })
@@ -786,6 +809,12 @@ test_that("removeAuthorizedUser matches by email when another record has no emai
   )
 
   removed_user_id <- NULL
+  local_mocked_bindings(
+    removeApplicationUser.connectCloudClient = function(client, appId, userId) {
+      removed_user_id <<- userId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -795,10 +824,6 @@ test_that("removeAuthorizedUser matches by email when another record has no emai
           # A second member whose email is redacted (absent) on PCC.
           list(user = list(id = "id-redacted", email = NULL))
         )
-      },
-      removeApplicationUser = function(appId, userId) {
-        removed_user_id <<- userId
-        invisible(TRUE)
       }
     )
   })
@@ -832,6 +857,16 @@ test_that("resendInvitation resolves by UUID invite id on PCC (not email-only fa
   )
 
   resent_id <- NULL
+  local_mocked_bindings(
+    resendApplicationInvitation.connectCloudClient = function(
+      client,
+      inviteId,
+      regenerate
+    ) {
+      resent_id <<- inviteId
+      invisible(TRUE)
+    }
+  )
   local_mocked_bindings(clientForAccount = function(...) {
     fake_client(
       "connectCloudClient",
@@ -841,10 +876,6 @@ test_that("resendInvitation resolves by UUID invite id on PCC (not email-only fa
           email_address = "bob@example.com",
           is_expired = FALSE
         ))
-      },
-      resendApplicationInvitation = function(inviteId, regenerate) {
-        resent_id <<- inviteId
-        invisible(TRUE)
       }
     )
   })
@@ -879,7 +910,7 @@ test_that("removeAuthorizedUser aborts with clear message when matched user has 
     fake_client(
       "connectCloudClient",
       listApplicationAuthorization = function(appId) {
-        # user record has email but no id field — id will be NA after showUsers_impl
+        # user record has email but no id field, so listCollaborators() gives id = NA
         list(list(user = list(email = "alice@example.com")))
       }
     )
@@ -997,7 +1028,7 @@ test_that("resendInvitation aborts with clear message when matched invitation ha
     fake_client(
       "connectCloudClient",
       listApplicationInvitations = function(appId) {
-        # invitation record has email_address but no id — id will be NA after showInvited_impl
+        # invitation record has email_address but no id, so listInvitations() gives id = NA
         list(list(email_address = "alice@example.com", is_expired = FALSE))
       }
     )
@@ -1033,15 +1064,15 @@ test_that("cleanupPasswordFile is NOT called on PCC accounts", {
 
   cleanup_called <- FALSE
   local_mocked_bindings(
+    inviteApplicationUser.connectCloudClient = function(...) invisible(TRUE)
+  )
+  local_mocked_bindings(
     cleanupPasswordFile = function(...) {
       cleanup_called <<- TRUE
       invisible(TRUE)
     },
     clientForAccount = function(...) {
-      fake_client(
-        "connectCloudClient",
-        inviteApplicationUser = function(...) invisible(TRUE)
-      )
+      fake_client("connectCloudClient")
     }
   )
 
@@ -1061,7 +1092,7 @@ test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     addAuthorizedUser(
       "alice@example.com",
       appDir = appDir,
@@ -1069,7 +1100,7 @@ test_that("addAuthorizedUser() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1080,7 +1111,7 @@ test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     removeAuthorizedUser(
       "alice@example.com",
       appDir = appDir,
@@ -1088,7 +1119,7 @@ test_that("removeAuthorizedUser() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1099,14 +1130,14 @@ test_that("showInvited() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     showInvited(
       appDir = appDir,
       appName = "myapp",
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1117,7 +1148,7 @@ test_that("resendInvitation() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     resendInvitation(
       "alice@example.com",
       appDir = appDir,
@@ -1125,7 +1156,7 @@ test_that("resendInvitation() aborts targeting a Posit Connect server", {
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
 
@@ -1136,13 +1167,13 @@ test_that("showUsers() aborts targeting a Posit Connect server", {
   )
   appDir <- local_temp_app()
 
-  expect_error(
+  expect_snapshot(
     showUsers(
       appDir = appDir,
       appName = "myapp",
       account = "connect-user",
       server = "connect-server"
     ),
-    regexp = "rsconnect can't manage application users on Posit Connect"
+    error = TRUE
   )
 })
