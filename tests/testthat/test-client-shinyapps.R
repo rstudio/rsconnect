@@ -202,6 +202,19 @@ test_that("prepareContent() does not set the visibility when it is the same", {
   ))
 })
 
+test_that("needsVisibilityChange() compares with the current visibility", {
+  public <- list(
+    deployment = list(properties = list(application.visibility = "public"))
+  )
+  noVisibility <- list(deployment = list(properties = list()))
+
+  expect_false(needsVisibilityChange(public, NULL))
+  expect_false(needsVisibilityChange(public, "public"))
+  expect_true(needsVisibilityChange(public, "private"))
+  expect_false(needsVisibilityChange(noVisibility, "public"))
+  expect_true(needsVisibilityChange(noVisibility, "private"))
+})
+
 test_that("prepareContent() ignores env vars on the deployment", {
   client <- fake_client("shinyAppsClient")
 

@@ -383,19 +383,20 @@ pythonEnabledByDefault.connectCloudClient <- function(client) {
 }
 
 #' @export
-supportsVisibility.connectCloudClient <- function(client) {
-  FALSE
-}
-
-#' @export
-visibilityValues.connectCloudClient <- function(client) {
-  c(
+validateVisibility.connectCloudClient <- function(
+  client,
+  appVisibility,
+  error_call
+) {
+  values <- c(
     "private",
     "public",
     "view_team_edit_private",
     "view_team_edit_team",
     "view_public_edit_team"
   )
+  arg_match(appVisibility, values, error_call = error_call)
+  invisible()
 }
 
 #' @export

@@ -756,25 +756,10 @@ checkAppVisibility <- function(
   client,
   error_call = caller_env()
 ) {
-  values <- visibilityValues(client)
-  if (is.null(appVisibility) || is.null(values)) {
+  if (is.null(appVisibility)) {
     return(invisible())
   }
-  arg_match(appVisibility, values, error_call = error_call)
-  invisible()
-}
-
-# Need to set _before_ deploy
-needsVisibilityChange <- function(client, application, appVisibility = NULL) {
-  if (is.null(appVisibility) || !supportsVisibility(client)) {
-    return(FALSE)
-  }
-
-  cur <- application$deployment$properties$application.visibility
-  if (is.null(cur)) {
-    cur <- "public"
-  }
-  cur != appVisibility
+  validateVisibility(client, appVisibility, error_call = error_call)
 }
 
 runDeploymentHook <- function(appDir, option, verbose = FALSE) {

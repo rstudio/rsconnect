@@ -31,42 +31,6 @@ test_that("findRecordPath() uses recordDir, then appPrimaryDoc, then appDir", {
   expect_equal(findRecordPath("a", appPrimaryDoc = "c"), "a/c")
 })
 
-# app visibility ----------------------------------------------------------
-
-test_that("needsVisibilityChange() returns FALSE when no change needed", {
-  dummyApp <- function(visibility) {
-    list(
-      deployment = list(
-        properties = list(
-          application.visibility = visibility
-        )
-      )
-    )
-  }
-
-  expect_false(needsVisibilityChange(fake_client("connectClient")))
-  expect_false(needsVisibilityChange(
-    fake_client("shinyAppsClient"),
-    dummyApp("public"),
-    NULL
-  ))
-  expect_false(needsVisibilityChange(
-    fake_client("shinyAppsClient"),
-    dummyApp("public"),
-    "public"
-  ))
-  expect_true(needsVisibilityChange(
-    fake_client("shinyAppsClient"),
-    dummyApp(NULL),
-    "private"
-  ))
-  expect_true(needsVisibilityChange(
-    fake_client("shinyAppsClient"),
-    dummyApp("public"),
-    "private"
-  ))
-})
-
 test_that("checkConnectSupportsNodejs errors for old server versions", {
   client <- list(
     serverSettings = function() list(version = "2025.12.0")
