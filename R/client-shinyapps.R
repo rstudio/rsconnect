@@ -76,25 +76,6 @@ shinyAppsClient <- function(service, authInfo) {
       POST_JSON(service, authInfo, "/bundles", json)
     },
 
-    listApplications = function(accountId, filters = list()) {
-      path <- "/applications/"
-      query <- paste(
-        filterQuery(
-          c("account_id", "type", names(filters)),
-          c(accountId, "shiny", unname(filters))
-        ),
-        collapse = "&"
-      )
-      listRequest(service, authInfo, path, query, "applications")
-    },
-
-    getApplication = function(applicationId, deploymentRecordVersion) {
-      path <- paste("/applications/", applicationId, sep = "")
-      application <- GET(service, authInfo, path)
-      application$application_id <- application$id
-      application
-    },
-
     getApplicationMetrics = function(
       applicationId,
       series,
@@ -339,6 +320,31 @@ uploadBundle.shinyAppsClient <- function(client, application, bundlePath) {
 }
 
 #' @export
+listApplications.shinyAppsClient <- function(
+  client,
+  accountId,
+  filters = list()
+) {
+  path <- "/applications/"
+  query <- paste(
+    filterQuery(
+      c("account_id", "type", names(filters)),
+      c(accountId, "shiny", unname(filters))
+    ),
+    collapse = "&"
+  )
+  listRequest(client$service, client$authInfo, path, query, "applications")
+}
+
+#' @export
+getApplication.shinyAppsClient <- function(client, applicationId) {
+  path <- paste("/applications/", applicationId, sep = "")
+  application <- GET(client$service, client$authInfo, path)
+  application$application_id <- application$id
+  application
+}
+
+#' @export
 createContent.shinyAppsClient <- function(
   client,
   deployment,
@@ -366,7 +372,7 @@ createContent.shinyAppsClient <- function(
 
 #' @export
 findContent.shinyAppsClient <- function(client, deployment, quiet) {
-  application <- client$getApplication(deployment$appId, deployment$version)
+  application <- getApplication(client, deployment$appId)
   taskComplete(quiet, "Found content {.url {application$url}}")
   application
 }
@@ -480,6 +486,32 @@ addsUtmParameters.shinyAppsClient <- function(client) {
 }
 
 #' @export
+applicationsTable.shinyAppsClient <- function(client, accountDetails) {
+  apps <- listApplications(client, accountDetails$accountId)
+  rows <- lapply(apps, function(x) {
+    properties <- x$deployment$properties
+    data.frame(
+      id = x$id,
+      name = x$name,
+      url = x$url,
+      status = x$status,
+      created_time = x$created_time,
+      updated_time = x$updated_time,
+      size = properties$application.instances.template %||% NA,
+      instances = properties$application.instances.count %||% NA,
+      guid = NA,
+      title = NA_character_,
+      config_url = paste0(
+        "https://www.shinyapps.io/admin/#/application/",
+        x$id
+      ),
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call(rbind, rows)
+}
+
+#' @export
 resolveContentTarget.shinyAppsClient <- function(
   client,
   accountDetails,
@@ -494,6 +526,7 @@ resolveContentTarget.shinyAppsClient <- function(
     ))
   }
   application <- resolveApplication(
+    client,
     accountDetails,
     appName %||% basename(appDir)
   )

@@ -38,173 +38,16 @@
 #' @family Deployment functions
 #' @export
 applications <- function(account = NULL, server = NULL) {
-  # resolve account and create connect client
   accountDetails <- accountInfo(account, server)
-  serverDetails <- serverInfo(accountDetails$server)
   client <- clientForAccount(accountDetails)
-
-  isConnect <- isConnectServer(accountDetails$server)
-  isPCC <- isPositConnectCloudServer(accountDetails$server)
-
-  # retrieve applications
-  apps <- client$listApplications(accountDetails$accountId)
-
-  if (isPCC) {
-    empty <- data.frame(
-      id = character(),
-      name = character(),
-      title = character(),
-      url = character(),
-      status = character(),
-      size = character(),
-      instances = integer(),
-      config_url = character(),
-      created_time = character(),
-      updated_time = character(),
-      guid = character(),
-      stringsAsFactors = FALSE
-    )
-    if (length(apps) == 0) {
-      return(empty)
-    }
-    # Resolve the owning account's real server-side slug once. All items belong
-    # to accountDetails$accountId (listApplications filters by it), so one
-    # getAccounts() call covers every row. Using the resolved slug rather than
-    # accountDetails$name (the local alias) prevents wrong-account URLs when the
-    # remote slug differs from the alias stored in the local config.
-    pccAccts <- client$getAccounts()$data
-    pccOwner <- Find(
-      function(a) identical(a$id, accountDetails$accountId),
-      pccAccts
-    )
-    if (is.null(pccOwner)) {
-      cli::cli_abort(
-        c(
-          "Unable to determine the Connect Cloud account for content listing.",
-          i = "You may not have access to the account this content belongs to."
-        )
-      )
-    }
-    contentUrlBase <- paste0(
-      connectCloudUrls()$ui,
-      "/",
-      pccOwner$name,
-      "/content/"
-    )
-    res <- lapply(apps, function(x) {
-      # url = the standalone served URL handed to app consumers (consistent with
-      # shinyapps.io/Connect); config_url = the dashboard settings page.
-      # Prefer the revision's served URL (the vanity/custom URL when set); fall
-      # back to the constructed content-id URL for content not yet published,
-      # where current_revision (or its url) is absent.
-      contentId <- x$id %||% ""
-      dashboardUrl <- paste0(contentUrlBase, contentId)
-      data.frame(
-        id = x$id %||% NA_character_,
-        name = x$title %||% NA_character_,
-        title = x$title %||% NA_character_,
-        url = x$current_revision$url %||% connectCloudStandaloneUrl(contentId),
-        status = NA_character_,
-        size = NA_character_,
-        instances = NA_integer_,
-        config_url = paste0(dashboardUrl, "/settings/info"),
-        created_time = x$created_time %||% NA_character_,
-        updated_time = x$updated_time %||% NA_character_,
-        guid = NA_character_,
-        stringsAsFactors = FALSE
-      )
-    })
-    return(do.call("rbind", res))
-  }
-
-  # extract the subset of fields we're interested in
-  keep <- if (isConnect) {
-    c(
-      "id",
-      "name",
-      "title",
-      "url",
-      "build_status",
-      "created_time",
-      "last_deployed_time",
-      "guid"
-    )
-  } else {
-    c(
-      "id",
-      "name",
-      "url",
-      "status",
-      "created_time",
-      "updated_time",
-      "deployment"
-    )
-  }
-  res <- lapply(apps, `[`, keep)
-
-  res <- if (isConnect) {
-    lapply(res, function(x) {
-      # set size and instance to NA since Connect doesn't return this info
-      x$size <- NA
-      x$instances <- NA
-      x$title <- x$title %||% NA_character_
-      x
-    })
-  } else {
-    lapply(res, function(x) {
-      # promote the size and instance data to first-level fields
-      x$size <- x$deployment$properties$application.instances.template
-      if (is.null(x$size)) {
-        x$size <- NA
-      }
-      x$instances <- x$deployment$properties$application.instances.count
-      if (is.null(x$instances)) {
-        x$instances <- NA
-      }
-      x$deployment <- NULL
-      x$guid <- NA
-      x$title <- NA_character_
-      x
-    })
-  }
-
-  # The config URL may be provided by the server at some point, but for now
-  # infer it from the account type
-  res <- lapply(res, function(row) {
-    if (isConnect) {
-      row$config_url <- connectDashboardUrl(serverDetails$url, row$id)
-    } else {
-      row$config_url <- paste(
-        "https://www.shinyapps.io/admin/#/application",
-        row$id,
-        sep = "/"
-      )
-    }
-    row
-  })
-
-  # convert to data frame
-  res <- lapply(res, as.data.frame, stringsAsFactors = FALSE)
-  res <- do.call("rbind", res)
-
-  # Ensure the Connect and ShinyApps.io data frames have same column names
-  idx <- match("last_deployed_time", names(res))
-  if (!is.na(idx)) {
-    names(res)[idx] <- "updated_time"
-  }
-
-  idx <- match("build_status", names(res))
-  if (!is.na(idx)) {
-    names(res)[idx] <- "status"
-  }
-
-  return(res)
+  applicationsTable(client, accountDetails)
 }
 
 # Use the API to filter applications by name and error when it does not exist.
 getAppByName <- function(client, accountInfo, name, error_call = caller_env()) {
   # NOTE: returns a list with 0 or 1 elements
-  app <- client$listApplications(
+  app <- listApplications(
+    client,
     accountInfo$accountId,
     filters = list(name = name)
   )
@@ -222,9 +65,8 @@ getAppByName <- function(client, accountInfo, name, error_call = caller_env()) {
 }
 
 # Use the API to list all applications then filter the results client-side.
-resolveApplication <- function(accountDetails, appName) {
-  client <- clientForAccount(accountDetails)
-  apps <- client$listApplications(accountDetails$accountId)
+resolveApplication <- function(client, accountDetails, appName) {
+  apps <- listApplications(client, accountDetails$accountId)
   for (app in apps) {
     if (identical(app$name, appName)) {
       return(app)
@@ -234,12 +76,12 @@ resolveApplication <- function(accountDetails, appName) {
   stopWithApplicationNotFound(appName)
 }
 
-getApplication <- function(account, server, appId) {
+getApplicationForAccount <- function(account, server, appId) {
   accountDetails <- accountInfo(account, server)
   client <- clientForAccount(accountDetails)
 
   withCallingHandlers(
-    client$getApplication(appId, "unknown"),
+    getApplication(client, appId),
     rsconnect_http_404 = function(err) {
       cli::cli_abort("Can't find app with id {.str {appId}}", parent = err)
     }
@@ -260,14 +102,14 @@ stopWithApplicationNotFound <- function(appName) {
 
 applicationTask <- function(taskDef, appName, accountDetails, quiet) {
   # resolve target account and application
-  application <- resolveApplication(accountDetails, appName)
+  client <- clientForAccount(accountDetails)
+  application <- resolveApplication(client, accountDetails, appName)
 
   # get status function and display initial status
   displayStatus <- displayStatus(quiet)
   displayStatus(paste(taskDef$beginStatus, "...\n", sep = ""))
 
   # perform the action
-  client <- clientForAccount(accountDetails)
   task <- taskDef$action(client, application)
   client$waitForTask(task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
@@ -415,7 +257,7 @@ syncAppMetadata <- function(appPath = ".") {
     }
 
     application <- tryCatch(
-      client$getApplication(curDeploy$appId),
+      getApplication(client, curDeploy$appId),
       rsconnect_http_404 = function(c) {
         # if the app has been deleted, delete the deployment record
         file.remove(curDeploy$deploymentFile)
