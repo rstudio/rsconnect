@@ -106,30 +106,30 @@ addAuthorizedUser <- function(
   emailMessage = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   application <- resolveContentTarget(
-    api,
+    client,
     accountDetails,
     appDir,
     appName,
     contentId
   )
 
-  if (usesPasswordFile(api)) {
+  if (usesPasswordFile(client)) {
     cleanupPasswordFile(appDir)
   }
 
   # Warn only when the caller explicitly opts out of the email.
-  if (!supportsOptionalInviteEmail(api) && identical(sendEmail, FALSE)) {
+  if (!supportsOptionalInviteEmail(client) && identical(sendEmail, FALSE)) {
     cli::cli_warn(
-      "{.arg sendEmail} is ignored on {serverDisplayName(api)}, which always sends an invitation email."
+      "{.arg sendEmail} is ignored on {serverDisplayName(client)}, which always sends an invitation email."
     )
   }
 
   # fetch authorization list
   inviteApplicationUser(
-    api,
+    client,
     application$id,
     validateEmail(email),
     sendEmail,
@@ -177,21 +177,21 @@ removeAuthorizedUser <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   application <- resolveContentTarget(
-    api,
+    client,
     accountDetails,
     appDir,
     appName,
     contentId
   )
 
-  if (usesPasswordFile(api)) {
+  if (usesPasswordFile(client)) {
     cleanupPasswordFile(appDir)
   }
 
-  users <- listCollaborators(api, application$id)
+  users <- listCollaborators(client, application$id)
 
   user <- as.character(user)
   # Match id first (UUID strings on PCC, numeric-as-character on shinyapps.io),
@@ -203,11 +203,11 @@ removeAuthorizedUser <- function(
   } else {
     # The hint only helps someone who searched by email. A lookup by id is not
     # affected by redaction.
-    redactionHint <- redactsUserEmails(api) && grepl("@", user, fixed = TRUE)
+    redactionHint <- redactsUserEmails(client) && grepl("@", user, fixed = TRUE)
     cli::cli_abort(c(
       "User {.val {user}} not found.",
       i = if (redactionHint) {
-        "On {serverDisplayName(api)} an email can be redacted and won't match; pass the user id from {.fn showUsers} instead."
+        "On {serverDisplayName(client)} an email can be redacted and won't match; pass the user id from {.fn showUsers} instead."
       }
     ))
   }
@@ -219,8 +219,8 @@ removeAuthorizedUser <- function(
     ))
   }
 
-  # remove user (api already built above)
-  removeApplicationUser(api, application$id, user$id)
+  # remove user
+  removeApplicationUser(client, application$id, user$id)
 
   message(paste("Removed:", user$email, "from application", sep = " "))
 
@@ -267,17 +267,17 @@ showUsers <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   application <- resolveContentTarget(
-    api,
+    client,
     accountDetails,
     appDir,
     appName,
     contentId
   )
 
-  listCollaborators(api, application$id)
+  listCollaborators(client, application$id)
 }
 
 #' List invited users for an application
@@ -317,17 +317,17 @@ showInvited <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   application <- resolveContentTarget(
-    api,
+    client,
     accountDetails,
     appDir,
     appName,
     contentId
   )
 
-  listInvitations(api, application$id)
+  listInvitations(client, application$id)
 }
 
 #' Resend invitation for invited users of an application
@@ -371,16 +371,16 @@ resendInvitation <- function(
   server = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   application <- resolveContentTarget(
-    api,
+    client,
     accountDetails,
     appDir,
     appName,
     contentId
   )
-  invited <- listInvitations(api, application$id)
+  invited <- listInvitations(client, application$id)
 
   invite <- as.character(invite)
   # Match id first (UUID strings on PCC, numeric-as-character on shinyapps.io),
@@ -400,8 +400,8 @@ resendInvitation <- function(
     ))
   }
 
-  # resend invitation (api already built above)
-  resendApplicationInvitation(api, invite$id, regenerate)
+  # resend invitation
+  resendApplicationInvitation(client, invite$id, regenerate)
 
   message(paste("Sent invitation to", invite$email, "", sep = " "))
 

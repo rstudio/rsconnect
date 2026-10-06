@@ -31,7 +31,7 @@ showUsage <- function(
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   # resolve application
   if (is.null(appName)) {
@@ -40,7 +40,7 @@ showUsage <- function(
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
-  data <- api$getAccountUsage(
+  data <- client$getAccountUsage(
     accountDetails$accountId,
     usageType,
     application$id,
@@ -102,7 +102,7 @@ showMetrics <- function(
   interval = NULL
 ) {
   accountDetails <- accountInfo(account, server)
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   # resolve application
   if (is.null(appName)) {
@@ -111,7 +111,7 @@ showMetrics <- function(
   application <- resolveApplication(accountDetails, appName)
 
   # get application usage
-  data <- api$getApplicationMetrics(
+  data <- client$getApplicationMetrics(
     application$id,
     metricSeries,
     metricNames,
@@ -158,10 +158,10 @@ accountUsage <- function(
   accountDetails <- accountInfo(account, server)
   checkShinyappsServer(accountDetails$server)
 
-  api <- clientForAccount(accountDetails)
+  client <- clientForAccount(accountDetails)
 
   # get application usage
-  data <- api$getAccountUsage(
+  data <- client$getAccountUsage(
     accountDetails$accountId,
     usageType,
     NULL,
