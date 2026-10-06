@@ -191,9 +191,6 @@ removeAuthorizedUser <- function(
     cleanupPasswordFile(appDir)
   }
 
-  # Resolve the content only once. showUsers() resolves it again, and a second
-  # interactive prompt can return a different record. Then
-  # removeApplicationUser() would act on the wrong content.
   users <- listCollaborators(api, application$id)
 
   user <- as.character(user)
@@ -376,8 +373,6 @@ resendInvitation <- function(
   accountDetails <- accountInfo(account, server)
   api <- clientForAccount(accountDetails)
 
-  # resolve content exactly once, then fetch invitations with listInvitations()
-  # (showInvited() calls resolveContentTarget() a second time).
   application <- resolveContentTarget(
     api,
     accountDetails,
