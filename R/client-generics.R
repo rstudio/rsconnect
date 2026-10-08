@@ -172,10 +172,21 @@ pythonEnabledByDefault <- function(client) {
   UseMethod("pythonEnabledByDefault")
 }
 
-#' Can a deploy set the visibility of an application?
+#' Check that the server accepts an `appVisibility` value
+#'
+#' @param client A client object.
+#' @param appVisibility The visibility value. It is not `NULL`.
+#' @param error_call The call to show in the error.
+#'
+#' @return `NULL`, invisibly. The method signals an error if the server does
+#'   not accept the value.
 #' @noRd
-supportsVisibility <- function(client) {
-  UseMethod("supportsVisibility")
+validateVisibility <- function(
+  client,
+  appVisibility,
+  error_call = caller_env()
+) {
+  UseMethod("validateVisibility")
 }
 
 #' Can `syncAppMetadata()` update deployment records from the server?

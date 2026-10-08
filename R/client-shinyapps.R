@@ -377,6 +377,20 @@ findContent.shinyAppsClient <- function(client, deployment, quiet) {
   application
 }
 
+# The visibility must be set before the deploy. An application with no
+# visibility property is public.
+needsVisibilityChange <- function(application, appVisibility = NULL) {
+  if (is.null(appVisibility)) {
+    return(FALSE)
+  }
+
+  cur <- application$deployment$properties$application.visibility
+  if (is.null(cur)) {
+    cur <- "public"
+  }
+  cur != appVisibility
+}
+
 #' @export
 prepareContent.shinyAppsClient <- function(
   client,
@@ -388,7 +402,7 @@ prepareContent.shinyAppsClient <- function(
   upload,
   quiet
 ) {
-  if (needsVisibilityChange(client, application, appVisibility)) {
+  if (needsVisibilityChange(application, appVisibility)) {
     taskStart(quiet, "Setting visibility to {appVisibility}...")
     client$setApplicationProperty(
       application$id,
@@ -464,8 +478,13 @@ pythonEnabledByDefault.shinyAppsClient <- function(client) {
 }
 
 #' @export
-supportsVisibility.shinyAppsClient <- function(client) {
-  TRUE
+validateVisibility.shinyAppsClient <- function(
+  client,
+  appVisibility,
+  error_call
+) {
+  arg_match(appVisibility, c("private", "public"), error_call = error_call)
+  invisible()
 }
 
 #' @export

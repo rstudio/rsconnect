@@ -268,9 +268,14 @@ pythonEnabledByDefault.connectClient <- function(client) {
   TRUE
 }
 
+# Connect ignores `appVisibility`, so every value is accepted.
 #' @export
-supportsVisibility.connectClient <- function(client) {
-  FALSE
+validateVisibility.connectClient <- function(
+  client,
+  appVisibility,
+  error_call
+) {
+  invisible()
 }
 
 #' @export

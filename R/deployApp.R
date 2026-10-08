@@ -471,7 +471,8 @@ deployApp <- function(
   )
   accountDetails <- target$accountDetails
   deployment <- target$deployment
-  checkAppVisibility(appVisibility, accountDetails$server)
+  client <- clientForAccount(accountDetails)
+  checkAppVisibility(appVisibility, client)
 
   if (is.null(deployment$appId)) {
     dest <- accountLabel(accountDetails$name, accountDetails$server)
@@ -486,8 +487,6 @@ deployApp <- function(
       "Re-deploying {.val {deployment$name}} using {.val {dest}}"
     )
   }
-
-  client <- clientForAccount(accountDetails)
 
   # Run checks prior to first saveDeployment() to avoid errors that will always
   # prevent a successful upload from generating a partial deployment
@@ -754,41 +753,13 @@ findRecordPath <- function(appDir, recordDir = NULL, appPrimaryDoc = NULL) {
 
 checkAppVisibility <- function(
   appVisibility,
-  server,
+  client,
   error_call = caller_env()
 ) {
   if (is.null(appVisibility)) {
     return(invisible())
   }
-  if (!isPositConnectCloudServer(server) && !isShinyappsServer(server)) {
-    return(invisible())
-  }
-  if (isPositConnectCloudServer(server)) {
-    values <- c(
-      "private",
-      "public",
-      "view_team_edit_private",
-      "view_team_edit_team",
-      "view_public_edit_team"
-    )
-  } else {
-    values <- c("private", "public")
-  }
-  arg_match(appVisibility, values, error_call = error_call)
-  invisible()
-}
-
-# Need to set _before_ deploy
-needsVisibilityChange <- function(client, application, appVisibility = NULL) {
-  if (is.null(appVisibility) || !supportsVisibility(client)) {
-    return(FALSE)
-  }
-
-  cur <- application$deployment$properties$application.visibility
-  if (is.null(cur)) {
-    cur <- "public"
-  }
-  cur != appVisibility
+  validateVisibility(client, appVisibility, error_call = error_call)
 }
 
 runDeploymentHook <- function(appDir, option, verbose = FALSE) {
