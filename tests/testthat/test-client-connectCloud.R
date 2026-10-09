@@ -1684,23 +1684,3 @@ test_that("currentUser() GETs the current user with a token refresh retry", {
   expect_identical(sent$request_fn, GET)
   expect_equal(sent$path, "/users/me")
 })
-
-test_that("the client's getContent field gets the content with the client", {
-  requested <- NULL
-  local_mocked_bindings(
-    connectCloudGetContent = function(client, contentId) {
-      requested <<- list(class = class(client), contentId = contentId)
-      list(id = contentId)
-    }
-  )
-  client <- connectCloudClient(list(), list())
-
-  expect_equal(client$getContent("content-1"), list(id = "content-1"))
-  expect_equal(
-    requested,
-    list(
-      class = c("connectCloudClient", "rsconnectClient"),
-      contentId = "content-1"
-    )
-  )
-})

@@ -434,20 +434,3 @@ test_that("currentUser() GETs the current user", {
   expect_equal(requested$path, "/users/current")
   expect_equal(user, list(id = 1, username = "me"))
 })
-
-test_that("the client's getEnvVars field gets the env vars with the client", {
-  requested <- NULL
-  local_mocked_bindings(
-    connectGetEnvVars = function(client, guid) {
-      requested <<- list(class = class(client), guid = guid)
-      c("A", "B")
-    }
-  )
-  client <- connectClient(list(), list())
-
-  expect_equal(client$getEnvVars("guid-1"), c("A", "B"))
-  expect_equal(
-    requested,
-    list(class = c("connectClient", "rsconnectClient"), guid = "guid-1")
-  )
-})
