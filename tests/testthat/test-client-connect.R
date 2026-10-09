@@ -70,9 +70,9 @@ test_that("waitForTask", {
   client <- connectClient(service, authInfo)
 
   # task messages are logged when not quiet.
-  expect_snapshot(invisible(client$waitForTask(101, quiet = FALSE)))
+  expect_snapshot(invisible(waitForTask(client, 101, quiet = FALSE)))
   # task messages are not logged when quiet.
-  expect_snapshot(invisible(client$waitForTask(42, quiet = TRUE)))
+  expect_snapshot(invisible(waitForTask(client, 42, quiet = TRUE)))
 })
 
 test_that("getApplication() fills in dashboard_url from guid when missing", {
@@ -310,10 +310,12 @@ test_that("findContent() gets the application for the deployment record", {
 
 test_that("prepareContent() sets the env vars of the deployment", {
   sent <- NULL
-  client <- fake_client(
-    "connectClient",
-    setEnvVars = function(guid, vars) sent <<- list(guid = guid, vars = vars)
+  local_mocked_bindings(
+    connectSetEnvVars = function(client, guid, vars) {
+      sent <<- list(guid = guid, vars = vars)
+    }
   )
+  client <- fake_client("connectClient")
   application <- list(id = "42", guid = "guid-42")
 
   result <- prepareContent(
@@ -332,10 +334,10 @@ test_that("prepareContent() sets the env vars of the deployment", {
 })
 
 test_that("prepareContent() does not set env vars when the deployment has none", {
-  client <- fake_client(
-    "connectClient",
-    setEnvVars = function(...) stop("setEnvVars() should not be called")
+  local_mocked_bindings(
+    connectSetEnvVars = function(...) stop("setEnvVars() should not be called")
   )
+  client <- fake_client("connectClient")
 
   expect_no_error(prepareContent(
     client,
@@ -352,17 +354,17 @@ test_that("prepareContent() does not set env vars when the deployment has none",
 test_that("activateContent() deploys the bundle and waits for the task", {
   deployed <- NULL
   waited <- NULL
-  client <- fake_client(
-    "connectClient",
-    deployApplication = function(application, bundleId = NULL) {
+  local_mocked_bindings(
+    connectDeployApplication = function(client, application, bundleId = NULL) {
       deployed <<- list(guid = application$guid, bundleId = bundleId)
       list(task_id = "task-1")
     },
-    waitForTask = function(taskId, quiet = FALSE) {
+    waitForTask.connectClient = function(client, taskId, quiet = FALSE) {
       waited <<- taskId
       list(finished = TRUE, code = 0)
     }
   )
+  client <- fake_client("connectClient")
   application <- list(guid = "guid-42", url = "https://example.com/42/")
 
   result <- activateContent(
@@ -381,11 +383,13 @@ test_that("activateContent() deploys the bundle and waits for the task", {
 })
 
 test_that("activateContent() reports a failed task", {
-  client <- fake_client(
-    "connectClient",
-    deployApplication = function(...) list(task_id = "task-1"),
-    waitForTask = function(...) list(code = 1, error = "Build failed")
+  local_mocked_bindings(
+    connectDeployApplication = function(...) list(task_id = "task-1"),
+    waitForTask.connectClient = function(...) {
+      list(code = 1, error = "Build failed")
+    }
   )
+  client <- fake_client("connectClient")
 
   result <- activateContent(
     client,
@@ -414,4 +418,21 @@ test_that("listApplications() filters by account and by name", {
   expect_equal(sent[[1]]$path, "/applications")
   expect_equal(sent[[1]]$query, "filter=account_id:1")
   expect_equal(sent[[2]]$query, "filter=account_id:1&filter=name:my-app")
+})
+
+test_that("currentUser() GETs the current user", {
+  requested <- NULL
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      requested <<- list(service = service, path = path)
+      list(id = 1, username = "me")
+    }
+  )
+  client <- connectClient(list(host = "connect.example.com"), list())
+
+  user <- currentUser(client)
+
+  expect_equal(requested$service, list(host = "connect.example.com"))
+  expect_equal(requested$path, "/users/current")
+  expect_equal(user, list(id = 1, username = "me"))
 })

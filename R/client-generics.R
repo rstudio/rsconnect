@@ -130,6 +130,15 @@ supportsEnvVarManagement <- function(client) {
   UseMethod("supportsEnvVarManagement")
 }
 
+#' Get the user that the client authenticates as
+#'
+#' @param client A client object.
+#' @return The user. It has an `id` and a `username`.
+#' @noRd
+currentUser <- function(client) {
+  UseMethod("currentUser")
+}
+
 #' Can the server run Node.js content?
 #'
 #' A `TRUE` result does not check the server version.
@@ -352,4 +361,20 @@ resendApplicationInvitation <- function(
   regenerate = FALSE
 ) {
   UseMethod("resendApplicationInvitation")
+}
+
+#' Wait for a server task to finish
+#'
+#' Polls the task and prints its progress unless `quiet` is `TRUE`.
+#'
+#' @param client A client object. Connect Cloud has no tasks, so its method
+#'   gives an error.
+#' @param taskId The id of the task to wait for.
+#' @param quiet If `TRUE`, do not print the task progress.
+#'
+#' @return Connect returns the last task response. shinyapps.io returns `NULL`
+#'   when the task succeeds, and gives an error when the task fails.
+#' @noRd
+waitForTask <- function(client, taskId, quiet = FALSE) {
+  UseMethod("waitForTask")
 }

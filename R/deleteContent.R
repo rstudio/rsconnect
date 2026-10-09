@@ -55,7 +55,7 @@ deleteContent <- function(
   )
 
   content <- withCallingHandlers(
-    client$getContent(target$id),
+    connectCloudGetContent(client, target$id),
     rsconnect_http_404 = function(err) {
       removeDeploymentRecord(target$deploymentFile)
       cli::cli_abort(
@@ -77,7 +77,7 @@ deleteContent <- function(
     )
   }
 
-  client$deleteContent(target$id)
+  connectCloudDeleteContent(client, target$id)
   cli::cli_inform(c(v = "Deleted content {.val {content$title}}."))
   removeDeploymentRecord(target$deploymentFile)
 

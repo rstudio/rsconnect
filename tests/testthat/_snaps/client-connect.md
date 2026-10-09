@@ -32,7 +32,7 @@
 # waitForTask
 
     Code
-      invisible(client$waitForTask(101, quiet = FALSE))
+      invisible(waitForTask(client, 101, quiet = FALSE))
     Output
       [rsc-session] Content GUID: 3bfbd98a-6d6d-41bd-a15f-cab52025742f
       [rsc-session] Content ID: 43888
@@ -42,7 +42,7 @@
 ---
 
     Code
-      invisible(client$waitForTask(42, quiet = TRUE))
+      invisible(waitForTask(client, 42, quiet = TRUE))
 
 # getDefaultSnowflakeConnectionName errors when default connection doesn't match server
 

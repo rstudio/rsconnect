@@ -1,103 +1,17 @@
 # Docs: https://docs.posit.co/connect/api/
 
 connectClient <- function(service, authInfo) {
-  self <- list(
-    # The connection identity. Methods read these to make requests.
-    service = service,
-    authInfo = authInfo,
-
-    ## Server settings API
-
-    serverSettings = function() {
-      GET(service, authInfo, unversioned_url("server_settings"))
-    },
-
-    ## User API
-
-    currentUser = function() {
-      # All callers only need $id and $username,
-      # passed to registerAccount() (where account means user)
-      # and that gets written to a .dcf file
-      # /v1/user/ does not include $id
-      # But it looks like none of the Connect code paths use the account/user id,
-      # username is used to identify the "account", so this should be safe
-      # to upgrade to v1.
-      GET(service, authInfo, unversioned_url("users", "current"))
-    },
-
-    ## Tokens API
-
-    addToken = function(token) {
-      POST_JSON(service, authInfo, unversioned_url("tokens"), token)
-    },
-
-    ## Applications API
-
-    deployApplication = function(application, bundleId = NULL) {
-      path <- v1_url("content", application$guid, "deploy")
-      POST_JSON(
-        service,
-        authInfo,
-        path,
-        json = list(bundle_id = bundleId)
-      )
-    },
-
-    waitForTask = function(taskId, quiet = FALSE) {
-      path <- v1_url("tasks", taskId)
-      query <- list(first = 0, wait = 1)
-
-      while (TRUE) {
-        # ick, manual url construction
-        queryString <- paste(names(query), query, sep = "=", collapse = "&")
-        url <- paste0(path, "?", queryString)
-
-        response <- GET(service, authInfo, url)
-
-        if (length(response$output) > 0) {
-          if (!quiet) {
-            messages <- unlist(response$output)
-            messages <- stripConnectTimestamps(messages)
-
-            # Made headers more prominent.
-            heading <- grepl("^# ", messages)
-            messages[heading] <- cli::style_bold(messages[heading])
-            cat(paste0(messages, "\n", collapse = ""))
-          }
-
-          query$first <- response$last
-        }
-
-        if (length(response$finished) > 0 && response$finished) {
-          return(response)
-        }
-      }
-    },
-
-    # - Environment variables -----------------------------------------------
-    # https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment
-
-    getEnvVars = function(guid) {
-      path <- v1_url("content", guid, "environment")
-      as.character(unlist(GET(service, authInfo, path, list())))
-    },
-
-    setEnvVars = function(guid, vars) {
-      path <- v1_url("content", guid, "environment")
-      body <- unname(Map(
-        function(name, value) {
-          list(
-            name = name,
-            value = if (is.na(value)) NULL else value
-          )
-        },
-        vars,
-        Sys.getenv(vars, unset = NA)
-      ))
-      PATCH_JSON(service, authInfo, path, body)
-    }
+  self <- structure(
+    list(
+      # The connection identity. Client functions read these to make requests.
+      service = service,
+      authInfo = authInfo
+    ),
+    class = c("connectClient", "rsconnectClient")
   )
-  structure(self, class = c("connectClient", "rsconnectClient"))
+  # The RStudio IDE calls client$getEnvVars()
+  self$getEnvVars <- function(guid) connectGetEnvVars(self, guid)
+  self
 }
 
 #' @export
@@ -204,7 +118,7 @@ prepareContent.connectClient <- function(
   envVars <- deployment$envVars
   if (length(envVars) > 0) {
     taskStart(quiet, "Updating environment variables {envVars}...")
-    client$setEnvVars(application$guid, envVars)
+    connectSetEnvVars(client, application$guid, envVars)
     taskComplete(quiet, "Environment variables updated")
   }
   application
@@ -212,13 +126,45 @@ prepareContent.connectClient <- function(
 
 #' @export
 activateContent.connectClient <- function(client, application, bundle, quiet) {
-  task <- client$deployApplication(application, bundle$id)
-  response <- client$waitForTask(task$task_id, quiet)
+  task <- connectDeployApplication(client, application, bundle$id)
+  response <- waitForTask(client, task$task_id, quiet)
   list(
     succeeded = is.null(response$code) || response$code == 0,
     url = application$url,
     error = response$error
   )
+}
+
+#' @export
+waitForTask.connectClient <- function(client, taskId, quiet = FALSE) {
+  path <- v1_url("tasks", taskId)
+  query <- list(first = 0, wait = 1)
+
+  while (TRUE) {
+    # ick, manual url construction
+    queryString <- paste(names(query), query, sep = "=", collapse = "&")
+    url <- paste0(path, "?", queryString)
+
+    response <- GET(client$service, client$authInfo, url)
+
+    if (length(response$output) > 0) {
+      if (!quiet) {
+        messages <- unlist(response$output)
+        messages <- stripConnectTimestamps(messages)
+
+        # Made headers more prominent.
+        heading <- grepl("^# ", messages)
+        messages[heading] <- cli::style_bold(messages[heading])
+        cat(paste0(messages, "\n", collapse = ""))
+      }
+
+      query$first <- response$last
+    }
+
+    if (length(response$finished) > 0 && response$finished) {
+      return(response)
+    }
+  }
 }
 
 #' @export
@@ -293,6 +239,13 @@ addsUtmParameters.connectClient <- function(client) {
   FALSE
 }
 
+# All callers only need $id and $username, which registerAccount() writes to a
+# .dcf file. /v1/user/ does not include $id, so this uses the unversioned URL.
+#' @export
+currentUser.connectClient <- function(client) {
+  GET(client$service, client$authInfo, unversioned_url("users", "current"))
+}
+
 # rsconnect does not manage the users of Connect content.
 #' @export
 resolveContentTarget.connectClient <- function(
@@ -365,6 +318,50 @@ applicationsTable.connectClient <- function(client, accountDetails) {
     )
   })
   do.call(rbind, rows)
+}
+
+connectServerSettings <- function(client) {
+  checkConnectClient(client)
+  GET(client$service, client$authInfo, unversioned_url("server_settings"))
+}
+
+connectAddToken <- function(client, token) {
+  checkConnectClient(client)
+  POST_JSON(client$service, client$authInfo, unversioned_url("tokens"), token)
+}
+
+connectDeployApplication <- function(client, application, bundleId = NULL) {
+  checkConnectClient(client)
+  path <- v1_url("content", application$guid, "deploy")
+  POST_JSON(
+    client$service,
+    client$authInfo,
+    path,
+    json = list(bundle_id = bundleId)
+  )
+}
+
+# https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment
+connectGetEnvVars <- function(client, guid) {
+  checkConnectClient(client)
+  path <- v1_url("content", guid, "environment")
+  as.character(unlist(GET(client$service, client$authInfo, path, list())))
+}
+
+connectSetEnvVars <- function(client, guid, vars) {
+  checkConnectClient(client)
+  path <- v1_url("content", guid, "environment")
+  body <- unname(Map(
+    function(name, value) {
+      list(
+        name = name,
+        value = if (is.na(value)) NULL else value
+      )
+    },
+    vars,
+    Sys.getenv(vars, unset = NA)
+  ))
+  PATCH_JSON(client$service, client$authInfo, path, body)
 }
 
 getSnowflakeAuthToken <- function(url, snowflakeConnectionName) {

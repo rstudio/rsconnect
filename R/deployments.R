@@ -428,7 +428,7 @@ migrateToConnectCloud <- function(
 
   # Verify the target content exists and collect its metadata.
   client <- clientForAccount(ccInfo)
-  content <- client$getContent(contentId)
+  content <- connectCloudGetContent(client, contentId)
 
   # The content response carries only the owning account's id
   # (`account_id`), not a ready-made URL or slug. Resolve it against the
@@ -438,7 +438,7 @@ migrateToConnectCloud <- function(
   # under the wrong account for that case. Aborts if the account can't be
   # resolved, since that means the caller likely can't deploy to it either.
   contentUrl <- connectCloudContentUrl(
-    client$getAccounts,
+    client,
     content$account_id,
     contentId
   )

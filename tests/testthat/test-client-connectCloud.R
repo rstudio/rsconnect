@@ -234,7 +234,7 @@ test_that("getAccounts() paginates through multiple pages", {
 
   # 3 accounts, 2 per page -- must take two requests (offset=0, offset=2) to
   # accumulate all of them.
-  result <- client$getAccounts()
+  result <- connectCloudGetAccounts(client)
   expect_equal(
     vapply(result$data, function(a) a$id, character(1)),
     c("acct-1", "acct-2", "acct-3")
@@ -857,7 +857,7 @@ test_that("listApplicationAuthorization GETs /contents/{id}/users and returns pa
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$listApplicationAuthorization("content-abc")
+  result <- connectCloudListApplicationAuthorization(client, "content-abc")
   expect_equal(length(result), 2L)
   expect_equal(result[[1]]$user$email, "alice@example.com")
   expect_equal(result[[2]]$user$email, "bob@example.com")
@@ -913,7 +913,7 @@ test_that("deleteContent DELETEs /contents/{id} and returns TRUE", {
   )
   client <- connectCloudClient(service, authInfo)
 
-  expect_true(client$deleteContent("content-abc"))
+  expect_true(connectCloudDeleteContent(client, "content-abc"))
 })
 
 test_that("inviteApplicationUser POSTs expected JSON fields to /contents/{id}/invitations", {
@@ -1052,7 +1052,7 @@ test_that("listApplicationInvitations GETs /contents/{id}/invitations?accepted_t
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$listApplicationInvitations("content-abc")
+  result <- connectCloudListApplicationInvitations(client, "content-abc")
 
   expect_equal(length(result), 1L)
   expect_equal(result[[1]]$id, "inv-1")
@@ -1143,7 +1143,7 @@ test_that("listApplicationAuthorization accumulates multiple pages", {
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$listApplicationAuthorization("content-abc")
+  result <- connectCloudListApplicationAuthorization(client, "content-abc")
   expect_equal(length(result), 3L)
   expect_equal(result[[1]]$user$id, "u1")
   expect_equal(result[[2]]$user$id, "u2")
@@ -1203,7 +1203,7 @@ test_that("listApplicationInvitations accumulates multiple pages and keeps accep
   )
   client <- connectCloudClient(service, authInfo)
 
-  result <- client$listApplicationInvitations("content-abc")
+  result <- connectCloudListApplicationInvitations(client, "content-abc")
   expect_equal(length(result), 3L)
   expect_equal(result[[1]]$id, "inv-1")
   expect_equal(result[[2]]$id, "inv-2")
@@ -1564,13 +1564,13 @@ test_that("createContent() uses the inferred primary file and the name as title"
 
 test_that("findContent() gets the content for the deployment record", {
   requested <- NULL
-  client <- fake_client(
-    "connectCloudClient",
-    getContent = function(contentId) {
+  local_mocked_bindings(
+    connectCloudGetContent = function(client, contentId) {
       requested <<- contentId
       list(id = contentId)
     }
   )
+  client <- fake_client("connectCloudClient")
 
   content <- findContent(client, list(appId = "content-abc"), quiet = TRUE)
 
@@ -1669,4 +1669,24 @@ test_that("activateContent() publishes and waits for the next revision", {
     result,
     list(succeeded = FALSE, url = "https://example.com/c", error = "failed")
   )
+})
+
+test_that("currentUser() GETs the current user with a token refresh retry", {
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, ...) {
+      list(request_fn = request_fn, path = path)
+    }
+  )
+
+  sent <- currentUser(client)
+
+  expect_identical(sent$request_fn, GET)
+  expect_equal(sent$path, "/users/me")
+})
+
+test_that("waitForTask() is not supported", {
+  client <- fake_client("connectCloudClient")
+
+  expect_snapshot(waitForTask(client, "task-1"), error = TRUE)
 })

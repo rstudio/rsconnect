@@ -23,3 +23,27 @@ test_that("accountUsage() aborts for Posit Connect and Connect Cloud accounts", 
     regexp = "`server` must be shinyapps\\.io"
   )
 })
+
+test_that("showMetrics() aborts for Posit Connect and Connect Cloud accounts", {
+  local_mocked_account_info()
+  local_mocked_bindings(clientForAccount = function(...) stop("built a client"))
+
+  expect_error(
+    showMetrics(
+      "container_status",
+      "connect_count",
+      account = "connect-user",
+      server = "connect-server"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+  expect_error(
+    showMetrics(
+      "container_status",
+      "connect_count",
+      account = "cloud-user",
+      server = "connect.posit.cloud"
+    ),
+    regexp = "`server` must be shinyapps\\.io"
+  )
+})

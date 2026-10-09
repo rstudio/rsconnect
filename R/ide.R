@@ -89,12 +89,13 @@ showRstudioSourceMarkers <- function(basePath, lint) {
   applied <- lapply(lint, function(file) {
     lapply(file, function(linter) {
       lapply(linter$indices, function(index) {
-        marker <- list()
-        marker$type <- "warning"
-        marker$file <- file.path(basePath, linter$file)
-        marker$line <- index
-        marker$column <- 1
-        marker$message <- linter$suggestion
+        marker <- list(
+          type = "warning",
+          file = file.path(basePath, linter$file),
+          line = index,
+          column = 1,
+          message = linter$suggestion
+        )
         markers <<- c(markers, list(marker))
         marker
       })

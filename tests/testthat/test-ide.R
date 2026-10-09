@@ -136,3 +136,57 @@ test_that("registerUserToken registers a user token", {
     accountInfo("the-account")
   })
 })
+
+test_that("the RStudio IDE can get env vars from a Connect client", {
+  # Matches the calls in rsconnect.getApplicationEnvVarsImpl in
+  # https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R
+  local_temp_config()
+  addTestServer()
+  addTestAccount("susan")
+  requested <- NULL
+  local_mocked_bindings(
+    connectGetEnvVars = function(client, guid) {
+      requested <<- list(class = class(client), guid = guid)
+      c("A", "B")
+    }
+  )
+
+  accountDetails <- accountInfo("susan", "example.com")
+  client <- clientForAccount(accountDetails)
+
+  expect_equal(client$getEnvVars("guid-1"), c("A", "B"))
+  expect_equal(
+    requested,
+    list(class = c("connectClient", "rsconnectClient"), guid = "guid-1")
+  )
+})
+
+test_that("the RStudio IDE can get content from a Connect Cloud client", {
+  # Matches the calls in rsconnect.getConnectCloudContent in
+  # https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R
+  local_temp_config()
+  addTestServer(
+    url = "https://connect.posit.cloud",
+    name = "connect.posit.cloud"
+  )
+  addTestAccount("susan", server = "connect.posit.cloud")
+  requested <- NULL
+  local_mocked_bindings(
+    connectCloudGetContent = function(client, contentId) {
+      requested <<- list(class = class(client), contentId = contentId)
+      list(id = contentId)
+    }
+  )
+
+  accountDetails <- accountInfo("susan", "connect.posit.cloud")
+  client <- clientForAccount(accountDetails)
+
+  expect_equal(client$getContent("content-1"), list(id = "content-1"))
+  expect_equal(
+    requested,
+    list(
+      class = c("connectCloudClient", "rsconnectClient"),
+      contentId = "content-1"
+    )
+  )
+})

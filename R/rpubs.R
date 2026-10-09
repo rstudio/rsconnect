@@ -93,8 +93,7 @@ rpubsUpload <- function(
   isUpdate <- FALSE
   method <- "POST"
   path <- "/api/v1/document"
-  headers <- list()
-  headers$Connection <- "close"
+  headers <- list(Connection = "close")
   if (!is.null(id)) {
     isUpdate <- TRUE
     path <- pathFromId(id)

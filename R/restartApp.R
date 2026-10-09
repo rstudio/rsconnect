@@ -27,12 +27,13 @@ restartApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
   checkShinyappsServer(accountDetails$server)
 
   # define deploy task
-  taskDef <- list()
-  taskDef$beginStatus <- "Restarting application"
-  taskDef$endStatus <- "Application successfully restarted"
-  taskDef$action <- function(client, application) {
-    client$deployApplication(application)
-  }
+  taskDef <- list(
+    beginStatus = "Restarting application",
+    endStatus = "Application successfully restarted",
+    action = function(client, application) {
+      shinyappsDeployApplication(client, application)
+    }
+  )
 
   # perform it
   applicationTask(taskDef, appName, accountDetails, quiet)

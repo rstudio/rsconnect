@@ -111,7 +111,7 @@ applicationTask <- function(taskDef, appName, accountDetails, quiet) {
 
   # perform the action
   task <- taskDef$action(client, application)
-  client$waitForTask(task$task_id, quiet)
+  waitForTask(client, task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
 
   invisible(NULL)
@@ -181,7 +181,7 @@ showLogs <- function(
   application <- getAppByName(client, accountDetails, deployment$name)
 
   # Poll for the entries directly
-  logs <- client$getLogs(application$id, entries)
+  logs <- shinyappsGetLogs(client, application$id, entries)
   cat(logs)
 }
 
@@ -207,7 +207,7 @@ getLogs <- function(
   client <- clientForAccount(accountDetails)
   application <- getAppByName(client, accountDetails, deployment$name)
 
-  payload <- client$getLogs(application$id, entries, format = "json")
+  payload <- shinyappsGetLogs(client, application$id, entries, format = "json")
 
   # Convert to a dataframe before combining because the JSON payload has inconsistent field order
   # containing nested single-element lists.

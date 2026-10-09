@@ -513,12 +513,12 @@ parseHttpUrl <- function(urlText) {
     stop("Invalid url: ", urlText)
   }
 
-  url <- list()
-  url$protocol <- components[[2]]
-  url$host <- components[[3]]
-  url$port <- components[[4]]
-  url$path <- components[[5]]
-  url
+  list(
+    protocol = components[[2]],
+    host = components[[3]],
+    port = components[[4]],
+    path = components[[5]]
+  )
 }
 
 buildHttpUrl <- function(x) {
