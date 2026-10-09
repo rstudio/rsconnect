@@ -25,6 +25,25 @@ clientForAccount <- function(account) {
   }
 }
 
+# Use these checks in functions that work with only one type of client.
+checkShinyappsClient <- function(client, call = caller_env()) {
+  if (!inherits(client, "shinyAppsClient")) {
+    cli::cli_abort("`client` must be a shinyapps.io client", call = call)
+  }
+}
+
+checkConnectCloudClient <- function(client, call = caller_env()) {
+  if (!inherits(client, "connectCloudClient")) {
+    cli::cli_abort("`client` must be a Posit Connect Cloud client", call = call)
+  }
+}
+
+checkConnectClient <- function(client, call = caller_env()) {
+  if (!inherits(client, "connectClient")) {
+    cli::cli_abort("`client` must be a Posit Connect client", call = call)
+  }
+}
+
 hasNoCredentials <- function(account) {
   is.null(account$apiKey) &&
     is.null(account$token) &&

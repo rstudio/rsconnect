@@ -57,3 +57,19 @@ test_that("findContentByName() does not look up content on Connect Cloud", {
   client <- fake_client("connectCloudClient")
   expect_null(findContentByName(client, list(accountId = "1"), "my-app"))
 })
+
+test_that("client checks accept only their own client class", {
+  shinyapps <- fake_client("shinyAppsClient")
+  cloud <- fake_client("connectCloudClient")
+  connect <- fake_client("connectClient")
+
+  expect_no_error(checkShinyappsClient(shinyapps))
+  expect_no_error(checkConnectCloudClient(cloud))
+  expect_no_error(checkConnectClient(connect))
+
+  expect_snapshot(error = TRUE, {
+    checkShinyappsClient(connect)
+    checkConnectCloudClient(shinyapps)
+    checkConnectClient(cloud)
+  })
+})

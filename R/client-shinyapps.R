@@ -413,6 +413,7 @@ listInvitations.shinyAppsClient <- function(client, applicationId) {
 }
 
 shinyappsAccountsForUser <- function(client, userId) {
+  checkShinyappsClient(client)
   path <- "/accounts/"
   query <- ""
   listRequest(client$service, client$authInfo, path, query, "accounts")
@@ -427,6 +428,7 @@ shinyappsGetAccountUsage <- function(
   until = NULL,
   interval = NULL
 ) {
+  checkShinyappsClient(client)
   path <- paste(
     "/accounts/",
     accountId,
@@ -452,11 +454,13 @@ shinyappsGetAccountUsage <- function(
 }
 
 shinyappsGetBundle <- function(client, bundleId) {
+  checkShinyappsClient(client)
   path <- paste("/bundles/", bundleId, sep = "")
   GET(client$service, client$authInfo, path)
 }
 
 shinyappsUpdateBundleStatus <- function(client, bundleId, status) {
+  checkShinyappsClient(client)
   path <- paste("/bundles/", bundleId, "/status", sep = "")
   json <- list()
   json$status <- status
@@ -470,6 +474,7 @@ shinyappsCreateBundle <- function(
   content_length,
   checksum
 ) {
+  checkShinyappsClient(client)
   json <- list()
   json$application <- application
   json$content_type <- content_type
@@ -487,6 +492,7 @@ shinyappsGetApplicationMetrics <- function(
   until = NULL,
   interval = NULL
 ) {
+  checkShinyappsClient(client)
   path <- paste(
     "/applications/",
     applicationId,
@@ -525,6 +531,7 @@ shinyappsGetLogs <- function(
   entries = 50,
   format = NULL
 ) {
+  checkShinyappsClient(client)
   path <- paste0("/applications/", applicationId, "/logs")
   query <- paste0("count=", entries, "&tail=0")
   if (!is.null(format)) {
@@ -541,6 +548,7 @@ shinyappsSetApplicationProperty <- function(
   propertyValue,
   force = FALSE
 ) {
+  checkShinyappsClient(client)
   path <- paste(
     "/applications/",
     applicationId,
@@ -560,6 +568,7 @@ shinyappsUnsetApplicationProperty <- function(
   propertyName,
   force = FALSE
 ) {
+  checkShinyappsClient(client)
   path <- paste(
     "/applications/",
     applicationId,
@@ -572,6 +581,7 @@ shinyappsUnsetApplicationProperty <- function(
 }
 
 shinyappsDeployApplication <- function(client, application, bundleId = NULL) {
+  checkShinyappsClient(client)
   path <- paste("/applications/", application$id, "/deploy", sep = "")
   json <- list()
   if (length(bundleId) > 0 && nzchar(bundleId)) {
@@ -583,27 +593,32 @@ shinyappsDeployApplication <- function(client, application, bundleId = NULL) {
 }
 
 shinyappsTerminateApplication <- function(client, applicationId) {
+  checkShinyappsClient(client)
   path <- paste("/applications/", applicationId, "/terminate", sep = "")
   POST(client$service, client$authInfo, path)
 }
 
 shinyappsPurgeApplication <- function(client, applicationId) {
+  checkShinyappsClient(client)
   path <- paste("/applications/", applicationId, "/purge", sep = "")
   POST(client$service, client$authInfo, path)
 }
 
 shinyappsListApplicationAuthorization <- function(client, applicationId) {
+  checkShinyappsClient(client)
   path <- paste("/applications/", applicationId, "/authorization", sep = "")
   listRequest(client$service, client$authInfo, path, NULL, "authorization")
 }
 
 shinyappsListApplicationInvitations <- function(client, applicationId) {
+  checkShinyappsClient(client)
   path <- "/invitations/"
   query <- paste(filterQuery("app_id", applicationId), collapse = "&")
   listRequest(client$service, client$authInfo, path, query, "invitations")
 }
 
 shinyappsListTasks <- function(client, accountId, filters = NULL) {
+  checkShinyappsClient(client)
   if (is.null(filters)) {
     filters <- vector()
   }
@@ -614,6 +629,7 @@ shinyappsListTasks <- function(client, accountId, filters = NULL) {
 }
 
 shinyappsGetTaskLogs <- function(client, taskId) {
+  checkShinyappsClient(client)
   path <- paste("/tasks/", taskId, "/logs/", sep = "")
   GET(client$service, client$authInfo, path)
 }

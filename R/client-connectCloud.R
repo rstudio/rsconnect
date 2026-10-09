@@ -522,6 +522,7 @@ applicationsTable.connectCloudClient <- function(client, accountDetails) {
 }
 
 connectCloudGetAuthorization <- function(client, logChannel) {
+  checkConnectCloudClient(client)
   json <- list(
     resource_type = "log_channel",
     resource_id = logChannel,
@@ -539,6 +540,7 @@ connectCloudGetAuthorization <- function(client, logChannel) {
 }
 
 connectCloudGetContent <- function(client, contentId) {
+  checkConnectCloudClient(client)
   path <- paste0("/contents/", contentId)
   content <- client$withTokenRefreshRetry(GET, path)
   if (content$state == "deleted") {
@@ -558,6 +560,7 @@ connectCloudGetContent <- function(client, contentId) {
 # `include_total=true` and a stable `order_by` so offset paging can't skip or
 # duplicate rows. Callers do any post-filtering on the returned list.
 connectCloudPaginate <- function(client, buildPath, pageSize = 100) {
+  checkConnectCloudClient(client)
   offset <- 0
   allItems <- list()
   repeat {
@@ -579,6 +582,7 @@ connectCloudPaginate <- function(client, buildPath, pageSize = 100) {
 # Accumulates every account the caller has a role on (not just the first
 # page), since the content being migrated/published may belong to any of them.
 connectCloudGetAccounts <- function(client) {
+  checkConnectCloudClient(client)
   accounts <- connectCloudPaginate(client, function(limit, offset) {
     paste0(
       "/accounts?has_user_role=true&include_total=true&limit=",
@@ -591,6 +595,7 @@ connectCloudGetAccounts <- function(client) {
 }
 
 connectCloudListApplicationAuthorization <- function(client, appId) {
+  checkConnectCloudClient(client)
   # order_by keeps offset-based paging stable.
   connectCloudPaginate(client, function(limit, offset) {
     paste0(
@@ -605,12 +610,14 @@ connectCloudListApplicationAuthorization <- function(client, appId) {
 }
 
 connectCloudDeleteContent <- function(client, contentId) {
+  checkConnectCloudClient(client)
   path <- paste0("/contents/", contentId)
   client$withTokenRefreshRetry(DELETE, path)
   invisible(TRUE)
 }
 
 connectCloudListApplicationInvitations <- function(client, appId) {
+  checkConnectCloudClient(client)
   # order_by keeps offset-based paging stable.
   connectCloudPaginate(client, function(limit, offset) {
     paste0(
@@ -629,6 +636,7 @@ connectCloudListApplicationInvitations <- function(client, appId) {
 # necessary because content may belong to a different (e.g. team) account
 # than the one authenticating the request.
 connectCloudContentUrl <- function(client, accountId, contentId) {
+  checkConnectCloudClient(client)
   ownerAccount <- Find(
     function(a) identical(a$id, accountId),
     connectCloudGetAccounts(client)$data

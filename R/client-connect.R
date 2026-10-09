@@ -321,14 +321,17 @@ applicationsTable.connectClient <- function(client, accountDetails) {
 }
 
 connectServerSettings <- function(client) {
+  checkConnectClient(client)
   GET(client$service, client$authInfo, unversioned_url("server_settings"))
 }
 
 connectAddToken <- function(client, token) {
+  checkConnectClient(client)
   POST_JSON(client$service, client$authInfo, unversioned_url("tokens"), token)
 }
 
 connectDeployApplication <- function(client, application, bundleId = NULL) {
+  checkConnectClient(client)
   path <- v1_url("content", application$guid, "deploy")
   POST_JSON(
     client$service,
@@ -340,11 +343,13 @@ connectDeployApplication <- function(client, application, bundleId = NULL) {
 
 # https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment
 connectGetEnvVars <- function(client, guid) {
+  checkConnectClient(client)
   path <- v1_url("content", guid, "environment")
   as.character(unlist(GET(client$service, client$authInfo, path, list())))
 }
 
 connectSetEnvVars <- function(client, guid, vars) {
+  checkConnectClient(client)
   path <- v1_url("content", guid, "environment")
   body <- unname(Map(
     function(name, value) {
