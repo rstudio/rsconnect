@@ -139,12 +139,56 @@ activateContent.shinyAppsClient <- function(
   # A deploy without an upload deploys the current bundle again.
   bundle <- bundle %||% application$deployment$bundle
   task <- shinyappsDeployApplication(client, application, bundle$id)
-  response <- shinyappsWaitForTask(client, task$task_id, quiet)
+  response <- waitForTask(client, task$task_id, quiet)
   list(
     succeeded = is.null(response$code) || response$code == 0,
     url = application$url,
     error = response$error
   )
+}
+
+#' @export
+waitForTask.shinyAppsClient <- function(client, taskId, quiet = FALSE) {
+  if (!quiet) {
+    cat("Waiting for task: ", taskId, "\n", sep = "")
+  }
+
+  path <- paste("/tasks/", taskId, sep = "")
+
+  lastStatus <- NULL
+  while (TRUE) {
+    # check status
+    status <- GET(client$service, client$authInfo, path)
+
+    # display status to the user if it changed
+    if (!identical(lastStatus, status$description)) {
+      if (!quiet) {
+        cat("  ", status$status, ": ", status$description, "\n", sep = "")
+      }
+      lastStatus <- status$description
+    }
+
+    # are we finished? (note: this codepath is the only way to exit this function)
+    if (status$finished) {
+      if (identical(status$status, "success")) {
+        return(NULL)
+      } else {
+        # always show task log on error
+        cli::cat_rule("Begin Task Log", line = "#")
+        taskLog(
+          taskId,
+          client$authInfo$name,
+          client$authInfo$server,
+          output = "stderr"
+        )
+        cli::cat_rule("End Task Log", line = "#")
+        stop(status$error, call. = FALSE)
+      }
+    }
+
+    # wait for 1 second before polling again
+    Sys.sleep(1)
+  }
 }
 
 #' @export
@@ -572,49 +616,6 @@ shinyappsListTasks <- function(client, accountId, filters = NULL) {
 shinyappsGetTaskLogs <- function(client, taskId) {
   path <- paste("/tasks/", taskId, "/logs/", sep = "")
   GET(client$service, client$authInfo, path)
-}
-
-shinyappsWaitForTask <- function(client, taskId, quiet = FALSE) {
-  if (!quiet) {
-    cat("Waiting for task: ", taskId, "\n", sep = "")
-  }
-
-  path <- paste("/tasks/", taskId, sep = "")
-
-  lastStatus <- NULL
-  while (TRUE) {
-    # check status
-    status <- GET(client$service, client$authInfo, path)
-
-    # display status to the user if it changed
-    if (!identical(lastStatus, status$description)) {
-      if (!quiet) {
-        cat("  ", status$status, ": ", status$description, "\n", sep = "")
-      }
-      lastStatus <- status$description
-    }
-
-    # are we finished? (note: this codepath is the only way to exit this function)
-    if (status$finished) {
-      if (identical(status$status, "success")) {
-        return(NULL)
-      } else {
-        # always show task log on error
-        cli::cat_rule("Begin Task Log", line = "#")
-        taskLog(
-          taskId,
-          client$authInfo$name,
-          client$authInfo$server,
-          output = "stderr"
-        )
-        cli::cat_rule("End Task Log", line = "#")
-        stop(status$error, call. = FALSE)
-      }
-    }
-
-    # wait for 1 second before polling again
-    Sys.sleep(1)
-  }
 }
 
 putPresignedBundle <- function(bundle, bundleSize, bundlePath) {

@@ -127,12 +127,44 @@ prepareContent.connectClient <- function(
 #' @export
 activateContent.connectClient <- function(client, application, bundle, quiet) {
   task <- connectDeployApplication(client, application, bundle$id)
-  response <- connectWaitForTask(client, task$task_id, quiet)
+  response <- waitForTask(client, task$task_id, quiet)
   list(
     succeeded = is.null(response$code) || response$code == 0,
     url = application$url,
     error = response$error
   )
+}
+
+#' @export
+waitForTask.connectClient <- function(client, taskId, quiet = FALSE) {
+  path <- v1_url("tasks", taskId)
+  query <- list(first = 0, wait = 1)
+
+  while (TRUE) {
+    # ick, manual url construction
+    queryString <- paste(names(query), query, sep = "=", collapse = "&")
+    url <- paste0(path, "?", queryString)
+
+    response <- GET(client$service, client$authInfo, url)
+
+    if (length(response$output) > 0) {
+      if (!quiet) {
+        messages <- unlist(response$output)
+        messages <- stripConnectTimestamps(messages)
+
+        # Made headers more prominent.
+        heading <- grepl("^# ", messages)
+        messages[heading] <- cli::style_bold(messages[heading])
+        cat(paste0(messages, "\n", collapse = ""))
+      }
+
+      query$first <- response$last
+    }
+
+    if (length(response$finished) > 0 && response$finished) {
+      return(response)
+    }
+  }
 }
 
 #' @export
@@ -304,37 +336,6 @@ connectDeployApplication <- function(client, application, bundleId = NULL) {
     path,
     json = list(bundle_id = bundleId)
   )
-}
-
-connectWaitForTask <- function(client, taskId, quiet = FALSE) {
-  path <- v1_url("tasks", taskId)
-  query <- list(first = 0, wait = 1)
-
-  while (TRUE) {
-    # ick, manual url construction
-    queryString <- paste(names(query), query, sep = "=", collapse = "&")
-    url <- paste0(path, "?", queryString)
-
-    response <- GET(client$service, client$authInfo, url)
-
-    if (length(response$output) > 0) {
-      if (!quiet) {
-        messages <- unlist(response$output)
-        messages <- stripConnectTimestamps(messages)
-
-        # Made headers more prominent.
-        heading <- grepl("^# ", messages)
-        messages[heading] <- cli::style_bold(messages[heading])
-        cat(paste0(messages, "\n", collapse = ""))
-      }
-
-      query$first <- response$last
-    }
-
-    if (length(response$finished) > 0 && response$finished) {
-      return(response)
-    }
-  }
 }
 
 # https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment

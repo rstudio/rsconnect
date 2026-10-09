@@ -70,9 +70,9 @@ test_that("waitForTask", {
   client <- connectClient(service, authInfo)
 
   # task messages are logged when not quiet.
-  expect_snapshot(invisible(connectWaitForTask(client, 101, quiet = FALSE)))
+  expect_snapshot(invisible(waitForTask(client, 101, quiet = FALSE)))
   # task messages are not logged when quiet.
-  expect_snapshot(invisible(connectWaitForTask(client, 42, quiet = TRUE)))
+  expect_snapshot(invisible(waitForTask(client, 42, quiet = TRUE)))
 })
 
 test_that("getApplication() fills in dashboard_url from guid when missing", {
@@ -359,7 +359,7 @@ test_that("activateContent() deploys the bundle and waits for the task", {
       deployed <<- list(guid = application$guid, bundleId = bundleId)
       list(task_id = "task-1")
     },
-    connectWaitForTask = function(client, taskId, quiet = FALSE) {
+    waitForTask.connectClient = function(client, taskId, quiet = FALSE) {
       waited <<- taskId
       list(finished = TRUE, code = 0)
     }
@@ -385,7 +385,9 @@ test_that("activateContent() deploys the bundle and waits for the task", {
 test_that("activateContent() reports a failed task", {
   local_mocked_bindings(
     connectDeployApplication = function(...) list(task_id = "task-1"),
-    connectWaitForTask = function(...) list(code = 1, error = "Build failed")
+    waitForTask.connectClient = function(...) {
+      list(code = 1, error = "Build failed")
+    }
   )
   client <- fake_client("connectClient")
 

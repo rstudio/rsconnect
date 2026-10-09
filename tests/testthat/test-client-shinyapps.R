@@ -247,7 +247,7 @@ test_that("activateContent() deploys the uploaded bundle and waits for the task"
       deployed <<- bundleId
       list(task_id = "task-1")
     },
-    shinyappsWaitForTask = function(client, taskId, quiet = FALSE) {
+    waitForTask.shinyAppsClient = function(client, taskId, quiet = FALSE) {
       waited <<- taskId
       list()
     }
@@ -289,7 +289,7 @@ test_that("activateContent() deploys the current bundle when nothing was uploade
       deployed <<- bundleId
       list(task_id = "task-1")
     },
-    shinyappsWaitForTask = function(...) list()
+    waitForTask.shinyAppsClient = function(...) list()
   )
   client <- fake_client("shinyAppsClient")
   application <- list(
@@ -305,7 +305,9 @@ test_that("activateContent() deploys the current bundle when nothing was uploade
 test_that("activateContent() reports a failed task", {
   local_mocked_bindings(
     shinyappsDeployApplication = function(...) list(task_id = "task-1"),
-    shinyappsWaitForTask = function(...) list(code = 1, error = "Build failed")
+    waitForTask.shinyAppsClient = function(...) {
+      list(code = 1, error = "Build failed")
+    }
   )
   client <- fake_client("shinyAppsClient")
 

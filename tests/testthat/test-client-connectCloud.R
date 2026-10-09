@@ -1684,3 +1684,9 @@ test_that("currentUser() GETs the current user with a token refresh retry", {
   expect_identical(sent$request_fn, GET)
   expect_equal(sent$path, "/users/me")
 })
+
+test_that("waitForTask() is not supported", {
+  client <- fake_client("connectCloudClient")
+
+  expect_snapshot(waitForTask(client, "task-1"), error = TRUE)
+})

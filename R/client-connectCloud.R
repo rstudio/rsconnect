@@ -223,6 +223,15 @@ activateContent.connectCloudClient <- function(
   )
 }
 
+# Connect Cloud has no task API. awaitConnectCloudCompletion() polls revisions.
+#' @export
+waitForTask.connectCloudClient <- function(client, taskId, quiet = FALSE) {
+  cli::cli_abort(
+    "rsconnect can't wait for tasks on {serverDisplayName(client)}.",
+    call = NULL
+  )
+}
+
 #' @export
 serverDisplayName.connectCloudClient <- function(client) {
   "Posit Connect Cloud"

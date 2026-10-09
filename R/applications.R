@@ -111,7 +111,7 @@ applicationTask <- function(taskDef, appName, accountDetails, quiet) {
 
   # perform the action
   task <- taskDef$action(client, application)
-  shinyappsWaitForTask(client, task$task_id, quiet)
+  waitForTask(client, task$task_id, quiet)
   displayStatus(paste(taskDef$endStatus, "\n", sep = ""))
 
   invisible(NULL)

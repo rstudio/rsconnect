@@ -728,7 +728,7 @@ test_that("fresh Connect deploy uploads to the newly created app, not an existin
   )
   local_mocked_bindings(
     connectDeployApplication = function(...) list(task_id = "task-1"),
-    connectWaitForTask = function(...) list(),
+    waitForTask.connectClient = function(...) list(),
     # No local deployment record, so deployApp() checks the server for an
     # app with a matching name before deciding this is a fresh deploy.
     listApplications.connectClient = function(...) list(),
@@ -795,7 +795,7 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
   )
   local_mocked_bindings(
     connectDeployApplication = function(...) list(task_id = "task-1"),
-    connectWaitForTask = function(...) list(),
+    waitForTask.connectClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("connectClient")
     },
@@ -842,7 +842,7 @@ test_that("fresh shinyapps.io deploy uploads to a newly created app, not an exis
   )
   local_mocked_bindings(
     shinyappsDeployApplication = function(...) list(task_id = "task-1"),
-    shinyappsWaitForTask = function(...) list(),
+    waitForTask.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("shinyAppsClient")
     },
@@ -887,7 +887,7 @@ test_that("deployApp() gives the Connect dashboard URL to launch.browser", {
   addTestAccount("myaccount")
   local_mocked_bindings(
     connectDeployApplication = function(...) list(task_id = "task-1"),
-    connectWaitForTask = function(...) list(),
+    waitForTask.connectClient = function(...) list(),
     listApplications.connectClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("connectClient")
@@ -932,7 +932,7 @@ test_that("deployApp() gives the shinyapps.io app URL to launch.browser", {
   addTestAccount("myaccount", server = "shinyapps.io")
   local_mocked_bindings(
     shinyappsDeployApplication = function(...) list(task_id = "task-1"),
-    shinyappsWaitForTask = function(...) list(),
+    waitForTask.shinyAppsClient = function(...) list(),
     listApplications.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("shinyAppsClient")
@@ -1041,7 +1041,7 @@ test_that("redeploy to shinyapps.io uploads to the existing app, not a new one",
   )
   local_mocked_bindings(
     shinyappsDeployApplication = function(...) list(task_id = "task-1"),
-    shinyappsWaitForTask = function(...) list(),
+    waitForTask.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("shinyAppsClient")
     },
@@ -1093,7 +1093,7 @@ test_that("redeploy to Connect makes new content when the recorded content was d
   )
   local_mocked_bindings(
     connectDeployApplication = function(...) list(task_id = "task-1"),
-    connectWaitForTask = function(...) list(),
+    waitForTask.connectClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("connectClient")
     },
@@ -1167,7 +1167,7 @@ test_that("redeploy to shinyapps.io with upload = FALSE deploys the current bund
       deployed_bundle <<- bundleId
       list(task_id = "task-1")
     },
-    shinyappsWaitForTask = function(...) list(),
+    waitForTask.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("shinyAppsClient")
     },
@@ -1216,7 +1216,7 @@ test_that("redeploy to shinyapps.io ignores env vars saved in the record", {
   )
   local_mocked_bindings(
     shinyappsDeployApplication = function(...) list(task_id = "task-1"),
-    shinyappsWaitForTask = function(...) list(),
+    waitForTask.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("shinyAppsClient")
     },
@@ -1270,7 +1270,7 @@ test_that("deployApp(upload=FALSE) on shinyapps.io does not error", {
   )
   local_mocked_bindings(
     shinyappsDeployApplication = function(...) list(task_id = "task-1"),
-    shinyappsWaitForTask = function(...) list(),
+    waitForTask.shinyAppsClient = function(...) list(),
     clientForAccount = function(...) {
       fake_client("shinyAppsClient")
     }

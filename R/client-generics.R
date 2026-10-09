@@ -362,3 +362,19 @@ resendApplicationInvitation <- function(
 ) {
   UseMethod("resendApplicationInvitation")
 }
+
+#' Wait for a server task to finish
+#'
+#' Polls the task and prints its progress unless `quiet` is `TRUE`.
+#'
+#' @param client A client object. Connect Cloud has no tasks, so its method
+#'   gives an error.
+#' @param taskId The id of the task to wait for.
+#' @param quiet If `TRUE`, do not print the task progress.
+#'
+#' @return Connect returns the last task response. shinyapps.io returns `NULL`
+#'   when the task succeeds, and gives an error when the task fails.
+#' @noRd
+waitForTask <- function(client, taskId, quiet = FALSE) {
+  UseMethod("waitForTask")
+}
