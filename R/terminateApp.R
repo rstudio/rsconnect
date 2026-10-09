@@ -34,12 +34,13 @@ terminateApp <- function(
   checkShinyappsServer(accountDetails$server)
 
   # define terminate task
-  taskDef <- list()
-  taskDef$beginStatus <- "Terminating application"
-  taskDef$endStatus <- "Application successfully terminated"
-  taskDef$action <- function(client, application) {
-    shinyappsTerminateApplication(client, application$id)
-  }
+  taskDef <- list(
+    beginStatus = "Terminating application",
+    endStatus = "Application successfully terminated",
+    action = function(client, application) {
+      shinyappsTerminateApplication(client, application$id)
+    }
+  )
 
   # perform it
   applicationTask(taskDef, appName, accountDetails, quiet)

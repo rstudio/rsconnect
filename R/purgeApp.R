@@ -29,12 +29,13 @@ purgeApp <- function(appName, account = NULL, server = NULL, quiet = FALSE) {
   checkShinyappsServer(accountDetails$server)
 
   # define purge task
-  taskDef <- list()
-  taskDef$beginStatus <- "Purging application"
-  taskDef$endStatus <- "Application successfully purged"
-  taskDef$action <- function(client, application) {
-    shinyappsPurgeApplication(client, application$id)
-  }
+  taskDef <- list(
+    beginStatus = "Purging application",
+    endStatus = "Application successfully purged",
+    action = function(client, application) {
+      shinyappsPurgeApplication(client, application$id)
+    }
+  )
 
   # perform it
   applicationTask(taskDef, appName, accountDetails, quiet)

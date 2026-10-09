@@ -63,8 +63,7 @@ connectCloudClient <- function(service, authInfo) {
 uploadBundle.connectCloudClient <- function(client, application, bundlePath) {
   uploadUrl <- application$next_revision$source_bundle_upload_url
   uploadService <- parseHttpUrl(uploadUrl)
-  headers <- list()
-  headers$`Content-Type` <- "application/gzip"
+  headers <- list(`Content-Type` = "application/gzip")
 
   response <- httpLibCurl(
     uploadService$protocol,

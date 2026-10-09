@@ -389,8 +389,7 @@ resendApplicationInvitation.shinyAppsClient <- function(
   regenerate = FALSE
 ) {
   path <- paste("/invitations/", invitationId, "/send", sep = "")
-  json <- list()
-  json$regenerate <- regenerate
+  json <- list(regenerate = regenerate)
   POST_JSON(client$service, client$authInfo, path, json)
 }
 
@@ -462,8 +461,7 @@ shinyappsGetBundle <- function(client, bundleId) {
 shinyappsUpdateBundleStatus <- function(client, bundleId, status) {
   checkShinyappsClient(client)
   path <- paste("/bundles/", bundleId, "/status", sep = "")
-  json <- list()
-  json$status <- status
+  json <- list(status = status)
   POST_JSON(client$service, client$authInfo, path, json)
 }
 
@@ -475,11 +473,12 @@ shinyappsCreateBundle <- function(
   checksum
 ) {
   checkShinyappsClient(client)
-  json <- list()
-  json$application <- application
-  json$content_type <- content_type
-  json$content_length <- content_length
-  json$checksum <- checksum
+  json <- list(
+    application = application,
+    content_type = content_type,
+    content_length = content_length,
+    checksum = checksum
+  )
   POST_JSON(client$service, client$authInfo, "/bundles", json)
 }
 
@@ -556,8 +555,7 @@ shinyappsSetApplicationProperty <- function(
     propertyName,
     sep = ""
   )
-  v <- list()
-  v$value <- propertyValue
+  v <- list(value = propertyValue)
   query <- paste("force=", if (force) "1" else "0", sep = "")
   PUT_JSON(client$service, client$authInfo, path, v, query)
 }
@@ -637,12 +635,12 @@ shinyappsGetTaskLogs <- function(client, taskId) {
 putPresignedBundle <- function(bundle, bundleSize, bundlePath) {
   presigned_service <- parseHttpUrl(bundle$presigned_url)
 
-  headers <- list()
-  headers$`Content-Type` <- "application/x-tar"
-  headers$`Content-Length` <- bundleSize
-
-  # AWS requires a base64 encoded hash
-  headers$`Content-MD5` <- bundle$presigned_checksum
+  headers <- list(
+    `Content-Type` = "application/x-tar",
+    `Content-Length` = bundleSize,
+    # AWS requires a base64 encoded hash
+    `Content-MD5` = bundle$presigned_checksum
+  )
 
   # AWS is very sensitive to extra headers, because they were not signed when
   # the presigned link was made. So the lower level library is used here.
