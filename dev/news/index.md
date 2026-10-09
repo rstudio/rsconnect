@@ -2,6 +2,10 @@
 
 ## rsconnect (development version)
 
+- [`showMetrics()`](https://rstudio.github.io/rsconnect/dev/reference/showMetrics.md)
+  now gives a clear error when the account is not on shinyapps.io. Other
+  servers do not support metrics.
+
 ## rsconnect 1.11.2
 
 CRAN release: 2026-09-28
