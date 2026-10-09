@@ -1,5 +1,8 @@
 # rsconnect (development version)
 
+* `showMetrics()` now gives a clear error when the account is not on
+  shinyapps.io. Other servers do not support metrics.
+
 # rsconnect 1.11.2
 
 * New `deleteContent()` permanently deletes content from Posit Connect Cloud.
