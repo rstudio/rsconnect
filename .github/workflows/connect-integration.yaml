@@ -26,7 +26,7 @@ jobs:
         # example to build.
         include:
           - version: "preview" # Nightly builds of Connect
-            pyVersion: "3.14"
+            pyVersion: "3.15"
             connectEnv: |
               CONNECT_R_POSITPACKAGEMANAGERURLREWRITING=force-portable
               XDG_CACHE_HOME=/tmp/connect-xdg-cache

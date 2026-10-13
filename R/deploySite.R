@@ -1,9 +1,14 @@
 #' Deploy a website
 #'
 #' @description
-#' Deploy an R Markdown or quarto website to a server.
+#' Deploy an R Markdown or Quarto website to a server.
 #'
 #' Supported servers: Posit Connect, Posit Connect Cloud and ShinyApps servers
+#'
+#' @details
+#' `siteDir` must contain a source project that R Markdown or Quarto recognizes,
+#' even when `render = "none"`. To deploy an already rendered static website,
+#' such as pkgdown output, use [deployApp()] with `appMode = "static"`.
 #'
 #' @inheritParams deployApp
 #' @param siteDir Directory containing website. Defaults to current directory.
@@ -14,8 +19,8 @@
 #'   supplied uses the title recorded in `_quarto.yml`.
 #' @param render Rendering behavior for site:
 #'
-#'   * `"none"` uploads a static version of the current contents of
-#'     the site directory.
+#'   * `"none"` uploads the existing files from the project's output directory
+#'     without rendering the site.
 #'   * `"local"` renders the site locally then uploads it.
 #'   * `"server"` uploads the source of the site to render on the server.
 #'
