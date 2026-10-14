@@ -290,3 +290,209 @@ expect_known_manifest_fields <- function(manifest) {
   )
   expect_in(names(manifest), known_fields)
 }
+
+# Connect Cloud client credentials ---------------------------------------
+
+# Builds a fake Connect Cloud client whose requests return the supplied
+# accounts as one page. Used to drive connectCloudClientCredentials in tests
+# without hitting the network.
+fakeCloudClient <- function(accounts) {
+  fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, ...) {
+      list(data = accounts, total = length(accounts))
+    }
+  )
+}
+
+# Mocks the OAuth exchange that connectCloudClientCredentials performs before
+# touching the API.
+mockClientCredentialsAuth <- function(
+  accessToken = "access-token",
+  refreshToken = NULL
+) {
+  function() {
+    list(
+      exchangeClientCredentials = function(clientId, clientSecret) {
+        list(access_token = accessToken, refresh_token = refreshToken)
+      }
+    )
+  }
+}
+
+# Quarto -----------------------------------------------------------------
+
+fakeQuartoMetadata <- function(version, engines) {
+  # See quarto-r/R/publish.R lines 396 and 113.
+  metadata <- list()
+  metadata$quarto_version <- version
+  metadata$quarto_engines <- I(engines)
+  return(metadata)
+}
+
+# Some versions of Quarto show Quarto stack traces with source references when
+# inspect fails.
+#
+# Only preserve:
+#
+#   Error in `quartoInspect()`:
+#   ! Failed to run `quarto inspect` against your content:
+#   ERROR: Unsupported project type unsupported
+strip_quarto_trace <- function(lines) {
+  head(lines, 3)
+}
+
+# Deployment targets -----------------------------------------------------
+
+confirm_existing_app_used <- function(server) {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron", server = server)
+  local_mocked_bindings(
+    getAppByName = function(...) {
+      data.frame(
+        name = "my_app",
+        id = 123,
+        url = "http://example.com/test",
+        stringsAsFactors = FALSE
+      )
+    },
+    shouldUpdateApp = function(...) TRUE
+  )
+
+  app_dir <- withr::local_tempdir()
+  target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
+  deployment <- target$deployment
+  expect_equal(deployment$appId, 123)
+}
+
+confirm_existing_app_not_used <- function(server) {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron", server = server)
+  local_mocked_bindings(
+    getAppByName = function(...) {
+      data.frame(
+        name = "my_app",
+        id = 123,
+        url = "http://example.com/test",
+        stringsAsFactors = FALSE
+      )
+    },
+    shouldUpdateApp = function(...) FALSE
+  )
+
+  app_dir <- withr::local_tempdir()
+  target <- findDeploymentTarget(app_dir, appName = "my_app", server = server)
+  deployment <- target$deployment
+  expect_equal(deployment$name, "my_app-1")
+  expect_equal(deployment$appId, NULL)
+}
+
+# Identity federation ----------------------------------------------------
+
+# Helper to create a clean API key cache for tests
+local_api_key_cache <- function(env = caller_env()) {
+  nms <- env_names(apiKeyCache)
+  zaps <- rep_named(nms, list(zap()))
+
+  old <- env_bind(apiKeyCache, !!!zaps)
+  withr::defer(env_bind(apiKeyCache, !!!old), envir = env)
+}
+
+# Migration to Connect Cloud ---------------------------------------------
+
+# Helper: write a minimal fixture DCF for a shinyapps.io deployment.
+write_shinyapps_dcf <- function(
+  appDir,
+  appName = "myapp",
+  account = "myaccount"
+) {
+  dcfDir <- file.path(appDir, "rsconnect", "shinyapps.io", account)
+  dir.create(dcfDir, recursive = TRUE)
+  dcfPath <- file.path(dcfDir, paste0(appName, ".dcf"))
+  write.dcf(
+    list(
+      name = appName,
+      title = "My App",
+      username = account,
+      account = account,
+      server = "shinyapps.io",
+      hostUrl = "https://api.shinyapps.io/v1",
+      appId = "42",
+      bundleId = "7",
+      url = paste0("https://", account, ".shinyapps.io/", appName),
+      version = "1"
+    ),
+    dcfPath,
+    width = 4096
+  )
+  dcfPath
+}
+
+# An accounts() frame with both a shinyapps.io and a Connect Cloud account.
+shinyapps_and_cc_accounts <- data.frame(
+  name = c("myaccount", "cc-account"),
+  server = c("shinyapps.io", "connect.posit.cloud"),
+  stringsAsFactors = FALSE
+)
+
+# Helper: install the Connect Cloud mocks migrateToConnectCloud() relies on.
+# Every knob has a sensible default; tests override only what they exercise.
+#   - accounts:       the accounts() frame (defaults to a single CC account)
+#   - title:          content title returned by getContent()
+#   - account_id:     owning account id returned by getContent()
+#   - owned_accounts: the accounts getAccounts() reports a role on
+#   - get_content:    override the whole getContent() function (e.g. to error)
+#   - client:         override the whole clientForAccount() function
+local_migrate_mocks <- function(
+  accounts = data.frame(
+    name = "cc-account",
+    server = "connect.posit.cloud",
+    stringsAsFactors = FALSE
+  ),
+  title = "My App",
+  account_id = "acct-1",
+  owned_accounts = list(list(id = "acct-1", name = "cc-account")),
+  get_content = NULL,
+  client = NULL,
+  .env = parent.frame()
+) {
+  get_content <- get_content %||%
+    function(id) {
+      list(id = id, title = title, account_id = account_id, state = "active")
+    }
+  local_mocked_bindings(
+    connectCloudGetContent = function(client, contentId) get_content(contentId),
+    connectCloudGetAccounts = function(client) list(data = owned_accounts),
+    .env = .env
+  )
+  client <- client %||%
+    function(...) {
+      fake_client("connectCloudClient")
+    }
+  local_mocked_bindings(
+    accounts = function(...) accounts,
+    findAccountInfo = function(...) {
+      list(
+        name = "cc-account",
+        server = "connect.posit.cloud",
+        accessToken = "tok"
+      )
+    },
+    clientForAccount = client,
+    .package = "rsconnect",
+    .env = .env
+  )
+}
+
+# Manifests --------------------------------------------------------------
+
+makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
+  writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ..., quiet = TRUE)
+  manifestFile <- file.path(appDir, "manifest.json")
+  data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
+  manifestJson <- jsonlite::fromJSON(data)
+  unlink(manifestFile)
+  manifestJson
+}

@@ -188,3 +188,21 @@ http_401_error <- function() {
     class = c("rsconnect_http_401", "rsconnect_http", "error", "condition")
   )
 }
+
+current_user_service <- function() {
+  app <- env_cache(
+    cache,
+    "current_user_app",
+    {
+      json_app <- webfakes::new_app()
+      json_app$use(webfakes::mw_json())
+      json_app$get("/users/current", function(req, res) {
+        res$set_status(200L)$send_json(list(
+          username = jsonlite::unbox("susan")
+        ))
+      })
+      app <- webfakes::new_app_process(json_app)
+    }
+  )
+  parseHttpUrl(app$url())
+}

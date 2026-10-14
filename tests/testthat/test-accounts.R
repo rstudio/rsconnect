@@ -195,33 +195,6 @@ test_that("registerAccount stores clientId and clientSecret", {
   expect_s3_class(info$clientSecret, "rsconnect_secret")
 })
 
-# Builds a fake Connect Cloud client whose requests return the supplied
-# accounts as one page. Used to drive connectCloudClientCredentials in tests
-# without hitting the network.
-fakeCloudClient <- function(accounts) {
-  fake_client(
-    "connectCloudClient",
-    withTokenRefreshRetry = function(request_fn, path, ...) {
-      list(data = accounts, total = length(accounts))
-    }
-  )
-}
-
-# Mocks the OAuth exchange that connectCloudClientCredentials performs before
-# touching the API.
-mockClientCredentialsAuth <- function(
-  accessToken = "access-token",
-  refreshToken = NULL
-) {
-  function() {
-    list(
-      exchangeClientCredentials = function(clientId, clientSecret) {
-        list(access_token = accessToken, refresh_token = refreshToken)
-      }
-    )
-  }
-}
-
 test_that("connectCloudClientCredentials registers the named publishable account", {
   local_temp_config()
 

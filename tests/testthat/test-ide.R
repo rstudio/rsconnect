@@ -66,24 +66,6 @@ test_that("getAppById() fails where expected", {
   })
 })
 
-current_user_service <- function() {
-  app <- env_cache(
-    cache,
-    "current_user_app",
-    {
-      json_app <- webfakes::new_app()
-      json_app$use(webfakes::mw_json())
-      json_app$get("/users/current", function(req, res) {
-        res$set_status(200L)$send_json(list(
-          username = jsonlite::unbox("susan")
-        ))
-      })
-      app <- webfakes::new_app_process(json_app)
-    }
-  )
-  parseHttpUrl(app$url())
-}
-
 test_that("getUserFromRawToken having a single matching server", {
   skip_if_not_installed("webfakes")
 

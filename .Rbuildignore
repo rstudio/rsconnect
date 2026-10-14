@@ -10,7 +10,7 @@
 ^pkgdown$
 tags
 ^\.github$
-^\.lintr$
+^\.lintr\.R$
 ^cran-comments\.md$
 ^revdep$
 ^CRAN-SUBMISSION$

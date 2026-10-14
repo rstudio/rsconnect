@@ -1,14 +1,5 @@
 skip_on_cran()
 
-makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
-  writeManifest(appDir, appPrimaryDoc = appPrimaryDoc, ..., quiet = TRUE)
-  manifestFile <- file.path(appDir, "manifest.json")
-  data <- readLines(manifestFile, warn = FALSE, encoding = "UTF-8")
-  manifestJson <- jsonlite::fromJSON(data)
-  unlink(manifestFile)
-  manifestJson
-}
-
 test_that("renv.lock is included for renv projects", {
   skip_if_not_installed("foreign")
   skip_if_not_installed("MASS")

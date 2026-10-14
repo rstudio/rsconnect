@@ -1,13 +1,5 @@
 # quarto ------------------------------------------------------------------
 
-fakeQuartoMetadata <- function(version, engines) {
-  # See quarto-r/R/publish.R lines 396 and 113.
-  metadata <- list()
-  metadata$quarto_version <- version
-  metadata$quarto_engines <- I(engines)
-  return(metadata)
-}
-
 test_that("inferQuartoInfo correctly detects document info when quarto is provided alone", {
   skip_on_cran()
   skip_if_no_quarto()
@@ -127,18 +119,6 @@ test_that("quartoInspect processes content with filenames containing spaces", {
   inspect <- quartoInspect(dir, "space file.qmd")
   expect_equal(inspect$engines, c("markdown"))
 })
-
-# Some versions of Quarto show Quarto stack traces with source references when
-# inspect fails.
-#
-# Only preserve:
-#
-#   Error in `quartoInspect()`:
-#   ! Failed to run `quarto inspect` against your content:
-#   ERROR: Unsupported project type unsupported
-strip_quarto_trace <- function(lines) {
-  head(lines, 3)
-}
 
 test_that("quartoInspect produces an error when a document cannot be inspected", {
   skip_on_cran()
