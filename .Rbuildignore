@@ -17,3 +17,4 @@ tags
 ^\.positai$
 ^\.claude$
 ^tests/integration$
+^AGENTS\.md$
