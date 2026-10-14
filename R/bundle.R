@@ -272,8 +272,9 @@ createAppManifest <- function(
     }
   }
 
-  nodejsVersionReq <- if (appMetadata$appMode == "nodejs") {
-    appMetadata$nodejsInfo$enginesNode
+  nodejsVersionReq <- NULL
+  if (appMetadata$appMode == "nodejs") {
+    nodejsVersionReq <- appMetadata$nodejsInfo$enginesNode
   }
 
   # create the manifest

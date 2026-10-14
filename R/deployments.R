@@ -200,10 +200,9 @@ addToDeploymentHistory <- function(appPath, deploymentRecord) {
   max_records <- max(1L, getOption("rsconnect.max.history.records", 100L))
 
   history <- deploymentHistoryPath()
-  prior <- if (file.exists(history) && file.size(history) <= max_bytes) {
-    read.dcf(history)
-  } else {
-    matrix(character(0), nrow = 0)
+  prior <- matrix(character(0), nrow = 0)
+  if (file.exists(history) && file.size(history) <= max_bytes) {
+    prior <- read.dcf(history)
   }
 
   # The history file lists most-recent first; write the new record before

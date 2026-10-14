@@ -70,10 +70,9 @@ migrateDeploymentsConfig <- function(appPath) {
   # calculate migration dir--all shinyapps deployment records go into the root
   # folder since it wasn't possible to deploy individual docs using the
   # shinyapps package
-  migrateRoot <- if (isDocumentPath(appPath)) {
-    dirname(appPath)
-  } else {
-    appPath
+  migrateRoot <- appPath
+  if (isDocumentPath(appPath)) {
+    migrateRoot <- dirname(appPath)
   }
 
   # migrate shinyapps package created records if necessary

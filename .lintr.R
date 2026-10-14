@@ -22,6 +22,23 @@ linters <- local({
     })
   }
 
+  # Flags an assignment of an `if` expression that has a branch in braces. A
+  # one-line `x <- if (a) b else c` is not flagged.
+  if_assignment_linter <- function() {
+    xpath <- "//*[LEFT_ASSIGN or EQ_ASSIGN]/expr[IF][expr[OP-LEFT-BRACE]]"
+    lintr::Linter(linter_level = "expression", function(source_expression) {
+      lintr::xml_nodes_to_lints(
+        xml2::xml_find_all(source_expression$xml_parsed_content, xpath),
+        source_expression = source_expression,
+        lint_message = paste(
+          "Do not assign the result of an `if` block with braces.",
+          "Assign the variable inside the block."
+        ),
+        type = "warning"
+      )
+    })
+  }
+
   lintr::linters_with_defaults(
     lintr::line_length_linter(160),
     indentation_linter = NULL,
@@ -29,7 +46,8 @@ linters <- local({
     object_name_linter = NULL,
     object_usage_linter = NULL,
     return_linter = NULL,
-    test_helper_linter = test_helper_linter()
+    test_helper_linter = test_helper_linter(),
+    if_assignment_linter = if_assignment_linter()
   )
 })
 
