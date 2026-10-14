@@ -364,6 +364,17 @@ reflect the local library, not the lockfile. Defaults to <code>"strict"</code>.<
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
 <div class="section">
+<h3 id="static-websites">Static websites<a class="anchor" aria-label="anchor" href="#static-websites"></a></h3>
+
+
+<p>To deploy an already rendered static website, such as pkgdown output, set
+<code>appDir</code> to the directory containing the HTML files and assets, and set
+<code>appMode = "static"</code>. This does not require an R Markdown or Quarto source
+project. By default, rsconnect bundles all files in <code>appDir</code>, apart from
+standard exclusions and files listed in <code>.rscignore</code>.</p>
+</div>
+
+<div class="section">
 <h3 id="deployment-records">Deployment records<a class="anchor" aria-label="anchor" href="#deployment-records"></a></h3>
 
 
@@ -422,6 +433,9 @@ instead need to supply the <code>appId</code>.</p>
 <span class="r-in"><span><span class="co"># deploy a Quarto website, using the quarto package to</span></span></span>
 <span class="r-in"><span><span class="co"># find the Quarto binary</span></span></span>
 <span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"~/projects/quarto/site1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Deploy a static website from its rendered output directory.</span></span></span>
+<span class="r-in"><span><span class="fu">deployApp</span><span class="op">(</span><span class="st">"docs"</span>, appMode <span class="op">=</span> <span class="st">"static"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># deploy application with environment variables</span></span></span>
 <span class="r-in"><span><span class="co"># (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)</span></span></span>
