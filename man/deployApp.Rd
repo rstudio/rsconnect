@@ -277,6 +277,15 @@ content to a server.
 Supported servers: All servers
 }
 \details{
+\subsection{Static websites}{
+
+To deploy an already rendered static website, such as pkgdown output, set
+\code{appDir} to the directory containing the HTML files and assets, and set
+\code{appMode = "static"}. This does not require an R Markdown or Quarto source
+project. By default, rsconnect bundles all files in \code{appDir}, apart from
+standard exclusions and files listed in \code{.rscignore}.
+}
+
 \subsection{Deployment records}{
 
 When deploying an app, \code{deployApp()} will save a deployment record that
@@ -323,6 +332,9 @@ deployApp(launch.browser = FALSE)
 # deploy a Quarto website, using the quarto package to
 # find the Quarto binary
 deployApp("~/projects/quarto/site1")
+
+# Deploy a static website from its rendered output directory.
+deployApp("docs", appMode = "static")
 
 # deploy application with environment variables
 # (e.g., `SECRET_PASSWORD=XYZ` is set via an ~/.Renviron file)
