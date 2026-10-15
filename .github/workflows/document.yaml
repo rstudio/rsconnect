@@ -32,8 +32,8 @@ jobs:
 
       - name: Check that man/ and NAMESPACE are up to date
         run: |
-          git add --intent-to-add .
-          if ! git diff --exit-code; then
+          git add --intent-to-add man NAMESPACE
+          if ! git diff --exit-code -- man NAMESPACE; then
             echo "::error::The documentation is not up to date. Run devtools::document() and commit the changes."
             exit 1
           fi
