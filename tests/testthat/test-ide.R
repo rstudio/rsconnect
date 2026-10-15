@@ -66,24 +66,6 @@ test_that("getAppById() fails where expected", {
   })
 })
 
-current_user_service <- function() {
-  app <- env_cache(
-    cache,
-    "current_user_app",
-    {
-      json_app <- webfakes::new_app()
-      json_app$use(webfakes::mw_json())
-      json_app$get("/users/current", function(req, res) {
-        res$set_status(200L)$send_json(list(
-          username = jsonlite::unbox("susan")
-        ))
-      })
-      app <- webfakes::new_app_process(json_app)
-    }
-  )
-  parseHttpUrl(app$url())
-}
-
 test_that("getUserFromRawToken having a single matching server", {
   skip_if_not_installed("webfakes")
 
@@ -187,6 +169,60 @@ test_that("the RStudio IDE can get content from a Connect Cloud client", {
     list(
       class = c("connectCloudClient", "rsconnectClient"),
       contentId = "content-1"
+    )
+  )
+})
+
+test_that("findAndRegisterLocalServer() returns the name of a known server", {
+  local_temp_config()
+  addTestServer("test", url = "https://example.com/__api__")
+
+  expect_equal(
+    findAndRegisterLocalServer("https://example.com/__api__"),
+    "test"
+  )
+  expect_equal(nrow(servers(local = TRUE)), 1)
+})
+
+test_that("findAndRegisterLocalServer() registers an unknown server", {
+  local_temp_config()
+
+  expect_equal(findAndRegisterLocalServer("https://example.com"), "example.com")
+  expect_equal(
+    servers(local = TRUE)[c("name", "url")],
+    data.frame(name = "example.com", url = "https://example.com/__api__")
+  )
+})
+
+test_that("the RStudio IDE can show lint results as source markers", {
+  # Matches the calls in the get_rsconnect_lint_results handler in
+  # https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R
+  basePath <- test_path("test-rmd-bad-case")
+  results <- lint(project = basePath)
+  called <- NULL
+  local_mocked_bindings(
+    callFun = function(fname, ...) {
+      called <<- list(fname = fname, ...)
+    },
+    .package = "rstudioapi"
+  )
+
+  showRstudioSourceMarkers(basePath = basePath, results)
+
+  expect_equal(
+    called,
+    list(
+      fname = "sourceMarkers",
+      name = "Publish Content Issues",
+      markers = list(list(
+        type = "warning",
+        file = file.path(basePath, "index.Rmd"),
+        line = 29,
+        column = 1,
+        message = "Filepaths are case-sensitive on deployment server."
+      )),
+      basePath = basePath,
+      autoSelect = "first"
     )
   )
 })

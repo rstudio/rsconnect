@@ -1,12 +1,3 @@
-# Helper to create a clean API key cache for tests
-local_api_key_cache <- function(env = caller_env()) {
-  nms <- env_names(apiKeyCache)
-  zaps <- rep_named(nms, list(zap()))
-
-  old <- env_bind(apiKeyCache, !!!zaps)
-  withr::defer(env_bind(apiKeyCache, !!!old), envir = env)
-}
-
 test_that("cache stores and retrieves API keys with expiry", {
   local_api_key_cache()
 
