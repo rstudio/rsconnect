@@ -21,9 +21,19 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Get the roxygen2 version from DESCRIPTION
+        id: roxygen
+        run: |
+          version=$(grep '^Config/roxygen2/version:' DESCRIPTION | cut -d ' ' -f 2)
+          if [ -z "$version" ]; then
+            echo "::error::DESCRIPTION does not contain Config/roxygen2/version."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::roxygen2
+          extra-packages: roxygen2@${{ steps.roxygen.outputs.version }}
           needs: roxygen2
 
       - name: Document
