@@ -1,4 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://rstudio.github.io/rsconnect/dev/AGENTS.html</loc></url>
+<url><loc>https://rstudio.github.io/rsconnect/dev/CONTRIBUTING.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/RELEASE.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/articles/custom-http.html</loc></url>
 <url><loc>https://rstudio.github.io/rsconnect/dev/articles/index.html</loc></url>
