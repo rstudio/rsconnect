@@ -226,3 +226,106 @@ test_that("the RStudio IDE can show lint results as source markers", {
     )
   )
 })
+
+test_that("the RStudio IDE can classify servers", {
+  expect_true(isPositConnectCloudServer("connect.posit.cloud"))
+  expect_false(isPositConnectCloudServer("shinyapps.io"))
+  expect_false(isPositConnectCloudServer("example.com"))
+
+  expect_true(isConnectServer("example.com"))
+  expect_false(isConnectServer("shinyapps.io"))
+  expect_false(isConnectServer("connect.posit.cloud"))
+})
+
+test_that("the RStudio IDE can get the Connect Cloud UI URL", {
+  withr::local_options(rsconnect.connect_cloud_environment = NULL)
+
+  expect_equal(connectCloudUrls()$ui, "https://connect.posit.cloud")
+})
+
+test_that("the RStudio IDE can check lint results for problems", {
+  badApp <- test_path("test-rmd-bad-case")
+  goodApp <- local_temp_app(list("app.R" = "shinyApp(ui, server)"))
+
+  expect_true(hasLint(lint(project = badApp)))
+  expect_false(hasLint(lint(project = goodApp)))
+})
+
+test_that("the RStudio IDE can get an auth token for a new token", {
+  local_temp_config()
+  addTestServer()
+  requested <- NULL
+  local_mocked_bindings(
+    connectAddToken = function(client, token) {
+      requested <<- list(class = class(client), user_id = token$user_id)
+      list(token_claim_url = "https://example.com/claim")
+    }
+  )
+
+  token <- getAuthToken(server = "example.com")
+
+  expect_equal(names(token), c("token", "private_key", "claim_url"))
+  expect_type(token$token, "character")
+  expect_s3_class(token$private_key, "rsconnect_secret")
+  expect_equal(token$claim_url, "https://example.com/claim")
+  expect_equal(
+    requested,
+    list(class = c("connectClient", "rsconnectClient"), user_id = 0L)
+  )
+})
+
+test_that("the RStudio IDE can get an auth token for a cached API key", {
+  local_temp_config()
+  addTestServer(url = "https://example.com/__api__")
+  local_mocked_bindings(
+    getCachedApiKey = function(serverUrl) "cached-key",
+    currentUser = function(client) list(username = "susan")
+  )
+
+  token <- getAuthToken(server = "example.com")
+
+  expect_equal(
+    unclass(token),
+    list(
+      token = "cached-key",
+      private_key = secret(""),
+      claim_url = "https://example.com/connect/#/auth-success",
+      authenticated = TRUE
+    )
+  )
+})
+
+test_that("the RStudio IDE can replace cli_menu() to select a Connect Cloud account", {
+  # RStudio replaces cli_menu() in the rsconnect namespace with a function that
+  # has this signature.
+  menu <- NULL
+  local_mocked_bindings(
+    connectCloudGetAccounts = function(client) {
+      list(
+        data = list(
+          list(name = "first", permissions = list("content:create")),
+          list(name = "second", permissions = list("content:create"))
+        )
+      )
+    },
+    cli_menu = function(header, prompt, choices, quit = NULL, ...) {
+      menu <<- list(header = header, prompt = prompt, choices = choices)
+      2L
+    }
+  )
+
+  expect_message(
+    account <- selectCloudAccount(fake_client("connectCloudClient")),
+    "multiple accounts"
+  )
+
+  expect_equal(account$name, "second")
+  expect_equal(
+    menu,
+    list(
+      header = "Multiple accounts found.",
+      prompt = "Which account do you want to use?",
+      choices = c("first", "second")
+    )
+  )
+})
