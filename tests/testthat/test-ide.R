@@ -172,3 +172,57 @@ test_that("the RStudio IDE can get content from a Connect Cloud client", {
     )
   )
 })
+
+test_that("findAndRegisterLocalServer() returns the name of a known server", {
+  local_temp_config()
+  addTestServer("test", url = "https://example.com/__api__")
+
+  expect_equal(
+    findAndRegisterLocalServer("https://example.com/__api__"),
+    "test"
+  )
+  expect_equal(nrow(servers(local = TRUE)), 1)
+})
+
+test_that("findAndRegisterLocalServer() registers an unknown server", {
+  local_temp_config()
+
+  expect_equal(findAndRegisterLocalServer("https://example.com"), "example.com")
+  expect_equal(
+    servers(local = TRUE)[c("name", "url")],
+    data.frame(name = "example.com", url = "https://example.com/__api__")
+  )
+})
+
+test_that("the RStudio IDE can show lint results as source markers", {
+  # Matches the calls in the get_rsconnect_lint_results handler in
+  # https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R
+  basePath <- test_path("test-rmd-bad-case")
+  results <- lint(project = basePath)
+  called <- NULL
+  local_mocked_bindings(
+    callFun = function(fname, ...) {
+      called <<- list(fname = fname, ...)
+    },
+    .package = "rstudioapi"
+  )
+
+  showRstudioSourceMarkers(basePath = basePath, results)
+
+  expect_equal(
+    called,
+    list(
+      fname = "sourceMarkers",
+      name = "Publish Content Issues",
+      markers = list(list(
+        type = "warning",
+        file = file.path(basePath, "index.Rmd"),
+        line = 29,
+        column = 1,
+        message = "Filepaths are case-sensitive on deployment server."
+      )),
+      basePath = basePath,
+      autoSelect = "first"
+    )
+  )
+})
