@@ -66,6 +66,40 @@ test_that("getAppById() fails where expected", {
   })
 })
 
+test_that("the RStudio IDE can get an app by id", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("susan")
+  requested <- NULL
+  local_mocked_bindings(
+    getApplication = function(client, applicationId) {
+      requested <<- list(class = class(client), applicationId = applicationId)
+      list(id = applicationId)
+    }
+  )
+
+  app <- getAppById("123", "susan", "example.com", "https://example.com")
+
+  expect_equal(app, list(id = "123"))
+  expect_equal(
+    requested,
+    list(class = c("connectClient", "rsconnectClient"), applicationId = "123")
+  )
+})
+
+test_that("the RStudio IDE can get an app by id with an unknown server name", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("susan")
+  local_mocked_bindings(
+    getApplication = function(client, applicationId) list(id = applicationId)
+  )
+
+  app <- getAppById("123", "susan", "unknown", "https://example.com")
+
+  expect_equal(app, list(id = "123"))
+})
+
 test_that("getUserFromRawToken having a single matching server", {
   skip_if_not_installed("webfakes")
 
@@ -79,7 +113,11 @@ test_that("getUserFromRawToken having a single matching server", {
   token <- generateToken()
   claimUrl <- url
 
-  user <- getUserFromRawToken(claimUrl, token$token, token$private_key)
+  user <- getUserFromRawToken(
+    serverUrl = claimUrl,
+    token = token$token,
+    privateKey = token$private_key
+  )
   expect_equal(user$username, "susan")
 })
 
@@ -97,7 +135,11 @@ test_that("getUserFromRawToken having multiple matching servers", {
   token <- generateToken()
   claimUrl <- url
 
-  user <- getUserFromRawToken(claimUrl, token$token, token$private_key)
+  user <- getUserFromRawToken(
+    serverUrl = claimUrl,
+    token = token$token,
+    privateKey = token$private_key
+  )
   expect_equal(user$username, "susan")
 })
 
@@ -327,5 +369,24 @@ test_that("the RStudio IDE can replace cli_menu() to select a Connect Cloud acco
       prompt = "Which account do you want to use?",
       choices = c("first", "second")
     )
+  )
+})
+
+test_that("the RStudio IDE can read accounts and servers", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("susan")
+
+  accounts <- accounts()
+  expect_equal(
+    accounts[c("name", "server")],
+    data.frame(name = "susan", server = "example.com")
+  )
+
+  servers <- servers()
+  expect_true(all(c("name", "url") %in% names(servers)))
+  expect_equal(
+    servers[servers$name == "example.com", "url"],
+    "https://example.com"
   )
 })
