@@ -337,6 +337,51 @@ test_that("connectCloudClientCredentials distinguishes unpublishable accounts in
   )
 })
 
+test_that("connectCloudClientCredentials explains SSO accounts in errors", {
+  local_temp_config()
+
+  local_mocked_bindings(
+    cloudAuthClient = mockClientCredentialsAuth(),
+    connectCloudClient = function(service, authInfo) {
+      fakeCloudClient(list(
+        list(
+          id = "acc-1",
+          name = "sso-publisher",
+          role = "publisher",
+          sso_enabled = TRUE,
+          permissions = list()
+        ),
+        list(
+          id = "acc-2",
+          name = "sso-viewer",
+          role = "viewer",
+          sso_enabled = TRUE,
+          permissions = list()
+        )
+      ))
+    }
+  )
+
+  expect_error(
+    connectCloudClientCredentials(
+      clientId = "client-1",
+      clientSecret = "secret-1",
+      accountName = "sso-publisher",
+      quiet = TRUE
+    ),
+    "requires single sign-on"
+  )
+  expect_error(
+    connectCloudClientCredentials(
+      clientId = "client-1",
+      clientSecret = "secret-1",
+      accountName = "sso-viewer",
+      quiet = TRUE
+    ),
+    "does not grant publish permission"
+  )
+})
+
 test_that("getSPCSAuthedUser passes snowflakeConnectionName to clientForAccount", {
   local_temp_config()
 

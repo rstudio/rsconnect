@@ -3,6 +3,11 @@
 * `showMetrics()` now gives a clear error when the account is not on
   shinyapps.io. Other servers do not support metrics.
 
+* `connectCloudClientCredentials()` now explains that client credentials
+  cannot publish to Posit Connect Cloud accounts that require single sign-on
+  (SSO), instead of reporting that the account does not grant publish
+  permission.
+
 # rsconnect 1.11.2
 
 * New `deleteContent()` permanently deletes content from Posit Connect Cloud.
