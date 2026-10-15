@@ -326,9 +326,10 @@ connectCloudClientCredentials <- function(
     ssoBlocked <- isTRUE(visibleAccount$sso_enabled) &&
       isTRUE(visibleAccount$role %in% c("owner", "admin", "publisher"))
     if (ssoBlocked) {
-      cli::cli_abort(
-        "Account {.val {accountName}} requires single sign-on (SSO). Client credentials cannot publish to accounts that require SSO."
-      )
+      cli::cli_abort(c(
+        "Account {.val {accountName}} requires single sign-on (SSO). Client credentials cannot publish to accounts that require SSO.",
+        i = "Use {.fn connectCloudUser} to log in interactively with SSO instead."
+      ))
     } else if (!is.null(visibleAccount)) {
       cli::cli_abort(
         "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."

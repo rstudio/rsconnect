@@ -375,6 +375,15 @@ test_that("connectCloudClientCredentials explains SSO accounts in errors", {
     connectCloudClientCredentials(
       clientId = "client-1",
       clientSecret = "secret-1",
+      accountName = "sso-publisher",
+      quiet = TRUE
+    ),
+    "connectCloudUser"
+  )
+  expect_error(
+    connectCloudClientCredentials(
+      clientId = "client-1",
+      clientSecret = "secret-1",
       accountName = "sso-viewer",
       quiet = TRUE
     ),
