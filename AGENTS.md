@@ -18,7 +18,8 @@ asks you to.
 Some functions and client fields have no callers in this repository, because
 the RStudio IDE calls them. Examples are the functions in `R/ide.R` and fields
 such as `client$getEnvVars()`. Do not remove or rename code because a search
-finds no callers. Ask the user first.
+finds no callers. Ask the user first. The tests in `tests/testthat/test-ide.R`
+document this contract with the IDE.
 
 ## Before you finish
 
@@ -41,4 +42,6 @@ changed.
 
 Write comments about what the code does now. Do not describe old behavior or
 how the code changed. Do not put issue or PR numbers in comments or in
-`test_that()` descriptions.
+`test_that()` descriptions. An exception is a comment about a workaround for a
+problem that is not fixed yet, for example an open bug in a dependency. Such a
+comment can link to the issue.

@@ -18,19 +18,22 @@ lintr::lint_package()         # run the linters that CI runs
 ```
 
 Format the code with [air](https://posit-dev.github.io/air/) before you
-commit:
+commit. CI runs `air format .` on each pull request and suggests changes if the
+code is not formatted:
 
 ```sh
 air format .
 ```
 
 roxygen generates `man/` and `NAMESPACE`. Do not edit these files manually.
-Change the roxygen comments and run `devtools::document()`.
+Change the roxygen comments and run `devtools::document()`. CI runs roxygen and
+fails if `man/` or `NAMESPACE` is not up to date.
 
-The lintr configuration is in `.lintr.R`, and it needs lintr 3.2.0 or later. The
- configuration includes two custom linters. One linter finds objects that a
- `test-*.R` file assigns at the top level. The other linter finds assignments of
- an `if` block with braces. The sections below explain these two rules.
+CI runs [lintr](https://lintr.r-lib.org/) and fails if it finds a problem. The
+lintr configuration is in `.lintr.R`, and it needs lintr 3.2.0 or later. The
+configuration includes two custom linters. One linter finds objects that a
+`test-*.R` file assigns at the top level. The other linter finds assignments of
+an `if` block with braces. The sections below explain these two rules.
 
 ## Client objects and S3 methods
 
@@ -67,7 +70,8 @@ connectCloudGetContent <- function(client, contentId) {
 The RStudio IDE calls the functions in `R/ide.R`. It also calls some fields on
 the client objects, for example `client$getEnvVars()` on the Connect client and
 `client$getContent()` on the Connect Cloud client. Do not rename or remove these
-functions or fields, and do not change their arguments or return values.
+functions or fields, and do not change their arguments or return values. The
+tests in `tests/testthat/test-ide.R` document this contract with the IDE.
 
 ## Errors and messages
 
@@ -82,9 +86,9 @@ about deployment.
 
 ## Tests
 
-Tests use testthat. New tests should go into a `tests/testthat/test-*.R` file
-whose name matches the `.R` file in which the function you are testing is
-defined. Put all test helpers and shared test data in a
+Tests use [testthat](https://testthat.r-lib.org/). New tests should go into a
+`tests/testthat/test-*.R` file whose name matches the `.R` file in which the
+function you are testing is defined. Put all test helpers and shared test data in a
 `tests/testthat/helper*.R` file. Do not define them in a `test-*.R` file. Each
 `test_that()` block must run alone after `devtools::load_all()`, so do not make
 a test depend on objects that other tests in the same file create.
@@ -96,6 +100,11 @@ helpers that tests use frequently:
   change the real accounts and servers.
 * `local_temp_app()` makes a temporary app directory from a list of files.
 * `fake_client()` makes a client object of a given class.
+
+Use [withr](https://withr.r-lib.org/) to make temporary changes in a test,
+for example `withr::local_tempdir()`, `withr::local_envvar()`, and
+`withr::local_options()`. withr undoes the change when the test ends. Write
+files in a temporary directory, not in the `tests/testthat` directory.
 
 When you fix a bug, write a failing test first.
 
@@ -112,7 +121,8 @@ Integration tests are in `tests/integration` and
 Do not assign the result of a multi-line `if` block to a variable. Assign the
 variable inside the block. It is usually best to initialize the variable before
 the block and then overwrite it in the block, so that the variable always has a
-value. You can also assign the variable in each branch. A one-line
+value. You can also assign the variable in each branch. If the logic is
+complex, move it into a helper function that returns the value. A one-line
 `x <- if (a) b else c` without braces is acceptable.
 
 ```r
