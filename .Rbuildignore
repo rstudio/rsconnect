@@ -18,3 +18,4 @@ tags
 ^\.claude$
 ^tests/integration$
 ^AGENTS\.md$
+^CONTRIBUTING\.md$

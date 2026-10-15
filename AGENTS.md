@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Read [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) before you change code.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before you change code.
 It contains the commands, the architecture of the client objects, and the
 conventions for this package. This file adds instructions for coding agents.
 
