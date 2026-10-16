@@ -44,7 +44,7 @@
 </div>
 <div class="section level2">
 <h2 id="code-that-looks-unused">Code that looks unused<a class="anchor" aria-label="anchor" href="#code-that-looks-unused"></a></h2>
-<p>Some functions and client fields have no callers in this repository, because the RStudio IDE calls them. Examples are the functions in <code>R/ide.R</code> and fields such as <code>client$getEnvVars()</code>. Do not remove or rename code because a search finds no callers. Ask the user first. The tests in <code>tests/testthat/test-ide.R</code> document this contract with the IDE.</p>
+<p>Some functions and client fields have no callers in this repository, because the RStudio IDE calls them. The IDE also calls some internal functions with <code>rsconnect:::</code>. The contributing guide lists these functions and fields. Do not remove or rename code because a search finds no callers. Ask the user first, and remind them that this package is also used by the RStudio IDE.</p>
 </div>
 <div class="section level2">
 <h2 id="before-you-finish">Before you finish<a class="anchor" aria-label="anchor" href="#before-you-finish"></a></h2>

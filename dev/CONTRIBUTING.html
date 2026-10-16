@@ -67,7 +67,26 @@
 </div>
 <div class="section level2">
 <h2 id="code-that-the-rstudio-ide-calls">Code that the RStudio IDE calls<a class="anchor" aria-label="anchor" href="#code-that-the-rstudio-ide-calls"></a></h2>
-<p>The RStudio IDE calls the functions in <code>R/ide.R</code>. It also calls some fields on the client objects, for example <code>client$getEnvVars()</code> on the Connect client and <code>client$getContent()</code> on the Connect Cloud client. Do not rename or remove these functions or fields, and do not change their arguments or return values. The tests in <code>tests/testthat/test-ide.R</code> document this contract with the IDE.</p>
+<p>The RStudio IDE calls exported functions and also some internal functions with <code>rsconnect:::</code>. The calls are in <a href="https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R" class="external-link"><code>SessionRSConnect.R</code></a> in the RStudio repository. The internal functions are:</p>
+<ul><li>
+<code>validateServerUrl()</code>, <code>getAppById()</code>, <code>getUserFromRawToken()</code>, <code>registerUserToken()</code>, and <code>showRstudioSourceMarkers()</code> in <code>R/ide.R</code>
+</li>
+<li>
+<code>isConnectServer()</code>, <code>isPositConnectCloudServer()</code>, and <code>connectCloudUrls()</code> in <code>R/servers.R</code>
+</li>
+<li>
+<code>clientForAccount()</code> in <code>R/client.R</code>
+</li>
+<li>
+<code>getAuthToken()</code> in <code>R/accounts.R</code>
+</li>
+<li>
+<code>hasLint()</code> in <code>R/lint.R</code>
+</li>
+<li>
+<code>cli_menu()</code> in <code>R/utils-cli.R</code>
+</li>
+</ul><p>The IDE also calls some fields on the client objects, for example <code>client$getEnvVars()</code> on the Connect client and <code>client$getContent()</code> on the Connect Cloud client. Do not rename or remove these functions or fields, and do not change their arguments or return values. Before you change an internal function, search <code>SessionRSConnect.R</code> for it, because this list can become out of date. The tests in <code>tests/testthat/test-ide.R</code> call these functions and fields in the same way as the IDE.</p>
 </div>
 <div class="section level2">
 <h2 id="errors-and-messages">Errors and messages<a class="anchor" aria-label="anchor" href="#errors-and-messages"></a></h2>

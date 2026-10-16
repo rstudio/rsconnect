@@ -18,11 +18,11 @@ your task does not touch, unless the user asks you to.
 ## Code that looks unused
 
 Some functions and client fields have no callers in this repository,
-because the RStudio IDE calls them. Examples are the functions in
-`R/ide.R` and fields such as `client$getEnvVars()`. Do not remove or
-rename code because a search finds no callers. Ask the user first. The
-tests in `tests/testthat/test-ide.R` document this contract with the
-IDE.
+because the RStudio IDE calls them. The IDE also calls some internal
+functions with `rsconnect:::`. The contributing guide lists these
+functions and fields. Do not remove or rename code because a search
+finds no callers. Ask the user first, and remind them that this package
+is also used by the RStudio IDE.
 
 ## Before you finish
 

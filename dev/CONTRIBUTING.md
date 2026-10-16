@@ -72,12 +72,28 @@ connectCloudGetContent <- function(client, contentId) {
 
 ## Code that the RStudio IDE calls
 
-The RStudio IDE calls the functions in `R/ide.R`. It also calls some
-fields on the client objects, for example `client$getEnvVars()` on the
-Connect client and `client$getContent()` on the Connect Cloud client. Do
-not rename or remove these functions or fields, and do not change their
-arguments or return values. The tests in `tests/testthat/test-ide.R`
-document this contract with the IDE.
+The RStudio IDE calls exported functions and also some internal
+functions with `rsconnect:::`. The calls are in
+[`SessionRSConnect.R`](https://github.com/rstudio/rstudio/blob/main/src/cpp/session/modules/SessionRSConnect.R)
+in the RStudio repository. The internal functions are:
+
+- `validateServerUrl()`, `getAppById()`, `getUserFromRawToken()`,
+  `registerUserToken()`, and `showRstudioSourceMarkers()` in `R/ide.R`
+- `isConnectServer()`, `isPositConnectCloudServer()`, and
+  `connectCloudUrls()` in `R/servers.R`
+- `clientForAccount()` in `R/client.R`
+- `getAuthToken()` in `R/accounts.R`
+- `hasLint()` in `R/lint.R`
+- `cli_menu()` in `R/utils-cli.R`
+
+The IDE also calls some fields on the client objects, for example
+`client$getEnvVars()` on the Connect client and `client$getContent()` on
+the Connect Cloud client. Do not rename or remove these functions or
+fields, and do not change their arguments or return values. Before you
+change an internal function, search `SessionRSConnect.R` for it, because
+this list can become out of date. The tests in
+`tests/testthat/test-ide.R` call these functions and fields in the same
+way as the IDE.
 
 ## Errors and messages
 
