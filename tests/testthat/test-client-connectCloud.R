@@ -1654,7 +1654,7 @@ test_that("activateContent() publishes and waits for the next revision", {
     }
   )
   local_mocked_bindings(
-    awaitConnectCloudCompletion = function(client, revisionId) {
+    awaitConnectCloudCompletion = function(client, revisionId, quiet) {
       awaited <<- revisionId
       list(success = FALSE, url = "https://example.com/c", error = "failed")
     }
