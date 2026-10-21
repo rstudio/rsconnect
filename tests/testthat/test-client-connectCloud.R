@@ -51,6 +51,55 @@ test_that("awaitConnectCloudCompletion() reports a successful publish", {
   expect_null(result$error)
 })
 
+test_that("awaitConnectCloudCompletion() prints no status when quiet", {
+  skip_if_not_installed("webfakes")
+
+  revision_app <- webfakes::new_app()
+  revision_app$use(webfakes::mw_json())
+  revision_app$get("/revisions/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = I(req$params$id),
+        content_id = "content789",
+        publish_result = "success",
+        status = "published",
+        url = "https://example.posit.cloud/content/123",
+        publish_error_details = NULL
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  revision_app$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = I(req$params$id), state = "active", account_id = "acct-1"),
+      auto_unbox = TRUE
+    )
+  })
+  revision_app$get("/accounts", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(data = list(list(id = "acct-1", name = "some-user")), total = 1),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(revision_app)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+  client <- connectCloudClient(service, authInfo)
+
+  expect_silent(
+    result <- awaitConnectCloudCompletion(client, "rev123", quiet = TRUE)
+  )
+  expect_true(result$success)
+})
+
 test_that("Connect Cloud omits unset environment variables from secrets", {
   local_mocked_bindings(
     POST_JSON = function(service, authInfo, path, json) {
@@ -430,6 +479,87 @@ test_that("awaitConnectCloudCompletion() handles failure with logs", {
   expect_match(stderr_text, "Your app is busted!!")
   expect_match(stderr_text, "INFO:")
   expect_match(stderr_text, "ERROR:")
+})
+
+test_that("awaitConnectCloudCompletion() hides the publish log when quiet", {
+  skip_if_not_installed("webfakes")
+
+  cloudApiApp <- webfakes::new_app()
+  cloudApiApp$use(webfakes::mw_json())
+  cloudApiApp$get("/revisions/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = I(req$params$id),
+        content_id = "content789",
+        publish_result = "failure",
+        status = "published",
+        url = NULL,
+        publish_error_details = "Deployment failed due to missing dependencies",
+        publish_log_channel = "log-channel-123"
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  cloudApiApp$get("/contents/:id", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(id = I(req$params$id), state = "active", account_id = "acct-1"),
+      auto_unbox = TRUE
+    )
+  })
+  cloudApiApp$get("/accounts", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(data = list(list(id = "acct-1", name = "some-user")), total = 1),
+      auto_unbox = TRUE
+    )
+  })
+  app <- webfakes::local_app_process(cloudApiApp)
+  service <- parseHttpUrl(app$url())
+
+  authInfo <- list(
+    server = "connect.posit.cloud",
+    name = "some-user",
+    username = "some-user",
+    accountId = "123",
+    accessToken = "current-token",
+    refreshToken = "refresh-token"
+  )
+
+  # If quiet does not stop the log request, these mocks return a log that
+  # awaitConnectCloudCompletion() prints.
+  local_mocked_bindings(
+    connectCloudGetAuthorization = function(client, logChannel) {
+      "auth-token-xyz"
+    },
+    connectCloudLogsClient = function() {
+      list(
+        getLogs = function(logChannel, authToken) {
+          list(
+            data = list(
+              list(
+                timestamp = 1234567890 * 1000000,
+                message = "Your app is busted!!",
+                level = "error"
+              )
+            )
+          )
+        }
+      )
+    }
+  )
+
+  client <- connectCloudClient(service, authInfo)
+
+  # expect_silent() does not see output that cat() writes to stderr, so the
+  # test captures stderr too.
+  stderr_output <- capture.output(
+    expect_silent(
+      result <- awaitConnectCloudCompletion(client, "rev456", quiet = TRUE)
+    ),
+    type = "message"
+  )
+  expect_equal(stderr_output, character())
+  expect_false(result$success)
+  expect_equal(result$error, "Deployment failed due to missing dependencies")
 })
 
 test_that("withTokenRefreshRetry passes through successful requests", {
@@ -1646,6 +1776,7 @@ test_that("prepareContent() asks for a new bundle when the deploy uploads", {
 test_that("activateContent() publishes and waits for the next revision", {
   published <- NULL
   awaited <- NULL
+  awaitedQuiet <- NULL
   client <- fake_client(
     "connectCloudClient",
     withTokenRefreshRetry = function(request_fn, path, json) {
@@ -1656,6 +1787,7 @@ test_that("activateContent() publishes and waits for the next revision", {
   local_mocked_bindings(
     awaitConnectCloudCompletion = function(client, revisionId, quiet) {
       awaited <<- revisionId
+      awaitedQuiet <<- quiet
       list(success = FALSE, url = "https://example.com/c", error = "failed")
     }
   )
@@ -1665,6 +1797,7 @@ test_that("activateContent() publishes and waits for the next revision", {
 
   expect_equal(published, "/contents/content-abc/publish")
   expect_equal(awaited, "rev-1")
+  expect_true(awaitedQuiet)
   expect_equal(
     result,
     list(succeeded = FALSE, url = "https://example.com/c", error = "failed")
