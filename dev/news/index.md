@@ -6,6 +6,11 @@
   now gives a clear error when the account is not on shinyapps.io. Other
   servers do not support metrics.
 
+- [`connectCloudClientCredentials()`](https://rstudio.github.io/rsconnect/dev/reference/connectCloudClientCredentials.md)
+  now explains that client credentials cannot publish to Posit Connect
+  Cloud accounts that require single sign-on (SSO), instead of reporting
+  that the account does not grant publish permission.
+
 ## rsconnect 1.11.2
 
 CRAN release: 2026-09-28
