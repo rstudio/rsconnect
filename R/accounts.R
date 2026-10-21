@@ -320,11 +320,17 @@ connectCloudClientCredentials <- function(
   publishable <- filterPublishableAccounts(accounts)
   account <- Find(function(a) identical(a$name, accountName), publishable)
   if (is.null(account)) {
-    visible <- !is.null(Find(
-      function(a) identical(a$name, accountName),
-      accounts
-    ))
-    if (visible) {
+    visibleAccount <- Find(function(a) identical(a$name, accountName), accounts)
+    # The server does not grant content:create on SSO accounts to tokens
+    # without a recent SSO login, which client credentials never have.
+    ssoBlocked <- isTRUE(visibleAccount$sso_enabled) &&
+      isTRUE(visibleAccount$role %in% c("owner", "admin", "publisher"))
+    if (ssoBlocked) {
+      cli::cli_abort(c(
+        "Account {.val {accountName}} requires single sign-on (SSO). Client credentials cannot publish to accounts that require SSO.",
+        i = "Use {.fn connectCloudUser} to log in interactively with SSO instead."
+      ))
+    } else if (!is.null(visibleAccount)) {
       cli::cli_abort(
         "Account {.val {accountName}} is visible to these credentials but does not grant publish permission."
       )
