@@ -11,6 +11,10 @@
   Cloud accounts that require single sign-on (SSO), instead of reporting
   that the account does not grant publish permission.
 
+- [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
+  respects `logLevel = "quiet"` on Posit Connect Cloud
+  ([\#1401](https://github.com/rstudio/rsconnect/issues/1401)).
+
 ## rsconnect 1.11.2
 
 CRAN release: 2026-09-28
