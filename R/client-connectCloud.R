@@ -214,7 +214,11 @@ activateContent.connectCloudClient <- function(
 ) {
   path <- paste0("/contents/", application$id, "/publish")
   client$withTokenRefreshRetry(POST_JSON, path, list())
-  response <- awaitConnectCloudCompletion(client, application$next_revision$id)
+  response <- awaitConnectCloudCompletion(
+    client,
+    application$next_revision$id,
+    quiet
+  )
   list(
     succeeded = response$success,
     url = response$url,
@@ -717,7 +721,7 @@ connectCloudPrimaryFile <- function(appMetadata) {
 
 # Polls the revision until the publish process completes, returning whether
 # the publish request succeeded and the error message if it failed.
-awaitConnectCloudCompletion <- function(client, revisionId) {
+awaitConnectCloudCompletion <- function(client, revisionId, quiet = FALSE) {
   stateMessages <- list(
     publish_deferred = "Content is currently publishing; your request will start soon.",
     publish_requested = "Publish requested; waiting to start...",
@@ -736,7 +740,10 @@ awaitConnectCloudCompletion <- function(client, revisionId) {
     if (!isTRUE(newStatus == lastStatus)) {
       # Note: since we poll every second, it's possible to skip states in
       # the output here
-      cli::cli_alert_info(stateMessages[[newStatus]])
+      if (!isTRUE(quiet)) {
+        cli::cli_alert_info(stateMessages[[newStatus]])
+      }
+
       lastStatus <- newStatus
     }
 
@@ -775,7 +782,7 @@ awaitConnectCloudCompletion <- function(client, revisionId) {
 
       if (revision$publish_result == "failure") {
         # Try to retrieve logs if log channel is available
-        if (!is.null(revision$publish_log_channel)) {
+        if (!is.null(revision$publish_log_channel) && !isTRUE(quiet)) {
           tryCatch(
             {
               # Get authorization token for the log channel
