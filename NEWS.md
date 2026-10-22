@@ -8,6 +8,8 @@
   (SSO), instead of reporting that the account does not grant publish
   permission.
 
+* `deployApp()` respects `logLevel = "quiet"` on Posit Connect Cloud (#1401).
+
 # rsconnect 1.11.2
 
 * New `deleteContent()` permanently deletes content from Posit Connect Cloud.
