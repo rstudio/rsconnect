@@ -4,7 +4,7 @@
   Before, a redeploy from `deployApp()` or the RStudio IDE deleted every
   secret that was not named in `envVars`, including secrets added in the
   Connect Cloud web interface. Now a redeploy sets the secrets named in
-  `envVars` and keeps the other secrets.
+  `envVars` and keeps the other secrets (#1413).
 
 * `showMetrics()` now gives a clear error when the account is not on
   shinyapps.io. Other servers do not support metrics.
