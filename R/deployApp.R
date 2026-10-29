@@ -70,10 +70,10 @@
 #'   supplied, will often be displayed in favor of the name. If omitted,
 #'   on second and subsequent deploys, the title will be unchanged.
 #' @param envVars A character vector giving the names of environment variables
-#'   whose values should be synchronised with the server (currently supported by
-#'   Connect only). The values of the environment variables are sent over an
-#'   encrypted connection and are not stored in the bundle, making this a safe
-#'   way to send private data to Connect.
+#'   whose values should be synchronised with the server (supported by Posit
+#'   Connect and Posit Connect Cloud). The values of the environment variables
+#'   are sent over an encrypted connection and are not stored in the bundle,
+#'   making this a safe way to send private data to the server.
 #'
 #'   The values of sensitive environment variables should be set in the current
 #'   session via an `.Renviron` file or with the help of a credential store like
@@ -85,8 +85,8 @@
 #'   deployments will automatically update their values. Other environment
 #'   variables on the server will not be affected. This means that removing an
 #'   environment variable from `envVars` will leave it unchanged on the server.
-#'   To remove it, either delete it using the Connect UI, or temporarily unset
-#'   it (with [Sys.unsetenv()] or similar) then re-deploy.
+#'   To remove it, either delete it in the server's web interface, or
+#'   temporarily unset it (with [Sys.unsetenv()] or similar) then re-deploy.
 #'
 #'   Environment variables are set prior to deployment so that your code
 #'   can use them and the first deployment can still succeed. Note that means

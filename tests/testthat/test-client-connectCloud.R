@@ -1462,38 +1462,74 @@ test_that("createContent includes envVar name and value in secrets when envVars 
   )
 })
 
-test_that("prepareContent() sends empty secrets array when envVars is NULL", {
+test_that("prepareContent() omits secrets when envVars is NULL", {
   skip_if_not_installed("webfakes")
 
-  app <- webfakes::new_app()
-  app$use(webfakes::mw_json())
-  app$patch("/contents/:id", function(req, res) {
-    j <- req$json
-    if (is.list(j$secrets) && length(j$secrets) == 0L) {
-      res$set_status(200L)$send_json(
-        list(id = I(req$params$id)),
-        auto_unbox = TRUE
-      )
-    } else {
-      res$set_status(400L)$send_json(
-        list(error = "secrets must be an empty array"),
-        auto_unbox = TRUE
-      )
+  client <- local_echo_cloud_client("patch", "/contents/:id")
+  application <- list(id = "content-abc", secrets = list(list(name = "UI_KEY")))
+  body <- update_cloud_content(client, application = application)
+  expect_false("secrets" %in% names(body))
+})
+
+test_that("prepareContent() keeps server secrets that are not in envVars", {
+  withr::local_envvar(RSCONNECT_TEST_CC_KEY = "new-value")
+  Sys.unsetenv("RSCONNECT_TEST_CC_UNSET")
+  sent <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, json) {
+      sent <<- json
+      list(id = "content-abc")
     }
-  })
-  proc <- webfakes::local_app_process(app)
-  service <- parseHttpUrl(proc$url())
-
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "some-user",
-    accountId = "acct-1",
-    accessToken = "tok",
-    refreshToken = "ref"
   )
-  client <- connectCloudClient(service, authInfo)
+  application <- list(
+    id = "content-abc",
+    secrets = list(
+      list(name = "UI_KEY", value = NULL),
+      list(name = "RSCONNECT_TEST_CC_KEY", value = NULL),
+      list(name = "RSCONNECT_TEST_CC_UNSET", value = NULL)
+    )
+  )
+  update_cloud_content(
+    client,
+    envVars = c("RSCONNECT_TEST_CC_KEY", "RSCONNECT_TEST_CC_UNSET"),
+    application = application
+  )
+  # The set variable is overwritten, the UI secret is kept with a null value,
+  # and the recorded variable that is unset locally is left out so that the
+  # server deletes it.
+  expect_equal(
+    sent$secrets,
+    list(
+      list(name = "RSCONNECT_TEST_CC_KEY", value = "new-value"),
+      list(name = "UI_KEY", value = NULL)
+    )
+  )
+  expect_match(
+    toJSON(sent$secrets),
+    '"name": "UI_KEY",\\s+"value": null'
+  )
+})
 
-  expect_no_error(update_cloud_content(client))
+test_that("prepareContent() sends only envVars when content has no secrets", {
+  withr::local_envvar(RSCONNECT_TEST_CC_KEY = "new-value")
+  sent <- NULL
+  client <- fake_client(
+    "connectCloudClient",
+    withTokenRefreshRetry = function(request_fn, path, json) {
+      sent <<- json
+      list(id = "content-abc")
+    }
+  )
+  update_cloud_content(
+    client,
+    envVars = "RSCONNECT_TEST_CC_KEY",
+    application = list(id = "content-abc", secrets = list())
+  )
+  expect_equal(
+    sent$secrets,
+    list(list(name = "RSCONNECT_TEST_CC_KEY", value = "new-value"))
+  )
 })
 
 test_that("prepareContent() includes envVar name and value in secrets when envVars is non-empty", {
