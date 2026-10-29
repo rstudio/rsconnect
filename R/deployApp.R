@@ -85,7 +85,7 @@
 #'   deployments will automatically update their values. Other environment
 #'   variables on the server will not be affected. This means that removing an
 #'   environment variable from `envVars` will leave it unchanged on the server.
-#'   To remove it, either delete it in the server's web interface, or
+#'   To remove it, either delete it in the server's UI, or
 #'   temporarily unset it (with [Sys.unsetenv()] or similar) then re-deploy.
 #'
 #'   Environment variables are set prior to deployment so that your code
