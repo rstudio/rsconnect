@@ -252,12 +252,11 @@ update_cloud_content <- function(
   client,
   envVars = NULL,
   appVisibility = NULL,
-  upload = FALSE,
-  application = list(id = "content-abc")
+  upload = FALSE
 ) {
   prepareContent(
     client,
-    application = application,
+    application = list(id = "content-abc"),
     deployment = list(envVars = envVars),
     appMetadata = list(appMode = "shiny", appPrimaryDoc = "app.R"),
     appVisibility = appVisibility,

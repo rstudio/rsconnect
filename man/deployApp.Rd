@@ -94,11 +94,19 @@ session via an \code{.Renviron} file or with the help of a credential store like
 in your \code{.Rhistory}.
 
 The names (not values) are stored in the deployment record so that future
-deployments will automatically update their values. Other environment
-variables on the server will not be affected. This means that removing an
-environment variable from \code{envVars} will leave it unchanged on the server.
-To remove it, either delete it in the server's UI, or
-temporarily unset it (with \code{\link[=Sys.unsetenv]{Sys.unsetenv()}} or similar) then re-deploy.
+deployments will automatically update their values.
+
+On Posit Connect, other environment variables on the server will not be
+affected. This means that removing an environment variable from \code{envVars}
+will leave it unchanged on the server. To remove it, either delete it in
+the Connect UI, or temporarily unset it (with \code{\link[=Sys.unsetenv]{Sys.unsetenv()}} or similar)
+then re-deploy.
+
+On Posit Connect Cloud, environment variables are stored as secrets on the
+content. A deployment without \code{envVars} leaves all secrets unchanged. A
+deployment with \code{envVars} may remove secrets that are not in \code{envVars},
+including secrets added in the Connect Cloud UI. To remove a secret,
+delete it in the Connect Cloud UI.
 
 Environment variables are set prior to deployment so that your code
 can use them and the first deployment can still succeed. Note that means

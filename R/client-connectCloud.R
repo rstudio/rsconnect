@@ -195,15 +195,10 @@ prepareContent.connectCloudClient <- function(
       app_mode = appMetadata$appMode
     )
   )
-  # The secrets list replaces every secret on the content, so leave it out
-  # when there are no envVars. Otherwise send the other secrets on the content
-  # with a null value, which keeps them unchanged.
+  # The secrets list replaces every secret on the content, so leave it out when
+  # there are no envVars.
   if (length(deployment$envVars) > 0) {
-    serverNames <- vapply(application$secrets, function(s) s$name, "")
-    json$secrets <- cloudSecrets(
-      deployment$envVars,
-      keepNames = setdiff(serverNames, deployment$envVars)
-    )
+    json$secrets <- cloudSecrets(deployment$envVars)
   }
   # Omit when NULL so a redeploy keeps visibility changed in the Cloud UI.
   json$access <- appVisibility
@@ -700,23 +695,26 @@ cloudContentTypeFromAppMode <- function(appMode) {
   )
 }
 
-# Variables in `envVars` that are unset in this session are left out, so that
-# Connect Cloud deletes them. Secrets in `keepNames` are sent with a null value,
-# so that Connect Cloud keeps their current value.
-cloudSecrets <- function(envVars, keepNames = character()) {
-  set <- list()
-  # Sys.getenv() with no names returns the whole environment.
-  if (length(envVars) > 0) {
-    values <- Sys.getenv(envVars, unset = NA, names = TRUE)
-    values <- values[!is.na(values)]
-    set <- Map(
-      function(name, value) list(name = name, value = value),
-      names(values),
-      values
-    )
+cloudSecrets <- function(envVars) {
+  if (length(envVars) == 0L) {
+    return(I(list()))
   }
-  kept <- lapply(keepNames, function(name) list(name = name, value = NULL))
-  unname(c(set, kept))
+  values <- Sys.getenv(envVars, unset = NA)
+  keep <- !is.na(values)
+  if (!any(keep)) {
+    return(I(list()))
+  }
+
+  unname(Map(
+    function(name, value) {
+      list(
+        name = name,
+        value = value
+      )
+    },
+    envVars[keep],
+    values[keep]
+  ))
 }
 
 # The primary file of the revision. Use appPrimaryDoc if it is set, otherwise
