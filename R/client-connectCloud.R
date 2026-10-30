@@ -190,12 +190,16 @@ prepareContent.connectCloudClient <- function(
     path <- paste0(path, "?new_bundle=true")
   }
   json <- list(
-    secrets = cloudSecrets(deployment$envVars),
     revision_overrides = list(
       primary_file = connectCloudPrimaryFile(appMetadata),
       app_mode = appMetadata$appMode
     )
   )
+  # The secrets list replaces every secret on the content, so leave it out when
+  # there are no envVars.
+  if (length(deployment$envVars) > 0) {
+    json$secrets <- cloudSecrets(deployment$envVars)
+  }
   # Omit when NULL so a redeploy keeps visibility changed in the Cloud UI.
   json$access <- appVisibility
 

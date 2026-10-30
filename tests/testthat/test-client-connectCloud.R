@@ -1462,38 +1462,12 @@ test_that("createContent includes envVar name and value in secrets when envVars 
   )
 })
 
-test_that("prepareContent() sends empty secrets array when envVars is NULL", {
+test_that("prepareContent() omits secrets when envVars is NULL", {
   skip_if_not_installed("webfakes")
 
-  app <- webfakes::new_app()
-  app$use(webfakes::mw_json())
-  app$patch("/contents/:id", function(req, res) {
-    j <- req$json
-    if (is.list(j$secrets) && length(j$secrets) == 0L) {
-      res$set_status(200L)$send_json(
-        list(id = I(req$params$id)),
-        auto_unbox = TRUE
-      )
-    } else {
-      res$set_status(400L)$send_json(
-        list(error = "secrets must be an empty array"),
-        auto_unbox = TRUE
-      )
-    }
-  })
-  proc <- webfakes::local_app_process(app)
-  service <- parseHttpUrl(proc$url())
-
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "some-user",
-    accountId = "acct-1",
-    accessToken = "tok",
-    refreshToken = "ref"
-  )
-  client <- connectCloudClient(service, authInfo)
-
-  expect_no_error(update_cloud_content(client))
+  client <- local_echo_cloud_client("patch", "/contents/:id")
+  body <- update_cloud_content(client)
+  expect_false("secrets" %in% names(body))
 })
 
 test_that("prepareContent() includes envVar name and value in secrets when envVars is non-empty", {
