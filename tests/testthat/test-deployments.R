@@ -97,6 +97,35 @@ test_that("can read/write missing version", {
   expect_equal(out$version, NA)
 })
 
+test_that("can read/write guid for Connect", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, guid = "the-guid", server = "example.com")
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$guid, "the-guid")
+})
+
+test_that("contentGuid() returns a guid only for Connect", {
+  application <- list(id = "1", guid = "the-guid")
+  expect_equal(
+    contentGuid(fake_client("connectClient"), application),
+    "the-guid"
+  )
+  expect_null(contentGuid(fake_client("shinyAppsClient"), application))
+  expect_null(contentGuid(fake_client("connectCloudClient"), application))
+})
+
+test_that("can read records written without a guid", {
+  dir <- local_temp_app()
+
+  path <- addTestDeployment(dir)
+  record <- read.dcf(path)
+  write.dcf(record[, colnames(record) != "guid", drop = FALSE], path)
+
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$guid, NA)
+})
+
 test_that("can read/write env vars", {
   app <- local_temp_app()
   addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))

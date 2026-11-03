@@ -257,7 +257,10 @@ syncAppMetadata <- function(appPath = ".") {
     }
 
     application <- tryCatch(
-      getApplication(client, curDeploy$appId),
+      getApplication(
+        client,
+        deploymentGuid(curDeploy) %||% curDeploy$appId
+      ),
       rsconnect_http_404 = function(c) {
         # if the app has been deleted, delete the deployment record
         file.remove(curDeploy$deploymentFile)
@@ -281,6 +284,7 @@ syncAppMetadata <- function(appPath = ".") {
 
     curDeploy$title <- application$title
     curDeploy$url <- application$url
+    curDeploy$guid <- contentGuid(client, application)
 
     writeDeploymentRecord(curDeploy, path)
   }
