@@ -1130,7 +1130,9 @@ test_that("redeploy to Connect makes new content when the recorded content was d
   ))
 
   expect_equal(uploaded_guid, "guid-new")
-  expect_equal(deployments(appDir)$appId, "99")
+  record <- readDeployments(appDir)
+  expect_equal(record$appId, "99")
+  expect_equal(record$guid, "guid-new")
 })
 
 test_that("redeploy to shinyapps.io with upload = FALSE deploys the current bundle", {

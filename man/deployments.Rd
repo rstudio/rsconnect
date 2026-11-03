@@ -34,6 +34,8 @@ Returns a data frame with at least the following columns:
 \tabular{ll}{
 \code{name} \tab Name of deployed application\cr
 \code{account} \tab Account owning deployed application\cr
+\code{appId} \tab Identifier of deployed application. For Posit Connect
+content, this is the content \code{guid} when the record has one.\cr
 \code{bundleId} \tab Identifier of deployed application's bundle\cr
 \code{url} \tab URL of deployed application\cr
 \code{deploymentFile} \tab Name of configuration file\cr

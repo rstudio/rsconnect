@@ -267,3 +267,18 @@ test_that("addToDeploymentHistory() restarts when history exceeds rsconnect.max.
     writeLines(readLines(deploymentHistoryPath()))
   })
 })
+
+test_that("deployments() reports the guid as appId when the record has one", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, appName = "a", appId = "1", guid = "the-guid")
+  addTestDeployment(dir, appName = "b", appId = "2")
+
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$appId[out$name == "a"], "the-guid")
+  expect_equal(out$appId[out$name == "b"], "2")
+
+  # stored records keep the numeric id
+  raw <- readDeployments(dir, excludeOrphaned = FALSE)
+  expect_equal(raw$appId[raw$name == "a"], "1")
+})
