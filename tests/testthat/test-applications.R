@@ -28,7 +28,12 @@ test_that("syncAppMetadata looks up by guid when the record has one", {
 
   app <- local_temp_app()
   addTestDeployment(app, appName = "legacy", appId = "123")
-  addTestDeployment(app, appName = "migrated", appId = "456", guid = "guid-456")
+  addTestDeployment(
+    app,
+    appName = "migrated",
+    appId = "456",
+    appGuid = "guid-456"
+  )
 
   requested <- character()
   local_mocked_bindings(
@@ -47,14 +52,14 @@ test_that("syncAppMetadata looks up by guid when the record has one", {
 
   # the legacy record gains a guid
   deps <- deployments(app)
-  expect_equal(deps$guid[deps$name == "legacy"], "guid-123")
-  expect_equal(deps$guid[deps$name == "migrated"], "guid-456")
+  expect_equal(deps$appGuid[deps$name == "legacy"], "guid-123")
+  expect_equal(deps$appGuid[deps$name == "migrated"], "guid-456")
 })
 
 test_that("deploymentGuid() returns NULL when the record has no guid", {
-  expect_equal(deploymentGuid(list(guid = "abc")), "abc")
+  expect_equal(deploymentGuid(list(appGuid = "abc")), "abc")
   for (guid in list(NULL, NA_character_, "")) {
-    expect_null(deploymentGuid(list(guid = guid)))
+    expect_null(deploymentGuid(list(appGuid = guid)))
   }
 })
 

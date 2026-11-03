@@ -567,7 +567,7 @@ deployApp <- function(
     )
     taskComplete(quiet, "Created content with id {.val {application$id}}")
   }
-  deployment$guid <- contentGuid(client, application)
+  deployment$appGuid <- contentGuid(client, application)
   saveDeployment(
     recordPath,
     deployment = deployment,

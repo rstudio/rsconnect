@@ -148,14 +148,14 @@ test_that("findContent() prefers the record's guid over its numeric id", {
 
   findContent(
     client,
-    list(appId = "101", guid = "abc", server = "example.com"),
+    list(appId = "101", appGuid = "abc", server = "example.com"),
     quiet = TRUE
   )
   expect_equal(requested, "abc")
 
   findContent(
     client,
-    list(appId = "101", guid = NA, server = "example.com"),
+    list(appId = "101", appGuid = NA, server = "example.com"),
     quiet = TRUE
   )
   expect_equal(requested, "101")

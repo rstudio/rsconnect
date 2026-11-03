@@ -10,12 +10,13 @@
 
 * `deployApp()` respects `logLevel = "quiet"` on Posit Connect Cloud (#1401).
 
-* Deployment records for Posit Connect content include the content's `guid`.
-  Redeploys and `syncAppMetadata()` use it to look up content with the v1
-  content API. Records without a `guid` fall back to looking up by numeric
-  id, and gain a `guid` the next time they are deployed or synced (#1374).
-  For these records, `deployments()` reports the `guid` as `appId`, and
-  `deployApp(appId = )` accepts either the `guid` or the numeric id.
+* Deployment records for Posit Connect content include the content guid, in
+  a new `appGuid` field. Redeploys and `syncAppMetadata()` use it to look up
+  content with the v1 content API. Records without an `appGuid` fall back to
+  looking up by numeric id, and gain an `appGuid` the next time they are
+  deployed or synced (#1374). For these records, `deployments()` reports the
+  guid as `appId`, and `deployApp(appId = )` accepts either the guid or the
+  numeric id.
 
 # rsconnect 1.11.2
 

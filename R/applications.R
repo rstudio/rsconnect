@@ -284,7 +284,7 @@ syncAppMetadata <- function(appPath = ".") {
 
     curDeploy$title <- application$title
     curDeploy$url <- application$url
-    curDeploy$guid <- contentGuid(client, application)
+    curDeploy$appGuid <- contentGuid(client, application)
 
     writeDeploymentRecord(curDeploy, path)
   }

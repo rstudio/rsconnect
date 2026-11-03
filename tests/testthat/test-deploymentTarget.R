@@ -258,13 +258,13 @@ test_that("guid from an existing deployment record is carried forward", {
   addTestAccount("ron")
 
   app_dir <- withr::local_tempdir()
-  addTestDeployment(app_dir, appId = "1", guid = "the-guid")
+  addTestDeployment(app_dir, appId = "1", appGuid = "the-guid")
 
   target <- findDeploymentTarget(app_dir)
-  expect_equal(target$deployment$guid, "the-guid")
+  expect_equal(target$deployment$appGuid, "the-guid")
 
   target <- findDeploymentTarget(app_dir, appId = "1")
-  expect_equal(target$deployment$guid, "the-guid")
+  expect_equal(target$deployment$appGuid, "the-guid")
 })
 
 test_that("appId is used even when name does not match", {
@@ -575,7 +575,7 @@ test_that("createDeploymentFromApplication promotes fields", {
       account = "alice",
       server = "example.com",
       version = deploymentRecordVersion,
-      guid = "the-guid"
+      appGuid = "the-guid"
     )
   )
 })
@@ -605,7 +605,7 @@ test_that("updateDeployment updates fields", {
       account = "alice",
       server = "example.com",
       version = deploymentRecordVersion,
-      guid = NULL
+      appGuid = NULL
     )
   )
 })
@@ -635,7 +635,7 @@ test_that("updateDeployment ignores NULL updates", {
       account = "alice",
       server = "example.com",
       version = deploymentRecordVersion,
-      guid = NULL
+      appGuid = NULL
     )
   )
 })
@@ -650,11 +650,11 @@ test_that("appId matches a local record by guid", {
     app_dir,
     appName = "local-record",
     appId = "1",
-    guid = "the-guid"
+    appGuid = "the-guid"
   )
 
   target <- findDeploymentTarget(app_dir, appId = "the-guid")
   expect_equal(target$deployment$name, "local-record")
   expect_equal(target$deployment$appId, "1")
-  expect_equal(target$deployment$guid, "the-guid")
+  expect_equal(target$deployment$appGuid, "the-guid")
 })

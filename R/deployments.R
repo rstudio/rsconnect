@@ -22,7 +22,7 @@
 #' `name` \tab Name of deployed application\cr
 #' `account` \tab Account owning deployed application\cr
 #' `appId` \tab Identifier of deployed application. For Posit Connect
-#'   content, this is the content `guid` when the record has one.\cr
+#'   content, this is the content guid (`appGuid`) when the record has one.\cr
 #' `bundleId` \tab Identifier of deployed application's bundle\cr
 #' `url` \tab URL of deployed application\cr
 #' `deploymentFile` \tab Name of configuration file\cr
@@ -57,13 +57,13 @@ deployments <- function(
     excludeOrphaned = excludeOrphaned
   )
 
-  # Report the guid as the appId when the record has one (only Connect records
-  # do). The RStudio IDE passes appId back to getAppById() and
-  # deployApp(appId = ), which both accept a guid, so the IDE looks content up
-  # with the v1 API. The on-disk record keeps the numeric appId, which older
-  # rsconnect versions need.
-  hasGuid <- !is.na(deployments$guid) & nzchar(deployments$guid)
-  deployments$appId[hasGuid] <- deployments$guid[hasGuid]
+  # Report the content guid (appGuid) as the appId when the record has one
+  # (only Connect records do). The RStudio IDE passes appId back to
+  # getAppById() and deployApp(appId = ), which both accept a guid, so the IDE
+  # looks content up with the v1 API. The on-disk record keeps the numeric
+  # appId, which older rsconnect versions need.
+  hasGuid <- !is.na(deployments$appGuid) & nzchar(deployments$appGuid)
+  deployments$appId[hasGuid] <- deployments$appGuid[hasGuid]
 
   deployments
 }
@@ -126,7 +126,7 @@ deploymentFields <- c(
   "server",
   "hostUrl",
   "appId",
-  "guid",
+  "appGuid",
   "bundleId",
   "url",
   "envVars",
@@ -158,7 +158,7 @@ saveDeployment <- function(
     version = deployment$version,
     hostUrl = hostUrl,
     appId = application$id,
-    guid = deployment$guid,
+    appGuid = deployment$appGuid,
     bundleId = bundleId,
     url = application$url,
     metadata = metadata
@@ -188,7 +188,7 @@ deploymentRecord <- function(
   envVars = NULL,
   hostUrl = NULL,
   appId = NULL,
-  guid = NULL,
+  appGuid = NULL,
   bundleId = NULL,
   url = NULL,
   version = deploymentRecordVersion,
@@ -205,7 +205,7 @@ deploymentRecord <- function(
     envVars = if (length(envVars) > 0) paste0(envVars, collapse = ", ") else NA,
     hostUrl = hostUrl %||% "",
     appId = appId %||% "",
-    guid = guid %||% "",
+    appGuid = appGuid %||% "",
     bundleId = bundleId %||% "",
     url = url %||% "",
     version = version
@@ -216,11 +216,11 @@ deploymentRecord <- function(
   c(standard, metadata)
 }
 
-# The content guid from a deployment record, or NULL when the record has none.
-# Only Connect records have a guid, and records from older rsconnect versions
-# do not.
+# The content guid (appGuid) from a deployment record, or NULL when the record
+# has none. Only Connect records have one, and records from older rsconnect
+# versions do not.
 deploymentGuid <- function(deployment) {
-  guid <- deployment$guid
+  guid <- deployment$appGuid
   if (length(guid) != 1 || is.na(guid) || !nzchar(guid)) {
     return(NULL)
   }
