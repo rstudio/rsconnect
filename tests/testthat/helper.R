@@ -132,7 +132,7 @@ addTestDeployment <- function(
   appName = "test",
   appTitle = "",
   appId = "123",
-  guid = NULL,
+  appGuid = NULL,
   account = "ron",
   envVars = NULL,
   username = account,
@@ -153,7 +153,7 @@ addTestDeployment <- function(
       username = username,
       server = server,
       version = version,
-      guid = guid
+      appGuid = appGuid
     ),
     application = list(id = appId, url = url),
     hostUrl = hostUrl,

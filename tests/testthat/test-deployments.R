@@ -97,12 +97,12 @@ test_that("can read/write missing version", {
   expect_equal(out$version, NA)
 })
 
-test_that("can read/write guid for Connect", {
+test_that("can read/write appGuid", {
   dir <- local_temp_app()
 
-  addTestDeployment(dir, guid = "the-guid", server = "example.com")
+  addTestDeployment(dir, appGuid = "the-guid")
   out <- deployments(dir, excludeOrphaned = FALSE)
-  expect_equal(out$guid, "the-guid")
+  expect_equal(out$appGuid, "the-guid")
 })
 
 test_that("contentGuid() returns a guid only for Connect", {
@@ -115,15 +115,30 @@ test_that("contentGuid() returns a guid only for Connect", {
   expect_null(contentGuid(fake_client("connectCloudClient"), application))
 })
 
-test_that("can read records written without a guid", {
+test_that("a guid metadata field does not affect appGuid", {
+  dir <- local_temp_app()
+
+  addTestDeployment(
+    dir,
+    appId = "1",
+    appGuid = "content-guid",
+    metadata = list(guid = "user-value")
+  )
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$appGuid, "content-guid")
+  expect_equal(out$appId, "content-guid")
+  expect_equal(out$guid, "user-value")
+})
+
+test_that("can read records written without an appGuid", {
   dir <- local_temp_app()
 
   path <- addTestDeployment(dir)
   record <- read.dcf(path)
-  write.dcf(record[, colnames(record) != "guid", drop = FALSE], path)
+  write.dcf(record[, colnames(record) != "appGuid", drop = FALSE], path)
 
   out <- deployments(dir, excludeOrphaned = FALSE)
-  expect_equal(out$guid, NA)
+  expect_equal(out$appGuid, NA)
 })
 
 test_that("can read/write env vars", {
@@ -271,7 +286,7 @@ test_that("addToDeploymentHistory() restarts when history exceeds rsconnect.max.
 test_that("deployments() reports the guid as appId when the record has one", {
   dir <- local_temp_app()
 
-  addTestDeployment(dir, appName = "a", appId = "1", guid = "the-guid")
+  addTestDeployment(dir, appName = "a", appId = "1", appGuid = "the-guid")
   addTestDeployment(dir, appName = "b", appId = "2")
 
   out <- deployments(dir, excludeOrphaned = FALSE)

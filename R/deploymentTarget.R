@@ -149,7 +149,7 @@ findDeploymentTargetByAppId <- function(
   )
   # appId may be the stored id or, for Connect, the content guid (which
   # deployments() reports as appId, e.g. to the RStudio IDE)
-  matches <- appDeployments$appId %in% appId | appDeployments$guid %in% appId
+  matches <- appDeployments$appId %in% appId | appDeployments$appGuid %in% appId
   appDeployments <- appDeployments[matches, ]
   if (nrow(appDeployments) > 1) {
     cli::cli_abort(
@@ -303,7 +303,7 @@ createDeployment <- function(
   account,
   server,
   version = deploymentRecordVersion,
-  guid = NULL
+  appGuid = NULL
 ) {
   # Consider merging this object with the object returned by
   # deploymentRecord().
@@ -321,7 +321,7 @@ createDeployment <- function(
     account = account,
     server = server,
     version = version,
-    guid = guid
+    appGuid = appGuid
   )
 }
 
@@ -334,7 +334,7 @@ createDeploymentFromApplication <- function(application, accountDetails) {
     username = application$owner_username %||% accountDetails$name,
     account = accountDetails$name,
     server = accountDetails$server,
-    guid = application$guid
+    appGuid = application$guid
   )
 }
 
@@ -349,7 +349,7 @@ updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
     account = previous$account,
     server = previous$server,
     version = previous$version,
-    guid = previous$guid
+    appGuid = previous$appGuid
   )
 }
 

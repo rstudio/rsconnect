@@ -204,7 +204,7 @@ supportsMetadataSync <- function(client) {
   UseMethod("supportsMetadataSync")
 }
 
-#' The content guid to save in the deployment record
+#' The content guid to save as `appGuid` in the deployment record
 #'
 #' @param client A client object.
 #' @param application The content, from `findContent()`, `createContent()`, or
