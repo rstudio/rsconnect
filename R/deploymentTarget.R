@@ -299,7 +299,8 @@ createDeployment <- function(
   username,
   account,
   server,
-  version = deploymentRecordVersion
+  version = deploymentRecordVersion,
+  guid = NULL
 ) {
   # Consider merging this object with the object returned by
   # deploymentRecord().
@@ -316,7 +317,8 @@ createDeployment <- function(
     username = username,
     account = account,
     server = server,
-    version = version
+    version = version,
+    guid = guid
   )
 }
 
@@ -328,7 +330,8 @@ createDeploymentFromApplication <- function(application, accountDetails) {
     envVars = NULL,
     username = application$owner_username %||% accountDetails$name,
     account = accountDetails$name,
-    server = accountDetails$server
+    server = accountDetails$server,
+    guid = application$guid
   )
 }
 
@@ -342,7 +345,8 @@ updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
     username = previous$username %||% previous$account,
     account = previous$account,
     server = previous$server,
-    version = previous$version
+    version = previous$version,
+    guid = previous$guid
   )
 }
 

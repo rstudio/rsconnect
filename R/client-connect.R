@@ -52,10 +52,15 @@ listApplications.connectClient <- function(
   )
 }
 
-# The deployment record has only the numeric id, and not the guid that
-# v1/content/ needs, so this uses the unversioned URL.
+# `applicationId` may be the content guid or the numeric content id. A guid
+# uses the v1 content API. A numeric id uses the unversioned applications/
+# endpoint, because v1/content/ accepts only guids. Numeric ids come from
+# deployment records that have no guid, and from deployApp(appId = <integer>).
 #' @export
 getApplication.connectClient <- function(client, applicationId) {
+  if (!grepl("^[0-9]+$", applicationId)) {
+    return(connectGetContent(client, applicationId))
+  }
   app <- GET(
     client$service,
     client$authInfo,
@@ -99,7 +104,10 @@ createContent.connectClient <- function(
 
 #' @export
 findContent.connectClient <- function(client, deployment, quiet) {
-  application <- getApplication(client, deployment$appId)
+  application <- getApplication(
+    client,
+    deploymentGuid(deployment) %||% deployment$appId
+  )
   taskComplete(quiet, "Found content {.url {application$url}}")
   application
 }
@@ -229,6 +237,12 @@ supportsMetadataSync.connectClient <- function(client) {
   TRUE
 }
 
+# The record stores the guid so that later lookups can use the v1 content API.
+#' @export
+contentGuid.connectClient <- function(client, application) {
+  application$guid
+}
+
 #' @export
 staticRmdNeedsShiny.connectClient <- function(client) {
   FALSE
@@ -339,6 +353,14 @@ connectDeployApplication <- function(client, application, bundleId = NULL) {
     path,
     json = list(bundle_id = bundleId)
   )
+}
+
+connectGetContent <- function(client, guid) {
+  checkConnectClient(client)
+  content <- GET(client$service, client$authInfo, v1_url("content", guid))
+  # v1 calls it content_url; callers expect the legacy `url` field
+  content$url <- content$content_url
+  content
 }
 
 # https://docs.posit.co/connect/api/#get-/v1/content/{guid}/environment

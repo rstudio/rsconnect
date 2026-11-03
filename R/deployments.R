@@ -96,6 +96,7 @@ deploymentFields <- c(
   "server",
   "hostUrl",
   "appId",
+  "guid",
   "bundleId",
   "url",
   "envVars",
@@ -127,6 +128,7 @@ saveDeployment <- function(
     version = deployment$version,
     hostUrl = hostUrl,
     appId = application$id,
+    guid = deployment$guid,
     bundleId = bundleId,
     url = application$url,
     metadata = metadata
@@ -156,6 +158,7 @@ deploymentRecord <- function(
   envVars = NULL,
   hostUrl = NULL,
   appId = NULL,
+  guid = NULL,
   bundleId = NULL,
   url = NULL,
   version = deploymentRecordVersion,
@@ -172,6 +175,7 @@ deploymentRecord <- function(
     envVars = if (length(envVars) > 0) paste0(envVars, collapse = ", ") else NA,
     hostUrl = hostUrl %||% "",
     appId = appId %||% "",
+    guid = guid %||% "",
     bundleId = bundleId %||% "",
     url = url %||% "",
     version = version
@@ -180,6 +184,17 @@ deploymentRecord <- function(
   # this prevents write.dcf from writing multiple records into one file.
   metadata <- lapply(metadata, function(v) paste0(v, collapse = ", "))
   c(standard, metadata)
+}
+
+# The content guid from a deployment record, or NULL when the record has none.
+# Only Connect records have a guid, and records from older rsconnect versions
+# do not.
+deploymentGuid <- function(deployment) {
+  guid <- deployment$guid
+  if (length(guid) != 1 || is.na(guid) || !nzchar(guid)) {
+    return(NULL)
+  }
+  guid
 }
 
 writeDeploymentRecord <- function(record, filePath) {

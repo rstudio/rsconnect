@@ -105,6 +105,62 @@ test_that("getApplication() fills in dashboard_url from guid when missing", {
   )
 })
 
+test_that("getApplication() uses the v1 content API for a guid", {
+  skip_if_not_installed("webfakes")
+
+  app <- webfakes::new_app()
+  app$use(webfakes::mw_json())
+  app$get("/v1/content/:guid", function(req, res) {
+    res$set_status(200L)$send_json(
+      list(
+        id = "101",
+        guid = req$params$guid,
+        content_url = "https://connect.example/content/abc/",
+        dashboard_url = "https://connect.example/connect/#/apps/abc"
+      ),
+      auto_unbox = TRUE
+    )
+  })
+  process <- webfakes::new_app_process(app)
+  service <- parseHttpUrl(process$url())
+
+  client <- connectClient(service, list(apiKey = "the-api-key"))
+
+  result <- getApplication(client, "abc")
+  expect_equal(result$guid, "abc")
+  expect_equal(result$id, "101")
+  expect_equal(result$url, "https://connect.example/content/abc/")
+  expect_equal(
+    result$dashboard_url,
+    "https://connect.example/connect/#/apps/abc"
+  )
+})
+
+test_that("findContent() prefers the record's guid over its numeric id", {
+  requested <- NULL
+  local_mocked_bindings(
+    getApplication.connectClient = function(client, applicationId) {
+      requested <<- applicationId
+      list(url = "https://connect.example/content/abc/")
+    }
+  )
+  client <- fake_client("connectClient")
+
+  findContent(
+    client,
+    list(appId = "101", guid = "abc", server = "example.com"),
+    quiet = TRUE
+  )
+  expect_equal(requested, "abc")
+
+  findContent(
+    client,
+    list(appId = "101", guid = NA, server = "example.com"),
+    quiet = TRUE
+  )
+  expect_equal(requested, "101")
+})
+
 # Tests for Snowflake authentication with auto-detection
 
 test_that("getDefaultSnowflakeConnectionName auto-detects matching default connection", {
