@@ -341,7 +341,7 @@ resolveContentTarget.connectCloudClient <- function(
     check_string(contentId)
     return(list(id = contentId, deploymentFile = NULL))
   }
-  recs <- deployments(
+  recs <- readDeployments(
     appPath = appDir,
     accountFilter = accountDetails$name,
     serverFilter = accountDetails$server,

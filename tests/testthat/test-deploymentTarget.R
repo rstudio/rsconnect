@@ -639,3 +639,22 @@ test_that("updateDeployment ignores NULL updates", {
     )
   )
 })
+
+test_that("appId matches a local record by guid", {
+  local_temp_config()
+  addTestServer("example.com")
+  addTestAccount("ron")
+
+  app_dir <- withr::local_tempdir()
+  addTestDeployment(
+    app_dir,
+    appName = "local-record",
+    appId = "1",
+    guid = "the-guid"
+  )
+
+  target <- findDeploymentTarget(app_dir, appId = "the-guid")
+  expect_equal(target$deployment$name, "local-record")
+  expect_equal(target$deployment$appId, "1")
+  expect_equal(target$deployment$guid, "the-guid")
+})

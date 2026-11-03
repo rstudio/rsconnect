@@ -21,6 +21,8 @@
 #' \tabular{ll}{
 #' `name` \tab Name of deployed application\cr
 #' `account` \tab Account owning deployed application\cr
+#' `appId` \tab Identifier of deployed application. For Posit Connect
+#'   content, this is the content `guid` when the record has one.\cr
 #' `bundleId` \tab Identifier of deployed application's bundle\cr
 #' `url` \tab URL of deployed application\cr
 #' `deploymentFile` \tab Name of configuration file\cr
@@ -41,6 +43,34 @@
 #'   server, and [deployApp()] to create a new deployment.
 #' @export
 deployments <- function(
+  appPath = ".",
+  nameFilter = NULL,
+  accountFilter = NULL,
+  serverFilter = NULL,
+  excludeOrphaned = TRUE
+) {
+  deployments <- readDeployments(
+    appPath = appPath,
+    nameFilter = nameFilter,
+    accountFilter = accountFilter,
+    serverFilter = serverFilter,
+    excludeOrphaned = excludeOrphaned
+  )
+
+  # Report the guid as the appId when the record has one (only Connect records
+  # do). The RStudio IDE passes appId back to getAppById() and
+  # deployApp(appId = ), which both accept a guid, so the IDE looks content up
+  # with the v1 API. The on-disk record keeps the numeric appId, which older
+  # rsconnect versions need.
+  hasGuid <- !is.na(deployments$guid) & nzchar(deployments$guid)
+  deployments$appId[hasGuid] <- deployments$guid[hasGuid]
+
+  deployments
+}
+
+# Reads deployment records as they are stored on disk. Internal callers use
+# this rather than deployments() so appId is always the stored id.
+readDeployments <- function(
   appPath = ".",
   nameFilter = NULL,
   accountFilter = NULL,
@@ -391,7 +421,7 @@ migrateToConnectCloud <- function(
   # silently leave it behind. `account`/`server` are genuine source selectors
   # and still apply. When records exist, `appName` disambiguates among them --
   # and a value that matches none is an error, not a silent reconstruction.
-  sourceDeps <- deployments(
+  sourceDeps <- readDeployments(
     appPath,
     accountFilter = account,
     serverFilter = server,

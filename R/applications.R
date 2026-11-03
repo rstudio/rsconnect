@@ -241,7 +241,7 @@ getLogs <- function(
 syncAppMetadata <- function(appPath = ".") {
   check_directory(appPath)
 
-  deploys <- deployments(appPath)
+  deploys <- readDeployments(appPath)
   for (i in seq_len(nrow(deploys))) {
     curDeploy <- deploys[i, ]
 
