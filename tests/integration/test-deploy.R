@@ -53,13 +53,20 @@ test_that("redeploy adds the content guid to a record without one", {
   expect_equal(migrated$appId, guid)
   expect_equal(migrated$url, record$url)
 
-  # The RStudio IDE passes the appId from deployments() to getAppById()
-  app <- rsconnect:::getAppById(guid, account, account, server)
+  # The RStudio IDE looks up the content with the appId, account, server and
+  # hostUrl from deployments()
+  app <- rsconnect:::getAppById(
+    migrated$appId,
+    migrated$account,
+    migrated$server,
+    migrated$hostUrl
+  )
   expect_equal(app$guid, guid)
   expect_equal(app$url, record$url)
 
-  # A redeploy from the migrated record updates the same content
-  expect_true(deployApp(appDir, appName = appName, account = account))
+  # The IDE redeploys with the appId from deployments(), which updates the same
+  # content
+  expect_true(deployApp(appDir, appId = migrated$appId, account = account))
   expect_equal(
     deployments(appDir, nameFilter = appName, accountFilter = account)$appGuid,
     guid
