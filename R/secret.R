@@ -20,7 +20,9 @@ print.rsconnect_secret <- function(x, ...) {
 
 #' @export
 str.rsconnect_secret <- function(object, ...) {
-  cat(" ", format(object), "\n", sep = "")
+  # R >= 4.7.0's str.default() adds the space after "$ name:" itself
+  prefix <- if (getRversion() < "4.7.0") " " else ""
+  cat(prefix, format(object), "\n", sep = "")
 }
 
 #' @export
