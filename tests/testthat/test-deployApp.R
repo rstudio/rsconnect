@@ -909,18 +909,27 @@ test_that("redeploy to Connect from a record without a guid migrates it to the v
   expect_equal(record$appGuid, "guid-42")
   expect_equal(record$url, "https://example.com/content/guid-42/")
 
-  # The RStudio IDE reads appId from deployments() and passes it back to
-  # getAppById(), which uses the v1 content API.
-  expect_equal(deployments(appDir)$appId, "guid-42")
+  # The RStudio IDE reads the record with deployments(), then passes its appId
+  # to getAppById() and deployApp(appId = ). Both use the v1 content API.
+  ide <- deployments(appDir)
+  expect_equal(ide$appId, "guid-42")
   requested <- character()
-  app <- getAppById(
-    "guid-42",
-    "myaccount",
-    "example.com",
-    "https://example.com"
-  )
+  app <- getAppById(ide$appId, ide$account, ide$server, ide$hostUrl)
   expect_equal(requested, "/v1/content/guid-42")
   expect_equal(app$url, "https://example.com/content/guid-42/")
+
+  requested <- character()
+  suppressMessages(deployApp(
+    appDir,
+    appId = ide$appId,
+    account = "myaccount",
+    server = "example.com",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+  expect_equal(requested, "/v1/content/guid-42")
+  expect_equal(readDeployments(appDir)$appGuid, "guid-42")
 })
 
 test_that("fresh shinyapps.io deploy uploads to a newly created app, not an existing one", {
