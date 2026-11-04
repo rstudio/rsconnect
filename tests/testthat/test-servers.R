@@ -19,16 +19,20 @@ test_that("servers() redacts the certificate", {
   expect_snapshot(servers())
 })
 
-test_that("serverInfo() redacts the certificate", {
-  expect_snapshot({
-    str(serverInfo("shinyapps.io"))
-  })
-})
+test_that("str(serverInfo()) redacts the certificate", {
+  for (server in c("shinyapps.io", "connect.posit.cloud")) {
+    info <- serverInfo(server)
+    expect_match(unclass(info$certificate), "BEGIN CERTIFICATE", fixed = TRUE)
 
-test_that("serverInfo() redacts the certificate", {
-  expect_snapshot({
-    str(serverInfo("connect.posit.cloud"))
-  })
+    out <- capture.output(str(info))
+    expect_match(out, "$ certificate:", fixed = TRUE, all = FALSE)
+    expect_match(out, "(redacted)", fixed = TRUE, all = FALSE)
+    expect_no_match(
+      paste(out, collapse = "\n"),
+      "BEGIN CERTIFICATE",
+      fixed = TRUE
+    )
+  }
 })
 
 test_that("serverInfo() errors if server not present", {

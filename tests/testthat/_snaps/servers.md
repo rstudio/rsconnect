@@ -8,26 +8,6 @@
       2        shinyapps.io        https://api.shinyapps.io/v1 Amazon... (redacted)
       3 connect.posit.cloud https://api.connect.posit.cloud/v1 -----B... (redacted)
 
-# serverInfo() redacts the certificate
-
-    Code
-      str(serverInfo("shinyapps.io"))
-    Output
-      List of 3
-       $ name       : chr "shinyapps.io"
-       $ url        : chr "https://api.shinyapps.io/v1"
-       $ certificate: Amazon... (redacted)
-
----
-
-    Code
-      str(serverInfo("connect.posit.cloud"))
-    Output
-      List of 3
-       $ name       : chr "connect.posit.cloud"
-       $ url        : chr "https://api.connect.posit.cloud/v1"
-       $ certificate: -----B... (redacted)
-
 # serverInfo() errors if server not present
 
     Code
