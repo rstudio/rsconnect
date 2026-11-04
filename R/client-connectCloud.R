@@ -150,9 +150,9 @@ createContent.connectCloudClient <- function(
   json <- list(
     account_id = accountDetails$accountId,
     title = title,
-    next_revision = revision,
-    secrets = cloudSecrets(deployment$envVars)
+    next_revision = revision
   )
+  json$secrets <- cloudSecrets(deployment$envVars)
   # Omit when NULL so the server picks the default for the account's plan.
   json$access <- appVisibility
 
@@ -196,10 +196,8 @@ prepareContent.connectCloudClient <- function(
     )
   )
   # The secrets list replaces every secret on the content, so leave it out when
-  # there are no envVars.
-  if (length(deployment$envVars) > 0) {
-    json$secrets <- cloudSecrets(deployment$envVars)
-  }
+  # no envVars variable has a value.
+  json$secrets <- cloudSecrets(deployment$envVars)
   # Omit when NULL so a redeploy keeps visibility changed in the Cloud UI.
   json$access <- appVisibility
 
@@ -695,14 +693,15 @@ cloudContentTypeFromAppMode <- function(appMode) {
   )
 }
 
+# The secrets for envVars that are set in this session, or NULL if none are.
 cloudSecrets <- function(envVars) {
   if (length(envVars) == 0L) {
-    return(I(list()))
+    return(NULL)
   }
   values <- Sys.getenv(envVars, unset = NA)
   keep <- !is.na(values)
   if (!any(keep)) {
-    return(I(list()))
+    return(NULL)
   }
 
   unname(Map(

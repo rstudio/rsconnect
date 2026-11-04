@@ -1345,78 +1345,33 @@ test_that("listApplicationInvitations accumulates multiple pages and keeps accep
 # Instead the server validates the payload and returns 400 on a bad shape
 # (the client will then throw), so a clean 200 response proves the assertion.
 
-test_that("createContent sends empty secrets array when envVars is NULL", {
+test_that("createContent omits secrets when envVars is NULL", {
   skip_if_not_installed("webfakes")
 
-  app <- webfakes::new_app()
-  app$use(webfakes::mw_json())
-  app$post("/contents", function(req, res) {
-    j <- req$json
-    # secrets must be an empty JSON array; any other shape means Sys.getenv()
-    # was called on the whole environment (pre-fix behaviour on R < 4.2.0).
-    if (is.list(j$secrets) && length(j$secrets) == 0L) {
-      res$set_status(200L)$send_json(
-        list(id = "content-new-1"),
-        auto_unbox = TRUE
-      )
-    } else {
-      res$set_status(400L)$send_json(
-        list(error = "secrets must be an empty array"),
-        auto_unbox = TRUE
-      )
-    }
-  })
-  proc <- webfakes::local_app_process(app)
-  service <- parseHttpUrl(proc$url())
-
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "some-user",
-    accountId = "acct-1",
-    accessToken = "tok",
-    refreshToken = "ref"
-  )
-  client <- connectCloudClient(service, authInfo)
-
-  expect_no_error(
-    create_cloud_content(client)
-  )
+  # Any secrets here would mean Sys.getenv() was called on the whole
+  # environment (pre-fix behaviour on R < 4.2.0).
+  client <- local_echo_cloud_client("post", "/contents")
+  body <- create_cloud_content(client)
+  expect_false("secrets" %in% names(body))
 })
 
-test_that("createContent sends empty secrets array when envVars is character(0)", {
+test_that("createContent omits secrets when envVars is character(0)", {
   skip_if_not_installed("webfakes")
 
-  app <- webfakes::new_app()
-  app$use(webfakes::mw_json())
-  app$post("/contents", function(req, res) {
-    j <- req$json
-    if (is.list(j$secrets) && length(j$secrets) == 0L) {
-      res$set_status(200L)$send_json(
-        list(id = "content-new-2"),
-        auto_unbox = TRUE
-      )
-    } else {
-      res$set_status(400L)$send_json(
-        list(error = "secrets must be an empty array"),
-        auto_unbox = TRUE
-      )
-    }
-  })
-  proc <- webfakes::local_app_process(app)
-  service <- parseHttpUrl(proc$url())
+  client <- local_echo_cloud_client("post", "/contents")
+  body <- create_cloud_content(client, envVars = character(0))
+  expect_false("secrets" %in% names(body))
+})
 
-  authInfo <- list(
-    server = "connect.posit.cloud",
-    name = "some-user",
-    accountId = "acct-1",
-    accessToken = "tok",
-    refreshToken = "ref"
-  )
-  client <- connectCloudClient(service, authInfo)
+test_that("createContent omits secrets when no envVars variable is set", {
+  skip_if_not_installed("webfakes")
+  skip_if_not_installed("withr")
 
-  expect_no_error(
-    create_cloud_content(client, envVars = character(0))
-  )
+  withr::local_envvar(RSCONNECT_TEST_CC_UNSET = NA)
+
+  client <- local_echo_cloud_client("post", "/contents")
+  body <- create_cloud_content(client, envVars = "RSCONNECT_TEST_CC_UNSET")
+  expect_false("secrets" %in% names(body))
 })
 
 test_that("createContent includes envVar name and value in secrets when envVars is non-empty", {
@@ -1467,6 +1422,17 @@ test_that("prepareContent() omits secrets when envVars is NULL", {
 
   client <- local_echo_cloud_client("patch", "/contents/:id")
   body <- update_cloud_content(client)
+  expect_false("secrets" %in% names(body))
+})
+
+test_that("prepareContent() omits secrets when no envVars variable is set", {
+  skip_if_not_installed("webfakes")
+  skip_if_not_installed("withr")
+
+  withr::local_envvar(RSCONNECT_TEST_CC_UNSET = NA)
+
+  client <- local_echo_cloud_client("patch", "/contents/:id")
+  body <- update_cloud_content(client, envVars = "RSCONNECT_TEST_CC_UNSET")
   expect_false("secrets" %in% names(body))
 })
 
