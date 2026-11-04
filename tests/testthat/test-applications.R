@@ -56,10 +56,10 @@ test_that("syncAppMetadata looks up by guid when the record has one", {
   expect_equal(deps$appGuid[deps$name == "migrated"], "guid-456")
 })
 
-test_that("deploymentGuid() returns NULL when the record has no guid", {
-  expect_equal(deploymentGuid(list(appGuid = "abc")), "abc")
+test_that("deploymentId() prefers the guid and falls back to appId", {
+  expect_equal(deploymentId(list(appId = "123", appGuid = "abc")), "abc")
   for (guid in list(NULL, NA_character_, "")) {
-    expect_null(deploymentGuid(list(appGuid = guid)))
+    expect_equal(deploymentId(list(appId = "123", appGuid = guid)), "123")
   }
 })
 

@@ -104,10 +104,7 @@ createContent.connectClient <- function(
 
 #' @export
 findContent.connectClient <- function(client, deployment, quiet) {
-  application <- getApplication(
-    client,
-    deploymentGuid(deployment) %||% deployment$appId
-  )
+  application <- getApplication(client, deploymentId(deployment))
   taskComplete(quiet, "Found content {.url {application$url}}")
   application
 }
