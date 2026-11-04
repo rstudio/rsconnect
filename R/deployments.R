@@ -216,13 +216,13 @@ deploymentRecord <- function(
   c(standard, metadata)
 }
 
-# The content guid (appGuid) from a deployment record, or NULL when the record
-# has none. Only Connect records have one, and records from older rsconnect
-# versions do not.
-deploymentGuid <- function(deployment) {
+# The id to look up a deployment record's content with: the content guid
+# (appGuid) when the record has one, and appId otherwise. Only Connect records
+# have a guid, and records from older rsconnect versions do not.
+deploymentId <- function(deployment) {
   guid <- deployment$appGuid
   if (length(guid) != 1 || is.na(guid) || !nzchar(guid)) {
-    return(NULL)
+    return(deployment$appId)
   }
   guid
 }
