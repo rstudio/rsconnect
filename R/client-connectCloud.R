@@ -152,6 +152,8 @@ createContent.connectCloudClient <- function(
     title = title,
     next_revision = revision
   )
+  # Assign after list() so that NULL leaves out the key. Inside list(),
+  # `secrets = NULL` keeps the key, and it is sent as `{}`.
   json$secrets <- cloudSecrets(deployment$envVars)
   # Omit when NULL so the server picks the default for the account's plan.
   json$access <- appVisibility
