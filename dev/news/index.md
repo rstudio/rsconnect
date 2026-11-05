@@ -2,6 +2,11 @@
 
 ## rsconnect (development version)
 
+- Redeploying to Posit Connect Cloud without `envVars` no longer deletes
+  the content’s secrets, including secrets added in the Connect Cloud
+  UI. This also applies to republishing from the RStudio IDE
+  ([\#1413](https://github.com/rstudio/rsconnect/issues/1413)).
+
 - [`showMetrics()`](https://rstudio.github.io/rsconnect/dev/reference/showMetrics.md)
   now gives a clear error when the account is not on shinyapps.io. Other
   servers do not support metrics.

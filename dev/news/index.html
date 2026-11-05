@@ -37,7 +37,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/showMetrics.html">showMetrics()</a></code> now gives a clear error when the account is not on shinyapps.io. Other servers do not support metrics.</p></li>
+<ul><li><p>Redeploying to Posit Connect Cloud without <code>envVars</code> no longer deletes the content’s secrets, including secrets added in the Connect Cloud UI. This also applies to republishing from the RStudio IDE (<a href="https://github.com/rstudio/rsconnect/issues/1413" class="external-link">#1413</a>).</p></li>
+<li><p><code><a href="../reference/showMetrics.html">showMetrics()</a></code> now gives a clear error when the account is not on shinyapps.io. Other servers do not support metrics.</p></li>
 <li><p><code><a href="../reference/connectCloudClientCredentials.html">connectCloudClientCredentials()</a></code> now explains that client credentials cannot publish to Posit Connect Cloud accounts that require single sign-on (SSO), instead of reporting that the account does not grant publish permission.</p></li>
 <li><p><code><a href="../reference/deployApp.html">deployApp()</a></code> respects <code>logLevel = "quiet"</code> on Posit Connect Cloud (<a href="https://github.com/rstudio/rsconnect/issues/1401" class="external-link">#1401</a>).</p></li>
 </ul></div>
