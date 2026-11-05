@@ -14,6 +14,9 @@
 
 * `deployApp()` respects `logLevel = "quiet"` on Posit Connect Cloud (#1401).
 
+* `applications()` builds the `config_url` for Posit Connect content from the
+  content GUID, so the links work on Connect 2026.01.0 and later (#1417).
+
 # rsconnect 1.11.2
 
 * New `deleteContent()` permanently deletes content from Posit Connect Cloud.

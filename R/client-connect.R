@@ -313,7 +313,7 @@ applicationsTable.connectClient <- function(client, accountDetails) {
       guid = x$guid,
       size = NA,
       instances = NA,
-      config_url = connectDashboardUrl(serverUrl, x$id),
+      config_url = connectDashboardUrl(serverUrl, x$guid),
       stringsAsFactors = FALSE
     )
   })

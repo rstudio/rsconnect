@@ -194,11 +194,7 @@ test_that("extractSnowflakeAccount handles various hostname formats", {
 })
 
 
-test_that("connectDashboardUrl builds the dashboard URL from a server URL and id", {
-  expect_equal(
-    connectDashboardUrl("https://connect.example.com/__api__", "42"),
-    "https://connect.example.com/connect/#/apps/42"
-  )
+test_that("connectDashboardUrl builds the dashboard URL from a server URL and GUID", {
   expect_equal(
     connectDashboardUrl(
       "https://connect.example.com/__api__",
