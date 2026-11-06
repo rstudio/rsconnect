@@ -252,6 +252,21 @@ test_that("succeeds if there's a single existing deployment", {
   expect_equal(deployment$version, "999")
 })
 
+test_that("guid from an existing deployment record is carried forward", {
+  local_temp_config()
+  addTestServer("example.com")
+  addTestAccount("ron")
+
+  app_dir <- withr::local_tempdir()
+  addTestDeployment(app_dir, appId = "1", appGuid = "the-guid")
+
+  target <- findDeploymentTarget(app_dir)
+  expect_equal(target$deployment$appGuid, "the-guid")
+
+  target <- findDeploymentTarget(app_dir, appId = "1")
+  expect_equal(target$deployment$appGuid, "the-guid")
+})
+
 test_that("appId is used even when name does not match", {
   local_temp_config()
   addTestServer()
@@ -543,7 +558,8 @@ test_that("createDeploymentFromApplication promotes fields", {
         id = "1",
         name = "app-name",
         title = "app-title",
-        owner_username = "alice.username"
+        owner_username = "alice.username",
+        guid = "the-guid"
       ),
       accountDetails = list(
         name = "alice",
@@ -558,7 +574,8 @@ test_that("createDeploymentFromApplication promotes fields", {
       username = "alice.username",
       account = "alice",
       server = "example.com",
-      version = deploymentRecordVersion
+      version = deploymentRecordVersion,
+      appGuid = "the-guid"
     )
   )
 })
@@ -587,7 +604,8 @@ test_that("updateDeployment updates fields", {
       username = "alice.username",
       account = "alice",
       server = "example.com",
-      version = deploymentRecordVersion
+      version = deploymentRecordVersion,
+      appGuid = NULL
     )
   )
 })
@@ -616,7 +634,27 @@ test_that("updateDeployment ignores NULL updates", {
       username = "alice.username",
       account = "alice",
       server = "example.com",
-      version = deploymentRecordVersion
+      version = deploymentRecordVersion,
+      appGuid = NULL
     )
   )
+})
+
+test_that("appId matches a local record by guid", {
+  local_temp_config()
+  addTestServer("example.com")
+  addTestAccount("ron")
+
+  app_dir <- withr::local_tempdir()
+  addTestDeployment(
+    app_dir,
+    appName = "local-record",
+    appId = "1",
+    appGuid = "the-guid"
+  )
+
+  target <- findDeploymentTarget(app_dir, appId = "the-guid")
+  expect_equal(target$deployment$name, "local-record")
+  expect_equal(target$deployment$appId, "1")
+  expect_equal(target$deployment$appGuid, "the-guid")
 })

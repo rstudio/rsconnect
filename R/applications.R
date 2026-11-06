@@ -241,7 +241,7 @@ getLogs <- function(
 syncAppMetadata <- function(appPath = ".") {
   check_directory(appPath)
 
-  deploys <- deployments(appPath)
+  deploys <- readDeployments(appPath)
   for (i in seq_len(nrow(deploys))) {
     curDeploy <- deploys[i, ]
 
@@ -257,7 +257,7 @@ syncAppMetadata <- function(appPath = ".") {
     }
 
     application <- tryCatch(
-      getApplication(client, curDeploy$appId),
+      getApplication(client, deploymentId(curDeploy)),
       rsconnect_http_404 = function(c) {
         # if the app has been deleted, delete the deployment record
         file.remove(curDeploy$deploymentFile)
@@ -281,6 +281,7 @@ syncAppMetadata <- function(appPath = ".") {
 
     curDeploy$title <- application$title
     curDeploy$url <- application$url
+    curDeploy$appGuid <- contentGuid(client, application)
 
     writeDeploymentRecord(curDeploy, path)
   }

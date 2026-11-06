@@ -66,6 +66,19 @@ test_that("getAppById() fails where expected", {
   })
 })
 
+test_that("getAppById() looks up a Connect guid with the v1 content API", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("susan")
+
+  local_mocked_bindings(
+    connectGetContent = function(client, guid) list(guid = guid, id = "123")
+  )
+  app <- getAppById("the-guid", "susan", "example.com", "https://example.com")
+  expect_equal(app$guid, "the-guid")
+  expect_equal(app$id, "123")
+})
+
 test_that("the RStudio IDE can get an app by id", {
   local_temp_config()
   addTestServer()
