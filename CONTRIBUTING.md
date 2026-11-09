@@ -29,10 +29,6 @@ roxygen generates `man/` and `NAMESPACE`. Do not edit these files manually.
 Change the roxygen comments and run `devtools::document()`. CI runs roxygen and
 fails if `man/` or `NAMESPACE` is not up to date.
 
-`README.Rmd` generates `README.md`. Do not edit `README.md` manually. Change
-`README.Rmd` and run `devtools::build_readme()`. CI renders `README.Rmd` and
-fails if `README.md` is not up to date.
-
 CI runs [lintr](https://lintr.r-lib.org/) and fails if it finds a problem. The
 lintr configuration is in `.lintr.R`, and it needs lintr 3.2.0 or later. The
 configuration includes two custom linters. One linter finds objects that a

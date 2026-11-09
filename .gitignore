@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .DS_Store
-README.html
 *.Rcheck/
 *.tar.gz
 docs/
