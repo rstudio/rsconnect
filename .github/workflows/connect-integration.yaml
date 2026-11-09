@@ -60,12 +60,12 @@ jobs:
 
       - uses: quarto-dev/quarto-actions/setup@v2
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.pyVersion }}
+      - uses: astral-sh/setup-uv@v7
 
-      - name: Make sure pip is installed
-        run: python -m ensurepip --upgrade
+      - name: Install Python
+        run: |
+          uv python install ${{ matrix.pyVersion }} --default
+          uv python dir --bin >> "$GITHUB_PATH"
 
       - uses: r-lib/actions/setup-r@v2
         with:
