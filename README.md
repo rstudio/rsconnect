@@ -49,7 +49,7 @@ You can also connect from any R session by running a little code:
 
 - For Posit Connect Cloud, call `connectCloudUser()` to authenticate
   through the browser. Learn more in the [Publishing
-  Guide](https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html)
+  Guide](https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html).
 
 - For Posit Connect, first use `addServer()` to register your server
   with rsconnect, then call either `connectUser()` or
