@@ -33,7 +33,8 @@ find:
 2.  Run `devtools::test()`. To save time while you work, run only the
     related file with `devtools::test(filter = "...")`, but run the full
     suite at the end.
-3.  Run `lintr::lint_package()`.
+3.  Run
+    [`lintr::lint_package()`](https://lintr.r-lib.org/reference/lint.html).
 4.  If you changed roxygen comments, run `devtools::document()`.
 
 Do not try to run the integration tests in `tests/integration` or

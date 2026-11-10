@@ -51,7 +51,7 @@
 <p>Run these steps after you change code, and fix the problems that they find:</p>
 <ol style="list-style-type: decimal"><li>Run <code>air format .</code>.</li>
 <li>Run <code>devtools::test()</code>. To save time while you work, run only the related file with <code>devtools::test(filter = "...")</code>, but run the full suite at the end.</li>
-<li>Run <code>lintr::lint_package()</code>.</li>
+<li>Run <code><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lintr::lint_package()</a></code>.</li>
 <li>If you changed roxygen comments, run <code>devtools::document()</code>.</li>
 </ol><p>Do not try to run the integration tests in <code>tests/integration</code> or <code>tests/shinyapps-integration</code>. They need live servers.</p>
 <p>If a snapshot test fails, read the diff in <code>tests/testthat/_snaps/</code>. Accept the new snapshot only if the change is intended, and tell the user which snapshots changed.</p>
