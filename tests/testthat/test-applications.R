@@ -92,7 +92,7 @@ test_that("applications() builds config_url for standard Connect accounts", {
   result <- applications(account = "ron", server = "connect.example.com")
   expect_equal(
     result$config_url,
-    "https://connect.example.com/connect/#/apps/123"
+    "https://connect.example.com/connect/#/apps/3bfbd98a-6d6d-41bd-a15f-cab52025742f"
   )
 })
 
@@ -134,7 +134,7 @@ test_that("applications() returns all columns for Connect accounts", {
       guid = "3bfbd98a-6d6d-41bd-a15f-cab52025742f",
       size = NA,
       instances = NA,
-      config_url = "https://connect.example.com/connect/#/apps/123",
+      config_url = "https://connect.example.com/connect/#/apps/3bfbd98a-6d6d-41bd-a15f-cab52025742f",
       stringsAsFactors = FALSE
     )
   )
