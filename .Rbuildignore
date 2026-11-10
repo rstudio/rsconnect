@@ -2,8 +2,6 @@
 ^\.Rproj\.user$
 ^examples$
 ^R/\.editorconfig$
-^README\.Rmd$
-^README\.html$
 ^RELEASE\.md$
 ^_pkgdown\.yml$
 ^docs$
