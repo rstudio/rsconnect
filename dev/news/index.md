@@ -20,6 +20,11 @@
   respects `logLevel = "quiet"` on Posit Connect Cloud
   ([\#1401](https://github.com/rstudio/rsconnect/issues/1401)).
 
+- [`applications()`](https://rstudio.github.io/rsconnect/dev/reference/applications.md)
+  builds the `config_url` for Posit Connect content from the content
+  GUID, so the links work on Connect 2026.01.0 and later
+  ([\#1417](https://github.com/rstudio/rsconnect/issues/1417)).
+
 ## rsconnect 1.11.2
 
 CRAN release: 2026-09-28
