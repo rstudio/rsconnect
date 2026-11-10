@@ -91,10 +91,10 @@
 #'   then re-deploy.
 #'
 #'   On Posit Connect Cloud, environment variables are stored as secrets on the
-#'   content. A deployment without `envVars` leaves all secrets unchanged. A
-#'   deployment with `envVars` may remove secrets that are not in `envVars`,
-#'   including secrets added in the Connect Cloud UI. To remove a secret,
-#'   delete it in the Connect Cloud UI.
+#'   content. A deployment adds or updates the secrets named in `envVars` and
+#'   leaves all other secrets unchanged, including secrets added in the
+#'   Connect Cloud UI. Unsetting a variable and re-deploying does not remove
+#'   its secret. To remove a secret, delete it in the Connect Cloud UI.
 #'
 #'   Environment variables are set prior to deployment so that your code
 #'   can use them and the first deployment can still succeed. Note that means
