@@ -262,7 +262,7 @@ syncAppMetadata <- function(appPath = ".") {
         # if the app has been deleted, delete the deployment record
         file.remove(curDeploy$deploymentFile)
         cli::cli_inform(
-          "Deleting deployment record for deleted app {curDeploy$appId}."
+          "Deleting deployment record for deleted app {deploymentId(curDeploy)}."
         )
         NULL
       }
