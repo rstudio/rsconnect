@@ -62,7 +62,7 @@ deployments <- function(
   # getAppById() and deployApp(appId = ), which both accept a guid, so the IDE
   # looks content up with the v1 API. The on-disk record keeps the numeric
   # appId, which older rsconnect versions need.
-  hasGuid <- !is.na(deployments$appGuid) & nzchar(deployments$appGuid)
+  hasGuid <- hasAppGuid(deployments$appGuid)
   deployments$appId[hasGuid] <- deployments$appGuid[hasGuid]
 
   deployments
@@ -221,10 +221,16 @@ deploymentRecord <- function(
 # have a guid, and records from older rsconnect versions do not.
 deploymentId <- function(deployment) {
   guid <- deployment$appGuid
-  if (length(guid) != 1 || is.na(guid) || !nzchar(guid)) {
+  if (length(guid) != 1 || !hasAppGuid(guid)) {
     return(deployment$appId)
   }
   guid
+}
+
+# Whether each appGuid value is a guid. Records without one store an empty
+# string, and reading records into a data frame can give NA.
+hasAppGuid <- function(appGuid) {
+  !is.na(appGuid) & nzchar(appGuid)
 }
 
 writeDeploymentRecord <- function(record, filePath) {
