@@ -299,3 +299,10 @@ test_that("versionFromDescription() ignores two constraints in one R entry", {
   ))
   expect_null(versionFromDescription(appDir))
 })
+
+test_that("versionFromDescription() allows no space between R and the constraint", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: R(>= 4.2.0), R(< 4.3)\n"
+  ))
+  expect_equal(versionFromDescription(appDir), ">= 4.2.0, < 4.3")
+})
