@@ -293,11 +293,27 @@ test_that("versionFromDescription() ignores packages whose names end in R", {
   expect_equal(versionFromDescription(appDir), ">= 4.2.0")
 })
 
-test_that("versionFromDescription() ignores two constraints in one R entry", {
+test_that("versionFromDescription() warns about two constraints in one R entry", {
   appDir <- local_temp_app(list(
     DESCRIPTION = "Package: test\nDepends: R (>= 4.2.0, < 4.3)\n"
   ))
-  expect_null(versionFromDescription(appDir))
+  expect_snapshot(requires <- versionFromDescription(appDir))
+  expect_null(requires)
+})
+
+test_that("versionFromDescription() keeps valid R constraints next to an invalid one", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: R (>= 4.0), R (>= 4.2.0, < 4.3)\n"
+  ))
+  expect_warning(requires <- versionFromDescription(appDir))
+  expect_equal(requires, ">= 4.0")
+})
+
+test_that("versionFromDescription() allows a newline between R and the constraint", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: methods, R\n    (>= 4.2.0)\n"
+  ))
+  expect_equal(versionFromDescription(appDir), ">= 4.2.0")
 })
 
 test_that("versionFromDescription() allows no space between R and the constraint", {
