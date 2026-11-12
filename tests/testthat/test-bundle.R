@@ -250,3 +250,52 @@ test_that("removes renv/packrat activation", {
     }
   )
 })
+
+test_that("versionFromDescription() returns NULL without an R dependency", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: methods\n"
+  ))
+  expect_null(versionFromDescription(appDir))
+})
+
+test_that("versionFromDescription() returns a single R constraint", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: R (>= 4.2.0)\n"
+  ))
+  expect_equal(versionFromDescription(appDir), ">= 4.2.0")
+})
+
+test_that("versionFromDescription() joins all R constraints", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: R (>= 4.2.0), R (< 4.3)\n"
+  ))
+  expect_equal(versionFromDescription(appDir), ">= 4.2.0, < 4.3")
+})
+
+test_that("versionFromDescription() finds R constraints between other packages", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = paste0(
+      "Package: test\n",
+      "Depends:\n",
+      "    methods,\n",
+      "    R (>= 4.2.0),\n",
+      "    utils,\n",
+      "    R (< 4.3)\n"
+    )
+  ))
+  expect_equal(versionFromDescription(appDir), ">= 4.2.0, < 4.3")
+})
+
+test_that("versionFromDescription() ignores packages whose names end in R", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: fooR (>= 1.0), R (>= 4.2.0)\n"
+  ))
+  expect_equal(versionFromDescription(appDir), ">= 4.2.0")
+})
+
+test_that("versionFromDescription() ignores two constraints in one R entry", {
+  appDir <- local_temp_app(list(
+    DESCRIPTION = "Package: test\nDepends: R (>= 4.2.0, < 4.3)\n"
+  ))
+  expect_null(versionFromDescription(appDir))
+})

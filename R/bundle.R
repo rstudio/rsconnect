@@ -145,7 +145,16 @@ versionFromDescription <- function(appDir) {
     return(NULL)
   }
 
-  regexExtract("R \\((.*?)\\)", depends)
+  # A DESCRIPTION file can list R more than once, for example
+  # "R (>= 4.2.0), R (< 4.3)". Join all R constraints into one requirement.
+  pattern <- "^R \\((.*)\\)$"
+  entries <- trimws(strsplit(depends, ",", fixed = TRUE)[[1]])
+  rEntries <- grep(pattern, entries, value = TRUE)
+  if (length(rEntries) == 0) {
+    return(NULL)
+  }
+
+  paste(sub(pattern, "\\1", rEntries), collapse = ", ")
 }
 
 versionFromLockfile <- function(appDir) {

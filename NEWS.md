@@ -1,5 +1,14 @@
 # rsconnect (development version)
 
+* `writeManifest()` and `deployApp()` now use all R constraints in the
+  `Depends` field of a `DESCRIPTION` file. For example,
+  `Depends: R (>= 4.2.0), R (< 4.3)` gives `">= 4.2.0, < 4.3"` in
+  `manifest.json`. Before, rsconnect used only the first constraint. R does
+  not accept two constraints in one entry, such as `R (>= 4.2.0, < 4.3)`, and
+  rsconnect now ignores this form. Write each constraint as a separate entry.
+  rsconnect also no longer reads a package whose name ends in "R", such as
+  `fooR (>= 1.0)`, as an R constraint (#1364).
+
 * Redeploying to Posit Connect Cloud without `envVars` no longer deletes the
   content's secrets, including secrets added in the Connect Cloud UI. This
   also applies to republishing from the RStudio IDE (#1413).
