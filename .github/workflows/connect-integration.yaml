@@ -33,7 +33,7 @@ jobs:
               XDG_DATA_HOME=/tmp/connect-xdg-data
               XDG_RUNTIME_DIR=/tmp/connect-xdg-runtime
           - version: "release" # special value that always points to the latest Connect release
-            pyVersion: "3.15"
+            pyVersion: "3.14"
             connectEnv: |
               CONNECT_R_POSITPACKAGEMANAGERURLREWRITING=force-portable
               XDG_CACHE_HOME=/tmp/connect-xdg-cache
