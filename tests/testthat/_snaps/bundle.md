@@ -13,3 +13,12 @@
       # source("packrat/init.R")
       # Line 5
 
+# versionFromDescription() warns about two constraints in one R entry
+
+    Code
+      requires <- versionFromDescription(appDir)
+    Condition
+      Warning:
+      Ignoring an R version requirement in 'DESCRIPTION' that is not valid.
+      i Write each constraint as a separate entry, for example `R (>= 4.2.0), R (< 4.3)`.
+

@@ -145,7 +145,23 @@ versionFromDescription <- function(appDir) {
     return(NULL)
   }
 
-  regexExtract("R \\((.*?)\\)", depends)
+  # A DESCRIPTION file can list R more than once, for example
+  # "R (>= 4.2.0), R (< 4.3)". Join all R constraints into one requirement.
+  # R splits Depends on every comma, so "R (>= 4.2.0, < 4.3)" is not valid.
+  pattern <- "^R\\s*\\((.*)\\)$"
+  entries <- trimws(strsplit(depends, ",", fixed = TRUE)[[1]])
+  if (any(grepl("^R\\s*\\(", entries) & !grepl(pattern, entries))) {
+    cli::cli_warn(c(
+      "Ignoring an R version requirement in {.file DESCRIPTION} that is not valid.",
+      "i" = "Write each constraint as a separate entry, for example {.code R (>= 4.2.0), R (< 4.3)}."
+    ))
+  }
+  rEntries <- grep(pattern, entries, value = TRUE)
+  if (length(rEntries) == 0) {
+    return(NULL)
+  }
+
+  paste(sub(pattern, "\\1", rEntries), collapse = ", ")
 }
 
 versionFromLockfile <- function(appDir) {
