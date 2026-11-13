@@ -11,6 +11,7 @@ test_that("validateServerUrl() when not Connect", {
 test_that("validateServerUrl() when Connect", {
   skip_on_cran()
   skip_if_not_installed("webfakes")
+  local_temp_config()
 
   service <- service_settings_200()
   url <- buildHttpUrl(service)
