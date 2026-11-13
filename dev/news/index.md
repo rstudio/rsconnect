@@ -2,6 +2,22 @@
 
 ## rsconnect (development version)
 
+- [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md)
+  and
+  [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)
+  now use all R constraints in the `Depends` field of a `DESCRIPTION`
+  file. For example, `Depends: R (>= 4.2.0), R (< 4.3)` gives
+  `">= 4.2.0, < 4.3"` in `manifest.json`. Before, rsconnect used only
+  the first constraint. R does not accept two constraints in one entry,
+  such as `R (>= 4.2.0, < 4.3)`. rsconnect now ignores this form and
+  gives a warning
+  ([\#1364](https://github.com/rstudio/rsconnect/issues/1364)).
+
+- rsconnect now reads an R constraint with no space after R, such as
+  `R(>= 4.2.0)`. It no longer reads a package whose name ends in “R”,
+  such as `fooR (>= 1.0)`, as an R constraint
+  ([\#1364](https://github.com/rstudio/rsconnect/issues/1364)).
+
 - Redeploying to Posit Connect Cloud without `envVars` no longer deletes
   the content’s secrets, including secrets added in the Connect Cloud
   UI. This also applies to republishing from the RStudio IDE
