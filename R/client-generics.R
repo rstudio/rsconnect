@@ -204,6 +204,23 @@ supportsMetadataSync <- function(client) {
   UseMethod("supportsMetadataSync")
 }
 
+#' The content guid to save as `appGuid` in the deployment record
+#'
+#' @param client A client object.
+#' @param application The content, from `findContent()`, `createContent()`, or
+#'   `getApplication()`.
+#'
+#' @return A string, or `NULL` if the server does not identify content by guid.
+#' @noRd
+contentGuid <- function(client, application) {
+  UseMethod("contentGuid")
+}
+
+#' @export
+contentGuid.rsconnectClient <- function(client, application) {
+  NULL
+}
+
 #' Must static R Markdown be deployed as `"rmd-shiny"`?
 #' @noRd
 staticRmdNeedsShiny <- function(client) {

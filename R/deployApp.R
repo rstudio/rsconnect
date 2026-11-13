@@ -552,7 +552,10 @@ deployApp <- function(
   # deleted on the server, applicationDeleted() lets the user make new content.
   application <- NULL
   if (!is.null(deployment$appId)) {
-    taskStart(quiet, "Looking up content with id {.val {deployment$appId}}...")
+    taskStart(
+      quiet,
+      "Looking up content with id {.val {deploymentId(deployment)}}..."
+    )
     application <- tryCatch(
       findContent(client, deployment = deployment, quiet = quiet),
       # A 404 indicates the application was deleted.
@@ -575,6 +578,7 @@ deployApp <- function(
     )
     taskComplete(quiet, "Created content with id {.val {application$id}}")
   }
+  deployment$appGuid <- contentGuid(client, application)
   saveDeployment(
     recordPath,
     deployment = deployment,

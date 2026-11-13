@@ -72,7 +72,7 @@ findDeploymentTarget <- function(
   # When there are existing deployments, ask the user to select one and use
   # it. Only deployments associated with locally configured account+server
   # combinations are considered.
-  allDeployments <- deployments(
+  allDeployments <- readDeployments(
     appPath = recordPath,
     accountFilter = account,
     serverFilter = server
@@ -142,12 +142,15 @@ findDeploymentTargetByAppId <- function(
 
   # Filtering is only by server and includes all deployments in case we have a deployment record
   # from a collaborator.
-  appDeployments <- deployments(
+  appDeployments <- readDeployments(
     appPath = recordPath,
     serverFilter = server,
     excludeOrphaned = FALSE
   )
-  appDeployments <- appDeployments[appDeployments$appId == appId, ]
+  # appId may be the stored id or, for Connect, the content guid (which
+  # deployments() reports as appId, e.g. to the RStudio IDE)
+  matches <- appDeployments$appId %in% appId | appDeployments$appGuid %in% appId
+  appDeployments <- appDeployments[matches, ]
   if (nrow(appDeployments) > 1) {
     cli::cli_abort(
       c(
@@ -203,7 +206,7 @@ findDeploymentTargetByAppName <- function(
   forceUpdate = FALSE,
   error_call = caller_env()
 ) {
-  appDeployments <- deployments(
+  appDeployments <- readDeployments(
     appPath = recordPath,
     nameFilter = appName,
     accountFilter = account,
@@ -299,7 +302,8 @@ createDeployment <- function(
   username,
   account,
   server,
-  version = deploymentRecordVersion
+  version = deploymentRecordVersion,
+  appGuid = NULL
 ) {
   # Consider merging this object with the object returned by
   # deploymentRecord().
@@ -316,7 +320,8 @@ createDeployment <- function(
     username = username,
     account = account,
     server = server,
-    version = version
+    version = version,
+    appGuid = appGuid
   )
 }
 
@@ -328,7 +333,8 @@ createDeploymentFromApplication <- function(application, accountDetails) {
     envVars = NULL,
     username = application$owner_username %||% accountDetails$name,
     account = accountDetails$name,
-    server = accountDetails$server
+    server = accountDetails$server,
+    appGuid = application$guid
   )
 }
 
@@ -342,7 +348,8 @@ updateDeployment <- function(previous, appTitle = NULL, envVars = NULL) {
     username = previous$username %||% previous$account,
     account = previous$account,
     server = previous$server,
-    version = previous$version
+    version = previous$version,
+    appGuid = previous$appGuid
   )
 }
 

@@ -21,6 +21,48 @@ test_that("syncAppMetadata updates deployment records", {
   expect_equal(deps$when, NULL)
 })
 
+test_that("syncAppMetadata looks up by guid when the record has one", {
+  local_temp_config()
+  addTestServer()
+  addTestAccount("ron")
+
+  app <- local_temp_app()
+  addTestDeployment(app, appName = "legacy", appId = "123")
+  addTestDeployment(
+    app,
+    appName = "migrated",
+    appId = "456",
+    appGuid = "guid-456"
+  )
+
+  requested <- character()
+  local_mocked_bindings(
+    getApplication.connectClient = function(client, applicationId) {
+      requested <<- c(requested, applicationId)
+      id <- sub("guid-", "", applicationId)
+      list(title = "t", url = "u", guid = paste0("guid-", id))
+    }
+  )
+  local_mocked_bindings(clientForAccount = function(...) {
+    fake_client("connectClient")
+  })
+
+  syncAppMetadata(app)
+  expect_setequal(requested, c("123", "guid-456"))
+
+  # the legacy record gains a guid
+  deps <- deployments(app)
+  expect_equal(deps$appGuid[deps$name == "legacy"], "guid-123")
+  expect_equal(deps$appGuid[deps$name == "migrated"], "guid-456")
+})
+
+test_that("deploymentId() prefers the guid and falls back to appId", {
+  expect_equal(deploymentId(list(appId = "123", appGuid = "abc")), "abc")
+  for (guid in list(NULL, NA_character_, "")) {
+    expect_equal(deploymentId(list(appId = "123", appGuid = guid)), "123")
+  }
+})
+
 test_that("syncAppMetadata deletes deployment records if needed", {
   local_temp_config()
   addTestServer()
