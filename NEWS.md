@@ -21,10 +21,6 @@
   to create an account, and tell you to sign in with a different Posit login
   if you already have an account (#1412).
 
-* `connectCloudUser()` now shows the URL of the page to create a Posit Connect
-  Cloud account when it does not open a browser. Before, the message showed
-  `accountCreationPage` instead of the URL (#1427).
-
 * `showMetrics()` now gives a clear error when the account is not on
   shinyapps.io. Other servers do not support metrics.
 
