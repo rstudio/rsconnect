@@ -405,35 +405,7 @@ test_that("connectApiUser() aborts for shinyapps.io and Connect Cloud", {
 
 test_that("connectCloudUser() opens account creation when the login has no Connect Cloud user", {
   local_temp_config()
-
-  get_count <- 0
-  local_mocked_bindings(
-    cloudAuthClient = function() {
-      list(
-        createDeviceAuth = function() {
-          list(
-            verification_uri_complete = "https://login/device",
-            user_code = "CODE"
-          )
-        }
-      )
-    },
-    waitForDeviceAuth = function(authClient, deviceAuth) {
-      list(access_token = "access-token", refresh_token = "refresh-token")
-    },
-    GET = function(service, authInfo, path, ...) {
-      get_count <<- get_count + 1
-      if (get_count == 1) {
-        stop(no_cloud_user_error())
-      }
-      account <- list(
-        id = "acc-1",
-        name = "alice",
-        permissions = list("content:create")
-      )
-      list(data = list(account), total = 1)
-    }
-  )
+  local_cloud_login_without_user()
   opened <- character()
 
   expect_message(
@@ -446,4 +418,15 @@ test_that("connectCloudUser() opens account creation when the login has no Conne
   account <- accountInfo("alice", "connect.posit.cloud")
   expect_equal(account$accountId, "acc-1")
   expect_equal(account$accessToken, "access-token")
+})
+
+test_that("connectCloudUser() shows the account creation URL without a browser", {
+  local_temp_config()
+  local_cloud_login_without_user()
+
+  expect_message(
+    connectCloudUser(launch.browser = FALSE),
+    "go to <https://connect.posit.cloud/account/done?",
+    fixed = TRUE
+  )
 })

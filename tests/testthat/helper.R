@@ -496,3 +496,38 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
   unlink(manifestFile)
   manifestJson
 }
+
+# Mocks a connectCloudUser() login with a Posit login that has no Connect Cloud
+# user. The first GET /accounts returns the 401 for that case, and later calls
+# return a publishable account named "alice", as if the user created it.
+local_cloud_login_without_user <- function(env = caller_env()) {
+  get_count <- 0
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        createDeviceAuth = function() {
+          list(
+            verification_uri_complete = "https://login/device",
+            user_code = "CODE"
+          )
+        }
+      )
+    },
+    waitForDeviceAuth = function(authClient, deviceAuth) {
+      list(access_token = "access-token", refresh_token = "refresh-token")
+    },
+    GET = function(service, authInfo, path, ...) {
+      get_count <<- get_count + 1
+      if (get_count == 1) {
+        stop(no_cloud_user_error())
+      }
+      account <- list(
+        id = "acc-1",
+        name = "alice",
+        permissions = list("content:create")
+      )
+      list(data = list(account), total = 1)
+    },
+    .env = env
+  )
+}

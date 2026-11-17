@@ -404,7 +404,7 @@ selectCloudAccount <- function(
         launch.browser(accountCreationPage)
       } else {
         cli::cli_alert_info(
-          "To deploy, you must first create an account. Please go to {.url accountCreationPage} to create one."
+          "To deploy, you must first create an account. Please go to {.url {accountCreationPage}} to create one."
         )
       }
       cli::cli_alert_info(
