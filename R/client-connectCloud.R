@@ -12,6 +12,11 @@ connectCloudClient <- function(service, authInfo) {
         request_fn(service, authInfo, ...)
       },
       rsconnect_http_401 = function(e) {
+        # A client made during login has no stored account to update with
+        # new tokens, so the 401 goes to the caller.
+        if (is.null(authInfo$server)) {
+          stop(e)
+        }
         authClient <- cloudAuthClient()
         if (!is.null(authInfo$clientSecret)) {
           # Prefer client_credentials when the account has it: the secret is

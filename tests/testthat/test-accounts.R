@@ -402,3 +402,48 @@ test_that("connectApiUser() aborts for shinyapps.io and Connect Cloud", {
     regexp = "`server` must be a Posit Connect server"
   )
 })
+
+test_that("connectCloudUser() opens account creation when the login has no Connect Cloud user", {
+  local_temp_config()
+
+  get_count <- 0
+  local_mocked_bindings(
+    cloudAuthClient = function() {
+      list(
+        createDeviceAuth = function() {
+          list(
+            verification_uri_complete = "https://login/device",
+            user_code = "CODE"
+          )
+        }
+      )
+    },
+    waitForDeviceAuth = function(authClient, deviceAuth) {
+      list(access_token = "access-token", refresh_token = "refresh-token")
+    },
+    GET = function(service, authInfo, path, ...) {
+      get_count <<- get_count + 1
+      if (get_count == 1) {
+        stop(no_cloud_user_error())
+      }
+      account <- list(
+        id = "acc-1",
+        name = "alice",
+        permissions = list("content:create")
+      )
+      list(data = list(account), total = 1)
+    }
+  )
+  opened <- character()
+
+  expect_message(
+    connectCloudUser(launch.browser = function(url) opened <<- c(opened, url)),
+    "the Posit login that you use for it"
+  )
+
+  expect_length(opened, 2)
+  expect_match(opened[[2]], "/account/done")
+  account <- accountInfo("alice", "connect.posit.cloud")
+  expect_equal(account$accountId, "acc-1")
+  expect_equal(account$accessToken, "access-token")
+})
