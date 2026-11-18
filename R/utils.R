@@ -184,6 +184,5 @@ sanitizeSystem2json <- function(x) {
 
 # A binding for local_mocked_bindings() in tests. Calls to Sys.sleep() still
 # use base::Sys.sleep(), because R skips this non-function binding when it
-# looks up a function. Call Sys.sleep() directly; do not pass it as a value,
-# for example to do.call(), because the value is NULL.
+# looks up a function. Call Sys.sleep() directly; do not pass it as a value.
 Sys.sleep <- NULL
