@@ -500,6 +500,7 @@ makeManifest <- function(appDir, appPrimaryDoc = NULL, ...) {
 # Mocks a connectCloudUser() login with a Posit login that has no Connect Cloud
 # user. The first GET /accounts returns the 401 for that case, and later calls
 # return a publishable account named "alice", as if the user created it.
+# Sys.sleep() does nothing, so the polling for the account does not wait.
 local_cloud_login_without_user <- function(env = caller_env()) {
   get_count <- 0
   local_mocked_bindings(
@@ -528,6 +529,7 @@ local_cloud_login_without_user <- function(env = caller_env()) {
       )
       list(data = list(account), total = 1)
     },
+    Sys.sleep = function(time) NULL,
     .env = env
   )
 }
