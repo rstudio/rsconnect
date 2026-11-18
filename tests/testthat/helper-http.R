@@ -189,6 +189,15 @@ http_401_error <- function() {
   )
 }
 
+# The condition for the HTTP 401 that Connect Cloud returns when the Posit
+# login has no Connect Cloud user.
+no_cloud_user_error <- function() {
+  structure(
+    list(message = "HTTP 401", errorType = "no_user_for_lucid_user"),
+    class = c("rsconnect_http_401", "rsconnect_http", "error", "condition")
+  )
+}
+
 current_user_service <- function() {
   app <- env_cache(
     cache,

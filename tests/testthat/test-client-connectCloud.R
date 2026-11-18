@@ -731,6 +731,30 @@ test_that("withTokenRefreshRetry uses client_credentials when clientSecret is se
   expect_true(register_called)
 })
 
+test_that("withTokenRefreshRetry signals the 401 when no account is stored", {
+  local_mocked_bindings(
+    cloudAuthClient = function() fail("cloudAuthClient() should not be called"),
+    registerAccount = function(...) {
+      fail("registerAccount() should not be called")
+    }
+  )
+  request_fn <- function(service, authInfo, path) {
+    stop(no_cloud_user_error())
+  }
+
+  service <- list(host = "example.com", port = 443, protocol = "https")
+  client <- connectCloudClient(
+    service,
+    list(accessToken = "current-token", refreshToken = "refresh-token")
+  )
+
+  err <- expect_error(
+    client$withTokenRefreshRetry(request_fn, "/accounts"),
+    class = "rsconnect_http_401"
+  )
+  expect_equal(err$errorType, "no_user_for_lucid_user")
+})
+
 test_that("requests after a token refresh use the new access token", {
   sent_tokens <- character()
   local_mocked_bindings(

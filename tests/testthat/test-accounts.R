@@ -402,3 +402,31 @@ test_that("connectApiUser() aborts for shinyapps.io and Connect Cloud", {
     regexp = "`server` must be a Posit Connect server"
   )
 })
+
+test_that("connectCloudUser() opens account creation when the login has no Connect Cloud user", {
+  local_temp_config()
+  local_cloud_login_without_user()
+  opened <- character()
+
+  expect_message(
+    connectCloudUser(launch.browser = function(url) opened <<- c(opened, url)),
+    "the Posit login that you use for it"
+  )
+
+  expect_length(opened, 2)
+  expect_match(opened[[2]], "/account/done")
+  account <- accountInfo("alice", "connect.posit.cloud")
+  expect_equal(account$accountId, "acc-1")
+  expect_equal(account$accessToken, "access-token")
+})
+
+test_that("connectCloudUser() shows the account creation URL without a browser", {
+  local_temp_config()
+  local_cloud_login_without_user()
+
+  expect_message(
+    connectCloudUser(launch.browser = FALSE),
+    "go to <https://connect.posit.cloud/account/done?",
+    fixed = TRUE
+  )
+})

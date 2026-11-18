@@ -404,9 +404,12 @@ selectCloudAccount <- function(
         launch.browser(accountCreationPage)
       } else {
         cli::cli_alert_info(
-          "To deploy, you must first create an account. Please go to {.url accountCreationPage} to create one."
+          "To deploy, you must first create an account. Please go to {.url {accountCreationPage}} to create one."
         )
       }
+      cli::cli_alert_info(
+        "If you already have a Connect Cloud account, sign in to {.url {cloudUiUrl}} with the Posit login that you use for it, then try again."
+      )
       # poll for account for up to 10 minutes
       for (i in 1:300) {
         Sys.sleep(2)

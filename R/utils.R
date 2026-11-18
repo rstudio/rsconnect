@@ -181,3 +181,8 @@ truthy <- function(value, default = FALSE) {
 sanitizeSystem2json <- function(x) {
   paste(trimws(x, "right", "[\r\n]"), collapse = "")
 }
+
+# A binding for local_mocked_bindings() in tests. Calls to Sys.sleep() still
+# use base::Sys.sleep(), because R skips this non-function binding when it
+# looks up a function. Call Sys.sleep() directly; do not pass it as a value.
+Sys.sleep <- NULL

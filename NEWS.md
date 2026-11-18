@@ -15,6 +15,12 @@
   content's secrets, including secrets added in the Connect Cloud UI. This
   also applies to republishing from the RStudio IDE (#1413).
 
+* `connectCloudUser()` and `migrateToConnectCloud()` no longer fail with
+  "`serverName` must be a single string" when you approve the login code with
+  a Posit login that has no Posit Connect Cloud user. They now open the page
+  to create an account, and tell you to sign in with a different Posit login
+  if you already have an account (#1412).
+
 * `showMetrics()` now gives a clear error when the account is not on
   shinyapps.io. Other servers do not support metrics.
 
