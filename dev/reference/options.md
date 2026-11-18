@@ -39,7 +39,7 @@ Supported global options include:
 
 - `rsconnect.libcurl.options`: A named list of additional cURL options
   to use when making HTTP requests. Run
-  [`curl::curl_options()`](https://jeroen.r-universe.dev/curl/reference/curl_options.html)
+  [`curl::curl_options()`](https://rdrr.io/pkg/curl/man/curl_options.html)
   to see available options.
 
 - `rsconnect.error.trace`: When `TRUE`, print detailed stack traces for

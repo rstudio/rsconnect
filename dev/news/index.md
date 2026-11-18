@@ -41,6 +41,17 @@
   GUID, so the links work on Connect 2026.01.0 and later
   ([\#1417](https://github.com/rstudio/rsconnect/issues/1417)).
 
+- Deployment records for Posit Connect content include the content guid,
+  in a new `appGuid` field. Redeploys and
+  [`syncAppMetadata()`](https://rstudio.github.io/rsconnect/dev/reference/syncAppMetadata.md)
+  use it to look up content with the v1 content API. Records without an
+  `appGuid` fall back to looking up by numeric id, and gain an `appGuid`
+  the next time they are deployed or synced. For these records,
+  [`deployments()`](https://rstudio.github.io/rsconnect/dev/reference/deployments.md)
+  reports the guid as `appId`, and `deployApp(appId = )` accepts either
+  the guid or the numeric id
+  ([\#1374](https://github.com/rstudio/rsconnect/issues/1374)).
+
 ## rsconnect 1.11.2
 
 CRAN release: 2026-09-28
@@ -179,7 +190,7 @@ CRAN release: 2026-07-08
   ([\#1343](https://github.com/rstudio/rsconnect/issues/1343)).
 
 - Use
-  [`openssl::rsa_sign`](https://jeroen.r-universe.dev/openssl/reference/rsa_encrypt.html)
+  [`openssl::rsa_sign`](https://rdrr.io/pkg/openssl/man/rsa_encrypt.html)
   rather than PKI signing.
   ([\#1333](https://github.com/rstudio/rsconnect/issues/1333))
 
@@ -318,7 +329,7 @@ CRAN release: 2025-12-06
   file. ([\#1259](https://github.com/rstudio/rsconnect/issues/1259))
 
 - `urlEncode()` now uses
-  [`curl::curl_escape()`](https://jeroen.r-universe.dev/curl/reference/curl_escape.html)
+  [`curl::curl_escape()`](https://rdrr.io/pkg/curl/man/curl_escape.html)
   instead of `RCurl::curlEscape()`, as RCurl is a Suggests dependency.
   ([\#1265](https://github.com/rstudio/rsconnect/issues/1265))
 
