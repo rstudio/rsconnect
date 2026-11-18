@@ -97,6 +97,50 @@ test_that("can read/write missing version", {
   expect_equal(out$version, NA)
 })
 
+test_that("can read/write appGuid", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, appGuid = "the-guid")
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$appGuid, "the-guid")
+})
+
+test_that("contentGuid() returns a guid only for Connect", {
+  application <- list(id = "1", guid = "the-guid")
+  expect_equal(
+    contentGuid(fake_client("connectClient"), application),
+    "the-guid"
+  )
+  expect_null(contentGuid(fake_client("shinyAppsClient"), application))
+  expect_null(contentGuid(fake_client("connectCloudClient"), application))
+})
+
+test_that("a guid metadata field does not affect appGuid", {
+  dir <- local_temp_app()
+
+  addTestDeployment(
+    dir,
+    appId = "1",
+    appGuid = "content-guid",
+    metadata = list(guid = "user-value")
+  )
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$appGuid, "content-guid")
+  expect_equal(out$appId, "content-guid")
+  expect_equal(out$guid, "user-value")
+})
+
+test_that("can read records written without an appGuid", {
+  dir <- local_temp_app()
+
+  path <- addTestDeployment(dir)
+  record <- read.dcf(path)
+  write.dcf(record[, colnames(record) != "appGuid", drop = FALSE], path)
+
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$appGuid, NA)
+})
+
 test_that("can read/write env vars", {
   app <- local_temp_app()
   addTestDeployment(app, "test1", envVars = c("TEST1", "TEST2"))
@@ -237,4 +281,19 @@ test_that("addToDeploymentHistory() restarts when history exceeds rsconnect.max.
     addToDeploymentHistory("path", list(x = 3))
     writeLines(readLines(deploymentHistoryPath()))
   })
+})
+
+test_that("deployments() reports the guid as appId when the record has one", {
+  dir <- local_temp_app()
+
+  addTestDeployment(dir, appName = "a", appId = "1", appGuid = "the-guid")
+  addTestDeployment(dir, appName = "b", appId = "2")
+
+  out <- deployments(dir, excludeOrphaned = FALSE)
+  expect_equal(out$appId[out$name == "a"], "the-guid")
+  expect_equal(out$appId[out$name == "b"], "2")
+
+  # stored records keep the numeric id
+  raw <- readDeployments(dir, excludeOrphaned = FALSE)
+  expect_equal(raw$appId[raw$name == "a"], "1")
 })

@@ -826,6 +826,112 @@ test_that("redeploy to Connect uploads to the existing app, not a new one", {
   expect_equal(uploaded_guid, "guid-42")
 })
 
+test_that("redeploy to Connect from a record without a guid migrates it to the v1 content API", {
+  skip_on_cran()
+  appDir <- local_temp_app(list("app.R" = "library(shiny)"))
+  local_temp_config()
+  addTestServer()
+  addTestAccount("myaccount")
+  # A record written by an rsconnect version that did not store the guid
+  addTestDeployment(
+    appDir,
+    appName = "myapp",
+    appId = "42",
+    account = "myaccount"
+  )
+
+  # Answer content lookups the way Connect does, and record which endpoint
+  # each lookup used.
+  requested <- character()
+  local_mocked_bindings(
+    GET = function(service, authInfo, path, ...) {
+      requested <<- c(requested, path)
+      if (path == "/applications/42") {
+        list(
+          id = 42L,
+          guid = "guid-42",
+          name = "myapp",
+          title = "My App",
+          url = "https://example.com/content/guid-42/"
+        )
+      } else if (path == "/v1/content/guid-42") {
+        list(
+          id = "42",
+          guid = "guid-42",
+          name = "myapp",
+          title = "My App",
+          content_url = "https://example.com/content/guid-42/",
+          dashboard_url = "https://example.com/connect/#/apps/guid-42"
+        )
+      } else {
+        stop("Unexpected GET ", path)
+      }
+    },
+    connectDeployApplication = function(...) list(task_id = "task-1"),
+    waitForTask.connectClient = function(...) list(),
+    createContent.connectClient = function(...) {
+      stop("createContent() should not be called for a redeploy")
+    },
+    uploadBundle.connectClient = function(...) list(id = "bundle-1"),
+    bundleApp = function(...) {
+      tmp <- tempfile(fileext = ".tar.gz")
+      file.create(tmp)
+      tmp
+    }
+  )
+  redeploy <- function() {
+    suppressMessages(deployApp(
+      appDir,
+      appName = "myapp",
+      account = "myaccount",
+      server = "example.com",
+      logLevel = "quiet",
+      lint = FALSE,
+      launch.browser = FALSE
+    ))
+  }
+
+  # The first redeploy has only the numeric id, so it uses the unversioned
+  # endpoint, and saves the guid from the response.
+  redeploy()
+  expect_equal(requested, "/applications/42")
+  record <- readDeployments(appDir)
+  expect_equal(record$appId, "42")
+  expect_equal(record$appGuid, "guid-42")
+  expect_equal(record$url, "https://example.com/content/guid-42/")
+
+  # Later redeploys use the guid and the v1 content API only.
+  requested <- character()
+  redeploy()
+  expect_equal(requested, "/v1/content/guid-42")
+  record <- readDeployments(appDir)
+  expect_equal(record$appId, "42")
+  expect_equal(record$appGuid, "guid-42")
+  expect_equal(record$url, "https://example.com/content/guid-42/")
+
+  # The RStudio IDE reads the record with deployments(), then passes its appId
+  # to getAppById() and deployApp(appId = ). Both use the v1 content API.
+  ide <- deployments(appDir)
+  expect_equal(ide$appId, "guid-42")
+  requested <- character()
+  app <- getAppById(ide$appId, ide$account, ide$server, ide$hostUrl)
+  expect_equal(requested, "/v1/content/guid-42")
+  expect_equal(app$url, "https://example.com/content/guid-42/")
+
+  requested <- character()
+  suppressMessages(deployApp(
+    appDir,
+    appId = ide$appId,
+    account = "myaccount",
+    server = "example.com",
+    logLevel = "quiet",
+    lint = FALSE,
+    launch.browser = FALSE
+  ))
+  expect_equal(requested, "/v1/content/guid-42")
+  expect_equal(readDeployments(appDir)$appGuid, "guid-42")
+})
+
 test_that("fresh shinyapps.io deploy uploads to a newly created app, not an existing one", {
   skip_on_cran()
   appDir <- local_temp_app(list("app.R" = "library(shiny)"))
@@ -1130,7 +1236,9 @@ test_that("redeploy to Connect makes new content when the recorded content was d
   ))
 
   expect_equal(uploaded_guid, "guid-new")
-  expect_equal(deployments(appDir)$appId, "99")
+  record <- readDeployments(appDir)
+  expect_equal(record$appId, "99")
+  expect_equal(record$appGuid, "guid-new")
 })
 
 test_that("redeploy to shinyapps.io with upload = FALSE deploys the current bundle", {

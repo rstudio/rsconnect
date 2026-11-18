@@ -5,7 +5,7 @@ findDeployment <- function(
   account = NULL,
   error_call = caller_env()
 ) {
-  deps <- deployments(
+  deps <- readDeployments(
     appPath,
     nameFilter = appName,
     serverFilter = server,
