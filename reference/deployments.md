@@ -47,13 +47,14 @@ deployments(
 
 Returns a data frame with at least the following columns:
 
-|                  |                                             |
-|------------------|---------------------------------------------|
-| `name`           | Name of deployed application                |
-| `account`        | Account owning deployed application         |
-| `bundleId`       | Identifier of deployed application's bundle |
-| `url`            | URL of deployed application                 |
-| `deploymentFile` | Name of configuration file                  |
+|  |  |
+|----|----|
+| `name` | Name of deployed application |
+| `account` | Account owning deployed application |
+| `appId` | Identifier of deployed application. For Posit Connect content, this is the content guid (`appGuid`) when the record has one. |
+| `bundleId` | Identifier of deployed application's bundle |
+| `url` | URL of deployed application |
+| `deploymentFile` | Name of configuration file |
 
 If additional metadata has been saved with the deployment record using
 the `metadata` argument to
