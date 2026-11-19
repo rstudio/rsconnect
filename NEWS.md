@@ -1,4 +1,4 @@
-# rsconnect (development version)
+# rsconnect 1.12.0
 
 * `writeManifest()` and `deployApp()` now use all R constraints in the
   `Depends` field of a `DESCRIPTION` file. For example,
