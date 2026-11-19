@@ -2,6 +2,8 @@
 
 ## rsconnect (development version)
 
+## rsconnect 1.12.0
+
 - [`writeManifest()`](https://rstudio.github.io/rsconnect/dev/reference/writeManifest.md)
   and
   [`deployApp()`](https://rstudio.github.io/rsconnect/dev/reference/deployApp.md)

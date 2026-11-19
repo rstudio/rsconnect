@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsconnect</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.11.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.12.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="rsconnect-development-version">rsconnect (development version)<a class="anchor" aria-label="anchor" href="#rsconnect-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.12.0" id="rsconnect-1120">rsconnect 1.12.0<a class="anchor" aria-label="anchor" href="#rsconnect-1120"></a></h2>
 <ul><li><p><code><a href="../reference/writeManifest.html">writeManifest()</a></code> and <code><a href="../reference/deployApp.html">deployApp()</a></code> now use all R constraints in the <code>Depends</code> field of a <code>DESCRIPTION</code> file. For example, <code>Depends: R (&gt;= 4.2.0), R (&lt; 4.3)</code> gives <code>"&gt;= 4.2.0, &lt; 4.3"</code> in <code>manifest.json</code>. Before, rsconnect used only the first constraint. R does not accept two constraints in one entry, such as <code>R (&gt;= 4.2.0, &lt; 4.3)</code>. rsconnect now ignores this form and gives a warning (<a href="https://github.com/rstudio/rsconnect/issues/1364" class="external-link">#1364</a>).</p></li>
 <li><p>rsconnect now reads an R constraint with no space after R, such as <code>R(&gt;= 4.2.0)</code>. It no longer reads a package whose name ends in “R”, such as <code>fooR (&gt;= 1.0)</code>, as an R constraint (<a href="https://github.com/rstudio/rsconnect/issues/1364" class="external-link">#1364</a>).</p></li>
 <li><p>Deployment records for Posit Connect content include the content GUID, in a new <code>appGuid</code> field. Redeploys and <code><a href="../reference/syncAppMetadata.html">syncAppMetadata()</a></code> use it to look up content with the v1 content API, and <code><a href="../reference/deployments.html">deployments()</a></code> reports it as <code>appId</code>. <code>deployApp(appId = )</code> accepts either the GUID or the numeric id. Records without an <code>appGuid</code> look up content by numeric id, and gain an <code>appGuid</code> the next time they are deployed or synced (<a href="https://github.com/rstudio/rsconnect/issues/1374" class="external-link">#1374</a>).</p></li>
